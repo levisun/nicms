@@ -1,0 +1,49 @@
+{:$home.bare}
+{:$const.NP_VERSION}
+{:$cookie.bare}
+
+{tag:foreach $list as $key => $vo}
+<a href="$key">$vo</a>
+{/tag}
+
+<font style="font-size: 12px;">font</font>
+<a href="javascript:alert(123)"onclick = " alert(222);">de</a>
+
+
+
+<button type="button" class="layui-btn" id="test1">
+    <i class="layui-icon">&#xe67c;</i>上传图片
+</button>
+
+
+<script>
+window.onload=function(){
+    layui.use(['nicms', 'upload'], function(){
+        var nc = layui.nicms;
+        var upload = layui.upload;
+
+        //执行实例
+        var uploadInst = upload.render({
+            elem: '#test1', //绑定元素
+            url: NICMS.api.url + '/upload/cms.do', //上传接口
+            accept: 'file',
+            exts: 'gif|jpg|png|zip|rar',
+            size: 300,
+            data: {
+                method: 'upload.file.save',
+                input_name: 'file',
+                sign: nc.sign({
+                    method: 'upload.file.save'
+                })
+            },
+            headers: nc.reqHeaders(),
+            done: function(res){
+              //上传完毕回调
+            },
+            error: function(){
+                  //请求异常回调
+            }
+        });
+    });
+}
+</script>

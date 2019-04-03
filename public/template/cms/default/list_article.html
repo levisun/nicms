@@ -1,0 +1,49 @@
+<div class="layui-row">
+    {:include file="sideber"}
+    <div id="lists" class="layui-col-md7">
+        {:include file="breadcrumb"}
+        <table class="layui-table" lay-even lay-skin="nob">
+            <template v-for="vo in lists">
+            <tr>
+                <td>
+                    <span class="layui-badge layui-bg-blue" v-text="vo.cat_name"></span>
+                    <a v-bind:href="vo.url" v-text="vo.title"></a>
+                </td>
+                <td>
+                    <time v-text="vo.update_time"></time>
+                </td>
+            </tr>
+            </template>
+        </table>
+    </div>
+    <div class="layui-col-md2">
+        123
+    </div>
+</div>
+
+<script>
+window.onload=function(){
+    layui.use(['jquery', 'nicms', 'table'], function(){
+        var nc = layui.nicms;
+        var table = layui.table;
+        nc.pjax({
+            url: NICMS.api.url + '/cms.do',
+            method: 'get',
+            data: {
+                method: 'article.lists.query',
+                cid: NICMS.param.cid
+            },
+            success: function(result) {
+                if (result.code == 'SUCCESS') {
+                    new Vue({
+                        el: "#lists",
+                        data: {
+                            lists: result.data.list
+                        }
+                    });
+                }
+            }
+        });
+    });
+}
+</script>

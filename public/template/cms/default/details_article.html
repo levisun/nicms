@@ -1,0 +1,56 @@
+<div class="layui-row">
+    {:include file="sideber"}
+    <div id="article" class="layui-col-md7">
+        {:include file="breadcrumb"}
+        <div id="article-content">
+            <h1 id="article-title" v-text="details.title"></h1>
+            <div id="article-details" v-html="details.content"></div>
+            <div id="article-oth"></div>
+        </div>
+    </div>
+    <div class="layui-col-md2">
+        123
+    </div>
+</div>
+<script>
+window.onload=function(){
+    layui.use(['nicms'], function(){
+        // var jQuery = layui.jquery;
+        var nc = layui.nicms;
+
+        nc.pjax({
+            url: NICMS.api.url + '/cms.do',
+            method: 'get',
+            data: {
+                method: 'article.details.query',
+                id: NICMS.param.id
+            },
+            success: function(result) {
+                if (result.code == 'SUCCESS') {
+                    new Vue({
+                        el: "#article",
+                        data: {
+                            details: result.data
+                        }
+                    });
+                }
+            }
+        });
+
+        nc.pjax({
+            url: NICMS.api.url + '/cms.do',
+            method: 'get',
+            data: {
+                method: 'article.details.hits',
+                id: NICMS.param.id
+            },
+            success: function(result) {
+                if (result.code == 'SUCCESS') {
+
+                }
+            }
+        });
+
+    });
+}
+</script>
