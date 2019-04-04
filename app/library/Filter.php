@@ -20,7 +20,7 @@ use think\exception\HttpException;
 class Filter
 {
 
-    public static function default($_data, $_strict = true)
+    public static function default($_data, bool $_strict = true)
     {
         if (is_array($_data)) {
             foreach ($_data as $key => $value) {
@@ -141,7 +141,7 @@ class Filter
             '/(eval)/si'                 => 'ev&#97;l',
             '/(exec)/si'                 => 'ex&#101;c',
             '/(passthru)/si'             => 'pa&#115;sthru',
-            // '/(php)/si'                  => 'ph&#112;',
+            '/(php)/si'                  => 'ph&#112;',
             '/(phpinfo)/si'              => 'ph&#112;info',
             '/(proc_open)/si'            => 'pr&#111;c_open',
             '/(popen)/si'                => 'po&#112;en',

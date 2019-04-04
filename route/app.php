@@ -14,22 +14,15 @@ use think\facade\Request;
 use think\facade\Route;
 
 Route::pattern([
-    'cid' => '\d+',
-    'id' => '\d+',
+    'cid'  => '\d+',
+    'id'   => '\d+',
     'code' => '\d+',
 ]);
-
-Route::get('think', function () {
-    return 'hello,ThinkPHP5!';
-});
-
-// Request::server('HTTP_IF_MODIFIED_SINCE', gmdate('D, d M Y H:i:s') . ' GMT');
-// print_r($_SERVER);die();
 
 
 
 // 错误页面
-// Route::miss('abort/error');
+Route::miss('abort/error');
 Route::rule('404', 'abort/_404');
 // Route::rule('authority', 'abort/authority');
 
@@ -38,6 +31,9 @@ Route::domain('www', function(){
     Route::get('index', 'cms/index');
     Route::get('list/:name/:cid$', 'cms/lists');
     Route::get('details/:name/:cid/:id$', 'cms/details');
+
+    Route::get('book', 'book/index');
+    Route::get('book/api', 'book/api');
 })
 ->bind('cms')
 ->cache(Config::get('cache.expire'))
@@ -51,7 +47,7 @@ Route::domain('admin', function(){
     Route::get(':logic/:controller/:action/:id$', 'admin/index');
 })
 ->bind('admin')
-->ext('html');
+->ext('action');
 
 
 

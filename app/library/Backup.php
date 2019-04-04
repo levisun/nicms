@@ -30,7 +30,7 @@ class Backup
     {
         if (Request::isGet() && !in_array(Request::subDomain(), ['admin', 'api', 'cdn'])) {
             Log::record('[BACKUP] 备份', 'alert');
-            $this->savePath = app()->getRuntimePath() . DIRECTORY_SEPARATOR .
+            $this->savePath = app()->getRuntimePath() .
                                 'backup' . Base64::flag() . DIRECTORY_SEPARATOR .
                                 'sys_auto' . DIRECTORY_SEPARATOR;
 
@@ -59,8 +59,8 @@ class Backup
                         $this->queryTableInsert($name);
                     }
                 }
+                unlink($this->savePath . 'backup.lock');
             }
-            unlink($this->savePath . 'backup.lock');
             ignore_user_abort(false);
             clearstatcache();
         }
@@ -69,7 +69,7 @@ class Backup
     public function run(string $_tag = '')
     {
 
-        $this->savePath = app()->getRuntimePath() . DIRECTORY_SEPARATOR .
+        $this->savePath = app()->getRuntimePath() .
                             'backup' . Base64::flag() . DIRECTORY_SEPARATOR .
                             date('ymdH') . $_tag . DIRECTORY_SEPARATOR;
 

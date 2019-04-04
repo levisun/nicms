@@ -38,33 +38,20 @@ class Cms extends Template
     {
         parent::__construct();
 
-        $this->theme = 'cms' . DIRECTORY_SEPARATOR . Siteinfo::theme() . DIRECTORY_SEPARATOR;
+        $this->setTheme('cms/' . Siteinfo::theme());
         $tpl_path = Config::get('app.cdn_host') . '/template/' . 'cms' . '/' . Siteinfo::theme() . '/';
-
-        $this->templateReplace = [
-            '{:__CSS__}'         => $tpl_path . 'css/',
-            '{:__IMG__}'         => $tpl_path . 'img/',
-            '{:__JS__}'          => $tpl_path . 'js/',
-            '{:__STATIC__}'      => Config::get('app.cdn_host') . '/static/',
-            '{:__TITLE__}'       => Siteinfo::title(),
-            '{:__KEYWORDS__}'    => Siteinfo::keywords(),
-            '{:__DESCRIPTION__}' => Siteinfo::description(),
-            '{:__BOTTOM_MSG__}'  => Siteinfo::bottom(),
-            '{:__COPYRIGHT__}'   => Siteinfo::copyright(),
-            '{:__SCRIPT__}'      => Siteinfo::script(),
-        ];
-
-        // if (isWechat() && Request::subDomain() !== 'wechat') {
-        //     $url = Request::scheme() . '://wechat.' . Request::rootDomain() . Request::root();
-        //     $response = Response::create($url, 'redirect', 302);
-        //     throw new HttpResponseException($response);
-        // }
-
-        // elseif (Request::isMobile() && Request::subDomain() !== 'm') {
-        //     $url = Request::scheme() . '://m.' . Request::rootDomain() . Request::root();
-        //     $response = Response::create($url, 'redirect', 302);
-        //     throw new HttpResponseException($response);
-        // }
+        $this->setReplace([
+            'theme'       => $tpl_path,
+            'css'         => $tpl_path . 'css/',
+            'img'         => $tpl_path . 'img/',
+            'js'          => $tpl_path . 'js/',
+            'title'       => Siteinfo::title(),
+            'keywords'    => Siteinfo::keywords(),
+            'description' => Siteinfo::description(),
+            'bottom_msg'  => Siteinfo::bottom(),
+            'copyright'   => Siteinfo::copyright(),
+            'script'      => Siteinfo::script(),
+        ]);
     }
 
     /**

@@ -43,31 +43,16 @@ class Template
      * 主题
      * @var string
      */
-    public $theme = '';
+    protected $theme = '';
 
     /**
      * 替换变量
      * @var string
      */
-    public $templateReplace = [
-        '{:__CSS__}'         => '',
-        '{:__IMG__}'         => '',
-        '{:__JS__}'          => '',
-        '{:__STATIC___}'     => '',
-        '{:__TITLE__}'       => '',
-        '{:__KEYWORDS__}'    => '',
-        '{:__DESCRIPTION__}' => '',
-        '{:__BOTTOM_MSG__}'  => '',
-        '{:__COPYRIGHT__}'   => '',
-    ];
+    protected $templateReplace = [];
 
-    /**
-     * 模板配置
-     * @var string
-     */
-    private $config = [];
 
-    public $varData = [];
+    protected $varData = [];
 
     /**
      * 架构函数
@@ -80,17 +65,41 @@ class Template
         $this->templatePath .= 'template' . DIRECTORY_SEPARATOR;
 
         $this->buildPath  = app()->getRuntimePath() . 'html' . Base64::flag() . DIRECTORY_SEPARATOR;
-        $this->buildPath .= Request::subDomain() . DIRECTORY_SEPARATOR;
         $this->buildPath .= Lang::detect() . DIRECTORY_SEPARATOR;
+        $this->buildPath .= str_replace('.', '_', Request::subDomain()) . DIRECTORY_SEPARATOR;
+
+        $this->setReplace([
+            'theme'       => Config::get('app.cdn_host') . '/template/theme/',
+            'css'         => Config::get('app.cdn_host') . '/template/css/',
+            'img'         => Config::get('app.cdn_host') . '/template/img/',
+            'js'          => Config::get('app.cdn_host') . '/template/js/',
+            'static'      => Config::get('app.cdn_host') . '/static/',
+            'title'       => 'nicms',
+            'keywords'    => 'nicms',
+            'description' => 'nicms',
+            'bottom_msg'  => '',
+            'copyright'   => '',
+            'script'      => '',
+        ]);
     }
 
-    public function assign(array $_vars = [])
+    /**
+     * [assign description]
+     * @param  array  $_vars [description]
+     * @return [type]        [description]
+     */
+    protected function assign(array $_vars = [])
     {
         $this->varData = array_merge($this->varData, $_vars);
         return $this;
     }
 
-    public function fetch(string $_template = '')
+    /**
+     * [fetch description]
+     * @param  string $_template [description]
+     * @return [type]            [description]
+     */
+    protected function fetch(string $_template = '')
     {
         // 页面缓存
         ob_start();
@@ -138,6 +147,32 @@ class Template
     }
 
     /**
+     * 设置模板替换字符
+     * @access protected
+     * @param  array $_replace
+     * @return void
+     */
+    protected function setReplace(array $_replace)
+    {
+        $rep = [];
+        foreach ($_replace as $key => $value) {
+            $rep['{:__' . strtoupper($key) . '__}'] = $value;
+        }
+        $this->templateReplace = array_merge($this->templateReplace, $rep);
+    }
+
+    /**
+     * 设置模板主题
+     * @access protected
+     * @param  string $_name
+     * @return void
+     */
+    protected function setTheme(string $_name)
+    {
+        $this->theme = str_replace('/', DIRECTORY_SEPARATOR, $_name) . DIRECTORY_SEPARATOR;
+    }
+
+    /**
      * 解析foot
      * @access private
      * @param
@@ -145,33 +180,7 @@ class Template
      */
     private function parseTemplateFoot(): string
     {
-        list($root) = explode('.', Request::rootDomain(), 2);
-
-        $foot = '<script type="text/javascript">' .
-        'var NICMS = {' .
-            'domain:"' . '//' . Request::rootDomain() . Request::root() . '",' .
-            'api:{' .
-                'url:"' . Config::get('app.api_host') . '",'.
-                'root:"' . $root . '",' .
-                'version:"' . $this->templateConfig['api_version'] . '",' .
-                'authorization:"{:__AUTHORIZATION__}"' .
-            '},' .
-            'cdn:{' .
-                'css:"' . $this->templateReplace['{:__CSS__}'] . '",' .
-                'img:"' . $this->templateReplace['{:__IMG__}'] . '",' .
-                'js:"' . $this->templateReplace['{:__JS__}'] . '",' .
-                'static:"' . $this->templateReplace['{:__STATIC__}'] . '",' .
-            '},' .
-            'url:"' . url() . '",' .
-            'param:' . json_encode(Request::param()) . ',' .
-            'window: {' .
-                'width:document.documentElement.clientWidth,' .
-                'height:document.documentElement.clientHeight' .
-            '}' .
-        '};' .
-        '</script>';
-        unset($root);
-
+        $foot = '';
         if (!empty($this->templateConfig['js'])) {
             foreach ($this->templateConfig['js'] as $js) {
                 // $script = file_get_contents($js);
@@ -209,9 +218,9 @@ class Template
         '<meta name="force-rendering" content="webkit" />' .
         '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' .
 
-        '<meta name="generator" content="NiPHP" />' .
+        '<meta name="generator" content="nicms" />' .
         '<meta name="author" content="失眠小枕头 levisun.mail@gmail.com" />' .
-        '<meta name="copyright" content="2013-' . date('Y') . ' NiPHP 失眠小枕头" />' .
+        '<meta name="copyright" content="2013-' . date('Y') . ' nicms 失眠小枕头" />' .
 
         '<meta http-equiv="Window-target" content="_blank">' .
         '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' .
@@ -250,6 +259,40 @@ class Template
             }
         }
 
+        list($root) = explode('.', Request::rootDomain(), 2);
+        $head .= '<script type="text/javascript">' .
+        'var NICMS = {' .
+            'domain:"' . '//' . Request::subDomain() . '.' . Request::rootDomain() . Request::root() . '",' .
+            'api:{' .
+                'url:"' . Config::get('app.api_host') . '",'.
+                'root:"' . $root . '",' .
+                'version:"' . $this->templateConfig['api_version'] . '",' .
+                'authorization:"{:__AUTHORIZATION__}"' .
+            '},' .
+            'cdn:{' .
+                'theme:"' . $this->templateReplace['{:__THEME__}'] . '",' .
+                'css:"' . $this->templateReplace['{:__CSS__}'] . '",' .
+                'img:"' . $this->templateReplace['{:__IMG__}'] . '",' .
+                'js:"' . $this->templateReplace['{:__JS__}'] . '",' .
+                'static:"' . $this->templateReplace['{:__STATIC__}'] . '",' .
+            '},' .
+            'url:"' . url() . '",' .
+            'param:' . json_encode(Request::param()) . ',' .
+            'window: {' .
+                'width:document.documentElement.clientWidth,' .
+                'height:document.documentElement.clientHeight' .
+            '}' .
+        '};';
+        if (!Request::isMobile()) {
+            $sub = Request::subDomain() == 'www' ? 'm.' : 'm.' . Request::subDomain() . '.';
+            $head .= 'if (navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i)) {' .
+                'location.replace("//' . $sub . Request::rootDomain() . Request::root() . '");' .
+            '}';
+            unset($sub);
+        }
+        $head .= '</script>';
+        unset($root);
+
         return $head . '</head><body>';
     }
 
@@ -266,14 +309,15 @@ class Template
         $url = implode('-', $url);
         $url = $url ? $url . '.html' : 'index.html';
 
-        $expire = Config::get('cache.expire');
-        if (APP_DEBUG === true) {
-            return '';
-        } elseif (is_file($this->buildPath . $url) && filemtime($this->buildPath . $url) >= time() - rand($expire, $expire*2)) {
-            return file_get_contents($this->buildPath . $url);
-        } else {
-            return '';
+        if (APP_DEBUG === false) {
+            $expire = Config::get('cache.expire');
+            $url = $this->buildPath . $url;
+            if (is_file($url) && filemtime($url) >= time() - rand($expire, $expire*2)) {
+                return file_get_contents($url);
+            }
         }
+
+        return '';
     }
 
     /**

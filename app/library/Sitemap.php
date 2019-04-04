@@ -17,6 +17,7 @@ namespace app\library;
 
 use think\App;
 use think\facade\Lang;
+use think\facade\Log;
 use think\facade\Request;
 use app\model\Article as ModelArticle;
 use app\model\Category as ModelCategory;
@@ -26,72 +27,74 @@ class Sitemap
 
     public function handle($event, App $app)
     {
-        $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemap.xml';
-        if (is_file($path) && filemtime($path) < strtotime('-1 days')) {
-            Log::record('[SITEMAP] 网站地图', 'alert');
+        if (Request::isGet() && !in_array(Request::subDomain(), ['admin', 'api', 'cdn'])) {
+            $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemap.xml';
+            if (is_file($path) && filemtime($path) < strtotime('-1 days')) {
+                Log::record('[SITEMAP] 网站地图', 'alert');
 
-            $category =
-            ModelCategory::view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-            ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
-            ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
-            ->where([
-                ['c.is_show', '=', 1],
-                ['c.model_id', 'in', [1,2,3]]
-            ])
-            ->order('c.sort_order ASC, c.id DESC')
-            ->select()
-            ->toArray();
-
-            $sitemap_xml = [];
-            foreach ($category as $vo_cate) {
-                $article =
-                ModelArticle::view('article article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-                ->view('article_content article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
-                ->view('category category', ['name' => 'cat_name'], 'category.id=article.category_id')
-                ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id')
-                ->view('level level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
-                ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
+                $category =
+                ModelCategory::view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+                ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
+                ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
                 ->where([
-                    ['article.category_id', '=', $vo_cate['id']],
-                    ['article.is_pass', '=', '1'],
-                    ['article.show_time', '<=', time()],
+                    ['c.is_show', '=', 1],
+                    ['c.model_id', 'in', [1,2,3]]
                 ])
-                ->order('article.id DESC')
-                ->limit(100)
+                ->order('c.sort_order ASC, c.id DESC')
                 ->select()
                 ->toArray();
-                $article_xml = [];
-                $category_xml = [];
-                foreach ($article as $vo_art) {
-                    $article_xml[]['url'] = [
-                        'loc'        => url('details/' . $vo_art['action_name'] . '/' . $vo_art['category_id'] . '/' . $vo_art['id']),
-                        'lastmod'    => date('Y-m-d H:i:s', $vo_art['update_time']),
-                        'changefreq' => 'weekly',
-                        'priority'   => '0.8',
-                    ];
 
-                    $category_xml[]['url'] = [
-                        'loc'        => url('list/' . $vo_cate['action_name'] . '/' . $vo_cate['id']),
-                        'lastmod'    => date('Y-m-d H:i:s', $vo_art['update_time']),
-                        'changefreq' => 'daily',
-                        'priority'   => '1.0',
-                    ];
-                }
-                if ($article_xml) {
-                    self::create($article_xml, 'sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
-                    self::create($category_xml, 'sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
+                $sitemap_xml = [];
+                foreach ($category as $vo_cate) {
+                    $article =
+                    ModelArticle::view('article article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+                    ->view('article_content article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
+                    ->view('category category', ['name' => 'cat_name'], 'category.id=article.category_id')
+                    ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id')
+                    ->view('level level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
+                    ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
+                    ->where([
+                        ['article.category_id', '=', $vo_cate['id']],
+                        ['article.is_pass', '=', '1'],
+                        ['article.show_time', '<=', time()],
+                    ])
+                    ->order('article.id DESC')
+                    ->limit(100)
+                    ->select()
+                    ->toArray();
+                    $article_xml = [];
+                    $category_xml = [];
+                    foreach ($article as $vo_art) {
+                        $article_xml[]['url'] = [
+                            'loc'        => url('details/' . $vo_art['action_name'] . '/' . $vo_art['category_id'] . '/' . $vo_art['id']),
+                            'lastmod'    => date('Y-m-d H:i:s', $vo_art['update_time']),
+                            'changefreq' => 'weekly',
+                            'priority'   => '0.8',
+                        ];
 
-                    $sitemap_xml[]['sitemap'] = [
-                        'loc'     => Request::domain() . 'sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
-                        'lastmod' => date('Y-m-d H:i:s')
-                    ];
-                    $sitemap_xml[]['sitemap'] = [
-                        'loc'     => Request::domain() . 'sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
-                        'lastmod' => date('Y-m-d H:i:s')
-                    ];
+                        $category_xml[]['url'] = [
+                            'loc'        => url('list/' . $vo_cate['action_name'] . '/' . $vo_cate['id']),
+                            'lastmod'    => date('Y-m-d H:i:s', $vo_art['update_time']),
+                            'changefreq' => 'daily',
+                            'priority'   => '1.0',
+                        ];
+                    }
+                    if ($article_xml) {
+                        self::create($article_xml, 'sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
+                        self::create($category_xml, 'sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
+
+                        $sitemap_xml[]['sitemap'] = [
+                            'loc'     => Request::domain() . 'sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
+                            'lastmod' => date('Y-m-d H:i:s')
+                        ];
+                        $sitemap_xml[]['sitemap'] = [
+                            'loc'     => Request::domain() . 'sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
+                            'lastmod' => date('Y-m-d H:i:s')
+                        ];
+                    }
                 }
+                self::create($sitemap_xml, 'sitemap.xml');
             }
-            self::create($sitemap_xml, 'sitemap.xml');
         }
     }
 

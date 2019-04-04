@@ -19,8 +19,13 @@
 namespace think;
 
 define('APP_DEBUG', true);
-define('NP_VERSION', '1.5.3CB');
+define('NP_VERSION', '1.0.1CB');
 define('TP_VERSION', '5.2.0RC1');
+
+// 请勿修改密钥
+// 此密钥用于字符串、ID标识、flag标识等加密解密
+// 修改会造成不可逆转的未知错误
+define('AUTHKEY', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01');
 
 version_compare(PHP_VERSION, '7.1.0', '>=') or die('系统需要PHP7.1以上版本! 当前PHP版本:' . PHP_VERSION . '.');
 extension_loaded('pdo') or die('请开启 pdo 模块!');

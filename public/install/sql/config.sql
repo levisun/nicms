@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `np_config` (
   `value` varchar(500) NOT NULL DEFAULT '' COMMENT '值',
   `lang` varchar(10) NOT NULL DEFAULT '' COMMENT '语言 niphp为全局设置',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`),
+  KEY `name` (`name`) USING BTREE,
   KEY `value` (`value`) USING BTREE,
   KEY `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='设置表';

@@ -139,37 +139,6 @@ function imgUrl(string $_img, int $_size = 200, string $_water = ''): string
     return Config::get('app.cdn_host') . $_img;
 }
 
-function formatNumber(int $_number, string $_type = 'date')
-{
-    if ($_type == 'date') {
-        if ($_number >= 31104000) {
-            $format = ceil($_number / 31104000) . '年前';
-        } elseif ($_number >= 2592000) {
-            $format = ceil($_number / 2592000) . '月前';
-        } elseif ($_number >= 86400) {
-            $format = ceil($_number / 86400) . '日前';
-        } elseif ($_number >= 3600) {
-            $format = ceil($_number / 3600) . '时前';
-        } else {
-            $format = ceil($_number / 60) . '分前';
-        }
-    }
-
-    elseif ($_type == 'number') {
-        if ($_number >= 10000000) {
-            $format = number_format($_number / 10000000, 2) . '千万';
-        } elseif ($_number >= 10000) {
-            $format = number_format($_number / 10000, 2) . '万';
-        } elseif ($_number >= 1000) {
-            $format = number_format($_number / 1000, 2) . '千';
-        } elseif ($_number >= 100) {
-            $format = number_format($_number / 100, 2) . '百';
-        } else {
-            $format = $_number;
-        }
-    }
-}
-
 /**
  * Emoji原形转换为String
  * @param  string $_str

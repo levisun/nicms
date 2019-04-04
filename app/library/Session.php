@@ -13,14 +13,16 @@
  */
 namespace app\library;
 
-use SessionHandlerInterface;
 use think\facade\Config;
+use think\session\SessionHandler;
 use app\model\Session as ModelSession;
 
-class Session implements SessionHandlerInterface
+class Session implements SessionHandler
 {
-    private $prefix;
-    private $expire;
+    private $config = [
+        'expire' => 0,
+        'prefix' => '',
+    ];
 
     /**
      * 构造方法
@@ -28,130 +30,78 @@ class Session implements SessionHandlerInterface
      * @param
      * @return void
      */
-    public function __construct($_config = [])
+    public function __construct($config = [])
     {
-        $this->config = !empty($_config) ? $_config : Config::get('session');
-
-        $this->prefix = Config::get('session.prefix');
-        $this->expire = Config::get('session.expire');
-    }
-
-    /**
-     * 打开Session
-     * @access public
-     * @param  string    $_savePath
-     * @param  mixed     $_sessName
-     * @return boolean
-     */
-    public function open($_savePath, $_sessName): bool
-    {
-        return true;
-    }
-
-    /**
-     * 关闭Session
-     * @access public
-     * @param
-     * @return boolean
-     */
-    public function close(): bool
-    {
-        $this->gc(ini_get('session.gc_maxlifetime'));
-        return true;
+        $this->config = array_merge($this->config, $config);
     }
 
     /**
      * 读取Session
      * @access public
-     * @param  string $_sessID
-     * @return mixed
+     * @param  string $sessID
+     * @return string
      */
-    public function read($_sessID)
+    public function read(string $sessID): string
     {
         $map = [
-            ['session_id', '=', $this->prefix . $_sessID]
+            ['session_id', '=', $this->config['prefix'] . $sessID]
         ];
 
-        if ($this->expire != 0) {
-            $map[] = ['update_time', '>=', time() - $this->expire];
+        if ($this->config['expire'] != 0) {
+            $map[] = ['update_time', '>=', time() - $this->config['expire']];
         }
-        $result =
-        ModelSession::where($map)
-        ->value('data');
 
-        return $result ? $result : '';
+        return
+        ModelSession::where($map)
+        ->value('data', '');
     }
 
     /**
      * 写入Session
      * @access public
-     * @param  string    $_sessID
-     * @param  string    $_sessData
-     * @return bool
+     * @param  string $sessID
+     * @param  string $data
+     * @return array
      */
-    public function write($_sessID, $_sessData): bool
+    public function write(string $sessID, string $data): bool
     {
         $result =
         ModelSession::where([
-            ['session_id', '=', $this->prefix . $_sessID]
+            ['session_id', '=', $this->config['prefix'] . $sessID]
         ])
-        ->find()
-        ->toArray();
+        ->find();
 
         $data = [
-            'session_id'  => $this->prefix . $_sessID,
-            'data'        => $_sessData ? $_sessData : '',
+            'session_id'  => $this->config['prefix'] . $sessID,
+            'data'        => $data ? $data : '',
             'update_time' => time()
         ];
 
         if (!empty($result)) {
             ModelSession::where([
-                ['session_id', '=', $this->prefix . $_sessID],
+                ['session_id', '=', $this->config['prefix'] . $sessID],
             ])
             ->update($data);
-            return !!ModelSession::getNumRows();
+            $result = !!ModelSession::getNumRows();
         } else {
             ModelSession::insert($data);
-            return !!ModelSession::getNumRows();
+            $result = !!ModelSession::getNumRows();
         }
+
+        return !!$result;
     }
 
     /**
      * 删除Session
      * @access public
-     * @param  string $_sessID
+     * @param  string $sessID
      * @return bool
      */
-    public function destroy($_sessID): bool
+    public function delete(string $sessID): bool
     {
         ModelSession::where([
-            ['session_id', '=', $this->prefix . $_sessID]
+            ['session_id', '=', $this->config['prefix'] . $sessID]
         ])
-        ->delete();
-        return !!ModelSession::getNumRows();
-
-    }
-
-    /**
-     * Session 垃圾回收
-     * @access public
-     * @param  string $sessMaxLifeTime
-     * @return true
-     */
-    public function gc($_sessMaxLifeTime): bool
-    {
-        if ($this->expire != 0) {
-            $map = [
-                ['update_time', '<=', time() - $this->expire]
-            ];
-        } else {
-            $_sessMaxLifeTime = $_sessMaxLifeTime ? $_sessMaxLifeTime : 86400;
-            $map = [
-                ['update_time', '<=', time() - $_sessMaxLifeTime]
-            ];
-        }
-
-        ModelSession::where($map)
         ->delete();
         return !!ModelSession::getNumRows();
     }

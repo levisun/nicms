@@ -155,7 +155,7 @@ class Siteinfo
      */
     public static function copyright(): string
     {
-        $result =
+        $copyright =
         ModelConfig::where([
             ['name', '=', Request::controller(true) . '_copyright'],
             ['lang', '=', Lang::detect()]
@@ -163,7 +163,16 @@ class Siteinfo
         ->cache(__METHOD__ . Request::controller(true) . '_copyright' . Lang::detect(), null, 'SITEINFO')
         ->value('value', '');
 
-        return htmlspecialchars_decode($result) . '<p>Powered by <a href="http://www.niphp.com" target="_blank" rel="nofollow">NiPHP</a></p>';
+        $beian =
+        ModelConfig::where([
+            ['name', '=', Request::controller(true) . '_beian'],
+            ['lang', '=', Lang::detect()]
+        ])
+        ->cache(__METHOD__ . Request::controller(true) . '_beian' . Lang::detect(), null, 'SITEINFO')
+        ->value('value', '备案号');
+
+        return htmlspecialchars_decode($copyright) .
+                '<p><a href="http://www.miitbeian.gov.cn" target="_blank" rel="nofollow">' . $beian . '</a> Powered by <a href="http://www.niphp.com" target="_blank" rel="nofollow">nicms</a></p>';
     }
 
     /**

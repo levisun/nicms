@@ -25,10 +25,16 @@ class Login extends Base
 
     public function login(): arrray
     {
-        if ($result = $this->__authenticate('account', 'login', 'login')) {
-            return $result
-        }
 
+    }
 
+    public function logout(): array
+    {
+        # code...
+    }
+
+    public function forget(): array
+    {
+        # code...
     }
 }

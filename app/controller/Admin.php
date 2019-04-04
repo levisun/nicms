@@ -15,8 +15,9 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
+use think\Response;
+use think\exception\HttpResponseException;
 use think\facade\Config;
-use think\facade\Response;
 use app\library\Rbac;
 use app\library\Template;
 
@@ -33,33 +34,28 @@ class admin extends Template
     {
         parent::__construct();
 
-        $this->theme = 'admin' . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR;
-        $tpl_path = Config::get('app.cdn_host') . '/template/' . 'admin' . '/' . 'default' . '/';
-
-        $this->templateReplace = [
-            '{:__CSS__}'         => $tpl_path . 'css/',
-            '{:__IMG__}'         => $tpl_path . 'img/',
-            '{:__JS__}'          => $tpl_path . 'js/',
-            '{:__STATIC__}'      => Config::get('app.cdn_host') . '/static/',
-            '{:__TITLE__}'       => 'NICMS',
-            '{:__KEYWORDS__}'    => 'NICMS',
-            '{:__DESCRIPTION__}' => 'NICMS',
-            '{:__BOTTOM_MSG__}'  => 'NICMS',
-            '{:__COPYRIGHT__}'   => 'NICMS',
-            '{:__SCRIPT__}'      => '',
-        ];
+        $this->setTheme('admin/default');
+        $tpl_path = Config::get('app.cdn_host') . '/template/admin/default/';
+        $this->setReplace([
+            'theme'       => $tpl_path,
+            'css'         => $tpl_path . 'css/',
+            'img'         => $tpl_path . 'img/',
+            'js'          => $tpl_path . 'js/',
+        ]);
 
         // 开启session
         $session = Config::get('session');
         $session['auto_start'] = true;
         Config::set($session, 'session');
+        // session_start();
+        // session_write_close();
     }
 
     public function index(string $logic = 'account', string $controller = 'login', string $action = '')
     {
         $this->__authenticate($logic, $controller, $action);
 
-        $tpl = $logic . DIRECTORY_SEPARATOR . $controller;
+        $tpl  = $logic . DIRECTORY_SEPARATOR . $controller;
         $tpl .= $action ? DIRECTORY_SEPARATOR . $action : '';
 
         $this->fetch($tpl);
@@ -70,28 +66,25 @@ class admin extends Template
      */
     private function __authenticate(string $_logic, string $_controller, string $_action): void
     {
-        if (!in_array($_logic, ['account'])) {
-            // 用户权限校验
-            if (session('?admin_auth_key')) {
-                $result =
-                (new Rbac)->authenticate(
-                    session('admin_auth_key'),
-                    'admin',
-                    $_logic,
-                    $_controller,
-                    $_action
-                );
-            } else {
-                $result = false;
+        if (!in_array($_logic, ['account']) && session('?admin_auth_key')) {
+            $result =
+             (new Rbac)->authenticate(
+                session('admin_auth_key'),
+                'admin',
+                $_logic,
+                $_controller,
+                $_action
+            );
+            if ($result === false) {
+                $url = url('setting/info');
             }
-        } else {
-            $result = true;
+        } elseif (in_array($_logic, ['account']) && session('?admin_auth_key')) {
+            $url = url('setting/info');
         }
-
-        if (!$result) {
-            $url = url('account/login');
+        if (isset($url)) {
             $response = Response::create($url, 'redirect', 302);
             throw new HttpResponseException($response);
         }
+
     }
 }

@@ -15,6 +15,7 @@ declare (strict_types = 1);
 
 namespace app\logic\admin;
 
+use think\facade\Log;
 use think\facade\Request;
 use think\facade\Response;
 use app\logic\Rbac;
@@ -23,6 +24,14 @@ use app\model\ActionLog;
 
 class Base
 {
+
+    public function __construct()
+    {
+        $result = $this->__authenticate('account', 'user', 'login')
+        if ($result !== true) {
+            return $result
+        }
+    }
 
     /**
      * 记录操作日志
@@ -47,8 +56,9 @@ class Base
                 'module'    => 'admin',
                 'remark'    => $_msg,
             ]);
+        } else {
+            Log::record('未找到' . $_controller . '::' . $_action . '操作行为.', 'error');
         }
-
 
         ActionLog::where([
             ['create_time', '<=', strtotime('-7 days')]
@@ -64,29 +74,26 @@ class Base
      */
     protected function __authenticate(string $_logic, string $_controller, string $_action)
     {
-        if (!in_array($_logic, ['account'])) {
-            // 用户权限校验
-            if (session('?admin_auth_key')) {
-                $result =
-                (new Rbac)->authenticate(
-                    session('admin_auth_key'),
-                    'admin',
-                    $_logic,
-                    $_controller,
-                    $_action
-                );
-            } else {
-                $result = false;
-            }
-        } else {
-            $result = true;
+        if (in_array($_logic, ['account'])) {
+            return true;
         }
 
-        return $result ? false : [
-            'debug' => false,
-            'cache' => false,
-            'msg'   => Lang::get('authenticate error'),
-            'data'  => Request::param('', [], 'trim')
-        ];;
+        if (session('?admin_auth_key')) {
+            $result =
+            (new Rbac)->authenticate(
+                session('admin_auth_key'),
+                'admin',
+                $_logic,
+                $_controller,
+                $_action
+            );
+            return $result ? true : [
+                'debug' => false,
+                'cache' => false,
+                'msg'   => Lang::get('authenticate error')
+            ];
+        }
+
+        return false;
     }
 }
