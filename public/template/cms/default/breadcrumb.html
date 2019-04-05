@@ -4,6 +4,7 @@
         首页
     </a>
     <template v-for="vo in breadcrumb">
+    <span lay-separator="">/</span>
     <a v-bind:href="vo.url" v-text="vo.name"></a>
     </template>
 </div>

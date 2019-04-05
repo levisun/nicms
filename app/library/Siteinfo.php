@@ -147,6 +147,24 @@ class Siteinfo
     }
 
     /**
+     * 网站名称
+     * @access public
+     * @static
+     * @param
+     * @return string
+     */
+    public static function name(): string
+    {
+        return
+        ModelConfig::where([
+            ['name', '=', Request::controller(true) . '_sitename'],
+            ['lang', '=', Lang::detect()]
+        ])
+        ->cache(__METHOD__ . Request::controller(true) . '_sitename' . Lang::detect(), null, 'SITEINFO')
+        ->value('value', 'NICMS');
+    }
+
+    /**
      * 网站版权
      * @access public
      * @static

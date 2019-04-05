@@ -108,15 +108,22 @@ class Template
         if (!$content = $this->templateBuildRead()) {
             $this->templateConfig = $this->parseTemplateConfig();
             $content = file_get_contents($this->parseTemplateFile($_template));
+
+            // PHP代码安全
+            $content = Filter::FUN($content);
+
+            // 解析模板
             $content = $this->parseTemplateLayout($content);
             $content = $this->parseTemplateInclude($content);
             $content = $this->parseTemplateReplace($content);
             $content = $this->parseTemplateVars($content);
+            $content = $this->parseTemplateFunc($content);
             // $content = $this->parseTemplateTags($content);
 
-            // 去除html空格与换行与PHP代码安全
+            // 去除html空格与换行
+            $content = str_replace(' = ', '=', $content);
+            $content = str_replace('// ', '//', $content);
             $content = Filter::ENTER($content);
-            $content = Filter::FUN($content);
 
             $content = $this->parseTemplateHead() .
                        $content .
@@ -283,7 +290,8 @@ class Template
                 'height:document.documentElement.clientHeight' .
             '}' .
         '};';
-        if (!Request::isMobile()) {
+
+        if (!Request::isMobile() || 0 !== strpos(Request::subDomain(), 'm')) {
             $sub = Request::subDomain() == 'www' ? 'm.' : 'm.' . Request::subDomain() . '.';
             $head .= 'if (navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i)) {' .
                 'location.replace("//' . $sub . Request::rootDomain() . Request::root() . '");' .
@@ -357,6 +365,36 @@ class Template
                 print_r($matches[3][$key]);
             }
         }die();
+        return $_content;
+    }
+
+    /**
+     * 解析模板函数
+     * @access private
+     * @param  string $_content
+     * @return string content
+     */
+    private function parseTemplateFunc(string $_content): string
+    {
+        $safe_func = [
+            'echo',
+            'print_r',
+            'str_replace',
+            'strlen',
+            'strtoupper',
+        ];
+
+        if (preg_match_all('/({::)([a-zA-Z_]+\()(.*?)(\)})/si', $_content, $matches) !== false) {
+            foreach ($matches[2] as $key => $func) {
+                $func = rtrim($func, '(');
+                if (in_array($func, $safe_func)) {
+                    eval('$func = ' . $matches[3][$key] . ';');
+                }
+
+                $_content = str_replace($matches[0][$key], $func, $_content);
+            }
+        }
+
         return $_content;
     }
 

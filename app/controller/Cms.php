@@ -45,6 +45,7 @@ class Cms extends Template
             'css'         => $tpl_path . 'css/',
             'img'         => $tpl_path . 'img/',
             'js'          => $tpl_path . 'js/',
+            'name'        => Siteinfo::name(),
             'title'       => Siteinfo::title(),
             'keywords'    => Siteinfo::keywords(),
             'description' => Siteinfo::description(),

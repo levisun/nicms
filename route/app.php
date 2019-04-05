@@ -26,7 +26,7 @@ Route::miss('abort/error');
 Route::rule('404', 'abort/_404');
 // Route::rule('authority', 'abort/authority');
 
-Route::domain('www', function(){
+Route::domain(['www', 'm'], function(){
     Route::get('/', 'cms/index');
     Route::get('index', 'cms/index');
     Route::get('list/:name/:cid$', 'cms/lists');

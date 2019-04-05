@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `np_model` (
   `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT '状态',
   `sort_order` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '排序',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4mb4 COMMENT='模型表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型表';
 
 INSERT INTO `np_model` (`id`, `name`, `table_name`, `remark`, `status`, `sort_order`) VALUES
 (1, 'article', 'article', '文章模型', 1, 8),
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `np_category` (
   KEY `is_show` (`is_show`) USING BTREE,
   KEY `access_id` (`access_id`) USING BTREE,
   KEY `lang` (`lang`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4mb4 COMMENT='栏目表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='栏目表';
 
 
 
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `np_tags` (
   PRIMARY KEY (`id`),
   KEY `name` (`name`) USING BTREE,
   KEY `lang` (`lang`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4mb4 COMMENT='标签表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='标签表';
 
 DROP TABLE IF EXISTS `np_tags_article`;
 CREATE TABLE IF NOT EXISTS `np_tags_article` (
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS `np_tags_article` (
   PRIMARY KEY (`id`),
   KEY `tags_id` (`tags_id`) USING BTREE,
   KEY `article_id` (`article_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4mb4 COMMENT='标签文章关联表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='标签文章关联表';
 
 DROP TABLE IF EXISTS `np_type`;
 CREATE TABLE IF NOT EXISTS `np_type` (
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `np_type` (
   `remark` varchar(300) NOT NULL DEFAULT '' COMMENT '描述',
   PRIMARY KEY (`id`),
   KEY `category_id` (`category_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4mb4 COMMENT='分类';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分类';
 
 
 
@@ -160,7 +160,7 @@ CREATE TABLE IF NOT EXISTS `np_article` (
   KEY `show_time` (`show_time`) USING BTREE,
   KEY `delete_time` (`delete_time`) USING BTREE,
   KEY `lang` (`lang`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4mb4 COMMENT='文章表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章表';
 
 DROP TABLE IF EXISTS `np_article_content`;
 CREATE TABLE `np_article_content` (
@@ -173,7 +173,7 @@ CREATE TABLE `np_article_content` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章内容表';
 
 DROP TABLE IF EXISTS `np_article_file`;
-CREATE TABLE `np_download_file` (
+CREATE TABLE `np_article_file` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `article_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '文章ID',
   `file_url` varchar(255) DEFAULT '' COMMENT '文件存储路径',
@@ -190,7 +190,7 @@ CREATE TABLE `np_download_file` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章下载附件表';
 
 DROP TABLE IF EXISTS `np_article_image`;
-CREATE TABLE `np_picture_image` (
+CREATE TABLE `np_article_image` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `article_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '文章ID',
   `image_url` varchar(255) DEFAULT '' COMMENT '文件存储路径',
