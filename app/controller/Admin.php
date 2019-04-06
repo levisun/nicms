@@ -47,8 +47,8 @@ class admin extends Template
         $session = Config::get('session');
         $session['auto_start'] = true;
         Config::set($session, 'session');
-        // session_start();
-        // session_write_close();
+        session_start();
+        session_write_close();
     }
 
     public function index(string $logic = 'account', string $controller = 'login', string $action = '')

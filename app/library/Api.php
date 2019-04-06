@@ -276,27 +276,17 @@ class Api
 
         // 开启session
         if ($this->sid) {
-            // 校验session合法性
-            $session_id =
-            SessionModel::where([
-                ['session_id', '=', $this->sid]
-            ])
-            ->value('session_id');
-            if ($session_id) {
-                // 开启session
-                if (!session_id()) {
-                    $session = Config::get('session');
-                    $session['auto_start'] = true;
-                    $session['id'] = $this->sid;
-                    Config::set($session, 'session');
+                $session = Config::get('session');
+                $session['auto_start'] = true;
+                $session['id'] = $this->sid;
+                Config::set($session, 'session');
+                $session = Config::get('session');
+                // halt($session);
 
-                    session_id($this->sid);
-                    session_start();
-                    session_write_close();
-                }
-            } else {
-                $this->error('auth sid error');
-            }
+                session_id($this->sid);
+                // session_start();
+                // session_write_close();
+                // halt(session_id());
         }
     }
 
@@ -362,6 +352,8 @@ class Api
             // token和session_id
             else {
                 list($this->token, $this->sid) = explode('.', $this->authorization);
+                $this->debugLog['token'] = $this->token;
+                $this->debugLog['sid'] = $this->sid;
             }
 
             // 校验token合法性

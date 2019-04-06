@@ -63,7 +63,7 @@ Route::domain('api', function(){
         'Access-Control-Allow-Headers' => 'Accept, Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With'
     ];
     if (Request::isOptions()) {
-        $headers['Access-Control-Max-Age'] = 1728000;
+        $headers['Access-Control-Max-Age'] = 14400;
     }
 
     Route::allowCrossDomain(true, $headers);

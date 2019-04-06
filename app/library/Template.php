@@ -74,6 +74,7 @@ class Template
             'img'         => Config::get('app.cdn_host') . '/template/img/',
             'js'          => Config::get('app.cdn_host') . '/template/js/',
             'static'      => Config::get('app.cdn_host') . '/static/',
+            'name'        => 'nicms',
             'title'       => 'nicms',
             'keywords'    => 'nicms',
             'description' => 'nicms',
@@ -123,7 +124,7 @@ class Template
             // 去除html空格与换行
             $content = str_replace(' = ', '=', $content);
             $content = str_replace('// ', '//', $content);
-            $content = Filter::ENTER($content);
+            // $content = Filter::ENTER($content);
 
             $content = $this->parseTemplateHead() .
                        $content .
@@ -163,7 +164,7 @@ class Template
     {
         $rep = [];
         foreach ($_replace as $key => $value) {
-            $rep['{:__' . strtoupper($key) . '__}'] = $value;
+            $rep['__' . strtoupper($key) . '__'] = $value;
         }
         $this->templateReplace = array_merge($this->templateReplace, $rep);
     }
@@ -200,7 +201,7 @@ class Template
         // 插件加载
 
         // 底部JS脚本
-        $foot .= $this->templateReplace['{:__SCRIPT__}'];
+        $foot .= $this->templateReplace['__SCRIPT__'];
 
         return $foot . '</body></html>';
     }
@@ -214,41 +215,50 @@ class Template
     private function parseTemplateHead(): string
     {
         $head =
-        '<!DOCTYPE html>' .
-        '<html lang="' . Lang::detect() . '">' .
-        '<head>' .
-        '<meta charset="utf-8" />' .
-        '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
-        '<meta name="robots" content="all" />' .                                // 蜘蛛抓取
-        '<meta name="revisit-after" content="1 days" />' .                      // 蜘蛛重访
-        '<meta name="renderer" content="webkit" />' .                           // 强制使用webkit渲染
-        '<meta name="force-rendering" content="webkit" />' .
-        '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' .
+        '<!DOCTYPE html>' . PHP_EOL .
+        '<html lang="' . Lang::detect() . '">' . PHP_EOL .
+        '<head>' . PHP_EOL .
+        '<meta charset="utf-8" />' . PHP_EOL .
+        '<meta name="fragment" content="!" />' . PHP_EOL .                                // 支持蜘蛛ajax
+        '<meta name="robots" content="all" />' . PHP_EOL .                                // 蜘蛛抓取
+        '<meta name="revisit-after" content="1 days" />' . PHP_EOL .                      // 蜘蛛重访
+        '<meta name="renderer" content="webkit" />' . PHP_EOL .                           // 强制使用webkit渲染
+        '<meta name="force-rendering" content="webkit" />' . PHP_EOL .
+        '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' . PHP_EOL .
 
-        '<meta name="generator" content="nicms" />' .
-        '<meta name="author" content="失眠小枕头 levisun.mail@gmail.com" />' .
-        '<meta name="copyright" content="2013-' . date('Y') . ' nicms 失眠小枕头" />' .
+        '<meta name="generator" content="nicms" />' . PHP_EOL .
+        '<meta name="author" content="失眠小枕头 levisun.mail@gmail.com" />' . PHP_EOL .
+        '<meta name="copyright" content="2013-' . date('Y') . ' nicms 失眠小枕头" />' . PHP_EOL .
 
-        '<meta http-equiv="Window-target" content="_blank">' .
-        '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' .
+        '<meta http-equiv="Window-target" content="_blank">' . PHP_EOL .
+        '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' . PHP_EOL .
 
-        '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
-        '<meta http-equiv="Cache-Control" content="no-transform" />' .
+        '<meta http-equiv="Cache-Control" content="no-siteapp" />' . PHP_EOL .            // 禁止baidu转码
+        '<meta http-equiv="Cache-Control" content="no-transform" />' . PHP_EOL .
 
-        '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
-        '<link rel="dns-prefetch" href="' . Config::get('app.api_host') . '" />' .
-        '<link rel="dns-prefetch" href="' . Config::get('app.cdn_host') . '" />' .
+        '<meta http-equiv="x-dns-prefetch-control" content="on" />' . PHP_EOL .           // DNS缓存
+        // '<link rel="dns-prefetch" href="' . Config::get('app.api_host') . '" />' .
+        '<link rel="dns-prefetch" href="' . Request::scheme() . ':' . Config::get('app.cdn_host') . '" />' . PHP_EOL .
 
-        '<link href="' . Config::get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />';
+        '<link href="' . Config::get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' . PHP_EOL;
 
         // 网站标题 关键词 描述
-        $head .= '<title>' . $this->templateReplace['{:__TITLE__}'] . '</title>';
-        $head .= '<meta name="keywords" content="' . $this->templateReplace['{:__KEYWORDS__}'] . '" />';
-        $head .= '<meta name="description" content="' . $this->templateReplace['{:__DESCRIPTION__}'] . '" />';
+        $head .= '<title>' . $this->templateReplace['__TITLE__'] . '</title>' . PHP_EOL;
+        $head .= '<meta name="keywords" content="' . $this->templateReplace['__KEYWORDS__'] . '" />'. PHP_EOL;
+        $head .= '<meta name="description" content="' . $this->templateReplace['__DESCRIPTION__'] . '" />'. PHP_EOL. PHP_EOL;
+        $head .= '<meta property="og:title" content="' . $this->templateReplace['__NAME__'] . '">'. PHP_EOL;
+        $head .= '<meta property="og:type" content="website">'. PHP_EOL;
+        $head .= '<meta property="og:url" content="' . Request::scheme() . ':' . url() . '">'. PHP_EOL;
+        $head .= '<meta property="og:image" content="">'. PHP_EOL;
 
         if (!empty($this->templateConfig['meta'])) {
             foreach ($this->templateConfig['meta'] as $m) {
-                $head .= '<meta ' . $m['type'] . ' ' . $m['content'] . ' />';
+                $head .= '<meta ' . $m['type'] . ' ' . $m['content'] . ' />'. PHP_EOL;
+            }
+        }
+        if (!empty($this->templateConfig['link'])) {
+            foreach ($this->templateConfig['link'] as $m) {
+                $head .= '<link rel="' . $m['rel'] . '" href="' . $m['href'] . '" />'. PHP_EOL;
             }
         }
         // <meta name="apple-itunes-app" content="app-id=1191720421, app-argument=sspai://sspai.com">
@@ -262,7 +272,7 @@ class Template
                 // $style = preg_replace('/(\n|\r)/si', '', $style);
                 // $style = preg_replace('/( ){2,}/si', '', $style);
                 // $head .= '<style type="text/css" class="' . md5($css) . '">' . $style . '</style>';
-                $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->templateConfig['theme_version'] . '" />';
+                $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->templateConfig['theme_version'] . '" />'. PHP_EOL;
             }
         }
 
@@ -277,11 +287,11 @@ class Template
                 'authorization:"{:__AUTHORIZATION__}"' .
             '},' .
             'cdn:{' .
-                'theme:"' . $this->templateReplace['{:__THEME__}'] . '",' .
-                'css:"' . $this->templateReplace['{:__CSS__}'] . '",' .
-                'img:"' . $this->templateReplace['{:__IMG__}'] . '",' .
-                'js:"' . $this->templateReplace['{:__JS__}'] . '",' .
-                'static:"' . $this->templateReplace['{:__STATIC__}'] . '",' .
+                'theme:"' . $this->templateReplace['__THEME__'] . '",' .
+                'css:"' . $this->templateReplace['__CSS__'] . '",' .
+                'img:"' . $this->templateReplace['__IMG__'] . '",' .
+                'js:"' . $this->templateReplace['__JS__'] . '",' .
+                'static:"' . $this->templateReplace['__STATIC__'] . '",' .
             '},' .
             'url:"' . url() . '",' .
             'param:' . json_encode(Request::param()) . ',' .
@@ -298,10 +308,10 @@ class Template
             '}';
             unset($sub);
         }
-        $head .= '</script>';
+        $head .= '</script>' .  PHP_EOL;
         unset($root);
 
-        return $head . '</head><body>';
+        return $head . '</head>' . PHP_EOL . '<body>' . PHP_EOL;
     }
 
     /**
@@ -382,9 +392,11 @@ class Template
             'str_replace',
             'strlen',
             'strtoupper',
+            'lang',
+            'url',
         ];
 
-        if (preg_match_all('/({::)([a-zA-Z_]+\()(.*?)(\)})/si', $_content, $matches) !== false) {
+        if (preg_match_all('/({:)([a-zA-Z_]+\()(.*?)(\)})/si', $_content, $matches) !== false) {
             foreach ($matches[2] as $key => $func) {
                 $func = rtrim($func, '(');
                 if (in_array($func, $safe_func)) {
@@ -510,6 +522,8 @@ class Template
                 } else {
                     throw new HttpException(200, '布局模板不存在.');
                 }
+            } else {
+                $_content = str_replace('{:NOT_LAYOUT}', '', $_content);
             }
         }
 

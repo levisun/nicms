@@ -27,9 +27,9 @@ class Base
 
     public function __construct()
     {
-        $result = $this->__authenticate('account', 'user', 'login')
+        $result = $this->__authenticate('account', 'user', 'login');
         if ($result !== true) {
-            return $result
+            return $result;
         }
     }
 

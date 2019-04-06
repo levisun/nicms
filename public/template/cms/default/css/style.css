@@ -49,6 +49,16 @@ header.layui-bg-white,
 .layui-nav.layui-bg-white .layui-nav-mored {
     border-color: transparent transparent #333 ;
 }
+header .header-search input {
+    margin-top: 12px;
+}
+header .header-search .layui-form-pane .layui-form-label {
+    width: 40px;
+    padding: 8px 10px;
+}
+header .header-search .layui-form-pane .layui-input-block {
+    margin-left: 40px;
+}
 
 #sidebar,
 #lists,

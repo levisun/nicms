@@ -193,8 +193,8 @@ function url(string $_url = '', array $_vars = [], string $_sub_domain = ''): st
         }
     }
 
-
-    $_url = Url::build('/' . $_url, $_vars, true, true);
+    $_url = $_url ? '/' . $_url : '';
+    $_url = Url::build($_url, $_vars, true, true);
     $_url = str_replace(Request::scheme() . ':', '', $_url);
     return str_replace('//api.', '//' . $_sub_domain, $_url);
 }
