@@ -177,9 +177,9 @@ function emojiClear($_str): string
 
 /**
  * Url生成
- * @param  string  $_url       路由地址
- * @param  array   $_vars      变量
- * @param  string  $_sub_domain 子域名
+ * @param  string $_url        路由地址
+ * @param  array  $_vars       变量
+ * @param  string $_sub_domain 子域名
  * @return string
  */
 function url(string $_url = '', array $_vars = [], string $_sub_domain = ''): string

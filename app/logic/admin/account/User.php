@@ -23,13 +23,14 @@ use app\library\Ip;
 use app\logic\admin\Base;
 use app\model\Admin as ModelAdmin;
 
-class User extends Base
+// extends Base
+class User
 {
 
     public function login(): array
     {
-        if (is_file(app()->getRuntimePath() . md5(Request::ip()) . '.lock') &&
-            filemtime(app()->getRuntimePath() . md5(Request::ip()) . '.lock') >= strtotime('-1 days')) {
+        if (is_file(app()->getRuntimePath() . md5(Request::ip(). date('Y-m-d')) . '.lock') &&
+            filemtime(app()->getRuntimePath() . md5(Request::ip(). date('Y-m-d')) . '.lock') >= strtotime('-1 days')) {
             clearstatcache();
             return [
                 'debug' => false,
@@ -63,11 +64,11 @@ class User extends Base
         } else {
             if (session('?login_lock')) {
                 $lock = session('login_lock');
-                session('login_lock', $lock++);
+                session('login_lock', ++$lock);
                 if ($lock >= 5) {
                     $ip = Ip::info();
                     file_put_contents(
-                        app()->getRuntimePath() . md5(Request::ip()) . '.lock',
+                        app()->getRuntimePath() . md5(Request::ip() . date('Y-m-d')) . '.lock',
                         json_encode([
                             'date'  => date('Y-m-d H:i:s'),
                             'ip'    => $ip,
@@ -80,7 +81,7 @@ class User extends Base
             }
 
             return [
-                'debug' => true,
+                'debug' => false,
                 'msg'   => Lang::get('username or password error')
             ];
         }

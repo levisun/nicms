@@ -51,7 +51,7 @@ class admin extends Template
         session_write_close();
     }
 
-    public function index(string $logic = 'account', string $controller = 'login', string $action = '')
+    public function index(string $logic = 'account', string $controller = 'user', string $action = 'login')
     {
         $this->__authenticate($logic, $controller, $action);
 

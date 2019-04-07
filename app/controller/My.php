@@ -41,7 +41,7 @@ class My
 
         if (!in_array(Request::action(false), ['login', 'register', 'forget', 'logout'])) {
             if (!session('?member_auth_key')) {
-                $url = Request::scheme() . '://my.' . Request::rootDomain() . Request::root();
+                $url = Request::scheme() . '://my.' . Request::rootDomain();
                 $response = Response::create($url, 'redirect', 302);
                 throw new HttpResponseException($response);
             }

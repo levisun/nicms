@@ -37,7 +37,7 @@ class Garbage
     public function remove(): bool
     {
         // 减少频繁操作,每次请求百分之一几率运行操作
-        if (rand(1, 100) !== 1) {
+        if (rand(1, 10) !== 1) {
             return false;
         }
 
@@ -53,6 +53,9 @@ class Garbage
             $dirOrPath = array_slice($dirOrPath, 0, 1000);
 
             foreach ($dirOrPath as $path) {
+                if (is_file($path) && pathinfo($path, PATHINFO_BASENAME) == '.gitignore') {
+                    continue;
+                }
                 if (is_file($path) && stripos($path, '_skl_') === false) {
                     @unlink($path);
                 } elseif (is_dir($path)) {

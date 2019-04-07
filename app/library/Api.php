@@ -179,9 +179,8 @@ class Api
         $this->cache = $this->debug ? false : $this->cache;
 
         // 浏览器缓存时间
-        $this->expire = Config::get('cache.expire');
-        $this->expire = isset($result['expire']) ? $result['expire'] : $this->expire;
-        $this->expire = $this->expire <= 0 ? $this->expire : $this->expire;
+        $this->expire = isset($result['expire']) ? $result['expire'] : Config::get('cache.expire');
+        $this->expire = $this->expire <= 0 ? 0 : $this->expire;
 
         $this->success($result['msg'], isset($result['data']) ? $result['data'] : []);
     }
@@ -273,21 +272,6 @@ class Api
         } else {
             $this->error('auth-appid error');
         }
-
-        // 开启session
-        if ($this->sid) {
-                $session = Config::get('session');
-                $session['auto_start'] = true;
-                $session['id'] = $this->sid;
-                Config::set($session, 'session');
-                $session = Config::get('session');
-                // halt($session);
-
-                session_id($this->sid);
-                // session_start();
-                // session_write_close();
-                // halt(session_id());
-        }
     }
 
     /**
@@ -364,6 +348,18 @@ class Api
                 $this->debugLog['referer::sha1'] = sha1(Base64::encrypt($referer, 'authorization'));
                 $this->debugLog['this::token'] = $this->token;
                 $this->error('header-authorization token error');
+            }
+
+            // 开启session
+            if ($this->sid && preg_match('/^[A-Za-z0-9]+$/u', $this->sid)) {
+                $session = Config::get('session');
+                $session['auto_start'] = true;
+                $session['id'] = $this->sid;
+                Config::set($session, 'session');
+                $session = Config::get('session');
+
+                session_id($this->sid);
+                Session::setId($this->sid);
             }
         } else {
             $this->debugLog['authorization'] = $this->authorization;

@@ -44,7 +44,7 @@ Temporary Items
 
 #Project
 *.env
-*.json
+/*.json
 *.lock
 *.xml
 *.yml

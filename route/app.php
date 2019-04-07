@@ -24,7 +24,8 @@ Route::pattern([
 // 错误页面
 Route::miss('abort/error');
 Route::rule('404', 'abort/_404');
-// Route::rule('authority', 'abort/authority');
+
+
 
 Route::domain(['www', 'm'], function(){
     Route::get('/', 'cms/index');
@@ -43,11 +44,10 @@ Route::domain(['www', 'm'], function(){
 
 Route::domain('admin', function(){
     Route::get('/', 'admin/index');
-    Route::get(':logic/:controller$', 'admin/index');
-    Route::get(':logic/:controller/:action/:id$', 'admin/index');
+    Route::get(':logic/:controller/:action$', 'admin/index');
 })
 ->bind('admin')
-->ext('action');
+->ext('do');
 
 
 
