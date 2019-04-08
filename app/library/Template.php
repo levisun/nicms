@@ -385,7 +385,7 @@ class Template
             foreach ($matches[2] as $key => $func) {
                 $func = rtrim($func, '(');
                 if (in_array($func, $safe_func)) {
-                    eval('$func = ' . $matches[3][$key] . ';');
+                    eval('$func = ' . $func . '(' . $matches[3][$key] . ');');
                 }
 
                 $_content = str_replace($matches[0][$key], $func, $_content);

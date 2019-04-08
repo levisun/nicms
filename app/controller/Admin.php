@@ -37,10 +37,10 @@ class admin extends Template
         $this->setTheme('admin/default');
         $tpl_path = Config::get('app.cdn_host') . '/template/admin/default/';
         $this->setReplace([
-            'theme'       => $tpl_path,
-            'css'         => $tpl_path . 'css/',
-            'img'         => $tpl_path . 'img/',
-            'js'          => $tpl_path . 'js/',
+            'theme' => $tpl_path,
+            'css'   => $tpl_path . 'css/',
+            'img'   => $tpl_path . 'img/',
+            'js'    => $tpl_path . 'js/',
         ]);
 
         // 开启session

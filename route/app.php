@@ -22,8 +22,8 @@ Route::pattern([
 
 
 // 错误页面
-Route::miss('abort/error');
-Route::rule('404', 'abort/_404');
+Route::miss('error/index');
+Route::rule('404', 'error/_404');
 
 
 
@@ -32,9 +32,7 @@ Route::domain(['www', 'm'], function(){
     Route::get('index', 'cms/index');
     Route::get('list/:name/:cid$', 'cms/lists');
     Route::get('details/:name/:cid/:id$', 'cms/details');
-
-    Route::get('book', 'book/index');
-    Route::get('book/api', 'book/api');
+    Route::get('search', 'cms/search');
 })
 ->bind('cms')
 ->cache(Config::get('cache.expire'))

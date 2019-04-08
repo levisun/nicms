@@ -27,7 +27,7 @@ use think\facade\Session;
 use app\library\Base64;
 use app\model\Session as SessionModel;
 
-class Api
+class Async
 {
 
     /**
@@ -36,7 +36,7 @@ class Api
      * application/vnd.tp5.v1.0.1+json
      * @var string
      */
-    private $accept;
+    protected $accept;
 
     /**
      * HEADER 授权信息
@@ -44,14 +44,14 @@ class Api
      * f0c4b4105d740747d44ac6dcd78624f906202706.
      * @var string
      */
-    private $authorization;
+    protected $authorization;
 
     /**
      * 版本号
      * 解析[accept]获得
      * @var array
      */
-    private $version = [
+    protected $version = [
         'major' => '1',
         'minor' => '0'
     ];
@@ -60,46 +60,46 @@ class Api
      * 开启版本控制
      * @var bool
      */
-    private $openVersion = false;
+    protected $openVersion = false;
 
     /**
      * 返回数据类型
      * 解析[accept]获得
      * @var string
      */
-    private $format = 'json';
+    protected $format = 'json';
 
     /**
      * 请求令牌
      * 解析[authentication]获得
      * @var string
      */
-    private $token;
+    protected $token;
 
     /**
      * session_id
      * 解析[authentication]获得
      * @var string
      */
-    private $sid;
+    protected $sid;
 
     /**
      * 签名类型
      * @var string
      */
-    private $signType;
+    protected $signType;
 
     /**
      * 签名
      * @var string
      */
-    private $sign;
+    protected $sign;
 
     /**
      * 模块名
      * @var string
      */
-    private $module = 'cms';
+    protected $module = 'cms';
 
     /**
      * 执行类与方法
@@ -111,7 +111,7 @@ class Api
      * 调试信息
      * @var array
      */
-    private $debugLog = [];
+    protected $debugLog = [];
 
     /**
      * 调试开关
@@ -146,9 +146,10 @@ class Api
      */
     public function __construct()
     {
+        # code...
     }
 
-    public function setModule(string $_name)
+    protected function setModule(string $_name)
     {
         $this->module = $_name;
         return $this;
@@ -158,7 +159,7 @@ class Api
      * 运行
      * @return void
      */
-    public function run(): void
+    protected function run(): void
     {
         $this->initialize();
 
@@ -480,7 +481,7 @@ class Api
      * @param
      * @return void
      */
-    private function writeLog(array $result)
+    private function writeLog(array $result): void
     {
         $log = '[API] IP:' . Request::ip() .
                 ' TIME:' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 6) . 's' .
@@ -490,7 +491,7 @@ class Api
         if (APP_DEBUG) {
             $log .= PHP_EOL . 'PARAM:' . json_encode(Request::param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
             $log .= PHP_EOL . 'DEBUG:' . json_encode($this->debugLog, JSON_UNESCAPED_UNICODE);
-            $log .= PHP_EOL . 'RESULT:' . json_encode($result, JSON_UNESCAPED_UNICODE);
+            // $log .= PHP_EOL . 'RESULT:' . json_encode($result, JSON_UNESCAPED_UNICODE);
         }
 
         Log::record($log, 'alert');

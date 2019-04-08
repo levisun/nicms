@@ -125,12 +125,10 @@ class ArticleBase
                 $list['data'][$key] = $value;
             }
 
-            Cache::tag('catalog')->set($cache_key, $list);
+            Cache::tag('LISTS')->set($cache_key, $list);
         } else {
             $list = Cache::get($cache_key);
         }
-
-
 
         return $list;
     }
@@ -205,7 +203,7 @@ class ArticleBase
                 // ->where([
                 //     ['data.main_id', '=', $value['id']],
                 // ])
-                // ->cache('modelarticledata' . $value['id'], null, 'LISTS')
+                // ->cache('modelarticledata' . $value['id'], null, 'DETAILS')
                 // ->select()
                 // ->toArray();
                 // foreach ($fields as $val) {
@@ -231,7 +229,7 @@ class ArticleBase
                 ->toArray();
             }
 
-            Cache::tag('details')->set($cache_key, $result);
+            Cache::tag('DETAILS')->set($cache_key, $result);
         } else {
             $result = Cache::get($cache_key);
         }

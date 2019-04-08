@@ -11,6 +11,12 @@
     }
 }(function (jQuery) {
 
+    jQuery.getParam = function (key) {
+        var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)");
+        var result = window.location.search.substr(1).match(reg);
+        return result ? decodeURIComponent(result[2]) : null;
+    };
+
     /**
      * 异步请求
      */
@@ -50,7 +56,7 @@
         }
 
         return xhr;
-    }
+    };
 
     /**
      * 时间戳
@@ -58,7 +64,7 @@
     jQuery.timestamp = function(){
         var timestamp = Date.parse(new Date());
         return timestamp / 1000;
-    }
+    };
 
     /**
      * 签名
@@ -83,5 +89,5 @@
         sign = md5(sign);
 
         return sign;
-    }
+    };
 }));

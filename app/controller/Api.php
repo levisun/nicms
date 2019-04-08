@@ -18,10 +18,23 @@ namespace app\controller;
 use think\Response;
 use think\exception\HttpResponseException;
 use think\facade\Request;
-use app\library\Api as LibraryApi;
+use app\library\Async;
 
-class Api extends LibraryApi
+class Api extends Async
 {
+
+    /**
+     * 构造方法
+     * @access public
+     * @param  App  $app  应用对象
+     * @return void
+     */
+    public function __construct()
+    {
+        if (!Request::server('HTTP_REFERER', null)) {
+            $this->illegal();
+        }
+    }
 
     /**
      * 查询接口
@@ -33,8 +46,6 @@ class Api extends LibraryApi
     {
         if (Request::isGet()) {
             $this->setModule($name)->run();
-        } else {
-            $this->illegal();
         }
     }
 
@@ -79,7 +90,7 @@ class Api extends LibraryApi
         $response = Response::create([
             'code'    => 'ERROR',
             'expire'  => date('Y-m-d H:i:s', time() + 30),
-            'message' => Request::param('method') . ' does not have a method'
+            'message' => 'error request'
         ], 'json', 200);
         throw new HttpResponseException($response);
     }

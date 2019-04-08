@@ -24,13 +24,13 @@
                 </ul>
             </nav>
             <div class="layui-col-md3 layui-hide-xs header-search">
-                <form class="layui-form layui-form-pane">
+                <form action="{:url('search')}" class="layui-form layui-form-pane">
                     <div class="layui-form-item">
                         <label class="layui-form-label">
                             <i class="layui-icon layui-icon-search"></i>
                         </label>
                         <div class="layui-input-block">
-                            <input type="text" name="title" placeholder="搜索内容" class="layui-input">
+                            <input type="text" name="key" placeholder="搜索内容" class="layui-input">
                         </div>
                     </div>
                 </form>

@@ -20,7 +20,7 @@ use think\exception\HttpResponseException;
 use think\facade\Env;
 use app\library\Siteinfo;
 
-class Abort
+class Error
 {
 
     /**
@@ -29,7 +29,7 @@ class Abort
      * @param
      * @return mixed
      */
-    public function error()
+    public function index()
     {
         $this->tpl(404);
     }
@@ -37,18 +37,6 @@ class Abort
     public function _404()
     {
         $this->tpl(404);
-    }
-
-    /**
-     * 授权错误
-     * @access public
-     * @param
-     * @return mixed
-     */
-    public function authority()
-    {
-        $response = Response::create($this->tpl($code), '', $code);
-        return $response->send();
     }
 
 

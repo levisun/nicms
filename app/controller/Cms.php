@@ -90,4 +90,17 @@ class Cms extends Template
     {
         $this->fetch('details_' . $name);
     }
+
+    /**
+     * 搜索页
+     * @access public
+     * @param  string $name 分层名
+     * @param  int    $cid  栏目ID
+     * @param  int    $id   文章ID
+     * @return mixed        HTML文档
+     */
+    public function search()
+    {
+        $this->fetch('search');
+    }
 }
