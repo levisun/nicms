@@ -1,7 +1,6 @@
 <?php
 /**
  *
- * 服务层
  * 上传类
  *
  * @package   NICMS

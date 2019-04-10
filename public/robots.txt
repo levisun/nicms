@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /install/
+Disallow: /static/
+Disallow: /template/
+Disallow: /uploads/
+Disallow: /router.php
+Allow: /sitemaps
+Sitemap: http://www.nicms.com/sitemap.xml

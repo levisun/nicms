@@ -1,27 +1,31 @@
 <?php
-// +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
-// +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
-// +----------------------------------------------------------------------
+/**
+ *
+ * 数据库设置
+ *
+ * @package   NiPHP
+ * @category  config
+ * @author    失眠小枕头 [levisun.mail@gmail.com]
+ * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
+ * @link      www.NiPHP.com
+ * @since     2019
+ */
+
+use think\facade\Env;
 
 return [
     // 数据库类型
-    'type'            => 'mysql',
+    'type'            => env('database.type', 'mysql'),
     // 服务器地址
-    'hostname'        => '127.0.0.1',
+    'hostname'        => env('database.hostname', '127.0.0.1'),
     // 数据库名
-    'database'        => 'niphp',
+    'database'        => env('database.database', 'nicms'),
     // 用户名
-    'username'        => 'root',
+    'username'        => env('database.username', 'root'),
     // 密码
-    'password'        => '',
+    'password'        => env('database.password', ''),
     // 端口
-    'hostport'        => '',
+    'hostport'        => env('database.hostport', ''),
     // 连接dsn
     'dsn'             => '',
     // 数据库连接参数
@@ -35,11 +39,11 @@ return [
         \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,                            // 查询缓存
     ],
     // 数据库编码默认采用utf8
-    'charset'         => 'utf8',
+    'charset'         => env('database.charset', 'utf8'),
     // 数据库表前缀
-    'prefix'          => 'np_',
+    'prefix'          => env('database.prefix', 'nc'),
     // 数据库调试模式
-    'debug'           => APP_DEBUG,
+    'debug'           => env('app.app_debug', 1) ? true : false,
     // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
     'deploy'          => 0,
     // 数据库读写是否分离 主从式有效
@@ -58,7 +62,7 @@ return [
     'datetime_format' => 'Y-m-d H:i:s',
     'datetime_format' => false,
     // 是否需要进行SQL性能分析
-    'sql_explain'     => APP_DEBUG,
+    'sql_explain'     => env('app.app_debug', 1) ? true : false,
     // Builder类
     'builder'         => '',
     // Query类

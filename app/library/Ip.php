@@ -1,7 +1,6 @@
 <?php
 /**
  *
- * 服务层
  * IP信息类
  *
  * @package   NICMS
@@ -68,25 +67,6 @@ class Ip
                 'isp'         => '',
             ];
         }
-
-
-
-        // if (self::validate() === false) {
-        //     return [
-        //         'ip'          => $_ip,
-        //         'country'     => 'ERROR',
-        //         'province'    => 'ERROR',
-        //         'city'        => 'ERROR',
-        //         'area'        => 'ERROR',
-        //         'country_id'  => '',
-        //         'province_id' => '',
-        //         'city_id'     => '',
-        //         'area_id'     => '',
-        //         'region'      => '',
-        //         'isp'         => '',
-        //     ];
-        // }
-
     }
 
     /**

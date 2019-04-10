@@ -18,6 +18,7 @@ namespace app\controller;
 use think\Response;
 use think\exception\HttpResponseException;
 use think\facade\Config;
+use think\facade\Env;
 use app\library\Rbac;
 use app\library\Template;
 
@@ -34,8 +35,8 @@ class admin extends Template
     {
         parent::__construct();
 
-        $this->setTheme('admin/default');
-        $tpl_path = Config::get('app.cdn_host') . '/template/admin/default/';
+        $this->setTheme('admin/' . Env::get('app.admin_theme', 'default'));
+        $tpl_path = Config::get('app.cdn_host') . '/template/admin/' . Env::get('app.admin_theme', 'default') . '/';
         $this->setReplace([
             'theme' => $tpl_path,
             'css'   => $tpl_path . 'css/',

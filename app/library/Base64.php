@@ -1,7 +1,6 @@
 <?php
 /**
  *
- * 服务层
  * 加密类
  *
  * @package   NICMS
@@ -16,6 +15,7 @@ declare (strict_types = 1);
 namespace app\library;
 
 use think\exception\HttpException;
+use think\facade\Config;
 
 class Base64
 {
@@ -55,7 +55,7 @@ class Base64
      */
     public static function flag($_authkey = '', int $_length = 7)
     {
-        $_authkey = sha1(AUTHKEY . $_authkey);
+        $_authkey = sha1(Config::get('app.authkey') . $_authkey);
         $_length = $_length > 40 ? 40 : $_length;
         return substr(sha1($_authkey), 0, $_length);
     }
@@ -70,7 +70,7 @@ class Base64
      */
     public static function encrypt($_data, string $_authkey = '')
     {
-        $_authkey = sha1(AUTHKEY . $_authkey);
+        $_authkey = sha1(Config::get('app.authkey') . $_authkey);
 
         if (is_array($_data)) {
             $encrypt = [];
@@ -102,7 +102,7 @@ class Base64
      */
     public static function decrypt($_data, string $_authkey = '')
     {
-        $_authkey = sha1(AUTHKEY . $_authkey);
+        $_authkey = sha1(Config::get('app.authkey') . $_authkey);
 
         if (is_array($_data)) {
             $encrypt = [];

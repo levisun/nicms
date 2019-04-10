@@ -31,16 +31,16 @@ class Error
      */
     public function index()
     {
-        $this->tpl(404);
+        $this->tpl('error');
     }
 
     public function _404()
     {
-        $this->tpl(404);
+        $this->tpl('404');
     }
 
 
-    private function tpl(int $_code)
+    private function tpl(string $_code)
     {
         $tpl = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
                 'template' . DIRECTORY_SEPARATOR .

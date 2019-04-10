@@ -1,7 +1,6 @@
 <?php
 /**
  *
- * 服务层
  * 访问日志
  *
  * @package   NICMS

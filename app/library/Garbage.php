@@ -1,7 +1,6 @@
 <?php
 /**
  *
- * 服务层
  * 删除运行垃圾文件
  *
  * @package   NICMS
@@ -41,6 +40,8 @@ class Garbage
             return false;
         }
 
+        clearstatcache();
+
         $dirOrPath = [];
         $dirOrPath = array_merge($dirOrPath, (array) glob(app()->getRuntimePath() . '*'));
         $dirOrPath = array_merge($dirOrPath, (array) glob(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*'));
@@ -62,7 +63,6 @@ class Garbage
                     @rmdir($path);
                 }
             }
-            clearstatcache();
             Log::record('[GARBAGE] 删除垃圾信息!', 'alert');
         }
 

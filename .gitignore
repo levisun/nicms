@@ -48,6 +48,5 @@ Temporary Items
 *.lock
 *.xml
 *.yml
-*.txt
 /*.php
 think

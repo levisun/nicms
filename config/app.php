@@ -13,24 +13,23 @@
 // | 应用设置
 // +----------------------------------------------------------------------
 
-use think\facade\Env;
-use think\facade\Request;
-
 return [
     // API接口地址
-    'api_host' => '//api.' . Request::rootDomain() . Request::root(),
+    'api_host'   => '//api.' . request()->rootDomain() . request()->root(),
     // CDN地址
-    'cdn_host' => '//cdn.' . Request::rootDomain() . Request::root(),
+    'cdn_host'   => '//cdn.' . request()->rootDomain() . request()->root(),
     // 主站地址
-    'www_host' => '//www.' . Request::rootDomain() . Request::root(),
+    'www_host'   => '//www.' . request()->rootDomain() . request()->root(),
     // 后台管理地址
-    'admin_host' => '//admin.' . Request::rootDomain() . Request::root(),
+    'admin_host' => '//admin.' . request()->rootDomain() . request()->root(),
 
+    'app_debug'  => env('app.app_debug', 1) ? true : false,
+    'authkey'    => env('app.authkey', ''),
 
     // 应用地址
     'app_host'              => '',
     // 应用Trace（环境变量优先读取）
-    'app_trace'             => APP_DEBUG,
+    'app_trace'             => env('app.app_debug', 1) ? true : false,
     // 应用的命名空间
     'app_namespace'         => '',
     // 是否启用路由
@@ -48,7 +47,7 @@ return [
     // 默认时区
     'default_timezone'      => 'Asia/Shanghai',
     // 是否开启多语言
-    'lang_switch_on'        => false,
+    'lang_switch_on'        => true,
     // 默认语言
     'default_lang'          => 'zh-cn',
     // 默认验证器
@@ -64,5 +63,5 @@ return [
     // 错误显示信息,非调试模式有效
     'error_message'         => '页面错误！请稍后再试～',
     // 显示错误信息
-    'show_error_msg'        => APP_DEBUG,
+    'show_error_msg'        => env('app.app_debug', 1) ? true : false,
 ];

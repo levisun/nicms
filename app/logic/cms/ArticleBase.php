@@ -70,7 +70,7 @@ class ArticleBase
 
         $cache_key = md5(count($map) . $category_id . $com . $top . $hot . $type_id . $query_limit . $query_page);
         $cache_key .= Request::isMobile() ? 'mobile' : '';
-        if (!Cache::has($cache_key) || APP_DEBUG) {
+        if (!Cache::has($cache_key)) {
             $result =
             ModelArticle::view('article article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('article_content article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
@@ -93,7 +93,8 @@ class ArticleBase
                 $value['url'] = url('details/' . $value['action_name'] . '/' . $value['category_id'] . '/' . $value['id']);
                 $value['update_time'] = date($date_format, $value['update_time']);
 
-                $value['thumb'] = imgUrl($value['thumb'], $img_size);
+                $value['thumb_original'] = getImgUrl($value['thumb'], 0);
+                $value['thumb'] = getImgUrl($value['thumb'], $img_size);
 
 
                 // 附加字段数据
@@ -160,7 +161,7 @@ class ArticleBase
 
         $cache_key = md5($id);
         $cache_key .= Request::isMobile() ? 'mobile' : '';
-        if (!Cache::has($cache_key) || APP_DEBUG) {
+        if (!Cache::has($cache_key)) {
             $result =
             ModelArticle::view('article article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('article_content article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
@@ -183,14 +184,14 @@ class ArticleBase
 
                 $img_size = Request::isMobile() ? 200 : 300;
 
-                $result['thumb'] = imgUrl($result['thumb'], $img_size);
+                $result['thumb'] = getImgUrl($result['thumb'], $img_size);
 
                 $result['content'] = htmlspecialchars_decode($result['content']);
 
                 if (preg_match_all('/(src=["|\'])(.*?)(["|\'])/si', $result['content'], $matches) !== false) {
                     foreach ($matches[2] as $key => $value) {
-                        $thumb = imgUrl($value, $img_size);
-                        $replace = 'src="' . $thumb . '" data-src="' . imgUrl($value, 0) . '"';
+                        $thumb = getImgUrl($value, $img_size);
+                        $replace = 'src="' . $thumb . '" original="' . getImgUrl($value, 0) . '"';
                         $result['content'] = str_replace($matches[0][$key], $replace, $result['content']);
                     }
                 }

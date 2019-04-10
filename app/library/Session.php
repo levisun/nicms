@@ -1,7 +1,6 @@
 <?php
 /**
  *
- * 服务层
  * 数据安全过滤
  *
  * @package   NICMS

@@ -1,7 +1,6 @@
 <?php
 /**
  *
- * 服务层
  * 备份类
  *
  * @package   NICMS
@@ -34,19 +33,17 @@ class Backup
                                 'backup' . Base64::flag() . DIRECTORY_SEPARATOR .
                                 'sys_auto' . DIRECTORY_SEPARATOR;
 
+            clearstatcache();
+            ignore_user_abort(true);
             if (!is_dir($this->savePath)) {
                 chmod(app()->getRuntimePath(), 0777);
                 mkdir($this->savePath, 0777, true);
             }
 
             if (!is_file($this->savePath . 'backup.lock')) {
-                ignore_user_abort(true);
                 file_put_contents($this->savePath . 'backup.lock', 'lock');
                 $result = $this->queryTableName();
                 foreach ($result as $key => $name) {
-                    if (rand(1, 2) === 1) {
-                        continue;
-                    }
                     file_put_contents($this->savePath . 'backup.lock', $name);
                     if (is_file($this->savePath . $name . '.sql') && filemtime($this->savePath . $name . '.sql') < strtotime('-3 days')) {
                         Log::record('backup:' . $name, 'alert');
@@ -57,22 +54,23 @@ class Backup
                         Log::record('backup:' . $name, 'alert');
                         $this->queryTableStructure($name);
                         $this->queryTableInsert($name);
+                        break;
                     }
                 }
                 unlink($this->savePath . 'backup.lock');
             }
             ignore_user_abort(false);
-            clearstatcache();
         }
     }
 
     public function run(string $_tag = '')
     {
-
         $this->savePath = app()->getRuntimePath() .
                             'backup' . Base64::flag() . DIRECTORY_SEPARATOR .
                             date('ymdH') . $_tag . DIRECTORY_SEPARATOR;
 
+        clearstatcache();
+        ignore_user_abort(true);
         if (!is_dir($this->savePath)) {
             chmod(app()->getRuntimePath(), 0777);
             mkdir($this->savePath, 0777, true);
@@ -83,8 +81,7 @@ class Backup
                 $this->queryTableInsert($name);
             }
         }
-
-        clearstatcache();
+        ignore_user_abort(false);
     }
 
     /**

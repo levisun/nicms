@@ -38,21 +38,14 @@ class Book extends Template
     {
         parent::__construct();
 
-        $this->theme = 'book' . DIRECTORY_SEPARATOR . Siteinfo::theme() . DIRECTORY_SEPARATOR;
-        $tpl_path = Config::get('app.cdn_host') . '/template/' . 'book' . '/' . Siteinfo::theme() . '/';
-
-        $this->templateReplace = [
-            '{:__CSS__}'         => $tpl_path . 'css/',
-            '{:__IMG__}'         => $tpl_path . 'img/',
-            '{:__JS__}'          => $tpl_path . 'js/',
-            '{:__STATIC__}'      => Config::get('app.cdn_host') . '/static/',
-            '{:__TITLE__}'       => 'Siteinfo::title()',
-            '{:__KEYWORDS__}'    => 'Siteinfo::keywords()',
-            '{:__DESCRIPTION__}' => 'Siteinfo::description()',
-            '{:__BOTTOM_MSG__}'  => 'Siteinfo::bottom()',
-            '{:__COPYRIGHT__}'   => 'Siteinfo::copyright()',
-            '{:__SCRIPT__}'      => 'Siteinfo::script()',
-        ];
+        $this->setTheme('book/default');
+        $tpl_path = Config::get('app.cdn_host') . '/template/admin/default/';
+        $this->setReplace([
+            'theme' => $tpl_path,
+            'css'   => $tpl_path . 'css/',
+            'img'   => $tpl_path . 'img/',
+            'js'    => $tpl_path . 'js/',
+        ]);
     }
 
     /**

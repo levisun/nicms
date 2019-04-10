@@ -1,17 +1,28 @@
 nicms1.x
 ===============
 
-> nicms1.x的运行环境要求PHP7.1+。
+## 运行环境
 
-## nicms安装
+> PHP7.1+
+> Mysql
+> PDO
+
+## 主要特性
+> 基于`ThinkPHP6+`(http://www.thinkphp.cn/) 框架开发
+> 基于`AdminLTE`(https://adminlte.io) 二次开发
+
+> Github: https://github.com/levisun/nicms
+
+
+## ThinkPHP6安装方式
 
 ~~~
-https://github.com/levisun/nicms
+composer create-project topthink/think nicms 6.0.*-dev
+composer update topthink/framework
+
+composer require topthink/think-image
+composer require topthink/think-captcha
 ~~~
-
-> nicms1.X基于ThinkPHP6框架开发
-> ThinkPHP6安装 请参阅 [ThinkPHP6 核心框架包](https://github.com/top-think/framework/tree/6.0)。
-
 
 ## 版权信息
 

@@ -46,7 +46,7 @@ class Foot
         ->toArray();
 
         foreach ($result as $key => $value) {
-            $value['image'] = imgUrl($value['image']);
+            $value['image'] = getImgUrl($value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             $value['child'] = $this->child($value['id'], 2);
             if (empty($value['child'])) {
@@ -94,7 +94,7 @@ class Foot
         ->toArray();
 
         foreach ($result as $key => $value) {
-            $value['image'] = imgUrl($value['image']);
+            $value['image'] = getImgUrl($value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
 
             $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);

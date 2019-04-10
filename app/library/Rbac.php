@@ -1,7 +1,6 @@
 <?php
 /**
  *
- * 服务层
  * 权限校验类
  *
  * @package   NICMS

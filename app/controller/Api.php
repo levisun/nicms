@@ -19,6 +19,7 @@ use think\Response;
 use think\exception\HttpResponseException;
 use think\facade\Request;
 use app\library\Async;
+use app\library\Ip;
 
 class Api extends Async
 {
@@ -32,7 +33,7 @@ class Api extends Async
     public function __construct()
     {
         if (!Request::server('HTTP_REFERER', null)) {
-            $this->illegal();
+            $this->error('request error');
         }
     }
 
@@ -44,8 +45,13 @@ class Api extends Async
      */
     public function query(string $name = 'cms')
     {
-        if (Request::isGet()) {
+        if ($name == 'ip') {
+            $ip = Ip::info();
+            $this->success('success', $ip);
+        } elseif (Request::isGet() && $name) {
             $this->setModule($name)->run();
+        } else {
+            $this->error('request error');
         }
     }
 
@@ -57,10 +63,10 @@ class Api extends Async
      */
     public function handle(string $name = 'cms')
     {
-        if (Request::isPost()) {
+        if (Request::isPost() && $name) {
             $this->setModule($name)->run();
         } else {
-            $this->illegal();
+            $this->error('request error');
         }
     }
 
@@ -72,26 +78,10 @@ class Api extends Async
      */
     public function upload(string $name = 'cms')
     {
-        if (Request::isPost() && !empty($_FILES)) {
+        if (Request::isPost() && $name && !empty($_FILES)) {
             $this->setModule($name)->run();
         } else {
-            $this->illegal();
+            $this->error('request error');
         }
-    }
-
-    /**
-     * 非法请求
-     * @access private
-     * @param
-     * @return void
-     */
-    private function illegal()
-    {
-        $response = Response::create([
-            'code'    => 'ERROR',
-            'expire'  => date('Y-m-d H:i:s', time() + 30),
-            'message' => 'error request'
-        ], 'json', 200);
-        throw new HttpResponseException($response);
     }
 }

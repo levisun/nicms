@@ -27,15 +27,13 @@ class File
 {
     public function save(): array
     {
-        $input_name = Request::param('input_name', 'upload');
-
         // 用户权限校验
         if (session_id() && session('?member_auth_key')) {
+            $input_name = Request::param('input_name', 'upload');
             $result = (new Upload)->save($input_name);
         } else {
-            $result = 'not';
+            $result = Lang::get('upload error');
         }
-            $result = (new Upload)->save($input_name);
 
         return [
             'debug' => false,

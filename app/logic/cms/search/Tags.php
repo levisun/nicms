@@ -55,7 +55,7 @@ class Tags
 
         $cache_key = md5(count($map) . $key . $query_limit . $query_page);
         $cache_key .= Request::isMobile() ? 'mobile' : '';
-        if (!Cache::has($cache_key) || APP_DEBUG) {
+        if (!Cache::has($cache_key)) {
             $result =
             ModelArticle::view('article article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('article_content article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')

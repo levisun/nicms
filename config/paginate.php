@@ -10,6 +10,7 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
+
 return [
     'type'      => 'bootstrap',
     'var_page'  => 'page',

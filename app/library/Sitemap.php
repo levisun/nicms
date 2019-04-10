@@ -1,7 +1,6 @@
 <?php
 /**
  *
- * 服务层
  * 访问日志
  *
  * @package   NICMS
@@ -28,6 +27,8 @@ class Sitemap
     public function handle($event, App $app)
     {
         if (Request::isGet() && !in_array(Request::subDomain(), ['admin', 'api', 'cdn'])) {
+            clearstatcache();
+
             $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemap.xml';
             if (is_file($path) && filemtime($path) < strtotime('-1 days')) {
                 Log::record('[SITEMAP] 网站地图', 'alert');
@@ -84,11 +85,11 @@ class Sitemap
                         self::create($category_xml, 'sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
 
                         $sitemap_xml[]['sitemap'] = [
-                            'loc'     => Request::domain() . 'sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
+                            'loc'     => Request::domain() . '/sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
                             'lastmod' => date('Y-m-d H:i:s')
                         ];
                         $sitemap_xml[]['sitemap'] = [
-                            'loc'     => Request::domain() . 'sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
+                            'loc'     => Request::domain() . '/sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
                             'lastmod' => date('Y-m-d H:i:s')
                         ];
                     }

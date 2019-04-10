@@ -22,8 +22,6 @@ use think\facade\Url;
 use app\library\Base64;
 use app\library\Filter;
 
-
-
 /**
  * 栏目授权地址
  * @param  int    $_access_id 指定权限 0为公开
@@ -77,7 +75,7 @@ function fileUrl(string $_file): string
  * @param  string      $_water 水印文字
  * @return string
  */
-function imgUrl(string $_img, int $_size = 200, string $_water = ''): string
+function getImgUrl(string $_img, int $_size = 200, string $_water = ''): string
 {
     $root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
     $font_path = $root_path . 'static' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf';
@@ -94,7 +92,7 @@ function imgUrl(string $_img, int $_size = 200, string $_water = ''): string
 
         // 修正原始图片名
         $new_img = str_replace($img_ext, '_skl_' . $img_ext, $img_path);
-        if (!is_file($root_path . $new_img)) {
+        if (is_file($root_path . $img_path) && !is_file($root_path . $new_img)) {
             rename($root_path . $img_path, $root_path . $new_img);
         }
         $img_path = $new_img;

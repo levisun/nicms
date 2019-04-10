@@ -1,7 +1,6 @@
 <?php
 /**
  *
- * 服务层
  * 模板类
  *
  * @package   NICMS
@@ -16,14 +15,12 @@ declare (strict_types = 1);
 namespace app\library;
 
 use think\Container;
-use think\Response;
 use think\exception\HttpException;
-use think\exception\HttpResponseException;
 use think\facade\Config;
 use think\facade\Lang;
 use think\facade\Request;
 use app\library\Base64;
-use app\library\Tags;
+use app\library\Filter;
 
 class Template
 {
@@ -110,42 +107,46 @@ class Template
             $this->templateConfig = $this->parseTemplateConfig();
 
             echo '<!-- Static:';
-            echo !APP_DEBUG ? 'open' : 'close';
+            echo Config::get('app.app_debug') ? 'close' : 'success';
             echo ' Date:' . date('Y-m-d H:i:s') . ' Time:' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 6) . 's';
-            echo ' Memory:' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 2) . 'mb' . ' -->' . PHP_EOL;
+            echo ' Memory:' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 2) . 'mb' . ' -->';
 
             echo $this->parseTemplateHead();
 
             $content = file_get_contents($this->parseTemplateFile($_template));
 
-            // PHP代码安全
-            $content = Filter::FUN($content);
 
-            // 解析模板
+
+            // 解析模板模板模式
             $content = $this->parseTemplateLayout($content);
+            // 解析模板引入文件
             $content = $this->parseTemplateInclude($content);
+            // 解析模板替换字符
             $content = $this->parseTemplateReplace($content);
+            // 解析模板变量
             $content = $this->parseTemplateVars($content);
+            // 解析模板函数
             $content = $this->parseTemplateFunc($content);
-            // $content = $this->parseTemplateTags($content);
+
+            // 过滤危害代码
+            $content = Filter::FUN($content);
+            $content = Filter::XSS($content);
+            // 过滤空格回车等无用字符
+            $content = Filter::ENTER($content);
+
+            // 解析模板标签方法
+            $content = $this->parseTemplateTags($content);
 
             echo $content;
 
             echo $this->parseTemplateFoot();
-
-            // 获取并清空缓存
-            $content = ob_get_clean();
-
-            $this->templateBuildWrite($content);
-
-            echo str_replace('{:__AUTHORIZATION__}', createAuthorization(), $content);
         } else {
             echo $content;
-
-            $content = ob_get_clean();
-
-            echo str_replace('{:__AUTHORIZATION__}', createAuthorization(), $content);
         }
+
+        $content = ob_get_clean();
+        $this->templateBuildWrite($content);
+        echo str_replace('{:__AUTHORIZATION__}', createAuthorization(), $content);
     }
 
     /**
@@ -185,7 +186,7 @@ class Template
         $foot = '';
         if (!empty($this->templateConfig['js'])) {
             foreach ($this->templateConfig['js'] as $js) {
-                $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $this->templateConfig['theme_version'] . '"></script>' . PHP_EOL;
+                $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $this->templateConfig['theme_version'] . '"></script>';
             }
         }
 
@@ -194,7 +195,7 @@ class Template
         // 底部JS脚本
         $foot .= $this->templateReplace['__SCRIPT__'];
 
-        return $foot . '</body>' . PHP_EOL . '</html>';
+        return $foot . '</body></html>';
     }
 
     /**
@@ -206,57 +207,57 @@ class Template
     private function parseTemplateHead(): string
     {
         $head =
-        '<!DOCTYPE html>' . PHP_EOL .
-        '<html lang="' . Lang::detect() . '">' . PHP_EOL .
-        '<head>' . PHP_EOL .
-        '<meta charset="utf-8" />' . PHP_EOL .
-        '<meta name="fragment" content="!" />' . PHP_EOL .                                // 支持蜘蛛ajax
-        '<meta name="robots" content="all" />' . PHP_EOL .                                // 蜘蛛抓取
-        '<meta name="revisit-after" content="1 days" />' . PHP_EOL .                      // 蜘蛛重访
-        '<meta name="renderer" content="webkit" />' . PHP_EOL .                           // 强制使用webkit渲染
-        '<meta name="force-rendering" content="webkit" />' . PHP_EOL .
-        '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' . PHP_EOL .
+        '<!DOCTYPE html>' .
+        '<html lang="' . Lang::detect() . '">' .
+        '<head>' .
+        '<meta charset="utf-8" />' .
+        '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
+        '<meta name="robots" content="all" />' .                                // 蜘蛛抓取
+        '<meta name="revisit-after" content="1 days" />' .                      // 蜘蛛重访
+        '<meta name="renderer" content="webkit" />' .                           // 强制使用webkit渲染
+        '<meta name="force-rendering" content="webkit" />' .
+        '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' .
 
-        '<meta name="generator" content="nicms" />' . PHP_EOL .
-        '<meta name="author" content="失眠小枕头 levisun.mail@gmail.com" />' . PHP_EOL .
-        '<meta name="copyright" content="2013-' . date('Y') . ' nicms 失眠小枕头" />' . PHP_EOL .
+        '<meta name="generator" content="nicms" />' .
+        '<meta name="author" content="失眠小枕头 levisun.mail@gmail.com" />' .
+        '<meta name="copyright" content="2013-' . date('Y') . ' nicms 失眠小枕头" />' .
 
-        '<meta http-equiv="Window-target" content="_blank">' . PHP_EOL .
-        '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' . PHP_EOL .
+        '<meta http-equiv="Window-target" content="_blank">' .
+        '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' .
 
-        '<meta http-equiv="Cache-Control" content="no-siteapp" />' . PHP_EOL .            // 禁止baidu转码
-        '<meta http-equiv="Cache-Control" content="no-transform" />' . PHP_EOL .
+        '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
+        '<meta http-equiv="Cache-Control" content="no-transform" />' .
 
-        '<meta http-equiv="x-dns-prefetch-control" content="on" />' . PHP_EOL .           // DNS缓存
-        // '<link rel="dns-prefetch" href="' . Config::get('app.api_host') . '" />' .
-        '<link rel="dns-prefetch" href="' . Config::get('app.cdn_host') . '" />' . PHP_EOL .
+        '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
+        '<link rel="dns-prefetch" href="' . Config::get('app.api_host') . '" />' .
+        '<link rel="dns-prefetch" href="' . Config::get('app.cdn_host') . '" />' .
 
-        '<link href="' . Config::get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' . PHP_EOL;
+        '<link href="' . Config::get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />';
 
         // 网站标题 关键词 描述
-        $head .= '<title>' . $this->templateReplace['__TITLE__'] . '</title>' . PHP_EOL;
-        $head .= '<meta name="keywords" content="' . $this->templateReplace['__KEYWORDS__'] . '" />'. PHP_EOL;
-        $head .= '<meta name="description" content="' . $this->templateReplace['__DESCRIPTION__'] . '" />'. PHP_EOL;
-        $head .= '<meta property="og:title" content="' . $this->templateReplace['__NAME__'] . '">'. PHP_EOL;
-        $head .= '<meta property="og:type" content="website">'. PHP_EOL;
-        $head .= '<meta property="og:url" content="' . Request::scheme() . ':' . url() . '">'. PHP_EOL;
-        $head .= '<meta property="og:image" content="">'. PHP_EOL;
+        $head .= '<title>' . $this->templateReplace['__TITLE__'] . '</title>';
+        $head .= '<meta name="keywords" content="' . $this->templateReplace['__KEYWORDS__'] . '" />';
+        $head .= '<meta name="description" content="' . $this->templateReplace['__DESCRIPTION__'] . '" />';
+        $head .= '<meta property="og:title" content="' . $this->templateReplace['__NAME__'] . '">';
+        $head .= '<meta property="og:type" content="website">';
+        $head .= '<meta property="og:url" content="' . Request::scheme() . ':' . url() . '">';
+        $head .= '<meta property="og:image" content="">';
 
         if (!empty($this->templateConfig['meta'])) {
             foreach ($this->templateConfig['meta'] as $m) {
-                $head .= '<meta ' . $m['type'] . ' ' . $m['content'] . ' />'. PHP_EOL;
+                $head .= '<meta ' . $m['type'] . ' ' . $m['content'] . ' />';
             }
         }
         if (!empty($this->templateConfig['link'])) {
             foreach ($this->templateConfig['link'] as $m) {
-                $head .= '<link rel="' . $m['rel'] . '" href="' . $m['href'] . '" />'. PHP_EOL;
+                $head .= '<link rel="' . $m['rel'] . '" href="' . $m['href'] . '" />';
             }
         }
         // <meta name="apple-itunes-app" content="app-id=1191720421, app-argument=sspai://sspai.com">
 
         if (!empty($this->templateConfig['css'])) {
             foreach ($this->templateConfig['css'] as $css) {
-                $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->templateConfig['theme_version'] . '" />'. PHP_EOL;
+                $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->templateConfig['theme_version'] . '" />';
             }
         }
 
@@ -275,14 +276,10 @@ class Template
                 'css:"' . $this->templateReplace['__CSS__'] . '",' .
                 'img:"' . $this->templateReplace['__IMG__'] . '",' .
                 'js:"' . $this->templateReplace['__JS__'] . '",' .
-                'static:"' . $this->templateReplace['__STATIC__'] . '",' .
+                'static:"' . $this->templateReplace['__STATIC__'] . '"' .
             '},' .
             'url:"//' . Request::subDomain() . '.' . Request::rootDomain() . Request::server('REQUEST_URI') . '",' .
-            'param:' . json_encode(Request::param()) . ',' .
-            'window: {' .
-                'width:window.screen.availWidth,' .
-                'height:window.screen.availHeight' .
-            '}' .
+            'param:' . json_encode(Request::param()) .
         '};';
 
         if (!Request::isMobile() || 0 !== strpos(Request::subDomain(), 'm')) {
@@ -292,10 +289,16 @@ class Template
             '}';
             unset($sub);
         }
-        $head .= '</script>' .  PHP_EOL;
+        $head .= '</script>';
         unset($root);
 
-        return $head . '</head>' . PHP_EOL . '<body>' . PHP_EOL;
+        $head .= '</head>';
+
+        if (strpos($head, '<body>') === false) {
+            $head .= '<body>';
+        }
+
+        return $head;
     }
 
     /**
@@ -311,7 +314,7 @@ class Template
         $url = implode('-', $url);
         $url = $url ? $url . '.html' : 'index.html';
 
-        if (APP_DEBUG === false) {
+        if (Config::get('app.app_debug') == false) {
             $expire = Config::get('cache.expire');
             $url = $this->buildPath . $url;
             clearstatcache();
@@ -341,7 +344,7 @@ class Template
         $url = implode('-', $url);
         $url = $url ? $url . '.html' : 'index.html';
 
-        APP_DEBUG or file_put_contents($this->buildPath . $url, $_content);
+        Config::get('app.app_debug') or file_put_contents($this->buildPath . $url, $_content);
     }
 
     /**
@@ -352,14 +355,14 @@ class Template
      */
     private function parseTemplateTags(string $_content): string
     {
-        if (preg_match_all('/({tag:[a-zA-Z_$=> ]+})(.*?)({\/tag})/si', $_content, $matches) !== false) {
+        if (preg_match_all('/({tag:)([a-zA-Z]+)(})(.*?)({\/tag})/si', $_content, $matches) !== false) {
             foreach ($matches[2] as $key => $tags) {
-                print_r($matches[1][$key]);
+                $tags = strtolower($tags);
+                $matches[4][$key] = call_user_func(['taglib\Tags', $tags], $matches[4][$key]);
 
-                print_r($tags);
-                print_r($matches[3][$key]);
+                $_content = str_replace($matches[0][$key], $matches[4][$key], $_content);
             }
-        }die();
+        }
         return $_content;
     }
 

@@ -1,6 +1,11 @@
 ~~~
-composer create-project topthink/think nicms 6.0.*-dev
-composer update topthink/framework
+19.04.10
+A. 添加.env配置项目
+B. 增加模板标签解析
+C. 过滤模板中危害字符与多余字符
+D. 修改注释
+E. 修改API错误请求
+F. 增加IP信息API接口
 ~~~
 
 ~~~

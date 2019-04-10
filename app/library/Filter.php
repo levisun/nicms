@@ -1,7 +1,6 @@
 <?php
 /**
  *
- * 服务层
  * 数据安全过滤类
  *
  * @package   NICMS
@@ -75,7 +74,7 @@ class Filter
     public static function XSS(string $_data): string
     {
         return preg_replace([
-            '/on([a-zA-Z0-9]*?)([ ]*?=[ ]*?)["|\'](.*?)["|\']/si',
+            '/on([a-zA-Z0-9]+)([ ]*?=[ ]*?)["|\'](.*?)["|\']/si',
             '/(javascript:)(.*?)(\))/si',
             '/<(javascript.*?)>(.*?)<(\/javascript.*?)>/si', '/<(\/?javascript.*?)>/si',
             '/<(script.*?)>(.*?)<(\/script.*?)>/si',         '/<(\/?script.*?)>/si',
@@ -141,7 +140,6 @@ class Filter
             '/(eval)/si'                 => 'ev&#97;l',
             '/(exec)/si'                 => 'ex&#101;c',
             '/(passthru)/si'             => 'pa&#115;sthru',
-            '/(php)/si'                  => 'ph&#112;',
             '/(phpinfo)/si'              => 'ph&#112;info',
             '/(proc_open)/si'            => 'pr&#111;c_open',
             '/(popen)/si'                => 'po&#112;en',

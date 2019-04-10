@@ -1,9 +1,8 @@
 <?php
 /**
  *
- * 服务层
  * 异步请求实现
- * Async
+ *
  * @package   NICMS
  * @category  app\library
  * @author    失眠小枕头 [levisun.mail@gmail.com]
@@ -19,7 +18,6 @@ use think\Container;
 use think\Response;
 use think\exception\HttpResponseException;
 use think\facade\Config;
-use think\facade\Env;
 use think\facade\Lang;
 use think\facade\Log;
 use think\facade\Request;
@@ -117,7 +115,7 @@ class Async
      * 调试开关
      * @var bool
      */
-    protected $debug = true;
+    protected $debug = false;
 
     /**
      * 浏览器数据缓存开关
@@ -149,14 +147,22 @@ class Async
         # code...
     }
 
+    /**
+     * 设置模块
+     * @access protected
+     * @param
+     * @return this
+     */
     protected function setModule(string $_name)
     {
-        $this->module = $_name;
+        $this->module = strtolower($_name);
         return $this;
     }
 
     /**
      * 运行
+     * @access protected
+     * @param
      * @return void
      */
     protected function run(): void
@@ -260,7 +266,7 @@ class Async
      * @param
      * @return $this
      */
-    protected function checkAuth()
+    protected function checkAuth(): void
     {
         $this->appid     = Request::param('appid/f', 1000001);
         if ($this->appid && is_numeric($this->appid)) {
@@ -281,7 +287,7 @@ class Async
      * @param
      * @return $this
      */
-    protected function checkSign()
+    protected function checkSign(): void
     {
         // 校验签名类型
         $this->signType = Request::param('sign_type', 'md5');
@@ -456,14 +462,14 @@ class Async
         $result = array_filter($result);
 
         // 记录日志
-        $this->writeLog($result);
+        $this->writeLog();
 
         if ($this->debug === false) {
             unset($result['debug']);
         }
 
         $headers = [];
-        if (APP_DEBUG === false && $this->cache === true && $this->expire && $_code == 'SUCCESS') {
+        if (Config::get('app.app_debug') === false && $this->cache === true && $this->expire && $_code == 'SUCCESS') {
             $headers = [
                 'Cache-Control' => 'max-age=' . $this->expire . ',must-revalidate',
                 'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
@@ -481,17 +487,16 @@ class Async
      * @param
      * @return void
      */
-    private function writeLog(array $result): void
+    private function writeLog(): void
     {
         $log = '[API] IP:' . Request::ip() .
                 ' TIME:' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 6) . 's' .
                 ' MEMORY:' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 2) . 'MB' .
                 ' CACHE:' . Container::pull('cache')->getReadTimes() . ' reads,' . Container::pull('cache')->getWriteTimes() . ' writes';
 
-        if (APP_DEBUG) {
+        if (Config::get('app.app_debug')) {
             $log .= PHP_EOL . 'PARAM:' . json_encode(Request::param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
             $log .= PHP_EOL . 'DEBUG:' . json_encode($this->debugLog, JSON_UNESCAPED_UNICODE);
-            // $log .= PHP_EOL . 'RESULT:' . json_encode($result, JSON_UNESCAPED_UNICODE);
         }
 
         Log::record($log, 'alert');
