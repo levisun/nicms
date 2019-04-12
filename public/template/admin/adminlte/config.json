@@ -1,14 +1,15 @@
 {
-    "layout": false,
+    "layout": true,
     "theme": "adminlte",
     "api_version": "1.0.1",
     "theme_version": "1.0.1",
     "css": [
         "https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css",
         "https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css",
-        "https://cdn.bootcss.com/ionicons/4.5.5/css/ionicons.min.css",
+        "https://cdn.bootcss.com/ionicons/2.0.0/css/ionicons.min.css",
         "https://cdn.bootcss.com/admin-lte/2.4.10/css/AdminLTE.min.css",
-        "https://cdn.bootcss.com/iCheck/1.0.1/skins/square/blue.css"
+        "https://cdn.bootcss.com/iCheck/1.0.1/skins/square/blue.css",
+        "https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic"
     ],
     "js": [
         "https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js",

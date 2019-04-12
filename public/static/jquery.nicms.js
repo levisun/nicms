@@ -17,6 +17,19 @@
         return result ? decodeURIComponent(result[2]) : null;
     };
 
+    jQuery.getForm = function (_element) {
+        var array = jQuery(_element).serializeArray();
+        var form_data = {};
+        for (var index in array) {
+            var name = array[index]['name'];
+            var value = array[index]['value'];
+            if (name) {
+                form_data[name] = value;
+            }
+        }
+        return form_data;
+    };
+
     /**
      * 异步请求
      */

@@ -2,7 +2,7 @@
 /**
  *
  * 数据层
- * 文章表
+ * 文章内容
  *
  * @package   NICMS
  * @category  app\model

@@ -44,7 +44,7 @@ class Concurrent
 
 
         if (rand(1, 3) === 1 && !in_array($controller, ['abort', 'admin'])) {
-            $this->logPath = app()->getRuntimePath() . 'concurrent' . Base64::flag() . DIRECTORY_SEPARATOR;
+            $this->logPath = app()->getRuntimePath() . 'concurrent' . DIRECTORY_SEPARATOR;
             if (!is_dir($this->logPath)) {
                 chmod(app()->getRuntimePath(), 0777);
                 mkdir($this->logPath, 0777, true);

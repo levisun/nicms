@@ -32,6 +32,11 @@ class Session implements SessionHandler
     public function __construct($config = [])
     {
         $this->config = array_merge($this->config, $config);
+
+        ModelSession::where([
+            ['update_time', '<=', strtotime('-7 days')]
+        ])
+        ->delete();
     }
 
     /**
@@ -87,7 +92,7 @@ class Session implements SessionHandler
             $result = !!ModelSession::getNumRows();
         }
 
-        return !!$result;
+        return $result;
     }
 
     /**

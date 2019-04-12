@@ -50,3 +50,5 @@ Temporary Items
 *.yml
 /*.php
 think
+/public/sitemaps
+/public/uploads

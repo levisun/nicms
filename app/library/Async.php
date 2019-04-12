@@ -217,7 +217,7 @@ class Async
 
             if ($this->openVersion) {
                 $method = 'app\logic\\' . $this->module . '\\' .
-                          'v' . $this->version['major'] . 'm' . $this->version['minor'] . '\\' .
+                          'v' . $this->version['major'] . '_' . $this->version['minor'] . '\\' .
                           $logic . '\\' . ucfirst($class);
             } else {
                 $method = 'app\logic\\' . $this->module . '\\' .
@@ -240,7 +240,7 @@ class Async
             if ($this->openVersion) {
                 $lang = app()->getAppPath(). 'server' . DIRECTORY_SEPARATOR .
                     $this->module . DIRECTORY_SEPARATOR .
-                    'v' . $this->version['major'] . 'm' . $this->version['minor'] . DIRECTORY_SEPARATOR .
+                    'v' . $this->version['major'] . '_' . $this->version['minor'] . DIRECTORY_SEPARATOR .
                     'lang' . DIRECTORY_SEPARATOR . Lang::detect() . '.php';
             } else {
                 $lang = app()->getAppPath(). 'server' . DIRECTORY_SEPARATOR .

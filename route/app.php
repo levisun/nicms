@@ -45,7 +45,7 @@ Route::domain('admin', function(){
     Route::get(':logic/:controller/:action$', 'admin/index');
 })
 ->bind('admin')
-->ext('do');
+->ext('html');
 
 
 

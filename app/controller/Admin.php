@@ -64,28 +64,36 @@ class admin extends Template
 
     /**
      * 验证权限
+     * @access private
+     * @param  string $_logic
+     * @param  string $_controller
+     * @param  string $_action
+     * @return void
      */
     private function __authenticate(string $_logic, string $_controller, string $_action): void
     {
-        if (!in_array($_logic, ['account']) && session('?admin_auth_key')) {
+        if (in_array($_logic, ['account']) && session('?admin_auth_key')) {
+            $result = url('settings/info/index');
+        } elseif (session('?admin_auth_key')) {
             $result =
-             (new Rbac)->authenticate(
+            (new Rbac)->authenticate(
                 session('admin_auth_key'),
                 'admin',
                 $_logic,
                 $_controller,
-                $_action
+                $_action,
+                [
+                    'not_auth_logic' => [
+                        'account'
+                    ]
+                ]
             );
-            if ($result === false) {
-                $url = url('setting/info');
-            }
-        } elseif (in_array($_logic, ['account']) && session('?admin_auth_key')) {
-            $url = url('setting/info');
-        }
-        if (isset($url)) {
-            $response = Response::create($url, 'redirect', 302);
-            throw new HttpResponseException($response);
+            $result = $result ? : url('settings/info/index');
         }
 
+        if (isset($result) && is_string($result)) {
+            $response = Response::create($result, 'redirect', 302);
+            throw new HttpResponseException($response);
+        }
     }
 }

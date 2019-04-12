@@ -61,7 +61,7 @@ class Template
         $this->templatePath  = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
         $this->templatePath .= 'template' . DIRECTORY_SEPARATOR;
 
-        $this->buildPath  = app()->getRuntimePath() . 'html' . Base64::flag() . DIRECTORY_SEPARATOR;
+        $this->buildPath  = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
         $this->buildPath .= Lang::detect() . DIRECTORY_SEPARATOR;
         $this->buildPath .= str_replace('.', '_', Request::subDomain()) . DIRECTORY_SEPARATOR;
 
@@ -114,7 +114,9 @@ class Template
             echo $this->parseTemplateHead();
 
             $content = file_get_contents($this->parseTemplateFile($_template));
-
+            if (strpos($content, '<body') === false) {
+                echo '<body>';
+            }
 
 
             // 解析模板模板模式
@@ -133,6 +135,7 @@ class Template
             $content = Filter::XSS($content);
             // 过滤空格回车等无用字符
             $content = Filter::ENTER($content);
+            $content = preg_replace('/(<!--)(.*?)(-->)/', '', $content);
 
             // 解析模板标签方法
             $content = $this->parseTemplateTags($content);
@@ -219,8 +222,8 @@ class Template
         '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' .
 
         '<meta name="generator" content="nicms" />' .
-        '<meta name="author" content="失眠小枕头 levisun.mail@gmail.com" />' .
-        '<meta name="copyright" content="2013-' . date('Y') . ' nicms 失眠小枕头" />' .
+        '<meta name="author" content="levisun.mail@gmail.com" />' .
+        '<meta name="copyright" content="2013-' . date('Y') . ' nicms" />' .
 
         '<meta http-equiv="Window-target" content="_blank">' .
         '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' .
@@ -294,10 +297,6 @@ class Template
 
         $head .= '</head>';
 
-        if (strpos($head, '<body>') === false) {
-            $head .= '<body>';
-        }
-
         return $head;
     }
 
@@ -358,7 +357,7 @@ class Template
         if (preg_match_all('/({tag:)([a-zA-Z]+)(})(.*?)({\/tag})/si', $_content, $matches) !== false) {
             foreach ($matches[2] as $key => $tags) {
                 $tags = strtolower($tags);
-                $matches[4][$key] = call_user_func(['taglib\Tags', $tags], $matches[4][$key]);
+                $matches[4][$key] = call_user_func(['\taglib\Tags', $tags], $matches[4][$key]);
 
                 $_content = str_replace($matches[0][$key], $matches[4][$key], $_content);
             }

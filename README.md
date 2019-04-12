@@ -1,15 +1,23 @@
 nicms1.x
 ===============
 
+[![PHP Version](https://img.shields.io/badge/php-%3E%3D7.1-8892BF.svg)](http://www.php.net/)
+
 ## 运行环境
 
 > PHP7.1+
+
 > Mysql
+
 > PDO
 
 ## 主要特性
-> 基于`ThinkPHP6+`(http://www.thinkphp.cn/) 框架开发
-> 基于`AdminLTE`(https://adminlte.io) 二次开发
+
+> 基于[ThinkPHP6+](http://www.thinkphp.cn/) 框架开发
+
+> 基于[AdminLTE](https://adminlte.io) 二次开发
+
+> 基于[Bootstrap](http://getbootstrap.com) 开发，自适应手机、平板、PC
 
 > Github: https://github.com/levisun/nicms
 
@@ -34,4 +42,4 @@ nicms遵循Apache2开源协议发布，并提供免费使用。
 
 All rights reserved。
 
-更多细节参阅 [LICENSE.txt](LICENSE.txt)
+更多细节参阅 [LICENSE](LICENSE)

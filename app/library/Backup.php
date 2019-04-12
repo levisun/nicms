@@ -30,7 +30,7 @@ class Backup
         if (Request::isGet() && !in_array(Request::subDomain(), ['admin', 'api', 'cdn'])) {
             Log::record('[BACKUP] 备份', 'alert');
             $this->savePath = app()->getRuntimePath() .
-                                'backup' . Base64::flag() . DIRECTORY_SEPARATOR .
+                                'backup' . DIRECTORY_SEPARATOR .
                                 'sys_auto' . DIRECTORY_SEPARATOR;
 
             clearstatcache();
@@ -66,7 +66,7 @@ class Backup
     public function run(string $_tag = '')
     {
         $this->savePath = app()->getRuntimePath() .
-                            'backup' . Base64::flag() . DIRECTORY_SEPARATOR .
+                            'backup' . DIRECTORY_SEPARATOR .
                             date('ymdH') . $_tag . DIRECTORY_SEPARATOR;
 
         clearstatcache();
@@ -106,8 +106,7 @@ class Backup
 
         $num = 1;
         $sql_file = $this->savePath . $_table_name . '_' . sprintf('%07d', $num) . '.sql';
-        $insert_into  = '/* ' . date('Y-m-d H:i:s') . ' */' . PHP_EOL;
-        $insert_into .= 'INSERT INTO `' . $_table_name . '` (' . $field . ') VALUES' . PHP_EOL;
+        $insert_into = 'INSERT INTO `' . $_table_name . '` (' . $field . ') VALUES' . PHP_EOL;
         $insert_data = '';
 
         for ($i = 0; $i < $total; $i++) {
@@ -132,7 +131,7 @@ class Backup
                 if ($key % 10 == 0 && strlen($insert_data) >= 1024 * 1024 * 3) {
                     if ($insert_data) {
                         $insert_data = '(' . trim($insert_data, ',' . PHP_EOL . '(') . ';' . PHP_EOL;
-                        file_put_contents($sql_file, $insert_into . $insert_data);
+                        $this->write($sql_file, $insert_into . $insert_data);
                         $num++;
                         $sql_file = $this->savePath . $_table_name . '_' . sprintf('%07d', $num) . '.sql';
                         $insert_data = '';
@@ -143,7 +142,7 @@ class Backup
 
         if ($insert_data) {
             $insert_data = '(' . trim($insert_data, ',' . PHP_EOL . '(') . ';' . PHP_EOL;
-            file_put_contents($sql_file, $insert_into . $insert_data);
+            $this->write($sql_file, $insert_into . $insert_data);
         }
         unset($sql_file, $insert_data, $num, $data, $result);
     }
@@ -159,11 +158,11 @@ class Backup
         set_time_limit(0);
 
         $tableRes = Db::query('SHOW CREATE TABLE `' . $_table_name . '`');
-        $structure = '/* ' . date('Y-m-d H:i:s') . ' */' . PHP_EOL;
         if (!empty($tableRes[0]['Create Table'])) {
-            $structure .= 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
+            $time = '/* ' . date('Y-m-d H:i:s') . ' */';
+            $structure  = 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
             $structure .= $tableRes[0]['Create Table'] . ';';
-            file_put_contents($this->savePath . $_table_name . '.sql', $structure);
+            $this->write($this->savePath . $_table_name . '.sql', $structure);
         }
     }
 
@@ -184,5 +183,16 @@ class Backup
             $tables[str_replace(Config::get('database.prefix'), '', $value)] = $value;
         }
         return $tables;
+    }
+
+    private function read(string $_file): string
+    {
+        $result = file_get_contents($_file);
+        return gzuncompress(trim($result));
+    }
+
+    private function write(string $_file, string $_data): void
+    {
+        file_put_contents($_file, gzcompress($_data));
     }
 }

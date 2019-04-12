@@ -39,6 +39,11 @@ class Error
         $this->tpl('404');
     }
 
+    public function _500()
+    {
+        $this->tpl('500');
+    }
+
 
     private function tpl(string $_code)
     {

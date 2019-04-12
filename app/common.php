@@ -23,48 +23,49 @@ use app\library\Base64;
 use app\library\Filter;
 
 /**
- * 栏目授权地址
- * @param  int    $_access_id 指定权限 0为公开
- * @param  string $_url       地址
+ * Emoji原形转换为String
+ * @param  string $_str
  * @return string
  */
-function authorityUrl(int $_access_id, string $_url): string
+function emojiEncode($_str): string
 {
-    if ($_access_id == 0) {
-        $url = url($_url, []);
-    }
-
-    elseif (session('?member_level') && session('member_level') <= $_access_id) {
-        $url = url($_url, []);
-    }
-
-    else {
-        $url = url('authority', ['level' => $_access_id], []);
-    }
-
-    return $url;
+    return json_decode(preg_replace_callback("/(\\\u[ed][0-9a-f]{3})/i", function ($string) {
+        return addslashes($string[0]);
+    }, json_encode($_str)));
 }
 
 /**
- * 拼接文件地址
- * @param  string $_file 文件路径
+ * Emoji字符串转换为原形
+ * @param  string $_str
  * @return string
  */
-function fileUrl(string $_file): string
+function emojiDecode($_str): string
 {
-    $root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
-    $ext = pathinfo($root_path . $_file, PATHINFO_EXTENSION);
+    return json_decode(preg_replace_callback('/\\\\\\\\/i', function () {
+        return '\\';
+    }, json_encode($_str)));
+}
 
-    if (in_array($ext, ['gif', 'jpg', 'jpeg', 'bmp', 'png'])) {
-        return 'error';
-    } else {
-        // $ext = '.' . $ext;
-        // $newname = $root_path . str_replace($ext, '', $_file) . '_skl_' . $ext;
-        // if (!is_file($newname)) {
-        //     rename($root_path . $_file, $newname);
-        // }
-        return Config::get('app.cdn_host') . $_file;
-    }
+/**
+ * Emoji字符串清清理
+ * @param string $_str
+ * @return string
+ */
+function emojiClear($_str): string
+{
+    return preg_replace_callback('/./u', function (array $match) {
+        return strlen($match[0]) >= 4 ? '' : $match[0];
+    }, $_str);
+}
+
+/**
+ * 是否微信请求
+ * @param
+ * @return boolean
+ */
+function isWechat(): bool
+{
+    return strpos(Request::server('HTTP_USER_AGENT'), 'MicroMessenger') !== false ? true : false;
 }
 
 /**
@@ -138,66 +139,6 @@ function getImgUrl(string $_img, int $_size = 200, string $_water = ''): string
 }
 
 /**
- * Emoji原形转换为String
- * @param  string $_str
- * @return string
- */
-function emojiEncode($_str): string
-{
-    return json_decode(preg_replace_callback("/(\\\u[ed][0-9a-f]{3})/i", function ($string) {
-        return addslashes($string[0]);
-    }, json_encode($_str)));
-}
-
-/**
- * Emoji字符串转换为原形
- * @param  string $_str
- * @return string
- */
-function emojiDecode($_str): string
-{
-    return json_decode(preg_replace_callback('/\\\\\\\\/i', function () {
-        return '\\';
-    }, json_encode($_str)));
-}
-
-/**
- * Emoji字符串清清理
- * @param string $_str
- * @return string
- */
-function emojiClear($_str): string
-{
-    return preg_replace_callback('/./u', function (array $match) {
-        return strlen($match[0]) >= 4 ? '' : $match[0];
-    }, $_str);
-}
-
-/**
- * Url生成
- * @param  string $_url        路由地址
- * @param  array  $_vars       变量
- * @param  string $_sub_domain 子域名
- * @return string
- */
-function url(string $_url = '', array $_vars = [], string $_sub_domain = ''): string
-{
-    if (!$_sub_domain) {
-        if ($referer = Request::server('HTTP_REFERER')) {
-            $parse = parse_url($referer);
-            $_sub_domain = str_replace(Request::rootDomain(), '', $parse['host']);
-        } else {
-            $_sub_domain = 'www.';
-        }
-    }
-
-    $_url = $_url ? '/' . $_url : '';
-    $_url = Url::build($_url, $_vars, true, true);
-    $_url = str_replace(Request::scheme() . ':', '', $_url);
-    return str_replace('//api.', '//' . $_sub_domain, $_url);
-}
-
-/**
  * 获取语言变量值
  * @param  string $_name 语言变量名
  * @param  array  $_vars 动态变量值
@@ -210,13 +151,24 @@ function lang(string $_name, array $_vars = [], string $_lang = ''): string
 }
 
 /**
- * 是否微信请求
- * @param
- * @return boolean
+ * Url生成
+ * @param  string $_url  路由地址
+ * @param  array  $_vars 变量
+ * @param  string $_sub  子域名
+ * @return string
  */
-function isWechat(): bool
+function url(string $_url = '', array $_vars = [], string $_sub = ''): string
 {
-    return strpos(Request::server('HTTP_USER_AGENT'), 'MicroMessenger') !== false ? true : false;
+    if ($referer = Request::server('HTTP_REFERER')) {
+        $host = parse_url($referer, PHP_URL_HOST);
+        $sub = str_replace(Request::rootDomain(), '', $host);
+    } else {
+        $sub = 'www.';
+    }
+
+    $_url = $_url ? '/' . str_replace('\\', '/', $_url) : '';
+    $_url = Url::build($_url, $_vars, true, true);
+    return str_replace([Request::scheme() . '://', 'api.'], ['//', $sub], $_url);
 }
 
 /**
@@ -242,6 +194,29 @@ function createAuthorization(): string
     return Base64::encrypt($authorization, 'authorization');
 }
 
+function validate(string $_validate, array $_data = [])
+{
+    if (strpos($_validate, '.')) {
+        // 支持场景
+        list($_validate, $scene) = explode('.', $_validate);
+    }
+
+    $class = app()->parseClass('validate', $_validate);
+    $v     = $class::make();
+
+    if (!empty($scene)) {
+        $v->scene($scene);
+    }
+
+    $_data = !empty($_data) ? : Request::param();
+
+    if ($v->batch(false)->failException(false)->check($_data) === false) {
+        return $v->getError();
+    } else {
+        return true;
+    }
+}
+
 /**
  * Cookie管理
  * @param string|array  $_name cookie名称，如果为数组表示进行cookie设置
@@ -259,10 +234,7 @@ function cookie($_name, $_value = '', $_option = null)
         Cookie::clear($_value);
     } elseif ('' === $_value) {
         // 获取
-        return
-        0 === strpos($_name, '?') ?
-            Cookie::has(substr($_name, 1), $_option) :
-            Base64::decrypt(Cookie::get($_name));
+        return 0 === strpos($_name, '?') ? Cookie::has(substr($_name, 1), $_option) : Base64::decrypt(Cookie::get($_name));
     } elseif (is_null($_value)) {
         // 删除
         return Cookie::delete($_name);
@@ -276,28 +248,24 @@ function cookie($_name, $_value = '', $_option = null)
  * Session管理
  * @param string|array  $_name session名称，如果为数组表示进行session设置
  * @param mixed         $_value session值
- * @param string        $_prefix 前缀
  * @return mixed
  */
-function session($_name, $_value = '', $_prefix = null)
+function session($_name, $_value = '')
 {
     if (is_array($_name)) {
         // 初始化
         Session::init($_name);
     } elseif (is_null($_name)) {
         // 清除
-        Session::clear($_value);
+        Session::clear();
     } elseif ('' === $_value) {
         // 判断或获取
-        return
-        0 === strpos($_name, '?') ?
-            Session::has(substr($_name, 1), $_prefix) :
-            Base64::decrypt(Session::get($_name, $_prefix));
+        return 0 === strpos($_name, '?') ? Session::has(substr($_name, 1)) : Base64::decrypt(Session::get($_name));
     } elseif (is_null($_value)) {
         // 删除
-        return Session::delete($_name, $_prefix);
+        Session::delete($_name);
     } else {
         // 设置
-        return Session::set($_name, Base64::encrypt($_value), $_prefix);
+        Session::set($_name, Base64::encrypt($_value));
     }
 }
