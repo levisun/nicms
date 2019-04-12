@@ -52,3 +52,6 @@ Temporary Items
 think
 /public/sitemaps
 /public/uploads
+*.jpg
+*.png
+*.gif

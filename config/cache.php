@@ -19,9 +19,9 @@ return [
     // 缓存保存目录
     'path'          => '',
     // 缓存前缀
-    'prefix'        => '',
+    'prefix'        => Base64::flag(__DIR__),
     // 缓存有效期 0表示永久缓存
-    'expire'        => env('app.app_debug', true) ? 1440: 14400,
+    'expire'        => env('app.app_debug', true) ? 1440 : env('cache.expire', 14400),
     // 关闭子目录
     'cache_subdir'  => false,
     // 开启转义

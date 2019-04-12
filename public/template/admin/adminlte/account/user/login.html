@@ -32,8 +32,8 @@ jQuery(document).on('click', '#nc-login-btn', function(event){
         url: NICMS.api.url + '/handle/admin.do',
         type: 'POST',
         data: data,
-        success: function(){
-
+        success: function(result){
+            alert(result.msg);
         }
     });
 });

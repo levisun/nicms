@@ -51,6 +51,8 @@ class Template
 
     protected $varData = [];
 
+    protected $scriptReady = '';
+
     /**
      * 架构函数
      * @access public
@@ -114,10 +116,6 @@ class Template
             echo $this->parseTemplateHead();
 
             $content = file_get_contents($this->parseTemplateFile($_template));
-            if (strpos($content, '<body') === false) {
-                echo '<body>';
-            }
-
 
             // 解析模板模板模式
             $content = $this->parseTemplateLayout($content);
@@ -135,10 +133,14 @@ class Template
             $content = Filter::XSS($content);
             // 过滤空格回车等无用字符
             $content = Filter::ENTER($content);
-            $content = preg_replace('/(<!--)(.*?)(-->)/', '', $content);
+            $content = preg_replace(['/(<!--)(.*?)(-->)/si'], '', $content);
 
             // 解析模板标签方法
             $content = $this->parseTemplateTags($content);
+
+            if (strpos($content, '<body') === false) {
+                echo '<body>';
+            }
 
             echo $content;
 
@@ -192,6 +194,8 @@ class Template
                 $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $this->templateConfig['theme_version'] . '"></script>';
             }
         }
+
+        $foot .= '<script type="text/javascript">' . $this->scriptReady . '</script>';
 
         // 插件加载
 
@@ -314,7 +318,7 @@ class Template
         $url = $url ? $url . '.html' : 'index.html';
 
         if (Config::get('app.app_debug') == false) {
-            $expire = Config::get('cache.expire');
+            $expire = (int) Config::get('cache.expire');
             $url = $this->buildPath . $url;
             clearstatcache();
             if (is_file($url) && filemtime($url) >= time() - rand($expire, $expire*2)) {
@@ -358,8 +362,12 @@ class Template
             foreach ($matches[2] as $key => $tags) {
                 $tags = strtolower($tags);
                 $matches[4][$key] = call_user_func(['\taglib\Tags', $tags], $matches[4][$key]);
-
-                $_content = str_replace($matches[0][$key], $matches[4][$key], $_content);
+                if (in_array($tags, ['script'])) {
+                    $_content = str_replace($matches[0][$key], '', $_content);
+                    $this->scriptReady .= $matches[4][$key];
+                } else {
+                    $_content = str_replace($matches[0][$key], $matches[4][$key], $_content);
+                }
             }
         }
         return $_content;
@@ -381,6 +389,7 @@ class Template
             'strtoupper',
             'lang',
             'url',
+            'date'
         ];
 
         if (preg_match_all('/({:)([a-zA-Z_]+\()(.*?)(\)})/si', $_content, $matches) !== false) {
@@ -407,8 +416,13 @@ class Template
     {
         if (preg_match_all('/({:\$)([a-zA-Z_.]+)(})/si', $_content, $matches) !== false) {
             foreach ($matches[2] as $key => $var_name) {
-                list($var_type, $vars) = explode('.', $var_name, 2);
-                $var_type = strtoupper(trim($var_type));
+                if (false === strpos($var_name, '.')) {
+                    $var_type = '';
+                    $vars = $var_name;
+                } else {
+                    list($var_type, $vars) = explode('.', $var_name, 2);
+                    $var_type = strtoupper(trim($var_type));
+                }
                 switch ($var_type) {
                     case 'SERVER':
                         $var_type = '$_SERVER';

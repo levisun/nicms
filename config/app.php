@@ -1,30 +1,29 @@
 <?php
-// +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
-// +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
-// +----------------------------------------------------------------------
-
-// +----------------------------------------------------------------------
-// | 应用设置
-// +----------------------------------------------------------------------
+/**
+ *
+ * 应用设置
+ *
+ * @package   NiPHP
+ * @category  config
+ * @author    失眠小枕头 [levisun.mail@gmail.com]
+ * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
+ * @link      www.NiPHP.com
+ * @since     2019
+ */
 
 return [
     // API接口地址
-    'api_host'   => '//api.' . request()->rootDomain() . request()->root(),
+    'api_host'              => '//api.' . request()->rootDomain() . request()->root(),
     // CDN地址
-    'cdn_host'   => '//cdn.' . request()->rootDomain() . request()->root(),
+    'cdn_host'              => '//cdn.' . request()->rootDomain() . request()->root(),
     // 主站地址
-    'www_host'   => '//www.' . request()->rootDomain() . request()->root(),
+    'www_host'              => '//www.' . request()->rootDomain() . request()->root(),
     // 后台管理地址
-    'admin_host' => '//admin.' . request()->rootDomain() . request()->root(),
-
-    'app_debug'  => env('app.app_debug', 1) ? true : false,
-    'authkey'    => env('app.authkey', ''),
+    'admin_host'            => '//admin.' . request()->rootDomain() . request()->root(),
+    // 调试模式
+    'app_debug'             => env('app.app_debug', 1) ? true : false,
+    // 密钥
+    'authkey'               => env('app.authkey', ''),
 
     // 应用地址
     'app_host'              => '',

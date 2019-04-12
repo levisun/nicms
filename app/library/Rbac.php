@@ -45,11 +45,13 @@ class Rbac
     {
         $this->config = array_merge($this->config, $_config);
 
+        $_uid = (int) $_uid;
         if ($this->checkAccess($_app, $_logic, $_controller, $_action)) {
             // 实时检验权限
             if ($this->config['auth_type'] == 1) {
                 $__authenticate_list = $this->accessDecision($_uid);
             }
+
             // 非实时校验
             // 权限写入session
             else {
@@ -65,6 +67,25 @@ class Rbac
         } else {
             return true;
         }
+    }
+
+    /**
+     * 获得用户权限
+     * @param  int   $_uid
+     * @return array
+     */
+    public function getAuth($_uid): array
+    {
+        $_uid = (int) $_uid;
+        if ($this->config['auth_type'] == 1) {
+            $result = $this->accessDecision($_uid);
+        } elseif (session('?__authenticate_list')) {
+            $result = session('?__authenticate_list');
+        } else {
+            $result = $this->accessDecision($_uid);
+            session('__authenticate_list', $result);
+        }
+        return $result;
     }
 
     /**
@@ -115,7 +136,7 @@ class Rbac
      * @param  int    $_uid     用户ID
      * @return array
      */
-    private function accessDecision($_uid): array
+    private function accessDecision(int $_uid): array
     {
         $access = [];
 
@@ -154,7 +175,7 @@ class Rbac
      * @param  int $_pid
      * @return array
      */
-    private function getNode($_uid, int $_level = 1, int $_pid = 0): array
+    private function getNode(int $_uid, int $_level = 1, int $_pid = 0): array
     {
         if ($this->config['auth_founder'] == $_uid) {
             $result =

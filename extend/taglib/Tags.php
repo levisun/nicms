@@ -24,16 +24,6 @@ class Tags
             '/(\n|\r|\f)+/si',
             '/( ){2,}/si'
         ], '', $_content);
-        return '<script type="text/javascript">' . $_content . '</script>';
-    }
-
-    public static function scriptReady(string $_content): string
-    {
-        $_content = preg_replace([
-            '/(\/\/)(.*?)(\n|\r)/si',
-            '/(\n|\r|\f)+/si',
-            '/( ){2,}/si'
-        ], '', $_content);
-        return '<script type="text/javascript">window.onload=function(){' . $_content . '};</script>';
+        return $_content;
     }
 }
