@@ -19,7 +19,7 @@ return [
     // 缓存保存目录
     'path'          => '',
     // 缓存前缀
-    'prefix'        => Base64::flag(__DIR__),
+    'prefix'        => Base64::flag(__DIR__ . request()->domain()),
     // 缓存有效期 0表示永久缓存
     'expire'        => env('app.app_debug', true) ? 1440 : env('cache.expire', 14400),
     // 关闭子目录

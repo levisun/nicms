@@ -84,9 +84,8 @@ class admin extends Template
         if (in_array($_logic, ['account']) && session('?admin_auth_key')) {
             $result = url('settings/info/index');
         } elseif (session('?admin_auth_key')) {
-            $RBAC = new Rbac;
             $result =
-            $RBAC->authenticate(
+            (new Rbac)->authenticate(
                 session('admin_auth_key'),
                 'admin',
                 $_logic,
@@ -99,25 +98,6 @@ class admin extends Template
                 ]
             );
             $result = $result ? : url('settings/info/index');
-
-            if ($result === true) {
-                $auth = $RBAC->getAuth(session('admin_auth_key'));
-                $auth = $auth['admin'];
-                foreach ($auth as $key => $value) {
-                    $auth[$key] = [
-                        'name' => $key,
-                        'lang' => Lang::get('auth ' . $key),
-                    ];
-                    foreach ($value as $k => $val) {
-                        $auth[$key]['child'][$k] = [
-                            'name' => $k,
-                            'lang' => Lang::get('auth ' . $k),
-                            'url'  => url($key . '/' . $k . '/index')
-                        ];
-                    }
-                }
-                $this->assign(['auth' => json_encode($auth)]);
-            }
         } elseif (!in_array($_logic, ['account'])) {
             $result = url('account/user/login');
         }

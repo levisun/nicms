@@ -191,9 +191,9 @@ class Rbac
         } else {
             $result =
             ModelNode::view('node', ['id', 'name'])
-            ->view('role_admin', [], '(role_admin.user_id=' . $_uid . ')')
-            ->view('role', [], '(role.status=1 AND role.id=role_admin.role_id)')
-            ->view('access', [], '(access.role_id=role.id AND access.node_id=node.id)')
+            ->view('role_admin', [], 'role_admin.user_id=' . $_uid . '')
+            ->view('role', [], 'role.status=1 AND role.id=role_admin.role_id')
+            ->view('access', [], 'access.role_id=role.id AND access.node_id=node.id')
             ->where([
                 ['node.status', '=', 1],
                 ['node.level', '=', $_level],

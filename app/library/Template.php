@@ -64,10 +64,11 @@ class Template
         $this->templatePath .= 'template' . DIRECTORY_SEPARATOR;
 
         $this->buildPath  = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
-        $this->buildPath .= Lang::detect() . DIRECTORY_SEPARATOR;
+        $this->buildPath .= Lang::detect() . '-';
         $this->buildPath .= str_replace('.', '_', Request::subDomain()) . DIRECTORY_SEPARATOR;
 
         $this->setReplace([
+            'version'     => env('app.version', false),
             'theme'       => Config::get('app.cdn_host') . '/template/theme/',
             'css'         => Config::get('app.cdn_host') . '/template/css/',
             'img'         => Config::get('app.cdn_host') . '/template/img/',

@@ -238,12 +238,12 @@ class Async
 
             // 加载语言包
             if ($this->openVersion) {
-                $lang = app()->getAppPath(). 'server' . DIRECTORY_SEPARATOR .
+                $lang = app()->getAppPath(). 'logic' . DIRECTORY_SEPARATOR .
                     $this->module . DIRECTORY_SEPARATOR .
                     'v' . $this->version['major'] . '_' . $this->version['minor'] . DIRECTORY_SEPARATOR .
                     'lang' . DIRECTORY_SEPARATOR . Lang::detect() . '.php';
             } else {
-                $lang = app()->getAppPath(). 'server' . DIRECTORY_SEPARATOR .
+                $lang = app()->getAppPath(). 'logic' . DIRECTORY_SEPARATOR .
                     $this->module . DIRECTORY_SEPARATOR .
                     'lang' . DIRECTORY_SEPARATOR . Lang::detect() . '.php';
             }

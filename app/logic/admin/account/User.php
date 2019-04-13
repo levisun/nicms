@@ -25,6 +25,12 @@ use app\model\Admin as ModelAdmin;
 class User extends Base
 {
 
+    /**
+     * 登录
+     * @access public
+     * @param
+     * @return array
+     */
     public function login(): array
     {
         $result = $this->__authenticate('account', 'user', 'login');
@@ -83,13 +89,54 @@ class User extends Base
         ];
     }
 
+    /**
+     * 用户注销
+     * @access public
+     * @param
+     * @return array
+     */
     public function logout(): array
     {
-        # code...
+        session('admin_auth_key', null);
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => Lang::get('logout success')
+        ];
     }
 
     public function forget(): array
     {
         # code...
+    }
+
+    /**
+     * 用户信息
+     * @access public
+     * @param
+     * @return array
+     */
+    public function profile(): array
+    {
+        if (session('?admin_auth_key')) {
+            $result =
+            ModelAdmin::view('admin admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
+            ->view('role_admin role_admin', [], 'role_admin.user_id=admin.id')
+            ->view('role role', ['name'=>'role_name'], 'role.id=role_admin.role_id')
+            ->where([
+                ['admin.id', '=', session('admin_auth_key')]
+            ])
+            ->find();
+            $result['last_login_time'] = date('Y-m-d H:i:s', $result['last_login_time']);
+        } else {
+            $result = null;
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => Lang::get('user author'),
+            'data'  => $result
+        ];
     }
 }

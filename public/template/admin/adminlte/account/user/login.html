@@ -23,7 +23,7 @@
     </div>
 </div>
 
-{tag:scriptReady}
+{tag:script}
 jQuery(document).on('click', '#nc-login-btn', function(event){
     event.preventDefault();
     var data = jQuery.getForm('#login-form');
@@ -33,7 +33,7 @@ jQuery(document).on('click', '#nc-login-btn', function(event){
         type: 'POST',
         data: data,
         success: function(result){
-            alert(result.msg);
+            location.reload();
         }
     });
 });
