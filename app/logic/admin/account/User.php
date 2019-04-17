@@ -44,14 +44,14 @@ class User extends Base
             clearstatcache();
             if (!is_file($lock)) {
                 $result =
-                ModelAdmin::where([
+                (new ModelAdmin)->where([
                     ['username', '=', Request::post('username')]
                 ])
                 ->find();
 
                 if ($result && $result['password'] === Base64::password(Request::post('password'), $result['salt'])) {
                     $ip = Ip::info();
-                    ModelAdmin::where([
+                    (new ModelAdmin)->where([
                         ['id', '=', $result['id']]
                     ])
                     ->data([
@@ -61,6 +61,7 @@ class User extends Base
                     ])
                     ->update();
                     session('admin_auth_key', $result['id']);
+                    $this->__actionLog('admin', 'login');
                     $result = Lang::get('login success');
                 } else {
                     $login_lock = session('?login_lock') ? session('login_lock') : 0;
@@ -97,6 +98,7 @@ class User extends Base
      */
     public function logout(): array
     {
+        $this->__actionLog('admin', 'logout');
         session('admin_auth_key', null);
         return [
             'debug' => false,
@@ -118,10 +120,15 @@ class User extends Base
      */
     public function profile(): array
     {
+        $result = $this->__authenticate('account', 'user', 'profile');
+        if ($result !== true) {
+            return $result;
+        }
+
         if (session('?admin_auth_key')) {
             $result =
-            ModelAdmin::view('admin admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
-            ->view('role_admin role_admin', [], 'role_admin.user_id=admin.id')
+            (new ModelAdmin)->view('admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
+            ->view('role_admin', [], 'role_admin.user_id=admin.id')
             ->view('role role', ['name'=>'role_name'], 'role.id=role_admin.role_id')
             ->where([
                 ['admin.id', '=', session('admin_auth_key')]
@@ -137,6 +144,56 @@ class User extends Base
             'cache' => false,
             'msg'   => Lang::get('user author'),
             'data'  => $result
+        ];
+    }
+
+    public function notice()
+    {
+        $result = [];
+
+        // 验证备份状态
+        $status = true;
+        $file = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
+        if (count($file) >= 2) {
+            foreach ($file as $key => $value) {
+                if (filectime($value) >= strtotime('-7 days')) {
+                    $status = false;
+                    continue;
+                }
+            }
+        } else{
+            $status = false;
+        }
+        if ($status === false) {
+            $result[] = [
+                'title' => Lang::get('please make a database backup'),
+                'url'   => url('expand/database/index')
+            ];
+        }
+
+        // 错误日志
+        $status = true;
+        if (is_file(app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . date('Ymd') . '_error.log')) {
+            $status = false;
+        }
+        if ($status === false) {
+            $result[] = [
+                'title' => Lang::get('please view the error message'),
+                'url'   => url('expand/elog/index')
+            ];
+        }
+
+        //
+        $status = true;
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'user notice',
+            'data'  => [
+                'list'  => $result,
+                'total' => count($result),
+            ]
         ];
     }
 }

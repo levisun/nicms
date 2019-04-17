@@ -31,16 +31,16 @@ class Main
     public function query(): array
     {
         $result =
-        ModelCategory::view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-        ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
-        ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
+        (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+        ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+        ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
         ->where([
-            ['c.is_show', '=', 1],
-            ['c.type_id', '=', 2],
-            ['c.pid', '=', 0],
-            ['c.lang', '=', Lang::detect()]
+            ['category.is_show', '=', 1],
+            ['category.type_id', '=', 2],
+            ['category.pid', '=', 0],
+            ['category.lang', '=', Lang::detect()]
         ])
-        ->order('c.sort_order ASC, c.id DESC')
+        ->order('category.sort_order ASC, category.id DESC')
         ->cache(__METHOD__, null, 'NAV')
         ->select()
         ->toArray();
@@ -80,16 +80,16 @@ class Main
     private function child(int $_pid, int $_type_id)
     {
         $result =
-        ModelCategory::view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-        ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
-        ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
+        (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+        ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+        ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
         ->where([
-            ['c.is_show', '=', 1],
-            ['c.type_id', '=', $_type_id],
-            ['c.pid', '=', $_pid],
-            ['c.lang', '=', Lang::detect()]
+            ['category.is_show', '=', 1],
+            ['category.type_id', '=', $_type_id],
+            ['category.pid', '=', $_pid],
+            ['category.lang', '=', Lang::detect()]
         ])
-        ->order('c.sort_order ASC, c.id DESC')
+        ->order('category.sort_order ASC, category.id DESC')
         ->cache(__METHOD__ . $_pid . $_type_id, null, 'NAV')
         ->select()
         ->toArray();

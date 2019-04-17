@@ -72,12 +72,12 @@ class ArticleBase
         $cache_key .= Request::isMobile() ? 'mobile' : '';
         if (!Cache::has($cache_key)) {
             $result =
-            ModelArticle::view('article article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-            ->view('article_content article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
-            ->view('category category', ['name' => 'cat_name'], 'category.id=article.category_id')
-            ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id')
-            ->view('level level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
-            ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
+            (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+            ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
+            ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+            ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
+            ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
             ->where($map)
             ->order('article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.id DESC')
             ->paginate($query_limit);
@@ -99,7 +99,7 @@ class ArticleBase
 
                 // 附加字段数据
                 // $fields =
-                // ModelArticleData::view('article_data data', ['data'])
+                // (new ModelArticleData)->view('article_data data', ['data'])
                 // ->view('fields fields', ['name' => 'fields_name'], 'fields.id=data.fields_id')
                 // ->where([
                 //     ['data.main_id', '=', $value['id']],
@@ -114,7 +114,7 @@ class ArticleBase
 
                 // 标签
                 $value['tags'] =
-                ModelTagsArticle::view('tags_article article', ['tags_id'])
+                (new ModelTagsArticle)->view('tags_article article', ['tags_id'])
                 ->view('tags tags', ['name'], 'tags.id=article.tags_id')
                 ->where([
                     ['article.article_id', '=', $value['id']],
@@ -163,12 +163,12 @@ class ArticleBase
         $cache_key .= Request::isMobile() ? 'mobile' : '';
         if (!Cache::has($cache_key)) {
             $result =
-            ModelArticle::view('article article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-            ->view('article_content article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
-            ->view('category category', ['name' => 'cat_name'], 'category.id=article.category_id')
-            ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id and model.id=1')
-            ->view('level level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
-            ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
+            (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+            ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
+            ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id and model.id=1')
+            ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
+            ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
             ->where($map)
             ->cache(__METHOD__ . $id, null, 'DETAILS')
             ->find()
@@ -199,7 +199,7 @@ class ArticleBase
 
                 // 附加字段数据
                 // $fields =
-                // ModelArticleData::view('article_data data', ['data'])
+                // (new ModelArticleData)->view('article_data data', ['data'])
                 // ->view('fields fields', ['name' => 'fields_name'], 'fields.id=data.fields_id')
                 // ->where([
                 //     ['data.main_id', '=', $value['id']],
@@ -220,10 +220,10 @@ class ArticleBase
 
                 // 标签
                 $result['tags'] =
-                ModelTagsArticle::view('tags_article article', ['tags_id'])
-                ->view('tags tags', ['name'], 'tags.id=article.tags_id')
+                (new ModelTagsArticle)->view('tags_article', ['tags_id'])
+                ->view('tags', ['name'], 'tags.id=tags_article.tags_id')
                 ->where([
-                    ['article.article_id', '=', $result['id']],
+                    ['tags_article.article_id', '=', $result['id']],
                 ])
                 ->cache(__METHOD__ . 'tags' . $result['id'], null, 'DETAILS')
                 ->select()
@@ -264,12 +264,12 @@ class ArticleBase
         }
 
         // 更新浏览数
-        ModelArticle::where($map)
+        (new ModelArticle)->where($map)
         ->inc('hits', 1, 60)
         ->update();
 
         $result =
-        ModelArticle::where($map)
+        (new ModelArticle)->where($map)
         ->cache(__METHOD__ . $id, 15, 'DETAILS')
         ->value('hits');
 
@@ -285,7 +285,7 @@ class ArticleBase
     protected function next(int $_id)
     {
         $next_id =
-        ModelArticle::where([
+        (new ModelArticle)->where([
             ['is_pass', '=', 1],
             ['show_time', '<=', time()],
             ['id', '>', $_id]
@@ -295,9 +295,9 @@ class ArticleBase
         ->min('id');
 
         $result =
-        ModelArticle::view('article article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-        ->view('category category', ['name' => 'cat_name'], 'category.id=article.category_id')
-        ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id and model.id=1')
+        (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+        ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+        ->view('model', ['name' => 'action_name'], 'model.id=category.model_id and model.id=1')
         ->where([
             ['article.is_pass', '=', 1],
             ['article.show_time', '<=', time()],
@@ -324,7 +324,7 @@ class ArticleBase
     protected function prev(int $_id)
     {
         $prev_id =
-        ModelArticle::where([
+        (new ModelArticle)->where([
             ['is_pass', '=', 1],
             ['show_time', '<=', time()],
             ['id', '<', $_id]
@@ -334,9 +334,9 @@ class ArticleBase
         ->max('id');
 
         $result =
-        ModelArticle::view('article article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-        ->view('category category', ['name' => 'cat_name'], 'category.id=article.category_id')
-        ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id and model.id=1')
+        (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+        ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+        ->view('model', ['name' => 'action_name'], 'model.id=category.model_id and model.id=1')
         ->where([
             ['article.is_pass', '=', 1],
             ['article.show_time', '<=', time()],

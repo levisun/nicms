@@ -52,13 +52,13 @@ class Breadcrumb
     private function parentCate($_pid)
     {
         $result =
-        ModelCategory::view('category c', ['id', 'name', 'pid', 'aliases', 'image', 'is_channel', 'access_id'])
-        ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
-        ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
+        (new ModelCategory)->view('category', ['id', 'name', 'pid', 'aliases', 'image', 'is_channel', 'access_id'])
+        ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+        ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
         ->where([
-            ['c.is_show', '=', 1],
-            ['c.id', '=', $_pid],
-            ['c.lang', '=', Lang::detect()]
+            ['category.is_show', '=', 1],
+            ['category.id', '=', $_pid],
+            ['category.lang', '=', Lang::detect()]
         ])
         ->cache(__METHOD__ . $_pid, null, 'NAV')
         ->find()

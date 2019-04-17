@@ -39,7 +39,7 @@ class Siteinfo
         // 文章描述
         if ($id = Request::param('id/f', null)) {
             $result =
-            ModelArticle::where([
+            (new ModelArticle)->where([
                 ['id', '=', $id]
             ])
             ->value('description', '');
@@ -47,14 +47,14 @@ class Siteinfo
         // 栏目描述
         elseif ($cid = Request::param('cid/f', null)) {
             $result =
-            ModelCategory::where([
+            (new ModelCategory)->where([
                 ['id', '=', $cid]
             ])
             ->value('description', '');
         }
         else {
             $result .=
-            ModelConfig::where([
+            (new ModelConfig)->where([
                 ['name', '=', Request::controller(true) . '_description'],
                 ['lang', '=', Lang::detect()]
             ])
@@ -79,7 +79,7 @@ class Siteinfo
         // 文章关键词
         if ($id = Request::param('id/f', false)) {
             $result =
-            ModelArticle::where([
+            (new ModelArticle)->where([
                 ['id', '=', $id]
             ])
             ->value('keywords', '');
@@ -87,14 +87,14 @@ class Siteinfo
         // 栏目关键词
         elseif ($cid = Request::param('cid/f', false)) {
             $result =
-            ModelCategory::where([
+            (new ModelCategory)->where([
                 ['id', '=', $cid]
             ])
             ->value('keywords', '');
         }
         else {
             $result .=
-            ModelConfig::where([
+            (new ModelConfig)->where([
                 ['name', '=', Request::controller(true) . '_keywords'],
                 ['lang', '=', Lang::detect()]
             ])
@@ -119,7 +119,7 @@ class Siteinfo
         // 文章名
         if ($id = Request::param('id/f', false)) {
             $result =
-            ModelArticle::where([
+            (new ModelArticle)->where([
                 ['id', '=', $id]
             ])
             ->value('title', '');
@@ -127,14 +127,14 @@ class Siteinfo
         // 栏目名
         elseif ($cid = Request::param('cid/f', false)) {
             $result =
-            ModelCategory::where([
+            (new ModelCategory)->where([
                 ['id', '=', $cid]
             ])
             ->value('name', 'NICMS');
         }
         else {
             $result .=
-            ModelConfig::where([
+            (new ModelConfig)->where([
                 ['name', '=', Request::controller(true) . '_sitename'],
                 ['lang', '=', Lang::detect()]
             ])
@@ -155,7 +155,7 @@ class Siteinfo
     public static function name(): string
     {
         return
-        ModelConfig::where([
+        (new ModelConfig)->where([
             ['name', '=', Request::controller(true) . '_sitename'],
             ['lang', '=', Lang::detect()]
         ])
@@ -173,7 +173,7 @@ class Siteinfo
     public static function copyright(): string
     {
         $copyright =
-        ModelConfig::where([
+        (new ModelConfig)->where([
             ['name', '=', Request::controller(true) . '_copyright'],
             ['lang', '=', Lang::detect()]
         ])
@@ -181,7 +181,7 @@ class Siteinfo
         ->value('value', '');
 
         $beian =
-        ModelConfig::where([
+        (new ModelConfig)->where([
             ['name', '=', Request::controller(true) . '_beian'],
             ['lang', '=', Lang::detect()]
         ])
@@ -202,7 +202,7 @@ class Siteinfo
     public static function bottom(): string
     {
         $result =
-        ModelConfig::where([
+        (new ModelConfig)->where([
             ['name', '=', Request::controller(true) . '_bottom'],
             ['lang', '=', Lang::detect()]
         ])
@@ -222,7 +222,7 @@ class Siteinfo
     public static function script(): string
     {
         $result =
-        ModelConfig::where([
+        (new ModelConfig)->where([
             ['name', '=', Request::controller(true) . '_script'],
             ['lang', '=', Lang::detect()]
         ])
@@ -242,7 +242,7 @@ class Siteinfo
     public static function theme(): string
     {
         return
-        ModelConfig::where([
+        (new ModelConfig)->where([
             ['name', '=', Request::controller(true) . '_theme'],
             ['lang', '=', Lang::detect()]
         ])

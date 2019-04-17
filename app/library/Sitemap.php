@@ -34,26 +34,26 @@ class Sitemap
                 Log::record('[SITEMAP] 网站地图', 'alert');
 
                 $category =
-                ModelCategory::view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-                ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
-                ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
+                (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+                ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+                ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
                 ->where([
-                    ['c.is_show', '=', 1],
-                    ['c.model_id', 'in', [1,2,3]]
+                    ['category.is_show', '=', 1],
+                    ['category.model_id', 'in', [1,2,3]]
                 ])
-                ->order('c.sort_order ASC, c.id DESC')
+                ->order('category.sort_order ASC, category.id DESC')
                 ->select()
                 ->toArray();
 
                 $sitemap_xml = [];
                 foreach ($category as $vo_cate) {
                     $article =
-                    ModelArticle::view('article article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-                    ->view('article_content article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
-                    ->view('category category', ['name' => 'cat_name'], 'category.id=article.category_id')
-                    ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id')
-                    ->view('level level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
-                    ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
+                    (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+                    ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
+                    ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+                    ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+                    ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
+                    ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                     ->where([
                         ['article.category_id', '=', $vo_cate['id']],
                         ['article.is_pass', '=', '1'],

@@ -179,7 +179,7 @@ class Rbac
     {
         if ($this->config['auth_founder'] == $_uid) {
             $result =
-            ModelNode::field(['id', 'name'])
+            (new ModelNode)->field(['id', 'name'])
             ->where([
                 ['status', '=', 1],
                 ['level', '=', $_level],
@@ -190,7 +190,7 @@ class Rbac
             ->toArray();
         } else {
             $result =
-            ModelNode::view('node', ['id', 'name'])
+            (new ModelNode)->view('node', ['id', 'name'])
             ->view('role_admin', [], 'role_admin.user_id=' . $_uid . '')
             ->view('role', [], 'role.status=1 AND role.id=role_admin.role_id')
             ->view('access', [], 'access.role_id=role.id AND access.node_id=node.id')

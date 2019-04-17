@@ -36,11 +36,9 @@ class Garbage
     public function remove(): bool
     {
         // 减少频繁操作,每次请求百分之一几率运行操作
-        if (rand(1, 100) !== 1) {
+        if (rand(1, 20) !== 1) {
             return false;
         }
-
-        clearstatcache();
 
         $dirOrPath = [];
         $dirOrPath = array_merge($dirOrPath, (array) glob(app()->getRuntimePath() . '*'));
@@ -53,6 +51,7 @@ class Garbage
             shuffle($dirOrPath);
             $dirOrPath = array_slice($dirOrPath, 0, 1000);
 
+            clearstatcache();
             foreach ($dirOrPath as $path) {
                 if (is_file($path) && pathinfo($path, PATHINFO_BASENAME) == '.gitignore') {
                     continue;

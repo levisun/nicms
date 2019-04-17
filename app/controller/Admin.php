@@ -63,6 +63,40 @@ class admin extends Template
      */
     public function index(string $logic = 'account', string $controller = 'user', string $action = 'login')
     {
+        // $api_url = 'https://dysmsapi.aliyuncs.com/?';
+
+        // $data = array(
+        //     'Signature'        => '',
+        //     'AccessKeyId'      => 'LTAIXSdAPLSmsECt',
+        //     'Action'           => 'SendSms',
+        //     'Format'           => 'json',
+        //     'SignatureMethod'  => 'HMAC-SHA1',
+        //     'SignatureNonce'   => time() . rand(111111111, 999999999),
+        //     'SignatureVersion' => '1.0',
+        //     'Timestamp'        => gmdate('Y-m-d') . 'T' . gmdate('H:i:m') . 'Z',
+        //     'Version'          => '2017-05-25',
+
+        //     'SignName'         => '学霸无忧',
+        //     'TemplateCode'     => 'SMS_163530537',
+        //     'PhoneNumbers'     => '18629503709',
+        //     'TemplateParam'    => '{"code":"' . 123456 . '"}',
+        // );
+        // ksort($data);
+        // $str_sign = '';
+        // foreach ($data as $key => $value) {
+        //     if ($key != 'Signature') {
+        //         $str_sign .= urlencode($key) . '=' . urlencode($value) . '&';
+        //     }
+        // }
+        // $str_sign = rtrim($str_sign, '&');
+        // echo $str_sign;
+        // $signature = 'GET&' . urlencode('/') . '&' . urlencode($str_sign);
+        // $signature = base64_encode(hash_hmac('sha1', $signature, 'ftagFtNscXpWJ26EpvDauyRMspNjQb&', true));
+        // echo $api_url. 'Signature=' . urlencode($signature) . '&' . $str_sign;
+
+
+
+
         $this->__authenticate($logic, $controller, $action);
 
         $tpl  = $logic . DIRECTORY_SEPARATOR . $controller;

@@ -33,13 +33,13 @@ class Sidebar
     {
         if ($cid = Request::param('cid/f', null)) {
             $result =
-            ModelCategory::view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-            ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
-            ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
+            (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+            ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
             ->where([
-                ['c.is_show', '=', 1],
-                ['c.id', '=', $cid],
-                ['c.lang', '=', Lang::detect()]
+                ['category.is_show', '=', 1],
+                ['category.id', '=', $cid],
+                ['category.lang', '=', Lang::detect()]
             ])
             ->cache(__METHOD__ . $cid, null, 'NAV')
             ->find()
@@ -82,15 +82,15 @@ class Sidebar
     private function child(int $_id)
     {
         $result =
-        ModelCategory::view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-        ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
-        ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
+        (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+        ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+        ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
         ->where([
-            ['c.is_show', '=', 1],
-            ['c.pid', '=', $_id],
-            ['c.lang', '=', Lang::detect()]
+            ['category.is_show', '=', 1],
+            ['category.pid', '=', $_id],
+            ['category.lang', '=', Lang::detect()]
         ])
-        ->order('c.sort_order ASC, c.id DESC')
+        ->order('category.sort_order ASC, category.id DESC')
         ->cache(__METHOD__ . $_id, null, 'NAV')
         ->select()
         ->toArray();

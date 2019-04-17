@@ -19,7 +19,6 @@ use think\facade\Lang;
 use think\facade\Log;
 use think\facade\Request;
 use app\library\Ip;
-use app\model\Article as ModelArticle;
 use app\model\Searchengine as ModelSearchengine;
 use app\model\Visit as ModelVisit;
 
@@ -50,7 +49,7 @@ class Accesslog
         // 蜘蛛
         if ($spider = $this->isSpider()) {
             $has =
-            ModelSearchengine::where([
+            (new ModelSearchengine)->where([
                 ['name', '=', $spider],
                 ['user_agent', '=', $this->user_agent],
                 ['date', '=', strtotime(date('Y-m-d'))]
@@ -59,7 +58,7 @@ class Accesslog
             ->value('name');
 
             if ($has) {
-                ModelSearchengine::where([
+                (new ModelSearchengine)->where([
                     ['name', '=', $spider],
                     ['user_agent', '=', $this->user_agent],
                     ['date', '=', strtotime(date('Y-m-d'))]
@@ -67,7 +66,7 @@ class Accesslog
                 ->inc('count', 1, 60)
                 ->update();
             } else {
-                ModelSearchengine::insert([
+                (new ModelSearchengine)->save([
                     'name'       => $spider,
                     'user_agent' => $this->user_agent,
                     'date'       => strtotime(date('Y-m-d'))
@@ -78,7 +77,7 @@ class Accesslog
         // 访问
         else {
             $has =
-            ModelVisit::where([
+            (new ModelVisit)->where([
                 ['ip', '=', $this->ip['ip']],
                 ['user_agent', '=', $this->user_agent],
                 ['date', '=', strtotime(date('Y-m-d'))]
@@ -87,7 +86,7 @@ class Accesslog
             ->value('ip');
 
             if ($has) {
-                ModelVisit::where([
+                (new ModelVisit)->where([
                     ['ip', '=', $this->ip['ip']],
                     ['user_agent', '=', $this->user_agent],
                     ['date', '=', strtotime(date('Y-m-d'))]
@@ -95,7 +94,7 @@ class Accesslog
                 ->inc('count', 1, 60)
                 ->update();
             } else {
-                ModelVisit::insert([
+                (new ModelVisit)->save([
                     'ip'         => $this->ip['ip'],
                     'ip_attr'    => $this->ip['country'] .  $this->ip['region'] . $this->ip['city'] .  $this->ip['area'],
                     'user_agent' => $this->user_agent,
@@ -106,13 +105,13 @@ class Accesslog
 
         // 删除过期信息
         if (rand(1, 10) === 1) {
-            ModelSearchengine::where([
+            (new ModelSearchengine)->where([
                 ['date', '<=', strtotime('-90 days')]
             ])
             ->limit(100)
             ->delete();
 
-            ModelVisit::where([
+            (new ModelVisit)->where([
                 ['date', '<=', strtotime('-90 days')]
             ])
             ->limit(100)

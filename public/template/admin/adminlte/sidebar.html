@@ -14,7 +14,7 @@
         <ul class="sidebar-menu" data-widget="tree">
             <li v-for="vo in user_auth" v-bind:class="NICMS.param.logic==vo.name ? 'treeview active' : 'treeview'">
                 <a>
-                    <i class="fa fa-dashboard"></i> <span v-text="vo.lang"></span>
+                    <i v-bind:class="ICON[vo.name]"></i> <span v-text="vo.lang"></span>
                     <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>
@@ -29,6 +29,16 @@
     </section>
 </aside>
 {tag:script}
+var ICON = {
+    settings: 'fa fa-gears',
+    theme: 'fa fa-dashboard',
+    category: 'fa fa-gears',
+    content: 'fa fa-edit',
+    user: 'fa fa-group',
+    wechat: 'fa fa-wechat',
+    book: 'fa fa-book',
+    extend: 'fa fa-plug',
+};
 jQuery.pjax({
     url: NICMS.api.url + '/handle/admin.do',
     type: 'POST',
@@ -38,6 +48,8 @@ jQuery.pjax({
     },
     success: function(result){
         if (result.code == 'SUCCESS' && result.data) {
+            jQuery('.content-header h1 font').text(result.data[NICMS.param.logic].lang);
+            jQuery('.content-header h1 small').text(result.data[NICMS.param.logic].child[NICMS.param.controller].lang);
             new Vue({
                 el: '.main-sidebar',
                 data: {

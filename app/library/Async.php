@@ -18,12 +18,13 @@ use think\Container;
 use think\Response;
 use think\exception\HttpResponseException;
 use think\facade\Config;
+use think\facade\Env;
 use think\facade\Lang;
 use think\facade\Log;
 use think\facade\Request;
 use think\facade\Session;
 use app\library\Base64;
-use app\model\Session as SessionModel;
+// use app\model\Session as ModelSession;
 
 class Async
 {
@@ -305,7 +306,7 @@ class Async
                         $str .= $key . '=' . $value . '&';
                     }
                 }
-                $str = trim($str, '&');
+                $str = rtrim($str, '&');
 
                 if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
                     $this->debugLog['sign_str'] = $str;
@@ -350,9 +351,9 @@ class Async
             // 校验token合法性
             $referer = Request::header('USER-AGENT') . Request::ip() .
                        app()->getRootPath() . strtotime(date('Ymd'));
-            if (!hash_equals(sha1(Base64::encrypt($referer, 'authorization')), $this->token)) {
+            $referer = base64_encode(hash_hmac('sha1', $referer, Env::get('app.authkey'), true));
+            if (!hash_equals($referer, $this->token)) {
                 $this->debugLog['referer'] = $referer;
-                $this->debugLog['referer::sha1'] = sha1(Base64::encrypt($referer, 'authorization'));
                 $this->debugLog['this::token'] = $this->token;
                 $this->error('header-authorization token error');
             }

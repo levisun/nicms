@@ -189,7 +189,7 @@ function safeFilter($_data)
 function createAuthorization(): string
 {
     $authorization = Request::header('USER-AGENT') . Request::ip() . app()->getRootPath() . strtotime(date('Ymd'));
-    $authorization = sha1(Base64::encrypt($authorization, 'authorization'));
+    $authorization = base64_encode(hash_hmac('sha1', $authorization, Env::get('app.authkey'), true));
     $authorization .= session_id() ? '.' . session_id() : '';
     return Base64::encrypt($authorization, 'authorization');
 }

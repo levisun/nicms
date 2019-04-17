@@ -33,7 +33,7 @@ class Session implements SessionHandler
     {
         $this->config = array_merge($this->config, $config);
 
-        ModelSession::where([
+        (new ModelSession)->where([
             ['update_time', '<=', strtotime('-7 days')]
         ])
         ->delete();
@@ -56,7 +56,7 @@ class Session implements SessionHandler
         }
 
         return
-        ModelSession::where($map)
+        (new ModelSession)->where($map)
         ->value('data', '');
     }
 
@@ -70,7 +70,7 @@ class Session implements SessionHandler
     public function write(string $sessID, string $data): bool
     {
         $result =
-        ModelSession::where([
+        (new ModelSession)->where([
             ['session_id', '=', $this->config['prefix'] . $sessID]
         ])
         ->find();
@@ -82,14 +82,14 @@ class Session implements SessionHandler
         ];
 
         if (!empty($result)) {
-            ModelSession::where([
+            (new ModelSession)->where([
                 ['session_id', '=', $this->config['prefix'] . $sessID],
             ])
             ->update($data);
-            $result = !!ModelSession::getNumRows();
+            $result = !!(new ModelSession)->getNumRows();
         } else {
-            ModelSession::insert($data);
-            $result = !!ModelSession::getNumRows();
+            (new ModelSession)->save($data);
+            $result = !!(new ModelSession)->getNumRows();
         }
 
         return $result;
@@ -103,10 +103,10 @@ class Session implements SessionHandler
      */
     public function delete(string $sessID): bool
     {
-        ModelSession::where([
+        (new ModelSession)->where([
             ['session_id', '=', $this->config['prefix'] . $sessID]
         ])
         ->delete();
-        return !!ModelSession::getNumRows();
+        return !!(new ModelSession)->getNumRows();
     }
 }

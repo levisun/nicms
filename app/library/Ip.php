@@ -118,7 +118,7 @@ class Ip
     private static function query($_ip)
     {
         return
-        IpInfo::view('ipinfo i', ['id', 'ip', 'isp', 'update_time'])
+        (new IpInfo)->view('ipinfo i', ['id', 'ip', 'isp', 'update_time'])
         ->view('region country', ['id' => 'country_id', 'name' => 'country'], 'country.id=i.country_id')
         ->view('region region', ['id' => 'region_id', 'name' => 'region'], 'region.id=i.province_id')
         ->view('region city', ['id' => 'city_id', 'name' => 'city'], 'city.id=i.city_id')
@@ -143,7 +143,7 @@ class Ip
         $_name = Filter::default($_name, true);
 
         $result =
-        Region::where([
+        (new Region)->where([
             ['pid', '=', $_pid],
             ['name', 'LIKE', $_name . '%']
         ])
@@ -179,13 +179,13 @@ class Ip
                     }
 
                     $has =
-                    IpInfo::where([
+                    (new IpInfo)->where([
                         ['ip', '=', $_ip]
                     ])
                     ->value('id');
 
                     if (!$has) {
-                        IpInfo::insert([
+                        (new IpInfo)->save([
                             'ip'          => $_ip,
                             'country_id'  => $country,
                             'province_id' => $province,

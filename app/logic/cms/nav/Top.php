@@ -31,7 +31,7 @@ class Top
     public function query(): array
     {
         $result =
-        ModelCategory::view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+        (new ModelCategory)->view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
         ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
         ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
         ->where([
@@ -79,7 +79,7 @@ class Top
     private function child(int $_pid, int $_type_id)
     {
         $result =
-        ModelCategory::view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+        (new ModelCategory)->view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
         ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
         ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
         ->where([

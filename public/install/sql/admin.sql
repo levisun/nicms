@@ -79,7 +79,6 @@ CREATE TABLE IF NOT EXISTS `np_node` (
   PRIMARY KEY (`id`),
   KEY `pid` (`pid`) USING BTREE,
   KEY `level` (`level`) USING BTREE,
-  KEY `name` (`name`) USING BTREE,
   KEY `status` (`status`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='节点表';
 INSERT INTO `np_node` (`id`, `pid`, `level`, `name`, `title`, `status`, `sort_order`, `remark`) VALUES
@@ -92,7 +91,7 @@ INSERT INTO `np_node` (`id`, `pid`, `level`, `name`, `title`, `status`, `sort_or
 (7, 1, 2, 'wechat', '微信', 1, 0, '微信控制器'),
 -- (8, 1, 2, 'mall', '商城', 1, 0, '商城控制器'),
 (9, 1, 2, 'book', '书库', 1, 0, '书库控制器'),
-(10, 1, 2, 'expand', '扩展', 1, 0, '扩展控制器'),
+(10, 1, 2, 'extend', '扩展', 1, 0, '扩展控制器'),
 (11, 2, 3, 'info', '系统信息', 1, 0, '系统信息方法'),
 (12, 2, 3, 'basic', '基本设置', 1, 0, '基本设置方法'),
 (13, 12, 4, 'editor', '基本设置编辑', 1, 0, '基本设置编辑操作'),
@@ -109,8 +108,8 @@ INSERT INTO `np_node` (`id`, `pid`, `level`, `name`, `title`, `status`, `sort_or
 (24, 23, 4, 'editor', '网站界面设置编辑', 1, 0, '网站界面设置编辑操作'),
 (25, 3, 3, 'member', '会员界面设置', 1, 0, '会员界面设置方法'),
 (26, 25, 4, 'editor', '会员界面设置编辑', 1, 0, '会员界面设置编辑操作'),
-(27, 3, 3, 'mall', '商城界面设置', 1, 0, '商城界面设置方法'),
-(28, 27, 4, 'editor', '商城界面设置编辑', 1, 0, '商城界面设置编辑操作'),
+-- (27, 3, 3, 'mall', '商城界面设置', 1, 0, '商城界面设置方法'),
+-- (28, 27, 4, 'editor', '商城界面设置编辑', 1, 0, '商城界面设置编辑操作'),
 (29, 4, 3, 'category', '管理栏目', 1, 0, '管理栏目方法'),
 (30, 29, 4, 'added', '管理栏目添加', 1, 0, '管理栏目添加操作'),
 (31, 29, 4, 'remove', '管理栏目删除', 1, 0, '管理栏目删除操作'),
@@ -149,7 +148,7 @@ INSERT INTO `np_node` (`id`, `pid`, `level`, `name`, `title`, `status`, `sort_or
 (64, 5, 3, 'recycle', '内容回收站', 1, 0, '内容回收站方法'),
 (65, 64, 4, 'remove', '内容回收站删除', 1, 0, '内容回收站删除操作'),
 (66, 64, 4, 'recover', '内容回收站恢复', 1, 0, '内容回收站恢复操作'),
-(67, 6, 3, 'member', '会员管理', 1, 0, '会员管理方法'),
+(67, 6, 3, 'user', '会员管理', 1, 0, '会员管理方法'),
 (68, 67, 4, 'added', '会员管理添加', 1, 0, '会员管理添加操作'),
 (69, 67, 4, 'remove', '会员管理删除', 1, 0, '会员管理删除操作'),
 (70, 67, 4, 'editor', '会员管理编辑', 1, 0, '会员管理编辑操作'),

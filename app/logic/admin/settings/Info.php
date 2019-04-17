@@ -30,6 +30,9 @@ class Info extends Base
             return $result;
         }
 
+        $result = \think\facade\Db::query('SELECT version()');
+        $db_version = $result[0]['version()'];
+
         $result = [
             'sysinfo' => [
                 [
@@ -44,13 +47,13 @@ class Info extends Base
                 // 运行环境
                 [
                     'name'  => Lang::get('sys env'),
-                    'value' => 'PHP' . PHP_VERSION . '' . apache_get_version(),
+                    'value' => 'PHP' . PHP_VERSION . ' ' . php_sapi_name(),
                     // 'value' => Request::server('SERVER_SOFTWARE'),
                 ],
                 // 数据库类型与版本
                 [
                     'name'  => Lang::get('sys db'),
-                    'value' => 'Mysql',
+                    'value' => 'Mysql' . $db_version,
                 ],
                 [
                     'name'  => 'GD',

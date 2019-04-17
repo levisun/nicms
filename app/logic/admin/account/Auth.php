@@ -53,7 +53,7 @@ class Auth extends Base
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => Lang::get('user author'),
+            'msg'   => 'user author',
             'data'  => $result
         ];
     }
