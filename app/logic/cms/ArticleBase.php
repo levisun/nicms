@@ -39,7 +39,7 @@ class ArticleBase
         $map = [
             ['article.is_pass', '=', '1'],
             ['article.show_time', '<=', time()],
-            ['article.lang', '=', Lang::detect()]
+            ['article.lang', '=', Lang::getLangSet()]
         ];
 
         if ($category_id = Request::param('cid/f', null)) {
@@ -145,7 +145,7 @@ class ArticleBase
         $map = [
             ['article.is_pass', '=', '1'],
             ['article.show_time', '<=', time()],
-            ['article.lang', '=', Lang::detect()]
+            ['article.lang', '=', Lang::getLangSet()]
         ];
 
         if ($id = Request::param('id/f', null)) {
@@ -249,7 +249,7 @@ class ArticleBase
         $map = [
             ['is_pass', '=', '1'],
             ['show_time', '<=', time()],
-            ['lang', '=', Lang::detect()]
+            ['lang', '=', Lang::getLangSet()]
         ];
 
         if ($id = Request::param('id/f', null)) {

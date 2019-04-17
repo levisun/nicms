@@ -38,7 +38,7 @@ class Main
             ['category.is_show', '=', 1],
             ['category.type_id', '=', 2],
             ['category.pid', '=', 0],
-            ['category.lang', '=', Lang::detect()]
+            ['category.lang', '=', Lang::getLangSet()]
         ])
         ->order('category.sort_order ASC, category.id DESC')
         ->cache(__METHOD__, null, 'NAV')
@@ -87,7 +87,7 @@ class Main
             ['category.is_show', '=', 1],
             ['category.type_id', '=', $_type_id],
             ['category.pid', '=', $_pid],
-            ['category.lang', '=', Lang::detect()]
+            ['category.lang', '=', Lang::getLangSet()]
         ])
         ->order('category.sort_order ASC, category.id DESC')
         ->cache(__METHOD__ . $_pid . $_type_id, null, 'NAV')

@@ -19,7 +19,6 @@ use think\exception\HttpException;
 use think\facade\Config;
 use think\facade\Lang;
 use think\facade\Request;
-use app\library\Base64;
 use app\library\Filter;
 
 class Template
@@ -64,7 +63,7 @@ class Template
         $this->templatePath .= 'template' . DIRECTORY_SEPARATOR;
 
         $this->buildPath  = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
-        $this->buildPath .= Lang::detect() . '-';
+        $this->buildPath .= Lang::getLangSet() . '-';
         $this->buildPath .= str_replace('.', '_', Request::subDomain()) . DIRECTORY_SEPARATOR;
 
         $this->setReplace([
@@ -216,7 +215,7 @@ class Template
     {
         $head =
         '<!DOCTYPE html>' .
-        '<html lang="' . Lang::detect() . '">' .
+        '<html lang="' . Lang::getLangSet() . '">' .
         '<head>' .
         '<meta charset="utf-8" />' .
         '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
@@ -248,7 +247,7 @@ class Template
         $head .= '<meta name="description" content="' . $this->templateReplace['__DESCRIPTION__'] . '" />';
         $head .= '<meta property="og:title" content="' . $this->templateReplace['__NAME__'] . '">';
         $head .= '<meta property="og:type" content="website">';
-        $head .= '<meta property="og:url" content="' . Request::scheme() . ':' . url() . '">';
+        $head .= '<meta property="og:url" content="' . Request::url(true) . '">';
         $head .= '<meta property="og:image" content="">';
 
         if (!empty($this->templateConfig['meta'])) {
@@ -273,21 +272,21 @@ class Template
         $head .= '<script type="text/javascript">' .
         'var NICMS = {' .
             'domain:"' . '//' . Request::subDomain() . '.' . Request::rootDomain() . '",' .
+            'url:"' . Request::url(true) . '",' .
             'api:{' .
                 'url:"' . Config::get('app.api_host') . '",'.
                 'root:"' . $root . '",' .
                 'version:"' . $this->templateConfig['api_version'] . '",' .
-                'authorization:"{:__AUTHORIZATION__}"' .
+                'authorization:"{:__AUTHORIZATION__}",' .
+                'param:' . json_encode(Request::param()) .
             '},' .
             'cdn:{' .
-                'theme:"' . $this->templateReplace['__THEME__'] . '",' .
-                'css:"' . $this->templateReplace['__CSS__'] . '",' .
-                'img:"' . $this->templateReplace['__IMG__'] . '",' .
-                'js:"' . $this->templateReplace['__JS__'] . '",' .
-                'static:"' . $this->templateReplace['__STATIC__'] . '"' .
-            '},' .
-            'url:"//' . Request::subDomain() . '.' . Request::rootDomain() . Request::server('REQUEST_URI') . '",' .
-            'param:' . json_encode(Request::param()) .
+                'static:"' . $this->templateReplace['__STATIC__'] . '",' .
+                'theme:"' .  $this->templateReplace['__THEME__'] . '",' .
+                'css:"' .    $this->templateReplace['__CSS__'] . '",' .
+                'img:"' .    $this->templateReplace['__IMG__'] . '",' .
+                'js:"' .     $this->templateReplace['__JS__'] . '"' .
+            '}' .
         '};';
 
         if (!Request::isMobile() || 0 !== strpos(Request::subDomain(), 'm')) {

@@ -5,7 +5,7 @@
  * 数据库备份
  *
  * @package   NICMS
- * @category  app\logic\admin\expand
+ * @category  app\logic\admin\extend
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -13,7 +13,7 @@
  */
 declare (strict_types = 1);
 
-namespace app\logic\admin\expand;
+namespace app\logic\admin\extend;
 
 use think\facade\Config;
 use think\facade\Lang;

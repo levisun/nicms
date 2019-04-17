@@ -58,7 +58,7 @@ class Breadcrumb
         ->where([
             ['category.is_show', '=', 1],
             ['category.id', '=', $_pid],
-            ['category.lang', '=', Lang::detect()]
+            ['category.lang', '=', Lang::getLangSet()]
         ])
         ->cache(__METHOD__ . $_pid, null, 'NAV')
         ->find()

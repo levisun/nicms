@@ -17,8 +17,8 @@ use think\facade\Cookie;
 use think\facade\Env;
 use think\facade\Lang;
 use think\facade\Request;
+use think\facade\Route;
 use think\facade\Session;
-use think\facade\Url;
 use app\library\Base64;
 use app\library\Filter;
 
@@ -157,24 +157,27 @@ function lang(string $_name, array $_vars = [], string $_lang = ''): string
  * @param  string $_sub  子域名
  * @return string
  */
-function url(string $_url = '', array $_vars = [], string $_sub = ''): string
+function url(string $_url = '', array $_vars = [], string $_sub = 'www')
 {
+    $_url = Route::buildUrl($_url, $_vars, true, true);
+
     if ($referer = Request::server('HTTP_REFERER')) {
         $host = parse_url($referer, PHP_URL_HOST);
-        $sub = str_replace(Request::rootDomain(), '', $host);
-    } else {
-        $sub = 'www.';
+        list($sub) = explode('.', $host, 2);
     }
 
-    $_url = $_url ? '/' . str_replace('\\', '/', $_url) : '';
-    $_url = Url::build($_url, $_vars, true, true);
-    return str_replace([Request::scheme() . '://', 'api.'], ['//', $sub], $_url);
+    $replace = [
+        Request::scheme() . '://' => '//',
+        'api.'                    => $sub . '.',
+    ];
+
+    return str_replace(array_keys($replace), array_values($replace), $_url);
 }
 
 /**
  * 安全过滤
- * @param  [type] $_data [description]
- * @return [type]        [description]
+ * @param  mixed $_data
+ * @return mixed
  */
 function safeFilter($_data)
 {
@@ -194,6 +197,12 @@ function createAuthorization(): string
     return Base64::encrypt($authorization, 'authorization');
 }
 
+/**
+ * 验证数据
+ * @param string $_validate 验证器名或者验证规则数组
+ * @param array  $_data 数据
+ * @return bool
+ */
 function validate(string $_validate, array $_data = [])
 {
     if (strpos($_validate, '.')) {
@@ -226,18 +235,12 @@ function validate(string $_validate, array $_data = [])
  */
 function cookie($_name, $_value = '', $_option = null)
 {
-    if (is_array($_name)) {
-        // 初始化
-        Cookie::init($_name);
-    } elseif (is_null($_name)) {
-        // 清除
-        Cookie::clear($_value);
+    if (is_null($_value)) {
+        // 删除
+        return Cookie::delete($_name);
     } elseif ('' === $_value) {
         // 获取
         return 0 === strpos($_name, '?') ? Cookie::has(substr($_name, 1), $_option) : Base64::decrypt(Cookie::get($_name));
-    } elseif (is_null($_value)) {
-        // 删除
-        return Cookie::delete($_name);
     } else {
         // 设置
         return Cookie::set($_name, Base64::encrypt($_value), $_option);
@@ -252,18 +255,15 @@ function cookie($_name, $_value = '', $_option = null)
  */
 function session($_name, $_value = '')
 {
-    if (is_array($_name)) {
-        // 初始化
-        Session::init($_name);
-    } elseif (is_null($_name)) {
+    if (is_null($_name)) {
         // 清除
         Session::clear();
-    } elseif ('' === $_value) {
-        // 判断或获取
-        return 0 === strpos($_name, '?') ? Session::has(substr($_name, 1)) : Base64::decrypt(Session::get($_name));
     } elseif (is_null($_value)) {
         // 删除
         Session::delete($_name);
+    } elseif ('' === $_value) {
+        // 判断或获取
+        return 0 === strpos($_name, '?') ? Session::has(substr($_name, 1)) : Base64::decrypt(Session::get($_name));
     } else {
         // 设置
         Session::set($_name, Base64::encrypt($_value));

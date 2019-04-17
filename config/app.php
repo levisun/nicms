@@ -46,7 +46,7 @@ return [
     // 默认时区
     'default_timezone'      => 'Asia/Shanghai',
     // 是否开启多语言
-    'lang_switch_on'        => true,
+    'lang_switch_on'        => false,
     // 默认语言
     'default_lang'          => 'zh-cn',
     // 默认验证器

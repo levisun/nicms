@@ -36,7 +36,7 @@ class Article
         $map = [
             ['article.is_pass', '=', '1'],
             ['article.show_time', '<=', time()],
-            ['article.lang', '=', Lang::detect()]
+            ['article.lang', '=', Lang::getLangSet()]
         ];
 
         if ($key = Request::param('key', null)) {

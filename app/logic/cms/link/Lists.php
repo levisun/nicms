@@ -35,7 +35,7 @@ class Lists
         $map = [
             ['link.is_pass', '=', '1'],
             ['link.show_time', '<=', time()],
-            ['link.lang', '=', Lang::detect()]
+            ['link.lang', '=', Lang::getLangSet()]
         ];
 
         if ($category_id = Request::param('cid/f', null)) {

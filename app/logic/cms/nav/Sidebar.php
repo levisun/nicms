@@ -39,7 +39,7 @@ class Sidebar
             ->where([
                 ['category.is_show', '=', 1],
                 ['category.id', '=', $cid],
-                ['category.lang', '=', Lang::detect()]
+                ['category.lang', '=', Lang::getLangSet()]
             ])
             ->cache(__METHOD__ . $cid, null, 'NAV')
             ->find()
@@ -88,7 +88,7 @@ class Sidebar
         ->where([
             ['category.is_show', '=', 1],
             ['category.pid', '=', $_id],
-            ['category.lang', '=', Lang::detect()]
+            ['category.lang', '=', Lang::getLangSet()]
         ])
         ->order('category.sort_order ASC, category.id DESC')
         ->cache(__METHOD__ . $_id, null, 'NAV')

@@ -38,7 +38,7 @@ class Top
             ['c.is_show', '=', 1],
             ['c.type_id', '=', 1],
             ['c.pid', '=', 0],
-            ['c.lang', '=', Lang::detect()]
+            ['c.lang', '=', Lang::getLangSet()]
         ])
         ->order('c.sort_order ASC, c.id DESC')
         ->cache(__METHOD__, null, 'NAV')
@@ -86,7 +86,7 @@ class Top
             ['c.is_show', '=', 1],
             ['c.type_id', '=', $_type_id],
             ['c.pid', '=', $_pid],
-            ['c.lang', '=', Lang::detect()]
+            ['c.lang', '=', Lang::getLangSet()]
         ])
         ->order('c.sort_order ASC, c.id DESC')
         ->cache(__METHOD__ . $_pid . $_type_id, null, 'NAV')

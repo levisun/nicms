@@ -5,7 +5,7 @@
  * 操作日志
  *
  * @package   NICMS
- * @category  app\logic\admin\expand
+ * @category  app\logic\admin\extend
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -13,7 +13,7 @@
  */
 declare (strict_types = 1);
 
-namespace app\logic\admin\expand;
+namespace app\logic\admin\extend;
 
 use think\facade\Request;
 use app\logic\admin\Base;
@@ -32,14 +32,16 @@ class Log extends Base
         ->view('admin', ['username'], 'admin.id=action_log.user_id')
         ->view('role_admin', [], 'role_admin.user_id=admin.id')
         ->view('role', ['name'=>'role_name'], 'role.id=role_admin.role_id')
-        ->paginate($query_limit);
+        ->paginate($query_limit, false, ['path'=>'javascript:paging([PAGE]);']);
 
         $list = $result->toArray();
         $list['render'] = $result->render();
 
         $date_format = Request::post('date_format', 'Y-m-d');
         foreach ($list['data'] as $key => $value) {
+            $value['create_time'] = strtotime($value['create_time']);
             $value['create_time'] = date($date_format, $value['create_time']);
+            $list['data'][$key] = $value;
         }
 
         return [

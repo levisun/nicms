@@ -28,4 +28,7 @@ return [
     'auth category'   => '栏目管理',
     'auth category'   => '栏目管理',
 
+    'auth extend'   => '扩展',
+    'auth log'   => '操作日志',
+
 ];

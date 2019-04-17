@@ -179,10 +179,10 @@ class Async
 
         // 调试与缓存设置
         // 调试模式 返回数据没有指定默认关闭
-        $this->debug  = isset($result['debug']) ? !!$result['debug'] : false;
+        $this->debug = isset($result['debug']) ? !!$result['debug'] : false;
 
         // 浏览器缓存 返回数据没有指定默认开启
-        $this->cache  = isset($result['cache']) ? !!$result['cache'] : true;
+        $this->cache = isset($result['cache']) ? !!$result['cache'] : true;
         // 当调试模式开启时关闭缓存
         $this->cache = $this->debug ? false : $this->cache;
 
@@ -242,11 +242,11 @@ class Async
                 $lang = app()->getAppPath(). 'logic' . DIRECTORY_SEPARATOR .
                     $this->module . DIRECTORY_SEPARATOR .
                     'v' . $this->version['major'] . '_' . $this->version['minor'] . DIRECTORY_SEPARATOR .
-                    'lang' . DIRECTORY_SEPARATOR . Lang::detect() . '.php';
+                    'lang' . DIRECTORY_SEPARATOR . Lang::getLangSet() . '.php';
             } else {
                 $lang = app()->getAppPath(). 'logic' . DIRECTORY_SEPARATOR .
                     $this->module . DIRECTORY_SEPARATOR .
-                    'lang' . DIRECTORY_SEPARATOR . Lang::detect() . '.php';
+                    'lang' . DIRECTORY_SEPARATOR . Lang::getLangSet() . '.php';
             }
 
             Lang::load($lang);

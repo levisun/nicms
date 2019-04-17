@@ -59,7 +59,7 @@ return [
     // 自动写入时间戳字段
     'auto_timestamp'  => false,
     // 时间字段取出后的默认时间格式
-    'datetime_format' => false,
+    'datetime_format' => 'Y-m-d H:i:s',
     // 是否需要进行SQL性能分析
     'sql_explain'     => env('app.app_debug', 1) ? true : false,
     // Builder类

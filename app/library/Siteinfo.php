@@ -56,9 +56,9 @@ class Siteinfo
             $result .=
             (new ModelConfig)->where([
                 ['name', '=', Request::controller(true) . '_description'],
-                ['lang', '=', Lang::detect()]
+                ['lang', '=', Lang::getLangSet()]
             ])
-            ->cache(__METHOD__ . Request::controller(true) . '_description' . Lang::detect(), null, 'SITEINFO')
+            ->cache(__METHOD__ . Request::controller(true) . '_description' . Lang::getLangSet(), null, 'SITEINFO')
             ->value('value', '');
         }
 
@@ -96,9 +96,9 @@ class Siteinfo
             $result .=
             (new ModelConfig)->where([
                 ['name', '=', Request::controller(true) . '_keywords'],
-                ['lang', '=', Lang::detect()]
+                ['lang', '=', Lang::getLangSet()]
             ])
-            ->cache(__METHOD__ . Request::controller(true) . '_keywords' . Lang::detect(), null, 'SITEINFO')
+            ->cache(__METHOD__ . Request::controller(true) . '_keywords' . Lang::getLangSet(), null, 'SITEINFO')
             ->value('value', '');
         }
 
@@ -136,9 +136,9 @@ class Siteinfo
             $result .=
             (new ModelConfig)->where([
                 ['name', '=', Request::controller(true) . '_sitename'],
-                ['lang', '=', Lang::detect()]
+                ['lang', '=', Lang::getLangSet()]
             ])
-            ->cache(__METHOD__ . Request::controller(true) . '_sitename' . Lang::detect(), null, 'SITEINFO')
+            ->cache(__METHOD__ . Request::controller(true) . '_sitename' . Lang::getLangSet(), null, 'SITEINFO')
             ->value('value', 'NICMS');
         }
 
@@ -157,9 +157,9 @@ class Siteinfo
         return
         (new ModelConfig)->where([
             ['name', '=', Request::controller(true) . '_sitename'],
-            ['lang', '=', Lang::detect()]
+            ['lang', '=', Lang::getLangSet()]
         ])
-        ->cache(__METHOD__ . Request::controller(true) . '_sitename' . Lang::detect(), null, 'SITEINFO')
+        ->cache(__METHOD__ . Request::controller(true) . '_sitename' . Lang::getLangSet(), null, 'SITEINFO')
         ->value('value', 'NICMS');
     }
 
@@ -175,17 +175,17 @@ class Siteinfo
         $copyright =
         (new ModelConfig)->where([
             ['name', '=', Request::controller(true) . '_copyright'],
-            ['lang', '=', Lang::detect()]
+            ['lang', '=', Lang::getLangSet()]
         ])
-        ->cache(__METHOD__ . Request::controller(true) . '_copyright' . Lang::detect(), null, 'SITEINFO')
+        ->cache(__METHOD__ . Request::controller(true) . '_copyright' . Lang::getLangSet(), null, 'SITEINFO')
         ->value('value', '');
 
         $beian =
         (new ModelConfig)->where([
             ['name', '=', Request::controller(true) . '_beian'],
-            ['lang', '=', Lang::detect()]
+            ['lang', '=', Lang::getLangSet()]
         ])
-        ->cache(__METHOD__ . Request::controller(true) . '_beian' . Lang::detect(), null, 'SITEINFO')
+        ->cache(__METHOD__ . Request::controller(true) . '_beian' . Lang::getLangSet(), null, 'SITEINFO')
         ->value('value', '备案号');
 
         return htmlspecialchars_decode($copyright) .
@@ -204,9 +204,9 @@ class Siteinfo
         $result =
         (new ModelConfig)->where([
             ['name', '=', Request::controller(true) . '_bottom'],
-            ['lang', '=', Lang::detect()]
+            ['lang', '=', Lang::getLangSet()]
         ])
-        ->cache(__METHOD__ . Request::controller(true) . '_bottom' . Lang::detect(), null, 'SITEINFO')
+        ->cache(__METHOD__ . Request::controller(true) . '_bottom' . Lang::getLangSet(), null, 'SITEINFO')
         ->value('value', 'bottom');
 
         return htmlspecialchars_decode($result);
@@ -224,9 +224,9 @@ class Siteinfo
         $result =
         (new ModelConfig)->where([
             ['name', '=', Request::controller(true) . '_script'],
-            ['lang', '=', Lang::detect()]
+            ['lang', '=', Lang::getLangSet()]
         ])
-        ->cache(__METHOD__ . Request::controller(true) . '_script' . Lang::detect(), null, 'SITEINFO')
+        ->cache(__METHOD__ . Request::controller(true) . '_script' . Lang::getLangSet(), null, 'SITEINFO')
         ->value('value', '');
 
         return htmlspecialchars_decode($result);
@@ -244,9 +244,9 @@ class Siteinfo
         return
         (new ModelConfig)->where([
             ['name', '=', Request::controller(true) . '_theme'],
-            ['lang', '=', Lang::detect()]
+            ['lang', '=', Lang::getLangSet()]
         ])
-        ->cache(__METHOD__ . Request::controller(true) . '_theme' . Lang::detect(), null, 'SITEINFO')
+        ->cache(__METHOD__ . Request::controller(true) . '_theme' . Lang::getLangSet(), null, 'SITEINFO')
         ->value('value', 'default');
     }
 }

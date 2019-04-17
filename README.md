@@ -2,9 +2,7 @@ nicms1.x 未完成项目,正在拼命中...
 ===============
 
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D7.1-8892BF.svg)](http://www.php.net/)
-
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
-
 [![LICENSE](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
 
 ## 运行环境
@@ -18,6 +16,8 @@ nicms1.x 未完成项目,正在拼命中...
 > 基于[RBAC]验证的权限
 
 > 基于[AdminLTE](https://adminlte.io) 二次开发
+
+> 基于[CKEditor](https://ckeditor.com) 开发
 
 > 基于[Bootstrap](http://getbootstrap.com) 开发，自适应手机、平板、PC
 
@@ -41,7 +41,7 @@ composer require topthink/think-captcha
 
 ## 版权信息
 
-版权所有Copyright © 2013-2019 by 失眠小枕头 (http://www.niphp.com)
+版权所有Copyright © 2013-2019 by [失眠小枕头](http://www.niphp.com)
 
 All rights reserved。
 
