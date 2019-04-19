@@ -36,15 +36,10 @@ class Cms extends Template
      */
     public function __construct()
     {
+        $this->setTheme('cms/' . Siteinfo::theme());
         parent::__construct();
 
-        $this->setTheme('cms/' . Siteinfo::theme());
-        $tpl_path = Config::get('app.cdn_host') . '/template/' . 'cms' . '/' . Siteinfo::theme() . '/';
         $this->setReplace([
-            'theme'       => $tpl_path,
-            'css'         => $tpl_path . 'css/',
-            'img'         => $tpl_path . 'img/',
-            'js'          => $tpl_path . 'js/',
             'name'        => Siteinfo::name(),
             'title'       => Siteinfo::title(),
             'keywords'    => Siteinfo::keywords(),

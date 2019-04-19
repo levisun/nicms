@@ -19,9 +19,11 @@ use think\facade\Route;
 //     'code' => '\d+',
 // ]);
 
-Route::miss('error/index');
-Route::any('404', 'error/_404');
 Route::ext('html');
+
+Route::miss('error/index');
+Route::get('error', 'error/index');
+Route::get('404', 'error/_404');
 
 $domain = Request::subDomain();
 if ($domain == 'www') {

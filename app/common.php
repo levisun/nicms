@@ -159,6 +159,7 @@ function lang(string $_name, array $_vars = [], string $_lang = ''): string
  */
 function url(string $_url = '', array $_vars = [], string $_sub = 'www')
 {
+    $_url = '/' . $_url;
     $_url = Route::buildUrl($_url, $_vars, true, true);
 
     if ($referer = Request::server('HTTP_REFERER')) {

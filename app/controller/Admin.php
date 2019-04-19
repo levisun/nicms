@@ -34,16 +34,9 @@ class admin extends Template
      */
     public function __construct()
     {
-        parent::__construct();
 
         $this->setTheme('admin/' . Env::get('app.admin_theme', 'default'));
-        $tpl_path = Config::get('app.cdn_host') . '/template/admin/' . Env::get('app.admin_theme', 'default') . '/';
-        $this->setReplace([
-            'theme' => $tpl_path,
-            'css'   => $tpl_path . 'css/',
-            'img'   => $tpl_path . 'img/',
-            'js'    => $tpl_path . 'js/',
-        ]);
+        parent::__construct();
 
         // 开启session
         $session = Config::get('session');

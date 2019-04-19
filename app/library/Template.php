@@ -68,10 +68,10 @@ class Template
 
         $this->setReplace([
             'version'     => env('app.version', false),
-            'theme'       => Config::get('app.cdn_host') . '/template/theme/',
-            'css'         => Config::get('app.cdn_host') . '/template/css/',
-            'img'         => Config::get('app.cdn_host') . '/template/img/',
-            'js'          => Config::get('app.cdn_host') . '/template/js/',
+            'theme'       => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . '/theme/',
+            'css'         => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . '/css/',
+            'img'         => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . '/img/',
+            'js'          => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . '/js/',
             'static'      => Config::get('app.cdn_host') . '/static/',
             'name'        => 'nicms',
             'title'       => 'nicms',
@@ -228,7 +228,9 @@ class Template
             }
         }
 
-        $foot .= '<script type="text/javascript">' . $this->scriptReady . '</script>';
+        if ($this->scriptReady) {
+            $foot .= '<script type="text/javascript">' . $this->scriptReady . '</script>';
+        }
 
         // 插件加载
 

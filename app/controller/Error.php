@@ -15,13 +15,23 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
-use think\Response;
-use think\exception\HttpResponseException;
-use think\facade\Env;
-use app\library\Siteinfo;
+use app\library\Template;
 
-class Error
+class Error extends Template
 {
+
+    /**
+     * 构造方法
+     * @access public
+     * @param  App  $app  应用对象
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->setTheme('error/default');
+
+        parent::__construct();
+    }
 
     /**
      * 错误页
@@ -31,7 +41,8 @@ class Error
      */
     public function index()
     {
-        $this->tpl('error');
+        $this->fetch('error');
+        // $this->tpl('error');
     }
 
     public function _404()
@@ -49,14 +60,7 @@ class Error
     {
         $tpl = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
                 'template' . DIRECTORY_SEPARATOR .
-                Siteinfo::theme() . DIRECTORY_SEPARATOR .
                 $_code . '.html';
-
-        if (!is_file($tpl)) {
-            $tpl = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
-                    'template' . DIRECTORY_SEPARATOR .
-                    $_code . '.html';
-        }
 
         clearstatcache();
 
@@ -70,8 +74,5 @@ class Error
         $content = ob_get_clean();
 
         echo $content;
-
-        // $response = Response::create($tpl, '', $_code);
-        // throw new HttpResponseException($response);
     }
 }

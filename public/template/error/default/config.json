@@ -1,0 +1,13 @@
+{
+    "layout": true,
+    "theme": "default",
+    "api_version": "1.0.1",
+    "theme_version": "1.0.1",
+    "css": [
+        "__CSS__style.css"
+    ],
+    "js": [],
+    "hook": [],
+    "link": [],
+    "meta": []
+}
