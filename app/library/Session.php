@@ -88,7 +88,7 @@ class Session implements SessionHandler
             ->update($data);
             $result = !!(new ModelSession)->getNumRows();
         } else {
-            (new ModelSession)->save($data);
+            (new ModelSession)->create($data);
             $result = !!(new ModelSession)->getNumRows();
         }
 

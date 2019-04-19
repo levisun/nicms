@@ -22,26 +22,18 @@ use app\library\Base64;
 class Garbage
 {
 
-    public function handle($event, App $app): void
-    {
-        $this->remove();
-    }
-
      /**
      * 删除运行垃圾文件
      * @access public
      * @param
      * @return bool
      */
-    public function remove(): bool
+    public function remove()
     {
-        // 减少频繁操作,每次请求百分之一几率运行操作
-        if (rand(1, 20) !== 1) {
-            return false;
-        }
-
+        Log::record('[GARBAGE] 删除垃圾信息!', 'alert');
         $dirOrPath = [];
         $dirOrPath = array_merge($dirOrPath, (array) glob(app()->getRuntimePath() . '*'));
+        $dirOrPath = array_merge($dirOrPath, (array) glob(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps' . DIRECTORY_SEPARATOR . '*'));
         $dirOrPath = array_merge($dirOrPath, (array) glob(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*'));
         $dirOrPath = $this->getAll($dirOrPath);
 
@@ -62,10 +54,7 @@ class Garbage
                     @rmdir($path);
                 }
             }
-            Log::record('[GARBAGE] 删除垃圾信息!', 'alert');
         }
-
-        return true;
     }
 
     /**
@@ -76,7 +65,7 @@ class Garbage
      */
     private function getAll($_dirOrPath): array
     {
-        $days = strtotime('-7 days');
+        $days = strtotime('-3 days');
 
         $allFiles = [];
         foreach ($_dirOrPath as $key => $path) {

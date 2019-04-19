@@ -37,7 +37,6 @@
         var defaults = {
             push: false,                        // 添加历史记录
             replace: false,                     // 替换历史记录
-            scrollTo: false,                    // 是否回到顶部 可定义顶部像素
             requestUrl: window.location.href,   // 重写地址
             type: 'GET',
             contentType: 'application/x-www-form-urlencoded'

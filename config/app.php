@@ -23,7 +23,7 @@ return [
     // 调试模式
     'app_debug'             => env('app.app_debug', 1) ? true : false,
     // 密钥
-    'authkey'               => env('app.authkey', ''),
+    'authkey'               => env('app.authkey', md5(__DIR__)),
 
     // 应用地址
     'app_host'              => '',
@@ -46,7 +46,7 @@ return [
     // 默认时区
     'default_timezone'      => 'Asia/Shanghai',
     // 是否开启多语言
-    'lang_switch_on'        => false,
+    'lang_switch_on'        => true,
     // 默认语言
     'default_lang'          => 'zh-cn',
     // 默认验证器

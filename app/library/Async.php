@@ -18,13 +18,11 @@ use think\Container;
 use think\Response;
 use think\exception\HttpResponseException;
 use think\facade\Config;
-use think\facade\Env;
 use think\facade\Lang;
 use think\facade\Log;
 use think\facade\Request;
 use think\facade\Session;
 use app\library\Base64;
-// use app\model\Session as ModelSession;
 
 class Async
 {
@@ -32,7 +30,7 @@ class Async
     /**
      * HEADER 指定接收类型
      * 包含[域名 版本 返回类型]
-     * application/vnd.tp5.v1.0.1+json
+     * application/vnd.nicms.v1.0.1+json
      * @var string
      */
     protected $accept;
@@ -339,6 +337,7 @@ class Async
             // 单token值
             if (false === strpos($this->authorization, '.')) {
                 $this->token = $this->authorization;
+                $this->debugLog['token'] = $this->token;
             }
 
             // token和session_id
@@ -351,7 +350,7 @@ class Async
             // 校验token合法性
             $referer = Request::header('USER-AGENT') . Request::ip() .
                        app()->getRootPath() . strtotime(date('Ymd'));
-            $referer = base64_encode(hash_hmac('sha1', $referer, Env::get('app.authkey'), true));
+            $referer = base64_encode(hash_hmac('sha1', $referer, Config::get('app.authkey'), true));
             if (!hash_equals($referer, $this->token)) {
                 $this->debugLog['referer'] = $referer;
                 $this->debugLog['this::token'] = $this->token;
@@ -404,7 +403,7 @@ class Async
                 $this->error('header-accept version error');
             }
             // 校验返回数据类型
-            if (!in_array($this->format, ['json', 'xml'])) {
+            if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
                 $this->debugLog['format'] = $this->format;
                 $this->error('header-accept format error');
             }
@@ -456,17 +455,17 @@ class Async
         $result = [
             'code'    => $_code,
             'data'    => $_data,
-            'debug'   => $this->debugLog,
-            'expire'  => $this->cache ? date('Y-m-d H:i:s', time() + $this->expire + 60) : '0',
+            'expire'  => $this->cache ? date('Y-m-d H:i:s', time() + $this->expire + 60) : date('Y-m-d H:i:s', time() + 60),
             'message' => $_msg
         ];
         $result = array_filter($result);
+        $result['expire'] .= ' ' . count(get_included_files());
+        $result['expire'] .= ' ' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 3);
+        $result['expire'] .= ' ' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 3);
 
-        // 记录日志
-        $this->writeLog();
-
-        if ($this->debug === false) {
-            unset($result['debug']);
+        if ($this->debug !== false) {
+            // 记录日志
+            $this->writeLog();
         }
 
         $headers = [];

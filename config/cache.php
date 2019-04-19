@@ -11,7 +11,8 @@
  * @since     2019
  */
 
-use app\library\Base64;
+use think\facade\Lang;
+use think\facade\Request;
 
 return [
     // 驱动方式
@@ -19,7 +20,7 @@ return [
     // 缓存保存目录
     'path'          => '',
     // 缓存前缀
-    'prefix'        => Base64::flag(__DIR__ . request()->domain()),
+    'prefix'        => Lang::getLangSet() . '-' . Request::subDomain(),
     // 缓存有效期 0表示永久缓存
     'expire'        => env('app.app_debug', true) ? 1440 : env('cache.expire', 14400),
     // 关闭子目录

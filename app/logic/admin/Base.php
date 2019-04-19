@@ -44,30 +44,43 @@ class Base
     /**
      * 记录操作日志
      * @access protected
-     * @param  string $_controller
-     * @param  string $_action
+     * @param  string $_method
      * @param  string $_msg
      * @return void
      */
-    protected function __actionLog(string $_controller, string $_action, string $_msg = ''): void
+    protected function __actionLog(string $_method, string $_msg): void
     {
+        list($app, $logic, $m) = explode('\\', $_method, 3);
+        list($app, $logic, $m) = explode('\\', $m, 3);
+        list($controller, $action) = explode('::', $m, 2);
+
+        $map = $app . '_' . $logic . '_' . $controller . '_' . $action;
+        $map = strtolower($map);
+        unset($app, $logic, $controller, $action, $m);
+
         $result =
         (new ModelAction)->where([
-            ['name', '=', strtolower($_controller . '_' . $_action)]
+            ['name', '=', $map]
         ])
         ->find();
 
-        if ($result) {
-            (new ModelActionLog)->save([
-                'action_id'   => $result['id'],
-                'user_id'     => session('?admin_auth_key') ? session('admin_auth_key') : 0,
-                'action_ip'   => Request::ip(),
-                'module'      => 'admin',
-                'remark'      => $_msg,
+        if (is_null($result)) {
+            $res = (new ModelAction)->create([
+                'name'  => $map,
+                'title' => $_msg,
             ]);
-        } else {
-            Log::record('未找到' . $_controller . '::' . $_action . '操作行为.', 'error');
+
+            $result['id'] = $res->id;
         }
+
+
+        (new ModelActionLog)->create([
+            'action_id'   => $result['id'],
+            'user_id'     => session('?admin_auth_key') ? session('admin_auth_key') : 0,
+            'action_ip'   => Request::ip(),
+            'module'      => 'admin',
+            'remark'      => $_msg,
+        ]);
 
         (new ModelActionLog)->where([
             ['create_time', '<=', strtotime('-180 days')]

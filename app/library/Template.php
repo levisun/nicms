@@ -111,7 +111,7 @@ class Template
             echo '<!-- Static:';
             echo Config::get('app.app_debug') ? 'close' : 'success';
             echo ' Date:' . date('Y-m-d H:i:s') . ' Time:' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 6) . 's';
-            echo ' Memory:' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 2) . 'mb' . ' -->';
+            echo ' Memory:' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 2) . 'mb' . ' -->' .  PHP_EOL;
 
             echo $this->parseTemplateHead();
 
@@ -189,9 +189,42 @@ class Template
     private function parseTemplateFoot(): string
     {
         $foot = '';
+
+        list($root) = explode('.', Request::rootDomain(), 2);
+        $foot .= '<script type="text/javascript">' .
+        'var NICMS = {' .
+            'domain:"' . '//' . Request::subDomain() . '.' . Request::rootDomain() . '",' .
+            'url:"' . Request::baseUrl(true) . '",' .
+            'param:' . json_encode(Request::param()) . ',' .
+            'api:{' .
+                'url:"' . Config::get('app.api_host') . '",' .
+                'root:"' . $root . '",' .
+                'version:"' . $this->templateConfig['api_version'] . '",' .
+                'authorization:"{:__AUTHORIZATION__}",' .
+                'param:' . json_encode(Request::param()) .
+            '},' .
+            'cdn:{' .
+                'static:"' . $this->templateReplace['__STATIC__'] . '",' .
+                'theme:"' .  $this->templateReplace['__THEME__'] . '",' .
+                'css:"' .    $this->templateReplace['__CSS__'] . '",' .
+                'img:"' .    $this->templateReplace['__IMG__'] . '",' .
+                'js:"' .     $this->templateReplace['__JS__'] . '"' .
+            '}' .
+        '};';
+
+        if (!Request::isMobile() || 0 !== strpos(Request::subDomain(), 'm')) {
+            $sub = Request::subDomain() == 'www' ? 'm.' : 'm.' . Request::subDomain() . '.';
+            $foot .= 'if (navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i)) {' .
+                'location.replace("//' . $sub . Request::rootDomain() . '");' .
+            '}';
+            unset($sub);
+        }
+        $foot .= '</script>' .  PHP_EOL;
+        unset($root);
+
         if (!empty($this->templateConfig['js'])) {
             foreach ($this->templateConfig['js'] as $js) {
-                $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $this->templateConfig['theme_version'] . '"></script>';
+                $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $this->templateConfig['theme_version'] . '"></script>' .  PHP_EOL;
             }
         }
 
@@ -214,92 +247,61 @@ class Template
     private function parseTemplateHead(): string
     {
         $head =
-        '<!DOCTYPE html>' .
-        '<html lang="' . Lang::getLangSet() . '">' .
-        '<head>' .
-        '<meta charset="utf-8" />' .
-        '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
-        '<meta name="robots" content="all" />' .                                // 蜘蛛抓取
-        '<meta name="revisit-after" content="1 days" />' .                      // 蜘蛛重访
-        '<meta name="renderer" content="webkit" />' .                           // 强制使用webkit渲染
-        '<meta name="force-rendering" content="webkit" />' .
-        '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' .
+        '<!DOCTYPE html>' . PHP_EOL .
+        '<html lang="' . Lang::getLangSet() . '">' . PHP_EOL .
+        '<head>' . PHP_EOL .
+        '<meta charset="utf-8" />' . PHP_EOL .
+        '<meta name="fragment" content="!" />' . PHP_EOL .                                // 支持蜘蛛ajax
+        '<meta name="robots" content="all" />' . PHP_EOL .                                // 蜘蛛抓取
+        '<meta name="revisit-after" content="1 days" />' . PHP_EOL .                      // 蜘蛛重访
+        '<meta name="renderer" content="webkit" />' . PHP_EOL .                           // 强制使用webkit渲染
+        '<meta name="force-rendering" content="webkit" />' . PHP_EOL .
+        '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' . PHP_EOL .
 
-        '<meta name="generator" content="nicms" />' .
-        '<meta name="author" content="levisun.mail@gmail.com" />' .
-        '<meta name="copyright" content="2013-' . date('Y') . ' nicms" />' .
+        '<meta name="generator" content="nicms" />' . PHP_EOL .
+        '<meta name="author" content="levisun.mail@gmail.com" />' . PHP_EOL .
+        '<meta name="copyright" content="2013-' . date('Y') . ' nicms" />' . PHP_EOL .
 
-        '<meta http-equiv="Window-target" content="_blank">' .
-        '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' .
+        '<meta http-equiv="Window-target" content="_blank">' . PHP_EOL .
+        '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' . PHP_EOL .
 
-        '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
-        '<meta http-equiv="Cache-Control" content="no-transform" />' .
+        '<meta http-equiv="Cache-Control" content="no-siteapp" />' . PHP_EOL .            // 禁止baidu转码
+        '<meta http-equiv="Cache-Control" content="no-transform" />' . PHP_EOL .
 
-        '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
-        '<link rel="dns-prefetch" href="' . Config::get('app.api_host') . '" />' .
-        '<link rel="dns-prefetch" href="' . Config::get('app.cdn_host') . '" />' .
+        '<meta http-equiv="x-dns-prefetch-control" content="on" />' . PHP_EOL .           // DNS缓存
+        '<link rel="dns-prefetch" href="' . Config::get('app.api_host') . '" />' . PHP_EOL .
+        '<link rel="dns-prefetch" href="' . Config::get('app.cdn_host') . '" />' . PHP_EOL .
 
-        '<link href="' . Config::get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />';
+        '<link href="' . Config::get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' .  PHP_EOL;
 
         // 网站标题 关键词 描述
-        $head .= '<title>' . $this->templateReplace['__TITLE__'] . '</title>';
-        $head .= '<meta name="keywords" content="' . $this->templateReplace['__KEYWORDS__'] . '" />';
-        $head .= '<meta name="description" content="' . $this->templateReplace['__DESCRIPTION__'] . '" />';
-        $head .= '<meta property="og:title" content="' . $this->templateReplace['__NAME__'] . '">';
-        $head .= '<meta property="og:type" content="website">';
-        $head .= '<meta property="og:url" content="' . Request::url(true) . '">';
-        $head .= '<meta property="og:image" content="">';
+        $head .= '<title>' . $this->templateReplace['__TITLE__'] . '</title>' .  PHP_EOL;
+        $head .= '<meta name="keywords" content="' . $this->templateReplace['__KEYWORDS__'] . '" />' .  PHP_EOL;
+        $head .= '<meta name="description" content="' . $this->templateReplace['__DESCRIPTION__'] . '" />' .  PHP_EOL;
+        $head .= '<meta property="og:title" content="' . $this->templateReplace['__NAME__'] . '">' .  PHP_EOL;
+        $head .= '<meta property="og:type" content="website">' .  PHP_EOL;
+        $head .= '<meta property="og:url" content="' . Request::url(true) . '">' .  PHP_EOL;
+        $head .= '<meta property="og:image" content="">' .  PHP_EOL;
 
         if (!empty($this->templateConfig['meta'])) {
             foreach ($this->templateConfig['meta'] as $m) {
-                $head .= '<meta ' . $m['type'] . ' ' . $m['content'] . ' />';
+                $head .= '<meta ' . $m['type'] . ' ' . $m['content'] . ' />' .  PHP_EOL;
             }
         }
         if (!empty($this->templateConfig['link'])) {
             foreach ($this->templateConfig['link'] as $m) {
-                $head .= '<link rel="' . $m['rel'] . '" href="' . $m['href'] . '" />';
+                $head .= '<link rel="' . $m['rel'] . '" href="' . $m['href'] . '" />' .  PHP_EOL;
             }
         }
         // <meta name="apple-itunes-app" content="app-id=1191720421, app-argument=sspai://sspai.com">
 
         if (!empty($this->templateConfig['css'])) {
             foreach ($this->templateConfig['css'] as $css) {
-                $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->templateConfig['theme_version'] . '" />';
+                $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->templateConfig['theme_version'] . '" />' .  PHP_EOL;
             }
         }
 
-        list($root) = explode('.', Request::rootDomain(), 2);
-        $head .= '<script type="text/javascript">' .
-        'var NICMS = {' .
-            'domain:"' . '//' . Request::subDomain() . '.' . Request::rootDomain() . '",' .
-            'url:"' . Request::url(true) . '",' .
-            'api:{' .
-                'url:"' . Config::get('app.api_host') . '",'.
-                'root:"' . $root . '",' .
-                'version:"' . $this->templateConfig['api_version'] . '",' .
-                'authorization:"{:__AUTHORIZATION__}",' .
-                'param:' . json_encode(Request::param()) .
-            '},' .
-            'cdn:{' .
-                'static:"' . $this->templateReplace['__STATIC__'] . '",' .
-                'theme:"' .  $this->templateReplace['__THEME__'] . '",' .
-                'css:"' .    $this->templateReplace['__CSS__'] . '",' .
-                'img:"' .    $this->templateReplace['__IMG__'] . '",' .
-                'js:"' .     $this->templateReplace['__JS__'] . '"' .
-            '}' .
-        '};';
-
-        if (!Request::isMobile() || 0 !== strpos(Request::subDomain(), 'm')) {
-            $sub = Request::subDomain() == 'www' ? 'm.' : 'm.' . Request::subDomain() . '.';
-            $head .= 'if (navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i)) {' .
-                'location.replace("//' . $sub . Request::rootDomain() . '");' .
-            '}';
-            unset($sub);
-        }
-        $head .= '</script>';
-        unset($root);
-
-        $head .= '</head>';
+        $head .= '</head>' .  PHP_EOL;
 
         return $head;
     }
@@ -383,7 +385,6 @@ class Template
     {
         $safe_func = [
             'echo',
-            'print_r',
             'str_replace',
             'strlen',
             'strtoupper',

@@ -15,7 +15,7 @@ use think\facade\Env;
 
 return [
     // 数据库类型
-    'type'            => 'mysql',
+    'type'            => env('database.type', 'mysql'),
     // 服务器地址
     'hostname'        => env('database.hostname', '127.0.0.1'),
     // 数据库名
@@ -43,7 +43,7 @@ return [
     // 数据库表前缀
     'prefix'          => env('database.prefix', 'nc'),
     // 数据库调试模式
-    'debug'           => env('app.app_debug', 1) ? true : false,
+    'debug'           => false,
     // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
     'deploy'          => 0,
     // 数据库读写是否分离 主从式有效
@@ -61,7 +61,7 @@ return [
     // 时间字段取出后的默认时间格式
     'datetime_format' => 'Y-m-d H:i:s',
     // 是否需要进行SQL性能分析
-    'sql_explain'     => env('app.app_debug', 1) ? true : false,
+    'sql_explain'     => false,
     // Builder类
     'builder'         => '',
     // Query类

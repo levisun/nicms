@@ -14,60 +14,49 @@ declare (strict_types = 1);
 
 namespace app\library;
 
-use think\App;
 use think\facade\Config;
 use think\facade\Db;
 use think\facade\Log;
-use think\facade\Request;
-use app\library\Base64;
 
 class Backup
 {
     private $savePath;
 
-    public function handle($event, App $app): void
+    public function auto(): void
     {
-        if (Request::isGet() && !in_array(Request::subDomain(), ['admin', 'api', 'cdn'])) {
-            Log::record('[BACKUP] 备份', 'alert');
-            $this->savePath = app()->getRuntimePath() .
-                                'backup' . DIRECTORY_SEPARATOR .
-                                'sys_auto' . DIRECTORY_SEPARATOR;
+        Log::record('[BACKUP] 备份', 'alert');
+        $this->savePath = app()->getRuntimePath() .
+                            'backup' . DIRECTORY_SEPARATOR .
+                            'sys_auto' . DIRECTORY_SEPARATOR;
 
-            clearstatcache();
-            ignore_user_abort(true);
-            if (!is_dir($this->savePath)) {
-                chmod(app()->getRuntimePath(), 0777);
-                mkdir($this->savePath, 0777, true);
-            }
-
-            if (!is_file($this->savePath . 'backup.lock')) {
-                file_put_contents($this->savePath . 'backup.lock', 'lock');
-                $result = $this->queryTableName();
-                foreach ($result as $key => $name) {
-                    file_put_contents($this->savePath . 'backup.lock', $name);
-                    if (is_file($this->savePath . $name . '.sql') && filemtime($this->savePath . $name . '.sql') < strtotime('-3 days')) {
-                        Log::record('backup:' . $name, 'alert');
-                        $this->queryTableStructure($name);
-                        $this->queryTableInsert($name);
-                        break;
-                    } elseif (!is_file($this->savePath . $name . '.sql')) {
-                        Log::record('backup:' . $name, 'alert');
-                        $this->queryTableStructure($name);
-                        $this->queryTableInsert($name);
-                        break;
-                    }
-                }
-                unlink($this->savePath . 'backup.lock');
-            }
-            ignore_user_abort(false);
+        clearstatcache();
+        ignore_user_abort(true);
+        if (!is_dir($this->savePath)) {
+            chmod(app()->getRuntimePath(), 0777);
+            mkdir($this->savePath, 0777, true);
         }
+
+        if (!is_file($this->savePath . 'backup.lock')) {
+            file_put_contents($this->savePath . 'backup.lock', 'lock');
+            $result = $this->queryTableName();
+            foreach ($result as $key => $name) {
+                if (rand(1, 2) === 1) {
+                    break;
+                }
+                file_put_contents($this->savePath . 'backup.lock', $name);
+                $this->queryTableStructure($name);
+                $this->queryTableInsert($name);
+            }
+            unlink($this->savePath . 'backup.lock');
+        }
+        ignore_user_abort(false);
     }
 
-    public function run(string $_tag = '')
+    public function save()
     {
         $this->savePath = app()->getRuntimePath() .
                             'backup' . DIRECTORY_SEPARATOR .
-                            date('ymdH') . $_tag . DIRECTORY_SEPARATOR;
+                            date('ymdHis') .DIRECTORY_SEPARATOR;
 
         clearstatcache();
         ignore_user_abort(true);
@@ -110,6 +99,10 @@ class Backup
         $insert_data = '';
 
         for ($i = 0; $i < $total; $i++) {
+            if (is_file($sql_file) && filemtime($sql_file) >= strtotime('-1 days')) {
+                break;
+            }
+
             $first_row = $i * $_num;
             $data = Db::table($_table_name)
             ->field($field)
@@ -153,9 +146,14 @@ class Backup
      * @param
      * @return void
      */
-    private function queryTableStructure(string $_table_name): void
+    private function queryTableStructure(string $_table_name)
     {
         set_time_limit(0);
+        $sql_file = $this->savePath . $_table_name . '.sql';
+
+        if (is_file($sql_file) && filemtime($sql_file) >= strtotime('-1 days')) {
+            return false;
+        }
 
         $tableRes = Db::query('SHOW CREATE TABLE `' . $_table_name . '`');
         if (!empty($tableRes[0]['Create Table'])) {

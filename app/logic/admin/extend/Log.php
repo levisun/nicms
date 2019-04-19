@@ -15,6 +15,7 @@ declare (strict_types = 1);
 
 namespace app\logic\admin\extend;
 
+use think\facade\Lang;
 use think\facade\Request;
 use app\logic\admin\Base;
 use app\model\ActionLog as ModelActionLog;
@@ -22,6 +23,12 @@ use app\model\ActionLog as ModelActionLog;
 class Log extends Base
 {
 
+    /**
+     * 查询
+     * @access public
+     * @param
+     * @return array
+     */
     public function query()
     {
         $query_limit = (int) Request::post('limit/f', 20);
@@ -32,15 +39,17 @@ class Log extends Base
         ->view('admin', ['username'], 'admin.id=action_log.user_id')
         ->view('role_admin', [], 'role_admin.user_id=admin.id')
         ->view('role', ['name'=>'role_name'], 'role.id=role_admin.role_id')
+        ->order('action_log.create_time DESC')
         ->paginate($query_limit, false, ['path'=>'javascript:paging([PAGE]);']);
 
         $list = $result->toArray();
         $list['render'] = $result->render();
 
-        $date_format = Request::post('date_format', 'Y-m-d');
+        $date_format = Request::post('date_format', 'Y-m-d H:i:s');
         foreach ($list['data'] as $key => $value) {
             $value['create_time'] = strtotime($value['create_time']);
             $value['create_time'] = date($date_format, $value['create_time']);
+            $value['action_name'] = Lang::get($value['action_name']);
             $list['data'][$key] = $value;
         }
 

@@ -163,12 +163,12 @@ function url(string $_url = '', array $_vars = [], string $_sub = 'www')
 
     if ($referer = Request::server('HTTP_REFERER')) {
         $host = parse_url($referer, PHP_URL_HOST);
-        list($sub) = explode('.', $host, 2);
+        list($_sub) = explode('.', $host, 2);
     }
 
     $replace = [
         Request::scheme() . '://' => '//',
-        'api.'                    => $sub . '.',
+        'api.'                    => $_sub . '.',
     ];
 
     return str_replace(array_keys($replace), array_values($replace), $_url);
@@ -211,7 +211,7 @@ function validate(string $_validate, array $_data = [])
     }
 
     $class = app()->parseClass('validate', $_validate);
-    $v     = $class::make();
+    $v     = new $class;
 
     if (!empty($scene)) {
         $v->scene($scene);

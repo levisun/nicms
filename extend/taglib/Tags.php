@@ -21,7 +21,7 @@ class Tags
     {
         $_content = preg_replace([
             // '/(\/\/)(.*?)(\n|\r)/si',
-            '/(\n|\r|\f)+/si',
+            // '/(\n|\r|\f)+/si',
             '/( ){2,}/si'
         ], '', $_content);
         return $_content;

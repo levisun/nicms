@@ -55,10 +55,10 @@ class Ip
         } else {
             return [
                 'ip'          => $_ip,
-                'country'     => 'ERROR',
-                'province'    => 'ERROR',
-                'city'        => 'ERROR',
-                'area'        => 'ERROR',
+                'country'     => '',
+                'province'    => '',
+                'city'        => '',
+                'area'        => '',
                 'country_id'  => '',
                 'province_id' => '',
                 'city_id'     => '',
@@ -185,7 +185,7 @@ class Ip
                     ->value('id');
 
                     if (!$has) {
-                        (new IpInfo)->save([
+                        (new IpInfo)->create([
                             'ip'          => $_ip,
                             'country_id'  => $country,
                             'province_id' => $province,

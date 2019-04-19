@@ -13,11 +13,11 @@ use think\facade\Config;
 use think\facade\Request;
 use think\facade\Route;
 
-Route::pattern([
-    'cid'  => '\d+',
-    'id'   => '\d+',
-    'code' => '\d+',
-]);
+// Route::pattern([
+//     'cid'  => '\d+',
+//     'id'   => '\d+',
+//     'code' => '\d+',
+// ]);
 
 Route::miss('error/index');
 Route::any('404', 'error/_404');
@@ -35,6 +35,7 @@ if ($domain == 'www') {
 elseif ($domain == 'admin') {
     Route::get('/', 'admin/index');
     Route::get(':logic/:controller/:action$', 'admin/index');
+    Route::cache(Config::get('cache.expire'));
 }
 
 elseif ($domain == 'api') {

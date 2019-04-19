@@ -13,7 +13,11 @@
 
 
 return [
-    'date'   => '日期',
-    'ip'     => 'IP地址',
-    'remark' => '描述',
+    'date'      => '日期',
+    'ip'        => 'IP地址',
+    'remark'    => '描述',
+    'size'      => '大小',
+    'operation' => '操作',
+    'remove'    => '删除',
+    'reset'     => '还原',
 ];

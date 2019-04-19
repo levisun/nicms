@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS `np_action`;
 CREATE TABLE IF NOT EXISTS `np_action` (
   `id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) NOT NULL DEFAULT '' COMMENT '行为唯一标识',
+  `name` varchar(50) NOT NULL DEFAULT '' COMMENT '行为唯一标识',
   `title` varchar(80) NOT NULL DEFAULT '' COMMENT '行为说明',
   `remark` varchar(140) NOT NULL DEFAULT '' COMMENT '描述',
   PRIMARY KEY (`id`),

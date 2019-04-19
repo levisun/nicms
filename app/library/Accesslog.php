@@ -14,9 +14,6 @@ declare (strict_types = 1);
 
 namespace app\library;
 
-use think\App;
-use think\facade\Lang;
-use think\facade\Log;
 use think\facade\Request;
 use app\library\Ip;
 use app\model\Searchengine as ModelSearchengine;
@@ -26,14 +23,6 @@ class Accesslog
 {
     private $user_agent;
     private $ip;
-
-    public function handle($event, App $app): void
-    {
-        if (Request::isGet() && !in_array(Request::subDomain(), ['admin', 'api', 'cdn'])) {
-            Log::record('[ACCESSLOG] 访问记录', 'alert');
-            $this->record();
-        }
-    }
 
     /**
      * 记录访问
@@ -66,7 +55,7 @@ class Accesslog
                 ->inc('count', 1, 60)
                 ->update();
             } else {
-                (new ModelSearchengine)->save([
+                (new ModelSearchengine)->create([
                     'name'       => $spider,
                     'user_agent' => $this->user_agent,
                     'date'       => strtotime(date('Y-m-d'))
@@ -94,7 +83,7 @@ class Accesslog
                 ->inc('count', 1, 60)
                 ->update();
             } else {
-                (new ModelVisit)->save([
+                (new ModelVisit)->create([
                     'ip'         => $this->ip['ip'],
                     'ip_attr'    => $this->ip['country'] .  $this->ip['region'] . $this->ip['city'] .  $this->ip['area'],
                     'user_agent' => $this->user_agent,

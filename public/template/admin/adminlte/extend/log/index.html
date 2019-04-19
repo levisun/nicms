@@ -1,8 +1,4 @@
 <div class="box">
-    <div class="box-header">
-        <h3 class="box-title"></h3>
-    </div>
-
     <div class="box-body">
         <table class="table table-bordered table-striped">
             <thead>
@@ -15,14 +11,13 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="vo in log_data.list">
+                <tr v-for="vo in items.list">
                     <td>
                         [<font v-text="vo.role_name"></font>]
                         <font v-text="vo.username"></font>
                     </td>
                     <td>
-                        <font v-text="vo.module"></font>
-                        <font v-text="vo.title"></font>
+                        <font v-text="vo.action_name"></font>
                     </td>
                     <td>
                         <font v-text="vo.remark"></font>
@@ -37,26 +32,37 @@
             </tbody>
         </table>
     </div>
-    <div class="box-footer clearfix" v-html="log_data.page"></div>
+    <div class="box-footer clearfix" v-html="items.page"></div>
 </div>
 
 {tag:script}
-jQuery.pjax({
-    url: NICMS.api.url + '/handle/admin.do',
-    type: 'POST',
-    data: {
-        method: 'extend.log.query',
-        limit: 1
-    },
-    success: function(result){
-        if (result.code == 'SUCCESS') {
-            new Vue({
-                el: '.box',
-                data: {
-                    log_data: result.data
+var v = null;
+paging(1);
+function paging(_p){
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle/admin.do',
+        type: 'POST',
+        push: true,
+        replace: true,
+        requestUrl: NICMS.url + '?page=' + _p,
+        data: {
+            method: 'extend.log.query',
+            page: _p,
+        },
+        success: function(result){
+            if (result.code == 'SUCCESS') {
+                if (v) {
+                    v.items = result.data;
+                } else {
+                    v = new Vue({
+                        el: '.box',
+                        data: {
+                            items: result.data
+                        }
+                    });
                 }
-            });
+            }
         }
-    }
-});
+    });
+}
 {/tag}

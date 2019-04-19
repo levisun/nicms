@@ -61,7 +61,7 @@ class User extends Base
                     ])
                     ->update();
                     session('admin_auth_key', $result['id']);
-                    $this->__actionLog('admin', 'login');
+                    $this->__actionLog(__METHOD__, 'admin user login');
                     $result = Lang::get('login success');
                 } else {
                     $login_lock = session('?login_lock') ? session('login_lock') : 0;
@@ -98,7 +98,7 @@ class User extends Base
      */
     public function logout(): array
     {
-        $this->__actionLog('admin', 'logout');
+        $this->__actionLog(__METHOD__, 'admin user logout');
         session('admin_auth_key', null);
         return [
             'debug' => false,
