@@ -29,7 +29,6 @@ class Error extends Template
     public function __construct()
     {
         $this->setTheme('error/default');
-
         parent::__construct();
     }
 
@@ -37,42 +36,26 @@ class Error extends Template
      * 错误页
      * @access public
      * @param
-     * @return mixed
+     * @return void
      */
-    public function index()
+    public function index(): void
     {
         $this->fetch('error');
-        // $this->tpl('error');
     }
 
-    public function _404()
+    public function _404(): void
     {
-        $this->tpl('404');
+        $this->fetch('404');
     }
 
-    public function _500()
+    /**
+     * 服务器繁忙
+     * @access public
+     * @param
+     * @return void
+     */
+    public function _500(): void
     {
-        $this->tpl('500');
-    }
-
-
-    private function tpl(string $_code)
-    {
-        $tpl = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
-                'template' . DIRECTORY_SEPARATOR .
-                $_code . '.html';
-
-        clearstatcache();
-
-        // 页面缓存
-        ob_start();
-        ob_implicit_flush(0);
-
-        echo file_get_contents($tpl);
-
-        // 获取并清空缓存
-        $content = ob_get_clean();
-
-        echo $content;
+        $this->fetch('500');
     }
 }

@@ -30,7 +30,9 @@ class Garbage
      */
     public function remove()
     {
-        Log::record('[GARBAGE] 删除垃圾信息!', 'alert');
+        Log::record('[GARBAGE] 删除垃圾信息', 'alert');
+
+        clearstatcache();
         $dirOrPath = [];
         $dirOrPath = array_merge($dirOrPath, (array) glob(app()->getRuntimePath() . '*'));
         $dirOrPath = array_merge($dirOrPath, (array) glob(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps' . DIRECTORY_SEPARATOR . '*'));
@@ -43,7 +45,6 @@ class Garbage
             shuffle($dirOrPath);
             $dirOrPath = array_slice($dirOrPath, 0, 1000);
 
-            clearstatcache();
             foreach ($dirOrPath as $path) {
                 if (is_file($path) && pathinfo($path, PATHINFO_BASENAME) == '.gitignore') {
                     continue;
@@ -55,6 +56,7 @@ class Garbage
                 }
             }
         }
+        clearstatcache();
     }
 
     /**

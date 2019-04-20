@@ -128,6 +128,12 @@ class Databack extends Base
         ];
     }
 
+    /**
+     * 还原
+     * @access public
+     * @param
+     * @return array
+     */
     public function reduction()
     {
         $this->__actionLog(__METHOD__, 'databack backup reduction');
@@ -138,8 +144,15 @@ class Databack extends Base
         $file = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . '*');
         foreach ($file as $key => $value) {
             if (is_file($value)) {
-                $sql = (new Backup)->read($value);
-                echo $sql;die();
+                $value = file_get_contents($value);
+                list($drop, $sql) = explode(';', $value, 2);
+                if (!empty($drop)) {
+                    (new Backup)->exec($drop);
+                }
+
+                if (!empty($sql)) {
+                    (new Backup)->exec($sql);
+                }
             }
         }
     }

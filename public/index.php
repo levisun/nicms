@@ -18,6 +18,7 @@
 
 namespace think;
 
+// var_dump(extension_loaded('redis'));
 version_compare(PHP_VERSION, '7.1.0', '>=') or die('系统需要PHP7.1以上版本! 当前PHP版本:' . PHP_VERSION . '.');
 extension_loaded('pdo') or die('请开启 pdo 模块!');
 extension_loaded('pdo_mysql') or die('请开启 pdo_mysql 模块!');
@@ -28,7 +29,7 @@ header('X-Powered-By: NICMS');
 require __DIR__ . '/../vendor/autoload.php';
 
 // 执行应用并响应
-$http = (new App())->http;
+$http = (new App())->debug(true)->http;
 
 $response = $http->run();
 

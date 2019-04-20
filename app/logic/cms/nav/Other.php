@@ -108,6 +108,6 @@ class Other
             $result[$key] = $value;
         }
 
-        return $result;
+        return $result ? : [];
     }
 }

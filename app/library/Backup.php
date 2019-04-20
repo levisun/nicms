@@ -25,11 +25,12 @@ class Backup
     public function auto(): void
     {
         Log::record('[BACKUP] 备份', 'alert');
+
+        clearstatcache();
         $this->savePath = app()->getRuntimePath() .
                             'backup' . DIRECTORY_SEPARATOR .
                             'sys_auto' . DIRECTORY_SEPARATOR;
 
-        clearstatcache();
         ignore_user_abort(true);
         if (!is_dir($this->savePath)) {
             chmod(app()->getRuntimePath(), 0777);
@@ -40,20 +41,22 @@ class Backup
             file_put_contents($this->savePath . 'backup.lock', 'lock');
             $result = $this->queryTableName();
             foreach ($result as $key => $name) {
-                if (rand(1, 2) === 1) {
-                    break;
-                }
                 file_put_contents($this->savePath . 'backup.lock', $name);
+                if (rand(1, 2) === 1) {
+                    continue;
+                }
                 $this->queryTableStructure($name);
                 $this->queryTableInsert($name);
             }
             unlink($this->savePath . 'backup.lock');
         }
         ignore_user_abort(false);
+        clearstatcache();
     }
 
     public function save()
     {
+        clearstatcache();
         $this->savePath = app()->getRuntimePath() .
                             'backup' . DIRECTORY_SEPARATOR .
                             date('ymdHis') .DIRECTORY_SEPARATOR;
@@ -71,6 +74,7 @@ class Backup
             }
         }
         ignore_user_abort(false);
+        clearstatcache();
     }
 
     /**
@@ -99,8 +103,8 @@ class Backup
         $insert_data = '';
 
         for ($i = 0; $i < $total; $i++) {
-            if (is_file($sql_file) && filemtime($sql_file) >= strtotime('-1 days')) {
-                break;
+            if (is_file($sql_file) && filemtime($sql_file) >= strtotime('-1 hour')) {
+                continue;
             }
 
             $first_row = $i * $_num;
@@ -151,7 +155,7 @@ class Backup
         set_time_limit(0);
         $sql_file = $this->savePath . $_table_name . '.sql';
 
-        if (is_file($sql_file) && filemtime($sql_file) >= strtotime('-1 days')) {
+        if (is_file($sql_file) && filemtime($sql_file) >= strtotime('-1 hour')) {
             return false;
         }
 
@@ -183,14 +187,34 @@ class Backup
         return $tables;
     }
 
-    private function read(string $_file): string
+    /**
+     * 读取SQL文件
+     * @access public
+     * @param  string $_sql
+     * @return void
+     */
+    public function exec(string $_sql): void
     {
-        $result = file_get_contents($_file);
-        return gzuncompress(trim($result));
+        $_sql = trim($_sql);
+        $_sql = preg_replace('/(\/\*)(.*?)(\*\/)/si', '', $_sql);
+        try {
+            Db::query($_sql);
+        } catch (Exception $e) {
+            die();
+        }
     }
 
+    /**
+     * 写入SQL文件
+     * @access private
+     * @param  string $_file
+     * @param  string $_data
+     * @return void
+     */
     private function write(string $_file, string $_data): void
     {
-        file_put_contents($_file, gzcompress($_data));
+        Log::record('[BACKUP] #' . pathinfo($_file, PATHINFO_BASENAME), 'alert');
+        $_data = '/*' . date('Y-m-d H:i:s') . '*/' . ($_data);
+        file_put_contents($_file, $_data);
     }
 }

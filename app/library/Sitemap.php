@@ -93,7 +93,7 @@ class Sitemap
             }
             self::create($sitemap_xml, 'sitemap.xml');
         }
-
+        clearstatcache();
     }
 
     /**

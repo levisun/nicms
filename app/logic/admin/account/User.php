@@ -172,11 +172,7 @@ class User extends Base
         }
 
         // 错误日志
-        $status = true;
         if (is_file(app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . date('Ymd') . '_error.log')) {
-            $status = false;
-        }
-        if ($status === false) {
             $result[] = [
                 'title' => Lang::get('please view the error message'),
                 'url'   => url('expand/elog/index')
@@ -185,6 +181,18 @@ class User extends Base
 
         //
         $status = true;
+        $file = (array) glob(app()->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*');
+        $count = 0;
+        foreach ($file as $key => $value) {
+            $value = (array) glob($value . DIRECTORY_SEPARATOR . '*');
+            $count += count($value);
+        }
+        if ($count >= 5000) {
+            $result[] = [
+                'title' => Lang::get('please view the error message'),
+                'url'   => url('expand/elog/index')
+            ];
+        }
 
         return [
             'debug' => false,

@@ -109,6 +109,6 @@ class Sidebar
             $result[$key] = $value;
         }
 
-        return $result;
+        return $result ? : [];
     }
 }

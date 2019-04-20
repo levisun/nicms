@@ -24,6 +24,7 @@ Route::ext('html');
 Route::miss('error/index');
 Route::get('error', 'error/index');
 Route::get('404', 'error/_404');
+Route::get('500', 'error/_500');
 
 $domain = Request::subDomain();
 if ($domain == 'www') {
@@ -37,7 +38,6 @@ if ($domain == 'www') {
 elseif ($domain == 'admin') {
     Route::get('/', 'admin/index');
     Route::get(':logic/:controller/:action$', 'admin/index');
-    Route::cache(Config::get('cache.expire'));
 }
 
 elseif ($domain == 'api') {
