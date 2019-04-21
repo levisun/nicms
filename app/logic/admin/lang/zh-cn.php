@@ -31,5 +31,12 @@ return [
     'auth extend'   => '扩展',
     'auth log'      => '操作日志',
     'auth databack' => '数据备份',
+    'auth elog'     => '错误日志',
+    'auth visit'    => '访问日志',
+
+
+    'please make a database backup' => '您长期没有进行数据备份，请尽快备份数据',
+    'program error message' => '程序出现错误',
+    'too much junk information' => '垃圾信息过多，请及时清理',
 
 ];

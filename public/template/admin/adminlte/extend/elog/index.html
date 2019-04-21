@@ -1,0 +1,67 @@
+<div class="box">
+    <div class="box-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>{:lang('name')}</th>
+                    <th>{:lang('date')}</th>
+                    <th>{:lang('size')}</th>
+                    <th>{:lang('operation')}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="vo in items.list">
+                    <td v-text="vo.name"></td>
+                    <td v-text="vo.date"></td>
+                    <td v-text="vo.size"></td>
+                    <td>
+                        <a id="open" v-bind:data="vo.id"><i></i>{:lang('open')}</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="box-footer clearfix"></div>
+</div>
+
+{tag:script}
+paging();
+var v = null;
+function paging () {
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle/admin.do',
+        type: 'POST',
+        data: {
+            method: 'extend.elog.query'
+        },
+        success: function(result){
+            if (result.code === 'SUCCESS') {
+                if (v) {
+                    v.items = result.data;
+                } else {
+                    v = new Vue({
+                        el: '.box',
+                        data: {
+                            items: result.data
+                        }
+                    });
+                }
+            }
+        }
+    });
+}
+jQuery(document).on('click', '#open', function(){
+    var id = jQuery(this).attr('data');
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle/admin.do',
+        type: 'POST',
+        data: {
+            method: 'extend.elog.find',
+            id: id
+        },
+        success: function(result){
+
+        }
+    });
+});
+{/tag}

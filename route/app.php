@@ -13,12 +13,6 @@ use think\facade\Config;
 use think\facade\Request;
 use think\facade\Route;
 
-// Route::pattern([
-//     'cid'  => '\d+',
-//     'id'   => '\d+',
-//     'code' => '\d+',
-// ]);
-
 Route::ext('html');
 
 Route::miss('error/index');

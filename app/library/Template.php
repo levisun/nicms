@@ -188,11 +188,11 @@ class Template
      */
     private function parseTemplateFoot(): string
     {
-        $foot = '';
+        $foot = PHP_EOL;
 
         list($root) = explode('.', Request::rootDomain(), 2);
         $foot .= '<script type="text/javascript">' .
-        'var NICMS = {' .
+        'var NICMS={' .
             'domain:"' . '//' . Request::subDomain() . '.' . Request::rootDomain() . '",' .
             'url:"' . Request::baseUrl(true) . '",' .
             'param:' . json_encode(Request::param()) . ',' .
@@ -237,7 +237,7 @@ class Template
         // 底部JS脚本
         $foot .= $this->templateReplace['__SCRIPT__'];
 
-        return $foot . '</body></html>';
+        return $foot . PHP_EOL . '</body>' . PHP_EOL . '</html>';
     }
 
     /**

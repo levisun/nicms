@@ -1,0 +1,29 @@
+
+
+{tag:script}
+paging();
+var v = null;
+function paging () {
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle/admin.do',
+        type: 'POST',
+        data: {
+            method: 'theme.cms.query'
+        },
+        success: function(result){
+            if (result.code === 'SUCCESS') {
+                if (v) {
+                    v.items = result.data;
+                } else {
+                    v = new Vue({
+                        el: '.box',
+                        data: {
+                            items: result.data
+                        }
+                    });
+                }
+            }
+        }
+    });
+}
+{/tag}

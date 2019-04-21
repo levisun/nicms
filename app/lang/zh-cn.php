@@ -20,4 +20,5 @@ return [
     'operation' => '操作',
     'remove'    => '删除',
     'reset'     => '还原',
+    'open'      => '打开',
 ];

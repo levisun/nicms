@@ -114,7 +114,7 @@ class Async
      * 调试开关
      * @var bool
      */
-    protected $debug = false;
+    protected $debug = true;
 
     /**
      * 浏览器数据缓存开关
@@ -126,7 +126,7 @@ class Async
      * 浏览器数据缓存时间
      * @var int
      */
-    protected $expire = 1140;
+    protected $expire = 11400;
 
 
     protected $appid;
@@ -232,7 +232,7 @@ class Async
 
             // 校验类方法是否存在
             if (!method_exists($method, $action)) {
-                $this->error('class ' . $method . ' does not have a method ' . $action);
+                $this->error('class ' . $method . '::' . $action . ' does not have a method');
             }
 
             // 加载语言包
@@ -350,7 +350,7 @@ class Async
             // 校验token合法性
             $referer = Request::header('USER-AGENT') . Request::ip() .
                        app()->getRootPath() . strtotime(date('Ymd'));
-            $referer = base64_encode(hash_hmac('sha1', $referer, Config::get('app.authkey'), true));
+            $referer = hash_hmac('sha1', $referer, Config::get('app.authkey'));
             if (!hash_equals($referer, $this->token)) {
                 $this->debugLog['referer'] = $referer;
                 $this->debugLog['this::token'] = $this->token;
@@ -463,7 +463,7 @@ class Async
         $result['expire'] .= ' ' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 3);
         $result['expire'] .= ' ' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 3);
 
-        if ($this->debug !== false) {
+        if ($this->debug == true) {
             // 记录日志
             $this->writeLog();
         }

@@ -56,9 +56,11 @@ class Filter
             '/>(\n|\r|\f)+/si' => '>',
             '/(\n|\r|\f)+</si' => '<',
 
+            '/(\n|\r|\f)+\}/si' => '}',
             '/\}(\n|\r|\f)+/si' => '}',
             '/\{(\n|\r|\f)+/si' => '{',
-            // '/;(\n|\r|\f)+/si' => ';',
+            '/;(\n|\r|\f)+/si' => ';',
+            '/,(\n|\r|\f)+/si' => ',',
             '/\)(\n|\r|\f)+/si' => ')',
         ];
         return preg_replace(array_keys($pattern), array_values($pattern), $_data);

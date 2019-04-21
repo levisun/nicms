@@ -2,7 +2,7 @@
 /**
  *
  * API接口层
- * 用户权限
+ * 缓存
  *
  * @package   NICMS
  * @category  app\logic\admin\content

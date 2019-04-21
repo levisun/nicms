@@ -34,7 +34,7 @@ class Databack extends Base
     public function query(): array
     {
         $file = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
-        sort($file);
+        rsort($file);
 
         $date_format = Request::post('date_format', 'Y-m-d H:i:s');
 

@@ -157,7 +157,7 @@ class User extends Base
         if (count($file) >= 2) {
             foreach ($file as $key => $value) {
                 if (filectime($value) >= strtotime('-7 days')) {
-                    $status = false;
+                    $status = true;
                     continue;
                 }
             }
@@ -174,23 +174,22 @@ class User extends Base
         // 错误日志
         if (is_file(app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . date('Ymd') . '_error.log')) {
             $result[] = [
-                'title' => Lang::get('please view the error message'),
+                'title' => Lang::get('program error message'),
                 'url'   => url('expand/elog/index')
             ];
         }
 
-        //
-        $status = true;
+        // 垃圾信息
         $file = (array) glob(app()->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*');
         $count = 0;
         foreach ($file as $key => $value) {
             $value = (array) glob($value . DIRECTORY_SEPARATOR . '*');
             $count += count($value);
         }
-        if ($count >= 5000) {
+        if ($count >= 2000) {
             $result[] = [
-                'title' => Lang::get('please view the error message'),
-                'url'   => url('expand/elog/index')
+                'title' => Lang::get('too much junk information'),
+                'url'   => url('content/cache/index')
             ];
         }
 
