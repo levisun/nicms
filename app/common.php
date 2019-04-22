@@ -238,13 +238,13 @@ function cookie($_name, $_value = '', $_option = null)
 {
     if (is_null($_value)) {
         // 删除
-        return Cookie::delete($_name);
+        Cookie::delete($_value);
     } elseif ('' === $_value) {
         // 获取
-        return 0 === strpos($_name, '?') ? Cookie::has(substr($_name, 1), $_option) : Base64::decrypt(Cookie::get($_name));
+        return 0 === strpos($_value, '?') ? Request::has(substr($_value, 1), 'cookie') : Base64::decrypt(Request::cookie($_value));
     } else {
         // 设置
-        return Cookie::set($_name, Base64::encrypt($_value), $_option);
+        return Cookie::set($_value, Base64::encrypt($_value), $_option);
     }
 }
 

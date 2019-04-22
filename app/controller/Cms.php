@@ -44,7 +44,7 @@ class Cms extends Template
             'title'       => Siteinfo::title(),
             'keywords'    => Siteinfo::keywords(),
             'description' => Siteinfo::description(),
-            'bottom_msg'  => Siteinfo::bottom(),
+            'footer_msg'  => Siteinfo::footer(),
             'copyright'   => Siteinfo::copyright(),
             'script'      => Siteinfo::script(),
         ]);

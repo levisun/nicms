@@ -36,16 +36,8 @@ class Book extends Template
      */
     public function __construct()
     {
-        parent::__construct();
-
         $this->setTheme('book/default');
-        $tpl_path = Config::get('app.cdn_host') . '/template/admin/default/';
-        $this->setReplace([
-            'theme' => $tpl_path,
-            'css'   => $tpl_path . 'css/',
-            'img'   => $tpl_path . 'img/',
-            'js'    => $tpl_path . 'js/',
-        ]);
+        parent::__construct();
     }
 
     /**

@@ -46,7 +46,7 @@ class Elog extends Base
 
             $file[$key] = [
                 'id'   => Base64::encrypt(basename($value)),
-                'name' => basename($value),
+                'name' => pathinfo($value, PATHINFO_FILENAME),
                 'date' => $date,
                 'size' => $size,
             ];
@@ -88,7 +88,10 @@ class Elog extends Base
             'debug' => false,
             'cache' => false,
             'msg'   => 'error log data',
-            'data'  => $data
+            'data'  => [
+                'title'   => pathinfo($id, PATHINFO_FILENAME),
+                'content' => $data
+            ]
         ];
     }
 }

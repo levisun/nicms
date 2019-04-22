@@ -21,4 +21,5 @@ return [
     'remove'    => '删除',
     'reset'     => '还原',
     'open'      => '打开',
+    'save'      => '保存',
 ];

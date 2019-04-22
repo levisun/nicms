@@ -13,10 +13,10 @@
 namespace app\library;
 
 use think\facade\Config;
-use think\session\SessionHandler;
+use think\session\SessionHandlerInterface;
 use app\model\Session as ModelSession;
 
-class Session implements SessionHandler
+class Session implements SessionHandlerInterface
 {
     private $config = [
         'expire' => 0,

@@ -199,15 +199,15 @@ class Siteinfo
      * @param
      * @return string
      */
-    public static function bottom(): string
+    public static function footer(): string
     {
         $result =
         (new ModelConfig)->where([
-            ['name', '=', Request::controller(true) . '_bottom'],
+            ['name', '=', Request::controller(true) . '_footer'],
             ['lang', '=', Lang::getLangSet()]
         ])
-        ->cache(__METHOD__ . Request::controller(true) . '_bottom' . Lang::getLangSet(), null, 'SITEINFO')
-        ->value('value', 'bottom');
+        ->cache(__METHOD__ . Request::controller(true) . '_footer' . Lang::getLangSet(), null, 'SITEINFO')
+        ->value('value', 'footer');
 
         return htmlspecialchars_decode($result);
     }

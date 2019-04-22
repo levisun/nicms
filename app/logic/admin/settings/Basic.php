@@ -19,12 +19,46 @@ use think\facade\Config;
 use think\facade\Lang;
 use think\facade\Request;
 use app\logic\admin\Base;
+use app\model\Config as ModelConfig;
 
 class Basic extends Base
 {
+    private $pattern = [
+        '￥' => '&yen;',
+        '™' => '&trade;',
+        '®' => '&reg;',
+        '©' => '&copy;',
+    ];
 
     public function query()
     {
-        # code...
+        $result =
+        (new ModelConfig)
+        ->field(['name', 'value'])
+        ->where([
+            ['lang', '=', Lang::getLangSet()],
+            ['name', 'in', 'cms_sitename,cms_keywords,cms_description,cms_footer,cms_copyright,cms_beian,cms_script']
+        ])
+        ->select()
+        ->toArray();
+
+        $pattern = array_values($this->pattern);
+        foreach ($pattern as $k => $v) {
+            $pattern[$k] = '/(' . $v . ')/si';
+        }
+
+        foreach ($result as $key => $value) {
+            $value['value'] = htmlspecialchars_decode($value['value']);
+            $value['value'] = preg_replace($pattern, array_keys($this->pattern), $value['value']);
+            $result[$value['name']] = $value['value'];
+            unset($result[$key]);
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'basic data',
+            'data'  => $result
+        ];
     }
 }

@@ -36,9 +36,7 @@ elseif ($domain == 'admin') {
 
 elseif ($domain == 'api') {
     Route::ext('do');
-    Route::get(':name$', 'api/query');
-    Route::post('handle/:name$', 'api/handle');
-    Route::post('upload/:name$', 'api/upload');
+
 
 
     $headers = [
@@ -51,11 +49,15 @@ elseif ($domain == 'api') {
         $headers['Access-Control-Max-Age'] = 14400;
     }
 
+    // Route::allowCrossDomain($headers);
+
     foreach ($headers as $key => $value) {
         header($key . ':' . $value);
     }
 
-    // Route::allowCrossDomain(true, $headers);
+    Route::get(':name$', 'api/query');
+    Route::post('handle/:name$', 'api/handle');
+    Route::post('upload/:name$', 'api/upload');
 }
 
 
@@ -72,7 +74,6 @@ elseif ($domain == 'api') {
 // ->bind('cms')
 // ->cache(Config::get('cache.expire'))
 // ->ext('html');
-
 
 
 // Route::domain('admin', function(){

@@ -30,14 +30,14 @@
 </aside>
 {tag:script}
 var ICON = {
-    settings: 'fa fa-gears',
+    settings: 'fa fa-gear',
     theme: 'fa fa-dashboard',
-    category: 'fa fa-gears',
+    category: 'fa fa-navicon',
     content: 'fa fa-edit',
     user: 'fa fa-group',
     wechat: 'fa fa-wechat',
     book: 'fa fa-book',
-    extend: 'fa fa-plug',
+    extend: 'fa fa-plus-circle',
 };
 jQuery.pjax({
     url: NICMS.api.url + '/handle/admin.do',
@@ -52,7 +52,7 @@ jQuery.pjax({
             jQuery('.content-header .breadcrumb').append('<li><a>'+result.data[NICMS.api.param.logic].lang+'</a></li>');
             jQuery('.content-header .breadcrumb').append('<li class="active"><a href="'+result.data[NICMS.api.param.logic].child[NICMS.api.param.controller].url+'">'+result.data[NICMS.api.param.logic].child[NICMS.api.param.controller].lang+'</a></li>');
             new Vue({
-                el: '.main-sidebar',
+                el: '.sidebar-menu',
                 data: {
                     user_auth: result.data
                 }
