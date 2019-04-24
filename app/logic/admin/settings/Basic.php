@@ -61,4 +61,24 @@ class Basic extends Base
             'data'  => $result
         ];
     }
+
+    public function editor()
+    {
+       $receive_data = [
+            'cms_sitename'    => Request::post('cms_sitename'),
+            'cms_keywords'    => Request::post('cms_keywords'),
+            'cms_description' => Request::post('cms_description'),
+            'cms_footer'      => Request::post('cms_footer'),
+            'cms_copyright'   => Request::post('cms_copyright', '', 'safe_con_filter'),
+            'cms_beian'       => Request::post('cms_beian'),
+            'script'          => Request::post('script', '', 'trim,htmlspecialchars'),
+        ];
+
+        print_r($receive_data);die();
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'editor basic success',
+        ];
+    }
 }

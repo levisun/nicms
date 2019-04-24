@@ -28,8 +28,7 @@ class Sitemap
 
         clearstatcache();
         $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemap.xml';
-        if (is_file($path) && filemtime($path) < strtotime('-1 days')) {
-
+        if (!is_file($path) || filemtime($path) < strtotime('-8 hour')) {
             $category =
             (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
@@ -45,12 +44,10 @@ class Sitemap
             $sitemap_xml = [];
             foreach ($category as $vo_cate) {
                 $article =
-                (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-                ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
+                (new ModelArticle)
+                ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
                 ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                 ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-                ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
-                ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                 ->where([
                     ['article.category_id', '=', $vo_cate['id']],
                     ['article.is_pass', '=', '1'],
@@ -60,6 +57,7 @@ class Sitemap
                 ->limit(100)
                 ->select()
                 ->toArray();
+
                 $article_xml = [];
                 $category_xml = [];
                 foreach ($article as $vo_art) {

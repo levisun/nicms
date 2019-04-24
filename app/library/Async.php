@@ -22,6 +22,7 @@ use think\facade\Lang;
 use think\facade\Log;
 use think\facade\Request;
 use think\facade\Session;
+use app\library\Ip;
 use app\library\Base64;
 
 class Async
@@ -455,29 +456,26 @@ class Async
         $result = [
             'code'    => $_code,
             'data'    => $_data,
-            'expire'  => $this->cache ? date('Y-m-d H:i:s', time() + $this->expire + 60) : date('Y-m-d H:i:s', time() + 60),
             'message' => $_msg
         ];
         $result = array_filter($result);
-        $result['expire'] .= ' ' . count(get_included_files());
-        $result['expire'] .= ' ' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 3);
-        $result['expire'] .= ' ' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 3);
 
-        if ($this->debug == true) {
-            // 记录日志
-            $this->writeLog();
+        $ipinfo = Ip::info();
+        $result['expire']  = $ipinfo['ip'] . ' ' . date('Y-m-d H:i:s', time() + $this->expire + 60);
+
+        if (Config::get('app.app_debug') === true || $this->debug === true) {
+            $this->writeLog();  // 记录日志
         }
 
-        $headers = [];
+        $response = Response::create($result, $this->format);
+
         if (Config::get('app.app_debug') === false && $this->cache === true && $this->expire && $_code == 'SUCCESS') {
-            $headers = [
-                'Cache-Control' => 'max-age=' . $this->expire . ',must-revalidate',
-                'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
-                'Expires'       => gmdate('D, d M Y H:i:s', time() + $this->expire) . ' GMT'
-            ];
+            $response->allowCache(true)
+            ->cacheControl('public, max-age=' . $this->expire)
+            ->expires(gmdate('D, d M Y H:i:s', time() + $this->expire) . ' GMT')
+            ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
         }
 
-        $response = Response::create($result, $this->format)->header($headers);
         throw new HttpResponseException($response);
     }
 
@@ -494,10 +492,8 @@ class Async
                 ' MEMORY:' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 2) . 'MB' .
                 ' CACHE:' . Container::pull('cache')->getReadTimes() . ' reads,' . Container::pull('cache')->getWriteTimes() . ' writes';
 
-        if (Config::get('app.app_debug')) {
-            $log .= PHP_EOL . 'PARAM:' . json_encode(Request::param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
-            $log .= PHP_EOL . 'DEBUG:' . json_encode($this->debugLog, JSON_UNESCAPED_UNICODE);
-        }
+        $log .= PHP_EOL . 'PARAM:' . json_encode(Request::param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
+        $log .= PHP_EOL . 'DEBUG:' . json_encode($this->debugLog, JSON_UNESCAPED_UNICODE);
 
         Log::record($log, 'alert');
     }

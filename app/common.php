@@ -76,7 +76,7 @@ function isWechat(): bool
  * @param  string      $_water 水印文字
  * @return string
  */
-function getImgUrl(string $_img, int $_size = 200, string $_water = ''): string
+function get_img_url(string $_img, int $_size = 200, string $_water = ''): string
 {
     $root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
     $font_path = $root_path . 'static' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf';
@@ -180,9 +180,20 @@ function url(string $_url = '', array $_vars = [], string $_sub = 'www')
  * @param  mixed $_data
  * @return mixed
  */
-function safeFilter($_data)
+function safe_filter($_data)
 {
     return Filter::default($_data, true);
+}
+
+/**
+ * 文章内容安全过滤
+ * @param  mixed $_data
+ * @return mixed
+ */
+function safe_con_filter($_data)
+{
+    $result = Filter::default($_data, false);
+    return htmlspecialchars($result);
 }
 
 /**
@@ -190,7 +201,7 @@ function safeFilter($_data)
  * @param
  * @return string
  */
-function createAuthorization(): string
+function create_authorization(): string
 {
     $authorization = Request::header('USER-AGENT') . Request::ip() . app()->getRootPath() . strtotime(date('Ymd'));
     $authorization = hash_hmac('sha1', $authorization, Config::get('app.authkey'));

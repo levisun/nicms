@@ -40,7 +40,7 @@ class User extends Base
 
         $result = validate('admin.login');
         if ($result === true || true) {
-            $lock = app()->getRuntimePath() . md5(Request::ip() . date('Ymd')) . '.lock';
+            $lock = app()->getRuntimePath() . md5(Request::ip() . date('YmdH')) . '.lock';
             clearstatcache();
             if (!is_file($lock)) {
                 $result =

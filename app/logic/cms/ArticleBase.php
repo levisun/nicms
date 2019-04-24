@@ -93,8 +93,8 @@ class ArticleBase
                 $value['url'] = url('details/' . $value['action_name'] . '/' . $value['category_id'] . '/' . $value['id']);
                 $value['update_time'] = date($date_format, $value['update_time']);
 
-                $value['thumb_original'] = getImgUrl($value['thumb'], 0);
-                $value['thumb'] = getImgUrl($value['thumb'], $img_size);
+                $value['thumb_original'] = get_img_url($value['thumb'], 0);
+                $value['thumb'] = get_img_url($value['thumb'], $img_size);
 
 
                 // 附加字段数据
@@ -184,14 +184,14 @@ class ArticleBase
 
                 $img_size = Request::isMobile() ? 200 : 300;
 
-                $result['thumb'] = getImgUrl($result['thumb'], $img_size);
+                $result['thumb'] = get_img_url($result['thumb'], $img_size);
 
                 $result['content'] = htmlspecialchars_decode($result['content']);
 
                 if (preg_match_all('/(src=["|\'])(.*?)(["|\'])/si', $result['content'], $matches) !== false) {
                     foreach ($matches[2] as $key => $value) {
-                        $thumb = getImgUrl($value, $img_size);
-                        $replace = 'src="' . $thumb . '" original="' . getImgUrl($value, 0) . '"';
+                        $thumb = get_img_url($value, $img_size);
+                        $replace = 'src="' . $thumb . '" original="' . get_img_url($value, 0) . '"';
                         $result['content'] = str_replace($matches[0][$key], $replace, $result['content']);
                     }
                 }

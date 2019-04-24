@@ -46,27 +46,6 @@ class Admin extends Validate
         'login' => [
             'username',
             'password',
-        ],
-        'added' => [
-            'username',
-            'password',
-            'not_password',
-            'email',
-            'role'
-        ],
-        'editor' => [
-            'id',
-            'username',
-            'password',
-            'not_password',
-            'email',
-            'role'
-        ],
-        'editorNoPwd' => [
-            'id',
-            'username',
-            'email',
-            'role'
-        ],
+        ]
     ];
 }

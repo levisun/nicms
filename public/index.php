@@ -9,20 +9,17 @@
  * @link      www.NiPHP.com
  * @since     2019
  *
- * CB|Alpha 内测版
- * RC|Beta  正式候选版
- * Demo     演示版
- * Stable   稳定版
- * Release  正式版
+ * CB|Alpha 内测版 RC|Beta  正式候选版 Demo 演示版
+ * Stable 稳定版 Release 正式版
  */
-
 namespace think;
 
-// var_dump(extension_loaded('redis'));
 version_compare(PHP_VERSION, '7.1.0', '>=') or die('系统需要PHP7.1以上版本! 当前PHP版本:' . PHP_VERSION . '.');
 extension_loaded('pdo') or die('请开启 pdo 模块!');
 extension_loaded('pdo_mysql') or die('请开启 pdo_mysql 模块!');
 set_time_limit(30);
+// ini_set('max_execution_time', '30');
+ini_set('display_errors', 'Off');
 ini_set('memory_limit', '32M');
 header('X-Powered-By: NICMS');
 

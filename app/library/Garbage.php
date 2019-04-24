@@ -28,24 +28,36 @@ class Garbage
      * @param
      * @return bool
      */
-    public function remove()
+    public function run()
     {
         Log::record('[GARBAGE] 删除垃圾信息', 'alert');
 
-        clearstatcache();
-        $dirOrPath = [];
-        $dirOrPath = array_merge($dirOrPath, (array) glob(app()->getRuntimePath() . '*'));
-        $dirOrPath = array_merge($dirOrPath, (array) glob(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps' . DIRECTORY_SEPARATOR . '*'));
-        $dirOrPath = array_merge($dirOrPath, (array) glob(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*'));
-        $dirOrPath = $this->getAll($dirOrPath);
+        $this->remove(app()->getRuntimePath() . 'cache', 8);
+        $this->remove(app()->getRuntimePath() . 'concurrent', 24);
+        $this->remove(app()->getRuntimePath() . 'log', 72);
+        $this->remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 72);
+        $this->remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'uploads', 168);
+    }
 
-        // 为空
-        if (!empty($dirOrPath)) {
+    /**
+     * 清理目录中的垃圾信息
+     * @access private
+     * @param  string $_dir
+     * @param  int    $_expire
+     * @return void
+     */
+    private function remove($_dir, int $_expire): void
+    {
+        $dirOrFile = (array) glob($_dir . DIRECTORY_SEPARATOR . '*');
+        $dirOrFile = $this->getAllFile($dirOrFile, $_expire);
+
+        if (!empty($dirOrFile)) {
             // 随机抽取1000条信息
-            shuffle($dirOrPath);
-            $dirOrPath = array_slice($dirOrPath, 0, 1000);
+            shuffle($dirOrFile);
+            $dirOrFile = array_slice($dirOrFile, 0, 1000);
 
-            foreach ($dirOrPath as $path) {
+            clearstatcache();
+            foreach ($dirOrFile as $path) {
                 if (is_file($path) && pathinfo($path, PATHINFO_BASENAME) == '.gitignore') {
                     continue;
                 }
@@ -56,38 +68,38 @@ class Garbage
                 }
             }
         }
-        clearstatcache();
     }
 
     /**
      * 获得目录中的所有文件与目录
      * @access private
-     * @param  string $_dirOrPath
+     * @param  array $_dirOrFile
+     * @param  int   $_expire
      * @return array
      */
-    private function getAll($_dirOrPath): array
+    private function getAllFile(array $_dirOrFile, int $_expire): array
     {
-        $days = strtotime('-3 days');
+        $days = strtotime('-' . $_expire . ' hour');
 
-        $allFiles = [];
-        foreach ($_dirOrPath as $key => $path) {
+        $all_files = [];
+        foreach ($_dirOrFile as $key => $path) {
             if (is_file($path)) {
                 // 过滤未过期文件
                 if (filectime($path) <= $days) {
-                    $allFiles[] = $path;
+                    $all_files[] = $path;
                 }
             } elseif (is_dir($path . DIRECTORY_SEPARATOR)) {
                 $temp = (array) glob($path . DIRECTORY_SEPARATOR . '*');
                 if (!empty($temp)) {
-                    $temp = $this->getAll($temp);
-                    $allFiles = array_merge($allFiles, $temp);
+                    $temp = $this->getAllFile($temp, $_expire);
+                    $all_files = array_merge($all_files, $temp);
                     unset($temp);
                 } else {
-                    $allFiles[] = $path;
+                    $all_files[] = $path;
                 }
             }
         }
 
-        return $allFiles;
+        return $all_files;
     }
 }

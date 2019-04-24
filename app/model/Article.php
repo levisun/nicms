@@ -18,7 +18,7 @@ use think\model\concern\SoftDelete;
 
 class Article extends Model
 {
-    use SoftDelete;
+    // use SoftDelete;
     protected $name = 'article';
     protected $autoWriteTimestamp = true;
     protected $updateTime = 'update_time';

@@ -65,7 +65,7 @@ class Breadcrumb
         ->toArray();
 
         if ($result) {
-            $result['image'] = getImgUrl($result['image']);
+            $result['image'] = get_img_url($result['image']);
             $result['flag'] = Base64::flag($result['id'], 7);
 
             $result['url'] = url('list/' . $result['action_name'] . '/' . $result['id']);

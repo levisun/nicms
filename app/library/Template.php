@@ -68,10 +68,10 @@ class Template
 
         $this->setReplace([
             'version'     => env('app.version', false),
-            'theme'       => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . '/theme/',
-            'css'         => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . '/css/',
-            'img'         => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . '/img/',
-            'js'          => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . '/js/',
+            'theme'       => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . 'theme/',
+            'css'         => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . 'css/',
+            'img'         => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . 'img/',
+            'js'          => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . 'js/',
             'static'      => Config::get('app.cdn_host') . '/static/',
             'name'        => 'nicms',
             'title'       => 'nicms',
@@ -117,16 +117,11 @@ class Template
 
             $content = file_get_contents($this->parseTemplateFile($_template));
 
-            // 解析模板模板模式
-            $content = $this->parseTemplateLayout($content);
-            // 解析模板引入文件
-            $content = $this->parseTemplateInclude($content);
-            // 解析模板替换字符
-            $content = $this->parseTemplateReplace($content);
-            // 解析模板变量
-            $content = $this->parseTemplateVars($content);
-            // 解析模板函数
-            $content = $this->parseTemplateFunc($content);
+            $content = $this->parseTemplateLayout($content);                    // 解析模板模板模式
+            $content = $this->parseTemplateInclude($content);                   // 解析模板引入文件
+            $content = $this->parseTemplateReplace($content);                   // 解析模板替换字符
+            $content = $this->parseTemplateVars($content);                      // 解析模板变量
+            $content = $this->parseTemplateFunc($content);                      // 解析模板函数
 
             // 过滤危害代码
             $content = Filter::FUN($content);
@@ -143,7 +138,6 @@ class Template
             }
 
             echo $content;
-
             echo $this->parseTemplateFoot();
         } else {
             echo $content;
@@ -151,7 +145,16 @@ class Template
 
         $content = ob_get_clean();
         $this->templateBuildWrite($content);
-        echo str_replace('{:__AUTHORIZATION__}', createAuthorization(), $content);
+        $content = str_replace('{:__AUTHORIZATION__}', create_authorization(), $content);
+
+        if (!headers_sent() && !Config::get('app.app_debug') && function_exists('gzencode')) {
+            $content = gzencode($content, 4);
+            header('Content-Encoding:gzip');
+            header('Content-Length:' . strlen($content));
+            header('Cache-Control:public');
+        }
+
+        echo $content;
     }
 
     /**
@@ -312,25 +315,26 @@ class Template
      * 读取模板静态文件
      * @access private
      * @param
-     * @return string HTML
+     * @return string
      */
-    private function templateBuildRead(): string
+    private function templateBuildRead()
     {
         $url = explode('/', Request::path());
         $url = array_unique($url);
         $url = implode('-', $url);
         $url = $url ? $url . '.html' : 'index.html';
+        $url = $this->buildPath . $url;
 
-        if (Config::get('app.app_debug') == false) {
-            $expire = (int) Config::get('cache.expire');
-            $url = $this->buildPath . $url;
-            clearstatcache();
-            if (is_file($url) && filemtime($url) >= time() - rand($expire, $expire*2)) {
+        clearstatcache();
+        if (Config::get('app.app_debug') === false) {
+            if (is_file($url)) {
                 return file_get_contents($url);
             }
+        } elseif (is_file($url)) {
+            unlink($url);
         }
 
-        return '';
+        return false;
     }
 
     /**
@@ -351,7 +355,9 @@ class Template
         $url = implode('-', $url);
         $url = $url ? $url . '.html' : 'index.html';
 
-        Config::get('app.app_debug') or file_put_contents($this->buildPath . $url, $_content);
+        if (Config::get('app.app_debug') === false) {
+            file_put_contents($this->buildPath . $url, $_content);
+        }
     }
 
     /**

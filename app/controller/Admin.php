@@ -34,7 +34,6 @@ class admin extends Template
      */
     public function __construct()
     {
-
         $this->setTheme('admin/' . Env::get('app.admin_theme', 'default'));
         parent::__construct();
 

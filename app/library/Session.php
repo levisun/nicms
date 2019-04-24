@@ -33,10 +33,12 @@ class Session implements SessionHandlerInterface
     {
         $this->config = array_merge($this->config, $config);
 
-        (new ModelSession)->where([
-            ['update_time', '<=', strtotime('-7 days')]
-        ])
-        ->delete();
+        if (rand(1, 10) === 1) {
+            (new ModelSession)->where([
+                ['update_time', '<=', strtotime('-7 days')]
+            ])
+            ->delete();
+        }
     }
 
     /**
@@ -86,13 +88,13 @@ class Session implements SessionHandlerInterface
                 ['session_id', '=', $this->config['prefix'] . $sessID],
             ])
             ->update($data);
-            $result = !!(new ModelSession)->getNumRows();
+            $result = (new ModelSession)->getNumRows();
         } else {
             (new ModelSession)->create($data);
-            $result = !!(new ModelSession)->getNumRows();
+            $result = (new ModelSession)->getNumRows();
         }
 
-        return $result;
+        return !!$result;
     }
 
     /**

@@ -30,14 +30,14 @@ class Ip
      */
     public static function info(string $_ip = null)
     {
-        $_ip = $_ip ? $_ip : Request::ip();
+        $_ip = $_ip ? : Request::ip();
 
         if (self::validate($_ip) === true) {
             // 查询IP地址库
             $region = self::query($_ip);
 
             // 存在更新信息
-            if (!empty($region) && $region['update_time'] <= strtotime('-7 days')) {
+            if (!empty($region) && $region['update_time'] <= strtotime('-30 days')) {
                 self::update($_ip);
             }
 
@@ -49,6 +49,7 @@ class Ip
                 }
             } else {
                 unset($region['id'], $region['update_time']);
+                $region['ip'] = $_ip;
             }
 
             return $region;
@@ -115,20 +116,21 @@ class Ip
      * @param
      * @return array
      */
-    private static function query($_ip)
+    private static function query($_ip): array
     {
-        return
+        $result =
         (new IpInfo)->view('ipinfo i', ['id', 'ip', 'isp', 'update_time'])
         ->view('region country', ['id' => 'country_id', 'name' => 'country'], 'country.id=i.country_id')
         ->view('region region', ['id' => 'region_id', 'name' => 'region'], 'region.id=i.province_id')
         ->view('region city', ['id' => 'city_id', 'name' => 'city'], 'city.id=i.city_id')
         ->view('region area', ['id' => 'area_id', 'name' => 'area'], 'area.id=i.area_id', 'LEFT')
         ->where([
-            ['i.ip', '=', $_ip]
+            ['i.ip', '=', bindec(Request::ip2bin($_ip))]
         ])
         ->cache(__METHOD__ . $_ip)
-        ->find()
-        ->toArray();
+        ->find();
+
+        return $result ? $result->toArray() : [];
     }
 
     /**
@@ -138,7 +140,7 @@ class Ip
      * @param  string  $_name
      * @return int
      */
-    private static function queryRegion($_name, $_pid)
+    private static function queryRegion($_name, $_pid): int
     {
         $_name = Filter::default($_name, true);
 
@@ -154,7 +156,7 @@ class Ip
     }
 
     /**
-     * 插入IP地址库
+     * 写入IP地址库
      * @access private
      * @static
      * @param
@@ -162,12 +164,13 @@ class Ip
      */
     private static function added($_ip)
     {
-        $result = file_get_contents('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
+        $result = self::get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
+        // $result = self::get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
 
         if (!is_null($result) && $ip = json_decode($result, true)) {
             if (!empty($ip) && $ip['code'] == 0) {
                 $country = self::queryRegion($ip['data']['country'], 0);
-                $isp     = Filter::default($ip['data']['isp'], true);
+                $isp     = !empty($ip['data']['isp']) ? Filter::default($ip['data']['isp'], true) : '';
 
                 if ($country) {
                     $province = self::queryRegion($ip['data']['region'], $country);
@@ -180,13 +183,13 @@ class Ip
 
                     $has =
                     (new IpInfo)->where([
-                        ['ip', '=', $_ip]
+                        ['ip', '=', bindec(Request::ip2bin($_ip))]
                     ])
                     ->value('id');
 
                     if (!$has) {
                         (new IpInfo)->create([
-                            'ip'          => $_ip,
+                            'ip'          => bindec(Request::ip2bin($_ip)),
                             'country_id'  => $country,
                             'province_id' => $province,
                             'city_id'     => $city,
@@ -213,6 +216,72 @@ class Ip
             }
         } else {
             return false;
+        }
+    }
+
+    /**
+     * 更新IP地址库
+     * @access private
+     * @static
+     * @param
+     * @return void
+     */
+    private static function update($_ip): void
+    {
+        $result = self::get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
+        // $result = self::get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
+
+        if (!is_null($result) && $ip = json_decode($result, true)) {
+            if (!empty($ip) && $ip['code'] == 0) {
+                $country = self::queryRegion($ip['data']['country'], 0);
+                $isp     = !empty($ip['data']['isp']) ? Filter::default($ip['data']['isp'], true) : '';
+
+                if ($country) {
+                    $province = self::queryRegion($ip['data']['region'], $country);
+                    $city     = self::queryRegion($ip['data']['city'], $province);
+                    if ($ip['data']['area']) {
+                        $area = self::queryRegion($ip['data']['area'], $city);
+                    } else {
+                        $area = 0;
+                    }
+
+                    (new IpInfo)->where([
+                        ['ip', '=', bindec(Request::ip2bin($_ip))],
+                    ])
+                    ->update([
+                        'country_id'  => $country,
+                        'province_id' => $province,
+                        'city_id'     => $city,
+                        'area_id'     => $area,
+                        'isp'         => $isp,
+                        'update_time' => time()
+                    ]);
+                }
+            }
+        }
+    }
+
+    private static function get_curl($_url): string
+    {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $_url);
+        curl_setopt($curl, CURLOPT_FAILONERROR, false);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);
+
+        $headers = array('content-type: application/x-www-form-urlencoded;charset=UTF-8');
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+        $result = curl_exec($curl);
+
+        if ($result) {
+            curl_close($curl);
+            return $result;
+        } else {
+            $error = curl_errno($curl);
+            curl_close($curl);
+            return 'curl出错,错误码:' . $error;
         }
     }
 }

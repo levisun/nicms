@@ -58,7 +58,8 @@ class Cms extends Template
      */
     public function index()
     {
-        $this->fetch('index');
+        echo \app\library\Base64::encrypt('//201903/5c9095fb61dff_skl_300x300.jpg');
+        // $this->fetch('index');
     }
 
     /**

@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS `np_ipinfo`;
 CREATE TABLE IF NOT EXISTS `np_ipinfo` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `ip` varchar(15) NOT NULL DEFAULT '' COMMENT 'IP',
+  `ip` int(11) NOT NULL DEFAULT '0' COMMENT 'IP',
   `country_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '国家',
   `province_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '省',
   `city_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '市',

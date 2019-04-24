@@ -46,7 +46,7 @@ class Sidebar
             ->toArray();
 
 
-            $result['image'] = getImgUrl($result['image']);
+            $result['image'] = get_img_url($result['image']);
             $result['flag'] = Base64::flag($result['id'], 7);
             $result['child'] = $this->child($result['id']);
             if (empty($result['child'])) {
@@ -96,7 +96,7 @@ class Sidebar
         ->toArray();
 
         foreach ($result as $key => $value) {
-            $value['image'] = getImgUrl($value['image']);
+            $value['image'] = get_img_url($value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             $value['child'] = $this->child($value['id']);
 

@@ -28,7 +28,7 @@ class Filter
         } elseif (is_object($_data)) {
             # code...
             return $_data;
-        } else {
+        } elseif (is_string($_data)) {
             // 过滤多余空格与回车
             $_data = trim($_data);
             $_data = self::ENTER($_data);

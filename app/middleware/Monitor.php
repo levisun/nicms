@@ -28,6 +28,9 @@ class Monitor
 {
     public function handle($request, Closure $next)
     {
+        // 添加默认过滤方法
+        $request->filter('safe_filter');
+
         clearstatcache();
         $request_log = app()->getRuntimePath() . 'concurrent' . DIRECTORY_SEPARATOR;
         if (!is_dir($request_log)) {
@@ -38,8 +41,7 @@ class Monitor
 
         // 频繁请求锁定IP
         if (is_file($request_log . '.lock')) {
-            die('请求错误！请稍后再试～');
-            die('<style type="text/css">*{ padding: 0; margin: 0; } div{ padding: 4px 48px;} a{color:#2E5CD5;cursor: pointer;text-decoration: none} a:hover{text-decoration:underline; } body{ background: #fff; font-family: "Century Gothic","Microsoft yahei"; color: #333;font-size:18px;} h1{ font-size: 100px; font-weight: normal; margin-bottom: 12px; } p{ line-height: 1.6em; font-size: 42px }</style><div style="padding: 24px 48px;"> <h1>:( </h1><p> 500<br/><span style="font-size:30px">123</span></p></div>');
+            die('<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>500</h2><h3> Oops! Something went wrong.</h3></section>');
         }
 
         // 记录访问次数
@@ -59,9 +61,11 @@ class Monitor
             }
         }
 
-        // 千分几率跳转至并发错误页
-        if (rand(1, 999) === 1 && !in_array(Request::controller(true), ['error', 'api'])) {
+        // 千分几率跳转至错误页
+        if (!in_array(Request::controller(true), ['error', 'api']) && rand(1, 99) === 1) {
             Log::record('[并发]' . Request::ip(), 'alert');
+            die('<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>500</h2><h3> Oops! Something went wrong.</h3></section>');
+
             $url = url('error');
             $response = Response::create($url, 'redirect', 302);
             throw new HttpResponseException($response);
@@ -69,17 +73,14 @@ class Monitor
 
         $response = $next($request);
 
-        if (Request::isGet() && !in_array(Request::controller(true), ['admin', 'api'])) {
+        if (Request::isGet() && !in_array(Request::controller(true), ['admin', 'api', 'error'])) {
             (new Accesslog)->record();
         }
 
-        if (Request::isGet() && !in_array(Request::controller(true), ['api'])) {
-            // 减少频繁操作
-            if (rand(1, 20) === 1) {
-                (new Garbage)->remove();
-                (new Sitemap)->save();
-                (new Backup)->auto();
-            }
+        if (Request::isGet() && Request::controller(true) == 'api' && rand(1, 10) === 1) {
+            (new Garbage)->run();
+            (new Backup)->auto();
+            (new Sitemap)->save();
         }
 
         return $response;

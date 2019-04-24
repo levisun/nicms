@@ -103,7 +103,7 @@ class Backup
         $insert_data = '';
 
         for ($i = 0; $i < $total; $i++) {
-            if (is_file($sql_file) && filemtime($sql_file) >= strtotime('-1 hour')) {
+            if (is_file($sql_file) && filemtime($sql_file) >= strtotime('-24 hour')) {
                 continue;
             }
 

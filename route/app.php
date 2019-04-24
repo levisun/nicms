@@ -37,8 +37,6 @@ elseif ($domain == 'admin') {
 elseif ($domain == 'api') {
     Route::ext('do');
 
-
-
     $headers = [
         'Access-Control-Allow-Origin'  => Request::server('HTTP_ORIGIN', '*'),
         // 'Access-Control-Allow-Methods' => 'GET, POST, PATCH, PUT, DELETE',
@@ -55,9 +53,11 @@ elseif ($domain == 'api') {
         header($key . ':' . $value);
     }
 
-    Route::get(':name$', 'api/query');
-    Route::post('handle/:name$', 'api/handle');
-    Route::post('upload/:name$', 'api/upload');
+    Route::get('download$', 'api/download');
+    Route::get('ip$', 'api/ip');
+    Route::get(':module$', 'api/query');
+    Route::post('handle/:module$', 'api/handle');
+    Route::post('upload/:module$', 'api/upload');
 }
 
 
