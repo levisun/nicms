@@ -32,7 +32,8 @@ class Breadcrumb
      */
     public function query(): array
     {
-        $cid = Request::param('cid/f', null);
+        $cid = Request::param('cid', null);
+        $cid = (int) Base64::decrypt($cid);
         $this->parentCate($cid);
 
         return [

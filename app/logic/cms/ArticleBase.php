@@ -42,7 +42,8 @@ class ArticleBase
             ['article.lang', '=', Lang::getLangSet()]
         ];
 
-        if ($category_id = Request::param('cid/f', null)) {
+        if ($category_id = Request::param('cid', null)) {
+            $category_id = (int) Base64::decrypt($category_id);
             $map[] = ['article.category_id', '=', $category_id];
         } else {
             return [
@@ -88,15 +89,6 @@ class ArticleBase
             $img_size = Request::isMobile() ? 200 : 300;
 
             foreach ($list['data'] as $key => $value) {
-                $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
-                $value['cat_url'] = url('list/' . $value['action_name'] . '/' . $value['category_id']);
-                $value['url'] = url('details/' . $value['action_name'] . '/' . $value['category_id'] . '/' . $value['id']);
-                $value['update_time'] = date($date_format, $value['update_time']);
-
-                $value['thumb_original'] = get_img_url($value['thumb'], 0);
-                $value['thumb'] = get_img_url($value['thumb'], $img_size);
-
-
                 // 附加字段数据
                 // $fields =
                 // (new ModelArticleData)->view('article_data data', ['data'])
@@ -123,6 +115,17 @@ class ArticleBase
                 ->select()
                 ->toArray();
 
+                $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
+                $value['update_time'] = date($date_format, $value['update_time']);
+
+                $value['thumb_original'] = get_img_url($value['thumb'], 0);
+                $value['thumb'] = get_img_url($value['thumb'], $img_size);
+
+                $value['category_id'] = Base64::encrypt($value['category_id']);
+                $value['id'] = Base64::encrypt($value['id']);
+                $value['cat_url'] = url('list/' . $value['action_name'] . '/' . $value['category_id']);
+                $value['url'] = url('details/' . $value['action_name'] . '/' . $value['category_id'] . '/' . $value['id']);
+
                 $list['data'][$key] = $value;
             }
 
@@ -148,7 +151,8 @@ class ArticleBase
             ['article.lang', '=', Lang::getLangSet()]
         ];
 
-        if ($id = Request::param('id/f', null)) {
+        if ($id = Request::param('id', null)) {
+            $id = (int) Base64::decrypt($id);
             $map[] = ['article.id', '=', $id];
         } else {
             return [
@@ -175,28 +179,6 @@ class ArticleBase
             ->toArray();
 
             if ($result) {
-                $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
-                $result['url'] = url('details/' . $result['action_name'] . '/' . $result['category_id'] . '/' . $result['id']);
-                $result['cat_url'] = url('list/' . $result['action_name'] . '/' . $result['category_id']);
-
-                $date_format = Request::param('date_format', 'Y-m-d');
-                $result['update_time'] = date($date_format, $result['update_time']);
-
-                $img_size = Request::isMobile() ? 200 : 300;
-
-                $result['thumb'] = get_img_url($result['thumb'], $img_size);
-
-                $result['content'] = htmlspecialchars_decode($result['content']);
-
-                if (preg_match_all('/(src=["|\'])(.*?)(["|\'])/si', $result['content'], $matches) !== false) {
-                    foreach ($matches[2] as $key => $value) {
-                        $thumb = get_img_url($value, $img_size);
-                        $replace = 'src="' . $thumb . '" original="' . get_img_url($value, 0) . '"';
-                        $result['content'] = str_replace($matches[0][$key], $replace, $result['content']);
-                    }
-                }
-
-
                 // 附加字段数据
                 // $fields =
                 // (new ModelArticleData)->view('article_data data', ['data'])
@@ -211,13 +193,6 @@ class ArticleBase
                 //    $value[$val['fields_name']] = $val['data'];
                 // }
 
-
-                // 上一篇
-                // 下一篇
-                $result['next'] = $this->next($result['id']);
-                $result['prev'] = $this->prev($result['id']);
-
-
                 // 标签
                 $result['tags'] =
                 (new ModelTagsArticle)->view('tags_article', ['tags_id'])
@@ -228,6 +203,33 @@ class ArticleBase
                 ->cache(__METHOD__ . 'tags' . $result['id'], null, 'DETAILS')
                 ->select()
                 ->toArray();
+
+                // 上一篇 下一篇
+                $result['next'] = $this->next($result['id']);
+                $result['prev'] = $this->prev($result['id']);
+
+                $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
+                $date_format = Request::param('date_format', 'Y-m-d');
+                $result['update_time'] = date($date_format, $result['update_time']);
+
+                // 缩略图
+                $img_size = Request::isMobile() ? 200 : 300;
+                $result['thumb'] = get_img_url($result['thumb'], $img_size);
+
+                $result['content'] = htmlspecialchars_decode($result['content']);
+
+                if (preg_match_all('/(src=["|\'])(.*?)(["|\'])/si', $result['content'], $matches) !== false) {
+                    foreach ($matches[2] as $key => $value) {
+                        $thumb = get_img_url($value, $img_size);
+                        $replace = 'src="' . $thumb . '" original="' . get_img_url($value, 0) . '"';
+                        $result['content'] = str_replace($matches[0][$key], $replace, $result['content']);
+                    }
+                }
+
+                $result['category_id'] = Base64::encrypt($result['category_id']);
+                $result['id'] = Base64::encrypt($result['id']);
+                $result['url'] = url('details/' . $result['action_name'] . '/' . $result['category_id'] . '/' . $result['id']);
+                $result['cat_url'] = url('list/' . $result['action_name'] . '/' . $result['category_id']);
             }
 
             Cache::tag('DETAILS')->set($cache_key, $result);

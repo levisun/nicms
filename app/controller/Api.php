@@ -27,19 +27,6 @@ class Api extends Async
 {
 
     /**
-     * 构造方法
-     * @access public
-     * @param  App  $app  应用对象
-     * @return void
-     */
-    public function __construct()
-    {
-        if (!Request::server('HTTP_REFERER', null)) {
-            // $this->error('request error');
-        }
-    }
-
-    /**
      * 查询接口
      * @access public
      * @param  string $module API分层名
@@ -47,7 +34,7 @@ class Api extends Async
      */
     public function query(string $module = 'cms')
     {
-        if (Request::isGet() && $module) {
+        if (Request::server('HTTP_REFERER', false) && Request::isGet() && $module) {
             $this->setModule($module)->run();
         } else {
             $this->error('request error');
@@ -62,7 +49,7 @@ class Api extends Async
      */
     public function handle(string $module = 'cms')
     {
-        if (Request::isPost() && $module) {
+        if (Request::server('HTTP_REFERER', false) && Request::isPost() && $module) {
             $this->setModule($module)->run();
         } else {
             $this->error('request error');
@@ -77,7 +64,7 @@ class Api extends Async
      */
     public function upload(string $module = 'cms')
     {
-        if (Request::isPost() && $module && !empty($_FILES)) {
+        if (Request::server('HTTP_REFERER', false) && Request::isPost() && $module && !empty($_FILES)) {
             $this->setModule($module)->run();
         } else {
             $this->error('request error');

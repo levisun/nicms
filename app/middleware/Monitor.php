@@ -41,6 +41,7 @@ class Monitor
 
         // 频繁请求锁定IP
         if (is_file($request_log . '.lock')) {
+            Log::record('[锁定]' . Request::ip(), 'alert')->save();
             die('<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>500</h2><h3> Oops! Something went wrong.</h3></section>');
         }
 
@@ -62,8 +63,8 @@ class Monitor
         }
 
         // 千分几率跳转至错误页
-        if (!in_array(Request::controller(true), ['error', 'api']) && rand(1, 99) === 1) {
-            Log::record('[并发]' . Request::ip(), 'alert');
+        if (!in_array(Request::controller(true), ['error', 'api']) && rand(1, 999) === 1) {
+            Log::record('[并发]' . Request::ip(), 'alert')->save();
             die('<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>500</h2><h3> Oops! Something went wrong.</h3></section>');
 
             $url = url('error');

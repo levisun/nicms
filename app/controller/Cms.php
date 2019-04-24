@@ -58,8 +58,8 @@ class Cms extends Template
      */
     public function index()
     {
-        echo \app\library\Base64::encrypt('//201903/5c9095fb61dff_skl_300x300.jpg');
-        // $this->fetch('index');
+        // echo \app\library\Base64::encrypt('//201903/5c9095fb61dff_skl_300x300.jpg');
+        $this->fetch('index');
     }
 
     /**
@@ -69,7 +69,7 @@ class Cms extends Template
      * @param  int    $cid  栏目ID
      * @return mixed        HTML文档
      */
-    public function lists(string $name = 'article', int $cid = 0)
+    public function lists(string $name = 'article', string $cid = '')
     {
         $this->fetch('list_' . $name);
     }
@@ -82,7 +82,7 @@ class Cms extends Template
      * @param  int    $id   文章ID
      * @return mixed        HTML文档
      */
-    public function details(string $name = 'article', int $cid = 0, int $id = 0)
+    public function details(string $name = 'article', string $cid = '', string $id = '')
     {
         $this->fetch('details_' . $name);
     }

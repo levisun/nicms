@@ -24,7 +24,7 @@ class Backup
 
     public function auto(): void
     {
-        Log::record('[BACKUP] 备份', 'alert');
+        Log::record('[BACKUP] 自动备份', 'alert');
 
         clearstatcache();
         $this->savePath = app()->getRuntimePath() .

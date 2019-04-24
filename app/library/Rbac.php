@@ -185,7 +185,7 @@ class Rbac
                 ['level', '=', $_level],
                 ['pid', '=', $_pid],
             ])
-            ->cache(__METHOD__ . 'founder' . $_uid . $_level . $_pid, 120)
+            ->cache(__METHOD__ . 'founder' . $_uid . $_level . $_pid)
             ->select()
             ->toArray();
         } else {
@@ -199,7 +199,7 @@ class Rbac
                 ['node.level', '=', $_level],
                 ['node.pid', '=', $_pid],
             ])
-            ->cache(__METHOD__ . $_uid . $_level . $_pid, 120)
+            ->cache(__METHOD__ . $_uid . $_level . $_pid)
             ->select()
             ->toArray();
         }

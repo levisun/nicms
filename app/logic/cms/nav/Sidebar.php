@@ -31,7 +31,8 @@ class Sidebar
      */
     public function query(): array
     {
-        if ($cid = Request::param('cid/f', null)) {
+        if ($cid = Request::param('cid', null)) {
+            $cid = (int) Base64::decrypt($cid);
             $result =
             (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
@@ -48,11 +49,10 @@ class Sidebar
 
             $result['image'] = get_img_url($result['image']);
             $result['flag'] = Base64::flag($result['id'], 7);
-            $result['child'] = $this->child($result['id']);
-            if (empty($result['child'])) {
-                unset($result['child']);
-            }
 
+            $result['child'] = $this->child($result['id']);
+
+            $result['id'] = Base64::encrypt($result['id']);
             $result['url'] = url('list/' . $result['action_name'] . '/' . $result['id']);
             if ($result['access_id']) {
                 $result['url'] = url('channel/' . $result['action_name'] . '/' . $result['id']);
@@ -98,8 +98,10 @@ class Sidebar
         foreach ($result as $key => $value) {
             $value['image'] = get_img_url($value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
+
             $value['child'] = $this->child($value['id']);
 
+            $value['id'] = Base64::encrypt($value['id']);
             $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
             if ($value['access_id']) {
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
@@ -109,6 +111,6 @@ class Sidebar
             $result[$key] = $value;
         }
 
-        return $result ? : [];
+        return $result ? : false;
     }
 }

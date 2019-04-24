@@ -144,7 +144,9 @@ class Async
      */
     public function __construct()
     {
-        # code...
+        ini_set('display_errors', 'Off');
+        ini_set('memory_limit', '16M');
+        set_time_limit(15);
     }
 
     /**

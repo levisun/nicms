@@ -48,11 +48,10 @@ class Foot
         foreach ($result as $key => $value) {
             $value['image'] = get_img_url($value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
-            $value['child'] = $this->child($value['id'], 2);
-            if (empty($value['child'])) {
-                unset($value['child']);
-            }
 
+            $value['child'] = $this->child($value['id'], 3);
+
+            $value['id'] = Base64::encrypt($value['id']);
             $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
             if ($value['access_id']) {
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
@@ -97,17 +96,19 @@ class Foot
             $value['image'] = get_img_url($value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
 
+            $value['child'] = $this->child($value['id'], 3);
+
+            $value['id'] = Base64::encrypt($value['id']);
             $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
             if ($value['access_id']) {
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
             }
             unset($value['action_name']);
 
-            $value['child'] = $this->child($value['id'], 2);
 
             $result[$key] = $value;
         }
 
-        return $result ? : [];
+        return $result ? : false;
     }
 }
