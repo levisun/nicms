@@ -15,17 +15,17 @@ use think\facade\Env;
 
 return [
     // 数据库类型
-    'type'            => env('database.type', 'mysql'),
+    'type'            => Env::get('database.type', 'mysql'),
     // 服务器地址
-    'hostname'        => env('database.hostname', '127.0.0.1'),
+    'hostname'        => Env::get('database.hostname', '127.0.0.1'),
     // 数据库名
-    'database'        => env('database.database', 'nicms'),
+    'database'        => Env::get('database.database', 'nicms'),
     // 用户名
-    'username'        => env('database.username', 'root'),
+    'username'        => Env::get('database.username', 'root'),
     // 密码
-    'password'        => env('database.password', ''),
+    'password'        => Env::get('database.password', ''),
     // 端口
-    'hostport'        => env('database.hostport', ''),
+    'hostport'        => Env::get('database.hostport', ''),
     // 连接dsn
     'dsn'             => '',
     // 数据库连接参数
@@ -39,11 +39,11 @@ return [
         \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,                            // 查询缓存
     ],
     // 数据库编码默认采用utf8
-    'charset'         => env('database.charset', 'utf8'),
+    'charset'         => Env::get('database.charset', 'utf8'),
     // 数据库表前缀
-    'prefix'          => env('database.prefix', 'nc'),
+    'prefix'          => Env::get('database.prefix', 'nc'),
     // 数据库调试模式
-    'debug'           => env('app.app_debug', 1) ? true : false,
+    'debug'           => Env::get('app.app_debug', 1) ? true : false,
     // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
     'deploy'          => 0,
     // 数据库读写是否分离 主从式有效

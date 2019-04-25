@@ -11,6 +11,7 @@
  * @since     2019
  */
 
+use think\facade\Env;
 use think\facade\Lang;
 use think\facade\Request;
 
@@ -22,7 +23,7 @@ return [
     // 缓存前缀
     'prefix'        => Lang::getLangSet() . '-' . Request::subDomain(),
     // 缓存有效期 0表示永久缓存
-    'expire'        => env('app.app_debug', true) ? 1440 : env('cache.expire', 14400),
+    'expire'        => Env::get('app.app_debug', true) ? 1440 : Env::get('cache.expire', 14400),
     // 关闭子目录
     'cache_subdir'  => false,
     // 开启转义

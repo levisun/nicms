@@ -50,7 +50,7 @@ class User extends Base
                 ->find();
 
                 if ($result && $result['password'] === Base64::password(Request::post('password'), $result['salt'])) {
-                    $ip = Ip::info();
+                    $ip = (new Ip)->info();
                     (new ModelAdmin)->where([
                         ['id', '=', $result['id']]
                     ])

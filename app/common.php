@@ -205,7 +205,9 @@ function create_authorization(): string
 {
     $authorization = Request::header('USER-AGENT') . Request::ip() . app()->getRootPath() . strtotime(date('Ymd'));
     $authorization = hash_hmac('sha1', $authorization, Config::get('app.authkey'));
-    $authorization .= session_id() ? '.' . session_id() : '';
+    if ($session_id = Session::getId(false)) {
+        $authorization .= '.' . $session_id;
+    }
     return Base64::encrypt($authorization, 'authorization');
 }
 

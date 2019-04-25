@@ -12,6 +12,8 @@
 // +----------------------------------------------------------------------
 // | 应用设置
 // +----------------------------------------------------------------------
+//
+use think\facade\Env;
 
 return [
     // PATHINFO变量名 用于兼容模式
@@ -63,7 +65,7 @@ return [
     // 是否开启请求缓存 true自动缓存 支持设置请求缓存规则
     'request_cache'         => true,
     // 请求缓存有效期
-    'request_cache_expire'  => env('cache.expire', 14400),
+    'request_cache_expire'  => Env::get('cache.expire', 14400),
     // 全局请求缓存排除规则
     'request_cache_except'  => [],
     // 默认控制器名

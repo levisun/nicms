@@ -26,12 +26,12 @@ class Backup
     {
         Log::record('[BACKUP] 自动备份', 'alert');
 
-        clearstatcache();
         $this->savePath = app()->getRuntimePath() .
                             'backup' . DIRECTORY_SEPARATOR .
                             'sys_auto' . DIRECTORY_SEPARATOR;
 
         ignore_user_abort(true);
+        clearstatcache();
         if (!is_dir($this->savePath)) {
             chmod(app()->getRuntimePath(), 0777);
             mkdir($this->savePath, 0777, true);
@@ -42,7 +42,7 @@ class Backup
             $result = $this->queryTableName();
             foreach ($result as $key => $name) {
                 file_put_contents($this->savePath . 'backup.lock', $name);
-                if (rand(1, 2) === 1) {
+                if (rand(1, 3) === 1) {
                     continue;
                 }
                 $this->queryTableStructure($name);
@@ -51,18 +51,16 @@ class Backup
             unlink($this->savePath . 'backup.lock');
         }
         ignore_user_abort(false);
-        clearstatcache();
     }
 
     public function save()
     {
-        clearstatcache();
         $this->savePath = app()->getRuntimePath() .
                             'backup' . DIRECTORY_SEPARATOR .
                             date('ymdHis') .DIRECTORY_SEPARATOR;
 
-        clearstatcache();
         ignore_user_abort(true);
+        clearstatcache();
         if (!is_dir($this->savePath)) {
             chmod(app()->getRuntimePath(), 0777);
             mkdir($this->savePath, 0777, true);
@@ -74,7 +72,6 @@ class Backup
             }
         }
         ignore_user_abort(false);
-        clearstatcache();
     }
 
     /**

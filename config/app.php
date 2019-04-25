@@ -10,25 +10,27 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
+use think\facade\Env;
+use think\facade\Request;
 
 return [
     // API接口地址
-    'api_host'              => '//api.' . request()->rootDomain() . request()->root(),
+    'api_host'              => '//api.' . Request::rootDomain() . Request::root(),
     // CDN地址
-    'cdn_host'              => '//cdn.' . request()->rootDomain() . request()->root(),
+    'cdn_host'              => '//cdn.' . Request::rootDomain() . Request::root(),
     // 主站地址
-    'www_host'              => '//www.' . request()->rootDomain() . request()->root(),
+    'www_host'              => '//www.' . Request::rootDomain() . Request::root(),
     // 后台管理地址
-    'admin_host'            => '//admin.' . request()->rootDomain() . request()->root(),
+    'admin_host'            => '//admin.' . Request::rootDomain() . Request::root(),
     // 调试模式
-    'app_debug'             => env('app.app_debug', 1) ? true : false,
+    'app_debug'             => Env::get('app.app_debug', 1) ? true : false,
     // 密钥
-    'authkey'               => env('app.authkey', md5(__DIR__)),
+    'authkey'               => Env::get('app.authkey', md5(__DIR__)),
 
     // 应用地址
     'app_host'              => '',
     // 应用Trace（环境变量优先读取）
-    'app_trace'             => env('app.app_debug', 1) ? true : false,
+    'app_trace'             => Env::get('app.app_debug', 1) ? true : false,
     // 应用的命名空间
     'app_namespace'         => '',
     // 是否启用路由
@@ -62,5 +64,5 @@ return [
     // 错误显示信息,非调试模式有效
     'error_message'         => '页面错误！请稍后再试～',
     // 显示错误信息
-    'show_error_msg'        => env('app.app_debug', 1) ? true : false,
+    'show_error_msg'        => Env::get('app.app_debug', 1) ? true : false,
 ];

@@ -1,11 +1,10 @@
 <?php
 /**
  *
- * 控制层
- * Api
+ * 上传类
  *
  * @package   NICMS
- * @category  app\controller
+ * @category  app\library
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -13,88 +12,31 @@
  */
 declare (strict_types = 1);
 
-namespace app\controller;
+namespace app\library;
 
-use think\Response;
-use think\exception\HttpResponseException;
 use think\facade\Env;
-use think\facade\Log;
 use think\facade\Request;
-use app\library\Async;
-use app\library\Base64;
-use app\library\Ip;
 
-class Api extends Async
+class Download
 {
+    private $file = null;
+    private $timestamp = null;
 
     /**
-     * 查询接口
+     * 构造方法
      * @access public
-     * @param  string $module API分层名
+     * @param  string $_input_name
      * @return void
      */
-    public function query(string $module = 'cms')
+    public function __construct()
     {
-        if (Request::server('HTTP_REFERER', false) && Request::isGet() && $module) {
-            $this->setModule($module)->run();
-        } else {
-            $this->error('request error');
-        }
+        $this->file = Request::param('file', false);
+        $this->timestamp = (int) Request::param('timestamp/f', 0);
+        $this->timestamp = date('Ymd', $this->timestamp);
+        $date = date('Ymd');
     }
 
-    /**
-     * 操作接口
-     * @access public
-     * @param  string $name API分层名
-     * @return void
-     */
-    public function handle(string $module = 'cms')
-    {
-        if (Request::server('HTTP_REFERER', false) && Request::isPost() && $module) {
-            $this->setModule($module)->run();
-        } else {
-            $this->error('request error');
-        }
-    }
-
-    /**
-     * 上传接口
-     * @access public
-     * @param
-     * @return void
-     */
-    public function upload(string $module = 'cms')
-    {
-        if (Request::server('HTTP_REFERER', false) && Request::isPost() && $module && !empty($_FILES)) {
-            $this->setModule($module)->run();
-        } else {
-            $this->error('request error');
-        }
-    }
-
-    /**
-     * IP地址信息接口
-     * @access public
-     * @param
-     * @return void
-     */
-    public function ip()
-    {
-        if (Request::isGet() && $ip = Request::param('ip', false)) {
-            $ip = (new Ip)->info($ip);
-            $this->success('success', $ip);
-        } else {
-            $this->error('request error');
-        }
-    }
-
-    /**
-     * 下载接口
-     * @access public
-     * @param
-     * @return void
-     */
-    public function download()
+    public function file()
     {
         $file = Request::param('file', false);
         $timestamp = (int) Request::param('timestamp/f', 0);
@@ -130,7 +72,5 @@ class Api extends Async
             $log .= PHP_EOL . 'PARAM:' . json_encode(Request::param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
             Log::record($log, 'alert')->save();
         }
-
-        die('<script type="text/javascript"></script>');
     }
 }

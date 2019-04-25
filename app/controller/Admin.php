@@ -36,13 +36,6 @@ class admin extends Template
     {
         $this->setTheme('admin/' . Env::get('app.admin_theme', 'default'));
         parent::__construct();
-
-        // 开启session
-        $session = Config::get('session');
-        $session['auto_start'] = true;
-        Config::set($session, 'session');
-        session_start();
-        session_write_close();
     }
 
     /**

@@ -16,15 +16,12 @@ namespace app\library;
 
 use think\Image;
 use think\facade\Config;
+use think\facade\Env;
 use think\facade\Request;
 
 class Upload
 {
-    private $rule = [
-        'size' => 300*1024,
-        'ext'  => ['gif', 'jpg', 'png', 'zip', 'rar']
-    ];
-
+    private $rule = [];
     private $savePath;
     private $subDir;
 
@@ -40,6 +37,12 @@ class Upload
         $this->savePath = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
                             'uploads' . DIRECTORY_SEPARATOR .
                             $this->subDir . DIRECTORY_SEPARATOR;
+        $ext = Env::get('app.upload_type', 'gif,jpg,png,zip,rar');
+        $size = (int) Env::get('app.upload_size', '1');
+        $this->rule = [
+            'size' => $size * 1048576,
+            'ext' => explode(',', $ext)
+        ];
     }
 
     /**

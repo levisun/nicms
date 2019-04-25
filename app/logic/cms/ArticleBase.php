@@ -116,6 +116,7 @@ class ArticleBase
                 ->toArray();
 
                 $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
+                $value['update_time'] = strtotime($value['update_time']);
                 $value['update_time'] = date($date_format, $value['update_time']);
 
                 $value['thumb_original'] = get_img_url($value['thumb'], 0);
@@ -129,7 +130,7 @@ class ArticleBase
                 $list['data'][$key] = $value;
             }
 
-            Cache::tag('LISTS')->set($cache_key, $list);
+            // Cache::tag('LISTS')->set($cache_key, $list);
         } else {
             $list = Cache::get($cache_key);
         }
@@ -163,8 +164,7 @@ class ArticleBase
             ];
         }
 
-        $cache_key = md5($id);
-        $cache_key .= Request::isMobile() ? 'mobile' : '';
+        $cache_key = $id . Request::isMobile() ? 'mobile' : '';
         if (!Cache::has($cache_key)) {
             $result =
             (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
@@ -210,6 +210,7 @@ class ArticleBase
 
                 $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
                 $date_format = Request::param('date_format', 'Y-m-d');
+                $result['update_time'] = strtotime($result['update_time']);
                 $result['update_time'] = date($date_format, $result['update_time']);
 
                 // 缩略图
@@ -232,7 +233,7 @@ class ArticleBase
                 $result['cat_url'] = url('list/' . $result['action_name'] . '/' . $result['category_id']);
             }
 
-            Cache::tag('DETAILS')->set($cache_key, $result);
+            // Cache::tag('DETAILS')->set($cache_key, $result);
         } else {
             $result = Cache::get($cache_key);
         }
@@ -272,7 +273,7 @@ class ArticleBase
 
         $result =
         (new ModelArticle)->where($map)
-        ->cache(__METHOD__ . $id, 15, 'DETAILS')
+        ->cache(__METHOD__ . $id, 60, 'DETAILS')
         ->value('hits');
 
         return $result;

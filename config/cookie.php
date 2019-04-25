@@ -10,6 +10,7 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
+use think\facade\Request;
 
 return [
     // cookie 名称前缀
@@ -19,7 +20,7 @@ return [
     // cookie 保存路径
     'path'      => '/',
     // cookie 有效域名
-    'domain'    => '.' . request()->rootDomain(),
+    'domain'    => '.' . Request::rootDomain(),
     //  cookie 启用安全传输
     'secure'    => false,
     // httponly设置

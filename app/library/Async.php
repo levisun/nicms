@@ -362,13 +362,6 @@ class Async
 
             // 开启session
             if ($this->sid && preg_match('/^[A-Za-z0-9]+$/u', $this->sid)) {
-                $session = Config::get('session');
-                $session['auto_start'] = true;
-                $session['id'] = $this->sid;
-                Config::set($session, 'session');
-                $session = Config::get('session');
-
-                session_id($this->sid);
                 Session::setId($this->sid);
             }
         } else {
@@ -462,7 +455,7 @@ class Async
         ];
         $result = array_filter($result);
 
-        $ipinfo = Ip::info();
+        $ipinfo = (new Ip)->info();
         $result['expire']  = $ipinfo['ip'] . ' ' . date('Y-m-d H:i:s', time() + $this->expire + 60);
 
         if (Config::get('app.app_debug') === true || $this->debug === true) {
@@ -489,14 +482,14 @@ class Async
      */
     private function writeLog(): void
     {
-        $log = '[API] IP:' . Request::ip() .
-                ' TIME:' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 6) . 's' .
+        $log = '[API] METHOD:' . $this->method .
+                ' TIME:' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 2) . 's' .
                 ' MEMORY:' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 2) . 'MB' .
-                ' CACHE:' . Container::pull('cache')->getReadTimes() . ' reads,' . Container::pull('cache')->getWriteTimes() . ' writes';
+                ' CACHE:' . Container::pull('cache')->getReadTimes() . 'reads,' . Container::pull('cache')->getWriteTimes() . 'writes';
 
         $log .= PHP_EOL . 'PARAM:' . json_encode(Request::param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
         $log .= PHP_EOL . 'DEBUG:' . json_encode($this->debugLog, JSON_UNESCAPED_UNICODE);
 
-        Log::record($log, 'alert');
+        Log::record($log, 'alert')->save();
     }
 }
