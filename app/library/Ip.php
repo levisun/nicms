@@ -30,7 +30,7 @@ class Ip
      */
     public function info(string $_ip = null)
     {
-        $_ip = $_ip ? : Request::ip();
+        $_ip = $_ip ? $_ip : Request::ip();
 
         if ($this->validate($_ip) === true) {
             // 查询IP地址库

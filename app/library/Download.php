@@ -14,12 +14,18 @@ declare (strict_types = 1);
 
 namespace app\library;
 
+use think\Response;
+use think\exception\HttpResponseException;
+use think\facade\Config;
 use think\facade\Env;
+use think\facade\Log;
 use think\facade\Request;
+use think\facade\Session;
+use app\library\Base64;
 
 class Download
 {
-    private $file = null;
+    private $fileName = null;
     private $timestamp = null;
 
     /**
@@ -29,36 +35,51 @@ class Download
      * @return void
      */
     public function __construct()
+    {}
+
+    /**
+     * 下载地址
+     * @access public
+     * @param  string $_file
+     * @return string
+     */
+    public function url(string $_file, bool $_login = false, int $_level = 0): string
     {
-        $this->file = Request::param('file', false);
-        $this->timestamp = (int) Request::param('timestamp/f', 0);
-        $this->timestamp = date('Ymd', $this->timestamp);
-        $date = date('Ymd');
+        if ($_login && !Session::has('user_auth_key')) {
+            return 'javascript:alert(\'login\')';
+        } elseif ($_level && !Session::has('user_auth_key') && Session::get('user_level') != $_level) {
+            return 'javascript:alert(\'level\')';
+        } else {
+            return Config::get('app.api_host') . '/download.do?file=' . Base64::encrypt($_file) . '&timestamp=' . time();
+        }
     }
 
+    /**
+     * 文件下载
+     * @access public
+     * @param
+     * @return void
+     */
     public function file()
     {
-        $file = Request::param('file', false);
-        $timestamp = (int) Request::param('timestamp/f', 0);
-        $timestamp = date('Ymd', $timestamp);
-        $date = date('Ymd');
+        $this->fileName = Request::param('file', false);
+        $this->timestamp = (int) Request::param('timestamp/f', 0);
+        $this->timestamp = date('Ymd', $this->timestamp);
 
-        if (Request::isGet() && $file && $timestamp == $date) {
-            $de_file = Base64::decrypt($file);
-            if ( preg_match('/^([\-_\\/A-Za-z0-9]+)(\.)([A-Za-z]{3,4})$/u', $de_file)) {
-                $de_file = preg_replace('/([\/\\\]){2,}/si', DIRECTORY_SEPARATOR, $de_file);
-                $de_file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
-                            'uploads' . DIRECTORY_SEPARATOR . $de_file;
-
-                $ext = Env::get('app.upload_type', 'gif,jpg,png,zip,rar');
-                $ext = explode(',', $ext);
+        if ($this->fileName && $this->timestamp == date('Ymd')) {
+            $this->fileName = Base64::decrypt($this->fileName);
+            if (preg_match('/^([\-_\\/A-Za-z0-9]+)(\.)([A-Za-z]{3,4})$/u', $this->fileName)) {
+                $this->fileName = preg_replace('/([\/\\\]){2,}/si', DIRECTORY_SEPARATOR, $this->fileName);
+                $this->fileName = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
+                                    'uploads' . DIRECTORY_SEPARATOR . $this->fileName;
+                $ext = explode(',', Env::get('app.upload_type', 'gif,jpg,png,zip,rar'));
                 clearstatcache();
-                if (is_file($de_file) && in_array(pathinfo($de_file,  PATHINFO_EXTENSION), $ext)) {
+                if (is_file($this->fileName) && in_array(pathinfo($this->fileName, PATHINFO_EXTENSION), $ext)) {
                     $response =
-                    Response::create($de_file, 'file')
-                    ->name(md5($file . time()))
+                    Response::create($this->fileName, 'file')
+                    ->name(md5($this->fileName . time()))
                     ->isContent(false)
-                    ->expire(300);
+                    ->expire(180);
                     throw new HttpResponseException($response);
                 } else {
                     echo 'file not found';
@@ -66,11 +87,15 @@ class Download
             } else {
                 echo 'file not found';
             }
-
-            $log = '[API] 下载文件:' . $file;
-            $log .= isset($de_file) ? ' 本地地址:' . $de_file : '';
-            $log .= PHP_EOL . 'PARAM:' . json_encode(Request::param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
-            Log::record($log, 'alert')->save();
+        } else {
+            echo 'file not found';
         }
+
+        $log  = '[API] 下载文件:' . Request::param('file', 'null');
+        $log .= ' 本地地址:' . $this->fileName;
+        $log .= PHP_EOL . 'PARAM:' . json_encode(Request::param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
+        Log::record($log, 'alert')->save();
+
+        return false;
     }
 }

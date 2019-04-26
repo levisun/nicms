@@ -60,6 +60,7 @@ jQuery.pjax({
     }
 });
 jQuery(document).on('click', '.btn', function(){
+    var $btn = $(this).button('{:lang('saveing')}');
     var data = jQuery.getForm('#basic-config');
     data['method'] = 'settings.basic.editor';
     jQuery.pjax({
@@ -67,6 +68,10 @@ jQuery(document).on('click', '.btn', function(){
         type: 'POST',
         data: data,
         success: function(result){
+            if (result.code === 'SUCCESS') {
+                $btn.button('reset');
+                jQuery.uiToast('123');
+            }
         }
     });
 });

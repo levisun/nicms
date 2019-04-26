@@ -15,17 +15,30 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
-use think\Response;
-use think\exception\HttpResponseException;
-use think\facade\Env;
-use think\facade\Log;
 use think\facade\Request;
+use think\facade\Session;
 use app\library\Async;
 use app\library\Base64;
+use app\library\Download;
 use app\library\Ip;
 
 class Api extends Async
 {
+    private $referer = false;
+    private $actionName = null;
+
+    /**
+     * 构造方法
+     * @access public
+     * @param  string $_input_name
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->referer = Request::server('HTTP_REFERER', false);
+        $this->actionName = Request::param('method');
+        list($this->actionName, $this->actionName, $this->actionName) = explode('.', $this->actionName);
+    }
 
     /**
      * 查询接口
@@ -35,7 +48,7 @@ class Api extends Async
      */
     public function query(string $module = 'cms')
     {
-        if (Request::server('HTTP_REFERER', false) && Request::isGet() && $module) {
+        if ($this->referer && Request::isGet() && $this->actionName == 'query') {
             $this->setModule($module)->run();
         } else {
             $this->error('request error');
@@ -50,7 +63,7 @@ class Api extends Async
      */
     public function handle(string $module = 'cms')
     {
-        if (Request::server('HTTP_REFERER', false) && Request::isPost() && $module) {
+        if ($this->referer && Request::isPost()) {
             $this->setModule($module)->run();
         } else {
             $this->error('request error');
@@ -65,7 +78,7 @@ class Api extends Async
      */
     public function upload(string $module = 'cms')
     {
-        if (Request::server('HTTP_REFERER', false) && Request::isPost() && $module && !empty($_FILES)) {
+        if ($this->referer && Request::isPost() && !empty($_FILES)) {
             $this->setModule($module)->run();
         } else {
             $this->error('request error');
@@ -96,41 +109,10 @@ class Api extends Async
      */
     public function download()
     {
-        $file = Request::param('file', false);
-        $timestamp = (int) Request::param('timestamp/f', 0);
-        $timestamp = date('Ymd', $timestamp);
-        $date = date('Ymd');
-
-        if (Request::isGet() && $file && $timestamp == $date) {
-            $de_file = Base64::decrypt($file);
-            if ( preg_match('/^([\-_\\/A-Za-z0-9]+)(\.)([A-Za-z]{3,4})$/u', $de_file)) {
-                $de_file = preg_replace('/([\/\\\]){2,}/si', DIRECTORY_SEPARATOR, $de_file);
-                $de_file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
-                            'uploads' . DIRECTORY_SEPARATOR . $de_file;
-
-                $ext = Env::get('app.upload_type', 'gif,jpg,png,zip,rar');
-                $ext = explode(',', $ext);
-                clearstatcache();
-                if (is_file($de_file) && in_array(pathinfo($de_file,  PATHINFO_EXTENSION), $ext)) {
-                    $response =
-                    Response::create($de_file, 'file')
-                    ->name(md5($file . time()))
-                    ->isContent(false)
-                    ->expire(300);
-                    throw new HttpResponseException($response);
-                } else {
-                    echo 'file not found';
-                }
-            } else {
-                echo 'file not found';
-            }
-
-            $log = '[API] 下载文件:' . $file;
-            $log .= isset($de_file) ? ' 本地地址:' . $de_file : '';
-            $log .= PHP_EOL . 'PARAM:' . json_encode(Request::param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
-            Log::record($log, 'alert')->save();
+        if (Request::isGet() && Request::param('file', false)) {
+            (new Download)->file();
+        } else {
+            die('request error');
         }
-
-        die('<script type="text/javascript"></script>');
     }
 }

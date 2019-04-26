@@ -162,7 +162,7 @@ function url(string $_url = '', array $_vars = [], string $_sub = 'www')
     $_url = '/' . $_url;
     $_url = Route::buildUrl($_url, $_vars, true, true);
 
-    if ($referer = Request::server('HTTP_REFERER')) {
+    if ($referer = Request::server('HTTP_REFERER', false)) {
         $host = parse_url($referer, PHP_URL_HOST);
         list($_sub) = explode('.', $host, 2);
     }
@@ -231,12 +231,10 @@ function validate(string $_validate, array $_data = [])
         $v->scene($scene);
     }
 
-    $_data = !empty($_data) ? : Request::param();
-
     if ($v->batch(false)->failException(false)->check($_data) === false) {
         return $v->getError();
     } else {
-        return true;
+        return false;
     }
 }
 

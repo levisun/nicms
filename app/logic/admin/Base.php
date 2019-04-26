@@ -89,12 +89,41 @@ class Base
     }
 
     /**
-     * 验证权限
+     * 数据验证
+     * @access protected
+     * @param  string  $_validate
+     * @param  array  $_data
+     * @return bool|string
+     */
+    protected function __validate(string $_validate, array $_data)
+    {
+        // 支持场景
+        if (strpos($_validate, '.')) {
+            list($_validate, $scene) = explode('.', $_validate);
+        }
+
+        $class = app()->parseClass('validate', $_validate);
+        $v     = new $class;
+
+        if (!empty($scene)) {
+            $v->scene($scene);
+        }
+
+        if ($v->batch(false)->failException(false)->check($_data) === false) {
+            return $v->getError();
+        } else {
+            halt(2);
+            return false;
+        }
+    }
+
+    /**
+     * 权限验证
      * @access protected
      * @param  string  $_logic
      * @param  string  $_controller
      * @param  string  $_action
-     * @return mexid
+     * @return bool|array
      */
     protected function __authenticate(string $_logic, string $_controller, string $_action)
     {
@@ -112,7 +141,7 @@ class Base
             ]
         );
 
-        return $result ? : [
+        return $result ? false : [
             'debug' => false,
             'cache' => false,
             'msg'   => Lang::get('error')

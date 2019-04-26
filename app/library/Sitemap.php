@@ -16,6 +16,7 @@ namespace app\library;
 
 use think\facade\Log;
 use think\facade\Request;
+use app\library\Base64;
 use app\model\Article as ModelArticle;
 use app\model\Category as ModelCategory;
 
@@ -61,15 +62,17 @@ class Sitemap
                 $article_xml = [];
                 $category_xml = [];
                 foreach ($article as $vo_art) {
+                    $vo_art['category_id'] = Base64::encrypt($vo_art['category_id']);
+                    $vo_art['id'] = Base64::encrypt($vo_art['id']);
                     $article_xml[]['url'] = [
-                        'loc'        => url('details/' . $vo_art['action_name'] . '/' . $vo_art['category_id'] . '/' . $vo_art['id']),
+                        'loc'        => Request::scheme() . url('details/' . $vo_art['action_name'] . '/' . $vo_art['category_id'] . '/' . $vo_art['id']),
                         'lastmod'    => $vo_art['update_time'],
                         'changefreq' => 'weekly',
                         'priority'   => '0.8',
                     ];
 
                     $category_xml[]['url'] = [
-                        'loc'        => url('list/' . $vo_cate['action_name'] . '/' . $vo_cate['id']),
+                        'loc'        => Request::scheme() . url('list/' . $vo_cate['action_name'] . '/' . $vo_cate['id']),
                         'lastmod'    => $vo_art['update_time'],
                         'changefreq' => 'daily',
                         'priority'   => '1.0',

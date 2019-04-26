@@ -82,7 +82,7 @@ class admin extends Template
                     ]
                 ]
             );
-            $result = $result ? : url('settings/info/index');
+            $result = $result ? $result : url('settings/info/index');
         } elseif (!in_array($_logic, ['account'])) {
             $result = url('account/user/login');
         }

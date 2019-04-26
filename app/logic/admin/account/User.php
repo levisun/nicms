@@ -33,13 +33,11 @@ class User extends Base
      */
     public function login(): array
     {
-        $result = $this->__authenticate('account', 'user', 'login');
-        if ($result !== true) {
+        if ($result = $this->__authenticate('account', 'user', 'login')) {
             return $result;
         }
 
-        $result = validate('admin.login');
-        if ($result === true || true) {
+        if (!$result = $this->__validate('admin.login')) {
             $lock = app()->getRuntimePath() . md5(Request::ip() . date('YmdH')) . '.lock';
             clearstatcache();
             if (!is_file($lock)) {
@@ -120,8 +118,7 @@ class User extends Base
      */
     public function profile(): array
     {
-        $result = $this->__authenticate('account', 'user', 'profile');
-        if ($result !== true) {
+        if ($result = $this->__authenticate('account', 'user', 'profile')) {
             return $result;
         }
 
@@ -149,6 +146,10 @@ class User extends Base
 
     public function notice()
     {
+        if ($result = $this->__authenticate('account', 'user', 'notice')) {
+            return $result;
+        }
+
         $result = [];
 
         // 验证备份状态

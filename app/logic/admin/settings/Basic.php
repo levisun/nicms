@@ -32,6 +32,10 @@ class Basic extends Base
 
     public function query()
     {
+        if ($result = $this->__authenticate('settings', 'basic', 'query')) {
+            return $result;
+        }
+
         $result =
         (new ModelConfig)
         ->field(['name', 'value'])
@@ -42,14 +46,8 @@ class Basic extends Base
         ->select()
         ->toArray();
 
-        $pattern = array_values($this->pattern);
-        foreach ($pattern as $k => $v) {
-            $pattern[$k] = '/(' . $v . ')/si';
-        }
-
         foreach ($result as $key => $value) {
             $value['value'] = htmlspecialchars_decode($value['value']);
-            $value['value'] = preg_replace($pattern, array_keys($this->pattern), $value['value']);
             $result[$value['name']] = $value['value'];
             unset($result[$key]);
         }
@@ -64,7 +62,11 @@ class Basic extends Base
 
     public function editor()
     {
-       $receive_data = [
+        if ($result = $this->__authenticate('settings', 'basic', 'editor')) {
+            return $result;
+        }
+
+        $receive_data = [
             'cms_sitename'    => Request::post('cms_sitename'),
             'cms_keywords'    => Request::post('cms_keywords'),
             'cms_description' => Request::post('cms_description'),
@@ -74,11 +76,23 @@ class Basic extends Base
             'script'          => Request::post('script', '', 'trim,htmlspecialchars'),
         ];
 
-        print_r($receive_data);die();
+        if (true || !$result = $this->__validate('config', $receive_data)) {
+            foreach ($receive_data as $key => $value) {
+                (new ModelConfig)->where([
+                    ['name', '=', $key]
+                ])
+                ->data([
+                    'value' => $value
+                ])
+                ->update();
+            }
+            $result = 'editor basic success';
+        }
+
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'editor basic success',
+            'msg'   => $result,
         ];
     }
 }

@@ -109,6 +109,6 @@ class Main
             $result[$key] = $value;
         }
 
-        return $result ? : false;
+        return $result ? $result : false;
     }
 }

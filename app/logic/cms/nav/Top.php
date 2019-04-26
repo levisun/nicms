@@ -108,6 +108,6 @@ class Top
             $result[$key] = $value;
         }
 
-        return $result ? : [];
+        return $result ? $result : [];
     }
 }
