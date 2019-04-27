@@ -43,7 +43,7 @@ jQuery.pjax({
     url: NICMS.api.url + '/handle/admin.do',
     type: 'POST',
     data: {
-        method: 'account.auth.query'
+        method: 'account.user.auth'
     },
     success: function(result){
         if (result.code == 'SUCCESS' && result.data) {

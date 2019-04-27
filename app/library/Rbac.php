@@ -23,12 +23,7 @@ class Rbac
         'auth_type'           => 1,                                             // 验证方式
         'not_auth_app'        => [],
         'not_auth_controller' => [],
-        'not_auth_action'     => [
-            'query',
-            'find',
-            'all',
-            'get',
-        ],
+        'not_auth_action'     => [],
     ];
 
     /**
@@ -46,7 +41,7 @@ class Rbac
         $this->config = array_merge($this->config, $_config);
 
         $_uid = (int) $_uid;
-        if ($this->checkAccess($_app, $_logic, $_controller, $_action)) {
+        if ($_uid && $this->checkAccess($_app, $_logic, $_controller, $_action)) {
             // 实时检验权限
             if ($this->config['auth_type'] == 1) {
                 $__authenticate_list = $this->accessDecision($_uid);
@@ -65,7 +60,7 @@ class Rbac
 
             return isset($__authenticate_list[$_app][$_logic][$_controller][$_action]);
         } else {
-            return true;
+            return $_uid ? true : false;
         }
     }
 
@@ -155,7 +150,6 @@ class Rbac
 
                     $access[$a['name']][$l['name']][$c['name']]['index'] = true;
                     $access[$a['name']][$l['name']][$c['name']]['query'] = true;
-                    // $access[$a['name']][$l['name']][$c['name']]['find'] = true;
 
                     foreach ($action as $act) {
                         $access[$a['name']][$l['name']][$c['name']][$act['name']] = true;

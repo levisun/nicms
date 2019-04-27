@@ -131,8 +131,10 @@ class Common
             $controller,
             $action,
             [
-                'not_auth_logic' => [
-                    'account'
+                'not_auth_action' => [
+                    'auth',
+                    'profile',
+                    'notice'
                 ]
             ]
         );

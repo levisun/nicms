@@ -70,6 +70,7 @@ jQuery(document).on('click', '.btn', function(){
         success: function(result){
             if (result.code === 'SUCCESS') {
                 jQuery.uiToast('{:lang('save success')}');
+                location.reload();
             }
         }
     });

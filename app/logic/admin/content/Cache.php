@@ -29,6 +29,10 @@ class Cache extends Base
      */
     public function reCache(): array
     {
+        if ($result = $this->authenticate(__METHOD__)) {
+            return $result;
+        }
+
         $dir = (array) glob(app()->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*');
         foreach ($dir as $path) {
             $path = (array) glob($path . DIRECTORY_SEPARATOR . '*');
@@ -50,6 +54,10 @@ class Cache extends Base
      */
     public function reCompile(): array
     {
+        if ($result = $this->authenticate(__METHOD__)) {
+            return $result;
+        }
+
         $dir = (array) glob(app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR . '*');
         foreach ($dir as $path) {
             $path = (array) glob($path . DIRECTORY_SEPARATOR . '*');

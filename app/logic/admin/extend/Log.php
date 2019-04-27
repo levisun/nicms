@@ -31,6 +31,10 @@ class Log extends Base
      */
     public function query(): array
     {
+        if ($result = $this->authenticate(__METHOD__)) {
+            return $result;
+        }
+
         $query_limit = (int) Request::post('limit/f', 20);
 
         $result =

@@ -33,6 +33,10 @@ class Elog extends Base
      */
     public function query(): array
     {
+        if ($result = $this->authenticate(__METHOD__)) {
+            return $result;
+        }
+
         $file = (array) glob(app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . '*');
         rsort($file);
 
@@ -72,7 +76,11 @@ class Elog extends Base
      */
     public function find(): array
     {
-        $this->__actionLog(__METHOD__, 'see error log');
+        if ($result = $this->authenticate(__METHOD__)) {
+            return $result;
+        }
+
+        $this->actionLog(__METHOD__, 'see error log');
 
         $id = Request::post('id');
         $id = Base64::decrypt($id);

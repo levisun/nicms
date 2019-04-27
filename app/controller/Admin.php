@@ -48,7 +48,7 @@ class admin extends Template
      */
     public function index(string $logic = 'account', string $controller = 'user', string $action = 'login')
     {
-        $this->__authenticate($logic, $controller, $action);
+        $this->authenticate($logic, $controller, $action);
 
         $tpl  = $logic . DIRECTORY_SEPARATOR . $controller;
         $tpl .= $action ? DIRECTORY_SEPARATOR . $action : '';
@@ -64,31 +64,31 @@ class admin extends Template
      * @param  string $_action
      * @return void
      */
-    private function __authenticate(string $_logic, string $_controller, string $_action): void
+    private function authenticate(string $_logic, string $_controller, string $_action): void
     {
-        if (in_array($_logic, ['account']) && session('?admin_auth_key')) {
-            $result = url('settings/info/index');
-        } elseif (session('?admin_auth_key')) {
+        if (session('?admin_auth_key')) {
             $result =
             (new Rbac)->authenticate(
                 session('admin_auth_key'),
                 'admin',
                 $_logic,
                 $_controller,
-                $_action,
-                [
-                    'not_auth_logic' => [
-                        'account'
-                    ]
-                ]
+                $_action
             );
-            $result = $result ? $result : url('settings/info/index');
-        } elseif (!in_array($_logic, ['account'])) {
-            $result = url('account/user/login');
+
+            if (false === $result) {
+                $url = url('settings/info/index');
+            }
+        }
+        elseif (session('?admin_auth_key') && $_logic === 'account') {
+            $url = url('settings/info/index');
+        }
+        elseif (!session('?admin_auth_key') && !in_array($_action, ['login', 'forget'])) {
+            $url = url('account/user/login');
         }
 
-        if (isset($result) && is_string($result)) {
-            $response = Response::create($result, 'redirect', 302);
+        if (isset($url)) {
+            $response = Response::create($url, 'redirect', 302);
             throw new HttpResponseException($response);
         }
     }

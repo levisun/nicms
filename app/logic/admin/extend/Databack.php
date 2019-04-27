@@ -33,6 +33,10 @@ class Databack extends Base
      */
     public function query(): array
     {
+        if ($result = $this->authenticate(__METHOD__)) {
+            return $result;
+        }
+
         $file = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
         rsort($file);
 
@@ -82,7 +86,11 @@ class Databack extends Base
      */
     public function backup(): array
     {
-        $this->__actionLog(__METHOD__, 'databack backup');
+        if ($result = $this->authenticate(__METHOD__)) {
+            return $result;
+        }
+
+        $this->actionLog(__METHOD__, 'databack backup');
 
         try {
             (new Backup)->save();
@@ -106,7 +114,11 @@ class Databack extends Base
      */
     public function remove(): array
     {
-        $this->__actionLog(__METHOD__, 'databack backup remove');
+        if ($result = $this->authenticate(__METHOD__)) {
+            return $result;
+        }
+
+        $this->actionLog(__METHOD__, 'databack backup remove');
 
         $id = Request::post('id');
         $id = Base64::decrypt($id);
@@ -136,7 +148,11 @@ class Databack extends Base
      */
     public function reduction()
     {
-        $this->__actionLog(__METHOD__, 'databack backup reduction');
+        if ($result = $this->authenticate(__METHOD__)) {
+            return $result;
+        }
+
+        $this->actionLog(__METHOD__, 'databack backup reduction');
 
         $id = Request::post('id');
         $id = Base64::decrypt($id);
