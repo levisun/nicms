@@ -29,7 +29,7 @@ class Visit extends Base
      * @param
      * @return array
      */
-    public function query()
+    public function query(): array
     {
         $query_limit = (int) Request::post('limit/f', 20);
 

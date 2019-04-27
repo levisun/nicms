@@ -270,8 +270,9 @@ class Async
      */
     protected function checkAuth(): void
     {
-        $this->appid     = Request::param('appid/f', 1000001);
-        if ($this->appid && is_numeric($this->appid)) {
+        $this->appid = (int) Request::param('appid/f', 1000001);
+        if ($this->appid) {
+            // TODO 查询数据库中的secret信息
             $this->appsecret = Request::param('appsecret', 'appsecret');
             if ($this->appsecret && preg_match('/^[A-Za-z0-9]+$/u', $this->appsecret)) {
                 # code...
@@ -456,15 +457,15 @@ class Async
         $result = array_filter($result);
 
         $ipinfo = (new Ip)->info();
-        $result['expire']  = $ipinfo['ip'] . ' ' . date('Y-m-d H:i:s', time() + $this->expire + 60);
+        $result['expire']  = $ipinfo['ip'] . ' ' . date('YmdHis', time() + $this->expire + 60);
 
-        if (Config::get('app.app_debug') === true || $this->debug === true) {
+        if (true === Config::get('app.app_debug') || true === $this->debug) {
             $this->writeLog();  // 记录日志
         }
 
         $response = Response::create($result, $this->format);
 
-        if (Config::get('app.app_debug') === false && $this->cache === true && $this->expire && $_code == 'SUCCESS') {
+        if (false === Config::get('app.app_debug') && true === $this->cache && $this->expire && $_code == 'SUCCESS') {
             $response->allowCache(true)
             ->cacheControl('public, max-age=' . $this->expire)
             ->expires(gmdate('D, d M Y H:i:s', time() + $this->expire) . ' GMT')

@@ -60,7 +60,7 @@ jQuery.pjax({
     }
 });
 jQuery(document).on('click', '.btn', function(){
-    var $btn = $(this).button('{:lang('saveing')}');
+    var btn = jQuery(this).button('{:lang('saveing')}');
     var data = jQuery.getForm('#basic-config');
     data['method'] = 'settings.basic.editor';
     jQuery.pjax({
@@ -69,8 +69,7 @@ jQuery(document).on('click', '.btn', function(){
         data: data,
         success: function(result){
             if (result.code === 'SUCCESS') {
-                $btn.button('reset');
-                jQuery.uiToast('123');
+                jQuery.uiToast('{:lang('save success')}');
             }
         }
     });

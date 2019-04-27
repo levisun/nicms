@@ -28,7 +28,7 @@ class Garbage
      * @param
      * @return bool
      */
-    public function run()
+    public function run(): void
     {
         Log::record('[GARBAGE] 删除垃圾信息', 'alert');
 
@@ -46,7 +46,7 @@ class Garbage
      * @param  int    $_expire
      * @return void
      */
-    private function remove($_dir, int $_expire): void
+    private function remove(string $_dir, int $_expire): void
     {
         $dirOrFile = (array) glob($_dir . DIRECTORY_SEPARATOR . '*');
         $dirOrFile = $this->getAllFile($dirOrFile, $_expire);

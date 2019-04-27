@@ -110,11 +110,11 @@ class Monitor
      */
     private function responseEnd($request)
     {
-        if ($request->isGet() && !in_array($request->controller(true), ['admin', 'api', 'error'])) {
+        if ($request->isGet() && !in_array($request->controller(true), ['api', 'admin', 'error'])) {
             (new Accesslog)->record();
         }
 
-        if ($request->isGet() && $request->controller(true) == 'api' && rand(1, 10) === 1) {
+        if ($request->isGet() && $request->controller(true) !== 'api' && rand(1, 10) === 1) {
             (new Garbage)->run();
             (new Backup)->auto();
             (new Sitemap)->save();

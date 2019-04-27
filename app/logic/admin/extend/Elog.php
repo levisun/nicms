@@ -31,7 +31,7 @@ class Elog extends Base
      * @param
      * @return array
      */
-    public function query()
+    public function query(): array
     {
         $file = (array) glob(app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . '*');
         rsort($file);
@@ -70,7 +70,7 @@ class Elog extends Base
      * @param
      * @return array
      */
-    public function find()
+    public function find(): array
     {
         $this->__actionLog(__METHOD__, 'see error log');
 

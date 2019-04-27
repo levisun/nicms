@@ -192,8 +192,7 @@ function safe_filter($_data)
  */
 function safe_con_filter($_data)
 {
-    $result = Filter::default($_data, false);
-    return htmlspecialchars($result);
+    return Filter::default($_data, false);
 }
 
 /**

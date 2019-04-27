@@ -25,8 +25,7 @@ class Info extends Base
 
     public function query()
     {
-        $result = $this->__authenticate('settings', 'info', 'query');
-        if ($result !== true) {
+        if ($result = $this->authenticate(__METHOD__)) {
             return $result;
         }
 
@@ -35,42 +34,14 @@ class Info extends Base
 
         $result = [
             'sysinfo' => [
-                [
-                    'name'  => Lang::get('sys version'),
-                    'value' => 'nicms' . env('app.version'),
-                ],
-                // 操作系统
-                [
-                    'name'  => Lang::get('sys os'),
-                    'value' => PHP_OS,
-                ],
-                // 运行环境
-                [
-                    'name'  => Lang::get('sys env'),
-                    'value' => 'PHP' . PHP_VERSION . ' ' . php_sapi_name(),
-                    // 'value' => Request::server('SERVER_SOFTWARE'),
-                ],
-                // 数据库类型与版本
-                [
-                    'name'  => Lang::get('sys db'),
-                    'value' => 'Mysql' . $db_version,
-                ],
-                [
-                    'name'  => 'GD',
-                    // 'value' => $gd,
-                ],
-                [
-                    'name'  => Lang::get('sys timezone'),
-                    'value' => Config::get('app.default_timezone'),
-                ],
-                [
-                    'name'  => Lang::get('sys copy'),
-                    'value' => '失眠小枕头 [levisun.mail@gmail.com]',
-                ],
-                [
-                    'name'  => Lang::get('sys upgrade'),
-                    'value' => '',
-                ]
+                Lang::get('sys version')   => 'nicms' . env('app.version'),
+                Lang::get('sys os')        => PHP_OS,
+                Lang::get('sys env')       => 'PHP' . PHP_VERSION . ' ' . php_sapi_name(),
+                Lang::get('sys db')        => 'Mysql' . $db_version,
+                'GD'                       => '',
+                Lang::get('sys timezone')  => Config::get('app.default_timezone'),
+                Lang::get('sys copyright') => '失眠小枕头 [levisun.mail@gmail.com]',
+                Lang::get('sys upgrade')   => '',
             ],
         ];
 

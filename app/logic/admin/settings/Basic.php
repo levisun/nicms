@@ -2,7 +2,7 @@
 /**
  *
  * API接口层
- * 系统信息
+ * 网站设置
  *
  * @package   NICMS
  * @category  app\logic\admin\settings
@@ -23,16 +23,16 @@ use app\model\Config as ModelConfig;
 
 class Basic extends Base
 {
-    private $pattern = [
-        '￥' => '&yen;',
-        '™' => '&trade;',
-        '®' => '&reg;',
-        '©' => '&copy;',
-    ];
 
-    public function query()
+    /**
+     * 查询
+     * @access public
+     * @param
+     * @return array
+     */
+    public function query(): array
     {
-        if ($result = $this->__authenticate('settings', 'basic', 'query')) {
+        if ($result = $this->authenticate(__METHOD__)) {
             return $result;
         }
 
@@ -60,9 +60,15 @@ class Basic extends Base
         ];
     }
 
-    public function editor()
+    /**
+     * 编辑
+     * @access public
+     * @param
+     * @return array
+     */
+    public function editor(): array
     {
-        if ($result = $this->__authenticate('settings', 'basic', 'editor')) {
+        if ($result = $this->authenticate(__METHOD__)) {
             return $result;
         }
 

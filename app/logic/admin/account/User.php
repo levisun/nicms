@@ -33,11 +33,11 @@ class User extends Base
      */
     public function login(): array
     {
-        if ($result = $this->__authenticate('account', 'user', 'login')) {
+        if ($result = $this->authenticate(__METHOD__)) {
             return $result;
         }
 
-        if (!$result = $this->__validate('admin.login')) {
+        if (!$result = $this->validate('login')) {
             $lock = app()->getRuntimePath() . md5(Request::ip() . date('YmdH')) . '.lock';
             clearstatcache();
             if (!is_file($lock)) {
@@ -59,7 +59,7 @@ class User extends Base
                     ])
                     ->update();
                     session('admin_auth_key', $result['id']);
-                    $this->__actionLog(__METHOD__, 'admin user login');
+                    $this->actionLog(__METHOD__, 'admin user login');
                     $result = Lang::get('login success');
                 } else {
                     $login_lock = session('?login_lock') ? session('login_lock') : 0;
@@ -96,7 +96,7 @@ class User extends Base
      */
     public function logout(): array
     {
-        $this->__actionLog(__METHOD__, 'admin user logout');
+        $this->actionLog(__METHOD__, 'admin user logout');
         session('admin_auth_key', null);
         return [
             'debug' => false,
@@ -118,7 +118,7 @@ class User extends Base
      */
     public function profile(): array
     {
-        if ($result = $this->__authenticate('account', 'user', 'profile')) {
+        if ($result = $this->authenticate(__METHOD__)) {
             return $result;
         }
 
@@ -146,7 +146,7 @@ class User extends Base
 
     public function notice()
     {
-        if ($result = $this->__authenticate('account', 'user', 'notice')) {
+        if ($result = $this->authenticate(__METHOD__)) {
             return $result;
         }
 

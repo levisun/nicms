@@ -15,16 +15,10 @@ declare (strict_types = 1);
 
 namespace app\logic\admin;
 
-use think\facade\Lang;
-use think\facade\Log;
 use think\facade\Request;
-use think\facade\Response;
-use app\library\Rbac;
-use app\library\Upload;
-use app\model\Action as ModelAction;
-use app\model\ActionLog as ModelActionLog;
+use app\library\Common;
 
-class Base
+class Base extends Common
 {
 
     /**
@@ -42,79 +36,27 @@ class Base
     }
 
     /**
-     * 记录操作日志
-     * @access protected
-     * @param  string $_method
-     * @param  string $_msg
-     * @return void
-     */
-    protected function __actionLog(string $_method, string $_msg): void
-    {
-        list($app, $logic, $m) = explode('\\', $_method, 3);
-        list($app, $logic, $m) = explode('\\', $m, 3);
-        list($controller, $action) = explode('::', $m, 2);
-
-        $map = $app . '_' . $logic . '_' . $controller . '_' . $action;
-        $map = strtolower($map);
-        unset($app, $logic, $controller, $action, $m);
-
-        $result =
-        (new ModelAction)->where([
-            ['name', '=', $map]
-        ])
-        ->find();
-
-        if (is_null($result)) {
-            $res = (new ModelAction)->create([
-                'name'  => $map,
-                'title' => $_msg,
-            ]);
-
-            $result['id'] = $res->id;
-        }
-
-
-        (new ModelActionLog)->create([
-            'action_id'   => $result['id'],
-            'user_id'     => session('?admin_auth_key') ? session('admin_auth_key') : 0,
-            'action_ip'   => Request::ip(),
-            'module'      => 'admin',
-            'remark'      => $_msg,
-        ]);
-
-        (new ModelActionLog)->where([
-            ['create_time', '<=', strtotime('-180 days')]
-        ])
-        ->delete();
-    }
-
-    /**
      * 数据验证
      * @access protected
      * @param  string  $_validate
      * @param  array  $_data
      * @return bool|string
      */
-    protected function __validate(string $_validate, array $_data)
+    protected function validate(string $_validate, array $_data = [])
     {
-        // 支持场景
-        if (strpos($_validate, '.')) {
-            list($_validate, $scene) = explode('.', $_validate);
-        }
+        return parent::__validate($_validate, $_data, 'logic\admin\validate');
+    }
 
-        $class = app()->parseClass('validate', $_validate);
-        $v     = new $class;
-
-        if (!empty($scene)) {
-            $v->scene($scene);
-        }
-
-        if ($v->batch(false)->failException(false)->check($_data) === false) {
-            return $v->getError();
-        } else {
-            halt(2);
-            return false;
-        }
+    /**
+     * 记录操作日志
+     * @access protected
+     * @param  string $_method
+     * @param  string $_msg
+     * @return void
+     */
+    protected function actionLog(string $_method, string $_msg): void
+    {
+        parent::__actionLog($_method, $_msg, 'admin_auth_key');
     }
 
     /**
@@ -125,45 +67,8 @@ class Base
      * @param  string  $_action
      * @return bool|array
      */
-    protected function __authenticate(string $_logic, string $_controller, string $_action)
+    protected function authenticate(string $_method)
     {
-        $result =
-        (new Rbac)->authenticate(
-            session('admin_auth_key'),
-            'admin',
-            $_logic,
-            $_controller,
-            $_action,
-            [
-                'not_auth_logic' => [
-                    'account'
-                ]
-            ]
-        );
-
-        return $result ? false : [
-            'debug' => false,
-            'cache' => false,
-            'msg'   => Lang::get('error')
-        ];
-    }
-
-    /**
-     * 上传
-     * @access protected
-     * @param
-     * @return mexid
-     */
-    protected function __upload()
-    {
-        // 用户权限校验
-        if (session_id() && session('?member_auth_key')) {
-            $input_name = Request::post('input_name', 'upload');
-            $result = (new Upload)->save($input_name);
-        } else {
-            $result = Lang::get('upload error');
-        }
-
-        return $result;
+        return parent::__authenticate($_method, 'admin_auth_key');
     }
 }

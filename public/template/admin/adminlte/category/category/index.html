@@ -1,0 +1,76 @@
+<div class="box">
+    <div class="box-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th width="5%">{:lang('sort')}</th>
+                    <th>{:lang('name')}</th>
+                    <th>{:lang('model')}</th>
+                    <th>{:lang('type')}</th>
+                    <th>{:lang('attribute')}</th>
+                    <th>{:lang('operation')}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template v-for="vo in items">
+                <tr>
+                    <td>
+                        <input type="text" class="form-control" v-bind:name="'sort_order['+vo.id+']'" v-bind:value="vo.sort_order">
+                    </td>
+                    <td v-text="vo.name"></td>
+                    <td v-text="vo.model_name"></td>
+                    <td v-text="vo.type_name"></td>
+                    <td>
+                        <span class="label label-primary">
+                            <font v-if="vo.is_show == 1">{:lang('show')}</font>
+                            <font v-if="vo.is_show == 0">{:lang('hide')}</font>
+                        </span>
+                    </td>
+                    <td>
+                        <a class="show" v-if="vo.child" v-bind:data="vo.id">{:lang('child')}</a>
+                    </td>
+                </tr>
+                <tr v-if="vo.child" v-for="cv in vo.child" v-bind:class="vo.id" style="display: none;">
+                    <td>
+                        <input type="text" class="form-control" v-bind:name="'sort_order['+cv.id+']'" v-bind:value="cv.sort_order">
+                    </td>
+                    <td v-text="cv.name"></td>
+                    <td v-text="cv.model_name"></td>
+                    <td v-text="cv.type_name"></td>
+                    <td>
+                        <span class="label label-primary">
+                            <font v-if="cv.is_show == 1">{:lang('show')}</font>
+                            <font v-if="cv.is_show == 0">{:lang('hide')}</font>
+                        </span>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</div>
+{tag:script}
+jQuery.pjax({
+    url: NICMS.api.url + '/handle/admin.do',
+    type: 'POST',
+    data: {
+        method: 'category.category.query',
+    },
+    success: function(result){
+        if (result.code == 'SUCCESS') {
+            var vue = new Vue({
+                el: '.box',
+                data: {
+                    items: result.data.list
+                }
+            });
+        }
+    }
+});
+jQuery(document).on('click', '.show', function(){
+    var id = jQuery(this).attr('data');
+    jQuery('.'+id).toggle();
+});
+{/tag}
