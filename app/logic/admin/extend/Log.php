@@ -35,7 +35,7 @@ class Log extends Base
             return $result;
         }
 
-        $query_limit = (int) Request::post('limit/f', 20);
+        $query_limit = (int) Request::param('limit/f', 15);
 
         $result =
         (new ModelActionLog)->view('action_log', ['action_id', 'user_id', 'action_ip', 'module', 'remark', 'create_time'])
@@ -49,7 +49,7 @@ class Log extends Base
         $list = $result->toArray();
         $list['render'] = $result->render();
 
-        $date_format = Request::post('date_format', 'Y-m-d H:i:s');
+        $date_format = Request::param('date_format', 'Y-m-d H:i:s');
         foreach ($list['data'] as $key => $value) {
             $value['create_time'] = strtotime($value['create_time']);
             $value['create_time'] = date($date_format, $value['create_time']);

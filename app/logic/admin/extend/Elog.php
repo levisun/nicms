@@ -40,7 +40,7 @@ class Elog extends Base
         $file = (array) glob(app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . '*');
         rsort($file);
 
-        $date_format = Request::post('date_format', 'Y-m-d H:i:s');
+        $date_format = Request::param('date_format', 'Y-m-d H:i:s');
 
         foreach ($file as $key => $value) {
             $date = date($date_format, filectime($value));
@@ -80,9 +80,9 @@ class Elog extends Base
             return $result;
         }
 
-        $this->actionLog(__METHOD__, 'see error log');
+        $this->writeLog(__METHOD__, 'see error log');
 
-        $id = Request::post('id');
+        $id = Request::param('id');
         $id = Base64::decrypt($id);
 
         $file = app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . $id;

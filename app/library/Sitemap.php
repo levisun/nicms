@@ -58,6 +58,7 @@ class Sitemap
                 ->limit(100)
                 ->select()
                 ->toArray();
+                $vo_cate['id'] = Base64::encrypt($vo_cate['id']);
 
                 $article_xml = [];
                 $category_xml = [];

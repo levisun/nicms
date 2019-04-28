@@ -14,6 +14,6 @@
 return [
     'type'      => 'bootstrap',
     'var_page'  => 'page',
-    'list_rows' => 20,
+    'list_rows' => 15,
     'path'      => 'javascript:paging([PAGE]);'
 ];

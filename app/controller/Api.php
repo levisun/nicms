@@ -25,7 +25,6 @@ use app\library\Ip;
 class Api extends Async
 {
     private $referer = false;
-    private $actionName = null;
 
     /**
      * 构造方法
@@ -35,9 +34,7 @@ class Api extends Async
      */
     public function __construct()
     {
-        $this->referer = Request::server('HTTP_REFERER', false);
-        $this->actionName = Request::param('method');
-        list($this->actionName, $this->actionName, $this->actionName) = explode('.', $this->actionName);
+        $this->referer = Request::server('HTTP_REFERER', false) && Request::param('method', false);
     }
 
     /**
@@ -48,7 +45,7 @@ class Api extends Async
      */
     public function query(string $module = 'cms')
     {
-        if ($this->referer && Request::isGet() && $this->actionName == 'query') {
+        if ($this->referer && Request::isGet()) {
             $this->setModule($module)->run();
         } else {
             $this->error('request error');
@@ -86,6 +83,21 @@ class Api extends Async
     }
 
     /**
+     * 下载接口
+     * @access public
+     * @param
+     * @return void
+     */
+    public function download()
+    {
+        if (Request::isGet() && Request::param('file', false)) {
+            (new Download)->file();
+        } else {
+            die('request error');
+        }
+    }
+
+    /**
      * IP地址信息接口
      * @access public
      * @param
@@ -98,21 +110,6 @@ class Api extends Async
             $this->success('success', $ip);
         } else {
             $this->error('request error');
-        }
-    }
-
-    /**
-     * 下载接口
-     * @access public
-     * @param
-     * @return void
-     */
-    public function download()
-    {
-        if (Request::isGet() && Request::param('file', false)) {
-            (new Download)->file();
-        } else {
-            die('request error');
         }
     }
 }

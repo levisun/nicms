@@ -28,8 +28,8 @@ class File
     public function save(): array
     {
         // 用户权限校验
-        if (session_id() && session('?member_auth_key')) {
-            $input_name = Request::post('input_name', 'upload');
+        if (session('?member_auth_key')) {
+            $input_name = Request::param('input_name', 'upload');
             $result = (new Upload)->save($input_name);
         } else {
             $result = Lang::get('upload error');

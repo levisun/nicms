@@ -1,0 +1,74 @@
+{tag:script}
+jQuery.pjax({
+    url: NICMS.api.url + '/handle/admin.do',
+    type: 'POST',
+    data: {
+        method: 'account.user.profile'
+    },
+    success: function(result){
+        if (result.code == 'SUCCESS' && result.data) {
+            new Vue({
+                el: '.user-menu',
+                data: {
+                    user_profile: result.data
+                }
+            });
+        }
+    }
+});
+jQuery.pjax({
+    url: NICMS.api.url + '/handle/admin.do',
+    type: 'POST',
+    data: {
+        method: 'account.user.notice'
+    },
+    success: function(result){
+        if (result.code == 'SUCCESS' && result.data) {
+            new Vue({
+                el: '.notifications-menu',
+                data: {
+                    user_notice: result.data
+                }
+            });
+        }
+    }
+});
+jQuery(document).on('click', '#nc-logout-btn', function(){
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle/admin.do',
+        type: 'POST',
+        data: {
+            method: 'account.user.logout'
+        },
+        success: function(result){
+            if (result.code == 'SUCCESS') {
+                location.reload();
+            }
+        }
+    });
+});
+jQuery(document).on('click', '#nc-re-cache-btn', function(){
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle/admin.do',
+        type: 'POST',
+        data: {
+            method: 'content.cache.recache'
+        },
+        success: function(result){
+            if (result.code == 'SUCCESS') {
+            }
+        }
+    });
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle/admin.do',
+        type: 'POST',
+        data: {
+            method: 'content.cache.recompile'
+        },
+        success: function(result){
+            if (result.code == 'SUCCESS') {
+            }
+        }
+    });
+});
+{/tag}

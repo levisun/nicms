@@ -2,8 +2,8 @@
 /**
  *
  * 常用方法
- * __validate     验证方法
- * __actionLog    记录操作日志方法
+ * __validate     验证器
+ * __writeLog     记录操作日志方法
  * __authenticate 权限验证方法
  * __upload       上传方法
  *
@@ -19,7 +19,6 @@ declare (strict_types = 1);
 namespace app\library;
 
 use think\facade\Request;
-use think\facade\Session;
 use app\library\Rbac;
 use app\library\Upload;
 use app\model\Action as ModelAction;
@@ -41,14 +40,17 @@ class Common
      * @param  array   $_data
      * @return bool|string
      */
-    protected function __validate(string $_validate, array $_data = [], string $_layer)
+    protected function __validate(string $_validate, array $_data = [])
     {
+        $_validate = str_replace('app\logic\\', '', strtolower($_validate));
+        list($_validate) = explode('::', $_validate, 2);
+
         // 支持场景
         if (false !== strpos($_validate, '.')) {
             list($_validate, $scene) = explode('.', $_validate);
         }
 
-        $class = app()->parseClass($_layer, $_validate);
+        $class = app()->parseClass('validate', $_validate);
         $v     = new $class;
 
         if (!empty($scene)) {
@@ -58,7 +60,11 @@ class Common
         $_data = !empty($_data) ? $_data : Request::param();
 
         if (false === $v->batch(false)->failException(false)->check($_data)) {
-            return $v->getError();
+            return [
+                'debug' => false,
+                'cache' => false,
+                'msg'   => $v->getError()
+            ];
         } else {
             return false;
         }
@@ -72,7 +78,7 @@ class Common
      * @param  string $_author
      * @return void
      */
-    protected function __actionLog(string $_method, string $_msg, string $_auth): void
+    protected function __writeLog(string $_method, string $_msg, string $_auth): void
     {
         $_method = str_replace('app\logic\\', '', strtolower($_method));
         list($_method, $action) = explode('::', $_method);
@@ -142,7 +148,7 @@ class Common
         return $result ? false : [
             'debug' => false,
             'cache' => false,
-            'msg'   => $logic . '.' . $controller . '.' . $action . ' auth error'
+            'msg'   => 'auth error'
         ];
     }
 
@@ -150,13 +156,13 @@ class Common
      * 上传
      * @access protected
      * @param  string $_author
-     * @return mexid
+     * @return string|array
      */
     protected function __upload($_auth)
     {
         // 用户权限校验
-        if (Request::isPost() && session('?' . $_auth)) {
-            $input_name = Request::post('input_name', 'upload');
+        if (Request::isPost() && !empty($_FILES) && session('?' . $_auth)) {
+            $input_name = Request::param('input_name', 'upload');
             $result = (new Upload)->save($input_name);
         } else {
             $result = 'upload error';

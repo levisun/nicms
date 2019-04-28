@@ -43,11 +43,7 @@ class Base extends Common
      */
     public function upload()
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
-        return $this->__upload('admin_auth_key');
+        return $this->__upload('member_auth_key');
     }
 
     /**
@@ -59,31 +55,6 @@ class Base extends Common
      */
     protected function validate(string $_validate, array $_data = [])
     {
-        return parent::__validate($_validate, $_data, 'validate\admin');
-    }
-
-    /**
-     * 记录操作日志
-     * @access protected
-     * @param  string $_method
-     * @param  string $_msg
-     * @return void
-     */
-    protected function writeLog(string $_method, string $_msg): void
-    {
-        parent::__writeLog($_method, $_msg, 'admin_auth_key');
-    }
-
-    /**
-     * 权限验证
-     * @access protected
-     * @param  string  $_logic
-     * @param  string  $_controller
-     * @param  string  $_action
-     * @return bool|array
-     */
-    protected function authenticate(string $_method)
-    {
-        return parent::__authenticate($_method, 'admin_auth_key');
+        return parent::__validate($_validate, $_data, 'logic\admin\validate');
     }
 }

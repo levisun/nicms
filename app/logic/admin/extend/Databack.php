@@ -40,7 +40,7 @@ class Databack extends Base
         $file = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
         rsort($file);
 
-        $date_format = Request::post('date_format', 'Y-m-d H:i:s');
+        $date_format = Request::param('date_format', 'Y-m-d H:i:s');
 
         foreach ($file as $key => $value) {
             if (basename($value) == 'sys_auto') {
@@ -90,7 +90,7 @@ class Databack extends Base
             return $result;
         }
 
-        $this->actionLog(__METHOD__, 'databack backup');
+        $this->writeLog(__METHOD__, 'databack backup');
 
         try {
             (new Backup)->save();
@@ -118,9 +118,9 @@ class Databack extends Base
             return $result;
         }
 
-        $this->actionLog(__METHOD__, 'databack backup remove');
+        $this->writeLog(__METHOD__, 'databack backup remove');
 
-        $id = Request::post('id');
+        $id = Request::param('id');
         $id = Base64::decrypt($id);
 
         $file = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . '*');
@@ -152,9 +152,9 @@ class Databack extends Base
             return $result;
         }
 
-        $this->actionLog(__METHOD__, 'databack backup reduction');
+        $this->writeLog(__METHOD__, 'databack backup reduction');
 
-        $id = Request::post('id');
+        $id = Request::param('id');
         $id = Base64::decrypt($id);
 
         $file = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . '*');

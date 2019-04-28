@@ -47,8 +47,8 @@ layui.use(['nicms', 'carousel', 'upload'], function(){
 
     //执行实例
     var uploadInst = upload.render({
-        elem: '#test1', //绑定元素
-        url: NICMS.api.url + '/upload/cms.do', //上传接口
+        elem: '#test1',
+        url: NICMS.api.url + '/upload/cms.do',
         accept: 'file',
         exts: 'gif|jpg|png|zip|rar',
         size: 300,
@@ -61,10 +61,10 @@ layui.use(['nicms', 'carousel', 'upload'], function(){
         },
         headers: nc.reqHeaders(),
         done: function(res){
-          //上传完毕回调
+
         },
         error: function(){
-              //请求异常回调
+
         }
     });
 });

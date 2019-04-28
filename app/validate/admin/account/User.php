@@ -5,17 +5,17 @@
  * 登录
  *
  * @package   NICMS
- * @category  app\model
+ * @category  app\validate\admin\account
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
  * @since     2019
  */
-namespace app\logic\admin\validate;
+namespace app\validate\admin\account;
 
 use think\Validate;
 
-class Login extends Validate
+class User extends Validate
 {
     protected $rule = [
         'username' => ['require', 'length:6,20'],

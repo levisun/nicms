@@ -73,32 +73,33 @@ class Basic extends Base
         }
 
         $receive_data = [
-            'cms_sitename'    => Request::post('cms_sitename'),
-            'cms_keywords'    => Request::post('cms_keywords'),
-            'cms_description' => Request::post('cms_description'),
-            'cms_footer'      => Request::post('cms_footer'),
-            'cms_copyright'   => Request::post('cms_copyright', '', 'safe_con_filter'),
-            'cms_beian'       => Request::post('cms_beian'),
-            'script'          => Request::post('script', '', 'trim,htmlspecialchars'),
+            'cms_sitename'    => Request::param('cms_sitename'),
+            'cms_keywords'    => Request::param('cms_keywords'),
+            'cms_description' => Request::param('cms_description'),
+            'cms_footer'      => Request::param('cms_footer'),
+            'cms_copyright'   => Request::param('cms_copyright', '', 'safe_con_filter'),
+            'cms_beian'       => Request::param('cms_beian'),
+            'script'          => Request::param('script', '', 'trim,htmlspecialchars'),
         ];
 
-        if (true || !$result = $this->__validate('config', $receive_data)) {
-            foreach ($receive_data as $key => $value) {
-                (new ModelConfig)->where([
-                    ['name', '=', $key]
-                ])
-                ->data([
-                    'value' => $value
-                ])
-                ->update();
-            }
-            $result = 'editor basic success';
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+
+        foreach ($receive_data as $key => $value) {
+            (new ModelConfig)->where([
+                ['name', '=', $key]
+            ])
+            ->data([
+                'value' => $value
+            ])
+            ->update();
         }
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => $result,
+            'msg'   => 'editor success'
         ];
     }
 }

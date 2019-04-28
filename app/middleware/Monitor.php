@@ -116,8 +116,8 @@ class Monitor
 
         if ($request->isGet() && $request->controller(true) !== 'api' && rand(1, 10) === 1) {
             (new Garbage)->run();
-            (new Backup)->auto();
             (new Sitemap)->save();
+            (new Backup)->auto();
         }
     }
 }

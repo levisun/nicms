@@ -69,7 +69,7 @@ jQuery(document).on('click', '.btn', function(){
         data: data,
         success: function(result){
             if (result.code === 'SUCCESS') {
-                jQuery.uiToast('{:lang('save success')}');
+                jQuery.uiToast(result.message);
                 location.reload();
             }
         }

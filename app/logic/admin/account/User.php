@@ -34,43 +34,45 @@ class User extends Base
      */
     public function login(): array
     {
-        if (!$result = $this->validate('login')) {
-            $lock = app()->getRuntimePath() . md5(Request::ip() . date('YmdH')) . '.lock';
-            clearstatcache();
-            if (is_file($lock)) {
-                $result = Lang::get('username or password error');
-            } else {
-                $result =
-                (new ModelAdmin)->where([
-                    ['username', '=', Request::post('username')]
-                ])
-                ->find();
+        if ($result = $this->validate(__METHOD__)) {
+            return $result;
+        }
 
-                if ($result && $result['password'] === Base64::password(Request::post('password'), $result['salt'])) {
-                    $ip = (new Ip)->info();
-                    (new ModelAdmin)->where([
-                        ['id', '=', $result['id']]
-                    ])
-                    ->data([
-                        'last_login_time'    => time(),
-                        'last_login_ip'      => $ip['ip'],
-                        'last_login_ip_attr' => $ip['province_id'] ? $ip['province'] . $ip['city'] . $ip['area'] : ''
-                    ])
-                    ->update();
-                    session('admin_auth_key', $result['id']);
-                    $this->actionLog(__METHOD__, 'admin user login');
-                    $result = Lang::get('login success');
+        $lock = app()->getRuntimePath() . md5(Request::ip() . date('YmdH')) . '.lock';
+        clearstatcache();
+        if (is_file($lock)) {
+            $result = 'login error';
+        } else {
+            $result =
+            (new ModelAdmin)->where([
+                ['username', '=', Request::param('username')]
+            ])
+            ->find();
+
+            if ($result && $result['password'] === Base64::password(Request::param('password'), $result['salt'])) {
+                $ip = (new Ip)->info();
+                (new ModelAdmin)->where([
+                    ['id', '=', $result['id']]
+                ])
+                ->data([
+                    'last_login_time'    => time(),
+                    'last_login_ip'      => $ip['ip'],
+                    'last_login_ip_attr' => $ip['province_id'] ? $ip['province'] . $ip['city'] . $ip['area'] : ''
+                ])
+                ->update();
+                session('admin_auth_key', $result['id']);
+                $this->writeLog(__METHOD__, 'admin user login');
+                $result = 'login success';
+            } else {
+                $login_lock = session('?login_lock') ? session('login_lock') : 0;
+                ++$login_lock;
+                if ($login_lock >= 5) {
+                    session('login_lock', null);
+                    file_put_contents($lock, 'lock');
                 } else {
-                    $login_lock = session('?login_lock') ? session('login_lock') : 0;
-                    ++$login_lock;
-                    if ($login_lock >= 5) {
-                        session('login_lock', null);
-                        file_put_contents($lock, 'lock');
-                    } else {
-                        session('login_lock', $login_lock);
-                    }
-                    $result = Lang::get('username or password error');
+                    session('login_lock', $login_lock);
                 }
+                $result = 'login error';
             }
         }
 
@@ -90,7 +92,7 @@ class User extends Base
     public function logout(): array
     {
         if (session('?admin_auth_key')) {
-            $this->actionLog(__METHOD__, 'admin user logout');
+            $this->writeLog(__METHOD__, 'admin user logout');
             session('admin_auth_key', null);
         }
 
