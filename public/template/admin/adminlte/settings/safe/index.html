@@ -1,0 +1,102 @@
+<div class="box">
+    <div class="box-body">
+        <form id="safe-config">
+            <div class="form-group">
+                <label>{:lang('app debug')}</label>
+                <br>
+                <label>
+                    <input type="radio" name="app[debug]" value="1" v-bind:checked="items.app.debug==1 ? true : false"> {:lang('open')}
+                </label>
+                <label>
+                    <input type="radio" name="app[debug]" value="0" v-bind:checked="items.app.debug==0 ? true : false"> {:lang('close')}
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('app upload type')}</label>
+                <input type="text" name="app[upload_type]" class="form-control" v-bind:value="items.app.upload_type">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('app upload max')}</label>
+                <input type="text" name="app[upload_size]" class="form-control" v-bind:value="items.app.upload_size">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('database hostname')}</label>
+                <input type="text" name="database[hostname]" class="form-control" v-bind:value="items.database.hostname">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('database database')}</label>
+                <input type="text" name="database[database]" class="form-control" v-bind:value="items.database.database">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('database username')}</label>
+                <input type="text" name="database[username]" class="form-control" v-bind:value="items.database.username">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('database password')}</label>
+                <input type="text" name="database[password]" class="form-control" v-bind:value="items.database.password">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('database hostport')}</label>
+                <input type="text" name="database[hostport]" class="form-control" v-bind:value="items.database.hostport">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('database prefix')}</label>
+                <input type="text" name="database[prefix]" class="form-control" v-bind:value="items.database.prefix">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('cache expire')}</label>
+                <input type="text" name="cache[expire]" class="form-control" v-bind:value="items.cache.expire">
+            </div>
+        </form>
+    </div>
+    <div class="box-footer">
+        <button type="submit" class="btn btn-primary">{:lang('save')}</button>
+    </div>
+</div>
+{tag:script}
+
+
+
+jQuery.pjax({
+    url: NICMS.api.url + '/handle/admin.do',
+    type: 'POST',
+    data: {
+        method: 'settings.safe.query'
+    },
+    success: function(result){
+        if (result.code === 'SUCCESS') {
+            new Vue({
+                el: '.box-body',
+                data: {
+                    items: result.data
+                }
+            });
+        }
+    }
+});
+jQuery(document).on('click', '.btn', function(){
+    var btn = jQuery(this).button('{:lang('saveing')}');
+    var data = jQuery.getForm('#safe-config');
+    data['method'] = 'settings.safe.editor';
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle/admin.do',
+        type: 'POST',
+        data: data,
+        success: function(result){
+            if (result.code === 'SUCCESS') {
+                jQuery.uiToast(result.message);
+                location.reload();
+            }
+        }
+    });
+});
+{/tag}

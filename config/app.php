@@ -23,7 +23,7 @@ return [
     // 后台管理地址
     'admin_host'            => '//admin.' . Request::rootDomain() . Request::root(),
     // 调试模式
-    'app_debug'             => Env::get('app.app_debug', 1) ? true : false,
+    'app_debug'             => Env::get('app.debug', 1) ? true : false,
     // 密钥
     'authkey'               => Env::get('app.authkey', md5(__DIR__)),
 

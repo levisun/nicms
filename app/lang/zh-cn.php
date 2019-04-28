@@ -25,6 +25,7 @@ return [
     'remove'       => '删除',
     'reset'        => '还原',
     'open'         => '打开',
+    'close'        => '关闭',
     'save'         => '保存',
     'save success' => '保存成功',
     'show' => '显示',

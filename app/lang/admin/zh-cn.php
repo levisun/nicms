@@ -39,4 +39,5 @@ return [
     'program error message' => '程序出现错误',
     'too much junk information' => '垃圾信息过多，请及时清理',
 
+    'app debug' => '调试模式',
 ];

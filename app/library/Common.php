@@ -80,35 +80,37 @@ class Common
      */
     protected function __writeLog(string $_method, string $_msg, string $_auth): void
     {
-        $_method = str_replace('app\logic\\', '', strtolower($_method));
-        list($_method, $action) = explode('::', $_method);
-        list($app, $logic, $controller) = explode('\\', $_method);
+        if (session('?' . $_auth)) {
+            $_method = str_replace('app\logic\\', '', strtolower($_method));
+            list($_method, $action) = explode('::', $_method);
+            list($app, $logic, $controller) = explode('\\', $_method);
 
-        $map = $app . '_' . $logic . '_' . $controller . '_' . $action;
-        unset($app, $logic, $controller, $action, $m);
+            $map = $app . '_' . $logic . '_' . $controller . '_' . $action;
+            unset($app, $logic, $controller, $action, $m);
 
-        $result =
-        (new ModelAction)->where([
-            ['name', '=', $map]
-        ])
-        ->find();
+            $result =
+            (new ModelAction)->where([
+                ['name', '=', $map]
+            ])
+            ->find();
 
-        if (is_null($result)) {
-            $res = (new ModelAction)->create([
-                'name'  => $map,
-                'title' => $_msg,
+            if (is_null($result)) {
+                $res = (new ModelAction)->create([
+                    'name'  => $map,
+                    'title' => $_msg,
+                ]);
+
+                $result['id'] = $res->id;
+            }
+
+            (new ModelActionLog)->create([
+                'action_id' => $result['id'],
+                'user_id'   => session($_auth),
+                'action_ip' => Request::ip(),
+                'module'    => 'admin',
+                'remark'    => $_msg,
             ]);
-
-            $result['id'] = $res->id;
         }
-
-        (new ModelActionLog)->create([
-            'action_id'   => $result['id'],
-            'user_id'     => session('?' . $_auth) ? session($_auth) : 0,
-            'action_ip'   => Request::ip(),
-            'module'      => 'admin',
-            'remark'      => $_msg,
-        ]);
 
         (new ModelActionLog)->where([
             ['create_time', '<=', strtotime('-180 days')]

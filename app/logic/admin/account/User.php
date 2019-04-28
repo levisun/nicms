@@ -91,10 +91,8 @@ class User extends Base
      */
     public function logout(): array
     {
-        if (session('?admin_auth_key')) {
-            $this->writeLog(__METHOD__, 'admin user logout');
-            session('admin_auth_key', null);
-        }
+        $this->writeLog(__METHOD__, 'admin user logout');
+        session('admin_auth_key', null);
 
         return [
             'debug' => false,
