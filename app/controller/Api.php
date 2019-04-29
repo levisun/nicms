@@ -20,6 +20,7 @@ use think\facade\Session;
 use app\library\Async;
 use app\library\Base64;
 use app\library\Download;
+use app\library\Filter;
 use app\library\Ip;
 
 class Api extends Async
@@ -46,6 +47,7 @@ class Api extends Async
     public function query(string $module = 'cms')
     {
         if ($this->referer && Request::isGet()) {
+            $module = Filter::str($module);
             $this->setModule($module)->run();
         } else {
             $this->error('request error');
@@ -61,6 +63,7 @@ class Api extends Async
     public function handle(string $module = 'cms')
     {
         if ($this->referer && Request::isPost()) {
+            $module = Filter::str($module);
             $this->setModule($module)->run();
         } else {
             $this->error('request error');
@@ -76,6 +79,7 @@ class Api extends Async
     public function upload(string $module = 'cms')
     {
         if ($this->referer && Request::isPost() && !empty($_FILES)) {
+            $module = Filter::str($module);
             $this->setModule($module)->run();
         } else {
             $this->error('request error');

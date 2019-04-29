@@ -34,14 +34,13 @@ class Base64
     {
         if (function_exists($_type)) {
             // 第一次加密
-            $_str = trim($_str);
-            $_str = call_user_func($_type, $_str);
+            $_str = hash_hmac('sha1', trim($_str), $_salt);
 
             // 第二次加密
-            $_str = sha1($_str . $_salt . $_type);
+            $_str = hash_hmac('sha1', $_str . $_salt, $_str);
 
             // 第三次加密
-            return call_user_func($_type, $_str . $_salt . $_type);
+            return call_user_func($_type, $_salt . $_str . $_type);
         } else {
             throw new HttpException(502, '参数错误');
         }
@@ -70,7 +69,7 @@ class Base64
      */
     public static function encrypt($_data, string $_authkey = '')
     {
-        $_authkey = sha1(Config::get('app.authkey', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01') . $_authkey);
+        $_authkey = sha1(Config::get('admin.authkey', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01') . $_authkey);
 
         if (is_array($_data)) {
             $encrypt = [];
@@ -102,7 +101,7 @@ class Base64
      */
     public static function decrypt($_data, string $_authkey = '')
     {
-        $_authkey = sha1(Config::get('app.authkey', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01') . $_authkey);
+        $_authkey = sha1(Config::get('admin.authkey', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01') . $_authkey);
 
         if (is_array($_data)) {
             $encrypt = [];

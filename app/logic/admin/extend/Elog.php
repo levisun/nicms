@@ -79,7 +79,6 @@ class Elog extends Base
         if ($result = $this->authenticate(__METHOD__)) {
             return $result;
         }
-
         $this->writeLog(__METHOD__, 'see error log');
 
         $id = Request::param('id');

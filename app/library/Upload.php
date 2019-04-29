@@ -39,8 +39,8 @@ class Upload
                             'uploads' . DIRECTORY_SEPARATOR .
                             $this->subDir . DIRECTORY_SEPARATOR;
 
-        $ext = Env::get('app.upload_type', 'gif,jpg,png,zip,rar');
         $size = (int) Env::get('app.upload_size', '1');
+        $ext = Env::get('app.upload_type', 'gif,jpg,png,zip,rar');
 
         $this->rule = [
             'size' => $size * 1048576,
@@ -83,9 +83,7 @@ class Upload
      */
     private function saveFile(object $_object)
     {
-        $_object->validate($this->rule);
-        $_object->rule('uniqid');
-        if ($result = $_object->move($this->savePath)) {
+        if ($result = $_object->validate($this->rule)->rule('uniqid')->move($this->savePath)) {
 
             // 图片文件 压缩图片
             if (in_array($result->getExtension(), ['gif', 'jpg', 'jpeg', 'bmp', 'png'])) {

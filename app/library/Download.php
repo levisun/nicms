@@ -20,7 +20,6 @@ use think\facade\Config;
 use think\facade\Env;
 use think\facade\Log;
 use think\facade\Request;
-use think\facade\Session;
 use app\library\Base64;
 
 class Download
@@ -45,9 +44,9 @@ class Download
      */
     public function url(string $_file, bool $_login = false, int $_level = 0): string
     {
-        if ($_login && !Session::has('user_auth_key')) {
+        if ($_login && !session('?user_auth_key')) {
             return 'javascript:alert(\'login\')';
-        } elseif ($_level && !Session::has('user_auth_key') && Session::get('user_level') != $_level) {
+        } elseif ($_level && !session('?user_auth_key') && session('user_level') != $_level) {
             return 'javascript:alert(\'level\')';
         } else {
             return Config::get('app.api_host') . '/download.do?file=' . Base64::encrypt($_file) . '&timestamp=' . time();
@@ -73,6 +72,7 @@ class Download
                 $this->fileName = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
                                     'uploads' . DIRECTORY_SEPARATOR . $this->fileName;
                 $ext = explode(',', Env::get('app.upload_type', 'gif,jpg,png,zip,rar'));
+
                 clearstatcache();
                 if (is_file($this->fileName) && in_array(pathinfo($this->fileName, PATHINFO_EXTENSION), $ext)) {
                     $response =

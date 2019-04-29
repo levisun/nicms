@@ -183,8 +183,8 @@ if (!function_exists('emoji_clear')) {
      */
     function emoji_clear($_str): string
     {
-        return preg_replace_callback('/./u', function (array $match) {
-            return strlen($match[0]) >= 4 ? '' : $match[0];
+        return preg_replace_callback('/./u', function (array $matches) {
+            return strlen($matches[0]) >= 4 ? '' : $matches[0];
         }, $_str);
     }
 }
@@ -197,21 +197,19 @@ if (!function_exists('safe_filter')) {
      */
     function safe_filter($_data)
     {
-        $_data = Filter::default($_data, true);
-        return emoji_clear($_data);
+        return Filter::strict($_data);
     }
 }
 
 if (!function_exists('safe_con_filter')) {
     /**
      * 文章内容安全过滤
-     * @param  mixed $_data
+     * @param  mixed $_str
      * @return mixed
      */
-    function safe_con_filter($_data)
+    function safe_con_filter($_str)
     {
-        $_data = Filter::default($_data, false);
-        return emoji_encode($_data);
+        return Filter::content($_str);
     }
 }
 

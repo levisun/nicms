@@ -20,6 +20,7 @@ use think\exception\HttpResponseException;
 use think\facade\Config;
 use think\facade\Env;
 use think\facade\Lang;
+use app\library\Filter;
 use app\library\Rbac;
 use app\library\Template;
 
@@ -34,7 +35,7 @@ class admin extends Template
      */
     public function __construct()
     {
-        $this->setTheme('admin/' . Env::get('app.admin_theme', 'default'));
+        $this->setTheme('admin/' . Env::get('admin.theme', 'default'));
         parent::__construct();
     }
 
@@ -48,6 +49,10 @@ class admin extends Template
      */
     public function index(string $logic = 'account', string $controller = 'user', string $action = 'login')
     {
+        $logic      = Filter::str($logic);
+        $controller = Filter::str($controller);
+        $action     = Filter::str($action);
+
         $this->authenticate($logic, $controller, $action);
 
         $tpl  = $logic . DIRECTORY_SEPARATOR . $controller;

@@ -19,11 +19,32 @@ use think\exception\HttpException;
 class Filter
 {
 
-    public static function default($_data, bool $_strict = true)
+    public static function str(string $_str, string $_rule = 'A-Za-z'): string
+    {
+        $_str = self::filter($_str, true);
+        return preg_replace_callback('/[^' . $_rule . ']+/u', function($matches){
+            return '';
+        }, $_str);
+    }
+
+    public static function content(string $_str): string
+    {
+        $_str = self::filter($_str, false);
+        return json_decode(preg_replace_callback('/(\\\u[ed][0-9a-f]{3})/si', function($matches){
+            return '[EMOJI:' . base64_encode($matches[0]) . ']';
+        }, json_encode($_str)));
+    }
+
+    public static function strict($_data)
+    {
+        return self::filter($_data, true);
+    }
+
+    public static function filter($_data, bool $_strict = true)
     {
         if (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::default($value);
+                $_data[$key] = self::filter($value);
             }
         } elseif (is_object($_data)) {
             # code...
@@ -38,6 +59,10 @@ class Filter
             $_data = self::XXE($_data, $_strict);
             // 过滤PHP危害函数方法
             $_data = self::FUN($_data);
+            // 过滤emoji
+            $_data =  preg_replace_callback('/./u', function (array $matches) {
+                return strlen($matches[0]) >= 4 ? '' : $matches[0];
+            }, $_data);
         }
 
         return $_data;

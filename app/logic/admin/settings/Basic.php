@@ -71,6 +71,7 @@ class Basic extends Base
         if ($result = $this->authenticate(__METHOD__)) {
             return $result;
         }
+        $this->writeLog(__METHOD__, 'admin basic editor');
 
         $receive_data = [
             'cms_sitename'    => Request::param('cms_sitename'),

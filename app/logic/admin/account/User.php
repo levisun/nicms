@@ -17,9 +17,11 @@ namespace app\logic\admin\account;
 
 use think\facade\Lang;
 use think\facade\Request;
+use think\facade\Session;
 use app\library\Base64;
 use app\library\Ip;
 use app\library\Rbac;
+use app\library\Session as LibSession;
 use app\logic\admin\Base;
 use app\model\Admin as ModelAdmin;
 
@@ -41,7 +43,7 @@ class User extends Base
         $lock = app()->getRuntimePath() . md5(Request::ip() . date('YmdH')) . '.lock';
         clearstatcache();
         if (is_file($lock)) {
-            $result = 'login error';
+            $result = 'login lock';
         } else {
             $result =
             (new ModelAdmin)->where([
@@ -55,15 +57,24 @@ class User extends Base
                     ['id', '=', $result['id']]
                 ])
                 ->data([
+                    'flag'               => Session::getId(false),
                     'last_login_time'    => time(),
                     'last_login_ip'      => $ip['ip'],
                     'last_login_ip_attr' => $ip['province_id'] ? $ip['province'] . $ip['city'] . $ip['area'] : ''
                 ])
                 ->update();
+
+                if ($result['flag'] && $result['flag'] !== Session::getId(false)) {
+                    (new LibSession)->delete($result['flag']);
+                }
+
                 session('admin_auth_key', $result['id']);
+                session('login_lock', null);
+
                 $this->writeLog(__METHOD__, 'admin user login');
                 $result = 'login success';
-            } else {
+            }
+            else {
                 $login_lock = session('?login_lock') ? session('login_lock') : 0;
                 ++$login_lock;
                 if ($login_lock >= 5) {

@@ -21,6 +21,7 @@ use think\facade\Config;
 use think\facade\Env;
 use think\facade\Lang;
 use think\facade\Request;
+use app\library\Filter;
 use app\library\Siteinfo;
 use app\library\Template;
 use app\model\Category as ModelCategory;
@@ -54,7 +55,7 @@ class Cms extends Template
      * CMS
      * @access public
      * @param
-     * @return mixed HTML文档
+     * @return void
      */
     public function index()
     {
@@ -66,10 +67,12 @@ class Cms extends Template
      * @access public
      * @param  string $name 分层名
      * @param  int    $cid  栏目ID
-     * @return mixed        HTML文档
+     * @return void
      */
-    public function lists(string $name = 'article', string $cid = '')
+    public function lists(string $name)
     {
+        $name = Filter::str($name);
+
         $this->fetch('list_' . $name);
     }
 
@@ -79,10 +82,12 @@ class Cms extends Template
      * @param  string $name 分层名
      * @param  int    $cid  栏目ID
      * @param  int    $id   文章ID
-     * @return mixed        HTML文档
+     * @return void
      */
-    public function details(string $name = 'article', string $cid = '', string $id = '')
+    public function details(string $name)
     {
+        $name = Filter::str($name);
+
         $this->fetch('details_' . $name);
     }
 
@@ -92,7 +97,7 @@ class Cms extends Template
      * @param  string $name 分层名
      * @param  int    $cid  栏目ID
      * @param  int    $id   文章ID
-     * @return mixed        HTML文档
+     * @return void
      */
     public function search()
     {

@@ -32,6 +32,10 @@ class Cms extends Base
      */
     public function query()
     {
+        if ($result = $this->authenticate(__METHOD__)) {
+            return $result;
+        }
+
         $file = (array) glob(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'template' . DIRECTORY_SEPARATOR . 'cms' . DIRECTORY_SEPARATOR . '*');
         rsort($file);
         foreach ($file as $key => $value) {
@@ -58,6 +62,11 @@ class Cms extends Base
 
     public function editor()
     {
-        # code...
+        if ($result = $this->authenticate(__METHOD__)) {
+            return $result;
+        }
+        $this->writeLog(__METHOD__, 'admin theme cms editor');
+
+
     }
 }

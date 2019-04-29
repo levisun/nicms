@@ -23,14 +23,14 @@ return [
     // 后台管理地址
     'admin_host'            => '//admin.' . Request::rootDomain() . Request::root(),
     // 调试模式
-    'app_debug'             => Env::get('app.debug', 1) ? true : false,
+    'app_debug'             => Env::get('admin.debug', 1) ? true : false,
     // 密钥
-    'authkey'               => Env::get('app.authkey', md5(__DIR__)),
+    'authkey'               => Env::get('admin.authkey', md5(__DIR__)),
 
     // 应用地址
     'app_host'              => '',
     // 应用Trace（环境变量优先读取）
-    'app_trace'             => Env::get('app.app_debug', 1) ? true : false,
+    'app_trace'             => Env::get('admin.debug', 1) ? true : false,
     // 应用的命名空间
     'app_namespace'         => '',
     // 是否启用路由
@@ -64,5 +64,5 @@ return [
     // 错误显示信息,非调试模式有效
     'error_message'         => '页面错误！请稍后再试～',
     // 显示错误信息
-    'show_error_msg'        => Env::get('app.app_debug', 1) ? true : false,
+    'show_error_msg'        => Env::get('admin.debug', 1) ? true : false,
 ];

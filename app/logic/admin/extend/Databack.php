@@ -89,7 +89,6 @@ class Databack extends Base
         if ($result = $this->authenticate(__METHOD__)) {
             return $result;
         }
-
         $this->writeLog(__METHOD__, 'databack backup');
 
         try {
@@ -117,7 +116,6 @@ class Databack extends Base
         if ($result = $this->authenticate(__METHOD__)) {
             return $result;
         }
-
         $this->writeLog(__METHOD__, 'databack backup remove');
 
         $id = Request::param('id');

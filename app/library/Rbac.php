@@ -14,6 +14,7 @@ declare (strict_types = 1);
 
 namespace app\library;
 
+use app\library\Filter;
 use app\model\Node as ModelNode;
 
 class Rbac
@@ -38,9 +39,10 @@ class Rbac
      */
     public function authenticate($_uid, string $_app, string $_logic, string $_controller, string $_action, array $_config = []): bool
     {
+        $_uid        = (int) $_uid;
+
         $this->config = array_merge($this->config, $_config);
 
-        $_uid = (int) $_uid;
         if ($_uid && $this->checkAccess($_app, $_logic, $_controller, $_action)) {
             // 实时检验权限
             if ($this->config['auth_type'] == 1) {

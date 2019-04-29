@@ -35,7 +35,7 @@ class Session implements SessionHandlerInterface
 
         if (rand(1, 10) === 1) {
             (new ModelSession)->where([
-                ['update_time', '<=', strtotime('-7 days')]
+                ['update_time', '<=', strtotime('-3 days')]
             ])
             ->delete();
         }
@@ -57,9 +57,18 @@ class Session implements SessionHandlerInterface
             $map[] = ['update_time', '>=', time() - $this->config['expire']];
         }
 
-        return
+        $result =
         (new ModelSession)->where($map)
         ->value('data', '');
+
+        if ($result) {
+            (new ModelSession)->where($map)
+            ->update([
+                'update_time' => time()
+            ]);
+        }
+
+        return $result;
     }
 
     /**
@@ -71,7 +80,7 @@ class Session implements SessionHandlerInterface
      */
     public function write(string $sessID, string $data): bool
     {
-        $result =
+        $has =
         (new ModelSession)->where([
             ['session_id', '=', $this->config['prefix'] . $sessID]
         ])
@@ -83,7 +92,7 @@ class Session implements SessionHandlerInterface
             'update_time' => time()
         ];
 
-        if (!empty($result)) {
+        if (!empty($has)) {
             (new ModelSession)->where([
                 ['session_id', '=', $this->config['prefix'] . $sessID],
             ])

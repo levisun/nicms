@@ -158,7 +158,11 @@ class Async
     protected function setModule(string $_name)
     {
         $this->module = strtolower($_name);
-        return $this;
+        if (preg_match('/^[A-Za-z]+$/u', $this->module)) {
+            return $this;
+        } else {
+            $this->error('module error');
+        }
     }
 
     /**
@@ -172,7 +176,10 @@ class Async
         $this->initialize();
 
         // 执行类方法
-        $result = call_user_func_array([(new $this->exec['class']), $this->exec['action']], []);
+        $result = call_user_func_array([
+            (new $this->exec['class']),
+            $this->exec['action']
+        ], []);
 
         if (!is_array($result) && empty($result['msg'])) {
             $this->error($this->exec['class'] . '::' . $this->exec['action'] . '() 返回数据错误');
@@ -244,13 +251,14 @@ class Async
                         $this->module . DIRECTORY_SEPARATOR .
                         'v' . $this->version['major'] . '_' . $this->version['minor'] . DIRECTORY_SEPARATOR .
                         Lang::getLangSet() . '.php';
+                Lang::load($lang);
             } else {
                 $lang = app()->getAppPath(). 'lang' . DIRECTORY_SEPARATOR .
                         $this->module . DIRECTORY_SEPARATOR .
                         Lang::getLangSet() . '.php';
+                Lang::load($lang);
             }
 
-            Lang::load($lang);
 
             $this->exec = [
                 'class'  => $method,

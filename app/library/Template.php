@@ -17,6 +17,7 @@ namespace app\library;
 use think\Container;
 use think\exception\HttpException;
 use think\facade\Config;
+use think\facade\Env;
 use think\facade\Lang;
 use think\facade\Request;
 use app\library\Filter;
@@ -67,7 +68,7 @@ class Template
         $this->buildPath .= str_replace('.', '_', Request::subDomain()) . DIRECTORY_SEPARATOR;
 
         $this->setReplace([
-            'version'     => env('app.version', false),
+            'version'     => Env::get('admin.version', false),
             'theme'       => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . 'theme/',
             'css'         => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . 'css/',
             'img'         => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . 'img/',
