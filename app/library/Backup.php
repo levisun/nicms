@@ -22,9 +22,15 @@ class Backup
 {
     private $savePath;
 
+    /**
+     * 自动备份数据
+     * @access public
+     * @param
+     * @return void
+     */
     public function auto(): void
     {
-        Log::record('[BACKUP] 自动备份', 'alert');
+        Log::record('[BACKUP] 自动备份', 'alert')->save();
 
         $this->savePath = app()->getRuntimePath() .
                             'backup' . DIRECTORY_SEPARATOR .
@@ -41,8 +47,7 @@ class Backup
             file_put_contents($this->savePath . 'backup.lock', 'lock');
             $result = $this->queryTableName();
             foreach ($result as $key => $name) {
-                file_put_contents($this->savePath . 'backup.lock', $name);
-                if (rand(1, 3) === 1) {
+                if (rand(1, 2) === 1) {
                     continue;
                 }
                 $this->queryTableStructure($name);
@@ -53,7 +58,13 @@ class Backup
         ignore_user_abort(false);
     }
 
-    public function save()
+    /**
+     * 保存备份数据
+     * @access public
+     * @param
+     * @return void
+     */
+    public function save(): void
     {
         $this->savePath = app()->getRuntimePath() .
                             'backup' . DIRECTORY_SEPARATOR .
@@ -75,12 +86,12 @@ class Backup
     }
 
     /**
-     * 表数据
+     * 查询表数据
      * @access private
      * @param
      * @return void
      */
-    private function queryTableInsert(string $_table_name, int $_num = 1000): void
+    private function queryTableInsert(string $_table_name, int $_num = 100): void
     {
         set_time_limit(0);
 
@@ -152,7 +163,7 @@ class Backup
         set_time_limit(0);
         $sql_file = $this->savePath . $_table_name . '.sql';
 
-        if (is_file($sql_file) && filemtime($sql_file) >= strtotime('-1 hour')) {
+        if (is_file($sql_file) && filemtime($sql_file) >= strtotime('-24 hour')) {
             return false;
         }
 
@@ -193,7 +204,7 @@ class Backup
     public function exec(string $_sql): void
     {
         $_sql = trim($_sql);
-        $_sql = preg_replace('/(\/\*)(.*?)(\*\/)/si', '', $_sql);
+        $_sql = substr($_sql, 23);
         try {
             Db::query($_sql);
         } catch (Exception $e) {

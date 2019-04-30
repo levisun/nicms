@@ -47,10 +47,18 @@
         var defaults = {
             push: false,                        // 添加历史记录
             replace: false,                     // 替换历史记录
+            scrollTo: false,                    // 是否回到顶部 可定义顶部像素
             requestUrl: window.location.href,   // 重写地址
             type: 'GET',
-            contentType: 'application/x-www-form-urlencoded'
+            contentType: 'application/x-www-form-urlencoded',
+            data: {
+                timestamp: 'time()',
+                appid: '1000001'
+            }
         };
+        defaults.data.timestamp = Date.parse(new Date());
+        defaults.data.timestamp = defaults.data.timestamp / 1000;
+
         _params = jQuery.extend(true, defaults, _params);
 
         _params.data.sign = jQuery.sign({
@@ -105,7 +113,9 @@
 
         var sign = '';
         for (var index in newObj) {
-            sign += index + '=' + newObj[index] + '&';
+            if (index == 'appid' || index == 'sign_type' || index == 'timestamp' || index == 'method') {
+                sign += index + '=' + newObj[index] + '&';
+            }
         }
         sign = sign.substr(0, sign.length - 1);
         sign = md5(sign);

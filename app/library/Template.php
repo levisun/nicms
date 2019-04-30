@@ -65,14 +65,15 @@ class Template
 
         $this->buildPath  = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
         $this->buildPath .= Lang::getLangSet() . '-';
-        $this->buildPath .= str_replace('.', '_', Request::subDomain()) . DIRECTORY_SEPARATOR;
+        $this->buildPath .= str_replace('.', '', Request::subDomain()) . DIRECTORY_SEPARATOR;
 
+        $theme = Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme);
         $this->setReplace([
-            'version'     => Env::get('admin.version', false),
-            'theme'       => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . 'theme/',
-            'css'         => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . 'css/',
-            'img'         => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . 'img/',
-            'js'          => Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme) . 'js/',
+            'version'     => Env::get('admin.version', '1.0.1'),
+            'theme'       => $theme . 'theme/',
+            'css'         => $theme . 'css/',
+            'img'         => $theme . 'img/',
+            'js'          => $theme . 'js/',
             'static'      => Config::get('app.cdn_host') . '/static/',
             'name'        => 'nicms',
             'title'       => 'nicms',
@@ -80,8 +81,9 @@ class Template
             'description' => 'nicms',
             'bottom_msg'  => '',
             'copyright'   => '',
-            'script'      => '',
+            'script'      => '<script type="text/javascript"></script>',
         ]);
+        unset($theme);
     }
 
     /**
@@ -109,11 +111,6 @@ class Template
         if (!$content = $this->templateBuildRead()) {
             $this->templateConfig = $this->parseTemplateConfig();
 
-            echo '<!-- Static:';
-            echo Config::get('app.app_debug') ? 'close' : 'success';
-            echo ' Date:' . date('Y-m-d H:i:s') . ' Time:' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 6) . 's';
-            echo ' Memory:' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 2) . 'mb' . ' -->' .  PHP_EOL;
-
             echo $this->parseTemplateHead();
 
             $content = file_get_contents($this->parseTemplateFile($_template));
@@ -134,26 +131,34 @@ class Template
             // 解析模板标签方法
             $content = $this->parseTemplateTags($content);
 
-            if (strpos($content, '<body') === false) {
+            if (false === strpos($content, '<body')) {
                 echo '<body>';
             }
 
             echo $content;
             echo $this->parseTemplateFoot();
+            echo PHP_EOL . '<!-- Static:';
+            echo Config::get('app.app_debug') ? 'close' : 'success';
+            echo ' Date:' . date('Y-m-d H:i:s') . ' -->';
         } else {
             echo $content;
         }
 
         $content = ob_get_clean();
-        $this->templateBuildWrite($content);
-        $content = str_replace('{:__AUTHORIZATION__}', create_authorization(), $content);
 
-        if (!headers_sent() && !Config::get('app.app_debug') && function_exists('gzencode')) {
-            $content = gzencode($content, 4);
-            header('Content-Encoding:gzip');
-            header('Content-Length:' . strlen($content));
-            header('Cache-Control:public');
-        }
+        $this->templateBuildWrite($content);
+
+        $content = str_replace([
+            '{:__AUTHORIZATION__}', '{:__TIMESTAMP__}'
+        ], [
+            create_authorization(), time()
+        ], $content);
+
+        // if (!headers_sent() && !Config::get('app.app_debug') && function_exists('gzencode')) {
+        //     $content = gzencode($content, 4);
+        //     header('Content-Encoding:gzip');
+        //     header('Content-Length:' . strlen($content));
+        // }
 
         echo $content;
     }
@@ -193,38 +198,6 @@ class Template
     private function parseTemplateFoot(): string
     {
         $foot = PHP_EOL;
-
-        list($root) = explode('.', Request::rootDomain(), 2);
-        $foot .= '<script type="text/javascript">' .
-        'var NICMS={' .
-            'domain:"' . '//' . Request::subDomain() . '.' . Request::rootDomain() . '",' .
-            'url:"' . Request::baseUrl(true) . '",' .
-            'param:' . json_encode(Request::param()) . ',' .
-            'api:{' .
-                'url:"' . Config::get('app.api_host') . '",' .
-                'root:"' . $root . '",' .
-                'version:"' . $this->templateConfig['api_version'] . '",' .
-                'authorization:"{:__AUTHORIZATION__}",' .
-                'param:' . json_encode(Request::param()) .
-            '},' .
-            'cdn:{' .
-                'static:"' . $this->templateReplace['__STATIC__'] . '",' .
-                'theme:"' .  $this->templateReplace['__THEME__'] . '",' .
-                'css:"' .    $this->templateReplace['__CSS__'] . '",' .
-                'img:"' .    $this->templateReplace['__IMG__'] . '",' .
-                'js:"' .     $this->templateReplace['__JS__'] . '"' .
-            '}' .
-        '};';
-
-        if (!Request::isMobile() || 0 !== strpos(Request::subDomain(), 'm')) {
-            $sub = Request::subDomain() == 'www' ? 'm.' : 'm.' . Request::subDomain() . '.';
-            $foot .= 'if (navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i)) {' .
-                'location.replace("//' . $sub . Request::rootDomain() . '");' .
-            '}';
-            unset($sub);
-        }
-        $foot .= '</script>' .  PHP_EOL;
-        unset($root);
 
         if (!empty($this->templateConfig['js'])) {
             foreach ($this->templateConfig['js'] as $js) {
@@ -266,7 +239,7 @@ class Template
 
         '<meta name="generator" content="nicms" />' . PHP_EOL .
         '<meta name="author" content="levisun.mail@gmail.com" />' . PHP_EOL .
-        '<meta name="copyright" content="2013-' . date('Y') . ' nicms" />' . PHP_EOL .
+        '<meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" />' . PHP_EOL .
 
         '<meta http-equiv="Window-target" content="_blank">' . PHP_EOL .
         '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' . PHP_EOL .
@@ -307,6 +280,38 @@ class Template
             }
         }
 
+        list($root) = explode('.', Request::rootDomain(), 2);
+        $head .= '<script type="text/javascript">' .
+        'var NICMS={' .
+            'domain:"' . '//' . Request::subDomain() . '.' . Request::rootDomain() . '",' .
+            'url:"' . Request::baseUrl(true) . '",' .
+            'param:' . json_encode(Request::param()) . ',' .
+            'api:{' .
+                'url:"' . Config::get('app.api_host') . '",' .
+                'root:"' . $root . '",' .
+                'version:"' . $this->templateConfig['api_version'] . '",' .
+                'authorization:"{:__AUTHORIZATION__}",' .
+                'timestamp:"{:__TIMESTAMP__}",' .
+                'param:' . json_encode(Request::param()) .
+            '},' .
+            'cdn:{' .
+                'static:"' . $this->templateReplace['__STATIC__'] . '",' .
+                'theme:"' .  $this->templateReplace['__THEME__'] . '",' .
+                'css:"' .    $this->templateReplace['__CSS__'] . '",' .
+                'img:"' .    $this->templateReplace['__IMG__'] . '",' .
+                'js:"' .     $this->templateReplace['__JS__'] . '"' .
+            '}' .
+        '};';
+
+        if (!Request::isMobile() && Env::get('admin.entry', 'admin') !== Request::subDomain()) {
+            $head .= 'if(navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i)){' .
+                'location.replace("//m.' . Request::rootDomain() . '");' .
+            '}';
+            unset($sub);
+        }
+        $head .= '</script>' .  PHP_EOL;
+        unset($root);
+
         $head .= '</head>' .  PHP_EOL;
 
         return $head;
@@ -316,23 +321,26 @@ class Template
      * 读取模板静态文件
      * @access private
      * @param
-     * @return string
+     * @return bool|string
      */
     private function templateBuildRead()
     {
+        if (!is_dir($this->buildPath)) {
+            chmod(app()->getRuntimePath(), 0777);
+            mkdir($this->buildPath, 0777, true);
+        }
+
         $url = explode('/', Request::path());
         $url = array_unique($url);
         $url = implode('-', $url);
         $url = $url ? $url . '.html' : 'index.html';
-        $url = $this->buildPath . $url;
+        $this->buildPath = $this->buildPath . $url;
 
         clearstatcache();
-        if (Config::get('app.app_debug') === false) {
-            if (is_file($url)) {
-                return file_get_contents($url);
-            }
-        } elseif (is_file($url)) {
-            unlink($url);
+        if (false === Config::get('app.app_debug') && is_file($this->buildPath)) {
+            return file_get_contents($this->buildPath);
+        } elseif (is_file($this->buildPath)) {
+            unlink($this->buildPath);
         }
 
         return false;
@@ -344,20 +352,11 @@ class Template
      * @param  string $_content
      * @return void
      */
-    private function templateBuildWrite(string $_content)
+    private function templateBuildWrite(string $_content): void
     {
-        if (!is_dir($this->buildPath)) {
-            chmod(app()->getRuntimePath(), 0777);
-            mkdir($this->buildPath, 0777, true);
-        }
-
-        $url = explode('/', Request::path());
-        $url = array_unique($url);
-        $url = implode('-', $url);
-        $url = $url ? $url . '.html' : 'index.html';
-
-        if (Config::get('app.app_debug') === false) {
-            file_put_contents($this->buildPath . $url, $_content);
+        clearstatcache();
+        if (false === Config::get('app.app_debug') && !is_file($this->buildPath)) {
+            file_put_contents($this->buildPath, $_content);
         }
     }
 
@@ -369,7 +368,7 @@ class Template
      */
     private function parseTemplateTags(string $_content): string
     {
-        if (preg_match_all('/({tag:)([a-zA-Z]+)(})(.*?)({\/tag})/si', $_content, $matches) !== false) {
+        if (false !== preg_match_all('/({tag:)([a-zA-Z]+)(})(.*?)({\/tag})/si', $_content, $matches)) {
             foreach ($matches[2] as $key => $tags) {
                 $tags = strtolower($tags);
                 $matches[4][$key] = call_user_func(['\taglib\Tags', $tags], $matches[4][$key]);
@@ -402,7 +401,7 @@ class Template
             'date'
         ];
 
-        if (preg_match_all('/({:)([a-zA-Z_]+\()(.*?)(\)})/si', $_content, $matches) !== false) {
+        if (false !== preg_match_all('/({:)([a-zA-Z_]+\()(.*?)(\)})/si', $_content, $matches)) {
             foreach ($matches[2] as $key => $func) {
                 $func = rtrim($func, '(');
                 if (in_array($func, $safe_func)) {
@@ -424,7 +423,7 @@ class Template
      */
     private function parseTemplateVars(string $_content): string
     {
-        if (preg_match_all('/({:\$)([a-zA-Z_.]+)(})/si', $_content, $matches) !== false) {
+        if (false !== preg_match_all('/({:\$)([a-zA-Z_.]+)(})/si', $_content, $matches)) {
             foreach ($matches[2] as $key => $var_name) {
                 if (false === strpos($var_name, '.')) {
                     $var_type = '';
@@ -505,7 +504,7 @@ class Template
      */
     private function parseTemplateInclude(string $_content): string
     {
-        if (preg_match_all('/({:include file=["|\'])([a-zA-Z_]+)(["|\']})/si', $_content, $matches) !== false) {
+        if (false !== preg_match_all('/({:include file=["|\'])([a-zA-Z_]+)(["|\']})/si', $_content, $matches)) {
             foreach ($matches[2] as $key => $value) {
                 if ($value && is_file($this->templatePath . $this->theme . $value . '.html')) {
                     $file = file_get_contents($this->templatePath . $this->theme . $value . '.html');
@@ -525,8 +524,8 @@ class Template
      */
     private function parseTemplateLayout(string $_content): string
     {
-        if ($this->templateConfig['layout'] == true) {
-            if (strpos($_content, '{:NOT_LAYOUT}') === false) {
+        if (true == $this->templateConfig['layout']) {
+            if (false === strpos($_content, '{:NOT_LAYOUT}')) {
                 if (is_file($this->templatePath . $this->theme . 'layout.html')) {
                     $layout = file_get_contents($this->templatePath . $this->theme . 'layout.html');
                     $_content = str_replace('{:__CONTENT__}', $_content, $layout);

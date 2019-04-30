@@ -219,7 +219,7 @@ class ArticleBase
 
                 $result['content'] = htmlspecialchars_decode($result['content']);
 
-                if (preg_match_all('/(src=["|\'])(.*?)(["|\'])/si', $result['content'], $matches) !== false) {
+                if (false !== preg_match_all('/(src=["|\'])(.*?)(["|\'])/si', $result['content'], $matches)) {
                     foreach ($matches[2] as $key => $value) {
                         $thumb = get_img_url($value, $img_size);
                         $replace = 'src="' . $thumb . '" original="' . get_img_url($value, 0) . '"';

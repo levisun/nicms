@@ -17,6 +17,8 @@ namespace app\middleware;
 use Closure;
 use think\Response;
 use think\exception\HttpResponseException;
+use think\facade\Config;
+use think\facade\Env;
 use think\facade\Log;
 use app\library\Accesslog;
 use app\library\Backup;
@@ -27,11 +29,35 @@ class Monitor
 {
     public function handle($request, Closure $next)
     {
-        $this->illegalRequestLocking($request);
         $this->requestRelieve($request);
+        $this->illegalRequestLocking($request);
+
+        if ($request->isGet() && $if_modified_since = $request->server('HTTP_IF_MODIFIED_SINCE')) {
+            $expire = (int) Config::get('cache.expire');
+            $expire = $expire - 60;
+            if (strtotime($if_modified_since) + $expire >= $request->server('REQUEST_TIME')) {
+                $this->responseEnd($request);
+                return Response::create()->code(304);   // 读取缓存
+            }
+        }
+
+        if ($request->isGet() && $request->isMobile() && !in_array($request->subDomain(), ['api', Env::get('admin.entry', 'admin')])) {
+            $url = '//m.' . $request->rootDomain();
+            $response = Response::create($url, 'redirect', 302);
+            throw new HttpResponseException($response);
+        }
 
         $request->filter('safe_filter');    // 添加默认过滤方法
         $response = $next($request);
+
+        if (false === Config::get('app.app_debug')) {
+            $expire = (int) Config::get('cache.expire');
+            $response->allowCache(true)
+            ->cacheControl('public, max-age=' . $expire)
+            ->expires(gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT')
+            ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
+        }
+
         $this->responseEnd($request);
         return $response;
     }
@@ -46,12 +72,11 @@ class Monitor
     private function requestRelieve($request)
     {
         // 千分几率
-        if (!in_array($request->controller(true), ['error', 'api']) && rand(1, 999) === 1) {
+        if (!in_array($request->subDomain(), ['api']) && rand(1, 999) === 1) {
             Log::record('[并发]', 'alert')->save();
-            die('<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>500</h2><h3> Oops! Something went wrong.</h3></section>');
+            $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>500</h2><h3> Oops! Something went wrong.</h3></section>';
 
-            $url = url('error');
-            $response = Response::create($url, 'redirect', 302);
+            $response = Response::create($error, '', 500);
             throw new HttpResponseException($response);
         }
     }
@@ -76,7 +101,10 @@ class Monitor
         // 锁定频繁请求IP
         if (is_file($request_log . '.lock')) {
             Log::record('[锁定]', 'alert')->save();
-            die('<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>500</h2><h3> Oops! Something went wrong.</h3></section>');
+            $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>500</h2><h3> Oops! Something went wrong.</h3></section>';
+
+            $response = Response::create($error, '', 500);
+            throw new HttpResponseException($response);
         }
 
         $time = date('YmdHi');
@@ -110,14 +138,16 @@ class Monitor
      */
     private function responseEnd($request)
     {
-        if ($request->isGet() && !in_array($request->controller(true), ['api', 'admin', 'error'])) {
-            (new Accesslog)->record();
-        }
+        if ($request->isGet()) {
+            if ($request->subDomain() === 'www') {
+                (new Accesslog)->record();
+                (new Sitemap)->save();
+            }
 
-        if ($request->isGet() && $request->controller(true) !== 'api' && rand(1, 10) === 1) {
-            (new Garbage)->run();
-            (new Sitemap)->save();
-            (new Backup)->auto();
+            if ($request->subDomain() !== 'api' && rand(1, 10) === 1) {
+                (new Garbage)->run();
+                (new Backup)->auto();
+            }
         }
     }
 }

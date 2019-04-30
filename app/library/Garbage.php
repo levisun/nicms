@@ -61,7 +61,7 @@ class Garbage
                 if (is_file($path) && pathinfo($path, PATHINFO_BASENAME) == '.gitignore') {
                     continue;
                 }
-                if (is_file($path) && stripos($path, '_skl_') === false) {
+                if (is_file($path) && false === stripos($path, '_skl_')) {
                     @unlink($path);
                 } elseif (is_dir($path)) {
                     @rmdir($path);

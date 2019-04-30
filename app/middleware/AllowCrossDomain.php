@@ -31,7 +31,8 @@ class AllowCrossDomain
             $this->header['Access-Control-Allow-Origin'] = $request->server('HTTP_ORIGIN', '*');
             $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
 
-            if ($request->method(true) == 'OPTIONS') {
+            if ($request->isOptions()) {
+                $header['Access-Control-Max-Age'] = 1440;
                 return Response::create()->code(204)->header($header);
             }
             return $next($request)->header($header);

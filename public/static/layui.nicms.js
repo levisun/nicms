@@ -17,13 +17,16 @@ layui.define('jquery', function(exports){
                 scrollTo: false,                    // 是否回到顶部 可定义顶部像素
                 requestUrl: window.location.href,   // 重写地址
                 type: 'GET',
-                contentType: 'application/x-www-form-urlencoded'
+                contentType: 'application/x-www-form-urlencoded',
+                data: {
+                    appid: '1000001',
+                    timestamp: NICMS.api.timestamp
+                }
             };
+
             _params = jQuery.extend(true, defaults, _params);
 
-            _params.data.sign = this.sign({
-                method: _params.data.method
-            });
+            _params.data.sign = this.sign(_params.data);
 
             // 设置头部
             _params.beforeSend = function (xhr) {
@@ -62,9 +65,12 @@ layui.define('jquery', function(exports){
 
             var sign = '';
             for (var index in newObj) {
-                sign += index + '=' + newObj[index] + '&';
+                if (index == 'appid' || index == 'sign_type' || index == 'timestamp' || index == 'method') {
+                    sign += index + '=' + newObj[index] + '&';
+                }
             }
             sign = sign.substr(0, sign.length - 1);
+
             sign = md5(sign);
 
             return sign;

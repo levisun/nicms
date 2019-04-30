@@ -35,7 +35,7 @@ class Ip
             return '';
         }, $_ip);
 
-        if ($this->validate($_ip) === true) {
+        if (true === $this->validate($_ip)) {
             // 查询IP地址库
             $region = $this->query($_ip);
 

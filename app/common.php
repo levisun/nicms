@@ -48,7 +48,7 @@ if (!function_exists('get_img_url')) {
         $root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
         $font_path = $root_path . 'static' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf';
 
-        if ($_img && stripos($_img, 'http') === false) {
+        if (false === $_img && stripos($_img, 'http')) {
             // 规定缩略图大小
             $_size = $_size >= 800 ? 800 : round($_size / 100) * 100;
             $_size = (int) $_size;
@@ -251,7 +251,7 @@ if (!function_exists('validate')) {
             $v->scene($scene);
         }
 
-        if ($v->batch(false)->failException(false)->check($_data) === false) {
+        if (false === $v->batch(false)->failException(false)->check($_data)) {
             return $v->getError();
         } else {
             return false;

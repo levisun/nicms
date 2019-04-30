@@ -35,7 +35,7 @@ class Api extends Async
      */
     public function __construct()
     {
-        $this->referer = Request::server('HTTP_REFERER', false) && Request::param('method', false);
+        $this->referer = Request::server('HTTP_REFERER') && Request::param('method', false);
     }
 
     /**

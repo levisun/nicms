@@ -176,10 +176,7 @@ class Async
         $this->initialize();
 
         // 执行类方法
-        $result = call_user_func_array([
-            (new $this->exec['class']),
-            $this->exec['action']
-        ], []);
+        $result = call_user_func_array([(new $this->exec['class']), $this->exec['action']], []);
 
         if (!is_array($result) && empty($result['msg'])) {
             $this->error($this->exec['class'] . '::' . $this->exec['action'] . '() 返回数据错误');
@@ -196,6 +193,7 @@ class Async
 
         // 浏览器缓存时间
         $this->expire = isset($result['expire']) ? $result['expire'] : Config::get('cache.expire');
+        $this->expire = (int) $this->expire;
         $this->expire = $this->expire <= 0 ? 0 : $this->expire;
 
         $this->success($result['msg'], isset($result['data']) ? $result['data'] : []);
@@ -214,7 +212,7 @@ class Async
         $this->checkAuth();
 
         // 校验请求时间
-        $this->timestamp = Request::param('timestamp/f', time());
+        $this->timestamp = (int) Request::param('timestamp/f', time());
         if (!$this->timestamp || $this->timestamp <= time() - 10) {
             $this->error('request timeout');
         }

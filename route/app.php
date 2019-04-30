@@ -37,20 +37,6 @@ elseif ($domain == Env::get('admin.entry')) {
 
 elseif ($domain == 'api') {
     Route::ext('do');
-
-    // $headers = [
-    //     'Access-Control-Allow-Origin'  => Request::server('HTTP_ORIGIN', '*'),
-    //     // 'Access-Control-Allow-Methods' => 'GET, POST, PATCH, PUT, DELETE',
-    //     'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS',
-    //     'Access-Control-Allow-Headers' => 'Accept, Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With'
-    // ];
-    // if (Request::isOptions()) {
-    //     $headers['Access-Control-Max-Age'] = 14400;
-    // }
-    // foreach ($headers as $key => $value) {
-    //     header($key . ':' . $value);
-    // }
-
     Route::get('download$', 'api/download');
     Route::get('ip$', 'api/ip');
     Route::get(':module$', 'api/query');
