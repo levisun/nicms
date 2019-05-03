@@ -11,7 +11,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="vo in items.list">
+                <template v-for="vo in items.list">
+                <tr>
                     <td>
                         [<font v-text="vo.role_name"></font>]
                         <font v-text="vo.username"></font>
@@ -29,6 +30,7 @@
                         <font v-text="vo.create_time"></font>
                     </td>
                 </tr>
+                </template>
             </tbody>
         </table>
     </div>

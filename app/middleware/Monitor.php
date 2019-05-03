@@ -32,9 +32,9 @@ class Monitor
         $this->requestRelieve($request);
         $this->illegalRequestLocking($request);
 
+        // 缓存
         if ($request->isGet() && $if_modified_since = $request->server('HTTP_IF_MODIFIED_SINCE')) {
             $expire = (int) Config::get('cache.expire');
-            $expire = $expire - 60;
             if (strtotime($if_modified_since) + $expire >= $request->server('REQUEST_TIME')) {
                 $this->responseEnd($request);
                 return Response::create()->code(304);   // 读取缓存
@@ -50,7 +50,8 @@ class Monitor
         $request->filter('safe_filter');    // 添加默认过滤方法
         $response = $next($request);
 
-        if (false === Config::get('app.app_debug')) {
+        // 设定缓存
+        if ($request->isGet() && false === Config::get('app.app_debug')) {
             $expire = (int) Config::get('cache.expire');
             $response->allowCache(true)
             ->cacheControl('public, max-age=' . $expire)

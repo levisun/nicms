@@ -25,11 +25,11 @@ class Sitemap
 
     public function save()
     {
-        Log::record('[SITEMAP] 网站地图', 'alert');
-
         clearstatcache();
         $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemap.xml';
         if (!is_file($path) || filemtime($path) < strtotime('-8 hour')) {
+            Log::record('[SITEMAP] 网站地图', 'alert');
+
             $category =
             (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')

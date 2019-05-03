@@ -10,7 +10,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="vo in items.list">
+                <template v-for="vo in items.list">
+                <tr>
                     <td>
                         <font v-text="vo.ip"></font>
                         [<font v-text="vo.ip_attr"></font>]
@@ -25,6 +26,7 @@
                         <font v-text="vo.date"></font>
                     </td>
                 </tr>
+                </template>
             </tbody>
         </table>
     </div>

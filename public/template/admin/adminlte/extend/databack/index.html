@@ -15,7 +15,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="vo in items.list">
+                <template v-for="vo in items.list">
+                <tr>
                     <td v-text="vo.name"></td>
                     <td v-text="vo.date"></td>
                     <td v-text="vo.size"></td>
@@ -24,6 +25,7 @@
                         <a id="remove" v-bind:data="vo.id"><i class="fa fa-trash"></i>{:lang('remove')}</a>
                     </td>
                 </tr>
+                </template>
             </tbody>
         </table>
     </div>

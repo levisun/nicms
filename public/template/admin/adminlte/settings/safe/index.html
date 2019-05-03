@@ -1,14 +1,16 @@
 <div class="box">
     <div class="box-body">
         <form id="safe-config">
-            <div class="form-group">
-                <label>{:lang('app upload max')}</label>
+            <p><b>{:lang('app upload max')}</b></p>
+            <div class="input-group">
                 <input type="text" name="app[upload_size]" class="form-control" v-bind:value="items.app.upload_size">
+                <span class="input-group-addon">MB</span>
             </div>
 
-            <div class="form-group">
-                <label>{:lang('app upload type')}</label>
+            <p><b>{:lang('app upload type')}</b></p>
+            <div class="input-group">
                 <input type="text" name="app[upload_type]" class="form-control" v-bind:value="items.app.upload_type">
+                <span class="input-group-addon">","隔开</span>
             </div>
 
             <div class="form-group">
@@ -31,9 +33,10 @@
                 <input type="text" name="database[password]" class="form-control" v-bind:value="items.database.password">
             </div>
 
-            <div class="form-group">
-                <label>{:lang('database hostport')}</label>
+            <p><b>{:lang('database hostport')}</b></p>
+            <div class="input-group">
                 <input type="text" name="database[hostport]" class="form-control" v-bind:value="items.database.hostport">
+                <span class="input-group-addon">3306</span>
             </div>
 
             <div class="form-group">
@@ -43,7 +46,7 @@
 
             <div class="form-group">
                 <label>{:lang('cache type')}</label>
-                <input type="text" name="cache[type]" class="form-control" v-bind:value="items.cache.type">
+                <input type="text" name="cache[type]" class="form-control" disabled="true" v-bind:value="items.cache.type">
             </div>
 
             <div class="form-group">
@@ -64,7 +67,7 @@
 
             <div class="form-group">
                 <label>{:lang('admin authkey')}</label>
-                <input type="text" name="admin[authkey]" class="form-control" v-bind:value="items.admin.authkey">
+                <input type="text" name="admin[authkey]" class="form-control" disabled="true" v-bind:value="items.admin.authkey">
             </div>
 
             <div class="form-group">
@@ -74,7 +77,7 @@
 
             <div class="form-group">
                 <label>{:lang('admin theme')}</label>
-                <input type="text" name="admin[theme]" class="form-control" v-bind:value="items.admin.theme">
+                <input type="text" name="admin[theme]" class="form-control" disabled="true" v-bind:value="items.admin.theme">
             </div>
         </form>
     </div>

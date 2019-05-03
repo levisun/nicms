@@ -84,30 +84,46 @@ class Safe extends Base
         }
         $this->writeLog(__METHOD__, 'admin safe editor');
 
+        $receive_data = [
+            'app_upload_size'   => Request::param('app.upload_size'),
+            'app_upload_type'   => Request::param('app.upload_type'),
+            'database_hostname' => Request::param('database.hostname'),
+            'database_database' => Request::param('database.database'),
+            'database_username' => Request::param('database.username'),
+            'database_password' => Request::param('database.password'),
+            'database_hostport' => Request::param('database.hostport'),
+            'database_prefix'   => Request::param('database.prefix'),
+            'cache_expire'      => Request::param('cache.expire'),
+            'admin_debug'       => Request::param('admin.debug'),
+            'admin_entry'       => Request::param('admin.entry'),
+        ];
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+
         $result = '[app]' . PHP_EOL .
-                    'upload_size = ' . Request::param('app.upload_size') . PHP_EOL .
-                    'upload_type = ' . Request::param('app.upload_type') . PHP_EOL .
+                    'upload_size = ' . $receive_data['app_upload_size'] . PHP_EOL .
+                    'upload_type = ' . $receive_data['app_upload_type'] . PHP_EOL .
 
                     PHP_EOL . '[database]' . PHP_EOL .
                     'type     = ' . Env::get('database.type') . PHP_EOL .
-                    'hostname = ' . Request::param('database.hostname') . PHP_EOL .
-                    'database = ' . Request::param('database.database') . PHP_EOL .
-                    'username = ' . Request::param('database.username') . PHP_EOL .
-                    'password = ' . Request::param('database.password') . PHP_EOL .
-                    'hostport = ' . Request::param('database.hostport') . PHP_EOL .
-                    'prefix   = ' . Request::param('database.prefix') . PHP_EOL .
+                    'hostname = ' . $receive_data['database_hostname'] . PHP_EOL .
+                    'database = ' . $receive_data['database_database'] . PHP_EOL .
+                    'username = ' . $receive_data['database_username'] . PHP_EOL .
+                    'password = ' . $receive_data['database_password'] . PHP_EOL .
+                    'hostport = ' . $receive_data['database_hostport'] . PHP_EOL .
+                    'prefix   = ' . $receive_data['database_prefix'] . PHP_EOL .
 
                     PHP_EOL . '[cache]' . PHP_EOL .
                     'type   = ' . Env::get('cache.type') . PHP_EOL .
-                    'expire = ' . Request::param('cache.expire') . PHP_EOL .
+                    'expire = ' . $receive_data['cache_expire'] . PHP_EOL .
 
                     PHP_EOL . '[admin]' . PHP_EOL .
                     'authkey = ' . Env::get('admin.authkey') . PHP_EOL .
-                    'debug   = ' . Request::param('admin.debug') . PHP_EOL .
-                    'entry   = ' . Request::param('admin.entry') . PHP_EOL .
+                    'debug   = ' . $receive_data['admin_debug'] . PHP_EOL .
+                    'entry   = ' . $receive_data['admin_entry'] . PHP_EOL .
                     'theme   = ' . Env::get('admin.theme') . PHP_EOL .
                     'version = ' . Env::get('admin.version');
-
 
         file_put_contents(app()->getRootPath() . '.env', $result);
 

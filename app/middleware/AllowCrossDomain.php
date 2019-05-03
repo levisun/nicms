@@ -27,7 +27,7 @@ class AllowCrossDomain
 
     public function handle($request, Closure $next, ?array $header = [])
     {
-        if ($request->subDomain() === 'api') {
+        if ('api' === $request->subDomain()) {
             $this->header['Access-Control-Allow-Origin'] = $request->server('HTTP_ORIGIN', '*');
             $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
 

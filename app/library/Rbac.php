@@ -152,6 +152,7 @@ class Rbac
 
                     $access[$a['name']][$l['name']][$c['name']]['index'] = true;
                     $access[$a['name']][$l['name']][$c['name']]['query'] = true;
+                    $access[$a['name']][$l['name']][$c['name']]['find'] = true;
 
                     foreach ($action as $act) {
                         $access[$a['name']][$l['name']][$c['name']][$act['name']] = true;

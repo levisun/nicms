@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'app\middleware\AllowCrossDomain',
     'app\middleware\Monitor',
+    'app\middleware\AllowCrossDomain',
 
     'think\middleware\CheckRequestCache',
     'think\middleware\LoadLangPack',

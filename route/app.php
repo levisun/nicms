@@ -14,15 +14,14 @@ use think\facade\Env;
 use think\facade\Request;
 use think\facade\Route;
 
-Route::ext('html');
-
 Route::miss('error/index');
 Route::get('error', 'error/index');
 Route::get('404', 'error/_404');
 Route::get('500', 'error/_500');
 
 $domain = Request::subDomain();
-if ($domain == 'www') {
+if ('www' === $domain) {
+    Route::ext('html');
     Route::get('/', 'cms/index');
     Route::get('index', 'cms/index');
     Route::get('list/:name/:cid$', 'cms/lists');
@@ -30,12 +29,14 @@ if ($domain == 'www') {
     Route::get('search', 'cms/search');
 }
 
-elseif ($domain == Env::get('admin.entry')) {
+elseif (Env::get('admin.entry') === $domain) {
+    Route::ext('html');
     Route::get('/', 'admin/index');
     Route::get(':logic/:controller/:action$', 'admin/index');
+    Route::get(':logic/:controller/:action/:id$', 'admin/index');
 }
 
-elseif ($domain == 'api') {
+elseif ('api' === $domain) {
     Route::ext('do');
     Route::get('download$', 'api/download');
     Route::get('ip$', 'api/ip');
@@ -43,7 +44,6 @@ elseif ($domain == 'api') {
     Route::post('handle/:module$', 'api/handle');
     Route::post('upload/:module$', 'api/upload');
 }
-
 
 
 

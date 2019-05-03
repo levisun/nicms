@@ -179,7 +179,7 @@ class Async
         $result = call_user_func_array([(new $this->exec['class']), $this->exec['action']], []);
 
         if (!is_array($result) && empty($result['msg'])) {
-            $this->error($this->exec['class'] . '::' . $this->exec['action'] . '() 返回数据错误');
+            $this->error('no return data');
         }
 
         // 调试与缓存设置
@@ -212,8 +212,8 @@ class Async
         $this->checkAuth();
 
         // 校验请求时间
-        $this->timestamp = (int) Request::param('timestamp/f', time());
-        if (!$this->timestamp || $this->timestamp <= time() - 10) {
+        $this->timestamp = Request::param('timestamp/f', time());
+        if (!$this->timestamp || $this->timestamp <= time() - 600) {
             $this->error('request timeout');
         }
 
@@ -240,7 +240,7 @@ class Async
 
             // 校验类方法是否存在
             if (!method_exists($method, $action)) {
-                $this->error('class ' . $method . '::' . $action . ' does not have a method');
+                $this->error($action . ' does not have a method');
             }
 
             // 加载语言包

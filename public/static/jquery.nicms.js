@@ -52,18 +52,14 @@
             type: 'GET',
             contentType: 'application/x-www-form-urlencoded',
             data: {
-                timestamp: 'time()',
-                appid: '1000001'
+                appid: '1000001',
+                timestamp: NICMS.api.timestamp
             }
         };
-        defaults.data.timestamp = Date.parse(new Date());
-        defaults.data.timestamp = defaults.data.timestamp / 1000;
 
         _params = jQuery.extend(true, defaults, _params);
 
-        _params.data.sign = jQuery.sign({
-            method: _params.data.method
-        });
+        _params.data.sign = jQuery.sign(_params.data);
 
         // 设置头部
         _params.beforeSend = function (xhr) {
@@ -118,6 +114,7 @@
             }
         }
         sign = sign.substr(0, sign.length - 1);
+
         sign = md5(sign);
 
         return sign;

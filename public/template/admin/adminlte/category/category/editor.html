@@ -1,0 +1,133 @@
+<div class="box">
+    <div class="box-body">
+        <form id="category">
+            <div class="form-group">
+                <label>{:lang('parent')}</label>
+                <input type="text" class="form-control" disabled="true" v-bind:value="items.parent">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('name')}</label>
+                <input type="text" name="name" class="form-control" v-bind:value="items.name">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('aliases')}</label>
+                <input type="text" name="aliases" class="form-control" v-bind:value="items.aliases">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('title')}</label>
+                <input type="text" name="title" class="form-control" v-bind:value="items.title">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('keywords')}</label>
+                <input type="text" name="keywords" class="form-control" v-bind:value="items.keywords">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('description')}</label>
+                <input type="text" name="description" class="form-control" v-bind:value="items.description">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('image')}</label>
+                <input type="text" name="image" class="form-control" v-bind:value="items.image">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('type')}</label>
+                <select class="form-control" name="type_id">
+                    <template v-for="vo in items.type_name" >
+                    <option v-bind:value="vo.id" v-text="vo.name" v-if="items.type_id==vo.id" selected></option>
+                    <option v-bind:value="vo.id" v-text="vo.name" v-else></option>
+                    </template>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('model')}</label>
+                <input type="text" name="model_id" class="form-control" disabled="true" v-bind:value="items.model_name">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('show')}</label>
+                <label>
+                    <input type="radio" name="is_show" value="1" v-bind:checked="items.is_show==1 ? true : false"> {:lang('yes')}
+                </label>
+                <label>
+                    <input type="radio" name="is_show" value="0" v-bind:checked="items.is_show==0 ? true : false"> {:lang('no')}
+                </label>
+                <br>
+                <label>{:lang('channel')}</label>
+                <label>
+                    <input type="radio" name="is_channel" value="1" v-bind:checked="items.is_channel==1 ? true : false"> {:lang('yes')}
+                </label>
+                <label>
+                    <input type="radio" name="is_channel" value="0" v-bind:checked="items.is_channel==0 ? true : false"> {:lang('no')}
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('sort')}</label>
+                <input type="text" name="sort_order" class="form-control" v-bind:value="items.sort_order">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('access')}</label>
+                <select class="form-control" name="access_id">
+                    <template v-for="vo in items.access_name" >
+                    <option v-bind:value="vo.id" v-text="vo.name" v-if="items.access_id==vo.id" selected></option>
+                    <option v-bind:value="vo.id" v-text="vo.name" v-else></option>
+                    </template>
+                </select>
+            </div>
+
+            <p><b>{:lang('url')}</b></p>
+            <div class="input-group">
+                <span class="input-group-addon">http://</span>
+                <input type="text" name="url" class="form-control" v-bind:value="items.url">
+            </div>
+        </form>
+    </div>
+    <div class="box-footer">
+        <button type="submit" class="btn btn-primary">{:lang('save')}</button>
+    </div>
+</div>
+{tag:script}
+jQuery.pjax({
+    url: NICMS.api.url + '/handle/admin.do',
+    type: 'POST',
+    data: {
+        method: 'category.category.find',
+        id: NICMS.api.param.id
+    },
+    success: function(result){
+        if (result.code == 'SUCCESS') {
+            var vue = new Vue({
+                el: '.box',
+                data: {
+                    items: result.data
+                }
+            });
+        }
+    }
+});
+jQuery(document).on('click', '.btn', function(){
+    var btn = jQuery(this).button('{:lang('saveing')}');
+    var data = jQuery.getForm('#category');
+    data['method'] = 'category.category.editor';
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle/admin.do',
+        type: 'POST',
+        data: data,
+        success: function(result){
+            if (result.code === 'SUCCESS') {
+                <!-- jQuery.uiToast(result.message); -->
+                <!-- location.reload(); -->
+            }
+        }
+    });
+});
+{/tag}

@@ -82,7 +82,6 @@ class Basic extends Base
             'cms_beian'       => Request::param('cms_beian'),
             'script'          => Request::param('script', '', 'trim,htmlspecialchars'),
         ];
-
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
         }
