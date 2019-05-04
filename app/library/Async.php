@@ -276,7 +276,7 @@ class Async
      */
     protected function checkAuth(): void
     {
-        $this->appid = (int) Request::param('appid/f', 1000001);
+        $this->appid = (int) Request::param('appid/f', 1000000001);
         if ($this->appid) {
             // TODO 查询数据库中的secret信息
             $this->appsecret = Request::param('appsecret', 'appsecret');

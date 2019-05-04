@@ -4,13 +4,13 @@ CREATE TABLE `ey_ad_position` (
   `title` varchar(20) DEFAULT '' COMMENT '广告位置名称',
   `width` smallint(5) unsigned DEFAULT '0' COMMENT '广告位宽度',
   `height` smallint(5) unsigned DEFAULT '0' COMMENT '广告位高度',
-  `remark` text COMMENT '广告描述',
+  `remark` varchar(500) DEFAULT '' COMMENT '广告描述',
   `status` tinyint(1) DEFAULT '1' COMMENT '0关闭1开启',
   `admin_id` int(10) DEFAULT '0' COMMENT '管理员ID',
   `update_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '修改时间',
   `delete_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '删除时间',
   `create_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '创建时间',
-  `lang` varchar(50) DEFAULT 'cn' COMMENT '多语言',
+  `lang` varchar(20) DEFAULT 'cn' COMMENT '多语言',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='广告位置表';
 
@@ -24,7 +24,7 @@ CREATE TABLE `np_ad` (
   `litpic` varchar(200) DEFAULT '' COMMENT '图片地址',
   `start_time` int(11) DEFAULT '0' COMMENT '投放时间',
   `end_time` int(11) DEFAULT '0' COMMENT '结束时间',
-  `remark` text COMMENT '描述',
+  `remark` varchar(500) DEFAULT '' COMMENT '描述',
   `link_man` varchar(60) DEFAULT '' COMMENT '添加人',
   `link_email` varchar(60) DEFAULT '' COMMENT '添加人邮箱',
   `link_phone` varchar(60) DEFAULT '' COMMENT '添加人联系电话',

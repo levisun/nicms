@@ -32,11 +32,16 @@ class Garbage
     {
         Log::record('[GARBAGE] 删除垃圾信息', 'alert');
 
-        $this->remove(app()->getRuntimePath() . 'cache', 4);
-        $this->remove(app()->getRuntimePath() . 'concurrent', 24);
-        $this->remove(app()->getRuntimePath() . 'log', 72);
-        $this->remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 72);
-        $this->remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'uploads', 168);
+        $runtime_path = app()->getRuntimePath();
+        $root_path = app()->getRootPath();
+
+        $this->remove($runtime_path . 'cache', 1);
+        $this->remove($runtime_path . 'concurrent', 1);
+        $this->remove($runtime_path . 'log', 72);
+        $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 72);
+        $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads', 168);
+
+        unset($runtime_path, $root_path);
     }
 
     /**

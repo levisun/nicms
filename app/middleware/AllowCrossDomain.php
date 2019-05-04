@@ -1,7 +1,7 @@
 <?php
 /**
  *
- *
+ * 跨域头信息
  *
  * @package   NICMS
  * @category  app\middleware
@@ -35,9 +35,11 @@ class AllowCrossDomain
                 $header['Access-Control-Max-Age'] = 1440;
                 return Response::create()->code(204)->header($header);
             }
-            return $next($request)->header($header);
+            $response = $next($request)->header($header);
         } else {
-            return $next($request);
+            $response = $next($request);
         }
+
+        return $response;
     }
 }
