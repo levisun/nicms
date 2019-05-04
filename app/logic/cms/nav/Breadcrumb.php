@@ -38,6 +38,7 @@ class Breadcrumb
 
         return [
             'debug' => false,
+            'cache' => false,
             'msg'   => Lang::get('success'),
             'data'  => $this->bread
         ];

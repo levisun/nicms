@@ -32,7 +32,7 @@ class AllowCrossDomain
             $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
 
             if ($request->isOptions()) {
-                $header['Access-Control-Max-Age'] = 1440;
+                $header['Access-Control-Max-Age'] = 14400;
                 return Response::create()->code(204)->header($header);
             }
             $response = $next($request)->header($header);

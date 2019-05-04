@@ -169,9 +169,9 @@ class Async
      * 运行
      * @access protected
      * @param
-     * @return void
+     * @return Response
      */
-    protected function run(): void
+    protected function run(): Response
     {
         $this->initialize();
 
@@ -196,7 +196,7 @@ class Async
         $this->expire = (int) $this->expire;
         $this->expire = $this->expire <= 0 ? 0 : $this->expire;
 
-        $this->success($result['msg'], isset($result['data']) ? $result['data'] : []);
+        return $this->success($result['msg'], isset($result['data']) ? $result['data'] : []);
     }
 
     /**
@@ -208,12 +208,12 @@ class Async
     protected function initialize(): void
     {
         $this->analysisHeader();
-        $this->checkSign();
         $this->checkAuth();
+        $this->checkSign();
 
         // 校验请求时间
-        $this->timestamp = Request::param('timestamp/f', time());
-        if (!$this->timestamp || $this->timestamp <= time() - 600) {
+        $this->timestamp = (int) Request::param('timestamp/f', time());
+        if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
             $this->error('request timeout');
         }
 
@@ -276,14 +276,20 @@ class Async
      */
     protected function checkAuth(): void
     {
-        $this->appid = (int) Request::param('appid/f', 1000000001);
+        $this->appid = (int) Request::param('appid/f', 1000001);
         if ($this->appid) {
-            // TODO 查询数据库中的secret信息
-            $this->appsecret = Request::param('appsecret', 'appsecret');
-            if ($this->appsecret && preg_match('/^[A-Za-z0-9]+$/u', $this->appsecret)) {
+            $this->appid -= 1000000;
+            $result =
+            (new \app\model\ApiApp)->where([
+                ['id', '=', $this->appid]
+            ])
+            ->find()
+            ->toArray();
+
+            if ($result && $this->appsecret = $result['secret']) {
                 # code...
             } else {
-                $this->error('auth-appsecret error');
+                $this->error('auth-appid error');
             }
         } else {
             $this->error('auth-appid error');
@@ -424,24 +430,22 @@ class Async
      * @param  string  $msg  提示信息
      * @param  mixed   $data 要返回的数据
      * @param  integer $code 错误码，默认为SUCCESS
-     * @return void
-     * @throws HttpResponseException
+     * @return Response
      */
-    protected function success(string $_msg, $_data = [], string $_code = 'SUCCESS'): void
+    protected function success(string $_msg, $_data = [], string $_code = 'SUCCESS'): Response
     {
-        $this->result($_msg, $_data, $_code);
+        return $this->result($_msg, $_data, $_code);
     }
     /**
      * 操作失败返回的数据
      * @access protected
      * @param  string  $msg  提示信息
      * @param  integer $code 错误码，默认为ERROR
-     * @return void
-     * @throws HttpResponseException
+     * @return Response
      */
-    protected function error(string $_msg, string $_code = 'ERROR'): void
+    protected function error(string $_msg, string $_code = 'ERROR'): Response
     {
-        $this->result($_msg, [], $_code);
+        return $this->result($_msg, [], $_code);
     }
 
     /**
@@ -450,10 +454,9 @@ class Async
      * @param  mixed  $msg    提示信息
      * @param  mixed  $data   要返回的数据
      * @param  int    $code   错误码，默认为0
-     * @return void
-     * @throws HttpResponseException
+     * @return Response
      */
-    protected function result(string $_msg, $_data = [], string $_code = 'SUCCESS'): void
+    protected function result(string $_msg, $_data = [], string $_code = 'SUCCESS'): Response
     {
         $result = [
             'code'    => $_code,
@@ -478,7 +481,7 @@ class Async
             ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
         }
 
-        throw new HttpResponseException($response);
+        return $response;
     }
 
     /**

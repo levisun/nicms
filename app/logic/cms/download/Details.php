@@ -32,6 +32,7 @@ class Details extends ArticleBase
         if ($result = $this->details()) {
             return [
                 'debug' => false,
+                'cache' => false,
                 'msg'   => Lang::get('success'),
                 'data'  => $result
             ];

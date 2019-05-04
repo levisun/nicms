@@ -32,7 +32,7 @@ class BrowserRequestCache
 
         $response = $next($request);
 
-        if ($request->isGet() && false === Config::get('app.app_debug')) {
+        if ($request->isGet() && false === Config::get('app.app_debug') && 'api' !== $request->subDomain()) {
             $expire = (int) Config::get('cache.expire');
             $response->allowCache(true)
             ->cacheControl('public, max-age=' . $expire)

@@ -63,6 +63,7 @@ class Top
 
         return [
             'debug' => false,
+            'cache' => false,
             'msg'   => Lang::get('success'),
             'data'  => $result
         ];

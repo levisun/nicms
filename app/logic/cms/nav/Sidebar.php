@@ -61,12 +61,14 @@ class Sidebar
 
             return [
                 'debug' => false,
+                'cache' => false,
                 'msg'   => Lang::get('success'),
                 'data'  => $result
             ];
         } else {
             return [
                 'debug' => false,
+                'cache' => false,
                 'msg'   => Lang::get('error')
             ];
         }

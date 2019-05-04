@@ -117,6 +117,7 @@ class Article
 
         return [
             'debug' => false,
+            'cache' => false,
             'msg'   => Lang::get('success'),
             'data'  => [
                 'list'         => $list['data'],

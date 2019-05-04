@@ -33,6 +33,7 @@ class Lists extends ArticleBase
 
         return [
             'debug' => false,
+            'cache' => false,
             'msg'   => Lang::get('success'),
             'data'  => [
                 'list'         => $list['data'],

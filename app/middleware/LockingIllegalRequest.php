@@ -39,23 +39,26 @@ class LockingIllegalRequest
             return Response::create($error, '', 500);
         }
 
-        $time = date('YmdHi');
+        $response = $next($request);
 
-        clearstatcache();
-        if (is_file($request_log)) {
-            include $request_log;
-            if (!empty($number[$time]) && $number[$time] >= rand(25, 30)) {
-                file_put_contents($request_log . '.lock', date('YmdHis'));
+        if (!$request->isOptions()) {
+            $time = date('YmdHi');
+            clearstatcache();
+            if (is_file($request_log)) {
+                include $request_log;
+                if (!empty($number[$time]) && $number[$time] >= rand(25, 30)) {
+                    file_put_contents($request_log . '.lock', date('YmdHis'));
+                }
+            } else {
+                $number = [$time => 1];
             }
-        } else {
-            $number = [$time => 1];
+
+            // 记录请求次数
+            $number[$time] = empty($number[$time]) ? 1 : ++$number[$time];
+            $number = [$time => $number[$time]];
+            file_put_contents($request_log, '<?php $number = ' . var_export($number, true) . ';');
         }
 
-        // 记录请求次数
-        $number[$time] = empty($number[$time]) ? 1 : ++$number[$time];
-        $number = [$time => $number[$time]];
-        file_put_contents($request_log, '<?php $number = ' . var_export($number, true) . ';');
-
-        return $next($request);
+        return $response;
     }
 }

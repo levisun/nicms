@@ -37,6 +37,7 @@ class File
 
         return [
             'debug' => false,
+            'cache' => false,
             'msg'   => is_array($result) ? Lang::get('success') : Lang::get('error'),
             'data'  => $result
         ];

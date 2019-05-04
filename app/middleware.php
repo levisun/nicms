@@ -18,7 +18,7 @@ return [
     'think\middleware\TraceDebug',
 
     'app\middleware\LockingIllegalRequest',     // 必须在前,否则无法拦截非法请求
-    'app\middleware\HealthMonitoring',          // 健康状态监控
+    'app\middleware\HealthMonitoring',          // 健康状态监控,清除过期缓存和日志等
     'app\middleware\AllowCrossDomain',          // 跨域中间件
     'app\middleware\BrowserRequestCache',       // 必须在后,否则会影响其他中间件的执行
 ];

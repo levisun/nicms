@@ -75,12 +75,11 @@ class Download
 
                 clearstatcache();
                 if (is_file($this->fileName) && in_array(pathinfo($this->fileName, PATHINFO_EXTENSION), $ext)) {
-                    $response =
+                    return
                     Response::create($this->fileName, 'file')
                     ->name(md5($this->fileName . time()))
                     ->isContent(false)
                     ->expire(180);
-                    throw new HttpResponseException($response);
                 } else {
                     echo 'file not found';
                 }

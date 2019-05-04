@@ -42,15 +42,15 @@ class Api extends Async
      * 查询接口
      * @access public
      * @param  string $module API分层名
-     * @return void
+     * @return Response
      */
     public function query(string $module = 'cms')
     {
         if ($this->referer && Request::isGet()) {
             $module = Filter::str($module);
-            $this->setModule($module)->run();
+            return $this->setModule($module)->run();
         } else {
-            $this->error('request error');
+            return $this->error('request error');
         }
     }
 
@@ -58,15 +58,15 @@ class Api extends Async
      * 操作接口
      * @access public
      * @param  string $name API分层名
-     * @return void
+     * @return Response
      */
     public function handle(string $module = 'cms')
     {
         if ($this->referer && Request::isPost()) {
             $module = Filter::str($module);
-            $this->setModule($module)->run();
+            return $this->setModule($module)->run();
         } else {
-            $this->error('request error');
+            return $this->error('request error');
         }
     }
 
@@ -74,15 +74,15 @@ class Api extends Async
      * 上传接口
      * @access public
      * @param
-     * @return void
+     * @return Response
      */
     public function upload(string $module = 'cms')
     {
         if ($this->referer && Request::isPost() && !empty($_FILES)) {
             $module = Filter::str($module);
-            $this->setModule($module)->run();
+            return $this->setModule($module)->run();
         } else {
-            $this->error('request error');
+            return $this->error('request error');
         }
     }
 
@@ -90,12 +90,12 @@ class Api extends Async
      * 下载接口
      * @access public
      * @param
-     * @return void
+     * @return Response
      */
     public function download()
     {
         if (Request::isGet() && Request::param('file', false)) {
-            (new Download)->file();
+            return (new Download)->file();
         } else {
             die('request error');
         }
@@ -105,15 +105,15 @@ class Api extends Async
      * IP地址信息接口
      * @access public
      * @param
-     * @return void
+     * @return Response
      */
     public function ip()
     {
         if (Request::isGet() && $ip = Request::param('ip', false)) {
             $ip = (new Ip)->info($ip);
-            $this->success('success', $ip);
+            return $this->success('success', $ip);
         } else {
-            $this->error('request error');
+            return $this->error('request error');
         }
     }
 }
