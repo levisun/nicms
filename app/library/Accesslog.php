@@ -93,7 +93,7 @@ class Accesslog
         }
 
         // 删除过期信息
-        if (rand(1, 10) === 1) {
+        if (1 === rand(1, 5)) {
             (new ModelSearchengine)->where([
                 ['date', '<=', strtotime('-90 days')]
             ])

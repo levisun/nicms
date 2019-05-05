@@ -130,9 +130,28 @@ class Async
     protected $expire = 11400;
 
 
+    /**
+     * APPID
+     * @var int
+     */
     protected $appid;
+
+    /**
+     * APP密钥
+     * @var int
+     */
     protected $appsecret;
+
+    /**
+     * 请求时间戳
+     * @var int
+     */
     protected $timestamp;
+
+    /**
+     * API方法
+     * @var int
+     */
     protected $method;
 
 
@@ -281,13 +300,14 @@ class Async
             $this->appid -= 1000000;
             $result =
             (new \app\model\ApiApp)->where([
-                ['id', '=', $this->appid]
+                ['id', '=', $this->appid],
+                ['module', '=', $this->module]
             ])
             ->find()
             ->toArray();
 
-            if ($result && $this->appsecret = $result['secret']) {
-                # code...
+            if ($result) {
+                $this->appsecret = $result['secret'];
             } else {
                 $this->error('auth-appid error');
             }

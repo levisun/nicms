@@ -89,7 +89,7 @@ class Backup
      * @param
      * @return void
      */
-    private function queryTableInsert(string $_table_name, int $_num = 100): void
+    private function queryTableInsert(string $_table_name, int $_num = 1000): void
     {
         set_time_limit(0);
 
