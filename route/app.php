@@ -41,6 +41,7 @@ elseif ('api' === $domain) {
     Route::get('download$', 'api/download');
     Route::get('ip$', 'api/ip');
     Route::get(':module$', 'api/query');
+    Route::get('query/:module$', 'api/query');
     Route::post('handle/:module$', 'api/handle');
     Route::post('upload/:module$', 'api/upload');
 }

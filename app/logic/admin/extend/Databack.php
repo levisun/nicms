@@ -149,23 +149,24 @@ class Databack extends Base
         if ($result = $this->authenticate(__METHOD__)) {
             return $result;
         }
-
         $this->writeLog(__METHOD__, 'databack backup reduction');
 
         $id = Request::param('id');
         $id = Base64::decrypt($id);
 
+        $backup = new Backup;
+
         $file = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . '*');
         foreach ($file as $key => $value) {
             if (is_file($value)) {
-                $value = file_get_contents($value);
+                $value = $backup->read($value);
                 list($drop, $sql) = explode(';', $value, 2);
                 if (!empty($drop)) {
-                    (new Backup)->exec($drop);
+                    $backup->exec($drop);
                 }
 
                 if (!empty($sql)) {
-                    (new Backup)->exec($sql);
+                    $backup->exec($sql);
                 }
             }
         }

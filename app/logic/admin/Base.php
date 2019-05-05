@@ -82,7 +82,7 @@ class Base extends Common
      * @param  string  $_action
      * @return bool|array
      */
-    protected function authenticate(string $_method)
+    protected function authenticate(string $_method, string $_msg = '')
     {
         return parent::__authenticate($_method, 'admin_auth_key');
     }

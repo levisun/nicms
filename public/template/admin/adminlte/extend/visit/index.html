@@ -38,8 +38,8 @@ var v = null;
 paging(1);
 function paging(_p){
     jQuery.pjax({
-        url: NICMS.api.url + '/handle/admin.do',
-        type: 'POST',
+        url: NICMS.api.url + '/query/admin.do',
+        type: 'GET',
         push: true,
         replace: true,
         requestUrl: NICMS.url + '?page=' + _p,

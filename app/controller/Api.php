@@ -50,7 +50,7 @@ class Api extends Async
             $module = Filter::str($module);
             return $this->setModule($module)->run();
         } else {
-            return $this->error('request error');
+            return $this->error('query::request error1');
         }
     }
 
@@ -66,7 +66,7 @@ class Api extends Async
             $module = Filter::str($module);
             return $this->setModule($module)->run();
         } else {
-            return $this->error('request error');
+            return $this->error('handle::request error');
         }
     }
 
@@ -82,7 +82,7 @@ class Api extends Async
             $module = Filter::str($module);
             return $this->setModule($module)->run();
         } else {
-            return $this->error('request error');
+            return $this->error('upload::request error');
         }
     }
 
@@ -97,7 +97,7 @@ class Api extends Async
         if (Request::isGet() && Request::param('file', false)) {
             return (new Download)->file();
         } else {
-            die('request error');
+            die('download::request error');
         }
     }
 
@@ -113,7 +113,7 @@ class Api extends Async
             $ip = (new Ip)->info($ip);
             return $this->success('success', $ip);
         } else {
-            return $this->error('request error');
+            return $this->error('ip::request error');
         }
     }
 }

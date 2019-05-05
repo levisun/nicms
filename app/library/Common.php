@@ -86,7 +86,7 @@ class Common
             list($app, $logic, $controller) = explode('\\', $_method);
 
             $map = $app . '_' . $logic . '_' . $controller . '_' . $action;
-            unset($app, $logic, $controller, $action, $m);
+            unset($app, $logic, $controller, $action);
 
             $result =
             (new ModelAction)->where([
@@ -125,7 +125,7 @@ class Common
      * @param  string $_author
      * @return bool|array
      */
-    protected function __authenticate(string $_method, string $_auth)
+    protected function __authenticate(string $_method, string $_auth, string $_msg = '')
     {
         $_method = str_replace('app\logic\\', '', strtolower($_method));
         list($_method, $action) = explode('::', $_method);
@@ -146,6 +146,36 @@ class Common
                 ]
             ]
         );
+
+        if ($result && $_msg) {
+            $has =
+            (new ModelAction)->where([
+                ['name', '=', $map]
+            ])
+            ->find();
+
+            if (is_null($has)) {
+                $res = (new ModelAction)->create([
+                    'name'  => $app . '_' . $logic . '_' . $controller . '_' . $action,
+                    'title' => $_msg,
+                ]);
+
+                $has['id'] = $res->id;
+            }
+
+            (new ModelActionLog)->create([
+                'action_id' => $has['id'],
+                'user_id'   => session($_auth),
+                'action_ip' => Request::ip(),
+                'module'    => 'admin',
+                'remark'    => $_msg,
+            ]);
+
+            (new ModelActionLog)->where([
+                ['create_time', '<=', strtotime('-180 days')]
+            ])
+            ->delete();
+        }
 
         return $result ? false : [
             'debug' => false,

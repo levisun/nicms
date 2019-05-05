@@ -30,8 +30,6 @@ class Backup
      */
     public function auto(): void
     {
-        Log::record('[BACKUP] 自动备份', 'alert')->save();
-
         $this->savePath = app()->getRuntimePath() .
                             'backup' . DIRECTORY_SEPARATOR .
                             'sys_auto' . DIRECTORY_SEPARATOR;
@@ -47,7 +45,7 @@ class Backup
             file_put_contents($this->savePath . 'backup.lock', 'lock');
             $result = $this->queryTableName();
             foreach ($result as $key => $name) {
-                if (rand(1, 2) === 1) {
+                if (1 === rand(1, 2)) {
                     continue;
                 }
                 $this->queryTableStructure($name);
@@ -111,7 +109,7 @@ class Backup
         $insert_data = '';
 
         for ($i = 0; $i < $total; $i++) {
-            if (is_file($sql_file) && filemtime($sql_file) >= strtotime('-24 hour')) {
+            if (is_file($sql_file) && filemtime($sql_file) >= strtotime('-' . rand(24, 48) . ' hour')) {
                 continue;
             }
 
@@ -163,7 +161,7 @@ class Backup
         set_time_limit(0);
         $sql_file = $this->savePath . $_table_name . '.sql';
 
-        if (is_file($sql_file) && filemtime($sql_file) >= strtotime('-24 hour')) {
+        if (is_file($sql_file) && filemtime($sql_file) >= strtotime('-' . rand(24, 48) . ' hour')) {
             return false;
         }
 
@@ -213,6 +211,20 @@ class Backup
     }
 
     /**
+     * 读取SQL文件
+     * @access public
+     * @param  string $_sql
+     * @return string
+     */
+    public function read(string $_file): string
+    {
+        if (is_file($_file) && $result = file_get_contents($_file)) {
+            return gzuncompress($result);
+        }
+        return false;
+    }
+
+    /**
      * 写入SQL文件
      * @access private
      * @param  string $_file
@@ -222,7 +234,7 @@ class Backup
     private function write(string $_file, string $_data): void
     {
         Log::record('[BACKUP] #' . pathinfo($_file, PATHINFO_BASENAME), 'alert');
-        $_data = '/*' . date('Y-m-d H:i:s') . '*/' . ($_data);
-        file_put_contents($_file, $_data);
+        $_data = '/*' . date('Y-m-d H:i:s') . '*/' . $_data;
+        file_put_contents($_file, gzcompress($_data));
     }
 }

@@ -35,10 +35,10 @@ class AllowCrossDomain
                 $header['Access-Control-Max-Age'] = 14400;
                 return Response::create()->code(204)->header($header);
             }
-            $response = $next($request)->header($header);
-        } else {
-            $response = $next($request);
         }
+
+        $header = !empty($header) ? $header : [];
+        $response = $next($request)->header($header);
 
         return $response;
     }

@@ -475,7 +475,8 @@ class Async
         $response = Response::create($result, $this->format);
 
         if (false === Config::get('app.app_debug') && true === $this->cache && $this->expire && $_code == 'SUCCESS') {
-            $response->allowCache(true)
+            $response
+            ->allowCache(true)
             ->cacheControl('public, max-age=' . $this->expire)
             ->expires(gmdate('D, d M Y H:i:s', time() + $this->expire) . ' GMT')
             ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');

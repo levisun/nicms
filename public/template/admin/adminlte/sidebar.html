@@ -40,8 +40,8 @@ var ICON = {
     extend: 'fa fa-plus-circle',
 };
 jQuery.pjax({
-    url: NICMS.api.url + '/handle/admin.do',
-    type: 'POST',
+    url: NICMS.api.url + '/query/admin.do',
+    type: 'GET',
     data: {
         method: 'account.user.auth'
     },

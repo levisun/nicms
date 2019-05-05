@@ -34,7 +34,7 @@ class LockingIllegalRequest
         // 锁定频繁请求IP
         if (is_file($request_log . '.lock')) {
             Log::record('[锁定]', 'alert')->save();
-            $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section>';
+            $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>502</h2><h3>Oops! Something went wrong.</h3></section>';
 
             return Response::create($error, '', 500);
         }

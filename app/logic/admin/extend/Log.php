@@ -59,7 +59,7 @@ class Log extends Base
 
         return [
             'debug' => false,
-            'cache' => false,
+            // 'cache' => false,
             'msg'   => 'action log data',
             'data'  => [
                 'list'         => $list['data'],

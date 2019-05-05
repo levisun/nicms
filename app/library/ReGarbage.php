@@ -19,7 +19,7 @@ use think\facade\Log;
 use think\facade\Request;
 use app\library\Base64;
 
-class Garbage
+class ReGarbage
 {
 
      /**
@@ -30,16 +30,18 @@ class Garbage
      */
     public function run(): void
     {
-        Log::record('[GARBAGE] 删除垃圾信息', 'alert');
-
         $runtime_path = app()->getRuntimePath();
         $root_path = app()->getRootPath();
 
-        $this->remove($runtime_path . 'cache', 1);
-        $this->remove($runtime_path . 'concurrent', 1);
+        $this->remove($runtime_path . 'cache', 3);
+        $this->remove($runtime_path . 'concurrent', 3);
         $this->remove($runtime_path . 'log', 72);
         $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 72);
-        $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads', 168);
+
+        $sub_dir = (int) date('Ym');
+        $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . $sub_dir . DIRECTORY_SEPARATOR, 168);
+        --$sub_dir;
+        $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . $sub_dir . DIRECTORY_SEPARATOR, 168);
 
         unset($runtime_path, $root_path);
     }
@@ -57,6 +59,8 @@ class Garbage
         $dirOrFile = $this->getAllFile($dirOrFile, $_expire);
 
         if (!empty($dirOrFile)) {
+            Log::record('[REGARBAGE] ' . pathinfo($_dir, PATHINFO_BASENAME) . ' 删除垃圾信息', 'alert');
+
             // 随机抽取1000条信息
             shuffle($dirOrFile);
             $dirOrFile = array_slice($dirOrFile, 0, 1000);
@@ -88,7 +92,7 @@ class Garbage
 
         $all_files = [];
         foreach ($_dirOrFile as $key => $path) {
-            if (is_file($path)) {
+            if (is_file($path) && false === stripos($path, '_skl_')) {
                 // 过滤未过期文件
                 if (filectime($path) <= $days) {
                     $all_files[] = $path;

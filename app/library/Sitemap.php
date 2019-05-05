@@ -27,7 +27,7 @@ class Sitemap
     {
         clearstatcache();
         $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemap.xml';
-        if (!is_file($path) || filemtime($path) < strtotime('-8 hour')) {
+        if (!is_file($path) || filemtime($path) < strtotime('-24 hour')) {
             Log::record('[SITEMAP] 网站地图', 'alert');
 
             $category =
@@ -58,13 +58,13 @@ class Sitemap
                 ->limit(100)
                 ->select()
                 ->toArray();
-                // $vo_cate['id'] = Base64::encrypt($vo_cate['id']);
+                $vo_cate['id'] = Base64::encrypt($vo_cate['id']);
 
                 $article_xml = [];
                 $category_xml = [];
                 foreach ($article as $vo_art) {
-                    // $vo_art['category_id'] = Base64::encrypt($vo_art['category_id']);
-                    // $vo_art['id'] = Base64::encrypt($vo_art['id']);
+                    $vo_art['category_id'] = Base64::encrypt($vo_art['category_id']);
+                    $vo_art['id'] = Base64::encrypt($vo_art['id']);
                     $article_xml[]['url'] = [
                         'loc'        => Request::scheme() . url('details/' . $vo_art['action_name'] . '/' . $vo_art['category_id'] . '/' . $vo_art['id']),
                         'lastmod'    => $vo_art['update_time'],

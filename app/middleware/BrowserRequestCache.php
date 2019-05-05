@@ -23,7 +23,7 @@ class BrowserRequestCache
 
     public function handle($request, Closure $next)
     {
-        if ($request->isGet() && $if_modified_since = $request->server('HTTP_IF_MODIFIED_SINCE')) {
+        if ($if_modified_since = $request->server('HTTP_IF_MODIFIED_SINCE')) {
             $expire = (int) Config::get('cache.expire');
             if (strtotime($if_modified_since) + $expire >= $request->server('REQUEST_TIME')) {
                 return Response::create()->code(304);
@@ -32,9 +32,10 @@ class BrowserRequestCache
 
         $response = $next($request);
 
-        if ($request->isGet() && false === Config::get('app.app_debug') && 'api' !== $request->subDomain()) {
+        if ($request->isGet() && 'api' !== $request->subDomain() && false === Config::get('app.app_debug')) {
             $expire = (int) Config::get('cache.expire');
-            $response->allowCache(true)
+            $response
+            ->allowCache(true)
             ->cacheControl('public, max-age=' . $expire)
             ->expires(gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT')
             ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');

@@ -153,7 +153,7 @@ class User extends Base
 
         return [
             'debug' => false,
-            'cache' => false,
+            // 'cache' => false,
             'msg'   => 'user author',
             'data'  => $result
         ];
@@ -183,7 +183,7 @@ class User extends Base
 
         return [
             'debug' => false,
-            'cache' => false,
+            // 'cache' => false,
             'msg'   => 'user author',
             'data'  => $result
         ];
@@ -241,7 +241,7 @@ class User extends Base
 
         return [
             'debug' => false,
-            // 'cache' => false,
+            'cache' => false,
             'msg'   => 'user notice',
             'data'  => [
                 'list'  => $result,
