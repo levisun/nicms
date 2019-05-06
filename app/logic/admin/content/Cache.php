@@ -29,7 +29,7 @@ class Cache extends Base
      */
     public function reCache(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
+        if ($result = $this->authenticate(__METHOD__, 'admin content cache reomve')) {
             return $result;
         }
 
@@ -54,7 +54,7 @@ class Cache extends Base
      */
     public function reCompile(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
+        if ($result = $this->authenticate(__METHOD__, 'admin content compile reomve')) {
             return $result;
         }
 

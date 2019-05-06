@@ -76,10 +76,9 @@ class Elog extends Base
      */
     public function find(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
+        if ($result = $this->authenticate(__METHOD__, 'see error log')) {
             return $result;
         }
-        $this->writeLog(__METHOD__, 'see error log');
 
         $id = Request::param('id');
         $id = Base64::decrypt($id);

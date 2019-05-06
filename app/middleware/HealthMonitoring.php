@@ -39,12 +39,12 @@ class HealthMonitoring
 
         if ('www' === $request->subDomain()) {
             (new Accesslog)->record();
+            (new Sitemap)->save();      // 生成网站地图
         }
 
         $response = $next($request);
 
         if ('api' !== $request->subDomain() && 1 === rand(1, 3)) {
-            (new Sitemap)->save();      // 生成网站地图
             (new ReGarbage)->run();     // 清除过期缓存和日志等
             (new Backup)->auto();       // 生成数据备份
         }

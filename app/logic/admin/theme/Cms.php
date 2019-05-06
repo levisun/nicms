@@ -62,11 +62,8 @@ class Cms extends Base
 
     public function editor()
     {
-        if ($result = $this->authenticate(__METHOD__)) {
+        if ($result = $this->authenticate(__METHOD__, 'admin theme cms editor')) {
             return $result;
         }
-        $this->writeLog(__METHOD__, 'admin theme cms editor');
-
-
     }
 }

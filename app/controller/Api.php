@@ -35,6 +35,7 @@ class Api extends Async
      */
     public function __construct()
     {
+        parent::__construct();
         $this->referer = Request::server('HTTP_REFERER') && Request::param('method', false);
     }
 
@@ -44,13 +45,12 @@ class Api extends Async
      * @param  string $module API分层名
      * @return Response
      */
-    public function query(string $module = 'cms')
+    public function query(): void
     {
         if ($this->referer && Request::isGet()) {
-            $module = Filter::str($module);
-            return $this->setModule($module)->run();
+            $this->run();
         } else {
-            return $this->error('query::request error1');
+            $this->error('query::request error');
         }
     }
 
@@ -60,13 +60,12 @@ class Api extends Async
      * @param  string $name API分层名
      * @return Response
      */
-    public function handle(string $module = 'cms')
+    public function handle(): void
     {
         if ($this->referer && Request::isPost()) {
-            $module = Filter::str($module);
-            return $this->setModule($module)->run();
+            $this->run();
         } else {
-            return $this->error('handle::request error');
+            $this->error('handle::request error');
         }
     }
 
@@ -76,13 +75,12 @@ class Api extends Async
      * @param
      * @return Response
      */
-    public function upload(string $module = 'cms')
+    public function upload(): void
     {
         if ($this->referer && Request::isPost() && !empty($_FILES)) {
-            $module = Filter::str($module);
-            return $this->setModule($module)->run();
+            $this->run();
         } else {
-            return $this->error('upload::request error');
+            $this->error('upload::request error');
         }
     }
 
@@ -90,12 +88,13 @@ class Api extends Async
      * 下载接口
      * @access public
      * @param
-     * @return Response
+     * @return void
      */
-    public function download()
+    public function download(): void
     {
         if (Request::isGet() && Request::param('file', false)) {
-            return (new Download)->file();
+            $response = (new Download)->file();
+            throw new HttpResponseException($response);
         } else {
             die('download::request error');
         }
@@ -107,13 +106,13 @@ class Api extends Async
      * @param
      * @return Response
      */
-    public function ip()
+    public function ip(): void
     {
         if (Request::isGet() && $ip = Request::param('ip', false)) {
             $ip = (new Ip)->info($ip);
-            return $this->success('success', $ip);
+            $this->success('success', $ip);
         } else {
-            return $this->error('ip::request error');
+            $this->error('ip::request error');
         }
     }
 }

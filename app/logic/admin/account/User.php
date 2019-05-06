@@ -71,7 +71,9 @@ class User extends Base
                 session('admin_auth_key', $result['id']);
                 session('login_lock', null);
 
-                $this->writeLog(__METHOD__, 'admin user login');
+                if ($result = $this->authenticate(__METHOD__, 'admin user login')) {
+                    return $result;
+                }
                 $result = 'login success';
             }
             else {
@@ -102,7 +104,10 @@ class User extends Base
      */
     public function logout(): array
     {
-        $this->writeLog(__METHOD__, 'admin user logout');
+        if ($result = $this->authenticate(__METHOD__, 'admin user logout')) {
+            return $result;
+        }
+
         session('admin_auth_key', null);
 
         return [
@@ -120,6 +125,9 @@ class User extends Base
      */
     public function forget(): array
     {
+        if ($result = $this->authenticate(__METHOD__)) {
+            return $result;
+        }
         # code...
     }
 

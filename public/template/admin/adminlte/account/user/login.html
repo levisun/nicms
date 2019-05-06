@@ -29,7 +29,7 @@ jQuery(document).on('click', '#nc-login-btn', function(event){
     var data = jQuery.getForm('#login-form');
     data['method'] = 'account.user.login';
     jQuery.pjax({
-        url: NICMS.api.url + '/handle/admin.do',
+        url: NICMS.api.url + '/handle.do',
         type: 'POST',
         data: data,
         success: function(result){

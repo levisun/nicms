@@ -52,7 +52,7 @@ paging();
 var v = null;
 function paging () {
     jQuery.pjax({
-        url: NICMS.api.url + '/query/admin.do',
+        url: NICMS.api.url + '/query.do',
         type: 'GET',
         data: {
             method: 'extend.elog.query'
@@ -77,7 +77,7 @@ var vue = null;
 jQuery(document).on('click', '#open', function(){
     var id = jQuery(this).attr('data');
     jQuery.pjax({
-        url: NICMS.api.url + '/handle/admin.do',
+        url: NICMS.api.url + '/handle.do',
         type: 'POST',
         data: {
             method: 'extend.elog.find',

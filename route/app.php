@@ -9,7 +9,7 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-use think\facade\Config;
+// use think\facade\Config;
 use think\facade\Env;
 use think\facade\Request;
 use think\facade\Route;
@@ -40,10 +40,9 @@ elseif ('api' === $domain) {
     Route::ext('do');
     Route::get('download$', 'api/download');
     Route::get('ip$', 'api/ip');
-    Route::get(':module$', 'api/query');
-    Route::get('query/:module$', 'api/query');
-    Route::post('handle/:module$', 'api/handle');
-    Route::post('upload/:module$', 'api/upload');
+    Route::get('query$', 'api/query');
+    Route::post('handle$', 'api/handle');
+    Route::post('upload$', 'api/upload');
 }
 
 

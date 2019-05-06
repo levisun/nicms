@@ -39,7 +39,7 @@ class Rbac
      */
     public function authenticate($_uid, string $_app, string $_logic, string $_controller, string $_action, array $_config = []): bool
     {
-        $_uid        = (int) $_uid;
+        $_uid = (int) $_uid;
 
         $this->config = array_merge($this->config, $_config);
 

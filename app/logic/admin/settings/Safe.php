@@ -79,10 +79,9 @@ class Safe extends Base
      */
     public function editor(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
+        if ($result = $this->authenticate(__METHOD__, 'admin safe editor')) {
             return $result;
         }
-        $this->writeLog(__METHOD__, 'admin safe editor');
 
         $receive_data = [
             'app_upload_size'   => Request::param('app.upload_size'),

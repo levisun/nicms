@@ -68,10 +68,9 @@ class Basic extends Base
      */
     public function editor(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
+        if ($result = $this->authenticate(__METHOD__, 'admin basic editor')) {
             return $result;
         }
-        $this->writeLog(__METHOD__, 'admin basic editor');
 
         $receive_data = [
             'cms_sitename'    => Request::param('cms_sitename'),

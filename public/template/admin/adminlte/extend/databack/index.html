@@ -37,7 +37,7 @@ paging();
 var v = null;
 function paging () {
     jQuery.pjax({
-        url: NICMS.api.url + '/query/admin.do',
+        url: NICMS.api.url + '/query.do',
         type: 'GET',
         data: {
             method: 'extend.databack.query'
@@ -60,7 +60,7 @@ function paging () {
 }
 jQuery(document).on('click', '#databack', function(){
     jQuery.pjax({
-        url: NICMS.api.url + '/handle/admin.do',
+        url: NICMS.api.url + '/handle.do',
         type: 'POST',
         data: {
             method: 'extend.databack.backup'
@@ -75,7 +75,7 @@ jQuery(document).on('click', '#databack', function(){
 jQuery(document).on('click', '#remove', function(){
     var id = jQuery(this).attr('data');
     jQuery.pjax({
-        url: NICMS.api.url + '/handle/admin.do',
+        url: NICMS.api.url + '/handle.do',
         type: 'POST',
         data: {
             method: 'extend.databack.remove',
@@ -91,7 +91,7 @@ jQuery(document).on('click', '#remove', function(){
 jQuery(document).on('click', '#reset', function(){
     var id = jQuery(this).attr('data');
     jQuery.pjax({
-        url: NICMS.api.url + '/handle/admin.do',
+        url: NICMS.api.url + '/handle.do',
         type: 'POST',
         data: {
             method: 'extend.databack.reduction',

@@ -137,7 +137,7 @@ class Template
 
             echo $content;
             echo $this->parseTemplateFoot();
-            echo PHP_EOL . '<!-- Static:';
+            echo '<!-- Static:';
             echo Config::get('app.app_debug') ? 'close' : 'success';
             echo ' Date:' . date('Y-m-d H:i:s') . ' -->';
         } else {
@@ -272,7 +272,6 @@ class Template
                 $head .= '<link rel="' . $m['rel'] . '" href="' . $m['href'] . '" />' .  PHP_EOL;
             }
         }
-        // <meta name="apple-itunes-app" content="app-id=1191720421, app-argument=sspai://sspai.com">
 
         if (!empty($this->templateConfig['css'])) {
             foreach ($this->templateConfig['css'] as $css) {
@@ -290,6 +289,8 @@ class Template
                 'url:"' . Config::get('app.api_host') . '",' .
                 'root:"' . $root . '",' .
                 'version:"' . $this->templateConfig['api_version'] . '",' .
+                'appid:"' . $this->templateConfig['api_appid'] . '",' .
+                'appsecret:"' . $this->templateConfig['api_appsecret'] . '",' .
                 'authorization:"{:__AUTHORIZATION__}",' .
                 'timestamp:"{:__TIMESTAMP__}",' .
                 'param:' . json_encode(Request::param()) .

@@ -169,7 +169,7 @@
 </header>
 {tag:script}
 jQuery.pjax({
-    url: NICMS.api.url + '/query/admin.do',
+    url: NICMS.api.url + '/query.do',
     type: 'GET',
     data: {
         method: 'account.user.profile'
@@ -186,7 +186,7 @@ jQuery.pjax({
     }
 });
 jQuery.pjax({
-    url: NICMS.api.url + '/query/admin.do',
+    url: NICMS.api.url + '/query.do',
     type: 'GET',
     data: {
         method: 'account.user.notice'
@@ -204,7 +204,7 @@ jQuery.pjax({
 });
 jQuery(document).on('click', '#nc-logout-btn', function(){
     jQuery.pjax({
-        url: NICMS.api.url + '/handle/admin.do',
+        url: NICMS.api.url + '/handle.do',
         type: 'POST',
         data: {
             method: 'account.user.logout'
@@ -218,7 +218,7 @@ jQuery(document).on('click', '#nc-logout-btn', function(){
 });
 jQuery(document).on('click', '#nc-re-cache-btn', function(){
     jQuery.pjax({
-        url: NICMS.api.url + '/handle/admin.do',
+        url: NICMS.api.url + '/handle.do',
         type: 'POST',
         data: {
             method: 'content.cache.recache'
@@ -229,7 +229,7 @@ jQuery(document).on('click', '#nc-re-cache-btn', function(){
         }
     });
     jQuery.pjax({
-        url: NICMS.api.url + '/handle/admin.do',
+        url: NICMS.api.url + '/handle.do',
         type: 'POST',
         data: {
             method: 'content.cache.recompile'

@@ -33,13 +33,12 @@ class ReGarbage
         $runtime_path = app()->getRuntimePath();
         $root_path = app()->getRootPath();
 
-        $this->remove($runtime_path . 'cache', 3);
-        $this->remove($runtime_path . 'concurrent', 3);
+        $this->remove($runtime_path . 'cache', 4);
+        $this->remove($runtime_path . 'concurrent', 4);
         $this->remove($runtime_path . 'log', 72);
         $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 72);
 
         $sub_dir = (int) date('Ym');
-        $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . $sub_dir . DIRECTORY_SEPARATOR, 168);
         --$sub_dir;
         $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . $sub_dir . DIRECTORY_SEPARATOR, 168);
 

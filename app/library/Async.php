@@ -24,7 +24,7 @@ use think\facade\Request;
 use think\facade\Session;
 use app\library\Ip;
 use app\library\Base64;
-
+use app\model\ApiApp as ModelApiApp;
 class Async
 {
 
@@ -37,12 +37,10 @@ class Async
     protected $accept;
 
     /**
-     * HEADER 授权信息
-     * 包含[token sessid]
-     * f0c4b4105d740747d44ac6dcd78624f906202706.
-     * @var string
+     * 开启版本控制
+     * @var bool
      */
-    protected $authorization;
+    protected $openVersion = false;
 
     /**
      * 版本号
@@ -55,17 +53,19 @@ class Async
     ];
 
     /**
-     * 开启版本控制
-     * @var bool
-     */
-    protected $openVersion = false;
-
-    /**
      * 返回数据类型
      * 解析[accept]获得
      * @var string
      */
     protected $format = 'json';
+
+    /**
+     * HEADER 授权信息
+     * 包含[token sessid]
+     * f0c4b4105d740747d44ac6dcd78624f906202706.
+     * @var string
+     */
+    protected $authorization;
 
     /**
      * 请求令牌
@@ -97,13 +97,7 @@ class Async
      * 模块名
      * @var string
      */
-    protected $module = 'cms';
-
-    /**
-     * 执行类与方法
-     * @var array
-     */
-    protected $exec = [];
+    protected $module = '';
 
     /**
      * 调试信息
@@ -127,7 +121,7 @@ class Async
      * 浏览器数据缓存时间
      * @var int
      */
-    protected $expire = 11400;
+    protected $expire = 1440;
 
 
     /**
@@ -166,6 +160,7 @@ class Async
         ini_set('display_errors', 'Off');
         ini_set('memory_limit', '16M');
         set_time_limit(15);
+        header('X-Powered-By: NIAPI');
     }
 
     /**
@@ -190,12 +185,17 @@ class Async
      * @param
      * @return Response
      */
-    protected function run(): Response
+    protected function run()
     {
-        $this->initialize();
+        $exec =
+        $this->analysisHeader()
+        ->checkAppId()
+        ->checkSign()
+        ->checkTimestamp()
+        ->analysisMethod();
 
         // 执行类方法
-        $result = call_user_func_array([(new $this->exec['class']), $this->exec['action']], []);
+        $result = call_user_func_array([(new $exec['class']), $exec['action']], []);
 
         if (!is_array($result) && empty($result['msg'])) {
             $this->error('no return data');
@@ -215,27 +215,17 @@ class Async
         $this->expire = (int) $this->expire;
         $this->expire = $this->expire <= 0 ? 0 : $this->expire;
 
-        return $this->success($result['msg'], isset($result['data']) ? $result['data'] : []);
+        $this->success($result['msg'], isset($result['data']) ? $result['data'] : []);
     }
 
     /**
      * 初始化
      * @access protected
      * @param
-     * @return
+     * @return $this
      */
-    protected function initialize(): void
+    protected function analysisMethod()
     {
-        $this->analysisHeader();
-        $this->checkAuth();
-        $this->checkSign();
-
-        // 校验请求时间
-        $this->timestamp = (int) Request::param('timestamp/f', time());
-        if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
-            $this->error('request timeout');
-        }
-
         // 校验API方法
         $this->method = Request::param('method');
         if ($this->method && preg_match('/^[a-z.]+$/u', $this->method)) {
@@ -249,7 +239,6 @@ class Async
                 $method = 'app\logic\\' . $this->module . '\\' .
                           $logic . '\\' . ucfirst($class);
             }
-
 
             // 校验类是否存在
             if (!class_exists($method)) {
@@ -276,8 +265,7 @@ class Async
                 Lang::load($lang);
             }
 
-
-            $this->exec = [
+            return [
                 'class'  => $method,
                 'action' => $action
             ];
@@ -287,33 +275,19 @@ class Async
     }
 
     /**
-     * 校验权限
-     * 继承类
+     * 校验请求时间
      * @access protected
      * @param
      * @return $this
      */
-    protected function checkAuth(): void
+    protected function checkTimestamp()
     {
-        $this->appid = (int) Request::param('appid/f', 1000001);
-        if ($this->appid) {
-            $this->appid -= 1000000;
-            $result =
-            (new \app\model\ApiApp)->where([
-                ['id', '=', $this->appid],
-                ['module', '=', $this->module]
-            ])
-            ->find()
-            ->toArray();
-
-            if ($result) {
-                $this->appsecret = $result['secret'];
-            } else {
-                $this->error('auth-appid error');
-            }
-        } else {
-            $this->error('auth-appid error');
+        $this->timestamp = (int) Request::param('timestamp/f', time());
+        if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
+            $this->error('request timeout');
         }
+
+        return $this;
     }
 
     /**
@@ -322,7 +296,7 @@ class Async
      * @param
      * @return $this
      */
-    protected function checkSign(): void
+    protected function checkSign()
     {
         // 校验签名类型
         $this->signType = Request::param('sign_type', 'md5');
@@ -341,6 +315,7 @@ class Async
                     }
                 }
                 $str = rtrim($str, '&');
+                $str .= $this->appsecret;
 
                 if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
                     $this->debugLog['sign_str'] = $str;
@@ -355,15 +330,48 @@ class Async
             $this->debugLog['sign_type'] = $this->signType;
             $this->error('params-sign_type error');
         }
+
+        return $this;
+    }
+
+    /**
+     * 校验APPID
+     * @access protected
+     * @param
+     * @return $this
+     */
+    protected function checkAppId()
+    {
+        $this->appid = (int) Request::param('appid/f', 1000001);
+        $this->appid -= 1000000;
+        if ($this->appid && $this->appid >= 1) {
+            $result =
+            (new ModelApiApp)->where([
+                ['id', '=', $this->appid]
+            ])
+            ->find();
+
+            if ($result) {
+                $result = $result->toArray();
+                $this->appsecret = $result['secret'];
+                $this->module    = $result['module'];
+            } else {
+                $this->error('auth-appid error');
+            }
+        } else {
+            $this->error('auth-appid error');
+        }
+
+        return $this;
     }
 
     /**
      * 解析header信息
      * @access private
      * @param
-     * @return void
+     * @return $this
      */
-    private function analysisHeader(): void
+    private function analysisHeader()
     {
         // 解析token令牌和session_id
         $this->authorization = Request::header('authorization');
@@ -442,6 +450,8 @@ class Async
             $this->debugLog['accept'] = $this->accept;
             $this->error('header-accept error');
         }
+
+        return $this;
     }
 
     /**
@@ -450,22 +460,24 @@ class Async
      * @param  string  $msg  提示信息
      * @param  mixed   $data 要返回的数据
      * @param  integer $code 错误码，默认为SUCCESS
-     * @return Response
+     * @return void
      */
-    protected function success(string $_msg, $_data = [], string $_code = 'SUCCESS'): Response
+    protected function success(string $_msg, $_data = [], string $_code = 'SUCCESS'): void
     {
-        return $this->result($_msg, $_data, $_code);
+        $response = $this->result($_msg, $_data, $_code);
+        throw new HttpResponseException($response);
     }
     /**
      * 操作失败返回的数据
      * @access protected
      * @param  string  $msg  提示信息
      * @param  integer $code 错误码，默认为ERROR
-     * @return Response
+     * @return void
      */
-    protected function error(string $_msg, string $_code = 'ERROR'): Response
+    protected function error(string $_msg, string $_code = 'ERROR'): void
     {
-        return $this->result($_msg, [], $_code);
+        $response = $this->result($_msg, [], $_code);
+        throw new HttpResponseException($response);
     }
 
     /**

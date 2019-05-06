@@ -17,9 +17,7 @@ namespace app\controller;
 
 use think\Response;
 use think\exception\HttpResponseException;
-use think\facade\Config;
 use think\facade\Env;
-use think\facade\Lang;
 use app\library\Filter;
 use app\library\Rbac;
 use app\library\Template;

@@ -90,7 +90,7 @@
 
 
 jQuery.pjax({
-    url: NICMS.api.url + '/query/admin.do',
+    url: NICMS.api.url + '/query.do',
     type: 'GET',
     data: {
         method: 'settings.safe.query'
@@ -111,7 +111,7 @@ jQuery(document).on('click', '.btn', function(){
     var data = jQuery.getForm('#safe-config');
     data['method'] = 'settings.safe.editor';
     jQuery.pjax({
-        url: NICMS.api.url + '/handle/admin.do',
+        url: NICMS.api.url + '/handle.do',
         type: 'POST',
         data: data,
         success: function(result){

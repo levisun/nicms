@@ -16,24 +16,9 @@ declare (strict_types = 1);
 namespace app\logic\admin;
 
 use think\facade\Request;
-use app\library\Common;
 
-class Base extends Common
+class Base
 {
-
-    /**
-     * 构造
-     */
-    public function __construct()
-    {
-        if (!Request::isPost()) {
-            return [
-                'debug' => false,
-                'cache' => false,
-                'msg'   => 'request error'
-            ];
-        }
-    }
 
     /**
      * 上传
@@ -43,18 +28,14 @@ class Base extends Common
      */
     public function upload()
     {
-        return $this->__upload('member_auth_key');
-    }
+        // 用户权限校验
+        if (Request::isPost() && !empty($_FILES) && session('?user_auth_key')) {
+            $input_name = Request::param('input_name', 'upload');
+            $result = (new Upload)->save($input_name);
+        } else {
+            $result = 'upload error';
+        }
 
-    /**
-     * 数据验证
-     * @access protected
-     * @param  string  $_validate
-     * @param  array  $_data
-     * @return bool|string
-     */
-    protected function validate(string $_validate, array $_data = [])
-    {
-        return parent::__validate($_validate, $_data, 'logic\admin\validate');
+        return $result;
     }
 }

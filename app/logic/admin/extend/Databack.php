@@ -86,10 +86,9 @@ class Databack extends Base
      */
     public function backup(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
+        if ($result = $this->authenticate(__METHOD__, 'databack backup')) {
             return $result;
         }
-        $this->writeLog(__METHOD__, 'databack backup');
 
         try {
             (new Backup)->save();
@@ -113,10 +112,9 @@ class Databack extends Base
      */
     public function remove(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
+        if ($result = $this->authenticate(__METHOD__, 'databack backup remove')) {
             return $result;
         }
-        $this->writeLog(__METHOD__, 'databack backup remove');
 
         $id = Request::param('id');
         $id = Base64::decrypt($id);
@@ -146,10 +144,9 @@ class Databack extends Base
      */
     public function reduction()
     {
-        if ($result = $this->authenticate(__METHOD__)) {
+        if ($result = $this->authenticate(__METHOD__, 'databack backup reduction')) {
             return $result;
         }
-        $this->writeLog(__METHOD__, 'databack backup reduction');
 
         $id = Request::param('id');
         $id = Base64::decrypt($id);

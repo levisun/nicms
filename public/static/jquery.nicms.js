@@ -52,7 +52,7 @@
             type: 'GET',
             contentType: 'application/x-www-form-urlencoded',
             data: {
-                appid: '1000001',
+                appid: NICMS.api.appid,
                 timestamp: NICMS.api.timestamp
             }
         };
@@ -114,7 +114,7 @@
             }
         }
         sign = sign.substr(0, sign.length - 1);
-
+        sign += NICMS.api.appsecret;
         sign = md5(sign);
 
         return sign;

@@ -97,7 +97,7 @@
 </div>
 {tag:script}
 jQuery.pjax({
-    url: NICMS.api.url + '/query/admin.do',
+    url: NICMS.api.url + '/query.do',
     type: 'GET',
     data: {
         method: 'category.category.find',
@@ -119,7 +119,7 @@ jQuery(document).on('click', '.btn', function(){
     var data = jQuery.getForm('#category');
     data['method'] = 'category.category.editor';
     jQuery.pjax({
-        url: NICMS.api.url + '/handle/admin.do',
+        url: NICMS.api.url + '/handle.do',
         type: 'POST',
         data: data,
         success: function(result){
