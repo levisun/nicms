@@ -18,7 +18,7 @@ namespace app\logic\admin\extend;
 use think\facade\Config;
 use think\facade\Lang;
 use think\facade\Request;
-use app\library\Backup;
+use app\library\DbBackup;
 use app\library\Base64;
 use app\logic\admin\Base;
 
@@ -91,7 +91,7 @@ class Databack extends Base
         }
 
         try {
-            (new Backup)->save();
+            (new DbBackup)->save();
             $msg = 'databack success';
         } catch (Exception $e) {
             $msg = 'databack error';
@@ -151,21 +151,8 @@ class Databack extends Base
         $id = Request::param('id');
         $id = Base64::decrypt($id);
 
-        $backup = new Backup;
+        (new DbBackup)->reduction($id);
 
-        $file = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . '*');
-        foreach ($file as $key => $value) {
-            if (is_file($value)) {
-                $value = $backup->read($value);
-                list($drop, $sql) = explode(';', $value, 2);
-                if (!empty($drop)) {
-                    $backup->exec($drop);
-                }
 
-                if (!empty($sql)) {
-                    $backup->exec($sql);
-                }
-            }
-        }
     }
 }

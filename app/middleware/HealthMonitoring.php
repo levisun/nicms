@@ -21,7 +21,7 @@ use Closure;
 use think\Response;
 use think\facade\Log;
 use app\library\Accesslog;
-use app\library\Backup;
+use app\library\DbBackup;
 use app\library\ReGarbage;
 use app\library\Sitemap;
 
@@ -46,7 +46,7 @@ class HealthMonitoring
 
         if ('api' !== $request->subDomain() && 1 === rand(1, 3)) {
             (new ReGarbage)->run();     // 清除过期缓存和日志等
-            (new Backup)->auto();       // 生成数据备份
+            (new DbBackup)->auto();     // 生成数据备份
         }
 
         return $response;
