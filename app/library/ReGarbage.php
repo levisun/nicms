@@ -14,10 +14,7 @@ declare (strict_types = 1);
 
 namespace app\library;
 
-use think\App;
 use think\facade\Log;
-use think\facade\Request;
-use app\library\Base64;
 
 class ReGarbage
 {

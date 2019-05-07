@@ -161,21 +161,10 @@ class Async
         ini_set('memory_limit', '16M');
         set_time_limit(15);
         header('X-Powered-By: NIAPI');
-    }
 
-    /**
-     * 设置模块
-     * @access protected
-     * @param
-     * @return this
-     */
-    protected function setModule(string $_name)
-    {
-        $this->module = strtolower($_name);
-        if (preg_match('/^[A-Za-z]+$/u', $this->module)) {
-            return $this;
-        } else {
-            $this->error('module error');
+        $max_input_vars = (int) ini_get('max_input_vars');
+        if (count($_POST) + count($_FILES) >= $max_input_vars - 5) {
+            $this->error('[Async] request max params number error');
         }
     }
 
@@ -198,7 +187,7 @@ class Async
         $result = call_user_func_array([(new $exec['class']), $exec['action']], []);
 
         if (!is_array($result) && empty($result['msg'])) {
-            $this->error('no return data');
+            $this->error('[Async] return data error');
         }
 
         // 调试与缓存设置
@@ -231,46 +220,33 @@ class Async
         if ($this->method && preg_match('/^[a-z.]+$/u', $this->method)) {
             list($logic, $class, $action) = explode('.', $this->method, 3);
 
-            if ($this->openVersion) {
-                $method = 'app\logic\\' . $this->module . '\\' .
-                          'v' . $this->version['major'] . '_' . $this->version['minor'] . '\\' .
-                          $logic . '\\' . ucfirst($class);
-            } else {
-                $method = 'app\logic\\' . $this->module . '\\' .
-                          $logic . '\\' . ucfirst($class);
-            }
+            $method = 'app\logic\\' . $this->module . '\\';
+            $method .= $this->openVersion ? 'v' . implode('_', $this->version) . '\\' : '';
+            $method .= $logic . '\\' . ucfirst($class);
 
             // 校验类是否存在
             if (!class_exists($method)) {
                 $this->debugLog['method not found'] = $method;
-                $this->error('method not found');
+                $this->error('[Async] method not found');
             }
 
             // 校验类方法是否存在
             if (!method_exists($method, $action)) {
-                $this->error($action . ' does not have a method');
+                $this->error('[Async] ' . $action . ' does not have a method');
             }
 
             // 加载语言包
-            if ($this->openVersion) {
-                $lang = app()->getAppPath(). 'logic' . DIRECTORY_SEPARATOR .
-                        $this->module . DIRECTORY_SEPARATOR .
-                        'v' . $this->version['major'] . '_' . $this->version['minor'] . DIRECTORY_SEPARATOR .
-                        Lang::getLangSet() . '.php';
-                Lang::load($lang);
-            } else {
-                $lang = app()->getAppPath(). 'lang' . DIRECTORY_SEPARATOR .
-                        $this->module . DIRECTORY_SEPARATOR .
-                        Lang::getLangSet() . '.php';
-                Lang::load($lang);
-            }
+            $lang = app()->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $this->module . DIRECTORY_SEPARATOR;
+            $lang .= $this->openVersion ? 'v' . implode('_', $this->version) . DIRECTORY_SEPARATOR : '';
+            $lang .= Lang::getLangSet() . '.php';
+            Lang::load($lang);
 
             return [
                 'class'  => $method,
                 'action' => $action
             ];
         } else {
-            $this->error('params-method error');
+            $this->error('[Async] params-method error');
         }
     }
 
@@ -284,7 +260,7 @@ class Async
     {
         $this->timestamp = (int) Request::param('timestamp/f', time());
         if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
-            $this->error('request timeout');
+            $this->error('[Async] request timeout');
         }
 
         return $this;
@@ -320,15 +296,15 @@ class Async
                 if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
                     $this->debugLog['sign_str'] = $str;
                     $this->debugLog['sign'] = call_user_func($this->signType, $str);
-                    $this->error('params-sign check error');
+                    $this->error('[Async] params-sign check error');
                 }
             } else {
                 $this->debugLog['sign'] = $this->sign;
-                $this->error('params-sign error');
+                $this->error('[Async] params-sign error');
             }
         } else {
             $this->debugLog['sign_type'] = $this->signType;
-            $this->error('params-sign_type error');
+            $this->error('[Async] params-sign_type error');
         }
 
         return $this;
@@ -346,7 +322,8 @@ class Async
         $this->appid -= 1000000;
         if ($this->appid && $this->appid >= 1) {
             $result =
-            (new ModelApiApp)->where([
+            (new ModelApiApp)
+            ->where([
                 ['id', '=', $this->appid]
             ])
             ->find();
@@ -356,10 +333,10 @@ class Async
                 $this->appsecret = $result['secret'];
                 $this->module    = $result['module'];
             } else {
-                $this->error('auth-appid error');
+                $this->error('[Async] auth-appid error');
             }
         } else {
-            $this->error('auth-appid error');
+            $this->error('[Async] auth-appid error');
         }
 
         return $this;
@@ -375,7 +352,7 @@ class Async
     {
         // 解析token令牌和session_id
         $this->authorization = Request::header('authorization');
-        if ($this->authorization && preg_match('/^[A-Za-z0-9.]+$/u', $this->authorization)) {
+        if ($this->authorization && preg_match('/^[A-Za-z0-9]+$/u', $this->authorization)) {
             $this->authorization = Base64::decrypt($this->authorization, 'authorization');
 
             // 单token值
@@ -398,16 +375,16 @@ class Async
             if (!hash_equals($referer, $this->token)) {
                 $this->debugLog['referer'] = $referer;
                 $this->debugLog['this::token'] = $this->token;
-                $this->error('header-authorization token error');
+                $this->error('[Async] header-authorization token error');
             }
 
             // 开启session
-            if ($this->sid && preg_match('/^[A-Za-z0-9]+$/u', $this->sid)) {
+            if ($this->sid && preg_match('/^[A-Za-z0-9]{32,40}$/u', $this->sid)) {
                 Session::setId($this->sid);
             }
         } else {
             $this->debugLog['authorization'] = $this->authorization;
-            $this->error('header-authorization error');
+            $this->error('[Async] header-authorization error');
         }
 
 
@@ -421,7 +398,7 @@ class Async
             list($domain, $accept) = explode('.', $accept, 2);
             list($root) = explode('.', Request::rootDomain(), 2);
             if (!hash_equals($domain, $root)) {
-                $this->error('header-accept domain error');
+                $this->error('[Async] header-accept domain error');
             }
             unset($doamin, $root);
 
@@ -437,18 +414,18 @@ class Async
                 unset($version, $major, $minor);
             } else {
                 $this->debugLog['version'] = $version;
-                $this->error('header-accept version error');
+                $this->error('[Async] header-accept version error');
             }
             // 校验返回数据类型
             if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
                 $this->debugLog['format'] = $this->format;
-                $this->error('header-accept format error');
+                $this->error('[Async] header-accept format error');
             }
 
             unset($accept);
         } else {
             $this->debugLog['accept'] = $this->accept;
-            $this->error('header-accept error');
+            $this->error('[Async] header-accept error');
         }
 
         return $this;
@@ -500,8 +477,9 @@ class Async
         $ipinfo = (new Ip)->info();
         $result['expire']  = $ipinfo['ip'] . ' ' . date('YmdHis', time() + $this->expire + 60);
 
-        if (true === Config::get('app.app_debug') || true === $this->debug) {
-            $this->writeLog();  // 记录日志
+        // 记录日志
+        if (true === $this->debug) {
+            $this->writeLog();
         }
 
         $response = Response::create($result, $this->format);

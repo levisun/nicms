@@ -19,7 +19,7 @@ namespace app\logic\cms\history;
 // use think\facade\Config;
 // use think\facade\Lang;
 // use think\facade\Request;
-use app\model\TagsArticle as ModelTagsArticle
+use app\model\TagsArticle as ModelTagsArticle;
 // use app\library\Base64;
 
 class Tags
@@ -32,7 +32,7 @@ class Tags
     public function record()
     {
         if ($id = Request::param('id/f', null)) {
-            $map[
+            $map = [
                 ['article_id', '=', $id]
             ];
         } else {

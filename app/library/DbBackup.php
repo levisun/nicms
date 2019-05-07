@@ -43,76 +43,33 @@ class DbBackup
         foreach ($sql_file as $file) {
             if (is_file($file) && $sql = file_get_contents($file)) {
                 $sql = gzuncompress($sql);
-                if (false === strpos($sql, '`;CREATE TABLE `')) {
-                    $sql = trim($sql, ';');
-                    $this->exec($sql);
-                } else {
-                    list($drop, $create) = explode('`;CREATE TABLE `', $sql);
-                    $drop = $drop .'`';
-                    $create = 'CREATE TABLE `' . trim($create, ';');
+                // 表结构
+                if (false !== strpos($sql, ';CREATE TABLE ')) {
+                    list($drop, $create) = explode(';CREATE TABLE ', $sql);
+                    $create = 'CREATE TABLE ' . trim($create, ';');
                     $this->exec($drop);
                     $this->exec($create);
                 }
 
-            }
-        }
-        ignore_user_abort(false);
-    }
-
-    /**
-     * 自动备份数据库
-     * @access public
-     * @param
-     * @return void
-     */
-    public function auto(): void
-    {
-        $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
-        if (!is_dir($this->savePath)) {
-            chmod(app()->getRuntimePath(), 0777);
-            mkdir($this->savePath, 0777, true);
-        }
-
-        if (!is_file($this->savePath . 'backup.lock')) {
-            file_put_contents($this->savePath . 'backup.lock', 'lock');
-            $table_name = $this->queryTableName();
-
-            ignore_user_abort(true);
-            foreach ($table_name as $name) {
-                $sql_file = $this->savePath . $name . '.sql';
-                if (!is_file($sql_file) || (is_file($sql_file) && filemtime($sql_file) <= strtotime('-' . rand(24, 48) . ' hour'))) {
-                    if ($sql = $this->queryTableStructure($name)) {
-                        $this->write($sql_file, $sql);
-                        break;
-                    }
-                }
-
-                $total = $this->queryTableInsertTotal($name);
-                $field = $this->queryTableInsertField($name);
-
-                $num = 1;
-                $sql = '';
-                $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
-                for ($limit = 0; $limit < $total; $limit++) {
-                    if (!is_file($sql_file) || (is_file($sql_file) && filemtime($sql_file) <= strtotime('-' . rand(24, 48) . ' hour'))) {
-                        $sql .= $this->queryTableInsertData($name, $field, $limit);
-                        if (strlen($sql) >= 1024 * 1024 * 5) {
-                            $this->write($sql_file, $sql);
-                            $sql = '';
-                            ++$num;
-                        } elseif ($limit + 1 == $total) {
-                            $this->write($sql_file, $sql);
-                            $sql = '';
-                            ++$num;
-                            break;
+                elseif (false !== strpos($sql, ';INSERT INTO ')) {
+                    $sql = explode(';INSERT INTO ', $sql);
+                    foreach ($sql as $key => $value) {
+                        if ($key == 0) {
+                            $this->exec($value);
+                        } else {
+                            $value = 'INSERT INTO ' . $value;
+                            $this->exec($value);
                         }
                     }
                 }
-            }
-            ignore_user_abort(false);
 
-            unlink($this->savePath . 'backup.lock');
+                else {
+                    $sql = trim($sql, ';');
+                    $this->exec($sql);
+                }
+            }
         }
+        ignore_user_abort(false);
     }
 
     /**
@@ -166,6 +123,62 @@ class DbBackup
     }
 
     /**
+     * 自动备份数据库
+     * @access public
+     * @param
+     * @return void
+     */
+    public function auto(): void
+    {
+        $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
+        if (!is_dir($this->savePath)) {
+            chmod(app()->getRuntimePath(), 0777);
+            mkdir($this->savePath, 0777, true);
+        }
+
+        if (!is_file($this->savePath . 'backup.lock')) {
+            file_put_contents($this->savePath . 'backup.lock', 'lock');
+            $table_name = $this->queryTableName();
+
+            ignore_user_abort(true);
+            foreach ($table_name as $name) {
+                $sql_file = $this->savePath . $name . '.sql';
+                if (!is_file($sql_file) || (is_file($sql_file) && filemtime($sql_file) <= strtotime('-' . rand(24, 48) . ' hour'))) {
+                    if ($sql = $this->queryTableStructure($name)) {
+                        $this->write($sql_file, $sql);
+                        // break;
+                    }
+                }
+
+                $total = $this->queryTableInsertTotal($name);
+                $field = $this->queryTableInsertField($name);
+
+                $num = 1;
+                $sql = '';
+                for ($limit = 0; $limit < $total; $limit++) {
+                    $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
+                    if (!is_file($sql_file) || (is_file($sql_file) && filemtime($sql_file) <= strtotime('-' . rand(24, 48) . ' hour'))) {
+                        $sql .= $this->queryTableInsertData($name, $field, $limit);
+                        if (strlen($sql) >= 1024 * 1024 * 5) {
+                            $this->write($sql_file, $sql);
+                            $sql = '';
+                            ++$num;
+                        } elseif ($limit + 1 == $total) {
+                            $this->write($sql_file, $sql);
+                            $sql = '';
+                            ++$num;
+                            break;
+                        }
+                    }
+                }
+            }
+            ignore_user_abort(false);
+
+            unlink($this->savePath . 'backup.lock');
+        }
+    }
+
+    /**
      * 查询表数据
      * @access private
      * @param
@@ -180,7 +193,7 @@ class DbBackup
         ->limit($_limit, 500)
         ->select();
 
-        $insert_into = 'INSERT INTO `' . $_table_name . '` (' . $_field . ') VALUES' . PHP_EOL;
+        $insert_into = 'INSERT INTO `' . $_table_name . '` (' . $_field . ') VALUES';
         $insert_data = '';
         foreach ($data as $key => $value) {
             foreach ($value as $vo) {
@@ -192,9 +205,9 @@ class DbBackup
                     $insert_data .= '\'' . addslashes($vo) . '\',';
                 }
             }
-            $insert_data = trim($insert_data, ',') . '),' . PHP_EOL . '(';
+            $insert_data = trim($insert_data, ',') . '),(';
         }
-        $insert_data = '(' . trim($insert_data, ',' . PHP_EOL . '(') . ';' . PHP_EOL;
+        $insert_data = '(' . trim($insert_data, ',(') . ';';
 
         return $insert_into . $insert_data;
     }

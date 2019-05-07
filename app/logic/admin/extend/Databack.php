@@ -15,8 +15,6 @@ declare (strict_types = 1);
 
 namespace app\logic\admin\extend;
 
-use think\facade\Config;
-use think\facade\Lang;
 use think\facade\Request;
 use app\library\DbBackup;
 use app\library\Base64;
@@ -116,23 +114,28 @@ class Databack extends Base
             return $result;
         }
 
-        $id = Request::param('id');
-        $id = Base64::decrypt($id);
+        if ($id = Request::param('id')) {
+            $id = Base64::decrypt($id);
 
-        $file = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . '*');
-        foreach ($file as $key => $value) {
-            if (is_file($value)) {
-                unlink($value);
+            $file = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . '*');
+            foreach ($file as $key => $value) {
+                if (is_file($value)) {
+                    unlink($value);
+                }
             }
-        }
-        if (is_dir(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id)) {
-            rmdir(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id);
+            if (is_dir(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id)) {
+                rmdir(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id);
+            }
+
+            $msg = 'remove success';
+        } else {
+            $msg = 'remove error';
         }
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'remove success',
+            'msg'   => $msg,
         ];
     }
 

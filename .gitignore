@@ -43,6 +43,8 @@ Temporary Items
 .apdisk
 
 #Project
+.vscode
+*.code-workspace
 *.env
 /*.json
 *.lock

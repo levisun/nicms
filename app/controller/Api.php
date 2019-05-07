@@ -16,11 +16,8 @@ declare (strict_types = 1);
 namespace app\controller;
 
 use think\facade\Request;
-use think\facade\Session;
 use app\library\Async;
-use app\library\Base64;
 use app\library\Download;
-use app\library\Filter;
 use app\library\Ip;
 
 class Api extends Async

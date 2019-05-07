@@ -14,7 +14,6 @@ declare (strict_types = 1);
 
 namespace app\library;
 
-use think\Container;
 use think\exception\HttpException;
 use think\facade\Config;
 use think\facade\Env;

@@ -15,10 +15,7 @@ declare (strict_types = 1);
 
 namespace app\logic\admin\extend;
 
-use think\facade\Config;
-use think\facade\Lang;
 use think\facade\Request;
-use app\library\Backup;
 use app\library\Base64;
 use app\logic\admin\Base;
 
@@ -80,24 +77,34 @@ class Elog extends Base
             return $result;
         }
 
-        $id = Request::param('id');
-        $id = Base64::decrypt($id);
+        if ($id = Request::param('id')) {
+            $id = Base64::decrypt($id);
 
-        $file = app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . $id;
-        if (is_file($file)) {
-            $data = file_get_contents($file);
+            $file = app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . $id;
+            if (is_file($file)) {
+                $data = file_get_contents($file);
+            } else {
+                $data = 'null';
+            }
+
+            $msg = 'error log data';
+            $data = [
+                'title'   => pathinfo($id, PATHINFO_FILENAME),
+                'content' => $data
+            ];
         } else {
-            $data = 'null';
+            $msg = 'log data error';
+            $data = [
+                'title'   => 'error',
+                'content' => 'error',
+            ];
         }
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'error log data',
-            'data'  => [
-                'title'   => pathinfo($id, PATHINFO_FILENAME),
-                'content' => $data
-            ]
+            'msg'   => $msg,
+            'data'  => $data,
         ];
     }
 }

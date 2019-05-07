@@ -15,7 +15,6 @@ declare (strict_types = 1);
 
 namespace app\logic\admin\settings;
 
-use think\facade\Config;
 use think\facade\Lang;
 use think\facade\Request;
 use app\logic\admin\Base;

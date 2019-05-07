@@ -14,7 +14,6 @@ declare (strict_types = 1);
 
 namespace app\library;
 
-use app\library\Filter;
 use app\model\Node as ModelNode;
 
 class Rbac

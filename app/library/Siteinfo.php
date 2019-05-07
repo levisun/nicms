@@ -14,7 +14,6 @@ declare (strict_types = 1);
 
 namespace app\library;
 
-use think\facade\Config;
 use think\facade\Lang;
 use think\facade\Request;
 use app\model\Config as ModelConfig;

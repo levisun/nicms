@@ -15,7 +15,6 @@ declare (strict_types = 1);
 
 namespace app\logic\admin\extend;
 
-use think\facade\Lang;
 use think\facade\Request;
 use app\logic\admin\Base;
 use app\model\Visit as ModelVisit;

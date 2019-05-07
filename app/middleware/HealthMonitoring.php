@@ -38,7 +38,7 @@ class HealthMonitoring
         }
 
         if ('www' === $request->subDomain()) {
-            (new Accesslog)->record();
+            (new Accesslog)->record();  // 生成访问日志
             (new Sitemap)->save();      // 生成网站地图
         }
 

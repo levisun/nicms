@@ -14,7 +14,6 @@
 use think\Image;
 use think\facade\Config;
 use think\facade\Cookie;
-use think\facade\Env;
 use think\facade\Lang;
 use think\facade\Request;
 use think\facade\Route;
@@ -178,7 +177,7 @@ if (!function_exists('emoji_decode')) {
 if (!function_exists('emoji_clear')) {
     /**
      * Emoji字符串清清理
-     * @param string $_str
+     * @param  string $_str
      * @return string
      */
     function emoji_clear($_str): string
@@ -262,9 +261,9 @@ if (!function_exists('validate')) {
 if (!function_exists('cookie')) {
     /**
      * Cookie管理
-     * @param string|array  $_name cookie名称，如果为数组表示进行cookie设置
-     * @param mixed         $_value cookie值
-     * @param mixed         $_option 参数
+     * @param  string|array  $_name   cookie名称，如果为数组表示进行cookie设置
+     * @param  mixed         $_value  cookie值
+     * @param  mixed         $_option 参数
      * @return mixed
      */
     function cookie($_name, $_value = '', $_option = null)
@@ -285,8 +284,8 @@ if (!function_exists('cookie')) {
 if (!function_exists('session')) {
     /**
      * Session管理
-     * @param string|array  $_name session名称，如果为数组表示进行session设置
-     * @param mixed         $_value session值
+     * @param  string|array  $_name session名称，如果为数组表示进行session设置
+     * @param  mixed         $_value session值
      * @return mixed
      */
     function session($_name, $_value = '')

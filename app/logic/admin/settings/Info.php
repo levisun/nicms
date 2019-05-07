@@ -17,7 +17,6 @@ namespace app\logic\admin\settings;
 
 use think\facade\Config;
 use think\facade\Lang;
-use think\facade\Request;
 use app\logic\admin\Base;
 
 class Info extends Base
@@ -45,6 +44,11 @@ class Info extends Base
             ],
         ];
 
-        return ['msg'=>'123', 'data'=>$result];
+        return [
+            'debug' => true,
+            'cache' => false,
+            'msg'   => 'info data',
+            'data'  => $result
+        ];
     }
 }

@@ -15,8 +15,6 @@ declare (strict_types = 1);
 namespace app\library;
 
 use think\Image;
-use think\exception\HttpException;
-use think\facade\Config;
 use think\facade\Env;
 use think\facade\Request;
 

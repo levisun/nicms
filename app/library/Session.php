@@ -12,7 +12,6 @@
  */
 namespace app\library;
 
-use think\facade\Config;
 use think\session\SessionHandlerInterface;
 use app\model\Session as ModelSession;
 

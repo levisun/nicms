@@ -16,10 +16,8 @@ declare (strict_types = 1);
 namespace app\logic\admin\settings;
 
 use think\facade\Env;
-use think\facade\Lang;
 use think\facade\Request;
 use app\logic\admin\Base;
-use app\model\Config as ModelConfig;
 
 class Safe extends Base
 {

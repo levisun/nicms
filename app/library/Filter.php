@@ -14,8 +14,6 @@ declare (strict_types = 1);
 
 namespace app\library;
 
-use think\exception\HttpException;
-
 class Filter
 {
 

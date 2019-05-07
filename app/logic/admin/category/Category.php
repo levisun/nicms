@@ -181,29 +181,48 @@ class Category extends Base
 
     public function editor()
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin category category editor')) {
+        if ($result = $this->authenticate(__METHOD__, 'admin category editor')) {
             return $result;
         }
 
-        $receive_data = [
-            'name'        => Request::param('name'),
-            'aliases'     => Request::param('aliases'),
-            'title'       => Request::param('title'),
-            'keywords'    => Request::param('keywords'),
-            'description' => Request::param('description'),
-            'image'       => Request::param('image'),
-            'type_id'     => (int) Request::param('type_id/f'),
-            'model_id'    => (int) Request::param('model_id/f'),
-            'is_show'     => (int) Request::param('is_show/f'),
-            'is_channel'  => (int) Request::param('is_channel/f'),
-            'sort_order'  => (int) Request::param('sort_order/f'),
-            'access_id'   => (int) Request::param('access_id/f'),
-            'url'         => Request::param('url'),
+        if ($id = Request::param('id')) {
+            $id = Base64::decrypt($id);
+
+            $receive_data = [
+                'name'        => Request::param('name'),
+                'aliases'     => Request::param('aliases'),
+                'title'       => Request::param('title'),
+                'keywords'    => Request::param('keywords'),
+                'description' => Request::param('description'),
+                'image'       => Request::param('image'),
+                'type_id'     => (int) Request::param('type_id/f'),
+                'model_id'    => (int) Request::param('model_id/f'),
+                'is_show'     => (int) Request::param('is_show/f'),
+                'is_channel'  => (int) Request::param('is_channel/f'),
+                'sort_order'  => (int) Request::param('sort_order/f'),
+                'access_id'   => (int) Request::param('access_id/f'),
+                'url'         => Request::param('url'),
+            ];
+            if ($result = $this->validate(__METHOD__, $receive_data)) {
+                return $result;
+            }
+
+            (new ModelCategory)
+            ->where([
+                ['id', '=', $id]
+            ])
+            ->data($receive_data)
+            ->update();
+
+            $msg = 'category editor success';
+        } else {
+            $msg = 'category editor error';
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => $msg
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
-            return $result;
-        }
-
-        print_r($_POST);
     }
 }

@@ -11,6 +11,7 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
+
 return [
     'think\middleware\CheckRequestCache',
     'think\middleware\LoadLangPack',
