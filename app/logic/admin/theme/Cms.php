@@ -36,7 +36,7 @@ class Cms extends Base
             return $result;
         }
 
-        $file = (array) glob(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'template' . DIRECTORY_SEPARATOR . 'cms' . DIRECTORY_SEPARATOR . '*');
+        $file = (array)glob(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'template' . DIRECTORY_SEPARATOR . 'cms' . DIRECTORY_SEPARATOR . '*');
         rsort($file);
         foreach ($file as $key => $value) {
             $config = file_get_contents($value . DIRECTORY_SEPARATOR . 'config.json');

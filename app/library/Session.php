@@ -36,7 +36,7 @@ class Session implements SessionHandlerInterface
             (new ModelSession)->where([
                 ['update_time', '<=', strtotime('-3 days')]
             ])
-            ->delete();
+                ->delete();
         }
     }
 
@@ -56,15 +56,14 @@ class Session implements SessionHandlerInterface
             $map[] = ['update_time', '>=', time() - $this->config['expire']];
         }
 
-        $result =
-        (new ModelSession)->where($map)
-        ->value('data', '');
+        $result = (new ModelSession)->where($map)
+            ->value('data', '');
 
         if ($result) {
             (new ModelSession)->where($map)
-            ->update([
-                'update_time' => time()
-            ]);
+                ->update([
+                    'update_time' => time()
+                ]);
         }
 
         return $result;
@@ -79,11 +78,10 @@ class Session implements SessionHandlerInterface
      */
     public function write(string $sessID, string $data): bool
     {
-        $has =
-        (new ModelSession)->where([
-            ['session_id', '=', $this->config['prefix'] . $sessID]
-        ])
-        ->find();
+        $has = (new ModelSession)->where([
+                ['session_id', '=', $this->config['prefix'] . $sessID]
+            ])
+            ->find();
 
         $data = [
             'session_id'  => $this->config['prefix'] . $sessID,
@@ -95,7 +93,7 @@ class Session implements SessionHandlerInterface
             (new ModelSession)->where([
                 ['session_id', '=', $this->config['prefix'] . $sessID],
             ])
-            ->update($data);
+                ->update($data);
             $result = (new ModelSession)->getNumRows();
         } else {
             (new ModelSession)->create($data);
@@ -116,7 +114,7 @@ class Session implements SessionHandlerInterface
         (new ModelSession)->where([
             ['session_id', '=', $this->config['prefix'] . $sessID]
         ])
-        ->delete();
+            ->delete();
         return !!(new ModelSession)->getNumRows();
     }
 }

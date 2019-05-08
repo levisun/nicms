@@ -34,7 +34,7 @@ class Elog extends Base
             return $result;
         }
 
-        $file = (array) glob(app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . '*');
+        $file = (array)glob(app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . '*');
         rsort($file);
 
         $date_format = Request::param('date_format', 'Y-m-d H:i:s');
@@ -51,7 +51,6 @@ class Elog extends Base
                 'date' => $date,
                 'size' => $size,
             ];
-
         }
 
         return [

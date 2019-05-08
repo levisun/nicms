@@ -35,16 +35,15 @@ class Log extends Base
             return $result;
         }
 
-        $query_limit = (int) Request::param('limit/f', 15);
+        $query_limit = (int)Request::param('limit/f', 15);
 
-        $result =
-        (new ModelActionLog)->view('action_log', ['action_id', 'user_id', 'action_ip', 'module', 'remark', 'create_time'])
-        ->view('action', ['name'=>'action_name'], 'action.id=action_log.action_id')
-        ->view('admin', ['username'], 'admin.id=action_log.user_id')
-        ->view('role_admin', [], 'role_admin.user_id=admin.id')
-        ->view('role', ['name'=>'role_name'], 'role.id=role_admin.role_id')
-        ->order('action_log.create_time DESC')
-        ->paginate($query_limit, false, ['path'=>'javascript:paging([PAGE]);']);
+        $result = (new ModelActionLog)->view('action_log', ['action_id', 'user_id', 'action_ip', 'module', 'remark', 'create_time'])
+            ->view('action', ['name' => 'action_name'], 'action.id=action_log.action_id')
+            ->view('admin', ['username'], 'admin.id=action_log.user_id')
+            ->view('role_admin', [], 'role_admin.user_id=admin.id')
+            ->view('role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
+            ->order('action_log.create_time DESC')
+            ->paginate($query_limit, false, ['path' => 'javascript:paging([PAGE]);']);
 
         $list = $result->toArray();
         $list['render'] = $result->render();

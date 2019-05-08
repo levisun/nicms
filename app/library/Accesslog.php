@@ -37,14 +37,13 @@ class Accesslog
 
         // 蜘蛛
         if ($spider = $this->isSpider()) {
-            $has =
-            (new ModelSearchengine)->where([
-                ['name', '=', $spider],
-                ['user_agent', '=', $this->user_agent],
-                ['date', '=', strtotime(date('Y-m-d'))]
-            ])
-            ->cache(__METHOD__ . md5($spider . $this->user_agent))
-            ->value('name');
+            $has = (new ModelSearchengine)->where([
+                    ['name', '=', $spider],
+                    ['user_agent', '=', $this->user_agent],
+                    ['date', '=', strtotime(date('Y-m-d'))]
+                ])
+                ->cache(__METHOD__ . md5($spider . $this->user_agent))
+                ->value('name');
 
             if ($has) {
                 (new ModelSearchengine)->where([
@@ -52,8 +51,8 @@ class Accesslog
                     ['user_agent', '=', $this->user_agent],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])
-                ->inc('count', 1, 60)
-                ->update();
+                    ->inc('count', 1, 60)
+                    ->update();
             } else {
                 (new ModelSearchengine)->create([
                     'name'       => $spider,
@@ -65,14 +64,13 @@ class Accesslog
 
         // 访问
         else {
-            $has =
-            (new ModelVisit)->where([
-                ['ip', '=', $this->ip['ip']],
-                ['user_agent', '=', $this->user_agent],
-                ['date', '=', strtotime(date('Y-m-d'))]
-            ])
-            ->cache(__METHOD__ . md5($this->ip['ip'] . $this->user_agent))
-            ->value('ip');
+            $has = (new ModelVisit)->where([
+                    ['ip', '=', $this->ip['ip']],
+                    ['user_agent', '=', $this->user_agent],
+                    ['date', '=', strtotime(date('Y-m-d'))]
+                ])
+                ->cache(__METHOD__ . md5($this->ip['ip'] . $this->user_agent))
+                ->value('ip');
 
             if ($has) {
                 (new ModelVisit)->where([
@@ -80,8 +78,8 @@ class Accesslog
                     ['user_agent', '=', $this->user_agent],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])
-                ->inc('count', 1, 60)
-                ->update();
+                    ->inc('count', 1, 60)
+                    ->update();
             } else {
                 (new ModelVisit)->create([
                     'ip'         => $this->ip['ip'],
@@ -97,14 +95,14 @@ class Accesslog
             (new ModelSearchengine)->where([
                 ['date', '<=', strtotime('-90 days')]
             ])
-            ->limit(100)
-            ->delete();
+                ->limit(100)
+                ->delete();
 
             (new ModelVisit)->where([
                 ['date', '<=', strtotime('-90 days')]
             ])
-            ->limit(100)
-            ->delete();
+                ->limit(100)
+                ->delete();
         }
     }
 

@@ -37,7 +37,7 @@ class DbBackup
      */
     public function reduction(string $_dir): void
     {
-        $sql_file = (array) glob($this->savePath . $_dir . DIRECTORY_SEPARATOR . '*');
+        $sql_file = (array)glob($this->savePath . $_dir . DIRECTORY_SEPARATOR . '*');
 
         ignore_user_abort(true);
         foreach ($sql_file as $file) {
@@ -49,9 +49,7 @@ class DbBackup
                     $create = 'CREATE TABLE ' . trim($create, ';');
                     $this->exec($drop);
                     $this->exec($create);
-                }
-
-                elseif (false !== strpos($sql, ';INSERT INTO ')) {
+                } elseif (false !== strpos($sql, ';INSERT INTO ')) {
                     $sql = explode(';INSERT INTO ', $sql);
                     foreach ($sql as $key => $value) {
                         if ($key == 0) {
@@ -61,9 +59,7 @@ class DbBackup
                             $this->exec($value);
                         }
                     }
-                }
-
-                else {
+                } else {
                     $sql = trim($sql, ';');
                     $this->exec($sql);
                 }
@@ -143,7 +139,7 @@ class DbBackup
             ignore_user_abort(true);
             foreach ($table_name as $name) {
                 $sql_file = $this->savePath . $name . '.sql';
-                if (!is_file($sql_file) || (is_file($sql_file) && filemtime($sql_file) <= strtotime('-' . rand(24, 48) . ' hour'))) {
+                if (!is_file($sql_file) || (is_file($sql_file) && filemtime($sql_file) <= strtotime('-' . rand(12, 24) . ' hour'))) {
                     if ($sql = $this->queryTableStructure($name)) {
                         $this->write($sql_file, $sql);
                         // break;
@@ -188,10 +184,10 @@ class DbBackup
     {
         $_limit = $_limit * 500;
         $data =
-        Db::table($_table_name)
-        ->field($_field)
-        ->limit($_limit, 500)
-        ->select();
+            Db::table($_table_name)
+            ->field($_field)
+            ->limit($_limit, 500)
+            ->select();
 
         $insert_into = 'INSERT INTO `' . $_table_name . '` (' . $_field . ') VALUES';
         $insert_data = '';
@@ -240,7 +236,7 @@ class DbBackup
     {
         $total = Db::table($_table_name)->count();
         if ($total) {
-            return (int) ceil($total / 500);
+            return (int)ceil($total / 500);
         } else {
             return 0;
         }

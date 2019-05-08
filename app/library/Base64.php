@@ -81,8 +81,8 @@ class Base64
         } else {
             $encrypt = '';
             $length = strlen($_authkey);
-            $_data = (string) $_data;
-            for ($i = 0, $count = mb_strlen($_data, 'utf-8'); $i < $count; $i+=$length) {
+            $_data = (string)$_data;
+            for ($i = 0, $count = mb_strlen($_data, 'utf-8'); $i < $count; $i += $length) {
                 $encrypt .= mb_substr($_data, $i, $length, 'utf-8') ^ $_authkey;
             }
             $encrypt = str_replace('=', '', base64_encode($encrypt));

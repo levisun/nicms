@@ -20,7 +20,7 @@ class Filter
     public static function str(string $_str, string $_rule = 'A-Za-z'): string
     {
         $_str = self::filter($_str, true);
-        return preg_replace_callback('/[^' . $_rule . ']+/u', function($matches){
+        return preg_replace_callback('/[^' . $_rule . ']+/u', function ($matches) {
             return '';
         }, $_str);
     }
@@ -28,7 +28,7 @@ class Filter
     public static function content(string $_str): string
     {
         $_str = self::filter($_str, false);
-        return json_decode(preg_replace_callback('/(\\\u[ed][0-9a-f]{3})/si', function($matches){
+        return json_decode(preg_replace_callback('/(\\\u[ed][0-9a-f]{3})/si', function ($matches) {
             return '[EMOJI:' . base64_encode($matches[0]) . ']';
         }, json_encode($_str)));
     }

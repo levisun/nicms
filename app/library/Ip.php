@@ -31,7 +31,7 @@ class Ip
     public function info(string $_ip = null)
     {
         $_ip = $_ip ? $_ip : Request::ip();
-        $_ip = preg_replace_callback('/[^0-9.]+/u', function($matches){
+        $_ip = preg_replace_callback('/[^0-9.]+/u', function ($matches) {
             return '';
         }, $_ip);
 
@@ -82,7 +82,7 @@ class Ip
         if (count($_ip) == 4) {
             foreach ($_ip as $key => $value) {
                 if ($value != '') {
-                    $_ip[$key] = (int) $value;
+                    $_ip[$key] = (int)$value;
                 } else {
                     return false;
                 }
@@ -117,17 +117,16 @@ class Ip
      */
     private function query($_ip): array
     {
-        $result =
-        (new IpInfo)->view('ipinfo i', ['id', 'ip', 'isp', 'update_time'])
-        ->view('region country', ['id' => 'country_id', 'name' => 'country'], 'country.id=i.country_id')
-        ->view('region region', ['id' => 'region_id', 'name' => 'region'], 'region.id=i.province_id')
-        ->view('region city', ['id' => 'city_id', 'name' => 'city'], 'city.id=i.city_id')
-        ->view('region area', ['id' => 'area_id', 'name' => 'area'], 'area.id=i.area_id', 'LEFT')
-        ->where([
-            ['i.ip', '=', bindec(Request::ip2bin($_ip))]
-        ])
-        ->cache(__METHOD__ . $_ip)
-        ->find();
+        $result = (new IpInfo)->view('ipinfo i', ['id', 'ip', 'isp', 'update_time'])
+            ->view('region country', ['id' => 'country_id', 'name' => 'country'], 'country.id=i.country_id')
+            ->view('region region', ['id' => 'region_id', 'name' => 'region'], 'region.id=i.province_id')
+            ->view('region city', ['id' => 'city_id', 'name' => 'city'], 'city.id=i.city_id')
+            ->view('region area', ['id' => 'area_id', 'name' => 'area'], 'area.id=i.area_id', 'LEFT')
+            ->where([
+                ['i.ip', '=', bindec(Request::ip2bin($_ip))]
+            ])
+            ->cache(__METHOD__ . $_ip)
+            ->find();
 
         return $result ? $result->toArray() : [];
     }
@@ -143,15 +142,14 @@ class Ip
     {
         $_name = Filter::default($_name, true);
 
-        $result =
-        (new Region)->where([
-            ['pid', '=', $_pid],
-            ['name', 'LIKE', $_name . '%']
-        ])
-        ->cache(__METHOD__ . $_name . $_pid, 28800)
-        ->value('id');
+        $result = (new Region)->where([
+                ['pid', '=', $_pid],
+                ['name', 'LIKE', $_name . '%']
+            ])
+            ->cache(__METHOD__ . $_name . $_pid, 28800)
+            ->value('id');
 
-        return $result ? (int) $result : 0;
+        return $result ? (int)$result : 0;
     }
 
     /**
@@ -176,11 +174,10 @@ class Ip
                     $city     = $this->queryRegion($result['city'], $province);
                     $area     = !empty($result['area']) ? $this->queryRegion($result['area'], $city) : 0;
 
-                    $has =
-                    (new IpInfo)->where([
-                        ['ip', '=', bindec(Request::ip2bin($_ip))]
-                    ])
-                    ->value('id');
+                    $has = (new IpInfo)->where([
+                            ['ip', '=', bindec(Request::ip2bin($_ip))]
+                        ])
+                        ->value('id');
 
                     if (!$has) {
                         (new IpInfo)->create([
@@ -227,24 +224,23 @@ class Ip
                     $city     = $this->queryRegion($result['city'], $province);
                     $area     = !empty($result['area']) ? $this->queryRegion($result['area'], $city) : 0;
 
-                    $has =
-                    (new IpInfo)->where([
-                        ['ip', '=', bindec(Request::ip2bin($_ip))]
-                    ])
-                    ->value('id');
+                    $has = (new IpInfo)->where([
+                            ['ip', '=', bindec(Request::ip2bin($_ip))]
+                        ])
+                        ->value('id');
 
                     if ($has) {
                         (new IpInfo)->where([
                             ['ip', '=', bindec(Request::ip2bin($_ip))],
                         ])
-                        ->update([
-                            'country_id'  => $country,
-                            'province_id' => $province,
-                            'city_id'     => $city,
-                            'area_id'     => $area,
-                            'isp'         => $isp,
-                            'update_time' => time()
-                        ]);
+                            ->update([
+                                'country_id'  => $country,
+                                'province_id' => $province,
+                                'city_id'     => $city,
+                                'area_id'     => $area,
+                                'isp'         => $isp,
+                                'update_time' => time()
+                            ]);
                     }
 
                     $result = $this->query($_ip);

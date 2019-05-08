@@ -37,16 +37,15 @@ class Category extends Base
             return $result;
         }
 
-        $result =
-        (new ModelCategory)->view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
-        ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
-        ->where([
-            ['category.pid', '=', 0],
-            ['category.lang', '=', Lang::getLangSet()]
-        ])
-        ->order('category.sort_order ASC, category.id DESC')
-        ->select()
-        ->toArray();
+        $result = (new ModelCategory)->view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
+            ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
+            ->where([
+                ['category.pid', '=', 0],
+                ['category.lang', '=', Lang::getLangSet()]
+            ])
+            ->order('category.sort_order ASC, category.id DESC')
+            ->select()
+            ->toArray();
 
         foreach ($result as $key => $value) {
             $value['type_name'] = $this->typeName($value['type_id']);
@@ -78,16 +77,15 @@ class Category extends Base
      */
     private function child(int $_pid)
     {
-        $result =
-        (new ModelCategory)->view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
-        ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
-        ->where([
-            ['category.pid', '=', $_pid],
-            ['category.lang', '=', Lang::getLangSet()]
-        ])
-        ->order('category.sort_order ASC, category.id DESC')
-        ->select()
-        ->toArray();
+        $result = (new ModelCategory)->view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
+            ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
+            ->where([
+                ['category.pid', '=', $_pid],
+                ['category.lang', '=', Lang::getLangSet()]
+            ])
+            ->order('category.sort_order ASC, category.id DESC')
+            ->select()
+            ->toArray();
 
         foreach ($result as $key => $value) {
             $value['type_name'] = $this->typeName($value['type_id']);
@@ -135,23 +133,21 @@ class Category extends Base
         }
 
         if ($id = Request::param('id')) {
-            $id = (int) Base64::decrypt($id);
-            $result =
-            (new ModelCategory)->view('category')
-            ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
-            ->where([
-                ['category.id', '=', $id],
-                ['category.lang', '=', Lang::getLangSet()]
-            ])
-            ->find();
+            $id = (int)Base64::decrypt($id);
+            $result = (new ModelCategory)->view('category')
+                ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
+                ->where([
+                    ['category.id', '=', $id],
+                    ['category.lang', '=', Lang::getLangSet()]
+                ])
+                ->find();
 
             if ($result) {
-                $result['parent'] =
-                (new ModelCategory)
-                ->where([
-                    ['id', '=', $result['pid']]
-                ])
-                ->value('name as parent');
+                $result['parent'] = (new ModelCategory)
+                    ->where([
+                        ['id', '=', $result['pid']]
+                    ])
+                    ->value('name as parent');
 
                 $result['id'] = Base64::encrypt($result['id']);
                 $result['type_name'] = [
@@ -161,11 +157,10 @@ class Category extends Base
                     ['id' => '4', 'name' => Lang::get('category other type')],
                 ];
 
-                $result['access_name'] =
-                (new ModelLevel)->field('id, name')
-                ->order('id DESC')
-                ->select()
-                ->toArray();
+                $result['access_name'] = (new ModelLevel)->field('id, name')
+                    ->order('id DESC')
+                    ->select()
+                    ->toArray();
             }
         } else {
             $result = 'request param error';
@@ -195,12 +190,12 @@ class Category extends Base
                 'keywords'    => Request::param('keywords'),
                 'description' => Request::param('description'),
                 'image'       => Request::param('image'),
-                'type_id'     => (int) Request::param('type_id/f'),
-                'model_id'    => (int) Request::param('model_id/f'),
-                'is_show'     => (int) Request::param('is_show/f'),
-                'is_channel'  => (int) Request::param('is_channel/f'),
-                'sort_order'  => (int) Request::param('sort_order/f'),
-                'access_id'   => (int) Request::param('access_id/f'),
+                'type_id'     => (int)Request::param('type_id/f'),
+                'model_id'    => (int)Request::param('model_id/f'),
+                'is_show'     => (int)Request::param('is_show/f'),
+                'is_channel'  => (int)Request::param('is_channel/f'),
+                'sort_order'  => (int)Request::param('sort_order/f'),
+                'access_id'   => (int)Request::param('access_id/f'),
                 'url'         => Request::param('url'),
             ];
             if ($result = $this->validate(__METHOD__, $receive_data)) {
@@ -208,11 +203,11 @@ class Category extends Base
             }
 
             (new ModelCategory)
-            ->where([
-                ['id', '=', $id]
-            ])
-            ->data($receive_data)
-            ->update();
+                ->where([
+                    ['id', '=', $id]
+                ])
+                ->data($receive_data)
+                ->update();
 
             $msg = 'category editor success';
         } else {

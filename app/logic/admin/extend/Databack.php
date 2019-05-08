@@ -35,7 +35,7 @@ class Databack extends Base
             return $result;
         }
 
-        $file = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
+        $file = (array)glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
         rsort($file);
 
         $date_format = Request::param('date_format', 'Y-m-d H:i:s');
@@ -49,7 +49,7 @@ class Databack extends Base
 
                 $value = basename($value);
 
-                $child = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $value . DIRECTORY_SEPARATOR . '*');
+                $child = (array)glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $value . DIRECTORY_SEPARATOR . '*');
                 $size = 0;
                 foreach ($child as $k => $v) {
                     $size += filesize($v);
@@ -117,7 +117,7 @@ class Databack extends Base
         if ($id = Request::param('id')) {
             $id = Base64::decrypt($id);
 
-            $file = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . '*');
+            $file = (array)glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . '*');
             foreach ($file as $key => $value) {
                 if (is_file($value)) {
                     unlink($value);
@@ -155,7 +155,5 @@ class Databack extends Base
         $id = Base64::decrypt($id);
 
         (new DbBackup)->reduction($id);
-
-
     }
 }

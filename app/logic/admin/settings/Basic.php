@@ -35,15 +35,14 @@ class Basic extends Base
             return $result;
         }
 
-        $result =
-        (new ModelConfig)
-        ->field(['name', 'value'])
-        ->where([
-            ['lang', '=', Lang::getLangSet()],
-            ['name', 'in', 'cms_sitename,cms_keywords,cms_description,cms_footer,cms_copyright,cms_beian,cms_script']
-        ])
-        ->select()
-        ->toArray();
+        $result = (new ModelConfig)
+            ->field(['name', 'value'])
+            ->where([
+                ['lang', '=', Lang::getLangSet()],
+                ['name', 'in', 'cms_sitename,cms_keywords,cms_description,cms_footer,cms_copyright,cms_beian,cms_script']
+            ])
+            ->select()
+            ->toArray();
 
         foreach ($result as $key => $value) {
             $value['value'] = htmlspecialchars_decode($value['value']);
@@ -88,10 +87,10 @@ class Basic extends Base
             (new ModelConfig)->where([
                 ['name', '=', $key]
             ])
-            ->data([
-                'value' => $value
-            ])
-            ->update();
+                ->data([
+                    'value' => $value
+                ])
+                ->update();
         }
 
         return [

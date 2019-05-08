@@ -45,24 +45,23 @@ class User extends Base
         if (is_file($lock)) {
             $result = 'login lock';
         } else {
-            $result =
-            (new ModelAdmin)->where([
-                ['username', '=', Request::param('username')]
-            ])
-            ->find();
+            $result = (new ModelAdmin)->where([
+                    ['username', '=', Request::param('username')]
+                ])
+                ->find();
 
             if ($result && $result['password'] === Base64::password(Request::param('password'), $result['salt'])) {
                 $ip = (new Ip)->info();
                 (new ModelAdmin)->where([
                     ['id', '=', $result['id']]
                 ])
-                ->data([
-                    'flag'               => Session::getId(false),
-                    'last_login_time'    => time(),
-                    'last_login_ip'      => $ip['ip'],
-                    'last_login_ip_attr' => $ip['province_id'] ? $ip['province'] . $ip['city'] . $ip['area'] : ''
-                ])
-                ->update();
+                    ->data([
+                        'flag'               => Session::getId(false),
+                        'last_login_time'    => time(),
+                        'last_login_ip'      => $ip['ip'],
+                        'last_login_ip_attr' => $ip['province_id'] ? $ip['province'] . $ip['city'] . $ip['area'] : ''
+                    ])
+                    ->update();
 
                 if ($result['flag'] && $result['flag'] !== Session::getId(false)) {
                     (new LibSession)->delete($result['flag']);
@@ -75,8 +74,7 @@ class User extends Base
                     return $result;
                 }
                 $result = 'login success';
-            }
-            else {
+            } else {
                 $login_lock = session('?login_lock') ? session('login_lock') : 0;
                 ++$login_lock;
                 if ($login_lock >= 5) {
@@ -179,14 +177,13 @@ class User extends Base
             return $result;
         }
 
-        $result =
-        (new ModelAdmin)->view('admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
-        ->view('role_admin', [], 'role_admin.user_id=admin.id')
-        ->view('role role', ['name'=>'role_name'], 'role.id=role_admin.role_id')
-        ->where([
-            ['admin.id', '=', session('admin_auth_key')]
-        ])
-        ->find();
+        $result = (new ModelAdmin)->view('admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
+            ->view('role_admin', [], 'role_admin.user_id=admin.id')
+            ->view('role role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
+            ->where([
+                ['admin.id', '=', session('admin_auth_key')]
+            ])
+            ->find();
         $result['last_login_time'] = date('Y-m-d H:i:s', $result['last_login_time']);
 
         return [
@@ -207,7 +204,7 @@ class User extends Base
 
         // 验证备份状态
         $status = true;
-        $file = (array) glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
+        $file = (array)glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
         if (count($file) >= 2) {
             foreach ($file as $key => $value) {
                 if (filectime($value) >= strtotime('-7 days')) {
@@ -215,7 +212,7 @@ class User extends Base
                     continue;
                 }
             }
-        } else{
+        } else {
             $status = false;
         }
         if ($status === false) {
@@ -234,10 +231,10 @@ class User extends Base
         }
 
         // 垃圾信息
-        $file = (array) glob(app()->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*');
+        $file = (array)glob(app()->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*');
         $count = 0;
         foreach ($file as $key => $value) {
-            $value = (array) glob($value . DIRECTORY_SEPARATOR . '*');
+            $value = (array)glob($value . DIRECTORY_SEPARATOR . '*');
             $count += count($value);
         }
         if ($count >= 2000) {

@@ -38,7 +38,7 @@ class Rbac
      */
     public function authenticate($_uid, string $_app, string $_logic, string $_controller, string $_action, array $_config = []): bool
     {
-        $_uid = (int) $_uid;
+        $_uid = (int)$_uid;
 
         $this->config = array_merge($this->config, $_config);
 
@@ -72,7 +72,7 @@ class Rbac
      */
     public function getAuth($_uid): array
     {
-        $_uid = (int) $_uid;
+        $_uid = (int)$_uid;
         if ($this->config['auth_type'] == 1) {
             $result = $this->accessDecision($_uid);
         } elseif (session('?__authenticate_list')) {
@@ -100,23 +100,17 @@ class Rbac
             if (in_array($_app, $this->config['not_auth_app'])) {
                 return false;
             }
-        }
-
-        elseif (!empty($this->config['not_auth_logic'])) {
+        } elseif (!empty($this->config['not_auth_logic'])) {
             $this->config['not_auth_logic'] = array_map('strtolower', $this->config['not_auth_logic']);
             if (in_array($_logic, $this->config['not_auth_logic'])) {
                 return false;
             }
-        }
-
-        elseif (!empty($this->config['not_auth_controller'])) {
+        } elseif (!empty($this->config['not_auth_controller'])) {
             $this->config['not_auth_controller'] = array_map('strtolower', $this->config['not_auth_controller']);
             if (in_array($_controller, $this->config['not_auth_controller'])) {
                 return false;
             }
-        }
-
-        elseif (!empty($this->config['not_auth_action'])) {
+        } elseif (!empty($this->config['not_auth_action'])) {
             $this->config['not_auth_action'] = array_map('strtolower', $this->config['not_auth_action']);
             if (in_array($_action, $this->config['not_auth_action'])) {
                 return false;
@@ -174,30 +168,28 @@ class Rbac
     private function getNode(int $_uid, int $_level = 1, int $_pid = 0): array
     {
         if ($this->config['auth_founder'] == $_uid) {
-            $result =
-            (new ModelNode)->field(['id', 'name'])
-            ->where([
-                ['status', '=', 1],
-                ['level', '=', $_level],
-                ['pid', '=', $_pid],
-            ])
-            ->cache(__METHOD__ . 'founder' . $_uid . $_level . $_pid)
-            ->select()
-            ->toArray();
+            $result = (new ModelNode)->field(['id', 'name'])
+                ->where([
+                    ['status', '=', 1],
+                    ['level', '=', $_level],
+                    ['pid', '=', $_pid],
+                ])
+                ->cache(__METHOD__ . 'founder' . $_uid . $_level . $_pid)
+                ->select()
+                ->toArray();
         } else {
-            $result =
-            (new ModelNode)->view('node', ['id', 'name'])
-            ->view('role_admin', [], 'role_admin.user_id=' . $_uid . '')
-            ->view('role', [], 'role.status=1 AND role.id=role_admin.role_id')
-            ->view('access', [], 'access.role_id=role.id AND access.node_id=node.id')
-            ->where([
-                ['node.status', '=', 1],
-                ['node.level', '=', $_level],
-                ['node.pid', '=', $_pid],
-            ])
-            ->cache(__METHOD__ . $_uid . $_level . $_pid)
-            ->select()
-            ->toArray();
+            $result = (new ModelNode)->view('node', ['id', 'name'])
+                ->view('role_admin', [], 'role_admin.user_id=' . $_uid . '')
+                ->view('role', [], 'role.status=1 AND role.id=role_admin.role_id')
+                ->view('access', [], 'access.role_id=role.id AND access.node_id=node.id')
+                ->where([
+                    ['node.status', '=', 1],
+                    ['node.level', '=', $_level],
+                    ['node.pid', '=', $_pid],
+                ])
+                ->cache(__METHOD__ . $_uid . $_level . $_pid)
+                ->select()
+                ->toArray();
         }
 
         return $result;

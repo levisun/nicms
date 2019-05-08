@@ -19,7 +19,7 @@ use think\facade\Log;
 class ReGarbage
 {
 
-     /**
+    /**
      * 删除运行垃圾文件
      * @access public
      * @param
@@ -32,12 +32,13 @@ class ReGarbage
 
         $this->remove($runtime_path . 'cache', 4);
         $this->remove($runtime_path . 'concurrent', 4);
+        $this->remove($runtime_path . 'compile', 72);
         $this->remove($runtime_path . 'log', 72);
         $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 72);
 
-        $sub_dir = (int) date('Ym');
+        $sub_dir = (int)date('Ym');
         --$sub_dir;
-        $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . $sub_dir . DIRECTORY_SEPARATOR, 168);
+        $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $sub_dir . DIRECTORY_SEPARATOR, 168);
 
         unset($runtime_path, $root_path);
     }
@@ -51,7 +52,7 @@ class ReGarbage
      */
     private function remove(string $_dir, int $_expire): void
     {
-        $dirOrFile = (array) glob($_dir . DIRECTORY_SEPARATOR . '*');
+        $dirOrFile = (array)glob($_dir . DIRECTORY_SEPARATOR . '*');
         $dirOrFile = $this->getAllFile($dirOrFile, $_expire);
 
         if (!empty($dirOrFile)) {
@@ -94,7 +95,7 @@ class ReGarbage
                     $all_files[] = $path;
                 }
             } elseif (is_dir($path . DIRECTORY_SEPARATOR)) {
-                $temp = (array) glob($path . DIRECTORY_SEPARATOR . '*');
+                $temp = (array)glob($path . DIRECTORY_SEPARATOR . '*');
                 if (!empty($temp)) {
                     $temp = $this->getAllFile($temp, $_expire);
                     $all_files = array_merge($all_files, $temp);

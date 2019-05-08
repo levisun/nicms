@@ -45,8 +45,8 @@ class Info extends Base
         ];
 
         return [
-            'debug' => true,
-            'cache' => false,
+            'debug' => false,
+            // 'cache' => false,
             'msg'   => 'info data',
             'data'  => $result
         ];

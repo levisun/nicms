@@ -225,32 +225,32 @@ class Template
     private function parseTemplateHead(): string
     {
         $head =
-        '<!DOCTYPE html>' . PHP_EOL .
-        '<html lang="' . Lang::getLangSet() . '">' . PHP_EOL .
-        '<head>' . PHP_EOL .
-        '<meta charset="utf-8" />' . PHP_EOL .
-        '<meta name="fragment" content="!" />' . PHP_EOL .                                // 支持蜘蛛ajax
-        '<meta name="robots" content="all" />' . PHP_EOL .                                // 蜘蛛抓取
-        '<meta name="revisit-after" content="1 days" />' . PHP_EOL .                      // 蜘蛛重访
-        '<meta name="renderer" content="webkit" />' . PHP_EOL .                           // 强制使用webkit渲染
-        '<meta name="force-rendering" content="webkit" />' . PHP_EOL .
-        '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' . PHP_EOL .
+            '<!DOCTYPE html>' . PHP_EOL .
+            '<html lang="' . Lang::getLangSet() . '">' . PHP_EOL .
+            '<head>' . PHP_EOL .
+            '<meta charset="utf-8" />' . PHP_EOL .
+            '<meta name="fragment" content="!" />' . PHP_EOL .                                // 支持蜘蛛ajax
+            '<meta name="robots" content="all" />' . PHP_EOL .                                // 蜘蛛抓取
+            '<meta name="revisit-after" content="1 days" />' . PHP_EOL .                      // 蜘蛛重访
+            '<meta name="renderer" content="webkit" />' . PHP_EOL .                           // 强制使用webkit渲染
+            '<meta name="force-rendering" content="webkit" />' . PHP_EOL .
+            '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' . PHP_EOL .
 
-        '<meta name="generator" content="nicms" />' . PHP_EOL .
-        '<meta name="author" content="levisun.mail@gmail.com" />' . PHP_EOL .
-        '<meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" />' . PHP_EOL .
+            '<meta name="generator" content="nicms" />' . PHP_EOL .
+            '<meta name="author" content="levisun.mail@gmail.com" />' . PHP_EOL .
+            '<meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" />' . PHP_EOL .
 
-        '<meta http-equiv="Window-target" content="_blank">' . PHP_EOL .
-        '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' . PHP_EOL .
+            '<meta http-equiv="Window-target" content="_blank">' . PHP_EOL .
+            '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' . PHP_EOL .
 
-        '<meta http-equiv="Cache-Control" content="no-siteapp" />' . PHP_EOL .            // 禁止baidu转码
-        '<meta http-equiv="Cache-Control" content="no-transform" />' . PHP_EOL .
+            '<meta http-equiv="Cache-Control" content="no-siteapp" />' . PHP_EOL .            // 禁止baidu转码
+            '<meta http-equiv="Cache-Control" content="no-transform" />' . PHP_EOL .
 
-        '<meta http-equiv="x-dns-prefetch-control" content="on" />' . PHP_EOL .           // DNS缓存
-        '<link rel="dns-prefetch" href="' . Config::get('app.api_host') . '" />' . PHP_EOL .
-        '<link rel="dns-prefetch" href="' . Config::get('app.cdn_host') . '" />' . PHP_EOL .
+            '<meta http-equiv="x-dns-prefetch-control" content="on" />' . PHP_EOL .           // DNS缓存
+            '<link rel="dns-prefetch" href="' . Config::get('app.api_host') . '" />' . PHP_EOL .
+            '<link rel="dns-prefetch" href="' . Config::get('app.cdn_host') . '" />' . PHP_EOL .
 
-        '<link href="' . Config::get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' .  PHP_EOL;
+            '<link href="' . Config::get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' .  PHP_EOL;
 
         // 网站标题 关键词 描述
         $head .= '<title>' . $this->templateReplace['__TITLE__'] . '</title>' .  PHP_EOL;
@@ -280,33 +280,33 @@ class Template
 
         list($root) = explode('.', Request::rootDomain(), 2);
         $head .= '<script type="text/javascript">' .
-        'var NICMS={' .
+            'var NICMS={' .
             'domain:"' . '//' . Request::subDomain() . '.' . Request::rootDomain() . '",' .
             'url:"' . Request::baseUrl(true) . '",' .
             'param:' . json_encode(Request::param()) . ',' .
             'api:{' .
-                'url:"' . Config::get('app.api_host') . '",' .
-                'root:"' . $root . '",' .
-                'version:"' . $this->templateConfig['api_version'] . '",' .
-                'appid:"' . $this->templateConfig['api_appid'] . '",' .
-                'appsecret:"' . $this->templateConfig['api_appsecret'] . '",' .
-                'authorization:"{:__AUTHORIZATION__}",' .
-                'timestamp:"{:__TIMESTAMP__}",' .
-                'param:' . json_encode(Request::param()) .
+            'url:"' . Config::get('app.api_host') . '",' .
+            'root:"' . $root . '",' .
+            'version:"' . $this->templateConfig['api_version'] . '",' .
+            'appid:"' . $this->templateConfig['api_appid'] . '",' .
+            'appsecret:"' . $this->templateConfig['api_appsecret'] . '",' .
+            'authorization:"{:__AUTHORIZATION__}",' .
+            'timestamp:"{:__TIMESTAMP__}",' .
+            'param:' . json_encode(Request::param()) .
             '},' .
             'cdn:{' .
-                'static:"' . $this->templateReplace['__STATIC__'] . '",' .
-                'theme:"' .  $this->templateReplace['__THEME__'] . '",' .
-                'css:"' .    $this->templateReplace['__CSS__'] . '",' .
-                'img:"' .    $this->templateReplace['__IMG__'] . '",' .
-                'js:"' .     $this->templateReplace['__JS__'] . '"' .
+            'static:"' . $this->templateReplace['__STATIC__'] . '",' .
+            'theme:"' .  $this->templateReplace['__THEME__'] . '",' .
+            'css:"' .    $this->templateReplace['__CSS__'] . '",' .
+            'img:"' .    $this->templateReplace['__IMG__'] . '",' .
+            'js:"' .     $this->templateReplace['__JS__'] . '"' .
             '}' .
-        '};';
+            '};';
 
         if (!Request::isMobile() && Env::get('admin.entry', 'admin') !== Request::subDomain()) {
             $head .= 'if(navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i)){' .
                 'location.replace("//m.' . Request::rootDomain() . '");' .
-            '}';
+                '}';
             unset($sub);
         }
         $head .= '</script>' .  PHP_EOL;

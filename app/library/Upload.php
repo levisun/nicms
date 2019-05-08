@@ -34,10 +34,10 @@ class Upload
     {
         $this->subDir = date('Ym');
         $this->savePath = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
-                            'uploads' . DIRECTORY_SEPARATOR .
-                            $this->subDir . DIRECTORY_SEPARATOR;
+            'uploads' . DIRECTORY_SEPARATOR .
+            $this->subDir . DIRECTORY_SEPARATOR;
 
-        $size = (int) Env::get('app.upload_size', '1');
+        $size = (int)Env::get('app.upload_size', '1');
         $ext = Env::get('app.upload_type', 'gif,jpg,png,zip,rar');
 
         $this->rule = [
@@ -90,9 +90,9 @@ class Upload
 
                 // 按指定图片大小缩放图片
                 // 如果没有指定大小,图片大于800像素 统一缩放到800像素
-                $width = (int) Request::param('width/f', 800);
+                $width = (int)Request::param('width/f', 800);
                 $width = $width > 800 ? 800 : $width;
-                $height = (int) Request::param('height/f', 800);
+                $height = (int)Request::param('height/f', 800);
                 $height = $height > 800 ? 800 : $height;
 
                 if ($image->width() > $width || $image->height() > $height) {

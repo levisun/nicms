@@ -50,7 +50,7 @@ if (!function_exists('get_img_url')) {
         if (false === $_img && stripos($_img, 'http')) {
             // 规定缩略图大小
             $_size = $_size >= 800 ? 800 : round($_size / 100) * 100;
-            $_size = (int) $_size;
+            $_size = (int)$_size;
 
             // URL路径转换目录路径
             $img_path = trim($_img, '/');
@@ -154,7 +154,7 @@ if (!function_exists('emoji_encode')) {
      */
     function emoji_encode($_str): string
     {
-        return json_decode(preg_replace_callback('/(\\\u[ed][0-9a-f]{3})/si', function($matches){
+        return json_decode(preg_replace_callback('/(\\\u[ed][0-9a-f]{3})/si', function ($matches) {
             return '[EMOJI:' . base64_encode($matches[0]) . ']';
         }, json_encode($_str)));
     }
@@ -168,7 +168,7 @@ if (!function_exists('emoji_decode')) {
      */
     function emoji_decode($_str)
     {
-        return json_decode(preg_replace_callback('/(\[EMOJI:[A-Za-z0-9]{8}\])/', function($matches){
+        return json_decode(preg_replace_callback('/(\[EMOJI:[A-Za-z0-9]{8}\])/', function ($matches) {
             return base64_decode(str_replace(['[EMOJI:', ']'], '', $matches[0]));
         }, json_encode($_str)));
     }

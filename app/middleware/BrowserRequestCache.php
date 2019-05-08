@@ -24,7 +24,7 @@ class BrowserRequestCache
     public function handle($request, Closure $next)
     {
         if (false === Config::get('app.app_debug') && $if_modified_since = $request->server('HTTP_IF_MODIFIED_SINCE')) {
-            $expire = (int) Config::get('cache.expire');
+            $expire = (int)Config::get('cache.expire');
             if (strtotime($if_modified_since) + $expire >= $request->server('REQUEST_TIME')) {
                 return Response::create()->code(304);
             }
@@ -33,11 +33,11 @@ class BrowserRequestCache
         $response = $next($request);
 
         if (false === Config::get('app.app_debug') && $request->isGet() && 'api' !== $request->subDomain()) {
-            $expire = (int) Config::get('cache.expire');
+            $expire = (int)Config::get('cache.expire');
             $response->allowCache(true)
-            ->cacheControl('public, max-age=' . $expire)
-            ->expires(gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT')
-            ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
+                ->cacheControl('public, max-age=' . $expire)
+                ->expires(gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
         }
 
         return $response;

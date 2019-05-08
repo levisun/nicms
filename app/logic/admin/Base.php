@@ -40,8 +40,7 @@ class Base
         list($_method, $action) = explode('::', $_method);
         list($app, $logic, $controller) = explode('\\', $_method);
 
-        $result =
-        (new Rbac)->authenticate(
+        $result = (new Rbac)->authenticate(
             session('admin_auth_key'),
             $app,
             $logic,
@@ -64,11 +63,10 @@ class Base
             $map = $app . '_' . $logic . '_' . $controller . '_' . $action;
 
             // 查询操作方法
-            $has =
-            (new ModelAction)->where([
+            $has = (new ModelAction)->where([
                 ['name', '=', $map]
             ])
-            ->find();
+                ->find();
 
             // 创建新操作方法
             if (is_null($has)) {
@@ -92,7 +90,7 @@ class Base
             (new ModelActionLog)->where([
                 ['create_time', '<=', strtotime('-180 days')]
             ])
-            ->delete();
+                ->delete();
         }
 
         return $result ? false : [

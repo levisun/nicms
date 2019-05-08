@@ -33,9 +33,9 @@ class Cache extends Base
             return $result;
         }
 
-        $dir = (array) glob(app()->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*');
+        $dir = (array)glob(app()->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*');
         foreach ($dir as $path) {
-            $path = (array) glob($path . DIRECTORY_SEPARATOR . '*');
+            $path = (array)glob($path . DIRECTORY_SEPARATOR . '*');
             array_map('unlink', $path);
         }
 
@@ -58,9 +58,9 @@ class Cache extends Base
             return $result;
         }
 
-        $dir = (array) glob(app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR . '*');
+        $dir = (array)glob(app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR . '*');
         foreach ($dir as $path) {
-            $path = (array) glob($path . DIRECTORY_SEPARATOR . '*');
+            $path = (array)glob($path . DIRECTORY_SEPARATOR . '*');
             array_map('unlink', $path);
         }
 

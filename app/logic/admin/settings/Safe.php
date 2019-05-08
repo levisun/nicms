@@ -99,28 +99,28 @@ class Safe extends Base
         }
 
         $result = '[app]' . PHP_EOL .
-                    'upload_size = ' . $receive_data['app_upload_size'] . PHP_EOL .
-                    'upload_type = ' . $receive_data['app_upload_type'] . PHP_EOL .
+            'upload_size = ' . $receive_data['app_upload_size'] . PHP_EOL .
+            'upload_type = ' . $receive_data['app_upload_type'] . PHP_EOL .
 
-                    PHP_EOL . '[database]' . PHP_EOL .
-                    'type     = ' . Env::get('database.type') . PHP_EOL .
-                    'hostname = ' . $receive_data['database_hostname'] . PHP_EOL .
-                    'database = ' . $receive_data['database_database'] . PHP_EOL .
-                    'username = ' . $receive_data['database_username'] . PHP_EOL .
-                    'password = ' . $receive_data['database_password'] . PHP_EOL .
-                    'hostport = ' . $receive_data['database_hostport'] . PHP_EOL .
-                    'prefix   = ' . $receive_data['database_prefix'] . PHP_EOL .
+            PHP_EOL . '[database]' . PHP_EOL .
+            'type     = ' . Env::get('database.type') . PHP_EOL .
+            'hostname = ' . $receive_data['database_hostname'] . PHP_EOL .
+            'database = ' . $receive_data['database_database'] . PHP_EOL .
+            'username = ' . $receive_data['database_username'] . PHP_EOL .
+            'password = ' . $receive_data['database_password'] . PHP_EOL .
+            'hostport = ' . $receive_data['database_hostport'] . PHP_EOL .
+            'prefix   = ' . $receive_data['database_prefix'] . PHP_EOL .
 
-                    PHP_EOL . '[cache]' . PHP_EOL .
-                    'type   = ' . Env::get('cache.type') . PHP_EOL .
-                    'expire = ' . $receive_data['cache_expire'] . PHP_EOL .
+            PHP_EOL . '[cache]' . PHP_EOL .
+            'type   = ' . Env::get('cache.type') . PHP_EOL .
+            'expire = ' . $receive_data['cache_expire'] . PHP_EOL .
 
-                    PHP_EOL . '[admin]' . PHP_EOL .
-                    'authkey = ' . Env::get('admin.authkey') . PHP_EOL .
-                    'debug   = ' . $receive_data['admin_debug'] . PHP_EOL .
-                    'entry   = ' . $receive_data['admin_entry'] . PHP_EOL .
-                    'theme   = ' . Env::get('admin.theme') . PHP_EOL .
-                    'version = ' . Env::get('admin.version');
+            PHP_EOL . '[admin]' . PHP_EOL .
+            'authkey = ' . Env::get('admin.authkey') . PHP_EOL .
+            'debug   = ' . $receive_data['admin_debug'] . PHP_EOL .
+            'entry   = ' . $receive_data['admin_entry'] . PHP_EOL .
+            'theme   = ' . Env::get('admin.theme') . PHP_EOL .
+            'version = ' . Env::get('admin.version');
 
         file_put_contents(app()->getRootPath() . '.env', $result);
 

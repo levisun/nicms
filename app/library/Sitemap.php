@@ -30,34 +30,32 @@ class Sitemap
         if (!is_file($path) || filemtime($path) < strtotime('-24 hour')) {
             Log::record('[SITEMAP] 网站地图', 'alert');
 
-            $category =
-            (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-            ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
-            ->where([
-                ['category.is_show', '=', 1],
-                ['category.model_id', 'in', [1,2,3]]
-            ])
-            ->order('category.sort_order ASC, category.id DESC')
-            ->select()
-            ->toArray();
+            $category = (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+                ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+                ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
+                ->where([
+                    ['category.is_show', '=', 1],
+                    ['category.model_id', 'in', [1, 2, 3]]
+                ])
+                ->order('category.sort_order ASC, category.id DESC')
+                ->select()
+                ->toArray();
 
             $sitemap_xml = [];
             foreach ($category as $vo_cate) {
-                $article =
-                (new ModelArticle)
-                ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-                ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
-                ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-                ->where([
-                    ['article.category_id', '=', $vo_cate['id']],
-                    ['article.is_pass', '=', '1'],
-                    ['article.show_time', '<=', time()],
-                ])
-                ->order('article.id DESC')
-                ->limit(100)
-                ->select()
-                ->toArray();
+                $article = (new ModelArticle)
+                    ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+                    ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+                    ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+                    ->where([
+                        ['article.category_id', '=', $vo_cate['id']],
+                        ['article.is_pass', '=', '1'],
+                        ['article.show_time', '<=', time()],
+                    ])
+                    ->order('article.id DESC')
+                    ->limit(100)
+                    ->select()
+                    ->toArray();
                 $vo_cate['id'] = Base64::encrypt($vo_cate['id']);
 
                 $article_xml = [];
@@ -107,8 +105,8 @@ class Sitemap
     private function create(array $_data, string $_path): void
     {
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>' . PHP_EOL .
-               '<!-- generated-on="' . date('Y-m-d H:i:s') . '" -->' . PHP_EOL .
-               '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
+            '<!-- generated-on="' . date('Y-m-d H:i:s') . '" -->' . PHP_EOL .
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
         $xml .= self::toXml($_data) . PHP_EOL;
         $xml .= '</urlset>';
         file_put_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_path, $xml);

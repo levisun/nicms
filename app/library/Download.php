@@ -34,7 +34,7 @@ class Download
      * @return void
      */
     public function __construct()
-    {}
+    { }
 
     /**
      * 下载地址
@@ -62,7 +62,7 @@ class Download
     public function file()
     {
         $this->fileName = Request::param('file', false);
-        $this->timestamp = (int) Request::param('timestamp/f', 0);
+        $this->timestamp = (int)Request::param('timestamp/f', 0);
         $this->timestamp = date('Ymd', $this->timestamp);
 
         if ($this->fileName && $this->timestamp == date('Ymd')) {
@@ -70,16 +70,16 @@ class Download
             if (preg_match('/^([\-_\\/A-Za-z0-9]+)(\.)([A-Za-z]{3,4})$/u', $this->fileName)) {
                 $this->fileName = preg_replace('/([\/\\\]){2,}/si', DIRECTORY_SEPARATOR, $this->fileName);
                 $this->fileName = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
-                                    'uploads' . DIRECTORY_SEPARATOR . $this->fileName;
+                    'uploads' . DIRECTORY_SEPARATOR . $this->fileName;
                 $ext = explode(',', Env::get('app.upload_type', 'gif,jpg,png,zip,rar'));
 
                 clearstatcache();
                 if (is_file($this->fileName) && in_array(pathinfo($this->fileName, PATHINFO_EXTENSION), $ext)) {
                     return
-                    Response::create($this->fileName, 'file')
-                    ->name(md5($this->fileName . time()))
-                    ->isContent(false)
-                    ->expire(180);
+                        Response::create($this->fileName, 'file')
+                        ->name(md5($this->fileName . time()))
+                        ->isContent(false)
+                        ->expire(180);
                 } else {
                     echo 'file not found';
                 }

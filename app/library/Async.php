@@ -25,6 +25,7 @@ use think\facade\Session;
 use app\library\Ip;
 use app\library\Base64;
 use app\model\ApiApp as ModelApiApp;
+
 class Async
 {
 
@@ -162,7 +163,7 @@ class Async
         set_time_limit(15);
         header('X-Powered-By: NIAPI');
 
-        $max_input_vars = (int) ini_get('max_input_vars');
+        $max_input_vars = (int)ini_get('max_input_vars');
         if (count($_POST) + count($_FILES) >= $max_input_vars - 5) {
             $this->error('[Async] request max params number error');
         }
@@ -177,11 +178,11 @@ class Async
     protected function run()
     {
         $exec =
-        $this->analysisHeader()
-        ->checkAppId()
-        ->checkSign()
-        ->checkTimestamp()
-        ->analysisMethod();
+            $this->analysisHeader()
+            ->checkAppId()
+            ->checkSign()
+            ->checkTimestamp()
+            ->analysisMethod();
 
         // 执行类方法
         $result = call_user_func_array([(new $exec['class']), $exec['action']], []);
@@ -201,7 +202,7 @@ class Async
 
         // 浏览器缓存时间
         $this->expire = isset($result['expire']) ? $result['expire'] : Config::get('cache.expire');
-        $this->expire = (int) $this->expire;
+        $this->expire = (int)$this->expire;
         $this->expire = $this->expire <= 0 ? 0 : $this->expire;
 
         $this->success($result['msg'], isset($result['data']) ? $result['data'] : []);
@@ -258,7 +259,7 @@ class Async
      */
     protected function checkTimestamp()
     {
-        $this->timestamp = (int) Request::param('timestamp/f', time());
+        $this->timestamp = (int)Request::param('timestamp/f', time());
         if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
             $this->error('[Async] request timeout');
         }
@@ -318,15 +319,14 @@ class Async
      */
     protected function checkAppId()
     {
-        $this->appid = (int) Request::param('appid/f', 1000001);
+        $this->appid = (int)Request::param('appid/f', 1000001);
         $this->appid -= 1000000;
         if ($this->appid && $this->appid >= 1) {
-            $result =
-            (new ModelApiApp)
-            ->where([
-                ['id', '=', $this->appid]
-            ])
-            ->find();
+            $result = (new ModelApiApp)
+                ->where([
+                    ['id', '=', $this->appid]
+                ])
+                ->find();
 
             if ($result) {
                 $result = $result->toArray();
@@ -370,7 +370,7 @@ class Async
 
             // 校验token合法性
             $referer = Request::header('USER-AGENT') . Request::ip() .
-                       app()->getRootPath() . strtotime(date('Ymd'));
+                app()->getRootPath() . strtotime(date('Ymd'));
             $referer = hash_hmac('sha1', $referer, Config::get('app.authkey'));
             if (!hash_equals($referer, $this->token)) {
                 $this->debugLog['referer'] = $referer;
@@ -479,17 +479,17 @@ class Async
 
         // 记录日志
         if (true === $this->debug) {
-            $this->writeLog();
+            $this->writeLog($result);
         }
 
         $response = Response::create($result, $this->format);
 
         if (false === Config::get('app.app_debug') && true === $this->cache && $this->expire && $_code == 'SUCCESS') {
             $response
-            ->allowCache(true)
-            ->cacheControl('public, max-age=' . $this->expire)
-            ->expires(gmdate('D, d M Y H:i:s', time() + $this->expire) . ' GMT')
-            ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
+                ->allowCache(true)
+                ->cacheControl('public, max-age=' . $this->expire)
+                ->expires(gmdate('D, d M Y H:i:s', time() + $this->expire) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
         }
 
         return $response;
@@ -501,15 +501,16 @@ class Async
      * @param
      * @return void
      */
-    private function writeLog(): void
+    private function writeLog(array $_result = []): void
     {
         $log = '[API] METHOD:' . $this->method .
-                ' TIME:' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 2) . 's' .
-                ' MEMORY:' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 2) . 'MB' .
-                ' CACHE:' . Container::pull('cache')->getReadTimes() . 'reads,' . Container::pull('cache')->getWriteTimes() . 'writes';
+            ' TIME:' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 2) . 's' .
+            ' MEMORY:' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 2) . 'MB' .
+            ' CACHE:' . Container::pull('cache')->getReadTimes() . 'reads,' . Container::pull('cache')->getWriteTimes() . 'writes';
 
         $log .= PHP_EOL . 'PARAM:' . json_encode(Request::param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
         $log .= PHP_EOL . 'DEBUG:' . json_encode($this->debugLog, JSON_UNESCAPED_UNICODE);
+        $log .= PHP_EOL . 'RESULT:' . json_encode($_result, JSON_UNESCAPED_UNICODE);
 
         Log::record($log, 'alert')->save();
     }
