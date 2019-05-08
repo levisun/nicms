@@ -45,16 +45,18 @@ class User extends Base
         if (is_file($lock)) {
             $result = 'login lock';
         } else {
-            $result = (new ModelAdmin)->where([
+            $result = (new ModelAdmin)
+                ->where([
                     ['username', '=', Request::param('username')]
                 ])
                 ->find();
 
             if ($result && $result['password'] === Base64::password(Request::param('password'), $result['salt'])) {
                 $ip = (new Ip)->info();
-                (new ModelAdmin)->where([
-                    ['id', '=', $result['id']]
-                ])
+                (new ModelAdmin)
+                    ->where([
+                        ['id', '=', $result['id']]
+                    ])
                     ->data([
                         'flag'               => Session::getId(false),
                         'last_login_time'    => time(),
@@ -177,7 +179,8 @@ class User extends Base
             return $result;
         }
 
-        $result = (new ModelAdmin)->view('admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
+        $result = (new ModelAdmin)
+            ->view('admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
             ->view('role_admin', [], 'role_admin.user_id=admin.id')
             ->view('role role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
             ->where([

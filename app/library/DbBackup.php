@@ -101,7 +101,7 @@ class DbBackup
                 $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
                 for ($limit = 0; $limit < $total; $limit++) {
                     $sql .= $this->queryTableInsertData($name, $field, $limit);
-                    if (strlen($sql) >= 1024 * 1024 * 5) {
+                    if (strlen($sql) >= 1024 * 1024 * 10) {
                         $this->write($sql_file, $sql);
                         $sql = '';
                         ++$num;
@@ -135,36 +135,36 @@ class DbBackup
         if (!is_file($this->savePath . 'backup.lock')) {
             file_put_contents($this->savePath . 'backup.lock', 'lock');
             $table_name = $this->queryTableName();
+            if (strtotime('Ymdhi') % 2 == 0) {
+                shuffle($table_name);
+            }
 
             ignore_user_abort(true);
             foreach ($table_name as $name) {
                 $sql_file = $this->savePath . $name . '.sql';
-                if (!is_file($sql_file) || (is_file($sql_file) && filemtime($sql_file) <= strtotime('-' . rand(12, 24) . ' hour'))) {
+                if (!is_file($sql_file)) {
                     if ($sql = $this->queryTableStructure($name)) {
                         $this->write($sql_file, $sql);
-                        // break;
+                    }
+                } elseif (is_file($sql_file) && filemtime($sql_file) <= strtotime('-' . rand(12, 24) . ' hour')) {
+                    if ($sql = $this->queryTableStructure($name)) {
+                        $this->write($sql_file, $sql);
                     }
                 }
 
                 $total = $this->queryTableInsertTotal($name);
                 $field = $this->queryTableInsertField($name);
 
-                $num = 1;
-                $sql = '';
-                for ($limit = 0; $limit < $total; $limit++) {
-                    $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
-                    if (!is_file($sql_file) || (is_file($sql_file) && filemtime($sql_file) <= strtotime('-' . rand(24, 48) . ' hour'))) {
-                        $sql .= $this->queryTableInsertData($name, $field, $limit);
-                        if (strlen($sql) >= 1024 * 1024 * 5) {
-                            $this->write($sql_file, $sql);
-                            $sql = '';
-                            ++$num;
-                        } elseif ($limit + 1 == $total) {
-                            $this->write($sql_file, $sql);
-                            $sql = '';
-                            ++$num;
-                            break;
-                        }
+                for ($limit = 1; $limit <= $total; $limit++) {
+                    $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $limit) . '.sql';
+                    if (!is_file($sql_file)) {
+                        $sql = $this->queryTableInsertData($name, $field, $limit);
+                        $this->write($sql_file, $sql);
+                        break 2;
+                    } elseif (is_file($sql_file) && filemtime($sql_file) <= strtotime('-' . rand(12, 24) . ' hour')) {
+                        $sql = $this->queryTableInsertData($name, $field, $limit);
+                        $this->write($sql_file, $sql);
+                        break 2;
                     }
                 }
             }
@@ -182,11 +182,11 @@ class DbBackup
      */
     private function queryTableInsertData(string $_table_name, string $_field, int $_limit): string
     {
-        $_limit = $_limit * 500;
+        $_limit = $_limit * 1000;
         $data =
             Db::table($_table_name)
             ->field($_field)
-            ->limit($_limit, 500)
+            ->limit($_limit, 1000)
             ->select();
 
         $insert_into = 'INSERT INTO `' . $_table_name . '` (' . $_field . ') VALUES';
@@ -236,7 +236,7 @@ class DbBackup
     {
         $total = Db::table($_table_name)->count();
         if ($total) {
-            return (int)ceil($total / 500);
+            return (int)ceil($total / 1000);
         } else {
             return 0;
         }

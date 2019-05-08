@@ -37,7 +37,8 @@ class Accesslog
 
         // 蜘蛛
         if ($spider = $this->isSpider()) {
-            $has = (new ModelSearchengine)->where([
+            $has = (new ModelSearchengine)
+                ->where([
                     ['name', '=', $spider],
                     ['user_agent', '=', $this->user_agent],
                     ['date', '=', strtotime(date('Y-m-d'))]
@@ -46,25 +47,28 @@ class Accesslog
                 ->value('name');
 
             if ($has) {
-                (new ModelSearchengine)->where([
-                    ['name', '=', $spider],
-                    ['user_agent', '=', $this->user_agent],
-                    ['date', '=', strtotime(date('Y-m-d'))]
-                ])
+                (new ModelSearchengine)
+                    ->where([
+                        ['name', '=', $spider],
+                        ['user_agent', '=', $this->user_agent],
+                        ['date', '=', strtotime(date('Y-m-d'))]
+                    ])
                     ->inc('count', 1, 60)
                     ->update();
             } else {
-                (new ModelSearchengine)->create([
-                    'name'       => $spider,
-                    'user_agent' => $this->user_agent,
-                    'date'       => strtotime(date('Y-m-d'))
-                ]);
+                (new ModelSearchengine)
+                    ->create([
+                        'name'       => $spider,
+                        'user_agent' => $this->user_agent,
+                        'date'       => strtotime(date('Y-m-d'))
+                    ]);
             }
         }
 
         // 访问
         else {
-            $has = (new ModelVisit)->where([
+            $has = (new ModelVisit)
+                ->where([
                     ['ip', '=', $this->ip['ip']],
                     ['user_agent', '=', $this->user_agent],
                     ['date', '=', strtotime(date('Y-m-d'))]
@@ -73,34 +77,38 @@ class Accesslog
                 ->value('ip');
 
             if ($has) {
-                (new ModelVisit)->where([
-                    ['ip', '=', $this->ip['ip']],
-                    ['user_agent', '=', $this->user_agent],
-                    ['date', '=', strtotime(date('Y-m-d'))]
-                ])
+                (new ModelVisit)
+                    ->where([
+                        ['ip', '=', $this->ip['ip']],
+                        ['user_agent', '=', $this->user_agent],
+                        ['date', '=', strtotime(date('Y-m-d'))]
+                    ])
                     ->inc('count', 1, 60)
                     ->update();
             } else {
-                (new ModelVisit)->create([
-                    'ip'         => $this->ip['ip'],
-                    'ip_attr'    => $this->ip['country'] .  $this->ip['region'] . $this->ip['city'] .  $this->ip['area'],
-                    'user_agent' => $this->user_agent,
-                    'date'       => strtotime(date('Y-m-d'))
-                ]);
+                (new ModelVisit)
+                    ->create([
+                        'ip'         => $this->ip['ip'],
+                        'ip_attr'    => $this->ip['country'] .  $this->ip['region'] . $this->ip['city'] .  $this->ip['area'],
+                        'user_agent' => $this->user_agent,
+                        'date'       => strtotime(date('Y-m-d'))
+                    ]);
             }
         }
 
         // 删除过期信息
         if (1 === rand(1, 5)) {
-            (new ModelSearchengine)->where([
-                ['date', '<=', strtotime('-90 days')]
-            ])
+            (new ModelSearchengine)
+                ->where([
+                    ['date', '<=', strtotime('-90 days')]
+                ])
                 ->limit(100)
                 ->delete();
 
-            (new ModelVisit)->where([
-                ['date', '<=', strtotime('-90 days')]
-            ])
+            (new ModelVisit)
+                ->where([
+                    ['date', '<=', strtotime('-90 days')]
+                ])
                 ->limit(100)
                 ->delete();
         }

@@ -36,7 +36,8 @@ class Visit extends Base
 
         $query_limit = (int)Request::param('limit/f', 15);
 
-        $result = (new ModelVisit)->order('date DESC')
+        $result = (new ModelVisit)
+            ->order('date DESC')
             ->paginate($query_limit, false, ['path' => 'javascript:paging([PAGE]);']);
 
         $list = $result->toArray();

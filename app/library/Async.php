@@ -205,7 +205,10 @@ class Async
         $this->expire = (int)$this->expire;
         $this->expire = $this->expire <= 0 ? 0 : $this->expire;
 
-        $this->success($result['msg'], isset($result['data']) ? $result['data'] : []);
+        $result['data'] = isset($result['data']) ? $result['data'] : [];
+        $result['code'] = isset($result['code']) ? $result['code'] : 'SUCCESS';
+
+        $this->success($result['msg'], $result['data'], $result['code']);
     }
 
     /**

@@ -30,7 +30,8 @@ class Sitemap
         if (!is_file($path) || filemtime($path) < strtotime('-24 hour')) {
             Log::record('[SITEMAP] 网站地图', 'alert');
 
-            $category = (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+            $category = (new ModelCategory)
+                ->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
                 ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
                 ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
                 ->where([

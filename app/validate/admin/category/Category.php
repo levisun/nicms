@@ -18,8 +18,8 @@ use think\Validate;
 class Category extends Validate
 {
     protected $rule = [
-        'name'        => ['require', 'length:4,20', 'unique:category'],
-        'aliases'     => ['max:20', 'unique:category'],
+        'name'        => ['require', 'length:2,20', 'unique:category'],
+        'aliases'     => ['max:20', 'alpha', 'unique:category'],
         'title'       => ['max:50'],
         'keywords'    => ['max:100'],
         'description' => ['max:300'],
@@ -30,7 +30,7 @@ class Category extends Validate
         'is_channel'  => ['require', 'number'],
         'sort_order'  => ['require', 'number'],
         'access_id'   => ['require', 'number'],
-        'url'         => ['require', 'max:200'],
+        'url'         => ['max:100'],
     ];
 
     protected $message = [
@@ -56,6 +56,6 @@ class Category extends Validate
         'sort_order.number'  => '{%error model}',
         'access_id.require'  => '{%error access}',
         'access_id.number'   => '{%error access}',
-        'url.url'            => '{%error url}',
+        'url.max'            => '{%error url}',
     ];
 }

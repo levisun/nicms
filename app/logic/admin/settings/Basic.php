@@ -84,9 +84,10 @@ class Basic extends Base
         }
 
         foreach ($receive_data as $key => $value) {
-            (new ModelConfig)->where([
-                ['name', '=', $key]
-            ])
+            (new ModelConfig)
+                ->where([
+                    ['name', '=', $key]
+                ])
                 ->data([
                     'value' => $value
                 ])

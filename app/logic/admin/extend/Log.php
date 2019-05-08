@@ -37,7 +37,8 @@ class Log extends Base
 
         $query_limit = (int)Request::param('limit/f', 15);
 
-        $result = (new ModelActionLog)->view('action_log', ['action_id', 'user_id', 'action_ip', 'module', 'remark', 'create_time'])
+        $result = (new ModelActionLog)
+            ->view('action_log', ['action_id', 'user_id', 'action_ip', 'module', 'remark', 'create_time'])
             ->view('action', ['name' => 'action_name'], 'action.id=action_log.action_id')
             ->view('admin', ['username'], 'admin.id=action_log.user_id')
             ->view('role_admin', [], 'role_admin.user_id=admin.id')

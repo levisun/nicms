@@ -73,19 +73,22 @@ class Siteinfo
 
         // 文章关键词
         if ($id = Request::param('id/f', false)) {
-            $result = (new ModelArticle)->where([
-                ['id', '=', $id]
-            ])
+            $result = (new ModelArticle)
+                ->where([
+                    ['id', '=', $id]
+                ])
                 ->value('keywords', '');
         }
         // 栏目关键词
         elseif ($cid = Request::param('cid/f', false)) {
-            $result = (new ModelCategory)->where([
+            $result = (new ModelCategory)
+                ->where([
                     ['id', '=', $cid]
                 ])
                 ->value('keywords', '');
         } else {
-            $result .= (new ModelConfig)->where([
+            $result .= (new ModelConfig)
+                ->where([
                     ['name', '=', Request::controller(true) . '_keywords'],
                     ['lang', '=', Lang::getLangSet()]
                 ])
@@ -109,22 +112,25 @@ class Siteinfo
 
         // 文章名
         if ($id = Request::param('id/f', false)) {
-            $result = (new ModelArticle)->where([
-                ['id', '=', $id]
-            ])
+            $result = (new ModelArticle)
+                ->where([
+                    ['id', '=', $id]
+                ])
                 ->value('title', '');
         }
         // 栏目名
         elseif ($cid = Request::param('cid/f', false)) {
-            $result = (new ModelCategory)->where([
-                ['id', '=', $cid]
-            ])
+            $result = (new ModelCategory)
+                ->where([
+                    ['id', '=', $cid]
+                ])
                 ->value('name', 'NICMS');
         } else {
-            $result .= (new ModelConfig)->where([
-                ['name', '=', Request::controller(true) . '_sitename'],
-                ['lang', '=', Lang::getLangSet()]
-            ])
+            $result .= (new ModelConfig)
+                ->where([
+                    ['name', '=', Request::controller(true) . '_sitename'],
+                    ['lang', '=', Lang::getLangSet()]
+                ])
                 ->cache(__METHOD__ . Request::controller(true) . '_sitename' . Lang::getLangSet(), null, 'SITEINFO')
                 ->value('value', 'NICMS');
         }
@@ -141,10 +147,11 @@ class Siteinfo
      */
     public static function name(): string
     {
-        return (new ModelConfig)->where([
-            ['name', '=', Request::controller(true) . '_sitename'],
-            ['lang', '=', Lang::getLangSet()]
-        ])
+        return (new ModelConfig)
+            ->where([
+                ['name', '=', Request::controller(true) . '_sitename'],
+                ['lang', '=', Lang::getLangSet()]
+            ])
             ->cache(__METHOD__ . Request::controller(true) . '_sitename' . Lang::getLangSet(), null, 'SITEINFO')
             ->value('value', 'NICMS');
     }
@@ -158,17 +165,19 @@ class Siteinfo
      */
     public static function copyright(): string
     {
-        $copyright = (new ModelConfig)->where([
-            ['name', '=', Request::controller(true) . '_copyright'],
-            ['lang', '=', Lang::getLangSet()]
-        ])
+        $copyright = (new ModelConfig)
+            ->where([
+                ['name', '=', Request::controller(true) . '_copyright'],
+                ['lang', '=', Lang::getLangSet()]
+            ])
             ->cache(__METHOD__ . Request::controller(true) . '_copyright' . Lang::getLangSet(), null, 'SITEINFO')
             ->value('value', '');
 
-        $beian = (new ModelConfig)->where([
-            ['name', '=', Request::controller(true) . '_beian'],
-            ['lang', '=', Lang::getLangSet()]
-        ])
+        $beian = (new ModelConfig)
+            ->where([
+                ['name', '=', Request::controller(true) . '_beian'],
+                ['lang', '=', Lang::getLangSet()]
+            ])
             ->cache(__METHOD__ . Request::controller(true) . '_beian' . Lang::getLangSet(), null, 'SITEINFO')
             ->value('value', '备案号');
 
@@ -185,10 +194,11 @@ class Siteinfo
      */
     public static function footer(): string
     {
-        $result = (new ModelConfig)->where([
-            ['name', '=', Request::controller(true) . '_footer'],
-            ['lang', '=', Lang::getLangSet()]
-        ])
+        $result = (new ModelConfig)
+            ->where([
+                ['name', '=', Request::controller(true) . '_footer'],
+                ['lang', '=', Lang::getLangSet()]
+            ])
             ->cache(__METHOD__ . Request::controller(true) . '_footer' . Lang::getLangSet(), null, 'SITEINFO')
             ->value('value', 'footer');
 
@@ -204,10 +214,11 @@ class Siteinfo
      */
     public static function script(): string
     {
-        $result = (new ModelConfig)->where([
-            ['name', '=', Request::controller(true) . '_script'],
-            ['lang', '=', Lang::getLangSet()]
-        ])
+        $result = (new ModelConfig)
+            ->where([
+                ['name', '=', Request::controller(true) . '_script'],
+                ['lang', '=', Lang::getLangSet()]
+            ])
             ->cache(__METHOD__ . Request::controller(true) . '_script' . Lang::getLangSet(), null, 'SITEINFO')
             ->value('value', '');
 
@@ -223,10 +234,11 @@ class Siteinfo
      */
     public static function theme(): string
     {
-        return (new ModelConfig)->where([
-            ['name', '=', Request::controller(true) . '_theme'],
-            ['lang', '=', Lang::getLangSet()]
-        ])
+        return (new ModelConfig)
+            ->where([
+                ['name', '=', Request::controller(true) . '_theme'],
+                ['lang', '=', Lang::getLangSet()]
+            ])
             ->cache(__METHOD__ . Request::controller(true) . '_theme' . Lang::getLangSet(), null, 'SITEINFO')
             ->value('value', 'default');
     }

@@ -40,62 +40,68 @@ class Base
         list($_method, $action) = explode('::', $_method);
         list($app, $logic, $controller) = explode('\\', $_method);
 
-        $result = (new Rbac)->authenticate(
-            session('admin_auth_key'),
-            $app,
-            $logic,
-            $controller,
-            $action,
-            [
-                'not_auth_action' => [
-                    'login',
-                    'logout',
-                    'forget',
-                    'auth',
-                    'profile',
-                    'notice'
+        $result = (new Rbac)
+            ->authenticate(
+                session('admin_auth_key'),
+                $app,
+                $logic,
+                $controller,
+                $action,
+                [
+                    'not_auth_action' => [
+                        'login',
+                        'logout',
+                        'forget',
+                        'auth',
+                        'profile',
+                        'notice'
+                    ]
                 ]
-            ]
-        );
+            );
 
         // 验证成功,记录操作日志
         if ($result && $_write_log) {
             $map = $app . '_' . $logic . '_' . $controller . '_' . $action;
 
             // 查询操作方法
-            $has = (new ModelAction)->where([
-                ['name', '=', $map]
-            ])
+            $has = (new ModelAction)
+                ->where([
+                    ['name', '=', $map]
+                ])
                 ->find();
 
             // 创建新操作方法
             if (is_null($has)) {
-                $res = (new ModelAction)->create([
-                    'name'  => $map,
-                    'title' => $_write_log,
-                ]);
+                $res = (new ModelAction)
+                    ->create([
+                        'name'  => $map,
+                        'title' => $_write_log,
+                    ]);
                 $has['id'] = $res->id;
             }
 
             // 写入操作日志
-            (new ModelActionLog)->create([
-                'action_id' => $has['id'],
-                'user_id'   => session('admin_auth_key'),
-                'action_ip' => Request::ip(),
-                'module'    => 'admin',
-                'remark'    => $_write_log,
-            ]);
+            (new ModelActionLog)
+                ->create([
+                    'action_id' => $has['id'],
+                    'user_id'   => session('admin_auth_key'),
+                    'action_ip' => Request::ip(),
+                    'module'    => 'admin',
+                    'remark'    => $_write_log,
+                ]);
 
             // 删除过期日志
-            (new ModelActionLog)->where([
-                ['create_time', '<=', strtotime('-180 days')]
-            ])
+            (new ModelActionLog)
+                ->where([
+                    ['create_time', '<=', strtotime('-180 days')]
+                ])
                 ->delete();
         }
 
         return $result ? false : [
             'debug' => false,
             'cache' => false,
+            'code'  => 'error',
             'msg'   => 'auth error'
         ];
     }
@@ -152,6 +158,7 @@ class Base
             return [
                 'debug' => false,
                 'cache' => false,
+                'code'  => 'error',
                 'msg'   => $v->getError()
             ];
         } else {

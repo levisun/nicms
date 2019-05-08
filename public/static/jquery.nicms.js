@@ -34,10 +34,23 @@
         var html = '<style type="text/css">.ui-toast-mask{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99;background:rgba(0,0,0,.2);}.ui-toast-tips{position: fixed;top:35%;left:40%;transform:translateZ(0) translateY(-100%);background:rgba(0,0,0,.7);color:#fff;font-size:14px;width:30%;line-height: 1.5em;margin:0 auto;box-sizing border-box;padding:10px;text-align:center;border-radius:4px;z-index:100;}</style><div class="ui-toast-mask"></div><div class="ui-toast-tips">' + _tips + "</div>";
         jQuery('body').append(html);
 
-        setTimeout(function(){
+        setTimeout(function () {
             jQuery('.ui-toast-mask').remove();
             jQuery('.ui-toast-tips').remove();
         }, _time * 1000);
+    };
+
+    /**
+     * 上传
+     */
+    jQuery.upload = function (_params) {
+        _params.data = new FormData(_params.file);
+        _params.type = 'post';
+        _params.async = false;
+        _params.cache = false;
+        _params.processData = false;
+        _params.contentType = false;
+        jQuery.pjax(_params);
     };
 
     /**
@@ -87,7 +100,7 @@
     /**
      * 时间戳
      */
-    jQuery.timestamp = function(){
+    jQuery.timestamp = function () {
         var timestamp = Date.parse(new Date());
         return timestamp / 1000;
     };
@@ -95,13 +108,13 @@
     /**
      * 签名
      */
-    jQuery.sign = function(_params){
+    jQuery.sign = function (_params) {
         // 先用Object内置类的keys方法获取要排序对象的属性名，再利用Array原型上的sort方法对获取的属性名进行排序，newkey是一个数组
         var newkey = Object.keys(_params).sort();
 
         // 创建一个新的对象，用于存放排好序的键值对
         var newObj = {};
-        for(var i = 0; i < newkey.length; i++) {
+        for (var i = 0; i < newkey.length; i++) {
             // 遍历newkey数组
             newObj[newkey[i]] = _params[newkey[i]];
             // 向新创建的对象中按照排好的顺序依次增加键值对

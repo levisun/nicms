@@ -8,70 +8,75 @@
 
             <div class="form-group">
                 <label>{:lang('name')}</label>
-                <input type="text" name="name" class="form-control" v-bind:value="items.name">
+                <input type="text" name="name" class="form-control">
             </div>
 
             <div class="form-group">
                 <label>{:lang('aliases')}</label>
-                <input type="text" name="aliases" class="form-control" v-bind:value="items.aliases">
+                <input type="text" name="aliases" class="form-control">
             </div>
 
             <div class="form-group">
                 <label>{:lang('title')}</label>
-                <input type="text" name="title" class="form-control" v-bind:value="items.title">
+                <input type="text" name="title" class="form-control">
             </div>
 
             <div class="form-group">
                 <label>{:lang('keywords')}</label>
-                <input type="text" name="keywords" class="form-control" v-bind:value="items.keywords">
+                <input type="text" name="keywords" class="form-control">
             </div>
 
             <div class="form-group">
                 <label>{:lang('description')}</label>
-                <input type="text" name="description" class="form-control" v-bind:value="items.description">
+                <input type="text" name="description" class="form-control">
             </div>
 
             <div class="form-group">
                 <label>{:lang('image')}</label>
-                <input type="text" name="image" class="form-control" v-bind:value="items.image">
+                <input type="text" name="image" class="form-control">
+                <input type="file" name="image" class="form-control">
             </div>
 
             <div class="form-group">
                 <label>{:lang('type')}</label>
                 <select class="form-control" name="type_id">
                     <template v-for="vo in items.type_name" >
-                    <option v-bind:value="vo.id" v-text="vo.name" v-if="items.type_id==vo.id" selected></option>
-                    <option v-bind:value="vo.id" v-text="vo.name" v-else></option>
+                    <option v-bind:value="vo.id" v-text="vo.name"></option>
                     </template>
                 </select>
             </div>
 
             <div class="form-group">
                 <label>{:lang('model')}</label>
-                <input type="text" name="model_id" class="form-control" disabled="true" v-bind:value="items.model_name">
+                <select class="form-control" name="model_id">
+                    <option>{:lang('select')}</option>
+                    <template v-for="vo in items.model_name" >
+                    <option v-bind:value="vo.id" v-text="vo.name"></option>
+                    </template>
+                </select>
             </div>
 
             <div class="form-group">
                 <label>{:lang('show')}</label>
                 <label>
-                    <input type="radio" name="is_show" value="1" v-bind:checked="items.is_show==1 ? true : false"> {:lang('yes')}
+                    <input type="radio" name="is_show" value="1" checked="checked"> {:lang('yes')}
                 </label>
                 <label>
-                    <input type="radio" name="is_show" value="0" v-bind:checked="items.is_show==0 ? true : false"> {:lang('no')}
+                    <input type="radio" name="is_show" value="0"> {:lang('no')}
                 </label>
                 <br>
                 <label>{:lang('channel')}</label>
                 <label>
-                    <input type="radio" name="is_channel" value="1" v-bind:checked="items.is_channel==1 ? true : false"> {:lang('yes')}
+                    <input type="radio" name="is_channel" value="1"> {:lang('yes')}
                 </label>
                 <label>
-                    <input type="radio" name="is_channel" value="0" v-bind:checked="items.is_channel==0 ? true : false"> {:lang('no')}
+                    <input type="radio" name="is_channel" value="0" checked="checked"> {:lang('no')}
                 </label>
             </div>
 
             <div class="form-group">
                 <label>{:lang('sort')}</label>
-                <input type="text" name="sort_order" class="form-control" v-bind:value="items.sort_order">
+                <input type="text" name="sort_order" class="form-control">
             </div>
 
             <div class="form-group">
@@ -79,8 +84,7 @@
                 <select class="form-control" name="access_id">
                     <option value="0">{:lang('select')}</option>
                     <template v-for="vo in items.access_name" >
-                    <option v-bind:value="vo.id" v-text="vo.name" v-if="items.access_id==vo.id" selected></option>
-                    <option v-bind:value="vo.id" v-text="vo.name" v-else></option>
+                    <option v-bind:value="vo.id" v-text="vo.name"></option>
                     </template>
                 </select>
             </div>
@@ -88,12 +92,12 @@
             <p><b>{:lang('url')}</b></p>
             <div class="input-group">
                 <span class="input-group-addon">http://</span>
-                <input type="text" name="url" class="form-control" v-bind:value="items.url">
+                <input type="text" name="url" class="form-control">
             </div>
         </form>
     </div>
     <div class="box-footer">
-        <button type="submit" class="btn btn-primary">{:lang('save')}</button>
+        <button class="btn btn-primary">{:lang('save')}</button>
     </div>
 </div>
 {tag:script}
@@ -102,7 +106,7 @@ jQuery.pjax({
     type: 'GET',
     data: {
         method: 'category.category.find',
-        id: NICMS.api.param.id
+        pid: NICMS.api.param.id
     },
     success: function(result){
         if (result.code == 'SUCCESS') {
@@ -118,16 +122,16 @@ jQuery.pjax({
 jQuery(document).on('click', '.btn', function(){
     var btn = jQuery(this).button('{:lang('saveing')}');
     var data = jQuery.getForm('#category');
-    data['method'] = 'category.category.editor';
-    data['id'] = NICMS.api.param.id;
+    data['method'] = 'category.category.added';
+    data['pid'] = NICMS.api.param.id;
     jQuery.pjax({
         url: NICMS.api.url + '/handle.do',
         type: 'POST',
         data: data,
         success: function(result){
             if (result.code === 'SUCCESS') {
-                jQuery.uiToast(result.message);
-                location.reload();
+                <!-- jQuery.uiToast(result.message); -->
+                <!-- location.reload(); -->
             }
         }
     });

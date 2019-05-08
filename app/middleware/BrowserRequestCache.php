@@ -25,6 +25,7 @@ class BrowserRequestCache
     {
         if (false === Config::get('app.app_debug') && $if_modified_since = $request->server('HTTP_IF_MODIFIED_SINCE')) {
             $expire = (int)Config::get('cache.expire');
+            $expire -= 120;
             if (strtotime($if_modified_since) + $expire >= $request->server('REQUEST_TIME')) {
                 return Response::create()->code(304);
             }

@@ -21,8 +21,7 @@ use think\facade\Request;
 class Upload
 {
     private $rule = [];
-    private $savePath;
-    private $subDir;
+    private $savePath = '';
 
     /**
      * 构造方法
@@ -32,10 +31,7 @@ class Upload
      */
     public function __construct()
     {
-        $this->subDir = date('Ym');
-        $this->savePath = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
-            'uploads' . DIRECTORY_SEPARATOR .
-            $this->subDir . DIRECTORY_SEPARATOR;
+        $this->savePath = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
 
         $size = (int)Env::get('app.upload_size', '1');
         $ext = Env::get('app.upload_type', 'gif,jpg,png,zip,rar');
@@ -52,9 +48,12 @@ class Upload
      * @param  string $_input_name 表单名
      * @return array  文件信息
      */
-    public function save(string $_input_name = 'upload'): array
+    public function save(string $_input_name = 'upload', string $_dir = ''): array
     {
         $file = Request::file($_input_name);
+        $this->savePath .= $_dir ? $_dir . DIRECTORY_SEPARATOR : '';
+        $this->savePath .= date('Ym') . DIRECTORY_SEPARATOR;
+
 
         $result = [];
 
@@ -75,11 +74,11 @@ class Upload
 
     /**
      * 保存文件
+     * @access private
      * @param  object $_object
-     * @param  string $_type
-     * @return string
+     * @return array
      */
-    private function saveFile(object $_object)
+    private function saveFile(object $_object): array
     {
         if ($result = $_object->validate($this->rule)->rule('uniqid')->move($this->savePath)) {
 

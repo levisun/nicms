@@ -21,6 +21,7 @@ use app\library\Base64;
 use app\logic\admin\Base;
 use app\model\Category as ModelCategory;
 use app\model\Level as ModelLevel;
+use app\model\Models as ModelModels;
 
 class Category extends Base
 {
@@ -37,13 +38,14 @@ class Category extends Base
             return $result;
         }
 
-        $result = (new ModelCategory)->view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
+        $result = (new ModelCategory)
+            ->view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
             ->where([
                 ['category.pid', '=', 0],
                 ['category.lang', '=', Lang::getLangSet()]
             ])
-            ->order('category.sort_order ASC, category.id DESC')
+            ->order('category.type_id ASC, category.sort_order ASC, category.id DESC')
             ->select()
             ->toArray();
 
@@ -52,6 +54,7 @@ class Category extends Base
             $value['child'] = $this->child($value['id']);
             $value['id'] = Base64::encrypt($value['id']);
             $value['url'] = [
+                'added'  => url('category/category/added/' . $value['id']),
                 'editor' => url('category/category/editor/' . $value['id']),
                 'remove' => url('category/category/remove/' . $value['id']),
             ];
@@ -77,7 +80,8 @@ class Category extends Base
      */
     private function child(int $_pid)
     {
-        $result = (new ModelCategory)->view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
+        $result = (new ModelCategory)
+            ->view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
             ->where([
                 ['category.pid', '=', $_pid],
@@ -92,6 +96,7 @@ class Category extends Base
             $value['child'] = $this->child($value['id']);
             $value['id'] = Base64::encrypt($value['id']);
             $value['url'] = [
+                'added'  => url('category/category/added/' . $value['id']),
                 'editor' => url('category/category/editor/' . $value['id']),
                 'remove' => url('category/category/remove/' . $value['id']),
             ];
@@ -120,6 +125,51 @@ class Category extends Base
         }
     }
 
+    public function added()
+    {
+        if ($result = $this->authenticate(__METHOD__, 'admin category added')) {
+            return $result;
+        }
+
+        $pid = 0;
+        if ($pid = Request::param('pid')) {
+            $pid = (int)Base64::decrypt($pid);
+        }
+
+        $receive_data = [
+            'pid'         => $pid,
+            'name'        => Request::param('name'),
+            'aliases'     => Request::param('aliases'),
+            'title'       => Request::param('title'),
+            'keywords'    => Request::param('keywords'),
+            'description' => Request::param('description'),
+            'image'       => Request::param('image'),
+            'model_id'    => (int)Request::param('model_id/f'),
+            'type_id'     => (int)Request::param('type_id/f'),
+            'is_show'     => (int)Request::param('is_show/f'),
+            'is_channel'  => (int)Request::param('is_channel/f'),
+            'sort_order'  => (int)Request::param('sort_order/f'),
+            'access_id'   => (int)Request::param('access_id/f'),
+            'url'         => Request::param('url'),
+            'update_time' => time(),
+            'create_time' => time(),
+            'lang'        => Lang::getLangSet()
+        ];
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+
+        // (new ModelCategory)->create($receive_data);
+        // $result = (new ModelSession)->getNumRows();
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'category added success',
+            'data'  => $result
+        ];
+    }
+
     /**
      * 查询
      * @access public
@@ -134,7 +184,8 @@ class Category extends Base
 
         if ($id = Request::param('id')) {
             $id = (int)Base64::decrypt($id);
-            $result = (new ModelCategory)->view('category')
+            $result = (new ModelCategory)
+                ->view('category')
                 ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
                 ->where([
                     ['category.id', '=', $id],
@@ -150,6 +201,7 @@ class Category extends Base
                     ->value('name as parent');
 
                 $result['id'] = Base64::encrypt($result['id']);
+
                 $result['type_name'] = [
                     ['id' => '1', 'name' => Lang::get('category top type')],
                     ['id' => '2', 'name' => Lang::get('category main type')],
@@ -157,13 +209,45 @@ class Category extends Base
                     ['id' => '4', 'name' => Lang::get('category other type')],
                 ];
 
-                $result['access_name'] = (new ModelLevel)->field('id, name')
+                $result['access_name'] = (new ModelLevel)
+                    ->field('id, name')
                     ->order('id DESC')
                     ->select()
                     ->toArray();
             }
+        } elseif ($pid = Request::param('pid')) {
+            $pid = (int)Base64::decrypt($pid);
+
+            $result = [];
+            $result['parent'] = (new ModelCategory)
+                ->where([
+                    ['id', '=', $pid]
+                ])
+                ->value('name as parent');
+
+            $result['type_name'] = [
+                ['id' => '1', 'name' => Lang::get('category top type')],
+                ['id' => '2', 'name' => Lang::get('category main type')],
+                ['id' => '3', 'name' => Lang::get('category foot type')],
+                ['id' => '4', 'name' => Lang::get('category other type')],
+            ];
+
+            $result['access_name'] = (new ModelLevel)
+                ->field('id, name')
+                ->order('id DESC')
+                ->select()
+                ->toArray();
+
+            $result['model_name'] = (new ModelModels)
+                ->field('id, name')
+                ->where([
+                    ['status', '=', 1]
+                ])
+                ->order('id ASC')
+                ->select()
+                ->toArray();
         } else {
-            $result = 'request param error';
+            $result = 'category id error';
         }
 
         return [
@@ -174,7 +258,13 @@ class Category extends Base
         ];
     }
 
-    public function editor()
+    /**
+     * 编辑
+     * @access public
+     * @param
+     * @return array
+     */
+    public function editor(): array
     {
         if ($result = $this->authenticate(__METHOD__, 'admin category editor')) {
             return $result;
@@ -191,12 +281,12 @@ class Category extends Base
                 'description' => Request::param('description'),
                 'image'       => Request::param('image'),
                 'type_id'     => (int)Request::param('type_id/f'),
-                'model_id'    => (int)Request::param('model_id/f'),
                 'is_show'     => (int)Request::param('is_show/f'),
                 'is_channel'  => (int)Request::param('is_channel/f'),
                 'sort_order'  => (int)Request::param('sort_order/f'),
                 'access_id'   => (int)Request::param('access_id/f'),
                 'url'         => Request::param('url'),
+                'update_time' => time()
             ];
             if ($result = $this->validate(__METHOD__, $receive_data)) {
                 return $result;
