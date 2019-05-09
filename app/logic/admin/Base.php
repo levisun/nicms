@@ -28,6 +28,28 @@ class Base
 {
 
     /**
+     * 上传
+     * @access protected
+     * @param
+     * @return string|array
+     */
+    protected function uploadFile(string $_method, string $_write_log)
+    {
+        if ($result = $this->authenticate($_method, $_write_log)) {
+            return $result;
+        }
+        
+        if (Request::isPost() && !empty($_FILES)) {
+            $input_name = Request::param('input_name', 'upload');
+            $result = (new Upload)->save($input_name);
+        } else {
+            $result = 'upload error';
+        }
+
+        return $result;
+    }
+
+    /**
      * 权限验证
      * @access protected
      * @param  string  $_method
@@ -101,31 +123,9 @@ class Base
         return $result ? false : [
             'debug' => false,
             'cache' => false,
-            'code'  => 'error',
+            'code'  => 'ERROR',
             'msg'   => 'auth error'
         ];
-    }
-
-    /**
-     * 上传
-     * @access protected
-     * @param
-     * @return string|array
-     */
-    protected function upload()
-    {
-        if ($result = $this->authenticate(__METHOD__, 'admin upload file')) {
-            return $result;
-        }
-
-        if (Request::isPost() && !empty($_FILES)) {
-            $input_name = Request::param('input_name', 'upload');
-            $result = (new Upload)->save($input_name);
-        } else {
-            $result = 'upload error';
-        }
-
-        return $result;
     }
 
     /**
@@ -158,7 +158,7 @@ class Base
             return [
                 'debug' => false,
                 'cache' => false,
-                'code'  => 'error',
+                'code'  => 'ERROR',
                 'msg'   => $v->getError()
             ];
         } else {

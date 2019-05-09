@@ -46,7 +46,7 @@ class LockingIllegalRequest
             clearstatcache();
             if (is_file($request_log)) {
                 include $request_log;
-                if (!empty($number[$time]) && $number[$time] >= rand(25, 30)) {
+                if (!empty($number[$time]) && $number[$time] >= 60) {
                     file_put_contents($request_log . '.lock', date('YmdHis'));
                 }
             } else {

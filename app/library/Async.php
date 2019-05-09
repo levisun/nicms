@@ -158,7 +158,6 @@ class Async
      */
     public function __construct()
     {
-        ini_set('display_errors', 'Off');
         ini_set('memory_limit', '16M');
         set_time_limit(15);
         header('X-Powered-By: NIAPI');
@@ -221,7 +220,7 @@ class Async
     {
         // 校验API方法
         $this->method = Request::param('method');
-        if ($this->method && preg_match('/^[a-z.]+$/u', $this->method)) {
+        if ($this->method && preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $this->method)) {
             list($logic, $class, $action) = explode('.', $this->method, 3);
 
             $method = 'app\logic\\' . $this->module . '\\';
@@ -339,7 +338,7 @@ class Async
                 $this->error('[Async] auth-appid error');
             }
         } else {
-            $this->error('[Async] auth-appid error');
+            $this->error('[Async] auth-appid not');
         }
 
         return $this;
@@ -393,7 +392,7 @@ class Async
 
         // 解析版本号与返回数据类型
         $this->accept = Request::header('accept');
-        if ($this->accept && preg_match('/^[A-Za-z0-9.\/\+]+$/u', $this->accept)) {
+        if ($this->accept && preg_match('/^application\/vnd\.[A-Za-z0-9\.\+]+$/u', $this->accept)) {
             // 过滤多余信息
             $accept = str_replace('application/vnd.', '', $this->accept);
 
@@ -481,11 +480,12 @@ class Async
         $result['expire']  = $this->expire . ';' . $ipinfo['ip'] . ';' . date('YmdHis', time() + $this->expire + 60);
 
         // 记录日志
-        if (true === $this->debug) {
+        if (true === $this->debug || $_code == 'ERROR') {
             $this->writeLog($result);
         }
 
         $response = Response::create($result, $this->format);
+        $response->allowCache(false);
         if (true === $this->cache && $this->expire && $_code == 'SUCCESS') {
             $response
                 ->allowCache(true)

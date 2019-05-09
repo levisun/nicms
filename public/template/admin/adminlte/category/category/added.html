@@ -34,7 +34,7 @@
             <div class="form-group">
                 <label>{:lang('image')}</label>
                 <input type="text" name="image" class="form-control">
-                <input type="file" name="image" class="form-control">
+                <input type="file" name="upload" id="upload" class="form-control">
             </div>
 
             <div class="form-group">
@@ -133,6 +133,15 @@ jQuery(document).on('click', '.btn', function(){
                 <!-- jQuery.uiToast(result.message); -->
                 <!-- location.reload(); -->
             }
+        }
+    });
+});
+jQuery(document).on('change', '#upload', function(){
+    jQuery.upload({
+        url: NICMS.api.url + '/upload.do',
+        file: document.getElementById('category'),
+        data: {
+            method: 'category.category.upload'
         }
     });
 });

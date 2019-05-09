@@ -310,4 +310,25 @@ class Category extends Base
             'msg'   => $msg
         ];
     }
+
+    public function upload()
+    {
+        $result = $this->uploadFile(__METHOD__, 'category upload image');
+        halt($result);
+        if (is_string($result)) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 'ERROR',
+                'msg'   => $result
+            ];
+        } else {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'msg'   => 'upload success',
+                'data'  => $result
+            ];
+        }
+    }
 }

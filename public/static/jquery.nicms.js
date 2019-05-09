@@ -44,7 +44,16 @@
      * 上传
      */
     jQuery.upload = function (_params) {
+        var method = _params.data.method;
         _params.data = new FormData(_params.file);
+        _params.data.append('appid', NICMS.api.appid);
+        _params.data.append('timestamp', NICMS.api.timestamp);
+        _params.data.append('method', method);
+        _params.data.append('sign', jQuery.sign({
+            appid: NICMS.api.appid,
+            timestamp: NICMS.api.timestamp,
+            method: method,
+        }));
         _params.type = 'post';
         _params.async = false;
         _params.cache = false;

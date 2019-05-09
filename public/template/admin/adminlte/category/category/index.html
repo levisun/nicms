@@ -35,10 +35,22 @@
                         </span>
                     </td>
                     <td>
-                        <a class="child" v-if="vo.child" v-bind:data="vo.id">{:lang('child')}</a>
-                        <a class="added" v-bind:href="vo.url.added">{:lang('added')}</a>
-                        <a class="editor" v-bind:href="vo.url.editor">{:lang('editor')}</a>
-                        <a class="reomve" v-bind:href="vo.url.reomve">{:lang('reomve')}</a>
+                        <a class="child" v-if="vo.child" v-bind:data="vo.id">
+                            <i class="fa fa-plus"></i>
+                            {:lang('child')}
+                        </a>
+                        <a class="added" v-bind:href="vo.url.added">
+                            <i class="fa fa-plus"></i>
+                            {:lang('added')}
+                        </a>
+                        <a class="editor" v-bind:href="vo.url.editor">
+                            <i class="fa fa-plus"></i>
+                            {:lang('editor')}
+                        </a>
+                        <a class="reomve" v-bind:href="vo.url.reomve">
+                            <i class="fa fa-plus"></i>
+                            {:lang('reomve')}
+                        </a>
                     </td>
                 </tr>
                 <tr v-if="vo.child" v-for="cv in vo.child" v-bind:class="vo.id" style="display: none;">

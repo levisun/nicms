@@ -74,7 +74,7 @@ class Api extends Async
      */
     public function upload(): void
     {
-        if ($this->referer && Request::isPost() && !empty($_FILES)) {
+        if (Request::isPost() && !empty($_FILES)) {
             $this->run();
         } else {
             $this->error('upload::request error');

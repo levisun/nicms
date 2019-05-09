@@ -20,7 +20,15 @@ Route::get('404', 'error/_404');
 Route::get('500', 'error/_500');
 
 $domain = Request::subDomain();
-if ('www' === $domain) {
+if ('api' === $domain) {
+    Route::ext('do');
+    Route::get('download$', 'api/download');
+    Route::get('ip$', 'api/ip');
+    Route::get('query$', 'api/query');
+    Route::post('handle$', 'api/handle');
+    Route::post('upload$', 'api/upload');
+}
+elseif ('www' === $domain) {
     Route::ext('html');
     Route::get('/', 'cms/index');
     Route::get('index', 'cms/index');
@@ -36,13 +44,8 @@ elseif (Env::get('admin.entry') === $domain) {
     Route::get(':logic/:controller/:action/:id$', 'admin/index');
 }
 
-elseif ('api' === $domain) {
-    Route::ext('do');
-    Route::get('download$', 'api/download');
-    Route::get('ip$', 'api/ip');
-    Route::get('query$', 'api/query');
-    Route::post('handle$', 'api/handle');
-    Route::post('upload$', 'api/upload');
+else {
+    die();
 }
 
 
