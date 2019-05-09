@@ -32,7 +32,7 @@ class ReGarbage
 
         $this->remove($runtime_path . 'cache', 4);
         $this->remove($runtime_path . 'concurrent', 4);
-        // $this->remove($runtime_path . 'compile', 72);
+        $this->remove($runtime_path . 'compile', 72);
         $this->remove($runtime_path . 'log', 72);
         $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 72);
 
@@ -52,60 +52,42 @@ class ReGarbage
      */
     private function remove(string $_dir, int $_expire): void
     {
-        $dirOrFile = (array)glob($_dir . DIRECTORY_SEPARATOR . '*');
-        $dirOrFile = $this->getAllFile($dirOrFile, $_expire);
-
-        if (!empty($dirOrFile)) {
-            Log::record('[REGARBAGE] ' . pathinfo($_dir, PATHINFO_BASENAME) . ' 删除垃圾信息', 'alert');
-
-            // 随机抽取1000条信息
-            shuffle($dirOrFile);
-            $dirOrFile = array_slice($dirOrFile, 0, 1000);
-
-            clearstatcache();
-            foreach ($dirOrFile as $path) {
-                if (is_file($path) && pathinfo($path, PATHINFO_BASENAME) == '.gitignore') {
-                    continue;
-                }
-                if (is_file($path) && false === stripos($path, '_skl_')) {
-                    @unlink($path);
-                } elseif (is_dir($path)) {
-                    @rmdir($path);
-                }
+        $dir = $this->getDirAllFile($_dir . DIRECTORY_SEPARATOR . '*', $_expire);
+        while ($dir->valid()) {
+            $filename = $dir->current();
+            if (false === strpos($filename, '_skl_')) {
+                Log::record('[REGARBAGE] ' . pathinfo($filename, PATHINFO_BASENAME) . ' 删除垃圾信息', 'alert');
+                @unlink($filename);
             }
+            $dir->next();
         }
     }
 
     /**
      * 获得目录中的所有文件与目录
      * @access private
-     * @param  array $_dirOrFile
+     * @param  array $_path
      * @param  int   $_expire
-     * @return array
+     * @return
      */
-    private function getAllFile(array $_dirOrFile, int $_expire): array
+    private function getDirAllFile(string $_path, int $_expire)
     {
+        $dir = (array)glob($_path);
         $days = strtotime('-' . $_expire . ' hour');
-
-        $all_files = [];
-        foreach ($_dirOrFile as $key => $path) {
-            if (is_file($path) && false === stripos($path, '_skl_')) {
-                // 过滤未过期文件
-                if (filectime($path) <= $days) {
-                    $all_files[] = $path;
-                }
-            } elseif (is_dir($path . DIRECTORY_SEPARATOR)) {
-                $temp = (array)glob($path . DIRECTORY_SEPARATOR . '*');
-                if (!empty($temp)) {
-                    $temp = $this->getAllFile($temp, $_expire);
-                    $all_files = array_merge($all_files, $temp);
-                    unset($temp);
-                } else {
-                    $all_files[] = $path;
+        foreach ($dir as $files) {
+            if (is_file($files) && filemtime($files) <= $days) {
+                yield $files;
+            } elseif (is_dir($files . DIRECTORY_SEPARATOR)) {
+                // yield $files;
+                $sub = $this->getDirAllFile($files . DIRECTORY_SEPARATOR . '*', $_expire);
+                while ($sub->valid()) {
+                    $filename = $sub->current();
+                    if (is_file($filename) && filemtime($filename) <= $days) {
+                        yield $filename;
+                    }
+                    $sub->next();
                 }
             }
         }
-
-        return $all_files;
     }
 }

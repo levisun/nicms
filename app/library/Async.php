@@ -478,7 +478,7 @@ class Async
         $result = array_filter($result);
 
         $ipinfo = (new Ip)->info();
-        $result['expire']  = $ipinfo['ip'] . ' ' . date('YmdHis', time() + $this->expire + 60);
+        $result['expire']  = $this->expire . ';' . $ipinfo['ip'] . ';' . date('YmdHis', time() + $this->expire + 60);
 
         // 记录日志
         if (true === $this->debug) {
@@ -486,8 +486,7 @@ class Async
         }
 
         $response = Response::create($result, $this->format);
-
-        if (false === Config::get('app.app_debug') && true === $this->cache && $this->expire && $_code == 'SUCCESS') {
+        if (true === $this->cache && $this->expire && $_code == 'SUCCESS') {
             $response
                 ->allowCache(true)
                 ->cacheControl('public, max-age=' . $this->expire)

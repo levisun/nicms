@@ -59,8 +59,6 @@ class Cms extends Template
      */
     public function index()
     {
-        echo count($_POST) + count($_FILES);
-        echo ini_get('max_input_vars');
         // $this->fetch('index');
     }
 

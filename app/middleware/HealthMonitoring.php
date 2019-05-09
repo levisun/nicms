@@ -44,7 +44,7 @@ class HealthMonitoring
 
         $response = $next($request);
 
-        if ('api' !== $request->subDomain() && 1 === rand(1, 3)) {
+        if ('api' !== $request->subDomain() && 1 === rand(1, 9)) {
             (new ReGarbage)->run();     // 清除过期缓存和日志等
             (new DbBackup)->auto();     // 生成数据备份
         }

@@ -27,6 +27,7 @@ class DbBackup
         $this->savePath = app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR;
         clearstatcache();
         set_time_limit(0);
+        ini_set('memory_limit', '64M');
     }
 
     /**
@@ -98,10 +99,10 @@ class DbBackup
 
                 $num = 1;
                 $sql = '';
-                $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
                 for ($limit = 0; $limit < $total; $limit++) {
+                    $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
                     $sql .= $this->queryTableInsertData($name, $field, $limit);
-                    if (strlen($sql) >= 1024 * 1024 * 10) {
+                    if (strlen($sql) >= 1048576 * 15) {
                         $this->write($sql_file, $sql);
                         $sql = '';
                         ++$num;
@@ -155,18 +156,18 @@ class DbBackup
                 $total = $this->queryTableInsertTotal($name);
                 $field = $this->queryTableInsertField($name);
 
-                for ($limit = 1; $limit <= $total; $limit++) {
-                    $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $limit) . '.sql';
-                    if (!is_file($sql_file)) {
-                        $sql = $this->queryTableInsertData($name, $field, $limit);
-                        $this->write($sql_file, $sql);
-                        break 2;
-                    } elseif (is_file($sql_file) && filemtime($sql_file) <= strtotime('-' . rand(12, 24) . ' hour')) {
-                        $sql = $this->queryTableInsertData($name, $field, $limit);
-                        $this->write($sql_file, $sql);
-                        break 2;
-                    }
-                }
+                // for ($limit = 1; $limit <= $total; $limit++) {
+                //     $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $limit) . '.sql';
+                //     if (!is_file($sql_file)) {
+                //         $sql = $this->queryTableInsertData($name, $field, $limit);
+                //         $this->write($sql_file, $sql);
+                //         break 2;
+                //     } elseif (is_file($sql_file) && filemtime($sql_file) <= strtotime('-' . rand(12, 24) . ' hour')) {
+                //         $sql = $this->queryTableInsertData($name, $field, $limit);
+                //         $this->write($sql_file, $sql);
+                //         break 2;
+                //     }
+                // }
             }
             ignore_user_abort(false);
 
@@ -182,11 +183,11 @@ class DbBackup
      */
     private function queryTableInsertData(string $_table_name, string $_field, int $_limit): string
     {
-        $_limit = $_limit * 1000;
+        $_limit = $_limit * 200;
         $data =
             Db::table($_table_name)
             ->field($_field)
-            ->limit($_limit, 1000)
+            ->limit($_limit, 200)
             ->select();
 
         $insert_into = 'INSERT INTO `' . $_table_name . '` (' . $_field . ') VALUES';
@@ -236,7 +237,7 @@ class DbBackup
     {
         $total = Db::table($_table_name)->count();
         if ($total) {
-            return (int)ceil($total / 1000);
+            return (int)ceil($total / 200);
         } else {
             return 0;
         }
@@ -254,7 +255,9 @@ class DbBackup
         if (!empty($tableRes[0]['Create Table'])) {
             $structure  = 'DROP TABLE IF EXISTS `' . $_table_name . '`;';
             $structure .= $tableRes[0]['Create Table'] . ';';
-            return $structure;
+            return preg_replace_callback('/(AUTO_INCREMENT=[0-9]+ DEFAULT)/si', function ($matches) {
+                return 'DEFAULT';
+            }, $structure);
         } else {
             return false;
         }
@@ -287,7 +290,7 @@ class DbBackup
     private function write(string $_file, string $_data): void
     {
         Log::record('[BACKUP] #' . pathinfo($_file, PATHINFO_BASENAME), 'alert');
-        $_data = gzcompress($_data);
+        // $_data = gzcompress($_data);
         file_put_contents($_file, $_data);
     }
 
