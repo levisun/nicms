@@ -63,6 +63,12 @@ class RequestCache
         return $response;
     }
 
+    /**
+     * 缓存KEY
+     * @access private
+     * @param  Request $request
+     * @return string
+     */
     private function cacheKey($request)
     {
         $key = $request->url(true);
