@@ -311,10 +311,19 @@ class Category extends Base
         ];
     }
 
+    /**
+     * 上传图片
+     * @access public
+     * @param
+     * @return array
+     */
     public function upload()
     {
-        $result = $this->uploadFile(__METHOD__, 'category upload image');
-        halt($result);
+        if ($result = $this->authenticate(__METHOD__, 'admin category upload image')) {
+            return $result;
+        }
+
+        $result = $this->uploadFile('category');
         if (is_string($result)) {
             return [
                 'debug' => false,

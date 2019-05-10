@@ -45,7 +45,9 @@ elseif (Env::get('admin.entry') === $domain) {
 }
 
 else {
-    die();
+    $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
+    // $response = \think\Response::create($error, '', 404);
+    // throw new \think\exception\HttpResponseException($response);
 }
 
 

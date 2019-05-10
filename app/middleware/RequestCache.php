@@ -29,40 +29,48 @@ class RequestCache
 
     public function handle($request, Closure $next)
     {
-        $key = sha1($request->url(true));
-        if ($request->isGet() && $this->cache->has($key) && $if_modified_since = $request->server('HTTP_IF_MODIFIED_SINCE')) {
+        $key = $this->cacheKey($request);
+        if ($request->isGet() && $this->cache->has($key)) {
             list($content, $header) = $this->cache->get($key);
-            $expire = (int)str_replace('public, max-age=', '', $header['Cache-control']);
-            if (strtotime($if_modified_since) + $expire >= $request->server('REQUEST_TIME')) {
-                return Response::create()->code(304);
+            if ($if_modified_since = $request->server('HTTP_IF_MODIFIED_SINCE')) {
+                $expire = (int)str_replace('public, max-age=', '', $header['Cache-control']);
+                if (strtotime($if_modified_since) + $expire >= $request->server('REQUEST_TIME')) {
+                    return Response::create()->code(304);
+                }
+            } else {
+                return Response::create($content)->header($header);
             }
-        } elseif ($request->isGet() && $this->cache->has($key)) {
-            list($content, $header) = $this->cache->get($key);
-            return Response::create($content)->header($header);
         }
 
         $response = $next($request);
 
         if ($request->isGet() && 200 == $response->getCode() && $response->isAllowCache()) {
-            if (!$response->getHeader('Cache-control')) {
-                $expire = 10;
-                $response->cacheControl('public, max-age=' . $expire);
-            } else {
+            if ($response->getHeader('Cache-control')) {
                 $expire = (int)str_replace('public, max-age=', '', $response->getHeader('Cache-control'));
+            } elseif (false === Config::get('app.app_debug')) {
+                $expire = Config::get('cache.expire');
+                $response->cacheControl('public, max-age=' . $expire)
+                    ->expires(gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT')
+                    ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
             }
 
-            if (!$response->getHeader('Expires')) {
-                $response->expires(gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT');
+            if (isset($expire)) {
+                $key = $this->cacheKey($request);
+                $this->cache->set($key, [$response->getContent(), $response->getHeader()], $expire);
             }
-
-            if (!$response->getHeader('Last-Modified')) {
-                $response->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
-            }
-            
-            $key = sha1($request->url(true));
-            $this->cache->set($key, [$response->getContent(), $response->getHeader()], $expire);
         }
 
         return $response;
+    }
+
+    private function cacheKey($request)
+    {
+        $key = $request->url(true);
+
+        $key = preg_replace_callback('/timestamp=[0-9]+|sign=[A-Za-z0-9]{32,40}/si', function ($matches) {
+            return '';
+        }, $key);
+
+        return sha1($key);
     }
 }

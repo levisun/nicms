@@ -28,20 +28,16 @@ class Base
 {
 
     /**
-     * 上传
+     * 上传文件
      * @access protected
      * @param
      * @return string|array
      */
-    protected function uploadFile(string $_method, string $_write_log)
+    protected function uploadFile(string $_dir = '')
     {
-        if ($result = $this->authenticate($_method, $_write_log)) {
-            return $result;
-        }
-        
         if (Request::isPost() && !empty($_FILES)) {
             $input_name = Request::param('input_name', 'upload');
-            $result = (new Upload)->save($input_name);
+            $result = (new Upload)->save($input_name, $_dir);
         } else {
             $result = 'upload error';
         }

@@ -67,7 +67,7 @@ class Upload
         elseif (is_object($file)) {
             $result = $this->saveFile($file);
         }
-        
+
         return $result;
     }
 
@@ -80,31 +80,33 @@ class Upload
     private function saveFile(object $_object): array
     {
         if ($result = $_object->validate($this->rule)->rule('uniqid')->move($this->savePath)) {
-            halt($result->getInfo());
+            $extension = strtolower(pathinfo($result->getSaveName(), PATHINFO_EXTENSION));
+
             // 图片文件 压缩图片
-            if (in_array($result->getExtension(), ['gif', 'jpg', 'jpeg', 'bmp', 'png'])) {
-                // $save_name = $result->getSaveName();
-                // $image = Image::open($this->savePath . $save_name);
+            if (in_array($extension, ['gif', 'jpg', 'jpeg', 'bmp', 'png'])) {
+                $save_name = $result->getSaveName();
+                $image = Image::open($this->savePath . $save_name);
 
-                // // 按指定图片大小缩放图片
-                // // 如果没有指定大小,图片大于800像素 统一缩放到800像素
-                // $width = (int)Request::param('width/f', 800);
-                // $width = $width > 800 ? 800 : $width;
-                // $height = (int)Request::param('height/f', 800);
-                // $height = $height > 800 ? 800 : $height;
+                // 按指定图片大小缩放图片
+                // 如果没有指定大小,图片大于800像素 统一缩放到800像素
+                $width = (int)Request::param('width/f', 800);
+                $width = $width > 800 ? 800 : $width;
+                $height = (int)Request::param('height/f', 800);
+                $height = $height > 800 ? 800 : $height;
 
-                // if ($image->width() > $width || $image->height() > $height) {
-                //     $image->thumb($width, $height, Image::THUMB_SCALING);
-                // }
-                // $image->save($this->savePath . $save_name, null, 60);
+                if ($image->width() > $width || $image->height() > $height) {
+                    $image->thumb($width, $height, Image::THUMB_SCALING);
+                }
+                $image->save($this->savePath . $save_name, null, 60);
             }
-            
+
             return [
-                'ext'      => $result->getExtension(),
-                'name'     => $result->getSaveName(),
-                'original' => $result->getBaseName('.' . $result->getExtension()),
-                'size'     => $result->getSize(),
-                'url'      => '/uploads/' . $this->subDir . '/' .  $result->getSaveName(),
+                'extension' => $extension,
+                'name'      => $result->getSaveName(),
+                'original'  => $result->getName(),
+                'size'      => filesize($this->savePath . $result->getSaveName()),
+                'type'      => $result->getMime(),
+                'url'       => '/uploads/' .  $result->getSaveName(),
             ];
         } else {
             return [
