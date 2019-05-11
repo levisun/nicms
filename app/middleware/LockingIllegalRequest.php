@@ -24,7 +24,7 @@ class LockingIllegalRequest
     public function handle($request, Closure $next)
     {
         clearstatcache();
-        $request_log = app()->getRuntimePath() . 'concurrent' . DIRECTORY_SEPARATOR;
+        $request_log = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
         if (!is_dir($request_log)) {
             chmod(app()->getRuntimePath(), 0777);
             mkdir($request_log, 0777, true);

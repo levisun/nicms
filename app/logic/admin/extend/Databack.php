@@ -16,7 +16,7 @@ declare (strict_types = 1);
 namespace app\logic\admin\extend;
 
 use think\facade\Request;
-use app\library\DbBackup;
+use app\library\DataMaintenance;
 use app\library\Base64;
 use app\logic\admin\Base;
 
@@ -89,7 +89,7 @@ class Databack extends Base
         }
 
         try {
-            (new DbBackup)->save();
+            (new DataMaintenance)->backup();
             $msg = 'databack success';
         } catch (Exception $e) {
             $msg = 'databack error';
@@ -154,6 +154,6 @@ class Databack extends Base
         $id = Request::param('id');
         $id = Base64::decrypt($id);
 
-        (new DbBackup)->reduction($id);
+        (new DataMaintenance)->reduction($id);
     }
 }

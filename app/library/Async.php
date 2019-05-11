@@ -476,16 +476,18 @@ class Async
         ];
         $result = array_filter($result);
 
-        $ipinfo = (new Ip)->info();
-        $result['expire']  = $this->expire . ';' . $ipinfo['ip'] . ';' . date('YmdHis', time() + $this->expire + 60);
 
         // 记录日志
-        if (true === $this->debug || $_code == 'ERROR') {
+        if (true === $this->debug) {
             $this->writeLog($result);
         }
 
-        $response = Response::create($result, $this->format);
-        $response->allowCache(false);
+        if (true === $this->cache && $this->expire && $_code == 'SUCCESS') {
+            $ipinfo = (new Ip)->info();
+            $result['expire'] = $ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';' . $this->expire . 's';
+        }
+
+        $response = Response::create($result, $this->format)->allowCache(false);
         if (true === $this->cache && $this->expire && $_code == 'SUCCESS') {
             $response
                 ->allowCache(true)

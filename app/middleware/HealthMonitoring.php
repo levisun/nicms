@@ -21,7 +21,7 @@ use Closure;
 use think\Response;
 use think\facade\Log;
 use app\library\Accesslog;
-use app\library\DbBackup;
+use app\library\DataMaintenance;
 use app\library\ReGarbage;
 use app\library\Sitemap;
 
@@ -46,7 +46,15 @@ class HealthMonitoring
 
         if ('api' !== $request->subDomain() && 1 === rand(1, 9)) {
             (new ReGarbage)->run();     // 清除过期缓存和日志等
-            (new DbBackup)->auto();     // 生成数据备份
+        }
+
+        if ('api' !== $request->subDomain() && date('ymd') % 10 == 0) {
+            $lock = app()->getRuntimePath() . 'datamaintenance.lock';
+            if (!is_file($lock) || filemtime($lock) <= strotime('-10 days')) {
+                (new DataMaintenance)->optimize();  // 优化表
+                (new DataMaintenance)->repair();    // 修复表
+                file_put_contents($lock, date('Y-m-d H:i:s'));
+            }
         }
 
         return $response;

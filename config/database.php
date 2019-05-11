@@ -30,13 +30,8 @@ return [
     'dsn'             => '',
     // 数据库连接参数
     'params'          => [
-        \PDO::ATTR_CASE                     => \PDO::CASE_NATURAL,              // 列名按照原始
-        \PDO::ATTR_ERRMODE                  => \PDO::ERRMODE_EXCEPTION,         // 错误静默模式
-        \PDO::ATTR_ORACLE_NULLS             => \PDO::NULL_NATURAL,              // 不转换
-        \PDO::ATTR_STRINGIFY_FETCHES        => false,
-        \PDO::ATTR_EMULATE_PREPARES         => false,
         \PDO::ATTR_PERSISTENT               => false,                           // 长链接
-        // \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,                            // 查询缓存
+        \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,                            // 查询缓存
     ],
     // 数据库编码默认采用utf8
     'charset'         => Env::get('database.charset', 'utf8'),

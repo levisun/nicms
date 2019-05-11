@@ -96,21 +96,9 @@ class DbBackup
 
                 $total = $this->queryTableInsertTotal($name);
                 $field = $this->queryTableInsertField($name);
-
-                $num = 1;
-                $sql = '';
                 for ($limit = 0; $limit < $total; $limit++) {
-                    $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
-                    $sql .= $this->queryTableInsertData($name, $field, $limit);
-                    if (strlen($sql) >= 1048576 * 15) {
-                        $this->write($sql_file, $sql);
-                        $sql = '';
-                        ++$num;
-                    } elseif ($limit + 1 == $total) {
-                        $this->write($sql_file, $sql);
-                        $sql = '';
-                        ++$num;
-                    }
+                    $sql = $this->queryTableInsertData($name, $field, $limit);
+                    $this->write($sql_file, $sql);
                 }
             }
             ignore_user_abort(false);
@@ -156,7 +144,20 @@ class DbBackup
                 $total = $this->queryTableInsertTotal($name);
                 $field = $this->queryTableInsertField($name);
 
-                // for ($limit = 1; $limit <= $total; $limit++) {
+                $num = 1;
+                $sql = '';
+                for ($limit = 1; $limit <= $total; $limit++) {
+                    // $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
+                    // $sql .= $this->queryTableInsertData($name, $field, $limit);
+                    // if (strlen($sql) >= 1048576 * 15) {
+                    //     $this->write($sql_file, $sql);
+                    //     $sql = '';
+                    //     ++$num;
+                    // } elseif ($limit + 1 == $total) {
+                    //     $this->write($sql_file, $sql);
+                    //     $sql = '';
+                    //     ++$num;
+                    // }
                 //     $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $limit) . '.sql';
                 //     if (!is_file($sql_file)) {
                 //         $sql = $this->queryTableInsertData($name, $field, $limit);
@@ -167,7 +168,7 @@ class DbBackup
                 //         $this->write($sql_file, $sql);
                 //         break 2;
                 //     }
-                // }
+                }
             }
             ignore_user_abort(false);
 
@@ -206,7 +207,7 @@ class DbBackup
         }
         $insert_data = '(' . trim($insert_data, ',(') . ';';
 
-        return $insert_into . $insert_data;
+        return $insert_into . $insert_data . PHP_EOL;
     }
 
     /**
@@ -237,7 +238,7 @@ class DbBackup
     {
         $total = Db::table($_table_name)->count();
         if ($total) {
-            return (int)ceil($total / 200);
+            return (int)ceil($total / 500);
         } else {
             return 0;
         }
@@ -253,8 +254,8 @@ class DbBackup
     {
         $tableRes = Db::query('SHOW CREATE TABLE `' . $_table_name . '`');
         if (!empty($tableRes[0]['Create Table'])) {
-            $structure  = 'DROP TABLE IF EXISTS `' . $_table_name . '`;';
-            $structure .= $tableRes[0]['Create Table'] . ';';
+            $structure  = 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
+            $structure .= $tableRes[0]['Create Table'] . ';' . PHP_EOL;
             return preg_replace_callback('/(AUTO_INCREMENT=[0-9]+ DEFAULT)/si', function ($matches) {
                 return 'DEFAULT';
             }, $structure);
@@ -291,7 +292,7 @@ class DbBackup
     {
         Log::record('[BACKUP] #' . pathinfo($_file, PATHINFO_BASENAME), 'alert');
         // $_data = gzcompress($_data);
-        file_put_contents($_file, $_data);
+        file_put_contents($_file, $_data, FILE_APPEND);
     }
 
     /**
