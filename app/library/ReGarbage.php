@@ -31,16 +31,18 @@ class ReGarbage
         $root_path = app()->getRootPath();
 
         $this->remove($runtime_path . 'cache', 4);
-        $this->remove($runtime_path . 'concurrent', 4);
+        $this->remove($runtime_path . 'lock', 4);
         $this->remove($runtime_path . 'compile', 72);
         $this->remove($runtime_path . 'log', 72);
         $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 72);
 
-        $sub_dir = (int)date('Ym');
-        --$sub_dir;
-        $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $sub_dir . DIRECTORY_SEPARATOR, 168);
+        $dir = (array)glob($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*');
+        $date = date('Ym') - 1;
+        foreach ($dir as $path) {
+            $this->remove($path . DIRECTORY_SEPARATOR . $date . DIRECTORY_SEPARATOR . '*', 168);
+        }
 
-        unset($runtime_path, $root_path);
+        unset($runtime_path, $root_path, $dir, $date);
     }
 
     /**
@@ -55,8 +57,10 @@ class ReGarbage
         $dir = $this->getDirAllFile($_dir . DIRECTORY_SEPARATOR . '*', $_expire);
         while ($dir->valid()) {
             $filename = $dir->current();
-            if (false === strpos($filename, '_skl_')) {
-                Log::record('[REGARBAGE] ' . pathinfo($filename, PATHINFO_BASENAME) . ' 删除垃圾信息', 'alert');
+            Log::record('[REGARBAGE] ' . pathinfo($filename, PATHINFO_BASENAME) . ' 删除垃圾信息', 'alert');
+            if (is_dir($filename)) {
+                @rmdir($filename);
+            } elseif (false === strpos($filename, '_skl_')) {
                 @unlink($filename);
             }
             $dir->next();
@@ -78,11 +82,11 @@ class ReGarbage
             if (is_file($files) && filemtime($files) <= $days) {
                 yield $files;
             } elseif (is_dir($files . DIRECTORY_SEPARATOR)) {
-                // yield $files;
                 $sub = $this->getDirAllFile($files . DIRECTORY_SEPARATOR . '*', $_expire);
+                // yield $files;
                 while ($sub->valid()) {
                     $filename = $sub->current();
-                    if (is_file($filename) && filemtime($filename) <= $days) {
+                    if (is_file($filename) && filemtime($files) <= $days) {
                         yield $filename;
                     }
                     $sub->next();

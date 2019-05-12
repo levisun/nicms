@@ -14,18 +14,16 @@ use think\facade\Env;
 use think\facade\Request;
 
 return [
-    // API接口地址
     'api_host'              => '//api.' . Request::rootDomain() . Request::root(),
-    // CDN地址
     'cdn_host'              => '//cdn.' . Request::rootDomain() . Request::root(),
-    // 主站地址
     'www_host'              => '//www.' . Request::rootDomain() . Request::root(),
-    // 后台管理地址
-    'admin_host'            => '//admin.' . Request::rootDomain() . Request::root(),
-    // 调试模式
-    'app_debug'             => Env::get('admin.debug', 1) ? true : false,
-    // 密钥
+    'upload_type'           => Env::get('app.upload_type'),
+    'upload_size'           => Env::get('app.upload_size'),
+    'debug'                 => Env::get('admin.debug',   1) ? true : false,
     'authkey'               => Env::get('admin.authkey', md5(__DIR__)),
+    'entry'                 => Env::get('admin.entry', 'admin'),
+    'theme'                 => Env::get('admin.theme', 'default'),
+    'version'               => '1.0.1 CB6',
 
     // 应用地址
     'app_host'              => '',

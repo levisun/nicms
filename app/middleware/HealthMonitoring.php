@@ -49,7 +49,7 @@ class HealthMonitoring
         }
 
         if ('api' !== $request->subDomain() && date('ymd') % 10 == 0) {
-            $lock = app()->getRuntimePath() . 'datamaintenance.lock';
+            $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'datamaintenance.lock';
             if (!is_file($lock) || filemtime($lock) <= strotime('-10 days')) {
                 (new DataMaintenance)->optimize();  // 优化表
                 (new DataMaintenance)->repair();    // 修复表

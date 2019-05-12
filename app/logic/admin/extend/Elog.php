@@ -82,6 +82,10 @@ class Elog extends Base
             $file = app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . $id;
             if (is_file($file)) {
                 $data = file_get_contents($file);
+                $data = str_replace(app()->getRootPath(), 'ROOT_PATH', $data);
+                $data = preg_replace_callback('/mysql\:host=[0-9A-Za-z_.=;]+;/si', function($matches){
+                    return 'ROOT ';
+                }, $data);
             } else {
                 $data = 'null';
             }

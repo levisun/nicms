@@ -215,15 +215,17 @@ class Category extends Base
                     ->select()
                     ->toArray();
             }
-        } elseif ($pid = Request::param('pid')) {
+        } elseif ($pid = Request::param('pid', 'Ug')) {
             $pid = (int)Base64::decrypt($pid);
 
             $result = [];
-            $result['parent'] = (new ModelCategory)
-                ->where([
-                    ['id', '=', $pid]
-                ])
-                ->value('name as parent');
+            if ($pid) {
+                $result['parent'] = (new ModelCategory)
+                    ->where([
+                        ['id', '=', $pid]
+                    ])
+                    ->value('name as parent');
+            }
 
             $result['type_name'] = [
                 ['id' => '1', 'name' => Lang::get('category top type')],

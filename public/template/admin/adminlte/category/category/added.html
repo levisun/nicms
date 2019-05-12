@@ -139,9 +139,11 @@ jQuery(document).on('click', '.btn', function(){
 jQuery(document).on('change', '#upload', function(){
     jQuery.upload({
         url: NICMS.api.url + '/upload.do',
-        file: document.getElementById('category'),
+        file: 'category',
         data: {
-            method: 'category.category.upload'
+            method: 'category.category.upload',
+            width: 100,
+            height: 100
         },
         success: function(result){
             jQuery.uiToast(result.message);

@@ -59,6 +59,7 @@ class Cms extends Template
      */
     public function index()
     {
+        echo \app\library\Base64::encrypt('0');
         // $this->fetch('index');
     }
 

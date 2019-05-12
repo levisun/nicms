@@ -137,7 +137,7 @@ class Template
             echo $content;
             echo $this->parseTemplateFoot();
             echo '<!-- Static:';
-            echo Config::get('app.app_debug') ? 'close' : 'success';
+            echo Config::get('app.debug') ? 'close' : 'success';
             echo ' Date:' . date('Y-m-d H:i:s') . ' -->';
         } else {
             echo $content;
@@ -153,7 +153,7 @@ class Template
             create_authorization(), time()
         ], $content);
 
-        // if (!headers_sent() && !Config::get('app.app_debug') && function_exists('gzencode')) {
+        // if (!headers_sent() && !Config::get('app.debug') && function_exists('gzencode')) {
         //     $content = gzencode($content, 4);
         //     header('Content-Encoding:gzip');
         //     header('Content-Length:' . strlen($content));
@@ -337,7 +337,7 @@ class Template
         $this->buildPath = $this->buildPath . $url;
 
         clearstatcache();
-        if (false === Config::get('app.app_debug') && is_file($this->buildPath)) {
+        if (false === Config::get('app.debug') && is_file($this->buildPath)) {
             return file_get_contents($this->buildPath);
         } elseif (is_file($this->buildPath)) {
             unlink($this->buildPath);
@@ -355,7 +355,7 @@ class Template
     private function templateBuildWrite(string $_content): void
     {
         clearstatcache();
-        if (false === Config::get('app.app_debug') && !is_file($this->buildPath)) {
+        if (false === Config::get('app.debug') && !is_file($this->buildPath)) {
             file_put_contents($this->buildPath, $_content);
         }
     }

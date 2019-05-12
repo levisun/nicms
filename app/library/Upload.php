@@ -15,13 +15,13 @@ declare (strict_types = 1);
 namespace app\library;
 
 use think\facade\Config;
-use think\facade\Env;
 use think\facade\Request;
 
 class Upload
 {
-    private $rule = [];
-    private $savePath = '';
+    protected $savePath = '';
+    protected $rule = [];
+    protected $water = [];
 
     /**
      * 构造方法
@@ -33,12 +33,22 @@ class Upload
     {
         $this->savePath = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
 
-        $size = (int)Env::get('app.upload_size', '1');
-        $ext = Env::get('app.upload_type', 'gif,jpg,png,zip,rar');
+        $size = (int)Config::get('app.upload_size', '1');
+        $ext = Config::get('app.upload_type', 'gif,jpg,png,zip,rar');
+
+        set_time_limit(30);
+        ini_set('memory_limit', '32M');
 
         $this->rule = [
             'size' => $size * 1048576,
             'ext' => explode(',', $ext)
+        ];
+
+        $this->water = [
+            'type' => 'text',
+            'text' => Request::rootDomain(),
+            'font' => app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'static' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf',
+            'size' => 14,
         ];
     }
 
@@ -97,6 +107,12 @@ class Upload
                 if ($image->width() > $width || $image->height() > $height) {
                     $image->thumb($width, $height, \think\Image::THUMB_SCALING);
                 }
+                if ($water = Request::param('water/f', 0)) {
+                    $image->text($this->water['text'], $this->water['font'], $this->water['size'], '#00000000', 1);
+                    $image->text($this->water['text'], $this->water['font'], $this->water['size'], '#00000000', 5);
+                    $image->text($this->water['text'], $this->water['font'], $this->water['size'], '#00000000', 9);
+                }
+                
                 $image->save($this->savePath . $save_name, null, 60);
             }
 

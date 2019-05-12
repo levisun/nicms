@@ -21,7 +21,7 @@ return [
     // 缓存保存目录
     'path'          => '',
     // 缓存前缀
-    'prefix'        => Lang::getLangSet() . '-' . Request::subDomain(),
+    'prefix'        => Lang::getLangSet() . '-'. Request::subDomain(),
     // 缓存有效期 0表示永久缓存
     'expire'        => Env::get('cache.expire', 14400),
     // 关闭子目录

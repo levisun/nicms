@@ -15,6 +15,7 @@ declare (strict_types = 1);
 
 namespace app\logic\admin\settings;
 
+use think\facade\Config;
 use think\facade\Env;
 use think\facade\Request;
 use app\logic\admin\Base;
@@ -36,28 +37,28 @@ class Safe extends Base
 
         $result = [
             'app' => [
-                'upload_type' => Env::get('app.upload_type'),
-                'upload_size' => Env::get('app.upload_size'),
+                'upload_type' => Config::get('app.upload_type'),
+                'upload_size' => Config::get('app.upload_size'),
             ],
             'cache' => [
-                'type'   => Env::get('cache.type'),
-                'expire' => Env::get('cache.expire'),
+                'type'   => Config::get('cache.type'),
+                'expire' => Config::get('cache.expire'),
             ],
             'database' => [
-                'type'     => Env::get('database.type'),
-                'hostname' => Env::get('database.hostname'),
-                'database' => Env::get('database.database'),
-                'username' => Env::get('database.username'),
-                'password' => Env::get('database.password'),
-                'hostport' => Env::get('database.hostport'),
-                'prefix'   => Env::get('database.prefix'),
+                'type'     => Config::get('database.type'),
+                'hostname' => Config::get('database.hostname'),
+                'database' => Config::get('database.database'),
+                'username' => Config::get('database.username'),
+                'password' => Config::get('database.password'),
+                'hostport' => Config::get('database.hostport'),
+                'prefix'   => Config::get('database.prefix'),
             ],
             'admin' => [
-                'authkey' => Env::get('admin.authkey'),
-                'debug'   => Env::get('admin.debug'),
-                'entry'   => Env::get('admin.entry'),
-                'theme'   => Env::get('admin.theme'),
-                'version' => Env::get('admin.version'),
+                'authkey' => Config::get('app.authkey'),
+                'debug'   => Config::get('app.debug'),
+                'entry'   => Config::get('app.entry'),
+                'theme'   => Config::get('app.theme'),
+                'version' => Config::get('app.version'),
             ]
         ];
 
@@ -84,15 +85,15 @@ class Safe extends Base
         $receive_data = [
             'app_upload_size'   => Request::param('app.upload_size'),
             'app_upload_type'   => Request::param('app.upload_type'),
-            'database_hostname' => Request::param('database.hostname'),
-            'database_database' => Request::param('database.database'),
-            'database_username' => Request::param('database.username'),
-            'database_password' => Request::param('database.password'),
-            'database_hostport' => Request::param('database.hostport'),
-            'database_prefix'   => Request::param('database.prefix'),
+            // 'database_hostname' => Request::param('database.hostname'),
+            // 'database_database' => Request::param('database.database'),
+            // 'database_username' => Request::param('database.username'),
+            // 'database_password' => Request::param('database.password'),
+            // 'database_hostport' => Request::param('database.hostport'),
+            // 'database_prefix'   => Request::param('database.prefix'),
             'cache_expire'      => Request::param('cache.expire'),
             'admin_debug'       => Request::param('admin.debug'),
-            'admin_entry'       => Request::param('admin.entry'),
+            // 'admin_entry'       => Request::param('admin.entry'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -103,24 +104,24 @@ class Safe extends Base
             'upload_type = ' . $receive_data['app_upload_type'] . PHP_EOL .
 
             PHP_EOL . '[database]' . PHP_EOL .
-            'type     = ' . Env::get('database.type') . PHP_EOL .
-            'hostname = ' . $receive_data['database_hostname'] . PHP_EOL .
-            'database = ' . $receive_data['database_database'] . PHP_EOL .
-            'username = ' . $receive_data['database_username'] . PHP_EOL .
-            'password = ' . $receive_data['database_password'] . PHP_EOL .
-            'hostport = ' . $receive_data['database_hostport'] . PHP_EOL .
-            'prefix   = ' . $receive_data['database_prefix'] . PHP_EOL .
+            'type     = ' . Config::get('database.type') . PHP_EOL .
+            'hostname = ' . Config::get('database.hostname') . PHP_EOL .
+            'database = ' . Config::get('database.database') . PHP_EOL .
+            'username = ' . Config::get('database.username') . PHP_EOL .
+            'password = ' . Config::get('database.password') . PHP_EOL .
+            'hostport = ' . Config::get('database.hostport') . PHP_EOL .
+            'prefix   = ' . Config::get('database.prefix') . PHP_EOL .
 
             PHP_EOL . '[cache]' . PHP_EOL .
-            'type   = ' . Env::get('cache.type') . PHP_EOL .
+            'type   = ' . Config::get('cache.type') . PHP_EOL .
             'expire = ' . $receive_data['cache_expire'] . PHP_EOL .
 
             PHP_EOL . '[admin]' . PHP_EOL .
-            'authkey = ' . Env::get('admin.authkey') . PHP_EOL .
+            'authkey = ' . Config::get('app.authkey') . PHP_EOL .
             'debug   = ' . $receive_data['admin_debug'] . PHP_EOL .
-            'entry   = ' . $receive_data['admin_entry'] . PHP_EOL .
-            'theme   = ' . Env::get('admin.theme') . PHP_EOL .
-            'version = ' . Env::get('admin.version');
+            'entry   = ' . Config::get('app.entry') . PHP_EOL .
+            'theme   = ' . Config::get('app.theme') . PHP_EOL .
+            'version = ' . Config::get('app.version');
 
         file_put_contents(app()->getRootPath() . '.env', $result);
 

@@ -21,6 +21,8 @@ use think\facade\Config;
 
 class RequestCache
 {
+    protected $cache;
+
     public function __construct(Cache $cache)
     {
         $this->cache = $cache;
@@ -47,7 +49,7 @@ class RequestCache
         if ($request->isGet() && 200 == $response->getCode() && $response->isAllowCache()) {
             if ($response->getHeader('Cache-control')) {
                 $expire = (int)str_replace('public, max-age=', '', $response->getHeader('Cache-control'));
-            } elseif (false === Config::get('app.app_debug')) {
+            } elseif (false === Config::get('app.debug')) {
                 $expire = Config::get('cache.expire');
                 $response->cacheControl('public, max-age=' . $expire)
                     ->expires(gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT')

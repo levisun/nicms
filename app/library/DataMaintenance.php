@@ -29,7 +29,13 @@ class DataMaintenance
         set_time_limit(0);
     }
 
-    public function backup(string $_type = 'date')
+    /**
+     * 备份
+     * @access public
+     * @param
+     * @return bool
+     */
+    public function backup(string $_type = 'date'): bool
     {
         if ($_type == 'date') {
             $this->savePath .= date('ymdHis') . DIRECTORY_SEPARATOR;
@@ -62,6 +68,8 @@ class DataMaintenance
             unlink($this->savePath . 'backup.lock');
             ignore_user_abort(false);
         }
+
+        return true;
     }
 
     /**
