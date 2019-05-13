@@ -59,7 +59,13 @@ class Cms extends Template
      */
     public function index()
     {
-        echo \app\library\Base64::encrypt('0');
+        $str = \app\library\Base64::encrypt([
+            0, 1, 2,3,4,'囧囧有神'
+        ]);
+        print_r($str);
+
+        $str = \app\library\Base64::decrypt($str);
+        print_r($str);
         // $this->fetch('index');
     }
 

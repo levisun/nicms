@@ -30,32 +30,28 @@ class Other
      */
     public function query(): array
     {
-        $result =
-        (new ModelCategory)->view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-        ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-        ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
-        ->where([
-            ['category.is_show', '=', 1],
-            ['category.type_id', '=', 4],
-            ['category.pid', '=', 0],
-            ['category.lang', '=', Lang::getLangSet()]
-        ])
-        ->order('category.sort_order ASC, category.id DESC')
-        ->cache(__METHOD__, null, 'NAV')
-        ->select()
-        ->toArray();
+        $result = (new ModelCategory)->view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+            ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
+            ->where([
+                ['category.is_show', '=', 1],
+                ['category.type_id', '=', 4],
+                ['category.pid', '=', 0],
+                ['category.lang', '=', Lang::getLangSet()]
+            ])
+            ->order('category.sort_order ASC, category.id DESC')
+            ->cache(__METHOD__, null, 'NAV')
+            ->select()
+            ->toArray();
 
         foreach ($result as $key => $value) {
             $value['image'] = get_img_url($value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
-
-            $value['child'] = $this->child($value['id'], 4);
-
-            $value['id'] = Base64::encrypt($value['id']);
             $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
             if ($value['access_id']) {
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
             }
+            $value['child'] = $this->child($value['id'], 4);
             unset($value['action_name']);
 
             $result[$key] = $value;
@@ -78,32 +74,28 @@ class Other
      */
     private function child(int $_pid, int $_type_id)
     {
-        $result =
-        (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-        ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-        ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
-        ->where([
-            ['category.is_show', '=', 1],
-            ['category.type_id', '=', $_type_id],
-            ['category.pid', '=', $_pid],
-            ['category.lang', '=', Lang::getLangSet()]
-        ])
-        ->order('category.sort_order ASC, category.id DESC')
-        ->cache(__METHOD__ . $_pid . $_type_id, null, 'NAV')
-        ->select()
-        ->toArray();
+        $result = (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+            ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
+            ->where([
+                ['category.is_show', '=', 1],
+                ['category.type_id', '=', $_type_id],
+                ['category.pid', '=', $_pid],
+                ['category.lang', '=', Lang::getLangSet()]
+            ])
+            ->order('category.sort_order ASC, category.id DESC')
+            ->cache(__METHOD__ . $_pid . $_type_id, null, 'NAV')
+            ->select()
+            ->toArray();
 
         foreach ($result as $key => $value) {
             $value['image'] = get_img_url($value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
-
-            $value['child'] = $this->child($value['id'], 4);
-
-            $value['id'] = Base64::encrypt($value['id']);
             $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
             if ($value['access_id']) {
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
             }
+            $value['child'] = $this->child($value['id'], 4);
             unset($value['action_name']);
 
 

@@ -42,8 +42,7 @@ class ArticleBase
             ['article.lang', '=', Lang::getLangSet()]
         ];
 
-        if ($category_id = Request::param('cid', null)) {
-            $category_id = (int) Base64::decrypt($category_id);
+        if ($category_id = (int)Request::param('cid/f')) {
             $map[] = ['article.category_id', '=', $category_id];
         } else {
             return [
@@ -54,34 +53,33 @@ class ArticleBase
             ];
         }
 
-        if ($com = Request::param('com/f', 0)) {
+        if ($com = (int)Request::param('com/f', 0)) {
             $map[] = ['article.is_com', '=', '1'];
-        } elseif ($top = Request::param('top/f', 0)) {
+        } elseif ($top = (int)Request::param('top/f', 0)) {
             $map[] = ['article.is_top', '=', '1'];
-        } elseif ($hot = Request::param('hot/f', 0)) {
+        } elseif ($hot = (int)Request::param('hot/f', 0)) {
             $map[] = ['article.is_hot', '=', '1'];
         }
 
-        if ($type_id = Request::param('tid/f', null)) {
+        if ($type_id = (int)Request::param('tid/f', 0)) {
             $map[] = ['article.type_id', '=', $type_id];
         }
 
-        $query_limit = (int) Request::param('limit/f', 15);
-        $query_page = (int) Request::param('page/f', 1);
+        $query_limit = (int)Request::param('limit/f', 15);
+        $query_page = (int)Request::param('page/f', 1);
 
         $cache_key = md5(count($map) . $category_id . $com . $top . $hot . $type_id . $query_limit . $query_page);
         $cache_key .= Request::isMobile() ? 'mobile' : '';
         if (!Cache::has($cache_key)) {
-            $result =
-            (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-            ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
-            ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
-            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-            ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
-            ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
-            ->where($map)
-            ->order('article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.id DESC')
-            ->paginate($query_limit);
+            $result = (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+                ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
+                ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+                ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+                ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
+                ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
+                ->where($map)
+                ->order('article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.id DESC')
+                ->paginate($query_limit);
             $list = $result->toArray();
             $list['render'] = $result->render();
 
@@ -105,15 +103,14 @@ class ArticleBase
 
 
                 // 标签
-                $value['tags'] =
-                (new ModelTagsArticle)->view('tags_article article', ['tags_id'])
-                ->view('tags tags', ['name'], 'tags.id=article.tags_id')
-                ->where([
-                    ['article.article_id', '=', $value['id']],
-                ])
-                ->cache(__METHOD__ . 'tags' . $value['id'], null, 'LISTS')
-                ->select()
-                ->toArray();
+                $value['tags'] = (new ModelTagsArticle)->view('tags_article article', ['tags_id'])
+                    ->view('tags tags', ['name'], 'tags.id=article.tags_id')
+                    ->where([
+                        ['article.article_id', '=', $value['id']],
+                    ])
+                    ->cache(__METHOD__ . 'tags' . $value['id'], null, 'LISTS')
+                    ->select()
+                    ->toArray();
 
                 $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
                 $value['update_time'] = strtotime($value['update_time']);
@@ -123,7 +120,6 @@ class ArticleBase
                 $value['thumb'] = get_img_url($value['thumb'], $img_size);
 
                 $value['category_id'] = Base64::encrypt($value['category_id']);
-                $value['id'] = Base64::encrypt($value['id']);
                 $value['cat_url'] = url('list/' . $value['action_name'] . '/' . $value['category_id']);
                 $value['url'] = url('details/' . $value['action_name'] . '/' . $value['category_id'] . '/' . $value['id']);
 
@@ -152,8 +148,7 @@ class ArticleBase
             ['article.lang', '=', Lang::getLangSet()]
         ];
 
-        if ($id = Request::param('id', null)) {
-            $id = (int) Base64::decrypt($id);
+        if ($id = (int)Request::param('id/f')) {
             $map[] = ['article.id', '=', $id];
         } else {
             return [
@@ -166,17 +161,16 @@ class ArticleBase
 
         $cache_key = $id . Request::isMobile() ? 'mobile' : '';
         if (!Cache::has($cache_key)) {
-            $result =
-            (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-            ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
-            ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
-            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id and model.id=1')
-            ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
-            ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
-            ->where($map)
-            ->cache(__METHOD__ . $id, null, 'DETAILS')
-            ->find()
-            ->toArray();
+            $result = (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+                ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
+                ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+                ->view('model', ['name' => 'action_name'], 'model.id=category.model_id and model.id=1')
+                ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
+                ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
+                ->where($map)
+                ->cache(__METHOD__ . $id, null, 'DETAILS')
+                ->find()
+                ->toArray();
 
             if ($result) {
                 // 附加字段数据
@@ -194,15 +188,14 @@ class ArticleBase
                 // }
 
                 // 标签
-                $result['tags'] =
-                (new ModelTagsArticle)->view('tags_article', ['tags_id'])
-                ->view('tags', ['name'], 'tags.id=tags_article.tags_id')
-                ->where([
-                    ['tags_article.article_id', '=', $result['id']],
-                ])
-                ->cache(__METHOD__ . 'tags' . $result['id'], null, 'DETAILS')
-                ->select()
-                ->toArray();
+                $result['tags'] = (new ModelTagsArticle)->view('tags_article', ['tags_id'])
+                    ->view('tags', ['name'], 'tags.id=tags_article.tags_id')
+                    ->where([
+                        ['tags_article.article_id', '=', $result['id']],
+                    ])
+                    ->cache(__METHOD__ . 'tags' . $result['id'], null, 'DETAILS')
+                    ->select()
+                    ->toArray();
 
                 // 上一篇 下一篇
                 $result['next'] = $this->next($result['id']);
@@ -227,8 +220,6 @@ class ArticleBase
                     }
                 }
 
-                $result['category_id'] = Base64::encrypt($result['category_id']);
-                $result['id'] = Base64::encrypt($result['id']);
                 $result['url'] = url('details/' . $result['action_name'] . '/' . $result['category_id'] . '/' . $result['id']);
                 $result['cat_url'] = url('list/' . $result['action_name'] . '/' . $result['category_id']);
             }
@@ -255,7 +246,7 @@ class ArticleBase
             ['lang', '=', Lang::getLangSet()]
         ];
 
-        if ($id = Request::param('id/f', null)) {
+        if ($id = (int)Request::param('id/f')) {
             $map[] = ['id', '=', $id];
         } else {
             return [
@@ -268,13 +259,12 @@ class ArticleBase
 
         // 更新浏览数
         (new ModelArticle)->where($map)
-        ->inc('hits', 1, 60)
-        ->update();
+            ->inc('hits', 1, 60)
+            ->update();
 
-        $result =
-        (new ModelArticle)->where($map)
-        ->cache(__METHOD__ . $id, 60, 'DETAILS')
-        ->value('hits');
+        $result = (new ModelArticle)->where($map)
+            ->cache(__METHOD__ . $id, 60, 'DETAILS')
+            ->value('hits');
 
         return $result;
     }
@@ -287,27 +277,25 @@ class ArticleBase
      */
     protected function next(int $_id)
     {
-        $next_id =
-        (new ModelArticle)->where([
-            ['is_pass', '=', 1],
-            ['show_time', '<=', time()],
-            ['id', '>', $_id]
-        ])
-        ->order('is_top, is_hot, is_com, sort_order DESC, id DESC')
-        ->cache(__METHOD__ . 'min' . $_id, null, 'DETAILS')
-        ->min('id');
+        $next_id = (new ModelArticle)->where([
+                ['is_pass', '=', 1],
+                ['show_time', '<=', time()],
+                ['id', '>', $_id]
+            ])
+            ->order('is_top, is_hot, is_com, sort_order DESC, id DESC')
+            ->cache(__METHOD__ . 'min' . $_id, null, 'DETAILS')
+            ->min('id');
 
-        $result =
-        (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-        ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
-        ->view('model', ['name' => 'action_name'], 'model.id=category.model_id and model.id=1')
-        ->where([
-            ['article.is_pass', '=', 1],
-            ['article.show_time', '<=', time()],
-            ['article.id', '=', $next_id]
-        ])
-        ->cache(__METHOD__ . 'eq' . $_id, null, 'DETAILS')
-        ->find();
+        $result = (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+            ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id and model.id=1')
+            ->where([
+                ['article.is_pass', '=', 1],
+                ['article.show_time', '<=', time()],
+                ['article.id', '=', $next_id]
+            ])
+            ->cache(__METHOD__ . 'eq' . $_id, null, 'DETAILS')
+            ->find();
 
         if ($result) {
             $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
@@ -326,27 +314,25 @@ class ArticleBase
      */
     protected function prev(int $_id)
     {
-        $prev_id =
-        (new ModelArticle)->where([
-            ['is_pass', '=', 1],
-            ['show_time', '<=', time()],
-            ['id', '<', $_id]
-        ])
-        ->order('is_top, is_hot, is_com, sort_order DESC, id DESC')
-        ->cache(__METHOD__ . 'max' . $_id, null, 'DETAILS')
-        ->max('id');
+        $prev_id = (new ModelArticle)->where([
+                ['is_pass', '=', 1],
+                ['show_time', '<=', time()],
+                ['id', '<', $_id]
+            ])
+            ->order('is_top, is_hot, is_com, sort_order DESC, id DESC')
+            ->cache(__METHOD__ . 'max' . $_id, null, 'DETAILS')
+            ->max('id');
 
-        $result =
-        (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-        ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
-        ->view('model', ['name' => 'action_name'], 'model.id=category.model_id and model.id=1')
-        ->where([
-            ['article.is_pass', '=', 1],
-            ['article.show_time', '<=', time()],
-            ['article.id', '=', $prev_id]
-        ])
-        ->cache(__METHOD__ . 'eq' . $_id, null, 'DETAILS')
-        ->find();
+        $result = (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+            ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id and model.id=1')
+            ->where([
+                ['article.is_pass', '=', 1],
+                ['article.show_time', '<=', time()],
+                ['article.id', '=', $prev_id]
+            ])
+            ->cache(__METHOD__ . 'eq' . $_id, null, 'DETAILS')
+            ->find();
 
         if ($result) {
             $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);

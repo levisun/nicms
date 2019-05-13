@@ -73,11 +73,9 @@ class RequestCache
      */
     private function cacheKey($request)
     {
-        $key = $request->url(true);
-
         $key = preg_replace_callback('/timestamp=[0-9]+|sign=[A-Za-z0-9]{32,40}/si', function ($matches) {
             return '';
-        }, $key);
+        }, $request->url(true));
 
         return sha1($key);
     }

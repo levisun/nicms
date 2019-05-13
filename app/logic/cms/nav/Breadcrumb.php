@@ -32,8 +32,7 @@ class Breadcrumb
      */
     public function query(): array
     {
-        $cid = Request::param('cid', null);
-        $cid = (int) Base64::decrypt($cid);
+        $cid = (int)Request::param('cid/f');
         $this->parentCate($cid);
 
         return [
@@ -53,18 +52,17 @@ class Breadcrumb
      */
     private function parentCate($_pid)
     {
-        $result =
-        (new ModelCategory)->view('category', ['id', 'name', 'pid', 'aliases', 'image', 'is_channel', 'access_id'])
-        ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-        ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
-        ->where([
-            ['category.is_show', '=', 1],
-            ['category.id', '=', $_pid],
-            ['category.lang', '=', Lang::getLangSet()]
-        ])
-        ->cache(__METHOD__ . $_pid, null, 'NAV')
-        ->find()
-        ->toArray();
+        $result = (new ModelCategory)->view('category', ['id', 'name', 'pid', 'aliases', 'image', 'is_channel', 'access_id'])
+            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+            ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
+            ->where([
+                ['category.is_show', '=', 1],
+                ['category.id', '=', $_pid],
+                ['category.lang', '=', Lang::getLangSet()]
+            ])
+            ->cache(__METHOD__ . $_pid, null, 'NAV')
+            ->find()
+            ->toArray();
 
         if ($result) {
             $result['image'] = get_img_url($result['image']);

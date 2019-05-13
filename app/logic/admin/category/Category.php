@@ -51,13 +51,12 @@ class Category extends Base
 
         foreach ($result as $key => $value) {
             $value['type_name'] = $this->typeName($value['type_id']);
-            $value['child'] = $this->child($value['id']);
-            $value['id'] = Base64::encrypt($value['id']);
             $value['url'] = [
                 'added'  => url('category/category/added/' . $value['id']),
                 'editor' => url('category/category/editor/' . $value['id']),
                 'remove' => url('category/category/remove/' . $value['id']),
             ];
+            $value['child'] = $this->child($value['id']);
             $result[$key] = $value;
         }
 
@@ -93,13 +92,12 @@ class Category extends Base
 
         foreach ($result as $key => $value) {
             $value['type_name'] = $this->typeName($value['type_id']);
-            $value['child'] = $this->child($value['id']);
-            $value['id'] = Base64::encrypt($value['id']);
             $value['url'] = [
                 'added'  => url('category/category/added/' . $value['id']),
                 'editor' => url('category/category/editor/' . $value['id']),
                 'remove' => url('category/category/remove/' . $value['id']),
             ];
+            $value['child'] = $this->child($value['id']);
             $result[$key] = $value;
         }
 
@@ -131,10 +129,7 @@ class Category extends Base
             return $result;
         }
 
-        $pid = 0;
-        if ($pid = Request::param('pid')) {
-            $pid = (int)Base64::decrypt($pid);
-        }
+        $pid = $pid = (int)Request::param('pid/f', 0);
 
         $receive_data = [
             'pid'         => $pid,
@@ -182,8 +177,7 @@ class Category extends Base
             return $result;
         }
 
-        if ($id = Request::param('id')) {
-            $id = (int)Base64::decrypt($id);
+        if ($id = (int)Request::param('id/f')) {
             $result = (new ModelCategory)
                 ->view('category')
                 ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
@@ -200,8 +194,6 @@ class Category extends Base
                     ])
                     ->value('name as parent');
 
-                $result['id'] = Base64::encrypt($result['id']);
-
                 $result['type_name'] = [
                     ['id' => '1', 'name' => Lang::get('category top type')],
                     ['id' => '2', 'name' => Lang::get('category main type')],
@@ -215,9 +207,7 @@ class Category extends Base
                     ->select()
                     ->toArray();
             }
-        } elseif ($pid = Request::param('pid', 'Ug')) {
-            $pid = (int)Base64::decrypt($pid);
-
+        } elseif ($pid = (int)Request::param('pid/f', '0')) {
             $result = [];
             if ($pid) {
                 $result['parent'] = (new ModelCategory)
@@ -272,9 +262,7 @@ class Category extends Base
             return $result;
         }
 
-        if ($id = Request::param('id')) {
-            $id = Base64::decrypt($id);
-
+        if ($id = (int)Request::param('id/f')) {
             $receive_data = [
                 'name'        => Request::param('name'),
                 'aliases'     => Request::param('aliases'),

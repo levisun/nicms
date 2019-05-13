@@ -41,7 +41,7 @@
 
 
         "https://cdn.bootcss.com/vue/2.6.10/vue.min.js",
-        "__STATIC__jquery.nicms.js"
+        "__STATIC__jquery/jquery.nicms.js"
     ],
     "hook": [
 

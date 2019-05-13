@@ -16,7 +16,6 @@ namespace app\library;
 
 use think\exception\HttpException;
 use think\facade\Config;
-use think\facade\Env;
 use think\facade\Lang;
 use think\facade\Request;
 use app\library\Filter;
@@ -43,7 +42,7 @@ class Template
 
     /**
      * 替换变量
-     * @var string
+     * @var array
      */
     protected $templateReplace = [];
 
@@ -68,7 +67,7 @@ class Template
 
         $theme = Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme);
         $this->setReplace([
-            'version'     => Env::get('admin.version', '1.0.1'),
+            'version'     => Config::get('app.version', '1.0.1'),
             'theme'       => $theme . 'theme/',
             'css'         => $theme . 'css/',
             'img'         => $theme . 'img/',
@@ -78,8 +77,8 @@ class Template
             'title'       => 'nicms',
             'keywords'    => 'nicms',
             'description' => 'nicms',
-            'bottom_msg'  => '',
-            'copyright'   => '',
+            'bottom_msg'  => 'nicms',
+            'copyright'   => 'nicms',
             'script'      => '<script type="text/javascript"></script>',
         ]);
         unset($theme);
@@ -139,6 +138,8 @@ class Template
             echo '<!-- Static:';
             echo Config::get('app.debug') ? 'close' : 'success';
             echo ' Date:' . date('Y-m-d H:i:s') . ' -->';
+
+
         } else {
             echo $content;
         }
@@ -147,11 +148,11 @@ class Template
 
         $this->templateBuildWrite($content);
 
-        $content = str_replace([
-            '{:__AUTHORIZATION__}', '{:__TIMESTAMP__}'
-        ], [
-            create_authorization(), time()
-        ], $content);
+        // $content = str_replace([
+        //     '{:__AUTHORIZATION__}', '{:__TIMESTAMP__}'
+        // ], [
+        //     create_authorization(), time()
+        // ], $content);
 
         // if (!headers_sent() && !Config::get('app.debug') && function_exists('gzencode')) {
         //     $content = gzencode($content, 4);
@@ -200,6 +201,9 @@ class Template
 
         if (!empty($this->templateConfig['js'])) {
             foreach ($this->templateConfig['js'] as $js) {
+                // $foot .= '<script type="text/css" name=' . pathinfo($js, PATHINFO_BASENAME) . '>';
+                // $foot .= file_get_contents(str_replace(Config::get('app.cdn_host'), app()->getRootPath() . 'public', $js));
+                // $foot .= '</script>' . PHP_EOL;
                 $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $this->templateConfig['theme_version'] . '"></script>' .  PHP_EOL;
             }
         }
@@ -274,6 +278,9 @@ class Template
 
         if (!empty($this->templateConfig['css'])) {
             foreach ($this->templateConfig['css'] as $css) {
+                // $head .= '<style type="text/css" name=' . pathinfo($css, PATHINFO_BASENAME) . '>';
+                // $head .= file_get_contents(str_replace(Config::get('app.cdn_host'), app()->getRootPath() . 'public', $css));
+                // $head .= '</style>' . PHP_EOL;
                 $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->templateConfig['theme_version'] . '" />' .  PHP_EOL;
             }
         }
@@ -290,8 +297,7 @@ class Template
             'version:"' . $this->templateConfig['api_version'] . '",' .
             'appid:"' . $this->templateConfig['api_appid'] . '",' .
             'appsecret:"' . $this->templateConfig['api_appsecret'] . '",' .
-            'authorization:"{:__AUTHORIZATION__}",' .
-            'timestamp:"{:__TIMESTAMP__}",' .
+            'authorization:"' . create_authorization() . '",' .
             'param:' . json_encode(Request::param()) .
             '},' .
             'cdn:{' .
@@ -303,7 +309,7 @@ class Template
             '}' .
             '};';
 
-        if (!Request::isMobile() && Env::get('admin.entry', 'admin') !== Request::subDomain()) {
+        if (!Request::isMobile() && Config::get('app.entry') !== Request::subDomain()) {
             $head .= 'if(navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i)){' .
                 'location.replace("//m.' . Request::rootDomain() . '");' .
                 '}';
@@ -337,7 +343,7 @@ class Template
         $this->buildPath = $this->buildPath . $url;
 
         clearstatcache();
-        if (false === Config::get('app.debug') && is_file($this->buildPath)) {
+        if (is_file($this->buildPath) && filemtime($this->buildPath) >= strtotime(date('Y-m-d'))) {
             return file_get_contents($this->buildPath);
         } elseif (is_file($this->buildPath)) {
             unlink($this->buildPath);

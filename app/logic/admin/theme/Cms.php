@@ -42,7 +42,7 @@ class Cms extends Base
             $config = file_get_contents($value . DIRECTORY_SEPARATOR . 'config.json');
             $config = json_decode($config, true);
             $file[$key] = [
-                'id'          => Base64::encrypt(basename($value)),
+                'id'          => basename($value),
                 'name'        => $config['theme'],
                 'version'     => $config['theme_version'],
                 'api_version' => $config['api_version'],

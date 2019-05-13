@@ -45,15 +45,16 @@
      */
     jQuery.upload = function (_params) {
         var data = _params.data;
+        var timestamp = jQuery.timestamp();
         _params.data = new FormData(document.getElementById(_params.file));
         _params.data.append('appid', NICMS.api.appid);
-        _params.data.append('timestamp', NICMS.api.timestamp);
+        _params.data.append('timestamp', timestamp);
         for (var index in data) {
             _params.data.append(index, data[index]);
         }
         _params.data.append('sign', jQuery.sign({
             appid: NICMS.api.appid,
-            timestamp: NICMS.api.timestamp,
+            timestamp: timestamp,
             method: data.method,
         }));
         _params.type = 'post';
@@ -77,7 +78,7 @@
             contentType: 'application/x-www-form-urlencoded',
             data: {
                 appid: NICMS.api.appid,
-                timestamp: NICMS.api.timestamp
+                timestamp: jQuery.timestamp()
             }
         };
 

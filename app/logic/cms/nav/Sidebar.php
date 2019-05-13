@@ -31,32 +31,27 @@ class Sidebar
      */
     public function query(): array
     {
-        if ($cid = Request::param('cid', null)) {
-            $cid = (int) Base64::decrypt($cid);
-            $result =
-            (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-            ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
-            ->where([
-                ['category.is_show', '=', 1],
-                ['category.id', '=', $cid],
-                ['category.lang', '=', Lang::getLangSet()]
-            ])
-            ->cache(__METHOD__ . $cid, null, 'NAV')
-            ->find()
-            ->toArray();
+        if ($cid = (int)Request::param('cid/f')) {
+            $result = (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+                ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+                ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
+                ->where([
+                    ['category.is_show', '=', 1],
+                    ['category.id', '=', $cid],
+                    ['category.lang', '=', Lang::getLangSet()]
+                ])
+                ->cache(__METHOD__ . $cid, null, 'NAV')
+                ->find()
+                ->toArray();
 
 
             $result['image'] = get_img_url($result['image']);
             $result['flag'] = Base64::flag($result['id'], 7);
-
-            $result['child'] = $this->child($result['id']);
-
-            $result['id'] = Base64::encrypt($result['id']);
             $result['url'] = url('list/' . $result['action_name'] . '/' . $result['id']);
             if ($result['access_id']) {
                 $result['url'] = url('channel/' . $result['action_name'] . '/' . $result['id']);
             }
+            $result['child'] = $this->child($result['id']);
             unset($result['action_name']);
 
             return [
@@ -83,31 +78,27 @@ class Sidebar
      */
     private function child(int $_id)
     {
-        $result =
-        (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-        ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-        ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
-        ->where([
-            ['category.is_show', '=', 1],
-            ['category.pid', '=', $_id],
-            ['category.lang', '=', Lang::getLangSet()]
-        ])
-        ->order('category.sort_order ASC, category.id DESC')
-        ->cache(__METHOD__ . $_id, null, 'NAV')
-        ->select()
-        ->toArray();
+        $result = (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+            ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
+            ->where([
+                ['category.is_show', '=', 1],
+                ['category.pid', '=', $_id],
+                ['category.lang', '=', Lang::getLangSet()]
+            ])
+            ->order('category.sort_order ASC, category.id DESC')
+            ->cache(__METHOD__ . $_id, null, 'NAV')
+            ->select()
+            ->toArray();
 
         foreach ($result as $key => $value) {
             $value['image'] = get_img_url($value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
-
-            $value['child'] = $this->child($value['id']);
-
-            $value['id'] = Base64::encrypt($value['id']);
             $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
             if ($value['access_id']) {
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
             }
+            $value['child'] = $this->child($value['id']);
             unset($value['action_name']);
 
             $result[$key] = $value;

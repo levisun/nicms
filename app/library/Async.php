@@ -158,6 +158,8 @@ class Async
      */
     public function __construct()
     {
+        error_reporting(E_ALL^E_NOTICE^E_WARNING);
+        ini_set('display_errors', 'Off');
         ini_set('memory_limit', '16M');
         set_time_limit(15);
         header('X-Powered-By: NIAPI');
@@ -354,7 +356,7 @@ class Async
     {
         // 解析token令牌和session_id
         $this->authorization = Request::header('authorization');
-        if ($this->authorization && preg_match('/^[A-Za-z0-9]+$/u', $this->authorization)) {
+        if ($this->authorization && preg_match('/^[A-Za-z0-9\+\/\=]+$/u', $this->authorization)) {
             $this->authorization = Base64::decrypt($this->authorization, 'authorization');
 
             // 单token值
@@ -507,7 +509,7 @@ class Async
      */
     private function writeLog(array $_result = []): void
     {
-        $log = '[API] METHOD:' . $this->method .
+        $log = '[API] METHOD:' . Request::param('method', 'NULL') .
             ' TIME:' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 2) . 's' .
             ' MEMORY:' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 2) . 'MB' .
             ' CACHE:' . Container::pull('cache')->getReadTimes() . 'reads,' . Container::pull('cache')->getWriteTimes() . 'writes';

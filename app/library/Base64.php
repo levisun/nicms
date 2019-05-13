@@ -54,7 +54,7 @@ class Base64
      */
     public static function flag($_authkey = '', int $_length = 7)
     {
-        $_authkey = sha1(Config::get('app.authkey', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01') . $_authkey);
+        $_authkey = $_authkey ? sha1($_authkey) : sha1(Config::get('app.authkey'));
         $_length = $_length > 40 ? 40 : $_length;
         return substr(sha1($_authkey), 0, $_length);
     }
@@ -69,26 +69,20 @@ class Base64
      */
     public static function encrypt($_data, string $_authkey = '')
     {
-        $_authkey = sha1(Config::get('admin.authkey', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01') . $_authkey);
-
         if (is_array($_data)) {
-            $encrypt = [];
             foreach ($_data as $key => $value) {
-                $encrypt[self::encrypt($key, $_authkey)] = self::encrypt($value, $_authkey);
+                $_data[self::encrypt($key, $_authkey)] = self::encrypt($value, $_authkey);
+                unset($_data[$key]);
             }
+            return $_data;
         } elseif (is_null($_data) || is_bool($_data)) {
-            $encrypt = $_data;
+            return $_data;
         } else {
-            $encrypt = '';
-            $length = strlen($_authkey);
-            $_data = (string)$_data;
-            for ($i = 0, $count = mb_strlen($_data, 'utf-8'); $i < $count; $i += $length) {
-                $encrypt .= mb_substr($_data, $i, $length, 'utf-8') ^ $_authkey;
-            }
-            $encrypt = str_replace('=', '', base64_encode($encrypt));
+            $_authkey = $_authkey ? $_authkey : Config::get('app.authkey');
+            $_authkey = hash_hmac('sha1', $_authkey, md5($_authkey));
+            $iv = substr(md5($_authkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
+            return base64_encode(openssl_encrypt((string)$_data, 'AES-256-CBC', $_authkey, OPENSSL_RAW_DATA, $iv));
         }
-
-        return $encrypt;
     }
 
     /**
@@ -101,24 +95,82 @@ class Base64
      */
     public static function decrypt($_data, string $_authkey = '')
     {
-        $_authkey = sha1(Config::get('admin.authkey', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01') . $_authkey);
-
         if (is_array($_data)) {
-            $encrypt = [];
             foreach ($_data as $key => $value) {
-                $encrypt[self::decrypt($key, $_authkey)] = self::decrypt($value, $_authkey);
+                $_data[self::decrypt($key, $_authkey)] = self::decrypt($value, $_authkey);
+                unset($_data[$key]);
             }
+            return $_data;
         } elseif (is_null($_data) || is_bool($_data)) {
-            $encrypt = $_data;
+            return $_data;
         } else {
-            $encrypt = '';
-            $length = strlen($_authkey);
-            $_data = base64_decode($_data);
-            for ($i = 0, $count = mb_strlen($_data, 'utf-8'); $i < $count; $i += $length) {
-                $encrypt .= mb_substr($_data, $i, $length, 'utf-8') ^ $_authkey;
-            }
+            $_authkey = $_authkey ? $_authkey : Config::get('app.authkey');
+            $_authkey = hash_hmac('sha1', $_authkey, md5($_authkey));
+            $iv = substr(md5($_authkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
+            return openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $_authkey, OPENSSL_RAW_DATA, $iv);
         }
-
-        return $encrypt;
     }
+
+    /**
+     * 数据加密
+     * @access public
+     * @static
+     * @param  mixed  $_data    加密前的数据
+     * @param  string $_authkey 密钥
+     * @return mixed            加密后的数据
+     */
+    // public static function encrypt($_data, string $_authkey = '')
+    // {
+    //     $_authkey = sha1(Config::get('admin.authkey', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01') . $_authkey);
+
+    //     if (is_array($_data)) {
+    //         $encrypt = [];
+    //         foreach ($_data as $key => $value) {
+    //             $encrypt[self::encrypt($key, $_authkey)] = self::encrypt($value, $_authkey);
+    //         }
+    //     } elseif (is_null($_data) || is_bool($_data)) {
+    //         $encrypt = $_data;
+    //     } else {
+    //         $encrypt = '';
+    //         $length = strlen($_authkey);
+    //         $_data = (string)$_data;
+    //         for ($i = 0, $count = mb_strlen($_data, 'utf-8'); $i < $count; $i += $length) {
+    //             $encrypt .= mb_substr($_data, $i, $length, 'utf-8') ^ $_authkey;
+    //         }
+    //         $encrypt = str_replace('=', '', base64_encode($encrypt));
+    //     }
+
+    //     return $encrypt;
+    // }
+
+    /**
+     * 数据解密
+     * @access public
+     * @static
+     * @param  mixed  $_data    加密前的数据
+     * @param  string $_authkey 密钥
+     * @return mixed            加密后的数据
+     */
+    // public static function decrypt($_data, string $_authkey = '')
+    // {
+    //     $_authkey = sha1(Config::get('admin.authkey', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01') . $_authkey);
+
+    //     if (is_array($_data)) {
+    //         $encrypt = [];
+    //         foreach ($_data as $key => $value) {
+    //             $encrypt[self::decrypt($key, $_authkey)] = self::decrypt($value, $_authkey);
+    //         }
+    //     } elseif (is_null($_data) || is_bool($_data)) {
+    //         $encrypt = $_data;
+    //     } else {
+    //         $encrypt = '';
+    //         $length = strlen($_authkey);
+    //         $_data = base64_decode($_data);
+    //         for ($i = 0, $count = mb_strlen($_data, 'utf-8'); $i < $count; $i += $length) {
+    //             $encrypt .= mb_substr($_data, $i, $length, 'utf-8') ^ $_authkey;
+    //         }
+    //     }
+
+    //     return $encrypt;
+    // }
 }
