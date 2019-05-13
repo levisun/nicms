@@ -47,16 +47,23 @@ class admin extends Template
      */
     public function index(string $logic = 'account', string $controller = 'user', string $action = 'login')
     {
-        $logic      = Filter::str($logic);
-        $controller = Filter::str($controller);
-        $action     = Filter::str($action);
+        $this->verification($logic);
+        $this->verification($controller);
+        $this->verification($action);
 
         $this->authenticate($logic, $controller, $action);
 
-        $tpl  = $logic . DIRECTORY_SEPARATOR . $controller;
-        $tpl .= $action ? DIRECTORY_SEPARATOR . $action : '';
+        $tpl  = $logic . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action;
 
         $this->fetch($tpl);
+    }
+
+    private function verification(string $_str)
+    {
+        if ($_str && preg_match('/[0-9]+/si', $_str)) {
+            $response = Response::create(url('404'), 'redirect', 302);
+            throw new HttpResponseException($response);
+        }
     }
 
     /**

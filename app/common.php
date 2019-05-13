@@ -19,7 +19,7 @@ use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
 use app\library\Base64;
-use app\library\Filter;
+use app\library\DataFilter;
 
 
 
@@ -188,27 +188,27 @@ if (!function_exists('emoji_clear')) {
     }
 }
 
-if (!function_exists('safe_filter')) {
+if (!function_exists('content_filter')) {
     /**
-     * 安全过滤
-     * @param  mixed $_data
-     * @return mixed
+     * 内容过滤
+     * @param  string $_data
+     * @return string
      */
-    function safe_filter($_data)
+    function content_filter($_str)
     {
-        return Filter::strict($_data);
+        return DataFilter::content($_str);
     }
 }
 
-if (!function_exists('safe_con_filter')) {
+if (!function_exists('defalut_filter')) {
     /**
-     * 文章内容安全过滤
+     * 默认过滤
      * @param  mixed $_str
      * @return mixed
      */
-    function safe_con_filter($_str)
+    function defalut_filter($_str)
     {
-        return Filter::content($_str);
+        return DataFilter::defalut($_str);
     }
 }
 

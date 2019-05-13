@@ -33,7 +33,7 @@ class Api extends Async
     public function __construct()
     {
         parent::__construct();
-        $this->referer = Request::server('HTTP_REFERER') && Request::param('method', false);
+        $this->referer = Request::server('HTTP_REFERER') && Request::param('method');
     }
 
     /**
@@ -74,7 +74,7 @@ class Api extends Async
      */
     public function upload(): void
     {
-        if (Request::isPost() && !empty($_FILES)) {
+        if ($this->referer && Request::isPost() && !empty($_FILES)) {
             $this->run();
         } else {
             $this->error('upload::request error');

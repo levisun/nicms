@@ -158,10 +158,7 @@ class Async
      */
     public function __construct()
     {
-        error_reporting(E_ALL^E_NOTICE^E_WARNING);
-        ini_set('display_errors', 'Off');
-        ini_set('memory_limit', '16M');
-        set_time_limit(15);
+        error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
         header('X-Powered-By: NIAPI');
 
         $max_input_vars = (int)ini_get('max_input_vars');

@@ -27,7 +27,7 @@ class DbBackup
         $this->savePath = app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR;
         clearstatcache();
         set_time_limit(0);
-        ini_set('memory_limit', '64M');
+        ini_set('memory_limit', '32M');
     }
 
     /**
