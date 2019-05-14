@@ -2,6 +2,7 @@
 /**
  *
  * 健康状态监控
+ * 监听请求状态
  * 清除过期缓存和日志等
  * 生成网站地图
  * 生成数据备份
@@ -27,38 +28,106 @@ use app\library\Sitemap;
 
 class HealthMonitoring
 {
+    private $request_log = '';
 
     public function handle($request, Closure $next)
     {
         $request->filter('defalut_filter');
 
-        if ('api' !== $request->subDomain() && 1 === rand(1, 999)) {
+        $this->concurrent();
+        $this->lockRequest($request);
+
+        $response = $next($request);
+
+        $this->writeRequestNumber($request);
+
+        if (1 === rand(1, 9)) {
+            (new ReGarbage)->run();     // 清除过期缓存和日志等
+        }
+
+        // 写在事件中
+        // (new Accesslog)->record();  // 生成访问日志
+        // (new Sitemap)->save();      // 生成网站地图
+        // if (date('ymd') % 10 == 0) {
+        //     $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'datamaintenance.lock';
+        //     if (!is_file($lock)) {
+        //         file_put_contents($lock, date('Y-m-d H:i:s'));
+        //         ignore_user_abort(true);
+        //         (new DataMaintenance)->optimize();  // 优化表
+        //         (new DataMaintenance)->repair();    // 修复表
+        //         ignore_user_abort(false);
+        //         unlink($lock);
+        //     }
+        // }
+
+        return $response;
+    }
+
+    /**
+     * 记录请求数
+     * @access private
+     * @param
+     * @return mixed
+     */
+    private function writeRequestNumber($request)
+    {
+        if (!$request->isOptions()) {
+            $time = date('YmdHi');
+            clearstatcache();
+            if (is_file($this->request_log)) {
+                include $this->request_log;
+                if (!empty($number[$time]) && $number[$time] >= 60) {
+                    file_put_contents($this->request_log . '.lock', date('YmdHis'));
+                }
+            } else {
+                $number = [$time => 1];
+            }
+
+            // 记录请求次数
+            $number[$time] = empty($number[$time]) ? 1 : ++$number[$time];
+            $number = [$time => $number[$time]];
+            file_put_contents($this->request_log, '<?php $number = ' . var_export($number, true) . ';');
+        }
+    }
+
+    /**
+     * 锁定请求
+     * @access private
+     * @param
+     * @return mixed
+     */
+    private function lockRequest($request)
+    {
+        clearstatcache();
+        $this->request_log = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
+        if (!is_dir($this->request_log)) {
+            chmod(app()->getRuntimePath(), 0777);
+            mkdir($this->request_log, 0777, true);
+        }
+        $this->request_log .= md5(__DIR__ . $request->ip() . date('Ymd')) . '.php';
+
+        // 锁定频繁请求IP
+        if (is_file($this->request_log . '.lock')) {
+            Log::record('[锁定]', 'alert')->save();
+            $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>502</h2><h3>Oops! Something went wrong.</h3></section>';
+
+            return Response::create($error, '', 500);
+        }
+    }
+
+    /**
+     * 并发压力
+     * @access private
+     * @param
+     * @return mixed
+     */
+    private function concurrent()
+    {
+        if (1 === rand(1, 999)) {
             Log::record('[并发]', 'alert')->save();
             $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section>';
 
             return Response::create($error, '', 500);
         }
-
-        if ('www' === $request->subDomain()) {
-            (new Accesslog)->record();  // 生成访问日志
-            (new Sitemap)->save();      // 生成网站地图
-        }
-
-        $response = $next($request);
-
-        if ('api' !== $request->subDomain() && 1 === rand(1, 9)) {
-            (new ReGarbage)->run();     // 清除过期缓存和日志等
-        }
-
-        if ('api' !== $request->subDomain() && date('ymd') % 10 == 0) {
-            $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'datamaintenance.lock';
-            if (!is_file($lock) || filemtime($lock) <= strotime('-10 days')) {
-                (new DataMaintenance)->optimize();  // 优化表
-                (new DataMaintenance)->repair();    // 修复表
-                file_put_contents($lock, date('Y-m-d H:i:s'));
-            }
-        }
-
-        return $response;
     }
 }

@@ -31,9 +31,23 @@ class RequestCache
 
     public function handle($request, Closure $next)
     {
+        if ($response = $this->readCache($request)) {
+            return $response;
+        }
+
+        $response = $next($request);
+
+        $this->writeCache($request, $response);
+
+        return $response;
+    }
+
+    public function readCache($request)
+    {
         $key = $this->cacheKey($request);
         if ($request->isGet() && $this->cache->has($key)) {
             list($content, $header) = $this->cache->get($key);
+
             if ($if_modified_since = $request->server('HTTP_IF_MODIFIED_SINCE')) {
                 $expire = (int)str_replace('public, max-age=', '', $header['Cache-control']);
                 if (strtotime($if_modified_since) + $expire >= $request->server('REQUEST_TIME')) {
@@ -44,8 +58,11 @@ class RequestCache
             }
         }
 
-        $response = $next($request);
+        return false;
+    }
 
+    public function writeCache($request, $response): void
+    {
         if ($request->isGet() && 200 == $response->getCode() && $response->isAllowCache()) {
             if ($response->getHeader('Cache-control')) {
                 $expire = (int)str_replace('public, max-age=', '', $response->getHeader('Cache-control'));
@@ -61,8 +78,6 @@ class RequestCache
                 $this->cache->set($key, [$response->getContent(), $response->getHeader()], $expire);
             }
         }
-
-        return $response;
     }
 
     /**

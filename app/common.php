@@ -21,8 +21,6 @@ use think\facade\Session;
 use app\library\Base64;
 use app\library\DataFilter;
 
-
-
 /**
  * 是否微信请求
  * @param
@@ -220,7 +218,7 @@ if (!function_exists('create_authorization')) {
      */
     function create_authorization(): string
     {
-        $authorization = Request::header('USER-AGENT') . Request::ip() . app()->getRootPath() . strtotime(date('Ymd'));
+        $authorization = Request::server('HTTP_USER_AGENT') . Request::ip() . app()->getRootPath() . strtotime(date('Ymd'));
         $authorization = hash_hmac('sha1', $authorization, Config::get('app.authkey'));
         if ($session_id = Session::getId(false)) {
             $authorization .= '.' . $session_id;

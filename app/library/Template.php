@@ -138,8 +138,6 @@ class Template
             echo '<!-- Static:';
             echo Config::get('app.debug') ? 'close' : 'success';
             echo ' Date:' . date('Y-m-d H:i:s') . ' -->';
-
-
         } else {
             echo $content;
         }
@@ -148,19 +146,15 @@ class Template
 
         $this->templateBuildWrite($content);
 
-        // $content = str_replace([
-        //     '{:__AUTHORIZATION__}', '{:__TIMESTAMP__}'
-        // ], [
-        //     create_authorization(), time()
-        // ], $content);
+        echo str_replace('{:__AUTHORIZATION__}', create_authorization(), $content);
+
+
 
         // if (!headers_sent() && !Config::get('app.debug') && function_exists('gzencode')) {
         //     $content = gzencode($content, 4);
         //     header('Content-Encoding:gzip');
         //     header('Content-Length:' . strlen($content));
         // }
-
-        echo $content;
     }
 
     /**
@@ -297,7 +291,7 @@ class Template
             'version:"' . $this->templateConfig['api_version'] . '",' .
             'appid:"' . $this->templateConfig['api_appid'] . '",' .
             'appsecret:"' . $this->templateConfig['api_appsecret'] . '",' .
-            'authorization:"' . create_authorization() . '",' .
+            'authorization:"{:__AUTHORIZATION__}",' .
             'param:' . json_encode(Request::param()) .
             '},' .
             'cdn:{' .
@@ -343,7 +337,9 @@ class Template
         $this->buildPath = $this->buildPath . $url;
 
         clearstatcache();
-        if (is_file($this->buildPath) && filemtime($this->buildPath) >= strtotime(date('Y-m-d'))) {
+        if (true === Config::get('app.debug') && is_file($this->buildPath)) {
+            unlink($this->buildPath);
+        } elseif (is_file($this->buildPath) && filemtime($this->buildPath) >= strtotime(date('Y-m-d'))) {
             return file_get_contents($this->buildPath);
         } elseif (is_file($this->buildPath)) {
             unlink($this->buildPath);

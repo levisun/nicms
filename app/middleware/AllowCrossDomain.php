@@ -1,7 +1,8 @@
 <?php
 /**
  *
- * 跨域头信息
+ * 跨域中间件
+ * API模块
  *
  * @package   NICMS
  * @category  app\middleware
@@ -27,14 +28,12 @@ class AllowCrossDomain
 
     public function handle($request, Closure $next, ?array $header = [])
     {
-        if ('api' === $request->subDomain()) {
-            $this->header['Access-Control-Allow-Origin'] = $request->server('HTTP_ORIGIN', '*');
-            $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
+        $this->header['Access-Control-Allow-Origin'] = $request->server('HTTP_ORIGIN', '*');
+        $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
 
-            if ($request->isOptions()) {
-                $header['Access-Control-Max-Age'] = 14400;
-                return Response::create()->code(204)->header($header);
-            }
+        if ($request->isOptions()) {
+            $header['Access-Control-Max-Age'] = 14400;
+            return Response::create()->code(204)->header($header);
         }
 
         $header = !empty($header) ? $header : [];

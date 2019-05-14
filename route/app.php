@@ -21,12 +21,19 @@ Route::get('500', 'error/_500');
 
 $domain = Request::subDomain();
 if ('api' === $domain) {
-    Route::ext('do');
     Route::get('download$', 'api/download');
     Route::get('ip$', 'api/ip');
     Route::get('query$', 'api/query');
     Route::post('handle$', 'api/handle');
     Route::post('upload$', 'api/upload');
+
+    Route::ext('do')->middleware('app\middleware\AllowCrossDomain');
+    // ->pattern([
+    //     'appid'     => '\d+',
+    //     'timestamp' => '\d+',
+    //     'method'    => '\w+',
+    //     'sign'      => '\w+',
+    // ]);
 }
 elseif ('www' === $domain) {
     Route::ext('html');
@@ -35,6 +42,7 @@ elseif ('www' === $domain) {
     Route::get('list/:name/:cid$', 'cms/lists');
     Route::get('details/:name/:cid/:id$', 'cms/details');
     Route::get('search', 'cms/search');
+    // Route::ext('html')->middleware('app\middleware\HealthMonitoring');
 }
 
 elseif (Env::get('admin.entry') === $domain) {

@@ -21,7 +21,9 @@ return [
         'LogLevel'     => [],
         'LogWrite'     => [],
         'ResponseSend' => [],
-        'ResponseEnd'  => [],
+        'ResponseEnd'  => [
+            'Maintain' => ['app\event\Maintain']
+        ],
     ],
     'subscribe' => [
     ],

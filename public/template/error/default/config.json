@@ -2,6 +2,8 @@
     "layout": true,
     "theme": "default",
     "api_version": "1.0.1",
+    "api_appid": "123",
+    "api_appsecret": "123",
     "theme_version": "1.0.1",
     "css": [
         "__CSS__style.css"

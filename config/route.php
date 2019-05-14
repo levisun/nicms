@@ -68,6 +68,7 @@ return [
     'request_cache_expire'  => Env::get('cache.expire', 1440),
     // 全局请求缓存排除规则
     'request_cache_except'  => [],
+
     // 默认控制器名
     'default_controller'    => 'Index',
     // 默认操作名

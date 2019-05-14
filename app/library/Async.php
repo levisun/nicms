@@ -110,13 +110,13 @@ class Async
      * 调试开关
      * @var bool
      */
-    protected $debug = true;
+    protected $debug = false;
 
     /**
      * 浏览器数据缓存开关
      * @var bool
      */
-    protected $cache = true;
+    protected $cache = false;
 
     /**
      * 浏览器数据缓存时间
@@ -370,7 +370,7 @@ class Async
             }
 
             // 校验token合法性
-            $referer = Request::header('USER-AGENT') . Request::ip() .
+            $referer = Request::server('HTTP_USER_AGENT') . Request::ip() .
                 app()->getRootPath() . strtotime(date('Ymd'));
             $referer = hash_hmac('sha1', $referer, Config::get('app.authkey'));
             if (!hash_equals($referer, $this->token)) {
