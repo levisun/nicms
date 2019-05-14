@@ -27,19 +27,20 @@ class Maintain
 
     public function handle()
     {
-        (new Accesslog)->record();  // 生成访问日志
-        (new Sitemap)->save();      // 生成网站地图
+        (new Accesslog)->record();      // 生成访问日志
+        (new Sitemap)->save();          // 生成网站地图
 
         if (1 === rand(1, 9)) {
             (new ReGarbage)->run();     // 清除过期缓存和日志等
         }
-        
+
         if (date('ymd') % 10 == 0) {
             $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'datamaintenance.lock';
             if (!is_file($lock)) {
                 file_put_contents($lock, date('Y-m-d H:i:s'));
             }
-            if (is_file($lock) && filemtime($lock) <= strtotime('-10 days')) {
+            $date = (int)date('ymd') - 10;
+            if (is_file($lock) && filemtime($lock) <= strtotime($date)) {
                 Log::record('[优化表 修复表]', 'alert')->save();
                 ignore_user_abort(true);
                 (new DataMaintenance)->optimize();  // 优化表

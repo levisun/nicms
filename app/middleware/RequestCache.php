@@ -42,7 +42,13 @@ class RequestCache
         return $response;
     }
 
-    public function readCache($request)
+    /**
+     * 读取请求缓存
+     * @access private
+     * @param  Request  $request
+     * @return response|bool
+     */
+    private function readCache($request)
     {
         $key = $this->cacheKey($request);
         if ($request->isGet() && $this->cache->has($key)) {
@@ -61,7 +67,14 @@ class RequestCache
         return false;
     }
 
-    public function writeCache($request, $response): void
+    /**
+     * 记录请求缓存
+     * @access private
+     * @param  Request  $request
+     * @param  Response $response
+     * @return void
+     */
+    private function writeCache($request, $response): void
     {
         if ($request->isGet() && 200 == $response->getCode() && $response->isAllowCache()) {
             if ($response->getHeader('Cache-control')) {

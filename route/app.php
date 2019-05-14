@@ -19,6 +19,11 @@ Route::get('error', 'error/index');
 Route::get('404', 'error/_404');
 Route::get('500', 'error/_500');
 
+Route::domain('admin', function(){
+    Route::get(':logic/:controller/:action/:id$', 'admin/index');
+
+})->ext('html');
+
 $domain = Request::subDomain();
 if ('api' === $domain) {
     Route::get('download$', 'api/download');
@@ -34,8 +39,7 @@ if ('api' === $domain) {
     //     'method'    => '\w+',
     //     'sign'      => '\w+',
     // ]);
-}
-elseif ('www' === $domain) {
+} elseif ('www' === $domain) {
     Route::ext('html');
     Route::get('/', 'cms/index');
     Route::get('index', 'cms/index');
@@ -43,16 +47,12 @@ elseif ('www' === $domain) {
     Route::get('details/:name/:cid/:id$', 'cms/details');
     Route::get('search', 'cms/search');
     // Route::ext('html')->middleware('app\middleware\HealthMonitoring');
-}
-
-elseif (Env::get('admin.entry') === $domain) {
+} elseif (Env::get('admin.entry') === $domain) {
     Route::ext('html');
-    Route::get('/', 'admin/index');
-    Route::get(':logic/:controller/:action$', 'admin/index');
-    Route::get(':logic/:controller/:action/:id$', 'admin/index');
-}
-
-else {
+    // Route::get('/', 'admin/index');
+    // Route::get(':logic/:controller/:action$', 'admin/index');
+    // Route::get(':logic/:controller/:action/:id$', 'admin/index');
+} else {
     die();
     Route::redirect('*', 'error/index');
     $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
