@@ -21,10 +21,6 @@ namespace app\middleware;
 use Closure;
 use think\Response;
 use think\facade\Log;
-use app\library\Accesslog;
-use app\library\DataMaintenance;
-use app\library\ReGarbage;
-use app\library\Sitemap;
 
 class HealthMonitoring
 {
@@ -40,25 +36,6 @@ class HealthMonitoring
         $response = $next($request);
 
         $this->writeRequestNumber($request);
-
-        if (1 === rand(1, 9)) {
-            (new ReGarbage)->run();     // 清除过期缓存和日志等
-        }
-
-        // 写在事件中
-        // (new Accesslog)->record();  // 生成访问日志
-        // (new Sitemap)->save();      // 生成网站地图
-        // if (date('ymd') % 10 == 0) {
-        //     $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'datamaintenance.lock';
-        //     if (!is_file($lock)) {
-        //         file_put_contents($lock, date('Y-m-d H:i:s'));
-        //         ignore_user_abort(true);
-        //         (new DataMaintenance)->optimize();  // 优化表
-        //         (new DataMaintenance)->repair();    // 修复表
-        //         ignore_user_abort(false);
-        //         unlink($lock);
-        //     }
-        // }
 
         return $response;
     }

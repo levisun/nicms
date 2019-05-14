@@ -15,15 +15,11 @@ return [
     'bind'      => [
     ],
     'listen'    => [
-        'AppInit'      => [],
-        'AppBegin'     => [],
-        'AppEnd'       => [],
-        'LogLevel'     => [],
-        'LogWrite'     => [],
-        'ResponseSend' => [],
-        'ResponseEnd'  => [
-            'Maintain' => ['app\event\Maintain']
-        ],
+        'AppInit'  => [],
+        'HttpRun'  => [],
+        'HttpEnd'  => ['app\event\Maintain'],
+        'LogLevel' => [],
+        'LogWrite' => [],
     ],
     'subscribe' => [
     ],
