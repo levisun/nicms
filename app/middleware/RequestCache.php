@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * 浏览器缓存
+ * 请求缓存
  *
  * @package   NICMS
  * @category  app\middleware

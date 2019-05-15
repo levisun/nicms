@@ -1,11 +1,7 @@
 <?php
 /**
  *
- * 健康状态监控
  * 监听请求状态
- * 清除过期缓存和日志等
- * 生成网站地图
- * 生成数据备份
  *
  * @package   NICMS
  * @category  app\middleware
@@ -22,7 +18,7 @@ use Closure;
 use think\Response;
 use think\facade\Log;
 
-class HealthMonitoring
+class RequestMonitoring
 {
     private $request_log = '';
 

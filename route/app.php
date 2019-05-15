@@ -19,11 +19,6 @@ Route::get('error', 'error/index');
 Route::get('404', 'error/_404');
 Route::get('500', 'error/_500');
 
-Route::domain('admin', function(){
-    Route::get(':logic/:controller/:action/:id$', 'admin/index');
-
-})->ext('html');
-
 $domain = Request::subDomain();
 if ('api' === $domain) {
     Route::get('download$', 'api/download');
@@ -49,9 +44,9 @@ if ('api' === $domain) {
     // Route::ext('html')->middleware('app\middleware\HealthMonitoring');
 } elseif (Env::get('admin.entry') === $domain) {
     Route::ext('html');
-    // Route::get('/', 'admin/index');
-    // Route::get(':logic/:controller/:action$', 'admin/index');
-    // Route::get(':logic/:controller/:action/:id$', 'admin/index');
+    Route::get('/', 'admin/index');
+    Route::get(':logic/:controller/:action$', 'admin/index');
+    Route::get(':logic/:controller/:action/:id$', 'admin/index');
 } else {
     die();
     Route::redirect('*', 'error/index');

@@ -1,7 +1,10 @@
 <?php
 /**
  *
- * 维护
+ * 维护事件
+ * 清除过期缓存和日志等
+ * 生成网站地图
+ * 数据库维护
  *
  * @package   NICMS
  * @category  app\middleware
@@ -28,7 +31,7 @@ class Maintain
     public function handle()
     {
         (new Accesslog)->record();      // 生成访问日志
-        (new Sitemap)->save();          // 生成网站地图
+        (new Sitemap)->create();        // 生成网站地图
 
         if (1 === rand(1, 9)) {
             (new ReGarbage)->run();     // 清除过期缓存和日志等

@@ -23,7 +23,7 @@ use app\model\Category as ModelCategory;
 class Sitemap
 {
 
-    public function save()
+    public function create()
     {
         clearstatcache();
         $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemap.xml';
@@ -57,13 +57,10 @@ class Sitemap
                     ->limit(100)
                     ->select()
                     ->toArray();
-                $vo_cate['id'] = Base64::encrypt($vo_cate['id']);
 
                 $article_xml = [];
                 $category_xml = [];
                 foreach ($article as $vo_art) {
-                    $vo_art['category_id'] = Base64::encrypt($vo_art['category_id']);
-                    $vo_art['id'] = Base64::encrypt($vo_art['id']);
                     $article_xml[]['url'] = [
                         'loc'        => Request::scheme() . url('details/' . $vo_art['action_name'] . '/' . $vo_art['category_id'] . '/' . $vo_art['id']),
                         'lastmod'    => $vo_art['update_time'],
@@ -79,8 +76,8 @@ class Sitemap
                     ];
                 }
                 if ($article_xml) {
-                    self::create($article_xml, 'sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
-                    self::create($category_xml, 'sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
+                    self::save($article_xml, 'sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
+                    self::save($category_xml, 'sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
 
                     $sitemap_xml[]['sitemap'] = [
                         'loc'     => Request::domain() . '/sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
@@ -92,7 +89,7 @@ class Sitemap
                     ];
                 }
             }
-            self::create($sitemap_xml, 'sitemap.xml');
+            self::save($sitemap_xml, 'sitemap.xml');
         }
         clearstatcache();
     }
@@ -103,7 +100,7 @@ class Sitemap
      * @param  array  $_data
      * @return string
      */
-    private function create(array $_data, string $_path): void
+    private function save(array $_data, string $_path): void
     {
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>' . PHP_EOL .
             '<!-- generated-on="' . date('Y-m-d H:i:s') . '" -->' . PHP_EOL .

@@ -23,8 +23,9 @@ use think\facade\Log;
 use think\facade\Request;
 use think\facade\Session;
 use app\library\Ip;
-use app\library\Base64;
+use app\library\DataFilter;
 use app\model\ApiApp as ModelApiApp;
+use app\model\Session as ModelSession;
 
 class Async
 {
@@ -158,7 +159,7 @@ class Async
      */
     public function __construct()
     {
-        error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
+        // error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
         header('X-Powered-By: NIAPI');
 
         $max_input_vars = (int)ini_get('max_input_vars');
@@ -175,8 +176,7 @@ class Async
      */
     protected function run()
     {
-        $exec =
-            $this->analysisHeader()
+        $exec = $this->analysisHeader()
             ->checkAppId()
             ->checkSign()
             ->checkTimestamp()
@@ -191,22 +191,62 @@ class Async
 
         // 调试与缓存设置
         // 调试模式 返回数据没有指定默认关闭
-        $this->debug = isset($result['debug']) ? !!$result['debug'] : false;
+        if (isset($result['debug'])) {
+            $this->debug($result['debug']);
+        }
 
-        // 浏览器缓存 返回数据没有指定默认开启
-        $this->cache = isset($result['cache']) ? !!$result['cache'] : true;
-        // 当调试模式开启时关闭缓存
-        $this->cache = $this->debug ? false : $this->cache;
+        // 缓存
+        if (isset($result['cache'])) {
+            $this->cache($result['cache']);
+        }
 
-        // 浏览器缓存时间
-        $this->expire = isset($result['expire']) ? $result['expire'] : Config::get('cache.expire');
-        $this->expire = (int)$this->expire;
-        $this->expire = $this->expire <= 0 ? 0 : $this->expire;
+        // 缓存时间
+        if (isset($result['expire'])) {
+            $this->expire($result['expire']);
+        }
 
         $result['data'] = isset($result['data']) ? $result['data'] : [];
         $result['code'] = isset($result['code']) ? $result['code'] : 'SUCCESS';
 
+        return $result;
+
         $this->success($result['msg'], $result['data'], $result['code']);
+    }
+
+    /**
+     * 设置缓存时间
+     * @access protected
+     * @param
+     * @return void
+     */
+    protected function expire(int $_expire = 0)
+    {
+        $this->expire = $_expire > 0 ? $_expire : (int)Config::get('cache.expire');
+        return $this;
+    }
+
+    /**
+     * 开启调试
+     * @access protected
+     * @param
+     * @return void
+     */
+    protected function debug(bool $_debug)
+    {
+        $this->debug = $_debug;
+        return $this;
+    }
+
+    /**
+     * 设置缓存
+     * @access protected
+     * @param
+     * @return void
+     */
+    protected function cache(bool $_cache = false)
+    {
+        $this->cache = true === $this->debug ? false : $_cache;
+        return $this;
     }
 
     /**
@@ -324,6 +364,7 @@ class Async
         $this->appid -= 1000000;
         if ($this->appid && $this->appid >= 1) {
             $result = (new ModelApiApp)
+                ->field('secret, module')
                 ->where([
                     ['id', '=', $this->appid]
                 ])
@@ -370,8 +411,8 @@ class Async
             }
 
             // 校验token合法性
-            $referer = Request::server('HTTP_USER_AGENT') . Request::ip() .
-                app()->getRootPath() . strtotime(date('Ymd'));
+            $referer = strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') . Request::ip() .
+                app()->getRootPath();
             $referer = hash_hmac('sha1', $referer, Config::get('app.authkey'));
             if (!hash_equals($referer, $this->token)) {
                 $this->debugLog['referer'] = $referer;
@@ -381,7 +422,14 @@ class Async
 
             // 开启session
             if ($this->sid && preg_match('/^[A-Za-z0-9]{32,40}$/u', $this->sid)) {
-                Session::setId($this->sid);
+                $result = (new ModelSession)
+                    ->where([
+                        ['session_id', '=', $this->sid]
+                    ])
+                    ->value('session_id');
+                if ($result) {
+                    Session::setId($this->sid);
+                }
             }
         } else {
             $this->debugLog['authorization'] = $this->authorization;
@@ -479,9 +527,7 @@ class Async
         // 记录日志
         if (true === $this->debug) {
             $this->writeLog($result);
-        }
-
-        if (true === $this->cache && $this->expire && $_code == 'SUCCESS') {
+        } elseif (true === $this->cache && $this->expire && $_code == 'SUCCESS') {
             $ipinfo = (new Ip)->info();
             $result['expire'] = $ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';' . $this->expire . 's';
         }

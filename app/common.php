@@ -218,11 +218,12 @@ if (!function_exists('create_authorization')) {
      */
     function create_authorization(): string
     {
-        $authorization = Request::server('HTTP_USER_AGENT') . Request::ip() . app()->getRootPath() . strtotime(date('Ymd'));
+        $authorization = strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') . Request::ip() . app()->getRootPath();
         $authorization = hash_hmac('sha1', $authorization, Config::get('app.authkey'));
         if ($session_id = Session::getId(false)) {
             $authorization .= '.' . $session_id;
         }
+        $authorization .= '.' . Request::time(true);
         return Base64::encrypt($authorization, 'authorization');
     }
 }

@@ -45,7 +45,8 @@ class Api extends Async
     public function query(): void
     {
         if ($this->referer && Request::isGet()) {
-            $this->run();
+            $result = $this->run();
+            $this->success($result['msg'], $result['data'], $result['code']);
         } else {
             $this->error('query::request error');
         }
@@ -60,7 +61,8 @@ class Api extends Async
     public function handle(): void
     {
         if ($this->referer && Request::isPost()) {
-            $this->run();
+            $result = $this->run();
+            $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
         } else {
             $this->error('handle::request error');
         }
@@ -75,7 +77,8 @@ class Api extends Async
     public function upload(): void
     {
         if ($this->referer && Request::isPost() && !empty($_FILES)) {
-            $this->run();
+            $result = $this->run();
+            $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
         } else {
             $this->error('upload::request error');
         }
