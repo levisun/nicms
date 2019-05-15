@@ -1,89 +1,114 @@
 <?php
-// +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2006~2019 http://thinkphp.cn All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
-// +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
-// +----------------------------------------------------------------------
+/**
+ *
+ * 应用公共文件
+ *
+ * @package   NICMS
+ * @category  app
+ * @author    失眠小枕头 [levisun.mail@gmail.com]
+ * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
+ * @link      www.NiPHP.com
+ * @since     2019
+ */
+
 declare (strict_types = 1);
+
 namespace app;
+
 use think\App;
-use think\exception\ValidateException;
-use think\Validate;
+use think\Response;
+use think\exception\HttpResponseException;
+use think\facade\Config;
+use app\library\Rbac;
+use app\library\Template;
+
 /**
  * 控制器基础类
  */
-abstract class BaseController
+abstract class BaseController extends Template
 {
-    /**
-     * Request实例
-     * @var \think\Request
-     */
-    protected $request;
     /**
      * 应用实例
      * @var \think\App
      */
     protected $app;
+
     /**
-     * 是否批量验证
-     * @var bool
+     * Request实例
+     * @var \think\Request
      */
-    protected $batchValidate = false;
-    /**
-     * 控制器中间件
-     * @var array
-     */
-    protected $middleware = [];
+    protected $request;
+
     /**
      * 构造方法
      * @access public
      * @param  App  $app  应用对象
+     * @return void
      */
     public function __construct(App $app)
     {
         $this->app     = $app;
         $this->request = $this->app->request;
+
+        $this->app->debug(Config::get('app.debug'));
+
         // 控制器初始化
         $this->initialize();
+
+        parent::__construct();
     }
+
     // 初始化
     protected function initialize()
-    {}
+    { }
+
     /**
-     * 验证数据
+     * 校验请求参数合法性
      * @access protected
-     * @param  array        $data     数据
-     * @param  string|array $validate 验证器名或者验证规则数组
-     * @param  array        $message  提示信息
-     * @param  bool         $batch    是否批量验证
-     * @return array|string|true
-     * @throws ValidateException
+     * @param  string $_str
+     * @return void
      */
-    protected function validate(array $data, $validate, array $message = [], bool $batch = false)
+    protected function verification(string $_str): void
     {
-        if (is_array($validate)) {
-            $v = new Validate();
-            $v->rule($validate);
-        } else {
-            if (strpos($validate, '.')) {
-                // 支持场景
-                list($validate, $scene) = explode('.', $validate);
-            }
-            $class = false !== strpos($validate, '\\') ? $validate : $this->app->parseClass('validate', $validate);
-            $v     = new $class();
-            if (!empty($scene)) {
-                $v->scene($scene);
-            }
+        if ($_str && preg_match('/[0-9]+/si', $_str)) {
+            $response = Response::create(url('404'), 'redirect', 302);
+            throw new HttpResponseException($response);
         }
-        $v->message($message);
-        // 是否批量验证
-        if ($batch || $this->batchValidate) {
-            $v->batch(true);
+    }
+
+    /**
+     * 操作验证权限
+     * @access private
+     * @param  string $_auth_key    认证ID
+     * @param  string $_method      模块
+     * @param  string $_logic       业务层
+     * @param  string $_controller  控制器
+     * @param  string $_action      方法
+     * @return void
+     */
+    protected function authenticate(string $_auth_key, string $_method, string $_logic, string $_controller, string $_action): void
+    {
+        if (session('?' . $_auth_key)) {
+            $result = (new Rbac)->authenticate(
+                    session($_auth_key),
+                    $_method,
+                    $_logic,
+                    $_controller,
+                    $_action
+                );
+
+            if (false === $result) {
+                $url = url('settings/info/index');
+            }
+        } elseif (session('?' . $_auth_key) && $_logic === 'account') {
+            $url = url('settings/info/index');
+        } elseif (!session('?' . $_auth_key) && !in_array($_action, ['login', 'forget'])) {
+            $url = url('account/user/login');
         }
-        return $v->failException(true)->check($data);
+
+        if (isset($url)) {
+            $response = Response::create($url, 'redirect', 302);
+            throw new HttpResponseException($response);
+        }
     }
 }

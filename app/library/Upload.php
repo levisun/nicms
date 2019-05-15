@@ -14,6 +14,7 @@ declare (strict_types = 1);
 
 namespace app\library;
 
+use think\Image;
 use think\facade\Config;
 use think\facade\Request;
 
@@ -91,12 +92,12 @@ class Upload
     {
         if ($result = $_object->validate($this->rule)->rule('uniqid')->move($this->savePath)) {
             $extension = strtolower(pathinfo($result->getSaveName(), PATHINFO_EXTENSION));
-            
+
             // 图片文件 压缩图片
-            if (class_exists('\think\Image') && in_array($extension, ['gif', 'jpg', 'jpeg', 'bmp', 'png'])) {
+            if (in_array($extension, ['gif', 'jpg', 'jpeg', 'bmp', 'png'])) {
                 $save_name = $result->getSaveName();
-                $image = \think\Image::open($this->savePath . $save_name);
-                
+                $image = Image::open($this->savePath . $save_name);
+
                 // 按指定图片大小缩放图片
                 // 如果没有指定大小,图片大于800像素 统一缩放到800像素
                 $width = (int)Request::param('width/f', 800);
@@ -105,21 +106,21 @@ class Upload
                 $height = $height > 800 ? 800 : $height;
 
                 if ($image->width() > $width || $image->height() > $height) {
-                    $image->thumb($width, $height, \think\Image::THUMB_SCALING);
+                    $image->thumb($width, $height, Image::THUMB_SCALING);
                 }
                 if ($water = Request::param('water/f', 0)) {
                     $image->text($this->water['text'], $this->water['font'], $this->water['size'], '#00000000', 1);
                     $image->text($this->water['text'], $this->water['font'], $this->water['size'], '#00000000', 5);
                     $image->text($this->water['text'], $this->water['font'], $this->water['size'], '#00000000', 9);
                 }
-                
+
                 $image->save($this->savePath . $save_name, null, 60);
             }
 
             $url = str_replace(DIRECTORY_SEPARATOR, '/', $this->savePath);
             $url = explode('/uploads', $url);
             $url = '/uploads' . $url[1];
-            
+
             return [
                 'extension'    => $extension,
                 'name'         => $result->getSaveName(),

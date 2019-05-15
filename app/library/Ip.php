@@ -15,7 +15,7 @@ declare (strict_types = 1);
 namespace app\library;
 
 use think\facade\Request;
-use app\library\Filter;
+use app\library\DataFilter;
 use app\model\IpInfo;
 use app\model\Region;
 
@@ -141,7 +141,7 @@ class Ip
      */
     private function queryRegion($_name, $_pid): int
     {
-        $_name = Filter::default($_name, true);
+        $_name = DataFilter::default($_name, true);
 
         $result = (new Region)
             ->where([
@@ -169,7 +169,7 @@ class Ip
         if ($result && $result = json_decode($result, true)) {
             if (!empty($result) && $result['code'] == 0) {
                 $result = $result['data'];
-                $isp     = !empty($result['isp']) ? Filter::default($result['isp'], true) : '';
+                $isp     = !empty($result['isp']) ? DataFilter::default($result['isp'], true) : '';
                 $country = $this->queryRegion($result['country'], 0);
                 if ($country) {
                     $province = $this->queryRegion($result['region'], $country);
@@ -221,7 +221,7 @@ class Ip
         if ($result && $result = json_decode($result, true)) {
             if (!empty($result) && $result['code'] == 0) {
                 $result = $result['data'];
-                $isp     = !empty($result['isp']) ? Filter::default($result['isp'], true) : '';
+                $isp     = !empty($result['isp']) ? DataFilter::default($result['isp'], true) : '';
                 $country = $this->queryRegion($result['country'], 0);
                 if ($country) {
                     $province = $this->queryRegion($result['region'], $country);

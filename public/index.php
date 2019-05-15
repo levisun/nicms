@@ -17,7 +17,6 @@ namespace think;
 version_compare(PHP_VERSION, '7.1.0', '>=') or die('系统需要PHP7.1以上版本! 当前PHP版本:' . PHP_VERSION . '.');
 extension_loaded('pdo') or die('请开启 pdo 模块!');
 extension_loaded('pdo_mysql') or die('请开启 pdo_mysql 模块!');
-// error_reporting(E_ALL^E_NOTICE^E_WARNING);
 ini_set('memory_limit', '16M');
 // ini_set('max_execution_time', '30');
 set_time_limit(30);

@@ -78,7 +78,7 @@
             contentType: 'application/x-www-form-urlencoded',
             data: {
                 appid: NICMS.api.appid,
-                timestamp: jQuery.timestamp()
+                // timestamp: jQuery.timestamp()
             }
         };
 

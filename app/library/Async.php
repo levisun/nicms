@@ -23,9 +23,7 @@ use think\facade\Log;
 use think\facade\Request;
 use think\facade\Session;
 use app\library\Ip;
-use app\library\DataFilter;
 use app\model\ApiApp as ModelApiApp;
-use app\model\Session as ModelSession;
 
 class Async
 {
@@ -157,24 +155,14 @@ class Async
      * @param
      * @return void
      */
-    public function __construct()
-    {
-        // error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
-        header('X-Powered-By: NIAPI');
-
-        $max_input_vars = (int)ini_get('max_input_vars');
-        if (count($_POST) + count($_FILES) >= $max_input_vars - 5) {
-            $this->error('[Async] request max params number error');
-        }
-    }
 
     /**
      * 运行
      * @access protected
      * @param
-     * @return Response
+     * @return array
      */
-    protected function run()
+    protected function run(): array
     {
         $exec = $this->analysisHeader()
             ->checkAppId()
@@ -209,8 +197,6 @@ class Async
         $result['code'] = isset($result['code']) ? $result['code'] : 'SUCCESS';
 
         return $result;
-
-        $this->success($result['msg'], $result['data'], $result['code']);
     }
 
     /**
@@ -300,7 +286,7 @@ class Async
      */
     protected function checkTimestamp()
     {
-        $this->timestamp = (int)Request::param('timestamp/f', time());
+        $this->timestamp = (int)Request::param('timestamp/f', Request::time());
         if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
             $this->error('[Async] request timeout');
         }
@@ -422,14 +408,7 @@ class Async
 
             // 开启session
             if ($this->sid && preg_match('/^[A-Za-z0-9]{32,40}$/u', $this->sid)) {
-                $result = (new ModelSession)
-                    ->where([
-                        ['session_id', '=', $this->sid]
-                    ])
-                    ->value('session_id');
-                if ($result) {
-                    Session::setId($this->sid);
-                }
+                Session::setId($this->sid);
             }
         } else {
             $this->debugLog['authorization'] = $this->authorization;
@@ -523,19 +502,19 @@ class Async
         ];
         $result = array_filter($result);
 
+        $ipinfo = (new Ip)->info();
+        $result['expire'] = $ipinfo['ip'] . ';close';
 
         // 记录日志
         if (true === $this->debug) {
             $this->writeLog($result);
         } elseif (true === $this->cache && $this->expire && $_code == 'SUCCESS') {
-            $ipinfo = (new Ip)->info();
             $result['expire'] = $ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';' . $this->expire . 's';
         }
 
         $response = Response::create($result, $this->format)->allowCache(false);
         if (true === $this->cache && $this->expire && $_code == 'SUCCESS') {
-            $response
-                ->allowCache(true)
+            $response->allowCache(true)
                 ->cacheControl('public, max-age=' . $this->expire)
                 ->expires(gmdate('D, d M Y H:i:s', time() + $this->expire) . ' GMT')
                 ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');

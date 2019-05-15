@@ -55,6 +55,20 @@ class DataFilter
     }
 
     /**
+     * 字符过滤
+     * @access public
+     * @param  string $_str
+     * @return string
+     */
+    public static function string(string $_str): string
+    {
+        $_str = self::safe($_str);
+        $_str = self::enter($_str);
+        $_str = self::fun($_str);
+        return $_str;
+    }
+
+    /**
      * 过滤PHP危害函数方法
      * @access private
      * @param  string $_str
@@ -125,9 +139,9 @@ class DataFilter
 
             // XXE XML 实体扩展攻击
             '/<html.*?>(.*?)<\/html.*?>/si',
-            '/<head.*?>(.*?)<\/head.*?>/si',
+            /* '/<head.*?>(.*?)<\/head.*?>/si',
             '/<title.*?>(.*?)<\/title.*?>/si',
-            '/<body.*?>(.*?)<\/body.*?>/si',
+            '/<body.*?>(.*?)<\/body.*?>/si', */
             '/<style.*?>(.*?)<\/style.*?>/si',
             '/<iframe.*?>(.*?)<\/iframe.*?>/si',
             '/<frame.*?>(.*?)<\/frame.*?>/si',
@@ -145,7 +159,7 @@ class DataFilter
 
             '/<\?php/si',
             '/<\?/si',
-            '/( ){2,}/si'
+            '/( ){2,}/si',
         ], '', $_str);
     }
 }

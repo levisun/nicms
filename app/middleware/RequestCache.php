@@ -51,7 +51,7 @@ class RequestCache
     private function readCache($request)
     {
         $key = $this->cacheKey($request);
-        if ($request->isGet() && $this->cache->has($key)) {
+        if ($request->isGet() && false === Config::get('app.debug') && $this->cache->has($key)) {
             list($content, $header) = $this->cache->get($key);
 
             if ($if_modified_since = $request->server('HTTP_IF_MODIFIED_SINCE')) {
@@ -102,9 +102,9 @@ class RequestCache
     private function cacheKey($request)
     {
         $key = preg_replace_callback('/timestamp=[0-9]+|sign=[A-Za-z0-9]{32,40}/si', function ($matches) {
-            return '';
+            return '*';
         }, $request->url(true));
 
-        return sha1($key);
+        return md5($key);
     }
 }

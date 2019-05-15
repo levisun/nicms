@@ -15,26 +15,21 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
-use think\Response;
-use think\exception\HttpResponseException;
 use think\facade\Env;
-use app\library\Filter;
-use app\library\Rbac;
-use app\library\Template;
+use app\BaseController;
 
-class admin extends Template
+class admin extends BaseController
 {
 
     /**
-     * 构造方法
+     * 初始化
      * @access public
-     * @param  App  $app  应用对象
+     * @param
      * @return void
      */
-    public function __construct()
+    public function initialize()
     {
         $this->setTheme('admin/' . Env::get('admin.theme', 'default'));
-        parent::__construct();
     }
 
     /**
@@ -51,55 +46,10 @@ class admin extends Template
         $this->verification($controller);
         $this->verification($action);
 
-        $this->authenticate($logic, $controller, $action);
+        $this->authenticate('admin_auth_key', 'admin', $logic, $controller, $action);
 
         $tpl  = $logic . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action;
 
         $this->fetch($tpl);
-    }
-
-    private function verification(string $_str)
-    {
-        if ($_str && preg_match('/[0-9]+/si', $_str)) {
-            $response = Response::create(url('404'), 'redirect', 302);
-            throw new HttpResponseException($response);
-        }
-    }
-
-    /**
-     * 验证权限
-     * @access private
-     * @param  string $_logic
-     * @param  string $_controller
-     * @param  string $_action
-     * @return void
-     */
-    private function authenticate(string $_logic, string $_controller, string $_action): void
-    {
-        if (session('?admin_auth_key')) {
-            $result =
-            (new Rbac)->authenticate(
-                session('admin_auth_key'),
-                'admin',
-                $_logic,
-                $_controller,
-                $_action
-            );
-
-            if (false === $result) {
-                $url = url('settings/info/index');
-            }
-        }
-        elseif (session('?admin_auth_key') && $_logic === 'account') {
-            $url = url('settings/info/index');
-        }
-        elseif (!session('?admin_auth_key') && !in_array($_action, ['login', 'forget'])) {
-            $url = url('account/user/login');
-        }
-
-        if (isset($url)) {
-            $response = Response::create($url, 'redirect', 302);
-            throw new HttpResponseException($response);
-        }
     }
 }

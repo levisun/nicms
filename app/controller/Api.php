@@ -15,6 +15,8 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
+use think\App;
+use think\facade\Config;
 use think\facade\Request;
 use app\library\Async;
 use app\library\Download;
@@ -22,7 +24,23 @@ use app\library\Ip;
 
 class Api extends Async
 {
-    private $referer = false;
+    /**
+     * 应用实例
+     * @var \think\App
+     */
+    protected $app;
+
+    /**
+     * Request实例
+     * @var \think\Request
+     */
+    protected $request;
+
+    /**
+     * 应用实例
+     * @var bool
+     */
+    protected $referer = false;
 
     /**
      * 构造方法
@@ -30,21 +48,32 @@ class Api extends Async
      * @param  string $_input_name
      * @return void
      */
-    public function __construct()
+    public function __construct(App $app)
     {
-        parent::__construct();
-        $this->referer = Request::server('HTTP_REFERER') && Request::param('method');
+        $this->app     = $app;
+        $this->request = $this->app->request;
+
+        $this->app->debug(Config::get('app.debug'));
+
+        $max_input_vars = (int)ini_get('max_input_vars');
+        if (count($_POST) + count($_FILES) >= $max_input_vars - 5) {
+            $this->error('[Async] request max params number error');
+        }
+
+        $this->referer = $this->request->server('HTTP_REFERER') && $this->request->param('method');
+
+        header('X-Powered-By: NIAPI');
     }
 
     /**
      * 查询接口
      * @access public
      * @param  string $module API分层名
-     * @return Response
+     * @return void
      */
     public function query(): void
     {
-        if ($this->referer && Request::isGet()) {
+        if ($this->referer && $this->request->isGet()) {
             $result = $this->run();
             $this->success($result['msg'], $result['data'], $result['code']);
         } else {
@@ -56,11 +85,11 @@ class Api extends Async
      * 操作接口
      * @access public
      * @param  string $name API分层名
-     * @return Response
+     * @return void
      */
     public function handle(): void
     {
-        if ($this->referer && Request::isPost()) {
+        if ($this->referer && $this->request->isPost()) {
             $result = $this->run();
             $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
         } else {
@@ -72,11 +101,11 @@ class Api extends Async
      * 上传接口
      * @access public
      * @param
-     * @return Response
+     * @return void
      */
     public function upload(): void
     {
-        if ($this->referer && Request::isPost() && !empty($_FILES)) {
+        if ($this->referer && $this->request->isPost() && !empty($_FILES)) {
             $result = $this->run();
             $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
         } else {
@@ -92,7 +121,7 @@ class Api extends Async
      */
     public function download(): void
     {
-        if (Request::isGet() && Request::param('file', false)) {
+        if ($this->request->isGet() && $this->request->param('file', false)) {
             $response = (new Download)->file();
             throw new HttpResponseException($response);
         } else {
@@ -104,11 +133,11 @@ class Api extends Async
      * IP地址信息接口
      * @access public
      * @param
-     * @return Response
+     * @return void
      */
     public function ip(): void
     {
-        if (Request::isGet() && $ip = Request::param('ip', false)) {
+        if ($this->request->isGet() && $ip = $this->request->param('ip', false)) {
             $ip = (new Ip)->info($ip);
             $this->success('success', $ip);
         } else {

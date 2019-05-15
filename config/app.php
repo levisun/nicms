@@ -20,6 +20,7 @@ return [
     'upload_type'           => Env::get('app.upload_type'),
     'upload_size'           => Env::get('app.upload_size'),
     'debug'                 => Env::get('admin.debug',   1) ? true : false,
+    'debug'                 => Env::get('admin.debug',   1) ? true : false,
     'authkey'               => Env::get('admin.authkey', md5(__DIR__)),
     'entry'                 => Env::get('admin.entry', 'admin'),
     'theme'                 => Env::get('admin.theme', 'default'),

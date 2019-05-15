@@ -15,18 +15,13 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
-use think\Response;
-use think\exception\HttpResponseException;
-use think\facade\Config;
-use think\facade\Env;
-use think\facade\Lang;
-use think\facade\Request;
+use app\BaseController;
 use app\library\Filter;
 use app\library\Siteinfo;
 use app\library\Template;
 use app\model\Category as ModelCategory;
 
-class Cms extends Template
+class Cms extends BaseController
 {
 
     /**
@@ -35,10 +30,9 @@ class Cms extends Template
      * @param  App  $app  应用对象
      * @return void
      */
-    public function __construct()
+    public function initialize()
     {
         $this->setTheme('cms/' . Siteinfo::theme());
-        parent::__construct();
 
         $this->setReplace([
             'name'        => Siteinfo::name(),

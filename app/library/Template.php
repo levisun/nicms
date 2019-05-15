@@ -18,7 +18,7 @@ use think\exception\HttpException;
 use think\facade\Config;
 use think\facade\Lang;
 use think\facade\Request;
-use app\library\Filter;
+use app\library\DataFilter;
 
 class Template
 {
@@ -119,12 +119,9 @@ class Template
             $content = $this->parseTemplateVars($content);                      // 解析模板变量
             $content = $this->parseTemplateFunc($content);                      // 解析模板函数
 
-            // 过滤危害代码
-            $content = Filter::FUN($content);
-            $content = Filter::XSS($content);
-            // 过滤空格回车等无用字符
-            $content = Filter::ENTER($content);
             $content = preg_replace(['/(<!--)(.*?)(-->)/si'], '', $content);
+
+            $content = DataFilter::string($content);
 
             // 解析模板标签方法
             $content = $this->parseTemplateTags($content);
@@ -191,14 +188,14 @@ class Template
      */
     private function parseTemplateFoot(): string
     {
-        $foot = PHP_EOL;
+        $foot = '';
 
         if (!empty($this->templateConfig['js'])) {
             foreach ($this->templateConfig['js'] as $js) {
                 // $foot .= '<script type="text/css" name=' . pathinfo($js, PATHINFO_BASENAME) . '>';
                 // $foot .= file_get_contents(str_replace(Config::get('app.cdn_host'), app()->getRootPath() . 'public', $js));
-                // $foot .= '</script>' . PHP_EOL;
-                $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $this->templateConfig['theme_version'] . '"></script>' .  PHP_EOL;
+                // $foot .= '</script>;
+                $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $this->templateConfig['theme_version'] . '"></script>';
             }
         }
 
@@ -211,7 +208,7 @@ class Template
         // 底部JS脚本
         $foot .= $this->templateReplace['__SCRIPT__'];
 
-        return $foot . PHP_EOL . '</body>' . PHP_EOL . '</html>';
+        return $foot . '</body>' . '</html>';
     }
 
     /**
@@ -223,50 +220,50 @@ class Template
     private function parseTemplateHead(): string
     {
         $head =
-            '<!DOCTYPE html>' . PHP_EOL .
-            '<html lang="' . Lang::getLangSet() . '">' . PHP_EOL .
-            '<head>' . PHP_EOL .
-            '<meta charset="utf-8" />' . PHP_EOL .
-            '<meta name="fragment" content="!" />' . PHP_EOL .                                // 支持蜘蛛ajax
-            '<meta name="robots" content="all" />' . PHP_EOL .                                // 蜘蛛抓取
-            '<meta name="revisit-after" content="1 days" />' . PHP_EOL .                      // 蜘蛛重访
-            '<meta name="renderer" content="webkit" />' . PHP_EOL .                           // 强制使用webkit渲染
-            '<meta name="force-rendering" content="webkit" />' . PHP_EOL .
-            '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' . PHP_EOL .
+            '<!DOCTYPE html>' .
+            '<html lang="' . Lang::getLangSet() . '">' .
+            '<head>' .
+            '<meta charset="utf-8" />' .
+            '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
+            '<meta name="robots" content="all" />' .                                // 蜘蛛抓取
+            '<meta name="revisit-after" content="1 days" />' .                      // 蜘蛛重访
+            '<meta name="renderer" content="webkit" />' .                           // 强制使用webkit渲染
+            '<meta name="force-rendering" content="webkit" />' .
+            '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' .
 
-            '<meta name="generator" content="nicms" />' . PHP_EOL .
-            '<meta name="author" content="levisun.mail@gmail.com" />' . PHP_EOL .
-            '<meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" />' . PHP_EOL .
+            '<meta name="generator" content="nicms" />' .
+            '<meta name="author" content="levisun.mail@gmail.com" />' .
+            '<meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" />' .
 
-            '<meta http-equiv="Window-target" content="_blank">' . PHP_EOL .
-            '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' . PHP_EOL .
+            '<meta http-equiv="Window-target" content="_blank">' .
+            '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' .
 
-            '<meta http-equiv="Cache-Control" content="no-siteapp" />' . PHP_EOL .            // 禁止baidu转码
-            '<meta http-equiv="Cache-Control" content="no-transform" />' . PHP_EOL .
+            '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
+            '<meta http-equiv="Cache-Control" content="no-transform" />' .
 
-            '<meta http-equiv="x-dns-prefetch-control" content="on" />' . PHP_EOL .           // DNS缓存
-            '<link rel="dns-prefetch" href="' . Config::get('app.api_host') . '" />' . PHP_EOL .
-            '<link rel="dns-prefetch" href="' . Config::get('app.cdn_host') . '" />' . PHP_EOL .
+            '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
+            '<link rel="dns-prefetch" href="' . Config::get('app.api_host') . '" />' .
+            '<link rel="dns-prefetch" href="' . Config::get('app.cdn_host') . '" />' .
 
-            '<link href="' . Config::get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' .  PHP_EOL;
+            '<link href="' . Config::get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />';
 
         // 网站标题 关键词 描述
-        $head .= '<title>' . $this->templateReplace['__TITLE__'] . '</title>' .  PHP_EOL;
-        $head .= '<meta name="keywords" content="' . $this->templateReplace['__KEYWORDS__'] . '" />' .  PHP_EOL;
-        $head .= '<meta name="description" content="' . $this->templateReplace['__DESCRIPTION__'] . '" />' .  PHP_EOL;
-        $head .= '<meta property="og:title" content="' . $this->templateReplace['__NAME__'] . '">' .  PHP_EOL;
-        $head .= '<meta property="og:type" content="website">' .  PHP_EOL;
-        $head .= '<meta property="og:url" content="' . Request::url(true) . '">' .  PHP_EOL;
-        $head .= '<meta property="og:image" content="">' .  PHP_EOL;
+        $head .= '<title>' . $this->templateReplace['__TITLE__'] . '</title>';
+        $head .= '<meta name="keywords" content="' . $this->templateReplace['__KEYWORDS__'] . '" />';
+        $head .= '<meta name="description" content="' . $this->templateReplace['__DESCRIPTION__'] . '" />';
+        $head .= '<meta property="og:title" content="' . $this->templateReplace['__NAME__'] . '">';
+        $head .= '<meta property="og:type" content="website">';
+        $head .= '<meta property="og:url" content="' . Request::url(true) . '">';
+        $head .= '<meta property="og:image" content="">';
 
         if (!empty($this->templateConfig['meta'])) {
             foreach ($this->templateConfig['meta'] as $m) {
-                $head .= '<meta ' . $m['type'] . ' ' . $m['content'] . ' />' .  PHP_EOL;
+                $head .= '<meta ' . $m['type'] . ' ' . $m['content'] . ' />';
             }
         }
         if (!empty($this->templateConfig['link'])) {
             foreach ($this->templateConfig['link'] as $m) {
-                $head .= '<link rel="' . $m['rel'] . '" href="' . $m['href'] . '" />' .  PHP_EOL;
+                $head .= '<link rel="' . $m['rel'] . '" href="' . $m['href'] . '" />';
             }
         }
 
@@ -274,8 +271,8 @@ class Template
             foreach ($this->templateConfig['css'] as $css) {
                 // $head .= '<style type="text/css" name=' . pathinfo($css, PATHINFO_BASENAME) . '>';
                 // $head .= file_get_contents(str_replace(Config::get('app.cdn_host'), app()->getRootPath() . 'public', $css));
-                // $head .= '</style>' . PHP_EOL;
-                $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->templateConfig['theme_version'] . '" />' .  PHP_EOL;
+                // $head .= '</style>;
+                $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->templateConfig['theme_version'] . '" />';
             }
         }
 
@@ -309,10 +306,10 @@ class Template
                 '}';
             unset($sub);
         }
-        $head .= '</script>' .  PHP_EOL;
+        $head .= '</script>';
         unset($root);
 
-        $head .= '</head>' .  PHP_EOL;
+        $head .= '</head>';
 
         return $head;
     }
