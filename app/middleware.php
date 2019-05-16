@@ -13,11 +13,11 @@
  */
 
 return [
-    'app\middleware\RequestMonitoring',          // 健康状态监控,清除过期缓存和日志等
-    'app\middleware\RequestCache',              // 必须在后,否则会影响其他中间件的执行
-
     // 'think\middleware\CheckRequestCache',
     'think\middleware\LoadLangPack',
     'think\middleware\SessionInit',
     'think\middleware\TraceDebug',
+
+    // 'app\middleware\RequestMonitoring',         // 健康状态监控,清除过期缓存和日志等
+    'app\middleware\RequestCache',              // 必须在后,否则会影响其他中间件的执行
 ];

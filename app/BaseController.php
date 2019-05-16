@@ -45,12 +45,13 @@ abstract class BaseController extends Template
      * @param  App  $app  应用对象
      * @return void
      */
-    public function __construct(App $app)
+    public function __construct(App $_app)
     {
-        $this->app     = $app;
-        $this->request = $this->app->request;
-
+        $this->app     = $_app;
         $this->app->debug(Config::get('app.debug'));
+
+        $this->request = $this->app->request;
+        $this->request->filter('defalut_filter');
 
         // 控制器初始化
         $this->initialize();

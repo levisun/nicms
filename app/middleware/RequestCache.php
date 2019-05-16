@@ -22,22 +22,26 @@ use think\facade\Config;
 class RequestCache
 {
     protected $cache;
+    protected $request;
 
-    public function __construct(Cache $cache)
+    public function __construct(Cache $_cache)
     {
-        $this->cache = $cache;
+        $this->cache = $_cache;
         $this->cache->tag('RequestCache');
     }
 
-    public function handle($request, Closure $next)
+    public function handle($_request, Closure $_next)
     {
-        if ($response = $this->readCache($request)) {
+        $this->request = $_request;
+
+        if ($response = $this->readCache()) {
             return $response;
         }
 
-        $response = $next($request);
+        $response = $_next($this->request);
 
-        $this->writeCache($request, $response);
+        $response = $this->gzip($response);
+        $this->writeCache($response);
 
         return $response;
     }
@@ -45,18 +49,17 @@ class RequestCache
     /**
      * 读取请求缓存
      * @access private
-     * @param  Request  $request
+     * @param
      * @return response|bool
      */
-    private function readCache($request)
+    private function readCache()
     {
-        $key = $this->cacheKey($request);
-        if ($request->isGet() && false === Config::get('app.debug') && $this->cache->has($key)) {
+        $key = $this->cacheKey();
+        if ($this->request->isGet() && false === Config::get('app.debug') && $this->cache->has($key)) {
             list($content, $header) = $this->cache->get($key);
-
-            if ($if_modified_since = $request->server('HTTP_IF_MODIFIED_SINCE')) {
+            if ($if_modified_since = $this->request->server('HTTP_IF_MODIFIED_SINCE')) {
                 $expire = (int)str_replace('public, max-age=', '', $header['Cache-control']);
-                if (strtotime($if_modified_since) + $expire >= $request->server('REQUEST_TIME')) {
+                if (strtotime($if_modified_since) + $expire >= $this->request->server('REQUEST_TIME')) {
                     return Response::create()->code(304);
                 }
             } else {
@@ -67,28 +70,42 @@ class RequestCache
         return false;
     }
 
+    private function gzip($_response)
+    {
+        if ($this->request->isGet() && !headers_sent() && function_exists('gzencode')) {
+            $content = $_response->getContent();
+            $content = gzencode($content, 7, FORCE_GZIP);
+            $_response->content($content);
+            $_response->header([
+                'Content-Encoding' => 'gzip',
+                'Content-Length'   => strlen($content)
+            ]);
+        }
+
+        return $_response;
+    }
+
     /**
      * 记录请求缓存
      * @access private
-     * @param  Request  $request
-     * @param  Response $response
+     * @param  Response $_response
      * @return void
      */
-    private function writeCache($request, $response): void
+    private function writeCache($_response): void
     {
-        if ($request->isGet() && 200 == $response->getCode() && $response->isAllowCache()) {
-            if ($response->getHeader('Cache-control')) {
-                $expire = (int)str_replace('public, max-age=', '', $response->getHeader('Cache-control'));
+        if ($this->request->isGet() && 200 == $_response->getCode() && $_response->isAllowCache()) {
+            if ($_response->getHeader('Cache-control')) {
+                $expire = (int)str_replace('public, max-age=', '', $_response->getHeader('Cache-control'));
             } elseif (false === Config::get('app.debug')) {
                 $expire = Config::get('cache.expire');
-                $response->cacheControl('public, max-age=' . $expire)
+                $_response->cacheControl('public, max-age=' . $expire)
                     ->expires(gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT')
                     ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
             }
 
             if (isset($expire)) {
-                $key = $this->cacheKey($request);
-                $this->cache->set($key, [$response->getContent(), $response->getHeader()], $expire);
+                $key = $this->cacheKey($this->request);
+                $this->cache->set($key, [$_response->getContent(), $_response->getHeader()], $expire);
             }
         }
     }
@@ -96,14 +113,14 @@ class RequestCache
     /**
      * 缓存KEY
      * @access private
-     * @param  Request $request
+     * @param
      * @return string
      */
-    private function cacheKey($request)
+    private function cacheKey()
     {
         $key = preg_replace_callback('/timestamp=[0-9]+|sign=[A-Za-z0-9]{32,40}/si', function ($matches) {
             return '*';
-        }, $request->url(true));
+        }, $this->request->url(true));
 
         return md5($key);
     }

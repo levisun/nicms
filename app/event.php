@@ -16,8 +16,12 @@ return [
     ],
     'listen'    => [
         'AppInit'  => [],
-        'HttpRun'  => [],
-        'HttpEnd'  => ['app\event\Maintain'],
+        'HttpRun'  => [
+            'app\event\LockRequest'
+        ],
+        'HttpEnd'  => [
+            'app\event\Maintain'
+        ],
         'LogLevel' => [],
         'LogWrite' => [],
     ],

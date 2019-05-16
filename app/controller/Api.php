@@ -139,7 +139,7 @@ class Api extends Async
     {
         if ($this->request->isGet() && $ip = $this->request->param('ip', false)) {
             $ip = (new Ip)->info($ip);
-            $this->success('success', $ip);
+            $this->cache(true)->success('success', $ip);
         } else {
             $this->error('ip::request error');
         }

@@ -138,8 +138,8 @@ class DataFilter
             '/<expression.*?>(.*?)<\/expression.*?>/si',
 
             // XXE XML 实体扩展攻击
-            '/<html.*?>(.*?)<\/html.*?>/si',
-            /* '/<head.*?>(.*?)<\/head.*?>/si',
+            /* '/<html.*?>(.*?)<\/html.*?>/si',
+            '/<head.*?>(.*?)<\/head.*?>/si',
             '/<title.*?>(.*?)<\/title.*?>/si',
             '/<body.*?>(.*?)<\/body.*?>/si', */
             '/<style.*?>(.*?)<\/style.*?>/si',

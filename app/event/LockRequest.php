@@ -12,93 +12,100 @@
  */
 declare (strict_types = 1);
 
-namespace app\middleware;
+namespace app\event;
 
-use Closure;
-use think\Response;
+use think\App;
 use think\facade\Log;
 
-class RequestMonitoring
+class LockRequest
 {
-    private $request_log = '';
+    /**
+     * 应用实例
+     * @var \think\App
+     */
+    protected $app;
 
-    public function handle($request, Closure $next)
+    protected $request_log = '';
+
+    public function __construct(App $_app)
+    {
+        $this->app = $_app;
+
+        $this->request_log = $this->app->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
+        if (!is_dir($this->request_log)) {
+            chmod($this->app->getRuntimePath(), 0777);
+            mkdir($this->request_log, 0777, true);
+        }
+        $this->request_log .= md5(__DIR__ . $this->app->request->ip() . date('Ymd')) . '.php';
+    }
+
+    public function handle()
     {
         $this->concurrent();
-        $this->lockRequest($request);
-
-        $response = $next($request);
-
-        $this->writeRequestNumber($request);
-
-        return $response;
+        $this->lockRequest();
+        $this->recordRequest();
     }
 
     /**
      * 记录请求数
-     * @access private
+     * @access protected
      * @param
      * @return mixed
      */
-    private function writeRequestNumber($request)
+    protected function recordRequest()
     {
-        if (!$request->isOptions()) {
-            $time = date('YmdHi');
-            clearstatcache();
+        clearstatcache();
+        if (!$this->app->request->isOptions()) {
             if (is_file($this->request_log)) {
                 include $this->request_log;
-                if (!empty($number[$time]) && $number[$time] >= 60) {
-                    file_put_contents($this->request_log . '.lock', date('YmdHis'));
-                }
-            } else {
-                $number = [$time => 1];
             }
 
-            // 记录请求次数
-            $number[$time] = empty($number[$time]) ? 1 : ++$number[$time];
-            $number = [$time => $number[$time]];
-            file_put_contents($this->request_log, '<?php $number = ' . var_export($number, true) . ';');
+            $time = $this->app->request->time();
+            $number = isset($request_number[$time]) ? ++$request_number[$time] : 1;
+
+            if ($number > 60) {
+                file_put_contents($this->request_log . '.lock', date('Y-m-d H:i:s'));
+            } else {
+                $request_number = [$time => $number];
+                file_put_contents($this->request_log, '<?php $request_number=' . var_export($request_number, true) . ';');
+            }
         }
     }
 
     /**
      * 锁定请求
-     * @access private
+     * @access protected
      * @param
      * @return mixed
      */
-    private function lockRequest($request)
+    protected function lockRequest()
     {
-        clearstatcache();
-        $this->request_log = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
-        if (!is_dir($this->request_log)) {
-            chmod(app()->getRuntimePath(), 0777);
-            mkdir($this->request_log, 0777, true);
-        }
-        $this->request_log .= md5(__DIR__ . $request->ip() . date('Ymd')) . '.php';
-
         // 锁定频繁请求IP
         if (is_file($this->request_log . '.lock')) {
             Log::record('[锁定]', 'alert')->save();
             $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>502</h2><h3>Oops! Something went wrong.</h3></section>';
 
-            return Response::create($error, '', 500);
+            http_response_code(500);
+            die($error);
         }
     }
 
     /**
      * 并发压力
-     * @access private
+     * @access protected
      * @param
      * @return mixed
      */
-    private function concurrent()
+    protected function concurrent()
     {
         if (1 === rand(1, 999)) {
             Log::record('[并发]', 'alert')->save();
             $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section>';
 
-            return Response::create($error, '', 500);
+            http_response_code(500);
+            die($error);
+            // $response = Response::create($error, '', 500);
+            // throw new HttpResponseException($response);
         }
     }
 }

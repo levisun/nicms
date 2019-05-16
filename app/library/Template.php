@@ -144,14 +144,6 @@ class Template
         $this->templateBuildWrite($content);
 
         echo str_replace('{:__AUTHORIZATION__}', create_authorization(), $content);
-
-
-
-        // if (!headers_sent() && !Config::get('app.debug') && function_exists('gzencode')) {
-        //     $content = gzencode($content, 4);
-        //     header('Content-Encoding:gzip');
-        //     header('Content-Length:' . strlen($content));
-        // }
     }
 
     /**
