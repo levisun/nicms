@@ -54,6 +54,7 @@ class Base64
      */
     public static function flag($_authkey = '', int $_length = 7)
     {
+        $_authkey = (string)$_authkey;
         $_authkey = $_authkey ? sha1($_authkey) : sha1(Config::get('app.authkey'));
         $_length = $_length > 40 ? 40 : $_length;
         return substr(sha1($_authkey), 0, $_length);

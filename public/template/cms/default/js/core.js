@@ -9,7 +9,7 @@ layui.use(['jquery', 'laypage', 'nicms'], function(){
 
     // 初始化导航
     nc.pjax({
-        url: NICMS.api.url + '/cms.do',
+        url: NICMS.api.url + '/query.do',
         method: 'get',
         data: {
             method: 'nav.main.query'
@@ -32,7 +32,7 @@ layui.use(['jquery', 'laypage', 'nicms'], function(){
     if (NICMS.param.cid) {
         // 侧导航
         nc.pjax({
-            url: NICMS.api.url + '/cms.do',
+            url: NICMS.api.url + '/query.do',
             method: 'get',
             data: {
                 method: 'nav.sidebar.query',
@@ -52,7 +52,7 @@ layui.use(['jquery', 'laypage', 'nicms'], function(){
 
         // 面包屑
         nc.pjax({
-            url: NICMS.api.url + '/cms.do',
+            url: NICMS.api.url + '/query.do',
             method: 'get',
             data: {
                 method: 'nav.breadcrumb.query',

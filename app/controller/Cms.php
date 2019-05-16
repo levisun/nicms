@@ -53,9 +53,7 @@ class Cms extends BaseController
      */
     public function index()
     {
-        print_r($_SERVER);die();
-        unlink(app()->getRootPath() . 'public/index.html');
-        // $this->fetch('index');
+        $this->fetch('index');
     }
 
     /**

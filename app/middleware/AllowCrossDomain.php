@@ -26,18 +26,18 @@ class AllowCrossDomain
         'Access-Control-Allow-Headers' => 'Accept, Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
     ];
 
-    public function handle($request, Closure $next, ?array $header = [])
+    public function handle($_request, Closure $_next, ?array $_header = [])
     {
-        $this->header['Access-Control-Allow-Origin'] = $request->server('HTTP_ORIGIN', '*');
-        $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
+        $this->header['Access-Control-Allow-Origin'] = $_request->server('HTTP_ORIGIN', '*');
+        $_header = !empty($_header) ? array_merge($this->header, $_header) : $this->header;
 
-        if ($request->isOptions()) {
-            $header['Access-Control-Max-Age'] = 14400;
-            return Response::create()->code(204)->header($header);
+        if ($_request->isOptions()) {
+            $_header['Access-Control-Max-Age'] = 14400;
+            return Response::create()->code(204)->header($_header);
         }
 
-        $header = !empty($header) ? $header : [];
-        $response = $next($request)->header($header);
+        $_header = !empty($_header) ? $_header : [];
+        $response = $_next($_request)->header($_header);
 
         return $response;
     }

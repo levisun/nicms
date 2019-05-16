@@ -19,8 +19,8 @@ layui.define('jquery', function(exports){
                 type: 'GET',
                 contentType: 'application/x-www-form-urlencoded',
                 data: {
-                    appid: '1000001',
-                    timestamp: NICMS.api.timestamp
+                    appid: NICMS.api.appid,
+                    // timestamp: jQuery.timestamp()
                 }
             };
 
@@ -70,7 +70,7 @@ layui.define('jquery', function(exports){
                 }
             }
             sign = sign.substr(0, sign.length - 1);
-
+            sign += NICMS.api.appsecret;
             sign = md5(sign);
 
             return sign;

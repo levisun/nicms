@@ -27,7 +27,7 @@ window.onload=function(){
         var nc = layui.nicms;
         var table = layui.table;
         nc.pjax({
-            url: NICMS.api.url + '/cms.do',
+            url: NICMS.api.url + '/query.do',
             method: 'get',
             data: {
                 method: 'article.lists.query',

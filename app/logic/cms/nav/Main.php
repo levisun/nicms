@@ -59,7 +59,7 @@ class Main
 
         return [
             'debug' => false,
-            // 'cache' => false,
+            'cache' => true,
             'msg'   => Lang::get('success'),
             'data'  => $result
         ];

@@ -2,6 +2,8 @@
     "layout": true,
     "theme": "default",
     "api_version": "1.0.1",
+    "api_appid": "1000002",
+    "api_appsecret": "962940cfbe94a64efcd1573cf6d7a175",
     "theme_version": "1.0.1",
     "css": [
         "__STATIC__layui/css/layui.css",

@@ -508,6 +508,9 @@ class Async
         // 记录日志
         if (true === $this->debug) {
             $this->writeLog($result);
+        }
+        if (true === $this->debug || true == Config::get('app.debug')) {
+            $result['expire'] = $ipinfo['ip'] . ';debug pause';
         } elseif (true === $this->cache && $this->expire && $_code == 'SUCCESS') {
             $result['expire'] = $ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';' . $this->expire . 's';
         }
