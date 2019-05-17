@@ -60,7 +60,7 @@ class Main
         return [
             'debug' => false,
             'cache' => true,
-            'msg'   => Lang::get('success'),
+            'msg'   => 'nav main data',
             'data'  => $result
         ];
     }

@@ -71,7 +71,7 @@ abstract class BaseController extends Template
      */
     protected function verification(string $_str): void
     {
-        if ($_str && preg_match('/[0-9]+/si', $_str)) {
+        if (empty($_str) || preg_match('/[^A-Za-z]+/si', $_str)) {
             $response = Response::create(url('404'), 'redirect', 302);
             throw new HttpResponseException($response);
         }

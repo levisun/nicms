@@ -60,7 +60,7 @@ class Other
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => Lang::get('success'),
+            'msg'   => 'nav other data',
             'data'  => $result
         ];
     }

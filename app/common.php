@@ -224,7 +224,7 @@ if (!function_exists('create_authorization')) {
             $authorization .= '.' . $session_id;
         }
         $authorization .= '.' . Request::time(true);
-        return Base64::encrypt($authorization, 'authorization');
+        return 'Basic ' . Base64::encrypt($authorization, 'authorization');
     }
 }
 
@@ -267,15 +267,15 @@ if (!function_exists('cookie')) {
      */
     function cookie($_name, $_value = '', $_option = null)
     {
-        if (is_null($_value)) {
+        if (is_null($_name)) {
             // 删除
-            Cookie::delete($_value);
+            Cookie::delete($_name);
         } elseif ('' === $_value) {
             // 获取
-            return 0 === strpos($_value, '?') ? Request::has(substr($_value, 1), 'cookie') : Base64::decrypt(Request::cookie($_value));
+            return 0 === strpos($_name, '?') ? Request::has(substr($_name, 1), 'cookie') : Base64::decrypt(Request::cookie($_name));
         } else {
             // 设置
-            return Cookie::set($_value, Base64::encrypt($_value), $_option);
+            return Cookie::set($_name, Base64::encrypt($_value), $_option);
         }
     }
 }

@@ -63,8 +63,8 @@ class Foot
 
         return [
             'debug' => false,
-            'cache' => false,
-            'msg'   => Lang::get('success'),
+            'cache' => true,
+            'msg'   => 'nav foot data',
             'data'  => $result
         ];
     }

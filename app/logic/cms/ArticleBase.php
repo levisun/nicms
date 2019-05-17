@@ -119,7 +119,6 @@ class ArticleBase
                 $value['thumb_original'] = get_img_url($value['thumb'], 0);
                 $value['thumb'] = get_img_url($value['thumb'], $img_size);
 
-                $value['category_id'] = Base64::encrypt($value['category_id']);
                 $value['cat_url'] = url('list/' . $value['action_name'] . '/' . $value['category_id']);
                 $value['url'] = url('details/' . $value['action_name'] . '/' . $value['category_id'] . '/' . $value['id']);
 

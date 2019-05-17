@@ -14,29 +14,21 @@ declare (strict_types = 1);
 
 namespace app\event;
 
-use think\App;
 use think\facade\Log;
 
 class LockRequest
 {
-    /**
-     * 应用实例
-     * @var \think\App
-     */
-    protected $app;
 
     protected $request_log = '';
 
-    public function __construct(App $_app)
+    public function __construct()
     {
-        $this->app = $_app;
-
-        $this->request_log = $this->app->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
+        $this->request_log = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
         if (!is_dir($this->request_log)) {
-            chmod($this->app->getRuntimePath(), 0777);
+            chmod(app()->getRuntimePath(), 0777);
             mkdir($this->request_log, 0777, true);
         }
-        $this->request_log .= md5(__DIR__ . $this->app->request->ip() . date('Ymd')) . '.php';
+        $this->request_log .= md5(__DIR__ . app()->request->ip() . date('Ymd')) . '.php';
     }
 
     public function handle()
@@ -55,15 +47,15 @@ class LockRequest
     protected function recordRequest()
     {
         clearstatcache();
-        if (!$this->app->request->isOptions()) {
+        if (!app()->request->isOptions()) {
             if (is_file($this->request_log)) {
                 include $this->request_log;
             }
 
-            $time = $this->app->request->time();
+            $time = app()->request->time();
             $number = isset($request_number[$time]) ? ++$request_number[$time] : 1;
 
-            if ($number > 60) {
+            if ($number > 10) {
                 file_put_contents($this->request_log . '.lock', date('Y-m-d H:i:s'));
             } else {
                 $request_number = [$time => $number];
@@ -98,7 +90,7 @@ class LockRequest
      */
     protected function concurrent()
     {
-        if ('api' !== $this->app->request->subDomain() && 1 === rand(1, 999)) {
+        if ('api' !== app()->request->subDomain() && 1 === rand(1, 999)) {
             Log::record('[并发]', 'alert')->save();
             $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>500</title><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section>';
 

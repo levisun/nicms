@@ -60,7 +60,7 @@ class Top
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => Lang::get('success'),
+            'msg'   => 'nav top data',
             'data'  => $result
         ];
     }

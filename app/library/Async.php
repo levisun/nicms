@@ -380,8 +380,15 @@ class Async
     {
         // 解析token令牌和session_id
         $this->authorization = Request::header('authorization');
-        if ($this->authorization && preg_match('/^[A-Za-z0-9\+\/\=]+$/u', $this->authorization)) {
+        if ($this->authorization && preg_match('/^Basic [A-Za-z0-9\+\/\= ]+$/u', $this->authorization)) {
+            $this->authorization = str_replace('Basic ', '' , $this->authorization);
             $this->authorization = Base64::decrypt($this->authorization, 'authorization');
+
+            // 解密错误
+            if (!$this->authorization) {
+                $this->debugLog['authorization'] = $this->authorization;
+                $this->error('[Async] header-authorization error');
+            }
 
             // 单token值
             if (false === strpos($this->authorization, '.')) {
@@ -412,13 +419,14 @@ class Async
             }
         } else {
             $this->debugLog['authorization'] = $this->authorization;
-            $this->error('[Async] header-authorization error');
+            $this->error('[Async] header-authorization params error');
         }
 
 
         // 解析版本号与返回数据类型
         $this->accept = Request::header('accept');
-        if ($this->accept && preg_match('/^application\/vnd\.[A-Za-z0-9\.\+]+$/u', $this->accept)) {
+        // /^application\/vnd\.[A-Za-z0-9\.\+]+$/u
+        if ($this->accept && preg_match('/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}+\.[0-9]{1,3}+\.[0-9]+\+[A-Za-z]{3,5}+$/u', $this->accept)) {
             // 过滤多余信息
             $accept = str_replace('application/vnd.', '', $this->accept);
 
@@ -495,28 +503,27 @@ class Async
      */
     protected function result(string $_msg, $_data = [], string $_code = 'SUCCESS'): Response
     {
+        $ipinfo = (new Ip)->info();
         $result = [
             'code'    => $_code,
             'data'    => $_data,
-            'message' => $_msg
+            'message' => $_msg,
+            'expire'  => $ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';'
         ];
         $result = array_filter($result);
-
-        $ipinfo = (new Ip)->info();
-        $result['expire'] = $ipinfo['ip'] . ';close';
 
         // 记录日志
         if (true === $this->debug) {
             $this->writeLog($result);
         }
-        if (true === $this->debug || true == Config::get('app.debug')) {
-            $result['expire'] = $ipinfo['ip'] . ';debug pause';
-        } elseif (true === $this->cache && $this->expire && $_code == 'SUCCESS') {
-            $result['expire'] = $ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';' . $this->expire . 's';
+        if (Request::isGet() && true === $this->cache && $this->expire && $_code == 'SUCCESS') {
+            $result['expire'] .= $this->expire . 's';
+        } else {
+            $result['expire'] .= 'close';
         }
 
         $response = Response::create($result, $this->format)->allowCache(false);
-        if (true === $this->cache && $this->expire && $_code == 'SUCCESS') {
+        if (Request::isGet() && true === $this->cache && $this->expire && $_code == 'SUCCESS') {
             $response->allowCache(true)
                 ->cacheControl('public, max-age=' . $this->expire)
                 ->expires(gmdate('D, d M Y H:i:s', time() + $this->expire) . ' GMT')

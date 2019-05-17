@@ -34,7 +34,7 @@ class Lists extends ArticleBase
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => Lang::get('success'),
+            'msg'   => 'article lists data',
             'data'  => [
                 'list'         => $list['data'],
                 'total'        => $list['total'],
