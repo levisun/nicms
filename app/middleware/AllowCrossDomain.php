@@ -26,7 +26,7 @@ class AllowCrossDomain
         'Access-Control-Allow-Headers' => 'Accept, Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
     ];
 
-    public function handle($_request, Closure $_next, ?array $_header = [])
+    public function handle($_request, Closure $_next, ?array $_header = []): Response
     {
         $this->header['Access-Control-Allow-Origin'] = $_request->server('HTTP_ORIGIN', '*');
         $_header = !empty($_header) ? array_merge($this->header, $_header) : $this->header;

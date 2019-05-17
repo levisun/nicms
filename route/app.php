@@ -48,9 +48,7 @@ if ('api' === $domain) {
     Route::get(':logic/:controller/:action$', 'admin/index');
     Route::get(':logic/:controller/:action/:id$', 'admin/index');
 } else {
-    die();
-    Route::redirect('*', 'error/index');
-    $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
-    $response = \think\Response::create($error, '', 404);
-    throw new \think\exception\HttpResponseException($response);
+    $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
+    http_response_code(404);
+    die($error);
 }

@@ -124,7 +124,7 @@ class Upload
             return [
                 'extension'    => $extension,
                 'name'         => $result->getSaveName(),
-                'original'     => $result->getName(),
+                'old_name'     => $result->getName(),
                 'original_url' => $url .  $result->getSaveName(),
                 'size'         => filesize($this->savePath . $result->getSaveName()),
                 'type'         => $result->getMime(),

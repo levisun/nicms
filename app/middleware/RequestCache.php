@@ -30,23 +30,28 @@ class RequestCache
         $this->cache->tag('RequestCache');
     }
 
-    public function handle($_request, Closure $_next)
+    public function handle($_request, Closure $_next): Response
     {
         $this->request = $_request;
 
         if ($response = $this->readCache()) {
-            // return $this->gzip($response);
-            // return $response;
+            return $this->gzip($response);
         }
 
         $response = $_next($this->request);
 
         $this->writeCache($response);
+
         return $this->gzip($response);
-        return $response;
     }
 
-    private function gzip($_response)
+    /**
+     * 输出压缩
+     * @access private
+     * @param  Response $_response
+     * @return Response
+     */
+    private function gzip($_response): Response
     {
         if ($this->request->isGet() && false === Config::get('app.debug') && !headers_sent() && function_exists('gzencode')) {
             $content = $_response->getContent();
@@ -119,8 +124,8 @@ class RequestCache
     private function getCacheKey()
     {
         if ($this->request->isGet() && false === Config::get('app.debug')) {
-            // $key  = $this->request->ip();
-            $key  = $this->request->cookie('PHPSESSID', '', 'strip_tags');
+            // $key  = $this->request->server('HTTP_USER_AGENT');
+            $key  = $this->request->cookie('PHPSESSID', $this->request->ip());
             $key .= preg_replace_callback('/timestamp=[0-9]+|sign=[A-Za-z0-9]{32,40}/si', function ($matches) {
                 return '*';
             }, $this->request->url(true));

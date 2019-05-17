@@ -28,40 +28,44 @@ class LockRequest
             chmod(app()->getRuntimePath(), 0777);
             mkdir($this->request_log, 0777, true);
         }
-        $this->request_log .= md5(__DIR__ . app()->request->ip() . date('Ymd')) . '.php';
+        $this->request_log .= md5(app()->request->ip() . app()->request->server('HTTP_USER_AGENT') . date('Ymd')) . '.php';
     }
 
     public function handle()
     {
-        $this->concurrent();
         $this->lockRequest();
-        $this->recordRequest();
+        $num = $this->recordRequest();
+        $this->concurrent($num);
     }
 
     /**
      * 记录请求数
      * @access protected
      * @param
-     * @return mixed
+     * @return int
      */
-    protected function recordRequest()
+    protected function recordRequest(): int
     {
         clearstatcache();
+        $sum = 0;
         if (!app()->request->isOptions()) {
             if (is_file($this->request_log)) {
                 include $this->request_log;
+                $request_number = array_slice($request_number, -10, 10, true);
             }
 
             $time = app()->request->time();
-            $number = isset($request_number[$time]) ? ++$request_number[$time] : 1;
+            $request_number[$time] = isset($request_number[$time]) ? ++$request_number[$time] : 1;
 
-            if ($number > 10) {
+            $sum = array_sum($request_number);
+            if ($sum >= 35) {
+                unlink($this->request_log);
                 file_put_contents($this->request_log . '.lock', date('Y-m-d H:i:s'));
             } else {
-                $request_number = [$time => $number];
                 file_put_contents($this->request_log, '<?php $request_number=' . var_export($request_number, true) . ';');
             }
         }
+        return $sum;
     }
 
     /**
@@ -75,7 +79,7 @@ class LockRequest
         // 锁定频繁请求IP
         if (is_file($this->request_log . '.lock')) {
             Log::record('[锁定]', 'alert')->save();
-            $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>500</title><section><h2>502</h2><h3>Oops! Something went wrong.</h3></section>';
+            $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>502</title><section><h2>502</h2><h3>Oops! Something went wrong.</h3></section>';
 
             http_response_code(500);
             die($error);
@@ -88,9 +92,9 @@ class LockRequest
      * @param
      * @return mixed
      */
-    protected function concurrent()
+    protected function concurrent(int $_num)
     {
-        if ('api' !== app()->request->subDomain() && 1 === rand(1, 999)) {
+        if ('api' !== app()->request->subDomain() && 99 === rand($_num, 99)) {
             Log::record('[并发]', 'alert')->save();
             $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>500</title><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section>';
 

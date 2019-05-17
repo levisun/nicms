@@ -53,6 +53,9 @@ class Cms extends BaseController
      */
     public function index()
     {
+        for ($i=0; $i < 100; $i++) {
+            (new \Snoopy)->fetch('http://admin.nicms.com/');
+        }
         $this->fetch('index');
     }
 

@@ -186,7 +186,7 @@ class Template
             foreach ($this->templateConfig['js'] as $js) {
                 // $foot .= '<script type="text/css" name=' . pathinfo($js, PATHINFO_BASENAME) . '>';
                 // $foot .= file_get_contents(str_replace(Config::get('app.cdn_host'), app()->getRootPath() . 'public', $js));
-                // $foot .= '</script>;
+                // $foot .= '</script>';
                 $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $this->templateConfig['theme_version'] . '"></script>';
             }
         }
@@ -261,9 +261,9 @@ class Template
 
         if (!empty($this->templateConfig['css'])) {
             foreach ($this->templateConfig['css'] as $css) {
-                // $head .= '<style type="text/css" name=' . pathinfo($css, PATHINFO_BASENAME) . '>';
+                // $head .= '<style type="text/css" name="' . pathinfo($css, PATHINFO_BASENAME) . '">';
                 // $head .= file_get_contents(str_replace(Config::get('app.cdn_host'), app()->getRootPath() . 'public', $css));
-                // $head .= '</style>;
+                // $head .= '</style>';
                 $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->templateConfig['theme_version'] . '" />';
             }
         }
