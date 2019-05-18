@@ -16,8 +16,8 @@ declare (strict_types = 1);
 namespace app\controller;
 
 use think\App;
+use think\exception\HttpResponseException;
 use think\facade\Config;
-use think\facade\Request;
 use app\library\Async;
 use app\library\Download;
 use app\library\Ip;
@@ -61,8 +61,6 @@ class Api extends Async
         }
 
         $this->referer = $this->request->server('HTTP_REFERER') && $this->request->param('method');
-
-        header('X-Powered-By: NIAPI');
     }
 
     /**
@@ -121,9 +119,10 @@ class Api extends Async
      */
     public function download(): void
     {
-        if ($this->request->isGet() && $this->request->param('file', false)) {
-            $response = (new Download)->file();
-            throw new HttpResponseException($response);
+        if ($this->request->isGet() && $file = $this->request->param('file', false)) {
+            if ($response = (new Download)->file($file)) {
+                throw new HttpResponseException($response);
+            }
         } else {
             die('download::request error');
         }

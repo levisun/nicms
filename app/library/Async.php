@@ -25,7 +25,7 @@ use think\facade\Session;
 use app\library\Ip;
 use app\model\ApiApp as ModelApiApp;
 
-class Async
+abstract class Async
 {
 
     /**
@@ -425,8 +425,7 @@ class Async
 
         // 解析版本号与返回数据类型
         $this->accept = Request::header('accept');
-        // /^application\/vnd\.[A-Za-z0-9\.\+]+$/u
-        if ($this->accept && preg_match('/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}+\.[0-9]{1,3}+\.[0-9]+\+[A-Za-z]{3,5}+$/u', $this->accept)) {
+        if ($this->accept && preg_match('/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]+\+[A-Za-z]{3,5}+$/u', $this->accept)) {
             // 过滤多余信息
             $accept = str_replace('application/vnd.', '', $this->accept);
 
@@ -503,12 +502,11 @@ class Async
      */
     protected function result(string $_msg, $_data = [], string $_code = 'SUCCESS'): Response
     {
-        $ipinfo = (new Ip)->info();
         $result = [
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'expire'  => $ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';'
+            'expire'  => Request::ip() . ';' . date('Y-m-d H:i:s') . ';'
         ];
         $result = array_filter($result);
 
@@ -527,7 +525,8 @@ class Async
             $response->allowCache(true)
                 ->cacheControl('public, max-age=' . $this->expire)
                 ->expires(gmdate('D, d M Y H:i:s', time() + $this->expire) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
+                ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
+                ->header(['X-Powered-By' => 'NIAPI']);
         }
 
         return $response;

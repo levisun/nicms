@@ -53,10 +53,9 @@ class Cms extends BaseController
      */
     public function index()
     {
-        for ($i=0; $i < 100; $i++) {
-            (new \Snoopy)->fetch('http://admin.nicms.com/');
-        }
-        $this->fetch('index');
+        $file = (new \app\library\Download)->url('..\\\/\/\/\/\/\/\/\/../2019051/////5cd4d2e2569d5.jpg');
+        echo '<a href="' . $file . '">down</a>';
+        // $this->fetch('index');
     }
 
     /**
