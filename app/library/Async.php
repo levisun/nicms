@@ -470,11 +470,11 @@ abstract class Async
      * 操作成功返回的数据
      * @access protected
      * @param  string  $msg  提示信息
-     * @param  mixed   $data 要返回的数据
+     * @param  array   $data 要返回的数据
      * @param  integer $code 错误码，默认为SUCCESS
      * @return void
      */
-    protected function success(string $_msg, $_data = [], string $_code = 'SUCCESS'): void
+    protected function success(string $_msg, array $_data = [], string $_code = 'SUCCESS'): void
     {
         $response = $this->result($_msg, $_data, $_code);
         throw new HttpResponseException($response);
@@ -495,12 +495,12 @@ abstract class Async
     /**
      * 返回封装后的 API 数据到客户端
      * @access protected
-     * @param  mixed  $msg    提示信息
-     * @param  mixed  $data   要返回的数据
-     * @param  int    $code   错误码，默认为0
+     * @param  string $msg    提示信息
+     * @param  array  $data   要返回的数据
+     * @param  string $code   错误码
      * @return Response
      */
-    protected function result(string $_msg, $_data = [], string $_code = 'SUCCESS'): Response
+    protected function result(string $_msg, array $_data = [], string $_code = 'SUCCESS'): Response
     {
         $result = [
             'code'    => $_code,

@@ -14,6 +14,8 @@ declare (strict_types = 1);
 
 namespace app\event;
 
+use think\Response;
+use think\exception\HttpResponseException;
 use think\facade\Log;
 
 class LockRequest
@@ -46,9 +48,9 @@ class LockRequest
      */
     protected function recordRequest(): void
     {
-        clearstatcache();
         if (!app()->request->isOptions()) {
             $request_number = [];
+            clearstatcache();
             if (is_file($this->request_log) && $request_number = include($this->request_log)) {
                 $request_number = !empty($request_number) ? (array)$request_number : [];
                 $request_number = array_slice($request_number, -10, 10, true);

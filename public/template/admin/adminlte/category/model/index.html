@@ -1,0 +1,56 @@
+<div class="box">
+        <div class="box-header clearfix">
+            <div class="no-margin pull-right">
+                <button id="added" class="btn btn-primary">{:lang('added')}</button>
+            </div>
+        </div>
+        <div class="box-body">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>{:lang('name')}</th>
+                        <th>{:lang('table')}</th>
+                        <th>{:lang('attribute')}</th>
+                        <th>{:lang('operation')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template v-for="vo in items">
+                    <tr>
+                        <td v-text="vo.name"></td>
+                        <td v-text="vo.table_name"></td>
+                        <td v-text="vo.type_name"></td>
+                        <td>
+                            <a class="remove" v-bind:data="vo.id">
+                                <i class="fa fa-trash"></i>
+                                {:lang('remove')}
+                            </a>
+                        </td>
+                    </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+        <div class="box-footer">
+            <button class="btn btn-primary">{:lang('sort')}</button>
+        </div>
+    </div>
+{tag:script}
+jQuery.pjax({
+    url: NICMS.api.url + '/query.do',
+    type: 'GET',
+    data: {
+        method: 'category.model.query',
+    },
+    success: function(result){
+        if (result.code == 'SUCCESS') {
+            var vue = new Vue({
+                el: '.box',
+                data: {
+                    items: result.data.list
+                }
+            });
+        }
+    }
+});
+{/tag}

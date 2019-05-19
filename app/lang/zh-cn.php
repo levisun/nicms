@@ -32,7 +32,6 @@ return [
     'hide'         => '隐藏',
     'name'         => '名称',
     'editor'       => '编辑',
-    'reomve'       => '删除',
     'child'        => '子类',
     'url'          => '链接地址',
     'access'       => '权限',

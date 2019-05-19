@@ -186,13 +186,14 @@ class User extends Base
             ->where([
                 ['admin.id', '=', session('admin_auth_key')]
             ])
-            ->find();
+            ->find()
+            ->toArray();
         $result['last_login_time'] = date('Y-m-d H:i:s', $result['last_login_time']);
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'user author',
+            'msg'   => 'user profile',
             'data'  => $result
         ];
     }

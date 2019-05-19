@@ -47,9 +47,9 @@
                             <i class="fa fa-plus"></i>
                             {:lang('editor')}
                         </a>
-                        <a class="reomve" v-bind:href="vo.url.reomve">
-                            <i class="fa fa-plus"></i>
-                            {:lang('reomve')}
+                        <a class="remove" v-bind:data="vo.id">
+                            <i class="fa fa-trash"></i>
+                            {:lang('remove')}
                         </a>
                     </td>
                 </tr>
@@ -67,10 +67,19 @@
                         </span>
                     </td>
                     <td>
-                        <a class="child" v-if="cv.child" v-bind:data="cv.id">{:lang('child')}</a>
-                        <a class="added" v-bind:href="cv.url.added">{:lang('added')}</a>
-                        <a class="editor" v-bind:href="cv.url.editor">{:lang('editor')}</a>
-                        <a class="reomve" v-bind:href="cv.url.reomve">{:lang('reomve')}</a>
+                        <a class="child" v-if="cv.child" v-bind:data="cv.id">
+                            {:lang('child')}
+                        </a>
+                        <a class="added" v-bind:href="cv.url.added">
+                            {:lang('added')}
+                        </a>
+                        <a class="editor" v-bind:href="cv.url.editor">
+                            {:lang('editor')}
+                        </a>
+                        <a class="remove" v-bind:data="cv.id">
+                            <i class="fa fa-trash"></i>
+                            {:lang('remove')}
+                        </a>
                     </td>
                 </tr>
                 </template>
@@ -106,5 +115,20 @@ jQuery(document).on('click', '.child', function(){
 });
 jQuery(document).on('click', '#added', function(){
     window.location.href = NICMS.domain + '/category/category/added.html';
+});
+jQuery(document).on('click', '.remove', function(){
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle.do',
+        type: 'POST',
+        data: {
+            method: 'category.category.remove',
+            id: jQuery(this).attr('data'),
+        },
+        success: function(result){
+            if (result.code == 'SUCCESS') {
+
+            }
+        }
+    });
 });
 {/tag}

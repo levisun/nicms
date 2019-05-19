@@ -37,8 +37,10 @@ class ReGarbage
         $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 72);
 
         $dir = (array)glob($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*');
-        $date = date('Ym') - 1;
         foreach ($dir as $path) {
+            $date = (int)date('Ym');
+            $this->remove($path . DIRECTORY_SEPARATOR . $date . DIRECTORY_SEPARATOR . '*', 168);
+            --$date;
             $this->remove($path . DIRECTORY_SEPARATOR . $date . DIRECTORY_SEPARATOR . '*', 168);
         }
 

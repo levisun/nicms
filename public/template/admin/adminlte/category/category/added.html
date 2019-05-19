@@ -33,8 +33,9 @@
 
             <div class="form-group">
                 <label>{:lang('image')}</label>
-                <input type="text" name="image" class="form-control">
+                <input type="text" name="image" class="image form-control">
                 <input type="file" name="upload" id="upload" class="form-control">
+                <img class="image-box" style="display: none;">
             </div>
 
             <div class="form-group">
@@ -130,8 +131,8 @@ jQuery(document).on('click', '.btn', function(){
         data: data,
         success: function(result){
             if (result.code === 'SUCCESS') {
-                <!-- jQuery.uiToast(result.message); -->
-                <!-- location.reload(); -->
+                jQuery.uiToast(result.message);
+                history.back();
             }
         }
     });
@@ -148,7 +149,8 @@ jQuery(document).on('change', '#upload', function(){
         success: function(result){
             jQuery.uiToast(result.message);
             if (result.code === 'SUCCESS') {
-                
+                jQuery('.image').val(result.data.original_url);
+                jQuery('.image-box').show().attr('src', result.data.url);
             }
         }
     });

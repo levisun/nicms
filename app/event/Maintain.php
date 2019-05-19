@@ -44,9 +44,10 @@ class Maintain
                 if (!is_file($lock)) {
                     file_put_contents($lock, date('Y-m-d H:i:s'));
                 }
-                $date = (int)date('ymd') - 10;
+                $date = (string)(date('Ymd') - 10);
+                clearstatcache();
                 if (is_file($lock) && filemtime($lock) <= strtotime($date)) {
-                    Log::record('[优化表 修复表]', 'alert')->save();
+                    file_put_contents($lock, date('Y-m-d H:i:s'));
                     ignore_user_abort(true);
                     (new DataMaintenance)->optimize();  // 优化表
                     (new DataMaintenance)->repair();    // 修复表

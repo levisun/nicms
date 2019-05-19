@@ -17,8 +17,8 @@ namespace app\logic\admin\category;
 
 use think\facade\Lang;
 use think\facade\Request;
-use app\library\Base64;
 use app\logic\admin\Base;
+use app\model\Article as ModelArticle;
 use app\model\Category as ModelCategory;
 use app\model\Level as ModelLevel;
 use app\model\Models as ModelModels;
@@ -54,7 +54,6 @@ class Category extends Base
             $value['url'] = [
                 'added'  => url('category/category/added/' . $value['id']),
                 'editor' => url('category/category/editor/' . $value['id']),
-                'remove' => url('category/category/remove/' . $value['id']),
             ];
             $value['child'] = $this->child($value['id']);
             $result[$key] = $value;
@@ -123,7 +122,13 @@ class Category extends Base
         }
     }
 
-    public function added()
+    /**
+     * 添加
+     * @access public
+     * @param
+     * @return array
+     */
+    public function added(): array
     {
         if ($result = $this->authenticate(__METHOD__, 'admin category added')) {
             return $result;
@@ -139,11 +144,11 @@ class Category extends Base
             'keywords'    => Request::param('keywords'),
             'description' => Request::param('description'),
             'image'       => Request::param('image'),
-            'model_id'    => (int)Request::param('model_id/f'),
-            'type_id'     => (int)Request::param('type_id/f'),
-            'is_show'     => (int)Request::param('is_show/f'),
-            'is_channel'  => (int)Request::param('is_channel/f'),
-            'sort_order'  => (int)Request::param('sort_order/f'),
+            'model_id'    => (int)Request::param('model_id/f', 1),
+            'type_id'     => (int)Request::param('type_id/f', 1),
+            'is_show'     => (int)Request::param('is_show/f', 1),
+            'is_channel'  => (int)Request::param('is_channel/f', 0),
+            'sort_order'  => (int)Request::param('sort_order/f', 0),
             'access_id'   => (int)Request::param('access_id/f'),
             'url'         => Request::param('url'),
             'update_time' => time(),
@@ -154,14 +159,12 @@ class Category extends Base
             return $result;
         }
 
-        // (new ModelCategory)->create($receive_data);
-        // $result = (new ModelSession)->getNumRows();
+        (new ModelCategory)->create($receive_data);
 
         return [
             'debug' => false,
             'cache' => false,
             'msg'   => 'category added success',
-            'data'  => $result
         ];
     }
 
@@ -207,9 +210,9 @@ class Category extends Base
                     ->select()
                     ->toArray();
             }
-        } elseif ($pid = (int)Request::param('pid/f', '0')) {
+        } else {
             $result = [];
-            if ($pid) {
+            if ($pid = (int)Request::param('pid/f', '0')) {
                 $result['parent'] = (new ModelCategory)
                     ->where([
                         ['id', '=', $pid]
@@ -238,8 +241,6 @@ class Category extends Base
                 ->order('id ASC')
                 ->select()
                 ->toArray();
-        } else {
-            $result = 'category id error';
         }
 
         return [
@@ -292,6 +293,57 @@ class Category extends Base
             $msg = 'category editor success';
         } else {
             $msg = 'category editor error';
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => $msg
+        ];
+    }
+
+    /**
+     * 删除
+     * @access public
+     * @param
+     * @return array
+     */
+    public function remove()
+    {
+        if ($result = $this->authenticate(__METHOD__, 'admin category remove')) {
+            return $result;
+        }
+
+        if ($id = (int)Request::param('id/f')) {
+            $result = (new ModelCategory)
+                ->where([
+                    ['id', '=', $id],
+                    ['lang', '=', Lang::getLangSet()]
+                ])
+                ->find();
+
+            $total = (new ModelArticle)
+                ->where([
+                    ['category_id', '=', $result['id']],
+                ])
+                ->count();
+            if (0 === $total) {
+                if ($result['image'] && $result['image'] = str_replace('/', DIRECTORY_SEPARATOR, $result['image'])) {
+                    $result['image'] = app()->getRootPath() . 'public' . $result['image'];
+                    if (is_file($result['image'])) {
+                        @unlink($result['image']);
+                    }
+                }
+
+                (new ModelCategory)
+                    ->where([
+                        ['id', '=', $id]
+                    ])
+                    ->delete();
+                $msg = lang('remove category success');
+            } else {
+                $msg = lang('remove category not article');
+            }
         }
 
         return [
