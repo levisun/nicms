@@ -39,7 +39,7 @@ class Maintain
                 (new ReGarbage)->run();     // 清除过期缓存和日志等
             }
 
-            if (date('ymd') % 10 == 0) {
+            if (date('Ymd') % 10 == 0) {
                 $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'datamaintenance.lock';
                 if (!is_file($lock)) {
                     file_put_contents($lock, date('Y-m-d H:i:s'));

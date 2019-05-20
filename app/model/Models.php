@@ -22,7 +22,7 @@ class Models extends Model
     protected $updateTime = false;
     protected $pk = 'id';
     protected $type = [
-        'status'     => 'integer'
+        'status' => 'integer'
     ];
     protected $field = [
         'id',

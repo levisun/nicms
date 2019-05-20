@@ -36,16 +36,15 @@ class Model extends Base
         }
 
         $result = (new ModelModel)
-            ->order('sort_order DESC,id ASC')
+            ->order('id ASC')
             ->select()
             ->toArray();
 
         foreach ($result as $key => $value) {
-            if ($value['id'] > 8) {
-                $value['url'] = [
-                    'editor' => url('category/model/editor/' . $value['id'])
-                ];
-            }
+            $value['url'] = [
+                'editor' => url('category/model/editor/' . $value['id']),
+                'remove' => url('category/model/remove/' . $value['id']),
+            ];
 
             $result[$key] = $value;
         }

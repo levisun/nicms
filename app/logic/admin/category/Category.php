@@ -54,6 +54,7 @@ class Category extends Base
             $value['url'] = [
                 'added'  => url('category/category/added/' . $value['id']),
                 'editor' => url('category/category/editor/' . $value['id']),
+                'remove' => url('category/category/remove/' . $value['id']),
             ];
             $value['child'] = $this->child($value['id']);
             $result[$key] = $value;

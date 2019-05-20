@@ -21,6 +21,10 @@
                         <td v-text="vo.table_name"></td>
                         <td v-text="vo.type_name"></td>
                         <td>
+                            <a class="editor" v-bind:href="vo.url.editor">
+                                <i class="fa fa-trash"></i>
+                                {:lang('editor')}
+                            </a>
                             <a class="remove" v-bind:data="vo.id">
                                 <i class="fa fa-trash"></i>
                                 {:lang('remove')}
@@ -52,5 +56,8 @@ jQuery.pjax({
             });
         }
     }
+});
+jQuery(document).on('click', '#added', function(){
+    window.location.href = NICMS.domain + '/category/model/added.html';
 });
 {/tag}

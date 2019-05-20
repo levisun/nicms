@@ -218,6 +218,19 @@ if (!function_exists('create_authorization')) {
      */
     function create_authorization(): string
     {
+        $session_id = Session::getId(false);
+
+        $authorization = hash_hmac(
+            'sha1',
+            strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') .
+            Request::ip() . app()->getRootPath() . $session_id,
+            Config::get('app.authkey')
+        );
+
+        $authorization .= $session_id ? '.' . $session_id : '';
+        $authorization .= '.' . Request::time(true);
+
+
         $authorization = strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') . Request::ip() . app()->getRootPath();
         $authorization = hash_hmac('sha1', $authorization, Config::get('app.authkey'));
         if ($session_id = Session::getId(false)) {
