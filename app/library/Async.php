@@ -404,9 +404,12 @@ abstract class Async
             }
 
             // 校验token合法性
-            $referer = strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') . Request::ip() .
-                app()->getRootPath();
-            $referer = hash_hmac('sha1', $referer, Config::get('app.authkey'));
+            $referer = hash_hmac(
+                'sha1',
+                strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') .
+                Request::ip() . app()->getRootPath() . $this->sid . Request::server('HTTP_REFERER'),
+                Config::get('app.authkey')
+            );
             if (!hash_equals($referer, $this->token)) {
                 $this->debugLog['referer'] = $referer;
                 $this->debugLog['this::token'] = $this->token;

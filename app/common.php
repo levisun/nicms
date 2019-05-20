@@ -219,16 +219,17 @@ if (!function_exists('create_authorization')) {
     function create_authorization(): string
     {
         $session_id = Session::getId(false);
-
         $authorization = hash_hmac(
             'sha1',
             strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') .
-            Request::ip() . app()->getRootPath() . $session_id,
+            Request::ip() . app()->getRootPath() . $session_id . Request::url(true),
             Config::get('app.authkey')
         );
 
         $authorization .= $session_id ? '.' . $session_id : '';
         $authorization .= '.' . Request::time(true);
+
+        return 'Basic ' . Base64::encrypt($authorization, 'authorization');
 
 
         $authorization = strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') . Request::ip() . app()->getRootPath();

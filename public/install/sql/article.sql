@@ -1,78 +1,11 @@
-DROP TABLE IF EXISTS `np_model`;
-CREATE TABLE IF NOT EXISTS `np_model` (
-  `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '模型名',
-  `table_name` varchar(20) NOT NULL DEFAULT '' COMMENT '表名',
-  `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT '状态',
-  `remark` varchar(50) NOT NULL DEFAULT '' COMMENT '备注',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型表';
-
-INSERT INTO `np_model` (`id`, `name`, `table_name`, `remark`, `status`) VALUES
-(1, 'article', 'article', '文章模型', 1),
-(2, 'picture', 'article_image', '图片模型', 1),
-(3, 'download', 'article_file', '下载模型', 1),
-(4, 'page', 'page', '单页模型', 1),
-(5, 'feedback', 'feedback', '反馈模型', 1),
-(6, 'message', 'message', '留言模型', 1),
-(7, 'link', 'link', '友链模型', 1),
-(8, 'external', 'external', '外部模型', 1);
 
 
 
 
-DROP TABLE IF EXISTS `np_category`;
-CREATE TABLE IF NOT EXISTS `np_category` (
-  `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `pid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父ID',
-  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '栏目名',
-  `aliases` varchar(20) NOT NULL DEFAULT '' COMMENT '别名',
-  `title` varchar(50) NOT NULL DEFAULT '' COMMENT '标题',
-  `keywords` varchar(100) NOT NULL DEFAULT '' COMMENT '关键词',
-  `description` varchar(300) NOT NULL DEFAULT '' COMMENT '描述',
-  `image` varchar(100) NOT NULL DEFAULT '' COMMENT '图标',
-  `type_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '类型ID',
-  `model_id` smallint(5) UNSIGNED NOT NULL COMMENT '模型ID',
-  `is_show` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT '显示',
-  `is_channel` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '频道页',
-  `sort_order` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '排序',
-  `access_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '权限',
-  `url` varchar(200) NOT NULL DEFAULT '' COMMENT '外链地址',
-  `update_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '修改时间',
-  `create_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '创建时间',
-  `lang` varchar(10) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`),
-  KEY `pid` (`pid`) USING BTREE,
-  KEY `type_id` (`type_id`) USING BTREE,
-  KEY `model_id` (`model_id`) USING BTREE,
-  KEY `is_show` (`is_show`) USING BTREE,
-  KEY `access_id` (`access_id`) USING BTREE,
-  KEY `lang` (`lang`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='栏目表';
 
 
 
-DROP TABLE IF EXISTS `np_tags`;
-CREATE TABLE IF NOT EXISTS `np_tags` (
-  `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '标签名',
-  `count` int(11) UNSIGNED NOT NULL DEFAULT '1' COMMENT '标签文章数量',
-  `lang` varchar(20) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
-  PRIMARY KEY (`id`),
-  KEY `name` (`name`) USING BTREE,
-  KEY `lang` (`lang`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='标签表';
 
-DROP TABLE IF EXISTS `np_tags_article`;
-CREATE TABLE IF NOT EXISTS `np_tags_article` (
-  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `tags_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '标签ID',
-  `article_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '文章ID',
-  PRIMARY KEY (`id`),
-  KEY `tags_id` (`tags_id`) USING BTREE,
-  KEY `article_id` (`article_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='标签文章关联表';
 
 DROP TABLE IF EXISTS `np_type`;
 CREATE TABLE IF NOT EXISTS `np_type` (
@@ -231,7 +164,54 @@ CREATE TABLE IF NOT EXISTS `np_link` (
   KEY `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='友情链接表';
 
+DROP TABLE IF EXISTS `np_feedback`;
+CREATE TABLE IF NOT EXISTS `np_feedback` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(20) NOT NULL DEFAULT '' COMMENT '标题',
+  `username` varchar(20) NOT NULL DEFAULT '' COMMENT '作者名',
+  `content` varchar(300) NOT NULL DEFAULT '' COMMENT '内容',
+  `category_id` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '栏目ID',
+  `type_id` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '类型ID',
+  `user_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '发布人ID',
+  `is_pass` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '审核',
+  `ip` varchar(15) NOT NULL DEFAULT '' COMMENT '评论IP',
+  `ip_attr` varchar(100) NOT NULL DEFAULT '' COMMENT '评论IP地区',
+  `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `delete_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
+  `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `lang` varchar(10) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
+  PRIMARY KEY (`id`),
+  KEY `category_id` (`category_id`),
+  KEY `type_id` (`type_id`),
+  KEY `is_pass` (`is_pass`),
+  KEY `delete_time` (`delete_time`),
+  KEY `lang` (`lang`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='反馈表';
 
+DROP TABLE IF EXISTS `np_message`;
+CREATE TABLE IF NOT EXISTS `np_message` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(20) NOT NULL DEFAULT '' COMMENT '标题',
+  `username` varchar(20) NOT NULL DEFAULT '' COMMENT '作者名',
+  `content` varchar(300) NOT NULL DEFAULT '' COMMENT '内容',
+  `reply` varchar(300) NOT NULL DEFAULT '' COMMENT '回复',
+  `category_id` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '栏目ID',
+  `type_id` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '类型ID',
+  `user_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '发布人ID',
+  `is_pass` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '审核',
+  `ip` varchar(15) NOT NULL DEFAULT '' COMMENT '评论IP',
+  `ip_attr` varchar(100) NOT NULL DEFAULT '' COMMENT '评论IP地区',
+  `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `delete_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
+  `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `lang` varchar(10) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
+  PRIMARY KEY (`id`),
+  KEY `category_id` (`category_id`),
+  KEY `type_id` (`type_id`),
+  KEY `is_pass` (`is_pass`),
+  KEY `delete_time` (`delete_time`),
+  KEY `lang` (`lang`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='留言表';
 
 
 

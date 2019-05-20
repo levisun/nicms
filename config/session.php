@@ -18,7 +18,7 @@ return [
     // 驱动方式 支持redis memcache memcached
     'type'           => 'app\library\Session',
     // 是否自动开启 SESSION
-    'auto_start'     => true,
+    'auto_start'     => false,
     // Session配置参数
     'options'        => [
     ],
