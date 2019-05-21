@@ -14,20 +14,19 @@ use think\facade\Env;
 use think\facade\Request;
 
 return [
+    'version'               => '1.0.1 CB7',
+    'theme'                 => Env::get('admin.theme', 'default'),
+    'authkey'               => Env::get('admin.authkey', md5(__DIR__)),
+    'debug'                 => Env::get('admin.debug',   1) ? true : false,
+    'entry'                 => Env::get('admin.entry', 'admin'),
+    'upload_size'           => Env::get('app.upload_size'),
+    'upload_type'           => Env::get('app.upload_type'),
+    // 'www_host'              => '//www.' . Request::rootDomain() . Request::root(),
     'api_host'              => '//api.' . Request::rootDomain() . Request::root(),
     'cdn_host'              => '//cdn.' . Request::rootDomain() . Request::root(),
-    'www_host'              => '//www.' . Request::rootDomain() . Request::root(),
-    'upload_type'           => Env::get('app.upload_type'),
-    'upload_size'           => Env::get('app.upload_size'),
-    'debug'                 => Env::get('admin.debug',   1) ? true : false,
-    'debug'                 => Env::get('admin.debug',   1) ? true : false,
-    'authkey'               => Env::get('admin.authkey', md5(__DIR__)),
-    'entry'                 => Env::get('admin.entry', 'admin'),
-    'theme'                 => Env::get('admin.theme', 'default'),
-    'version'               => '1.0.1 CB6',
 
     // 应用地址
-    'app_host'              => '',
+    'app_host'              => Env::get('app.host', ''),
     // 应用Trace（环境变量优先读取）
     'app_trace'             => Env::get('admin.debug', 1) ? true : false,
     // 应用的命名空间
@@ -52,10 +51,6 @@ return [
     'default_lang'          => 'zh-cn',
     // 默认验证器
     'default_validate'      => '',
-
-    // 默认跳转页面对应的模板文件
-    'dispatch_success_tmpl' => app()->getThinkPath() . 'tpl/dispatch_jump.tpl',
-    'dispatch_error_tmpl'   => app()->getThinkPath() . 'tpl/dispatch_jump.tpl',
 
     // 异常页面的模板文件
     'exception_tmpl'        => app()->getThinkPath() . 'tpl/think_exception.tpl',

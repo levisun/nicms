@@ -17,7 +17,6 @@ declare (strict_types = 1);
 
 namespace app\event;
 
-use think\facade\Log;
 use think\facade\Request;
 use app\library\Accesslog;
 use app\library\DataMaintenance;

@@ -12,7 +12,7 @@
  */
 namespace app\library;
 
-use think\session\SessionHandlerInterface;
+use think\contract\SessionHandlerInterface;
 use app\model\Session as ModelSession;
 
 class Session implements SessionHandlerInterface

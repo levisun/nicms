@@ -35,13 +35,12 @@ if ('api' === $domain) {
     //     'sign'      => '\w+',
     // ]);
 } elseif ('www' === $domain) {
-    Route::ext('html');
     Route::get('/', 'cms/index');
     Route::get('index', 'cms/index');
     Route::get('list/:name/:cid$', 'cms/lists');
     Route::get('details/:name/:cid/:id$', 'cms/details');
     Route::get('search', 'cms/search');
-    // Route::ext('html')->middleware('app\middleware\HealthMonitoring');
+    Route::ext('html');
 } elseif (Env::get('admin.entry') === $domain) {
     Route::ext('html');
     Route::get('/', 'admin/index');

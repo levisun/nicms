@@ -319,7 +319,7 @@ class Template
             mkdir($this->buildPath, 0777, true);
         }
 
-        $url = explode('/', Request::path());
+        $url = explode('/', Request::pathinfo());
         $url = array_unique($url);
         $url = implode('-', $url);
         $url = $url ? $url . '.html' : 'index.html';

@@ -230,15 +230,6 @@ if (!function_exists('create_authorization')) {
         $authorization .= '.' . Request::time(true);
 
         return 'Basic ' . Base64::encrypt($authorization, 'authorization');
-
-
-        $authorization = strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') . Request::ip() . app()->getRootPath();
-        $authorization = hash_hmac('sha1', $authorization, Config::get('app.authkey'));
-        if ($session_id = Session::getId(false)) {
-            $authorization .= '.' . $session_id;
-        }
-        $authorization .= '.' . Request::time(true);
-        return 'Basic ' . Base64::encrypt($authorization, 'authorization');
     }
 }
 
