@@ -29,5 +29,5 @@ return [
     // 开启转义
     'serialize'     => true,
     // 开启压缩
-    'data_compress' => false,
+    'data_compress' => true,
 ];

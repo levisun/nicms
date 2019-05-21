@@ -39,6 +39,13 @@ abstract class BaseController extends Template
      */
     protected $request;
 
+
+    /**
+     * 控制器中间件
+     * @var array
+     */
+    protected $middleware = [];
+
     /**
      * 构造方法
      * @access public
@@ -91,12 +98,12 @@ abstract class BaseController extends Template
     {
         if (session('?' . $_auth_key)) {
             $result = (new Rbac)->authenticate(
-                    session($_auth_key),
-                    $_method,
-                    $_logic,
-                    $_controller,
-                    $_action
-                );
+                session($_auth_key),
+                $_method,
+                $_logic,
+                $_controller,
+                $_action
+            );
 
             if (false === $result) {
                 $url = url('settings/info/index');

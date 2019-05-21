@@ -13,11 +13,15 @@
  */
 
 return [
-    // 'think\middleware\CheckRequestCache',
-    'think\middleware\LoadLangPack',
-    'think\middleware\SessionInit',
-    'think\middleware\TraceDebug',
+    // 请求缓存
+    'app\middleware\RequestCache',
 
-    // 'app\middleware\RequestMonitoring',         // 健康状态监控,清除过期缓存和日志等
-    'app\middleware\RequestCache',              // 必须在后,否则会影响其他中间件的执行
+    // 全局请求缓存
+    // 'think\middleware\CheckRequestCache',
+    // 多语言加载
+    'think\middleware\LoadLangPack',
+    // Session初始化
+    // 'think\middleware\SessionInit',
+    // 页面Trace调试
+    // 'think\middleware\TraceDebug',
 ];

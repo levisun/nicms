@@ -37,6 +37,12 @@ class Api extends Async
     protected $request;
 
     /**
+     * 控制器中间件
+     * @var array
+     */
+    protected $middleware = [];
+
+    /**
      * 应用实例
      * @var bool
      */

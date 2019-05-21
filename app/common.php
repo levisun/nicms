@@ -222,7 +222,7 @@ if (!function_exists('create_authorization')) {
         $authorization = hash_hmac(
             'sha1',
             strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') .
-            Request::ip() . app()->getRootPath() . $session_id . Request::url(true),
+            Request::ip() . app()->getRootPath() . $session_id,
             Config::get('app.authkey')
         );
 

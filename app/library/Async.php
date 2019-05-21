@@ -407,7 +407,7 @@ abstract class Async
             $referer = hash_hmac(
                 'sha1',
                 strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') .
-                Request::ip() . app()->getRootPath() . $this->sid . Request::server('HTTP_REFERER'),
+                Request::ip() . app()->getRootPath() . $this->sid,
                 Config::get('app.authkey')
             );
             if (!hash_equals($referer, $this->token)) {

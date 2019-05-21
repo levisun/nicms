@@ -106,7 +106,7 @@ class Template
         ob_start();
         ob_implicit_flush(0);
 
-        if (!$content = $this->templateBuildRead()) {
+        if (!$content = $this->templateBuildRead($_template)) {
             $this->templateConfig = $this->parseTemplateConfig();
 
             echo $this->parseTemplateHead();
@@ -312,18 +312,19 @@ class Template
      * @param
      * @return bool|string
      */
-    private function templateBuildRead()
+    private function templateBuildRead(string $_template)
     {
         if (!is_dir($this->buildPath)) {
             chmod(app()->getRuntimePath(), 0777);
             mkdir($this->buildPath, 0777, true);
         }
 
-        $url = explode('/', Request::pathinfo());
-        $url = array_unique($url);
-        $url = implode('-', $url);
-        $url = $url ? $url . '.html' : 'index.html';
-        $this->buildPath = $this->buildPath . $url;
+        // $url = explode('/', Request::pathinfo());
+        // $url = array_unique($url);
+        // $url = implode('-', $url);
+        // $url = $url ? $url . '.html' : 'index.html';
+        // $this->buildPath = $this->buildPath . $url;
+        $this->buildPath .= md5($_template) . '.html';
 
         clearstatcache();
         if (true === Config::get('app.debug') && is_file($this->buildPath)) {
@@ -347,6 +348,7 @@ class Template
     {
         clearstatcache();
         if (false === Config::get('app.debug') && !is_file($this->buildPath)) {
+            $_content = '<!-- ' . Request::url(true) . ' -->' . $_content;
             file_put_contents($this->buildPath, $_content);
         }
     }

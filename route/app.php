@@ -26,7 +26,6 @@ if ('api' === $domain) {
     Route::get('query$', 'api/query');
     Route::post('handle$', 'api/handle');
     Route::post('upload$', 'api/upload');
-
     Route::ext('do')->middleware('app\middleware\AllowCrossDomain');
     // ->pattern([
     //     'appid'     => '\d+',
