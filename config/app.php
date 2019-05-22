@@ -16,11 +16,16 @@ use think\facade\Request;
 return [
     'version'               => '1.0.1 CB7',
     'theme'                 => Env::get('admin.theme', 'default'),
-    'authkey'               => Env::get('admin.authkey', md5(__DIR__)),
+    // 调试
     'debug'                 => Env::get('admin.debug',   1) ? true : false,
+    // 后台入口域名
     'entry'                 => Env::get('admin.entry', 'admin'),
+    // 加密密钥
+    'secretkey'             => Env::get('admin.secretkey', md5(__DIR__)),
+    // 上传
     'upload_size'           => Env::get('app.upload_size'),
     'upload_type'           => Env::get('app.upload_type'),
+
     // 'www_host'              => '//www.' . Request::rootDomain() . Request::root(),
     'api_host'              => '//api.' . Request::rootDomain() . Request::root(),
     'cdn_host'              => '//cdn.' . Request::rootDomain() . Request::root(),

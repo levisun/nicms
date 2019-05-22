@@ -48,23 +48,20 @@ class LockRequest
      */
     protected function recordRequest(): void
     {
-        if (!app()->request->isOptions()) {
-            $request_number = [];
-            clearstatcache();
-            if (is_file($this->request_log) && $request_number = include($this->request_log)) {
-                $request_number = !empty($request_number) ? (array)$request_number : [];
-                $request_number = array_slice($request_number, -10, 10, true);
-            }
-
-            $time = app()->request->time();
-            $request_number[$time] = isset($request_number[$time]) ? ++$request_number[$time] : 1;
-
-            if (array_sum($request_number) >= 35) {
-                @unlink($this->request_log);
+        // clearstatcache();
+        $time = (int)date('i');
+        if (is_file($this->request_log) && $request_number = include($this->request_log)) {
+            $request_number = !empty($request_number) ? (array)$request_number : [$time => 1];
+            if (isset($request_number[$time]) && $request_number[$time] >= 50) {
                 @file_put_contents($this->request_log . '.lock', date('Y-m-d H:i:s'));
             } else {
+                $request_number[$time] = isset($request_number[$time]) ? ++$request_number[$time] : 1;
+                $request_number = [$time => end($request_number)];
                 @file_put_contents($this->request_log, '<?php return ' . var_export($request_number, true) . ';');
             }
+        } else {
+            $request_number = [$time => 1];
+            @file_put_contents($this->request_log, '<?php return ' . var_export($request_number, true) . ';');
         }
     }
 
@@ -94,7 +91,7 @@ class LockRequest
      */
     protected function concurrent(): void
     {
-        if ('api' !== app()->request->subDomain() && 99 === rand(0, 99)) {
+        if ('api' !== app()->request->subDomain() && 1 === rand(0, 999)) {
             Log::record('[并发]', 'alert')->save();
             $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>500</title><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section>';
 

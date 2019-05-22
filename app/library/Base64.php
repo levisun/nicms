@@ -48,41 +48,41 @@ class Base64
 
     /**
      * 生成旗标
-     * @param  string      $_authkey
+     * @param  string      $_str
      * @param  int|integer $_length
      * @return string
      */
-    public static function flag($_authkey = '', int $_length = 7)
+    public static function flag($_str = '', int $_length = 7)
     {
-        $_authkey = (string)$_authkey;
-        $_authkey = $_authkey ? sha1($_authkey) : sha1(Config::get('app.authkey'));
+        $_str = (string)$_str;
+        $_str = $_str ? sha1($_str) : sha1(Config::get('app.secretkey'));
         $_length = $_length > 40 ? 40 : $_length;
-        return substr(sha1($_authkey), 0, $_length);
+        return substr(sha1($_str), 0, $_length);
     }
 
     /**
      * 数据加密
      * @access public
      * @static
-     * @param  mixed  $_data    加密前的数据
-     * @param  string $_authkey 密钥
-     * @return mixed            加密后的数据
+     * @param  mixed  $_data      加密前的数据
+     * @param  string $_secretkey 密钥
+     * @return mixed              加密后的数据
      */
-    public static function encrypt($_data, string $_authkey = '')
+    public static function encrypt($_data, string $_secretkey = '')
     {
         if (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[self::encrypt($key, $_authkey)] = self::encrypt($value, $_authkey);
+                $_data[self::encrypt($key, $_secretkey)] = self::encrypt($value, $_secretkey);
                 unset($_data[$key]);
             }
             return $_data;
         } elseif (is_null($_data) || is_bool($_data)) {
             return $_data;
         } else {
-            $_authkey = $_authkey ? $_authkey : Config::get('app.authkey');
-            $_authkey = hash_hmac('sha1', $_authkey, md5($_authkey));
-            $iv = substr(md5($_authkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
-            return base64_encode(openssl_encrypt((string)$_data, 'AES-256-CBC', $_authkey, OPENSSL_RAW_DATA, $iv));
+            $_secretkey = $_secretkey ? $_secretkey : Config::get('app.secretkey');
+            $_secretkey = hash_hmac('sha1', $_secretkey, md5($_secretkey));
+            $iv = substr(md5($_secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
+            return base64_encode(openssl_encrypt((string)$_data, 'AES-256-CBC', $_secretkey, OPENSSL_RAW_DATA, $iv));
         }
     }
 
@@ -90,88 +90,25 @@ class Base64
      * 数据解密
      * @access public
      * @static
-     * @param  mixed  $_data    加密前的数据
-     * @param  string $_authkey 密钥
-     * @return mixed            加密后的数据
+     * @param  mixed  $_data      加密前的数据
+     * @param  string $_secretkey 密钥
+     * @return mixed              加密后的数据
      */
-    public static function decrypt($_data, string $_authkey = '')
+    public static function decrypt($_data, string $_secretkey = '')
     {
         if (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[self::decrypt($key, $_authkey)] = self::decrypt($value, $_authkey);
+                $_data[self::decrypt($key, $_secretkey)] = self::decrypt($value, $_secretkey);
                 unset($_data[$key]);
             }
             return $_data;
         } elseif (is_null($_data) || is_bool($_data)) {
             return $_data;
         } else {
-            $_authkey = $_authkey ? $_authkey : Config::get('app.authkey');
-            $_authkey = hash_hmac('sha1', $_authkey, md5($_authkey));
-            $iv = substr(md5($_authkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
-            return openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $_authkey, OPENSSL_RAW_DATA, $iv);
+            $_secretkey = $_secretkey ? $_secretkey : Config::get('app.secretkey');
+            $_secretkey = hash_hmac('sha1', $_secretkey, md5($_secretkey));
+            $iv = substr(md5($_secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
+            return openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $_secretkey, OPENSSL_RAW_DATA, $iv);
         }
     }
-
-    /**
-     * 数据加密
-     * @access public
-     * @static
-     * @param  mixed  $_data    加密前的数据
-     * @param  string $_authkey 密钥
-     * @return mixed            加密后的数据
-     */
-    // public static function encrypt($_data, string $_authkey = '')
-    // {
-    //     $_authkey = sha1(Config::get('admin.authkey', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01') . $_authkey);
-
-    //     if (is_array($_data)) {
-    //         $encrypt = [];
-    //         foreach ($_data as $key => $value) {
-    //             $encrypt[self::encrypt($key, $_authkey)] = self::encrypt($value, $_authkey);
-    //         }
-    //     } elseif (is_null($_data) || is_bool($_data)) {
-    //         $encrypt = $_data;
-    //     } else {
-    //         $encrypt = '';
-    //         $length = strlen($_authkey);
-    //         $_data = (string)$_data;
-    //         for ($i = 0, $count = mb_strlen($_data, 'utf-8'); $i < $count; $i += $length) {
-    //             $encrypt .= mb_substr($_data, $i, $length, 'utf-8') ^ $_authkey;
-    //         }
-    //         $encrypt = str_replace('=', '', base64_encode($encrypt));
-    //     }
-
-    //     return $encrypt;
-    // }
-
-    /**
-     * 数据解密
-     * @access public
-     * @static
-     * @param  mixed  $_data    加密前的数据
-     * @param  string $_authkey 密钥
-     * @return mixed            加密后的数据
-     */
-    // public static function decrypt($_data, string $_authkey = '')
-    // {
-    //     $_authkey = sha1(Config::get('admin.authkey', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01') . $_authkey);
-
-    //     if (is_array($_data)) {
-    //         $encrypt = [];
-    //         foreach ($_data as $key => $value) {
-    //             $encrypt[self::decrypt($key, $_authkey)] = self::decrypt($value, $_authkey);
-    //         }
-    //     } elseif (is_null($_data) || is_bool($_data)) {
-    //         $encrypt = $_data;
-    //     } else {
-    //         $encrypt = '';
-    //         $length = strlen($_authkey);
-    //         $_data = base64_decode($_data);
-    //         for ($i = 0, $count = mb_strlen($_data, 'utf-8'); $i < $count; $i += $length) {
-    //             $encrypt .= mb_substr($_data, $i, $length, 'utf-8') ^ $_authkey;
-    //         }
-    //     }
-
-    //     return $encrypt;
-    // }
 }

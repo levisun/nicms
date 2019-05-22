@@ -70,7 +70,7 @@ class RequestCache
      * 读取请求缓存
      * @access private
      * @param
-     * @return response|bool
+     * @return Response|bool
      */
     private function readCache()
     {
@@ -119,7 +119,7 @@ class RequestCache
      * 缓存KEY
      * @access private
      * @param
-     * @return string
+     * @return bool|string
      */
     private function getCacheKey()
     {

@@ -329,10 +329,8 @@ class Template
         clearstatcache();
         if (true === Config::get('app.debug') && is_file($this->buildPath)) {
             unlink($this->buildPath);
-        } elseif (is_file($this->buildPath) && filemtime($this->buildPath) >= strtotime(date('Y-m-d'))) {
-            return file_get_contents($this->buildPath);
         } elseif (is_file($this->buildPath)) {
-            unlink($this->buildPath);
+            return file_get_contents($this->buildPath);
         }
 
         return false;
@@ -384,15 +382,7 @@ class Template
      */
     private function parseTemplateFunc(string $_content): string
     {
-        $safe_func = [
-            'echo',
-            'str_replace',
-            'strlen',
-            'strtoupper',
-            'lang',
-            'url',
-            'date'
-        ];
+        $safe_func = ['echo', 'str_replace', 'strlen', 'strtoupper', 'lang', 'url','date'];
 
         if (false !== preg_match_all('/({:)([a-zA-Z_]+\()(.*?)(\)})/si', $_content, $matches)) {
             foreach ($matches[2] as $key => $func) {

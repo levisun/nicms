@@ -408,7 +408,7 @@ abstract class Async
                 'sha1',
                 strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') .
                 Request::ip() . app()->getRootPath() . $this->sid,
-                Config::get('app.authkey')
+                Config::get('app.secretkey')
             );
             if (!hash_equals($referer, $this->token)) {
                 $this->debugLog['referer'] = $referer;
@@ -513,14 +513,15 @@ abstract class Async
         ];
         $result = array_filter($result);
 
-        // 记录日志
-        if (true === $this->debug) {
-            $this->writeLog($result);
-        }
         if (Request::isGet() && true === $this->cache && $this->expire && $_code == 'SUCCESS') {
             $result['expire'] .= $this->expire . 's';
         } else {
             $result['expire'] .= 'close';
+        }
+
+        // 记录日志
+        if (true === $this->debug) {
+            $result['debug'] = $this->writeLog();
         }
 
         $response = Response::create($result, $this->format)->allowCache(false);
@@ -539,9 +540,9 @@ abstract class Async
      * 调试日志
      * @access private
      * @param
-     * @return void
+     * @return string
      */
-    private function writeLog(array $_result = []): void
+    private function writeLog(): string
     {
         $log = '[API] METHOD:' . Request::param('method', 'NULL') .
             ' TIME:' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 2) . 's' .
@@ -550,8 +551,10 @@ abstract class Async
 
         $log .= PHP_EOL . 'PARAM:' . json_encode(Request::param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
         $log .= PHP_EOL . 'DEBUG:' . json_encode($this->debugLog, JSON_UNESCAPED_UNICODE);
-        $log .= PHP_EOL . 'RESULT:' . json_encode($_result, JSON_UNESCAPED_UNICODE);
+        // $log .= PHP_EOL . 'RESULT:' . json_encode($_result, JSON_UNESCAPED_UNICODE);
 
         Log::record($log, 'alert')->save();
+
+        return $log;
     }
 }

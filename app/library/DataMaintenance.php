@@ -38,7 +38,7 @@ class DataMaintenance
     public function backup(string $_type = 'date'): bool
     {
         if ($_type == 'date') {
-            $this->savePath .= date('ymdHis') . DIRECTORY_SEPARATOR;
+            $this->savePath .= date('YmdHis') . DIRECTORY_SEPARATOR;
         } else {
             $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
         }
@@ -83,8 +83,8 @@ class DataMaintenance
         $tables = $this->queryTableName();
         foreach ($tables as $name) {
             if (false === $this->analyze($name)) {
-                Log::record('[DATAMAINTENANCE OPTIMIZE] #' . $name, 'alert');
                 Db::query('OPTIMIZE TABLE `' . $name . '`');
+                Log::record('[DATAMAINTENANCE OPTIMIZE] #' . $name, 'alert');
             }
         }
         return true;
@@ -104,8 +104,8 @@ class DataMaintenance
         $tables = $this->queryTableName();
         foreach ($tables as $name) {
             if (false === $this->check($name)) {
-                Log::record('[DATAMAINTENANCE REPAIR] #' . $name, 'alert');
                 Db::query('REPAIR TABLE `' . $name . '`');
+                Log::record('[DATAMAINTENANCE REPAIR] #' . $name, 'alert');
             }
         }
         return true;
