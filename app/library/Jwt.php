@@ -19,35 +19,115 @@ use think\facade\Request;
 use think\facade\Session;
 use app\library\Base64;
 
-class Jwt
+class JWT
 {
-    private $header = [
-        'typ' => 'JWT',
-        'alg' => 'sha256'
-    ];
+    /**
+     * The token headers
+     *
+     * @var array
+     */
+    private $headers = ['typ' => 'JWT', 'alg' => 'none'];
 
-    public function create(array $_playload = [], string $_alg = 'sha256'): string
+    private $identityType = 'session';
+
+    private $playload = [];
+
+    public function __construct()
     {
-        $this->header['alg'] = $_alg;
+        $this->setheaders('alg', 'sha256')
+            ->issuedBy(Request::rootDomain())
+            ->issuedAt(Request::time())
+            ->expiresAt(Request::time() + 7200)
+            ->identifiedBy(Session::getId(false), 'session')
+            ->audience(Request::ip() . Request::server('HTTP_USER_AGENT'));
+    }
 
-        $header = base64_encode(json_encode($this->header));
+    /**
+     * 设置头
+     * @access public
+     * @param  string $_name
+     * @param  string $_value
+     * @return JWT
+     */
+    public function setheaders(string $_name, string $_value)
+    {
+        $this->headers[$_name] = $_value;
+        return $this;
+    }
 
-        $_playload = base64_encode(json_encode(array_merge($_playload, [
-            // 签发者
-            'iss' => Request::rootDomain(),
-            // 签发时间
-            'iat' => Request::time(),
-            // 过期时间
-            'exp' => Request::time() + 7200,
-            // 接收者
-            'aud' => md5(Request::ip() . Request::server('HTTP_USER_AGENT')),
-            // 唯一身份标识
-            'jti' => Base64::encrypt(Session::getId(false)),
-        ])));
+    /**
+     * 签发者
+     * @access public
+     * @param  string $_issuer
+     * @return JWT
+     */
+    public function issuedBy(string $_issuer)
+    {
+        $this->playload['iss'] = $_issuer;
+        return $this;
+    }
 
-        $signature = $this->getSignature($this->header['alg'], $header . '.' . $_playload);
+    /**
+     * 签发时间
+     * @access public
+     * @param  string $_issuedAt
+     * @return JWT
+     */
+    public function issuedAt(int $_issuedAt)
+    {
+        $this->playload['iat'] = $_issuedAt;
+        return $this;
+    }
 
-        return 'Bearer ' . $header . '.' . $_playload . '.' . $signature;
+    /**
+     * 过期时间
+     * @access public
+     * @param  string $_expiration
+     * @return JWT
+     */
+    public function expiresAt(int $_expiration)
+    {
+        $this->playload['exp'] = $_expiration;
+        return $this;
+    }
+
+    /**
+     * 身份标识
+     * @access public
+     * @param  string $_id
+     * @return JWT
+     */
+    public function identifiedBy(string $_id = '', string $_type = 'session')
+    {
+        $this->identityType = $_type;
+        $this->playload['jti'] = Base64::encrypt($_id);
+        return $this;
+    }
+
+    /**
+     * 接收者
+     * @access public
+     * @param  string $_audience
+     * @return JWT
+     */
+    public function audience(string $_audience)
+    {
+        $this->playload['aud'] = md5($_audience);
+        return $this;
+    }
+
+    /**
+     * 获得TOKEN
+     * @access public
+     * @param
+     * @return string
+     */
+    public function getToken(): string
+    {
+        $headers    = base64_encode(json_encode($this->headers));
+        $playload  = base64_encode(json_encode($this->playload));
+        $signature = $this->getSignature($this->headers['alg'], $headers . '.' . $playload);
+        return 'Bearer ' . $headers . '.' . $playload . '.' . $signature;
     }
 
     /**
@@ -59,12 +139,12 @@ class Jwt
     public function verify(string $_authorization)
     {
         if ($_authorization && preg_match('/^Bearer [A-Za-z0-9\+\/\=]+\.[A-Za-z0-9\+\/\=]+\.[A-Za-z0-9]+$/u', $_authorization)) {
-            $_authorization = str_replace('Bearer ', '' , $_authorization);
-            list($header, $playload, $signature) = explode('.', $_authorization, 3);
+            $_authorization = str_replace('Bearer ', '', $_authorization);
+            list($headers, $playload, $signature) = explode('.', $_authorization, 3);
 
             // 签名验
-            $alg = (json_decode(base64_decode($header)))->alg;
-            if (!hash_equals($signature, $this->getSignature($alg, $header . '.' . $playload))) {
+            $alg = (json_decode(base64_decode($headers)))->alg;
+            if (!hash_equals($signature, $this->getSignature($alg, $headers . '.' . $playload))) {
                 return false;
             }
 
@@ -94,15 +174,15 @@ class Jwt
             // 有效期验证
             elseif ($playload['exp'] < Request::time()) {
                 $result = false;
-            }
-
-            else {
+            } else {
                 $result = true;
             }
 
             if (false === $result && $playload['jti']) {
-                Session::setId($playload['jti']);
-                Session::destroy();
+                if ('session' === $this->identityType) {
+                    Session::setId($playload['jti']);
+                    Session::destroy();
+                }
             }
 
             return true === $result ? $playload : false;

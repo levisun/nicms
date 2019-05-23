@@ -219,7 +219,7 @@ if (!function_exists('create_authorization')) {
      */
     function create_authorization(): string
     {
-        return (new Jwt)->create();
+        return (new Jwt)->getToken();
 
         $session_id = Session::getId(false);
 
