@@ -14,16 +14,18 @@ use think\facade\Env;
 use think\facade\Request;
 
 return [
-    'version'               => '1.0.1 CB7',
+    'version'               => '1.0.1 CB8',
     'theme'                 => Env::get('admin.theme', 'default'),
-    // 调试
-    'debug'                 => Env::get('admin.debug',   1) ? true : false,
     // 后台入口域名
     'entry'                 => Env::get('admin.entry', 'admin'),
+
+    // 调试
+    'debug'                 => Env::get('app.debug', 1) ? true : false,
     // 加密密钥
-    'secretkey'             => Env::get('admin.secretkey', md5(__DIR__)),
-    // 上传
+    'secretkey'             => Env::get('app.secretkey', md5('nicms')),
+    // 上传文件大小,单位MB
     'upload_size'           => Env::get('app.upload_size'),
+    // 上传文件类型(扩展名)
     'upload_type'           => Env::get('app.upload_type'),
 
     // 'www_host'              => '//www.' . Request::rootDomain() . Request::root(),
@@ -33,7 +35,7 @@ return [
     // 应用地址
     'app_host'              => Env::get('app.host', ''),
     // 应用Trace（环境变量优先读取）
-    'app_trace'             => Env::get('admin.debug', 1) ? true : false,
+    'app_trace'             => Env::get('app.debug', 1) ? true : false,
     // 应用的命名空间
     'app_namespace'         => '',
     // 是否启用路由
@@ -63,5 +65,5 @@ return [
     // 错误显示信息,非调试模式有效
     'error_message'         => '页面错误！请稍后再试～',
     // 显示错误信息
-    'show_error_msg'        => Env::get('admin.debug', 1) ? true : false,
+    'show_error_msg'        => Env::get('app.debug', 1) ? true : false,
 ];

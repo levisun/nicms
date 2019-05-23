@@ -23,6 +23,7 @@ use think\facade\Log;
 use think\facade\Request;
 use think\facade\Session;
 use app\library\Ip;
+use app\library\Jwt;
 use app\model\ApiApp as ModelApiApp;
 
 abstract class Async
@@ -378,53 +379,15 @@ abstract class Async
      */
     private function analysisHeader()
     {
-        // 解析token令牌和session_id
         $this->authorization = Request::header('authorization');
-        if ($this->authorization && preg_match('/^Basic [A-Za-z0-9\+\/\= ]+$/u', $this->authorization)) {
-            $this->authorization = str_replace('Basic ', '' , $this->authorization);
-            $this->authorization = Base64::decrypt($this->authorization, 'authorization');
-
-            // 解密错误
-            if (!$this->authorization) {
-                $this->debugLog['authorization'] = $this->authorization;
-                $this->error('[Async] header-authorization error');
-            }
-
-            // 单token值
-            if (false === strpos($this->authorization, '.')) {
-                $this->token = $this->authorization;
-                $this->debugLog['token'] = $this->token;
-            }
-
-            // token和session_id
-            else {
-                list($this->token, $this->sid) = explode('.', $this->authorization);
-                $this->debugLog['token'] = $this->token;
-                $this->debugLog['sid'] = $this->sid;
-            }
-
-            // 校验token合法性
-            $referer = hash_hmac(
-                'sha1',
-                strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') .
-                Request::ip() . app()->getRootPath() . $this->sid,
-                Config::get('app.secretkey')
-            );
-            if (!hash_equals($referer, $this->token)) {
-                $this->debugLog['referer'] = $referer;
-                $this->debugLog['this::token'] = $this->token;
-                $this->error('[Async] header-authorization token error');
-            }
-
-            // 开启session
-            if ($this->sid && preg_match('/^[A-Za-z0-9]{32,40}$/u', $this->sid)) {
-                Session::setId($this->sid);
+        if ($this->authorization && $this->authorization = (new Jwt)->verify($this->authorization)) {
+            if (isset($this->authorization['jti'])) {
+                Session::setId($this->authorization['jti']);
             }
         } else {
             $this->debugLog['authorization'] = $this->authorization;
             $this->error('[Async] header-authorization params error');
         }
-
 
         // 解析版本号与返回数据类型
         $this->accept = Request::header('accept');

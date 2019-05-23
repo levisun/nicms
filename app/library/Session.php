@@ -31,14 +31,22 @@ class Session implements SessionHandlerInterface
     public function __construct($config = [])
     {
         $this->config = array_merge($this->config, $config);
+    }
 
-        if (rand(1, 10) === 1) {
-            (new ModelSession)
-                ->where([
-                    ['update_time', '<=', strtotime('-3 days')]
-                ])
-                ->delete();
-        }
+    /**
+     * Session 垃圾回收
+     * @access public
+     * @param
+     * @return void
+     */
+    public function gc(): void
+    {
+        $maxlifetime = (int)$this->config['gc_maxlifetime'];
+        (new ModelSession)
+            ->where([
+                ['update_time', '<=', time() - $maxlifetime]
+            ])
+            ->delete();
     }
 
     /**
@@ -99,13 +107,11 @@ class Session implements SessionHandlerInterface
                     ['session_id', '=', $this->config['prefix'] . $sessID],
                 ])
                 ->update($data);
-            $result = (new ModelSession)->getNumRows();
         } else {
             (new ModelSession)->create($data);
-            $result = (new ModelSession)->getNumRows();
         }
 
-        return !!$result;
+        return !!(new ModelSession)->getNumRows();
     }
 
     /**
@@ -116,9 +122,10 @@ class Session implements SessionHandlerInterface
      */
     public function delete(string $sessID): bool
     {
-        (new ModelSession)->where([
-            ['session_id', '=', $this->config['prefix'] . $sessID]
-        ])
+        (new ModelSession)
+            ->where([
+                ['session_id', '=', $this->config['prefix'] . $sessID]
+            ])
             ->delete();
         return !!(new ModelSession)->getNumRows();
     }

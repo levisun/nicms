@@ -20,6 +20,7 @@ use think\facade\Route;
 use think\facade\Session;
 use app\library\Base64;
 use app\library\DataFilter;
+use app\library\Jwt;
 
 /**
  * 是否微信请求
@@ -218,18 +219,20 @@ if (!function_exists('create_authorization')) {
      */
     function create_authorization(): string
     {
+        return (new Jwt)->create();
+
         $session_id = Session::getId(false);
+
         $authorization = hash_hmac(
             'sha1',
             strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') .
-            Request::ip() . app()->getRootPath() . $session_id,
-            Config::get('app.authkey')
+                Request::ip() . app()->getRootPath() . $session_id,
+            Config::get('app.secretkey')
         );
 
         $authorization .= $session_id ? '.' . $session_id : '';
-        $authorization .= '.' . Request::time(true);
 
-        return 'Basic ' . Base64::encrypt($authorization, 'authorization');
+        return 'Basic ' . Base64::encrypt($authorization);
     }
 }
 
