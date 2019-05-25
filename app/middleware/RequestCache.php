@@ -35,14 +35,17 @@ class RequestCache
         $this->request = $_request;
 
         if ($response = $this->readCache()) {
-            return $this->gzip($response);
+            $response = $this->gzip($response);
+            return $response;
         }
 
         $response = $_next($this->request);
 
         $this->writeCache($response);
 
-        return $this->gzip($response);
+        $response = $this->gzip($response);
+
+        return $response;
     }
 
     /**
@@ -53,7 +56,7 @@ class RequestCache
      */
     private function gzip($_response): Response
     {
-        if ($this->request->isGet() && false === Config::get('app.debug') && !headers_sent() && function_exists('gzencode')) {
+        if ($this->request->isGet() && !headers_sent() && function_exists('gzencode')) {
             $content = $_response->getContent();
             $content = gzencode($content, 7, FORCE_GZIP);
             $_response->content($content);

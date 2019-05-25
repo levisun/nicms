@@ -23,7 +23,6 @@ class JWT
 {
     /**
      * The token headers
-     *
      * @var array
      */
     private $headers = ['typ' => 'JWT', 'alg' => 'none'];
@@ -36,8 +35,8 @@ class JWT
     {
         $this->setheaders('alg', 'sha256')
             ->issuedBy(Request::rootDomain())
-            ->issuedAt(Request::time())
-            ->expiresAt(Request::time() + 7200)
+            ->issuedAt((int)Request::time())
+            ->expiresAt((int)Request::time() + 7200)
             ->identifiedBy(Session::getId(false), 'session')
             ->audience(Request::ip() . Request::server('HTTP_USER_AGENT'));
     }
@@ -174,7 +173,10 @@ class JWT
             // 有效期验证
             elseif ($playload['exp'] < Request::time()) {
                 $result = false;
-            } else {
+            }
+
+            // 验证通过
+            else {
                 $result = true;
             }
 

@@ -34,12 +34,13 @@ class Maintain
         }
 
         if ('api' !== Request::subDomain()) {
-            if (1 === rand(1, 9)) {
-                (new ReGarbage)->run();     // 清除过期缓存和日志等
-            }
-
-            if (date('Ymd') % 10 == 0) {
-                $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'datamaintenance.lock';
+            // 清除过期缓存和日志等
+            if (1 === rand(1, 9)) (new ReGarbage)->run();
+            // 自动备份数据库
+            elseif (1 === rand(1, 19)) (new DataMaintenance)->autoBackup();
+            // 优化修复数据库表
+            elseif (0 === date('Ymd') % 10) {
+                $lock = app()->getRuntimePath() . 'datamaintenance.lock';
                 if (!is_file($lock)) {
                     file_put_contents($lock, date('Y-m-d H:i:s'));
                 }

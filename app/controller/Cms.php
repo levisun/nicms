@@ -53,8 +53,7 @@ class Cms extends BaseController
      */
     public function index()
     {
-        $file = (new \app\library\Download)->url('..\\\/\/\/\/\/\/\/\/../2019051/////5cd4d2e2569d5.jpg');
-        echo '<a href="' . $file . '">down</a>';
+        (new \app\library\DataMaintenance)->autoBackup(1);
         // $this->fetch('index');
     }
 

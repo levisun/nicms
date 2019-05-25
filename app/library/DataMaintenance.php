@@ -30,25 +30,102 @@ class DataMaintenance
     }
 
     /**
-     * 备份
+     * 自动更新
      * @access public
-     * @param
+     * @param  int $_hour 相隔几小时更新备份
      * @return bool
      */
-    public function backup(string $_type = 'date'): bool
+    public function autoBackup(int $_hour = 24): bool
     {
-        if ($_type == 'date') {
-            $this->savePath .= date('YmdHis') . DIRECTORY_SEPARATOR;
-        } else {
-            $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
-        }
+        $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
         if (!is_dir($this->savePath)) {
             chmod(app()->getRuntimePath(), 0777);
             mkdir($this->savePath, 0777, true);
         }
 
-        if (!is_file($this->savePath . 'backup.lock')) {
-            file_put_contents($this->savePath . 'backup.lock', 'lock');
+        if (!is_file(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sys_auto_backup.lock')) {
+            file_put_contents(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sys_auto_backup.lock', 'lock');
+
+            if (is_file($this->savePath . 'backup_time.json')) {
+                $btime = json_decode(file_get_contents($this->savePath . 'backup_time.json'), true);
+            } else {
+                $btime = [];
+            }
+
+            ignore_user_abort(true);
+            $table_name = $this->queryTableName();
+            shuffle($table_name);
+
+            foreach ($table_name as $name) {
+                $sql_file = $this->savePath . $name . '.sql';
+                if (!isset($btime[$name]) || !is_file($sql_file)) {
+                    $sql = $this->queryTableStructure($name);
+                    $this->write($sql_file, $sql);
+                    $btime[$name] = time();
+                } elseif (isset($btime[$name]) && $btime[$name] <= strtotime('-1 days')) {
+                    $sql = $this->queryTableStructure($name);
+                    $this->write($sql_file, $sql);
+                    $btime[$name] = time();
+                    break;
+                }
+
+                $total = $this->queryTableInsertTotal($name);
+                $field = $this->queryTableInsertField($name);
+                $num = 1;
+                for ($i=0; $i < $total; $i++) {
+                    $hour = '-' . rand($_hour, $_hour * 2) . ' hour';
+                    $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
+
+                    if (isset($btime[$name . $num])) {
+                        if (false !== $btime[$name . $num] && $btime[$name . $num] <= strtotime($hour) && is_file($sql_file)) {
+                            unlink($sql_file);
+                            $btime[$name . $num] = false;
+                            break 2;
+                        }
+                        if (false === $btime[$name . $num]) {
+                            $sql = $this->queryTableInsertData($name, $field, $i);
+                            $this->write($sql_file, $sql);
+                        }
+                    }
+
+                    elseif (!isset($btime[$name . $num])) {
+                        $sql = $this->queryTableInsertData($name, $field, $i);
+                        $this->write($sql_file, $sql);
+                        $btime[$name . $num] = false;
+                    }
+
+                    if (0 === ($i + 1) % 200) {
+                        $btime[$name . $num] = time();
+                        ++$num;
+                    }
+                }
+                $btime[$name . $num] = time();
+            }
+
+            unlink(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sys_auto_backup.lock');
+            file_put_contents($this->savePath . 'backup_time.json', json_encode($btime));
+            ignore_user_abort(false);
+        }
+
+        return true;
+    }
+
+    /**
+     * 备份
+     * @access public
+     * @param
+     * @return bool
+     */
+    public function backup(): bool
+    {
+        $this->savePath .= date('YmdHis') . DIRECTORY_SEPARATOR;
+        if (!is_dir($this->savePath)) {
+            chmod(app()->getRuntimePath(), 0777);
+            mkdir($this->savePath, 0777, true);
+        }
+
+        if (!is_file(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'backup.lock')) {
+            file_put_contents(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'backup.lock', 'lock');
             $table_name = $this->queryTableName();
 
             ignore_user_abort(true);
@@ -65,7 +142,7 @@ class DataMaintenance
                     $this->write($sql_file, $sql);
                 }
             }
-            unlink($this->savePath . 'backup.lock');
+            unlink(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'backup.lock');
             ignore_user_abort(false);
         }
 
@@ -151,8 +228,8 @@ class DataMaintenance
 
         $insert_into = 'INSERT INTO `' . $_table_name . '` (' . $_field . ') VALUES' . PHP_EOL;
         $insert_data = '';
-        foreach ($data as $key => $value) {
-            $insert_data = '(';
+        foreach ($data as $value) {
+            $insert_data .= '(';
             foreach ($value as $vo) {
                 if (is_integer($vo)) {
                     $insert_data .= $vo . ',';
@@ -179,7 +256,7 @@ class DataMaintenance
     {
         $result = Db::query('SHOW COLUMNS FROM `' . $_table_name . '`');
         $field = '';
-        foreach ($result as $key => $value) {
+        foreach ($result as $value) {
             $field .= '`' . $value['Field'] . '`,';
         }
         $field = trim($field, ',');
@@ -233,7 +310,7 @@ class DataMaintenance
     {
         $result = Db::query('SHOW TABLES FROM ' . Config::get('database.database'));
         $tables = array();
-        foreach ($result as $key => $value) {
+        foreach ($result as $value) {
             $value = current($value);
             $tables[str_replace(Config::get('database.prefix'), '', $value)] = $value;
         }
