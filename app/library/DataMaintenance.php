@@ -37,6 +37,8 @@ class DataMaintenance
      */
     public function autoBackup(int $_hour = 24): bool
     {
+        Log::record('[DATAMAINTENANCE AUTO BACKUP] 自动备份数据库', 'alert');
+
         $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
         if (!is_dir($this->savePath)) {
             chmod(app()->getRuntimePath(), 0777);

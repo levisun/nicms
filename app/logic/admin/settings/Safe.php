@@ -54,7 +54,7 @@ class Safe extends Base
                 'prefix'   => Config::get('database.prefix'),
             ],
             'admin' => [
-                'authkey' => Config::get('app.authkey'),
+                'authkey' => Config::get('app.secretkey'),
                 'debug'   => Config::get('app.debug'),
                 'entry'   => Config::get('app.entry'),
                 'theme'   => Config::get('app.theme'),

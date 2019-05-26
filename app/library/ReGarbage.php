@@ -27,21 +27,22 @@ class ReGarbage
      */
     public function run(): void
     {
+        Log::record('[REGARBAGE] 删除垃圾信息', 'alert');
         $runtime_path = app()->getRuntimePath();
         $root_path = app()->getRootPath();
 
         $this->remove($runtime_path . 'cache', 4);
-        $this->remove($runtime_path . 'lock', 4);
         $this->remove($runtime_path . 'compile', 72);
+        $this->remove($runtime_path . 'lock', 4);
         $this->remove($runtime_path . 'log', 72);
         $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 72);
 
         $dir = (array)glob($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*');
         foreach ($dir as $path) {
             $date = (int)date('Ym');
-            $this->remove($path . DIRECTORY_SEPARATOR . $date . DIRECTORY_SEPARATOR . '*', 168);
+            $this->remove($path . DIRECTORY_SEPARATOR . $date, 168);
             --$date;
-            $this->remove($path . DIRECTORY_SEPARATOR . $date . DIRECTORY_SEPARATOR . '*', 168);
+            $this->remove($path . DIRECTORY_SEPARATOR . $date, 168);
         }
 
         unset($runtime_path, $root_path, $dir, $date);

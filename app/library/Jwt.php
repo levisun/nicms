@@ -27,8 +27,6 @@ class JWT
      */
     private $headers = ['typ' => 'JWT', 'alg' => 'none'];
 
-    private $identityType = 'session';
-
     private $playload = [];
 
     public function __construct()
@@ -37,8 +35,8 @@ class JWT
             ->issuedBy(Request::rootDomain())
             ->issuedAt((int)Request::time())
             ->expiresAt((int)Request::time() + 7200)
-            ->identifiedBy(Session::getId(false), 'session')
-            ->audience(Request::ip() . Request::server('HTTP_USER_AGENT'));
+            ->identifiedBy(Session::getId(false))
+            ->audience(Request::ip() . Request::server('HTTP_USER_AGENT') . Request::url(true));
     }
 
     /**
@@ -96,9 +94,8 @@ class JWT
      * @param  string $_id
      * @return JWT
      */
-    public function identifiedBy(string $_id = '', string $_type = 'session')
+    public function identifiedBy(string $_id = '')
     {
-        $this->identityType = $_type;
         $this->playload['jti'] = Base64::encrypt($_id);
         return $this;
     }
@@ -123,8 +120,8 @@ class JWT
      */
     public function getToken(): string
     {
-        $headers    = base64_encode(json_encode($this->headers));
-        $playload  = base64_encode(json_encode($this->playload));
+        $headers   = trim(base64_encode(json_encode($this->headers)), '=');
+        $playload  = trim(base64_encode(json_encode($this->playload)), '=');
         $signature = $this->getSignature($this->headers['alg'], $headers . '.' . $playload);
         return 'Bearer ' . $headers . '.' . $playload . '.' . $signature;
     }
@@ -144,51 +141,51 @@ class JWT
             // 签名验
             $alg = (json_decode(base64_decode($headers)))->alg;
             if (!hash_equals($signature, $this->getSignature($alg, $headers . '.' . $playload))) {
-                return false;
-            }
-
-            $playload = json_decode(base64_decode($playload), true);
-
-            // 身份标识验证
-            $playload['jti'] = Base64::decrypt($playload['jti']);
-            if (!$playload['jti'] || !preg_match('/^[A-Za-z0-9]{32,40}$/u', $playload['jti'])) {
-                $result = null;
-            }
-
-            // 签发者验证
-            elseif (!hash_equals(Request::rootDomain(), $playload['iss'])) {
                 $result = false;
-            }
+            } else {
+                $playload = json_decode(base64_decode($playload), true);
 
-            // 接受者验证
-            elseif (!hash_equals(md5(Request::ip() . Request::server('HTTP_USER_AGENT')), $playload['aud'])) {
-                $result = false;
-            }
+                // 身份标识验证
+                $playload['jti'] = Base64::decrypt($playload['jti']);
+                if (!$playload['jti'] || !preg_match('/^[A-Za-z0-9]{32,40}$/u', $playload['jti'])) {
+                    $result = null;
+                }
 
-            // 签发时间验证
-            elseif ($playload['iat'] > Request::time()) {
-                $result = false;
-            }
+                // 签发者验证
+                elseif (!hash_equals(Request::rootDomain(), $playload['iss'])) {
+                    $result = false;
+                }
 
-            // 有效期验证
-            elseif ($playload['exp'] < Request::time()) {
-                $result = false;
-            }
+                // 接受者验证
+                elseif (!hash_equals(md5(Request::ip() . Request::server('HTTP_USER_AGENT') . Request::server('HTTP_REFERER')), $playload['aud'])) {
+                    $result = false;
+                }
 
-            // 验证通过
-            else {
-                $result = true;
-            }
+                // 签发时间验证
+                elseif ($playload['iat'] > Request::time()) {
+                    $result = false;
+                }
 
-            if (false === $result && $playload['jti']) {
-                if ('session' === $this->identityType) {
-                    Session::setId($playload['jti']);
-                    Session::destroy();
+                // 有效期验证
+                elseif ($playload['exp'] < Request::time()) {
+                    $result = false;
+                }
+
+                // 验证通过
+                else {
+                    $result = true;
                 }
             }
 
-            return true === $result ? $playload : false;
+            if (false === $result && $playload['jti']) {
+                Session::setId($playload['jti']);
+                Session::destroy();
+            }
+        } else {
+            $result = false;
         }
+
+        return true === $result ? $playload : false;
     }
 
     /**

@@ -34,7 +34,7 @@ class Visit extends Base
             return $result;
         }
 
-        $query_limit = (int)Request::param('limit/f', 15);
+        $query_limit = (int)Request::param('limit/f', 10);
 
         $result = (new ModelVisit)
             ->order('date DESC')

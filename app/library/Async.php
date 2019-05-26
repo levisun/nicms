@@ -381,7 +381,7 @@ abstract class Async
     {
         $this->authorization = Request::header('authorization');
         if ($this->authorization && $this->authorization = (new Jwt)->verify($this->authorization)) {
-            if (isset($this->authorization['jti'])) {
+            if (!empty($this->authorization['jti'])) {
                 Session::setId($this->authorization['jti']);
             }
         } else {

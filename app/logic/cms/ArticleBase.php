@@ -65,7 +65,7 @@ class ArticleBase
             $map[] = ['article.type_id', '=', $type_id];
         }
 
-        $query_limit = (int)Request::param('limit/f', 15);
+        $query_limit = (int)Request::param('limit/f', 10);
         $query_page = (int)Request::param('page/f', 1);
 
         $cache_key = md5(count($map) . $category_id . $com . $top . $hot . $type_id . $query_limit . $query_page);
