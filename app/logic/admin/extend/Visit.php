@@ -51,7 +51,7 @@ class Visit extends Base
 
         return [
             'debug' => false,
-            // 'cache' => false,
+            'cache' => true,
             'msg'   => 'visit log data',
             'data'  => [
                 'list'         => $list['data'],

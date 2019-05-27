@@ -62,8 +62,6 @@ class Template
         $this->templatePath .= 'template' . DIRECTORY_SEPARATOR;
 
         $this->buildPath  = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
-        $this->buildPath .= Lang::getLangSet() . '-';
-        $this->buildPath .= str_replace('.', '', Request::subDomain()) . DIRECTORY_SEPARATOR;
 
         $theme = Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme);
         $this->setReplace([
@@ -319,11 +317,7 @@ class Template
             mkdir($this->buildPath, 0777, true);
         }
 
-        // $url = explode('/', Request::pathinfo());
-        // $url = array_unique($url);
-        // $url = implode('-', $url);
-        // $url = $url ? $url . '.html' : 'index.html';
-        // $this->buildPath = $this->buildPath . $url;
+        $_template .= Lang::getLangSet() . Request::subDomain();
         $this->buildPath .= md5($_template) . '.html';
 
         clearstatcache();
@@ -346,7 +340,7 @@ class Template
     {
         clearstatcache();
         if (false === Config::get('app.debug') && !is_file($this->buildPath)) {
-            $_content = '<!-- ' . Request::url(true) . ' -->' . $_content;
+            $_content = '<!-- ' . Request::pathinfo() . ' -->' . $_content;
             file_put_contents($this->buildPath, $_content);
         }
     }

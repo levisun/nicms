@@ -60,7 +60,7 @@ class ReGarbage
         $dir = $this->getDirAllFile($_dir . DIRECTORY_SEPARATOR . '*', $_expire);
         while ($dir->valid()) {
             $filename = $dir->current();
-            Log::record('[REGARBAGE] ' . pathinfo($filename, PATHINFO_BASENAME) . ' 删除垃圾信息', 'alert');
+            Log::record(pathinfo($filename, PATHINFO_BASENAME), 'alert');
             if (is_dir($filename)) {
                 @rmdir($filename);
             } elseif (false === strpos($filename, '_skl_')) {

@@ -55,7 +55,7 @@ class Elog extends Base
 
         return [
             'debug' => false,
-            'cache' => false,
+            'cache' => true,
             'msg'   => 'error log data',
             'data'  => [
                 'list'  => $file,

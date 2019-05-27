@@ -37,7 +37,7 @@ class DataMaintenance
      */
     public function autoBackup(int $_hour = 24): bool
     {
-        Log::record('[DATAMAINTENANCE AUTO BACKUP] 自动备份数据库', 'alert');
+        Log::record('[AUTO BACKUP] 自动备份数据库', 'alert');
 
         $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
         if (!is_dir($this->savePath)) {
@@ -45,8 +45,8 @@ class DataMaintenance
             mkdir($this->savePath, 0777, true);
         }
 
-        if (!is_file(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sys_auto_backup.lock')) {
-            file_put_contents(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sys_auto_backup.lock', 'lock');
+        if (!is_file(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sab.lock')) {
+            file_put_contents(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sab.lock', 'lock');
 
             if (is_file($this->savePath . 'backup_time.json')) {
                 $btime = json_decode(file_get_contents($this->savePath . 'backup_time.json'), true);
@@ -68,14 +68,14 @@ class DataMaintenance
                     $sql = $this->queryTableStructure($name);
                     $this->write($sql_file, $sql);
                     $btime[$name] = time();
-                    break;
+                    continue;
                 }
 
                 $total = $this->queryTableInsertTotal($name);
                 $field = $this->queryTableInsertField($name);
                 $num = 1;
-                for ($i=0; $i < $total; $i++) {
-                    $hour = '-' . rand($_hour, $_hour * 2) . ' hour';
+                for ($i = 0; $i < $total; $i++) {
+                    $hour = '-' . rand($_hour, $_hour + 7) . ' hour';
                     $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
 
                     if (isset($btime[$name . $num])) {
@@ -88,9 +88,7 @@ class DataMaintenance
                             $sql = $this->queryTableInsertData($name, $field, $i);
                             $this->write($sql_file, $sql);
                         }
-                    }
-
-                    elseif (!isset($btime[$name . $num])) {
+                    } elseif (!isset($btime[$name . $num])) {
                         $sql = $this->queryTableInsertData($name, $field, $i);
                         $this->write($sql_file, $sql);
                         $btime[$name . $num] = false;
@@ -104,7 +102,7 @@ class DataMaintenance
                 $btime[$name . $num] = time();
             }
 
-            unlink(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sys_auto_backup.lock');
+            unlink(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sab.lock');
             file_put_contents($this->savePath . 'backup_time.json', json_encode($btime));
             ignore_user_abort(false);
         }
@@ -159,11 +157,12 @@ class DataMaintenance
      */
     public function optimize(): bool
     {
+        Log::record('[DATAMAINTENANCE OPTIMIZE] 优化表', 'alert');
         $tables = $this->queryTableName();
         foreach ($tables as $name) {
             if (false === $this->analyze($name)) {
                 Db::query('OPTIMIZE TABLE `' . $name . '`');
-                Log::record('[DATAMAINTENANCE OPTIMIZE] #' . $name, 'alert');
+                Log::record($name, 'alert');
             }
         }
         return true;
@@ -177,6 +176,7 @@ class DataMaintenance
      */
     public function repair(): bool
     {
+        Log::record('[DATAMAINTENANCE REPAIR] 修复表', 'alert');
         $config = Db::getConfig();
         $config['params'][\PDO::ATTR_EMULATE_PREPARES] = true;
         Db::connect($config, true);
@@ -184,7 +184,7 @@ class DataMaintenance
         foreach ($tables as $name) {
             if (false === $this->check($name)) {
                 Db::query('REPAIR TABLE `' . $name . '`');
-                Log::record('[DATAMAINTENANCE REPAIR] #' . $name, 'alert');
+                Log::record($name, 'alert');
             }
         }
         return true;
@@ -328,7 +328,7 @@ class DataMaintenance
      */
     private function write(string $_file, string $_data): void
     {
-        Log::record('[DATAMAINTENANCE BACKUP] #' . pathinfo($_file, PATHINFO_BASENAME), 'alert');
+        Log::record(pathinfo($_file, PATHINFO_BASENAME), 'alert');
         file_put_contents($_file, $_data, FILE_APPEND);
     }
 }

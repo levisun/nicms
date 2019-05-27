@@ -232,7 +232,7 @@ abstract class Async
      */
     protected function cache(bool $_cache = false)
     {
-        $this->cache = true === $this->debug ? false : $_cache;
+        $this->cache = (true === $this->debug) ? false : $_cache;
         return $this;
     }
 

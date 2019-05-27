@@ -25,7 +25,7 @@ class JWT
      * The token headers
      * @var array
      */
-    private $headers = ['typ' => 'JWT', 'alg' => 'none'];
+    private $headers = ['typ' => 'JWT', 'alg' => 'sha256'];
 
     private $playload = [];
 
@@ -34,9 +34,9 @@ class JWT
         $this->setheaders('alg', 'sha256')
             ->issuedBy(Request::rootDomain())
             ->issuedAt((int)Request::time())
-            ->expiresAt((int)Request::time() + 7200)
+            ->expiresAt((int)Request::time() + 1140)
             ->identifiedBy(Session::getId(false))
-            ->audience(Request::ip() . Request::server('HTTP_USER_AGENT') . Request::url(true));
+            ->audience($this->playload['iat'] . Request::baseUrl());
     }
 
     /**
@@ -106,10 +106,11 @@ class JWT
      * @param  string $_audience
      * @return JWT
      */
-    public function audience(string $_audience)
+    public function audience(string $_audience, $_aud = false)
     {
-        $this->playload['aud'] = md5($_audience);
-        return $this;
+        $_audience .= Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $this->playload['aud'] = hash_hmac('sha256', Base64::encrypt($_audience), date('Ymd'));
+        return (true === $_aud) ? $this->playload['aud'] : $this;
     }
 
     /**
@@ -144,20 +145,16 @@ class JWT
                 $result = false;
             } else {
                 $playload = json_decode(base64_decode($playload), true);
-
-                // 身份标识验证
                 $playload['jti'] = Base64::decrypt($playload['jti']);
-                if (!$playload['jti'] || !preg_match('/^[A-Za-z0-9]{32,40}$/u', $playload['jti'])) {
-                    $result = null;
+
+                // 接受者验证
+                $audience = $this->audience($playload['iat'] . parse_url(Request::server('HTTP_REFERER'), PHP_URL_PATH), true);
+                if (!hash_equals($audience, $playload['aud'])) {
+                    $result = false;
                 }
 
                 // 签发者验证
                 elseif (!hash_equals(Request::rootDomain(), $playload['iss'])) {
-                    $result = false;
-                }
-
-                // 接受者验证
-                elseif (!hash_equals(md5(Request::ip() . Request::server('HTTP_USER_AGENT') . Request::server('HTTP_REFERER')), $playload['aud'])) {
                     $result = false;
                 }
 
@@ -169,6 +166,11 @@ class JWT
                 // 有效期验证
                 elseif ($playload['exp'] < Request::time()) {
                     $result = false;
+                }
+
+                // 身份标识验证
+                elseif (!$playload['jti'] || !preg_match('/^[A-Za-z0-9]{32,40}$/u', $playload['jti'])) {
+                    $result = null;
                 }
 
                 // 验证通过

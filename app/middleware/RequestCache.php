@@ -127,11 +127,11 @@ class RequestCache
     private function getCacheKey()
     {
         if ($this->request->isGet() && false === Config::get('app.debug')) {
-            $key  = $this->request->cookie('PHPSESSID', $this->request->ip());
+            $key  = $this->request->cookie('PHPSESSID');
             $key .= preg_replace_callback('/timestamp=[0-9]+|sign=[A-Za-z0-9]{32,40}/si', function ($matches) {
                 return '*';
             }, $this->request->url(true));
-            return md5($key);
+            return md5($this->request->ip() . $key);
         } else {
             return false;
         }

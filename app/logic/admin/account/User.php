@@ -210,7 +210,7 @@ class User extends Base
         $status = true;
         $file = (array)glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
         if (count($file) >= 2) {
-            foreach ($file as $key => $value) {
+            foreach ($file as $value) {
                 if (filectime($value) >= strtotime('-7 days')) {
                     $status = true;
                     continue;
@@ -235,12 +235,7 @@ class User extends Base
         }
 
         // 垃圾信息
-        $file = (array)glob(app()->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*');
-        $count = 0;
-        foreach ($file as $key => $value) {
-            $value = (array)glob($value . DIRECTORY_SEPARATOR . '*');
-            $count += count($value);
-        }
+        $count = count((array)glob(app()->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*'));
         if ($count >= 2000) {
             $result[] = [
                 'title' => Lang::get('too much junk information'),
