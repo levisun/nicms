@@ -130,9 +130,6 @@ class Template
 
             echo $content;
             echo $this->parseTemplateFoot();
-            echo '<!-- Static:';
-            echo Config::get('app.debug') ? 'close' : 'success';
-            echo ' Date:' . date('Y-m-d H:i:s') . ' -->';
         } else {
             echo $content;
         }

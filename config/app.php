@@ -22,7 +22,7 @@ return [
     // 调试
     'debug'                 => Env::get('app.debug', 1) ? true : false,
     // 加密密钥
-    'secretkey'             => Env::get('app.secretkey', md5('nicms')),
+    'secretkey'             => hash_hmac('sha256', Env::get('app.secretkey', Request::rootDomain()), __DIR__),
     // 上传文件大小,单位MB
     'upload_size'           => Env::get('app.upload_size'),
     // 上传文件类型(扩展名)

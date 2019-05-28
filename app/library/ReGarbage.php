@@ -80,16 +80,16 @@ class ReGarbage
     private function getDirAllFile(string $_path, int $_expire)
     {
         $dir = (array)glob($_path);
-        $days = strtotime('-' . $_expire . ' hour');
+        $hour = strtotime('-' . $_expire . ' hour');
         foreach ($dir as $files) {
-            if (is_file($files) && filemtime($files) <= $days) {
+            if (is_file($files) && filemtime($files) <= $hour) {
                 yield $files;
             } elseif (is_dir($files . DIRECTORY_SEPARATOR)) {
                 $sub = $this->getDirAllFile($files . DIRECTORY_SEPARATOR . '*', $_expire);
                 // yield $files;
                 while ($sub->valid()) {
                     $filename = $sub->current();
-                    if (is_file($filename) && filemtime($files) <= $days) {
+                    if (is_file($filename) && filemtime($files) <= $hour) {
                         yield $filename;
                     }
                     $sub->next();

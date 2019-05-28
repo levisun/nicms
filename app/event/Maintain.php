@@ -35,11 +35,11 @@ class Maintain
 
         if ('api' !== Request::subDomain()) {
             // 清除过期缓存和日志等
-            if (1 === rand(1, 39)) {
+            if (1 === rand(1, 59)) {
                 (new ReGarbage)->run();
             }
             // 自动备份数据库
-            elseif (1 === rand(1, 39)) {
+            elseif (1 === rand(1, 99)) {
                 (new DataMaintenance)->autoBackup();
             }
             // 优化修复数据库表

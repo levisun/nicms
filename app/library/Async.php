@@ -387,6 +387,7 @@ abstract class Async
         } else {
             $this->debugLog['authorization'] = $this->authorization;
             $this->error('[Async] header-authorization params error');
+            Log::record('[Async] header-authorization params error', 'alert')->save();
         }
 
         // 解析版本号与返回数据类型

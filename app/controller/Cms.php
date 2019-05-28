@@ -53,7 +53,6 @@ class Cms extends BaseController
      */
     public function index()
     {
-        // (new \app\library\DataMaintenance)->autoBackup(1);
         // $this->fetch('index');
     }
 

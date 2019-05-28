@@ -55,7 +55,7 @@ class Base64
     public static function flag($_str = '', int $_length = 7)
     {
         $_str = (string)$_str;
-        $_str = $_str ? sha1($_str) : sha1(Config::get('app.secretkey'));
+        $_str .= Config::get('app.secretkey');
         $_length = $_length > 40 ? 40 : $_length;
         return substr(sha1($_str), 0, $_length);
     }
@@ -79,9 +79,8 @@ class Base64
         } elseif (is_null($_data) || is_bool($_data)) {
             return $_data;
         } else {
-            $_secretkey = $_secretkey ? $_secretkey . Config::get('app.secretkey') : Config::get('app.secretkey');
-            $_secretkey = hash_hmac('md5', $_secretkey, Config::get('app.secretkey'));
-            $iv = substr(md5($_secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
+            $_secretkey .= Config::get('app.secretkey');
+            $iv = substr(sha1($_secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
             return base64_encode(openssl_encrypt((string)$_data, 'AES-256-CBC', $_secretkey, OPENSSL_RAW_DATA, $iv));
         }
     }
@@ -105,9 +104,8 @@ class Base64
         } elseif (is_null($_data) || is_bool($_data)) {
             return $_data;
         } else {
-            $_secretkey = $_secretkey ? $_secretkey . Config::get('app.secretkey') : Config::get('app.secretkey');
-            $_secretkey = hash_hmac('md5', $_secretkey, Config::get('app.secretkey'));
-            $iv = substr(md5($_secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
+            $_secretkey .= Config::get('app.secretkey');
+            $iv = substr(sha1($_secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
             return openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $_secretkey, OPENSSL_RAW_DATA, $iv);
         }
     }
