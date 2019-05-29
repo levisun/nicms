@@ -35,6 +35,10 @@ class Log extends Base
             return $result;
         }
 
+        if ($result = $this->check_params(['limit'])) {
+            return $result;
+        }
+
         $query_limit = (int)Request::param('limit/f', 10);
 
         $result = (new ModelActionLog)

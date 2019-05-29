@@ -49,7 +49,7 @@ jQuery.pjax({
         method: 'settings.basic.query'
     },
     success: function(result){
-        if (result.code === 'SUCCESS') {
+        if (result.code == 10000) {
             new Vue({
                 el: '.box-body',
                 data: {
@@ -68,7 +68,7 @@ jQuery(document).on('click', '.btn', function(){
         type: 'POST',
         data: data,
         success: function(result){
-            if (result.code === 'SUCCESS') {
+            if (result.code == 10000) {
                 jQuery.uiToast(result.message);
                 location.reload();
             }

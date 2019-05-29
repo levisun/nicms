@@ -98,7 +98,7 @@ jQuery.pjax({
         method: 'category.category.query',
     },
     success: function(result){
-        if (result.code == 'SUCCESS') {
+        if (result.code == 10000) {
             var vue = new Vue({
                 el: '.box',
                 data: {
@@ -125,7 +125,7 @@ jQuery(document).on('click', '.remove', function(){
             id: jQuery(this).attr('data'),
         },
         success: function(result){
-            if (result.code == 'SUCCESS') {
+            if (result.code == 10000) {
 
             }
         }

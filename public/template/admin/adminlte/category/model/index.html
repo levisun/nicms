@@ -47,7 +47,7 @@ jQuery.pjax({
         method: 'category.model.query',
     },
     success: function(result){
-        if (result.code == 'SUCCESS') {
+        if (result.code == 10000) {
             var vue = new Vue({
                 el: '.box',
                 data: {

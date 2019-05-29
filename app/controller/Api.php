@@ -63,7 +63,7 @@ class Api extends Async
 
         $max_input_vars = (int)ini_get('max_input_vars');
         if (count($_POST) + count($_FILES) >= $max_input_vars - 5) {
-            $this->error('[Async] request max params number error');
+            $this->error('非法参数', 40002);
         }
 
         $this->referer = $this->request->server('HTTP_REFERER') && $this->request->param('method');
@@ -81,7 +81,7 @@ class Api extends Async
             $result = $this->run();
             $this->success($result['msg'], $result['data'], $result['code']);
         } else {
-            $this->error('query::request error');
+            $this->error('权限不足', 40006);
         }
     }
 
@@ -97,7 +97,7 @@ class Api extends Async
             $result = $this->run();
             $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
         } else {
-            $this->error('handle::request error');
+            $this->error('权限不足', 40006);
         }
     }
 
@@ -113,7 +113,7 @@ class Api extends Async
             $result = $this->run();
             $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
         } else {
-            $this->error('upload::request error');
+            $this->error('权限不足', 40006);
         }
     }
 
@@ -130,7 +130,7 @@ class Api extends Async
                 throw new HttpResponseException($response);
             }
         } else {
-            die('download::request error');
+            die('权限不足');
         }
     }
 
@@ -146,7 +146,7 @@ class Api extends Async
             $ip = (new Ip)->info($ip);
             $this->cache(true)->success('success', $ip);
         } else {
-            $this->error('ip::request error');
+            $this->error('缺少参数', 40001);
         }
     }
 }

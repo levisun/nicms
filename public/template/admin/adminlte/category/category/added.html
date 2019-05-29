@@ -110,7 +110,7 @@ jQuery.pjax({
         pid: NICMS.api.param.id
     },
     success: function(result){
-        if (result.code == 'SUCCESS') {
+        if (result.code == 10000) {
             var vue = new Vue({
                 el: '.box',
                 data: {
@@ -130,7 +130,7 @@ jQuery(document).on('click', '.btn', function(){
         type: 'POST',
         data: data,
         success: function(result){
-            if (result.code === 'SUCCESS') {
+            if (result.code === 10000) {
                 jQuery.uiToast(result.message);
                 history.back();
             }
@@ -148,7 +148,7 @@ jQuery(document).on('change', '#upload', function(){
         },
         success: function(result){
             jQuery.uiToast(result.message);
-            if (result.code === 'SUCCESS') {
+            if (result.code === 10000) {
                 jQuery('.image').val(result.data.original_url);
                 jQuery('.image-box').show().attr('src', result.data.url);
             }

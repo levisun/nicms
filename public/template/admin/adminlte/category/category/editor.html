@@ -105,7 +105,7 @@ jQuery.pjax({
         id: NICMS.api.param.id
     },
     success: function(result){
-        if (result.code == 'SUCCESS') {
+        if (result.code == 10000) {
             var vue = new Vue({
                 el: '.box',
                 data: {
@@ -125,7 +125,7 @@ jQuery(document).on('click', '.btn', function(){
         type: 'POST',
         data: data,
         success: function(result){
-            if (result.code === 'SUCCESS') {
+            if (result.code === 10000) {
                 jQuery.uiToast(result.message);
                 location.reload();
             }

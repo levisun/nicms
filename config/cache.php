@@ -23,7 +23,7 @@ return [
     // 缓存前缀
     'prefix'        => '',
     // 缓存有效期 0表示永久缓存
-    'expire'        => Env::get('cache.expire', 14400),
+    'expire'        => Env::get('cache.expire', 1440),
     // 关闭子目录
     'cache_subdir'  => false,
     // 开启转义

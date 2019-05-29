@@ -52,7 +52,7 @@ function paging(_p){
             page: _p,
         },
         success: function(result){
-            if (result.code == 'SUCCESS') {
+            if (result.code == 10000) {
                 if (v) {
                     v.items = result.data;
                 } else {

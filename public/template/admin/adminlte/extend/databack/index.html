@@ -43,7 +43,7 @@ function paging () {
             method: 'extend.databack.query'
         },
         success: function(result){
-            if (result.code === 'SUCCESS') {
+            if (result.code === 10000) {
                 if (v) {
                     v.items = result.data;
                 } else {
@@ -66,7 +66,7 @@ jQuery(document).on('click', '#databack', function(){
             method: 'extend.databack.backup'
         },
         success: function(result){
-            if (result.code == 'SUCCESS') {
+            if (result.code == 10000) {
                 paging();
             }
         }
@@ -82,7 +82,7 @@ jQuery(document).on('click', '#remove', function(){
             id: id
         },
         success: function(){
-            if (result.code == 'SUCCESS') {
+            if (result.code == 10000) {
                 paging();
             }
         }
@@ -98,7 +98,7 @@ jQuery(document).on('click', '#reset', function(){
             id: id
         },
         success: function(){
-            if (result.code == 'SUCCESS') {
+            if (result.code == 10000) {
 
             }
         }

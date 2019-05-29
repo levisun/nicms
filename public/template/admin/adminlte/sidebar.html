@@ -46,7 +46,7 @@ jQuery.pjax({
         method: 'account.user.auth'
     },
     success: function(result){
-        if (result.code == 'SUCCESS' && result.data) {
+        if (result.code == 10000 && result.data) {
             jQuery('.content-header h1 font').text(result.data[NICMS.api.param.logic].lang);
             jQuery('.content-header h1 small').text(result.data[NICMS.api.param.logic].child[NICMS.api.param.controller].lang);
             jQuery('.content-header .breadcrumb').append('<li><a>'+result.data[NICMS.api.param.logic].lang+'</a></li>');

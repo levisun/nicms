@@ -34,7 +34,7 @@ class JWT
         $this->setheaders('alg', 'sha256')
             ->issuedBy(Request::rootDomain())
             ->issuedAt((int)Request::time())
-            ->expiresAt((int)Request::time() + 1140)
+            ->expiresAt((int)Request::time() + 1440)
             ->identifiedBy(Session::getId(false))
             ->audience($this->playload['iat'] . Request::baseUrl());
     }
@@ -135,7 +135,7 @@ class JWT
      */
     public function verify(string $_authorization)
     {
-        if ($_authorization && preg_match('/^Bearer [A-Za-z0-9\+\/\=]+\.[A-Za-z0-9\+\/\=]+\.[A-Za-z0-9]+$/u', $_authorization)) {
+        if ($_authorization && preg_match('/^Bearer [A-Za-z0-9\+\/]+\.[A-Za-z0-9\+\/]+\.[A-Za-z0-9]+$/u', $_authorization)) {
             $_authorization = str_replace('Bearer ', '', $_authorization);
             list($headers, $playload, $signature) = explode('.', $_authorization, 3);
 
@@ -159,29 +159,24 @@ class JWT
                 }
 
                 // 签发时间验证
-                elseif ($playload['iat'] > Request::time()) {
+                elseif ($playload['iat'] >= Request::time()) {
                     $result = false;
                 }
 
                 // 有效期验证
-                elseif ($playload['exp'] < Request::time()) {
+                elseif ($playload['exp'] <= Request::time()) {
                     $result = false;
                 }
 
                 // 身份标识验证
                 elseif (!$playload['jti'] || !preg_match('/^[A-Za-z0-9]{32,40}$/u', $playload['jti'])) {
-                    $result = null;
+                    $result = false;
                 }
 
                 // 验证通过
                 else {
                     $result = true;
                 }
-            }
-
-            if (false === $result && $playload['jti']) {
-                Session::setId($playload['jti']);
-                Session::destroy();
             }
         } else {
             $result = false;

@@ -28,6 +28,11 @@ class RequestCache
     {
         $this->cache = $_cache;
         $this->cache->tag('RequestCache');
+
+        // 开启调试清空请求缓存
+        if (true === Config::get('app.debug')) {
+            $this->cache->clear('RequestCache');
+        }
     }
 
     public function handle($_request, Closure $_next): Response

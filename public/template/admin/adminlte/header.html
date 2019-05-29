@@ -171,7 +171,7 @@ jQuery.pjax({
         method: 'account.user.profile'
     },
     success: function(result){
-        if (result.code == 'SUCCESS' && result.data) {
+        if (result.code == 10000 && result.data) {
             new Vue({
                 el: '.user-menu',
                 data: {
@@ -188,7 +188,7 @@ jQuery.pjax({
         method: 'account.user.notice'
     },
     success: function(result){
-        if (result.code == 'SUCCESS' && result.data) {
+        if (result.code == 10000 && result.data) {
             new Vue({
                 el: '.notifications-menu',
                 data: {
@@ -206,7 +206,7 @@ jQuery(document).on('click', '#nc-logout-btn', function(){
             method: 'account.user.logout'
         },
         success: function(result){
-            if (result.code == 'SUCCESS') {
+            if (result.code == 10000) {
                 location.reload();
             }
         }
@@ -220,7 +220,7 @@ jQuery(document).on('click', '#nc-re-cache-btn', function(){
             method: 'content.cache.recache'
         },
         success: function(result){
-            if (result.code == 'SUCCESS') {
+            if (result.code == 10000) {
             }
         }
     });
@@ -231,7 +231,7 @@ jQuery(document).on('click', '#nc-re-cache-btn', function(){
             method: 'content.cache.recompile'
         },
         success: function(result){
-            if (result.code == 'SUCCESS') {
+            if (result.code == 10000) {
             }
         }
     });

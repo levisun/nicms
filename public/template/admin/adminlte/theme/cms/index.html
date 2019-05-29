@@ -15,7 +15,7 @@ jQuery.pjax({
         method: 'theme.cms.query'
     },
     success: function(result){
-        if (result.code === 'SUCCESS') {
+        if (result.code == 10000) {
             new Vue({
                 el: '.box',
                 data: {

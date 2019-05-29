@@ -34,6 +34,10 @@ class Visit extends Base
             return $result;
         }
 
+        if ($result = $this->check_params(['limit', 'date_format'])) {
+            return $result;
+        }
+
         $query_limit = (int)Request::param('limit/f', 10);
 
         $result = (new ModelVisit)
@@ -45,7 +49,7 @@ class Visit extends Base
 
         $date_format = Request::param('date_format', 'Y-m-d');
         foreach ($list['data'] as $key => $value) {
-            $value['date'] = date('Y-m-d', $value['date']);
+            $value['date'] = date($date_format, $value['date']);
             $list['data'][$key] = $value;
         }
 

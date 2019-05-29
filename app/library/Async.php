@@ -22,7 +22,6 @@ use think\facade\Lang;
 use think\facade\Log;
 use think\facade\Request;
 use think\facade\Session;
-use app\library\Ip;
 use app\library\Jwt;
 use app\model\ApiApp as ModelApiApp;
 
@@ -175,7 +174,7 @@ abstract class Async
         $result = call_user_func_array([(new $exec['class']), $exec['action']], []);
 
         if (!is_array($result) && empty($result['msg'])) {
-            $this->error('[Async] return data error');
+            $this->error('缺少参数', 40001);
         }
 
         // 调试与缓存设置
@@ -195,7 +194,7 @@ abstract class Async
         }
 
         $result['data'] = isset($result['data']) ? $result['data'] : [];
-        $result['code'] = isset($result['code']) ? $result['code'] : 'SUCCESS';
+        $result['code'] = isset($result['code']) ? $result['code'] : 10000;
 
         return $result;
     }
@@ -256,12 +255,13 @@ abstract class Async
             // 校验类是否存在
             if (!class_exists($method)) {
                 $this->debugLog['method not found'] = $method;
-                $this->error('[Async] method not found');
+                $this->error('非法参数', 20002);
             }
 
             // 校验类方法是否存在
             if (!method_exists($method, $action)) {
-                $this->error('[Async] ' . $action . ' does not have a method');
+                $this->debugLog['action not found'] = $method . '->' . $action . '();';
+                $this->error('非法参数', 20002);
             }
 
             // 加载语言包
@@ -275,7 +275,7 @@ abstract class Async
                 'action' => $action
             ];
         } else {
-            $this->error('[Async] params-method error');
+            $this->error('非法参数', 20002);
         }
     }
 
@@ -289,7 +289,7 @@ abstract class Async
     {
         $this->timestamp = (int)Request::param('timestamp/f', Request::time());
         if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
-            $this->error('[Async] request timeout');
+            $this->error('请求超时', 20000);
         }
 
         return $this;
@@ -325,15 +325,18 @@ abstract class Async
                 if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
                     $this->debugLog['sign_str'] = $str;
                     $this->debugLog['sign'] = call_user_func($this->signType, $str);
-                    $this->error('[Async] params-sign check error');
+                    Log::record('[Async] params-sign error', 'alert')->save();
+                    $this->error('授权权限不足', 20001);
                 }
             } else {
                 $this->debugLog['sign'] = $this->sign;
-                $this->error('[Async] params-sign error');
+                Log::record('[Async] params-sign error', 'alert')->save();
+                $this->error('非法参数', 20002);
             }
         } else {
             $this->debugLog['sign_type'] = $this->signType;
-            $this->error('[Async] params-sign_type error');
+            Log::record('[Async] params-sign_type error', 'alert')->save();
+            $this->error('非法参数', 20002);
         }
 
         return $this;
@@ -362,10 +365,12 @@ abstract class Async
                 $this->appsecret = $result['secret'];
                 $this->module    = $result['module'];
             } else {
-                $this->error('[Async] auth-appid error');
+                Log::record('[Async] auth-appid error', 'alert')->save();
+                $this->error('权限不足', 20001);
             }
         } else {
-            $this->error('[Async] auth-appid not');
+            Log::record('[Async] auth-appid not', 'alert')->save();
+            $this->error('非法参数', 20002);
         }
 
         return $this;
@@ -386,8 +391,8 @@ abstract class Async
             }
         } else {
             $this->debugLog['authorization'] = $this->authorization;
-            $this->error('[Async] header-authorization params error');
             Log::record('[Async] header-authorization params error', 'alert')->save();
+            $this->error('权限不足', 20001);
         }
 
         // 解析版本号与返回数据类型
@@ -400,7 +405,8 @@ abstract class Async
             list($domain, $accept) = explode('.', $accept, 2);
             list($root) = explode('.', Request::rootDomain(), 2);
             if (!hash_equals($domain, $root)) {
-                $this->error('[Async] header-accept domain error');
+                Log::record('[Async] header-accept domain error', 'alert')->save();
+                $this->error('权限不足', 20001);
             }
             unset($doamin, $root);
 
@@ -416,18 +422,21 @@ abstract class Async
                 unset($version, $major, $minor);
             } else {
                 $this->debugLog['version'] = $version;
-                $this->error('[Async] header-accept version error');
+                Log::record('[Async] header-accept version error', 'alert')->save();
+                $this->error('非法参数', 20002);
             }
             // 校验返回数据类型
             if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
                 $this->debugLog['format'] = $this->format;
-                $this->error('[Async] header-accept format error');
+                Log::record('[Async] header-accept format error', 'alert')->save();
+                $this->error('非法参数', 20002);
             }
 
             unset($accept);
         } else {
             $this->debugLog['accept'] = $this->accept;
-            $this->error('[Async] header-accept error');
+            Log::record('[Async] header-accept error', 'alert')->save();
+            $this->error('非法参数', 20002);
         }
 
         return $this;
@@ -441,19 +450,26 @@ abstract class Async
      * @param  integer $code 错误码，默认为SUCCESS
      * @return void
      */
-    protected function success(string $_msg, array $_data = [], string $_code = 'SUCCESS'): void
+    protected function success(string $_msg, array $_data = [], int $_code = 10000): void
     {
         $response = $this->result($_msg, $_data, $_code);
         throw new HttpResponseException($response);
     }
     /**
      * 操作失败返回的数据
+     * 10000 成功
+     * 20000 服务不可用
+     * 20001 授权权限不足
+     * 20002 非法参数
+     * 40001 缺少参数
+     * 40002 非法参数
+     * 40006 权限不足
      * @access protected
      * @param  string  $msg  提示信息
-     * @param  integer $code 错误码，默认为ERROR
+     * @param  integer $code 错误码，默认为40001
      * @return void
      */
-    protected function error(string $_msg, string $_code = 'ERROR'): void
+    protected function error(string $_msg, int $_code = 40001): void
     {
         $response = $this->result($_msg, [], $_code);
         throw new HttpResponseException($response);
@@ -467,7 +483,7 @@ abstract class Async
      * @param  string $code   错误码
      * @return Response
      */
-    protected function result(string $_msg, array $_data = [], string $_code = 'SUCCESS'): Response
+    protected function result(string $_msg, array $_data = [], int $_code = 10000): Response
     {
         $result = [
             'code'    => $_code,
@@ -477,7 +493,7 @@ abstract class Async
         ];
         $result = array_filter($result);
 
-        if (Request::isGet() && true === $this->cache && $this->expire && $_code == 'SUCCESS') {
+        if (Request::isGet() && true === $this->cache && $this->expire && 10000 === $_code) {
             $result['expire'] .= $this->expire . 's';
         } else {
             $result['expire'] .= 'close';
@@ -489,7 +505,7 @@ abstract class Async
         }
 
         $response = Response::create($result, $this->format)->allowCache(false);
-        if (Request::isGet() && true === $this->cache && $this->expire && $_code == 'SUCCESS') {
+        if (Request::isGet() && true === $this->cache && $this->expire && 10000 === $_code) {
             $response->allowCache(true)
                 ->cacheControl('public, max-age=' . $this->expire)
                 ->expires(gmdate('D, d M Y H:i:s', time() + $this->expire) . ' GMT')

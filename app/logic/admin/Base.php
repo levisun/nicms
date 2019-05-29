@@ -46,6 +46,43 @@ class Base
     }
 
     /**
+     * API请求参数验证
+     * @access protected
+     * @param  array $_var_name
+     * @return bool|array
+     */
+    protected function check_params(array $_var_name)
+    {
+        foreach ($_var_name as $name) {
+            if ('limit' === $name) {
+                $result = (int)Request::param('limit/f', 10);
+                if (!$result || $result > 30) {
+                    $result = false;
+                    break;
+                }
+                $result = (int)Request::param('page/f');
+                if (!$result) {
+                    $result = false;
+                    break;
+                }
+            } elseif ('date_format' === $name) {
+                $result = (string)Request::param('date_format', 'Y-m-d H:i:s');
+                if (!$result || !preg_match('/^[YmdHis]+$/u', str_replace(['-', ':'], '', $result))) {
+                    $result = false;
+                    break;
+                }
+            }
+        }
+
+        return $result ? false : [
+            'debug' => false,
+            'cache' => false,
+            'code'  => 40002,
+            'msg'   => '非法参数',
+        ];
+    }
+
+    /**
      * 权限验证
      * @access protected
      * @param  string  $_method
@@ -119,8 +156,8 @@ class Base
         return $result ? false : [
             'debug' => false,
             'cache' => false,
-            'code'  => 'ERROR',
-            'msg'   => 'auth error'
+            'code'  => 40006,
+            'msg'   => '权限不足'
         ];
     }
 
@@ -154,7 +191,7 @@ class Base
             return [
                 'debug' => false,
                 'cache' => false,
-                'code'  => 'ERROR',
+                'code'  => 40006,
                 'msg'   => $v->getError()
             ];
         } else {
