@@ -14,19 +14,55 @@ declare (strict_types = 1);
 
 namespace app\library;
 
+use think\App;
 use think\Container;
-use think\Response;
 use think\exception\HttpResponseException;
-use think\facade\Config;
-use think\facade\Lang;
-use think\facade\Log;
-use think\facade\Request;
-use think\facade\Session;
 use app\library\Jwt;
 use app\model\ApiApp as ModelApiApp;
 
 abstract class Async
 {
+    /**
+     * 应用实例
+     * @var \think\App
+     */
+    protected $app;
+
+    /**
+     * Config实例
+     * @var \think\Config
+     */
+    protected $config;
+
+    /**
+     * Lang实例
+     * @var \think\Lang
+     */
+    protected $lang;
+
+    /**
+     * log实例
+     * @var \think\Log
+     */
+    protected $log;
+
+    /**
+     * request实例
+     * @var \think\Request
+     */
+    protected $request;
+
+    /**
+     * response实例
+     * @var \think\Response
+     */
+    protected $response;
+
+    /**
+     * session实例
+     * @var \think\Session
+     */
+    protected $session;
 
     /**
      * HEADER 指定接收类型
@@ -148,6 +184,12 @@ abstract class Async
      */
     protected $method;
 
+    /**
+     * 请求
+     * @var bool
+     */
+    protected $referer = false;
+
 
     /**
      * 构造方法
@@ -155,6 +197,26 @@ abstract class Async
      * @param
      * @return void
      */
+    public function __construct(App $_app)
+    {
+        $this->app      = $_app;
+        $this->config   = $this->app->config;
+        $this->lang     = $this->app->lang;
+        $this->log      = $this->app->log;
+        $this->request  = $this->app->request;
+        $this->response = $this->app->response;
+        $this->session  = $this->app->session;
+
+        $this->app->debug($this->config->get('app.debug'));
+        $this->request->filter('defalut_filter');
+
+        $max_input_vars = (int)ini_get('max_input_vars');
+        if (count($_POST) + count($_FILES) >= $max_input_vars - 5) {
+            $this->error('非法参数', 40002);
+        }
+
+        $this->referer = $this->request->server('HTTP_REFERER') && $this->request->param('method');
+    }
 
     /**
      * 运行
@@ -171,7 +233,8 @@ abstract class Async
             ->analysisMethod();
 
         // 执行类方法
-        $result = call_user_func_array([(new $exec['class']), $exec['action']], []);
+        $class = Container::getInstance()->make($exec['class']);
+        $result = call_user_func([$class, $exec['action']]);
 
         if (!is_array($result) && empty($result['msg'])) {
             $this->error('缺少参数', 40001);
@@ -207,7 +270,7 @@ abstract class Async
      */
     protected function expire(int $_expire = 0)
     {
-        $this->expire = $_expire > 0 ? $_expire : (int)Config::get('cache.expire');
+        $this->expire = $_expire > 0 ? $_expire : (int)$this->config->get('cache.expire');
         return $this;
     }
 
@@ -244,11 +307,11 @@ abstract class Async
     protected function analysisMethod()
     {
         // 校验API方法
-        $this->method = Request::param('method');
+        $this->method = $this->request->param('method');
         if ($this->method && preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $this->method)) {
             list($logic, $class, $action) = explode('.', $this->method, 3);
 
-            $method = 'app\logic\\' . $this->module . '\\';
+            $method = 'app\service\\' . $this->module . '\\';
             $method .= $this->openVersion ? 'v' . implode('_', $this->version) . '\\' : '';
             $method .= $logic . '\\' . ucfirst($class);
 
@@ -265,10 +328,10 @@ abstract class Async
             }
 
             // 加载语言包
-            $lang = app()->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $this->module . DIRECTORY_SEPARATOR;
+            $lang = $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $this->module . DIRECTORY_SEPARATOR;
             $lang .= $this->openVersion ? 'v' . implode('_', $this->version) . DIRECTORY_SEPARATOR : '';
-            $lang .= Lang::getLangSet() . '.php';
-            Lang::load($lang);
+            $lang .= $this->lang->getLangSet() . '.php';
+            $this->lang->load($lang);
 
             return [
                 'class'  => $method,
@@ -287,7 +350,7 @@ abstract class Async
      */
     protected function checkTimestamp()
     {
-        $this->timestamp = (int)Request::param('timestamp/f', Request::time());
+        $this->timestamp = (int)$this->request->param('timestamp/f', $this->request->time());
         if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
             $this->error('请求超时', 20000);
         }
@@ -304,12 +367,12 @@ abstract class Async
     protected function checkSign()
     {
         // 校验签名类型
-        $this->signType = Request::param('sign_type', 'md5');
+        $this->signType = $this->request->param('sign_type', 'md5');
         if ($this->signType && function_exists($this->signType)) {
             // 校验签名合法性
-            $this->sign = Request::param('sign');
+            $this->sign = $this->request->param('sign');
             if ($this->sign && preg_match('/^[A-Za-z0-9]+$/u', $this->sign)) {
-                $params = Request::param('', '', 'trim');
+                $params = $this->request->param('', '', 'trim');
                 ksort($params);
 
                 $str = '';
@@ -325,17 +388,17 @@ abstract class Async
                 if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
                     $this->debugLog['sign_str'] = $str;
                     $this->debugLog['sign'] = call_user_func($this->signType, $str);
-                    Log::record('[Async] params-sign error', 'alert')->save();
+                    $this->log->record('[Async] params-sign error', 'alert')->save();
                     $this->error('授权权限不足', 20001);
                 }
             } else {
                 $this->debugLog['sign'] = $this->sign;
-                Log::record('[Async] params-sign error', 'alert')->save();
+                $this->log->record('[Async] params-sign error', 'alert')->save();
                 $this->error('非法参数', 20002);
             }
         } else {
             $this->debugLog['sign_type'] = $this->signType;
-            Log::record('[Async] params-sign_type error', 'alert')->save();
+            $this->log->record('[Async] params-sign_type error', 'alert')->save();
             $this->error('非法参数', 20002);
         }
 
@@ -350,7 +413,7 @@ abstract class Async
      */
     protected function checkAppId()
     {
-        $this->appid = (int)Request::param('appid/f', 1000001);
+        $this->appid = (int)$this->request->param('appid/f', 1000001);
         $this->appid -= 1000000;
         if ($this->appid && $this->appid >= 1) {
             $result = (new ModelApiApp)
@@ -365,11 +428,11 @@ abstract class Async
                 $this->appsecret = $result['secret'];
                 $this->module    = $result['module'];
             } else {
-                Log::record('[Async] auth-appid error', 'alert')->save();
+                $this->log->record('[Async] auth-appid error', 'alert')->save();
                 $this->error('权限不足', 20001);
             }
         } else {
-            Log::record('[Async] auth-appid not', 'alert')->save();
+            $this->log->record('[Async] auth-appid not', 'alert')->save();
             $this->error('非法参数', 20002);
         }
 
@@ -384,28 +447,28 @@ abstract class Async
      */
     private function analysisHeader()
     {
-        $this->authorization = Request::header('authorization');
+        $this->authorization = $this->request->header('authorization');
         if ($this->authorization && $this->authorization = (new Jwt)->verify($this->authorization)) {
             if (!empty($this->authorization['jti'])) {
-                Session::setId($this->authorization['jti']);
+                $this->session->setId($this->authorization['jti']);
             }
         } else {
             $this->debugLog['authorization'] = $this->authorization;
-            Log::record('[Async] header-authorization params error', 'alert')->save();
+            $this->log->record('[Async] header-authorization params error', 'alert')->save();
             $this->error('权限不足', 20001);
         }
 
         // 解析版本号与返回数据类型
-        $this->accept = Request::header('accept');
+        $this->accept = $this->request->header('accept');
         if ($this->accept && preg_match('/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]+\+[A-Za-z]{3,5}+$/u', $this->accept)) {
             // 过滤多余信息
             $accept = str_replace('application/vnd.', '', $this->accept);
 
             // 校验域名合法性
             list($domain, $accept) = explode('.', $accept, 2);
-            list($root) = explode('.', Request::rootDomain(), 2);
+            list($root) = explode('.', $this->request->rootDomain(), 2);
             if (!hash_equals($domain, $root)) {
-                Log::record('[Async] header-accept domain error', 'alert')->save();
+                $this->log->record('[Async] header-accept domain error', 'alert')->save();
                 $this->error('权限不足', 20001);
             }
             unset($doamin, $root);
@@ -422,20 +485,20 @@ abstract class Async
                 unset($version, $major, $minor);
             } else {
                 $this->debugLog['version'] = $version;
-                Log::record('[Async] header-accept version error', 'alert')->save();
+                $this->log->record('[Async] header-accept version error', 'alert')->save();
                 $this->error('非法参数', 20002);
             }
             // 校验返回数据类型
             if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
                 $this->debugLog['format'] = $this->format;
-                Log::record('[Async] header-accept format error', 'alert')->save();
+                $this->log->record('[Async] header-accept format error', 'alert')->save();
                 $this->error('非法参数', 20002);
             }
 
             unset($accept);
         } else {
             $this->debugLog['accept'] = $this->accept;
-            Log::record('[Async] header-accept error', 'alert')->save();
+            $this->log->record('[Async] header-accept error', 'alert')->save();
             $this->error('非法参数', 20002);
         }
 
@@ -452,8 +515,7 @@ abstract class Async
      */
     protected function success(string $_msg, array $_data = [], int $_code = 10000): void
     {
-        $response = $this->result($_msg, $_data, $_code);
-        throw new HttpResponseException($response);
+        $this->result($_msg, $_data, $_code);
     }
     /**
      * 操作失败返回的数据
@@ -471,8 +533,7 @@ abstract class Async
      */
     protected function error(string $_msg, int $_code = 40001): void
     {
-        $response = $this->result($_msg, [], $_code);
-        throw new HttpResponseException($response);
+        $this->result($_msg, [], $_code);
     }
 
     /**
@@ -483,17 +544,17 @@ abstract class Async
      * @param  string $code   错误码
      * @return Response
      */
-    protected function result(string $_msg, array $_data = [], int $_code = 10000): Response
+    protected function result(string $_msg, array $_data = [], int $_code = 10000)
     {
         $result = [
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'expire'  => Request::ip() . ';' . date('Y-m-d H:i:s') . ';'
+            'expire'  => $this->request->ip() . ';' . date('Y-m-d H:i:s') . ';'
         ];
         $result = array_filter($result);
 
-        if (Request::isGet() && true === $this->cache && $this->expire && 10000 === $_code) {
+        if ($this->request->isGet() && true === $this->cache && $this->expire && 10000 === $_code) {
             $result['expire'] .= $this->expire . 's';
         } else {
             $result['expire'] .= 'close';
@@ -504,16 +565,15 @@ abstract class Async
             $result['debug'] = $this->writeLog();
         }
 
-        $response = Response::create($result, $this->format)->allowCache(false);
-        if (Request::isGet() && true === $this->cache && $this->expire && 10000 === $_code) {
+        $response = $this->response->create($result, $this->format)->allowCache(false);
+        if ($this->request->isGet() && true === $this->cache && $this->expire && 10000 === $_code) {
             $response->allowCache(true)
                 ->cacheControl('public, max-age=' . $this->expire)
                 ->expires(gmdate('D, d M Y H:i:s', time() + $this->expire) . ' GMT')
                 ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
                 ->header(['X-Powered-By' => 'NIAPI']);
         }
-
-        return $response;
+        throw new HttpResponseException($response);
     }
 
     /**
@@ -524,16 +584,16 @@ abstract class Async
      */
     private function writeLog(): string
     {
-        $log = '[API] METHOD:' . Request::param('method', 'NULL') .
+        $log = '[API] METHOD:' . $this->request->param('method', 'NULL') .
             ' TIME:' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 2) . 's' .
             ' MEMORY:' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 2) . 'MB' .
             ' CACHE:' . Container::pull('cache')->getReadTimes() . 'reads,' . Container::pull('cache')->getWriteTimes() . 'writes';
 
-        $log .= PHP_EOL . 'PARAM:' . json_encode(Request::param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
+        $log .= PHP_EOL . 'PARAM:' . json_encode($this->request->param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
         $log .= PHP_EOL . 'DEBUG:' . json_encode($this->debugLog, JSON_UNESCAPED_UNICODE);
         // $log .= PHP_EOL . 'RESULT:' . json_encode($_result, JSON_UNESCAPED_UNICODE);
 
-        Log::record($log, 'alert')->save();
+        $this->log->record($log, 'alert')->save();
 
         return $log;
     }

@@ -13,20 +13,18 @@
  */
 declare (strict_types = 1);
 
-namespace app\logic\admin\account;
+namespace app\service\admin\account;
 
-use think\facade\Lang;
-use think\facade\Request;
-use think\facade\Session;
 use app\library\Base64;
 use app\library\Ip;
 use app\library\Rbac;
 use app\library\Session as LibSession;
-use app\logic\admin\Base;
+use app\service\BaseService;
 use app\model\Admin as ModelAdmin;
 
-class User extends Base
+class User extends BaseService
 {
+    protected $auth_key = 'admin_auth_key';
 
     /**
      * 登录
@@ -36,36 +34,40 @@ class User extends Base
      */
     public function login(): array
     {
+        if ($result = $this->authenticate(__METHOD__, 'admin user login')) {
+            return $result;
+        }
+
         if ($result = $this->validate(__METHOD__)) {
             return $result;
         }
 
-        $lock = app()->getRuntimePath() . md5(Request::ip() . date('YmdH')) . '.lock';
+        $lock = $this->app->getRuntimePath() . md5($this->request->ip() . date('YmdH')) . '.lock';
         clearstatcache();
         if (is_file($lock)) {
             $result = 'login lock';
         } else {
             $result = (new ModelAdmin)
                 ->where([
-                    ['username', '=', Request::param('username')]
+                    ['username', '=', $this->request->param('username')]
                 ])
                 ->find();
 
-            if ($result && $result['password'] === Base64::password(Request::param('password'), $result['salt'])) {
+            if ($result && $result['password'] === Base64::password($this->request->param('password'), $result['salt'])) {
                 $ip = (new Ip)->info();
                 (new ModelAdmin)
                     ->where([
                         ['id', '=', $result['id']]
                     ])
                     ->data([
-                        'flag'               => Session::getId(false),
+                        'flag'               => $this->session->getId(false),
                         'last_login_time'    => time(),
                         'last_login_ip'      => $ip['ip'],
                         'last_login_ip_attr' => $ip['province_id'] ? $ip['province'] . $ip['city'] . $ip['area'] : ''
                     ])
                     ->update();
 
-                if ($result['flag'] && $result['flag'] !== Session::getId(false)) {
+                if ($result['flag'] && $result['flag'] !== $this->session->getId(false)) {
                     (new LibSession)->delete($result['flag']);
                 }
 
@@ -113,7 +115,7 @@ class User extends Base
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => Lang::get('logout success')
+            'msg'   => $this->lang->get('logout success')
         ];
     }
 
@@ -143,17 +145,17 @@ class User extends Base
             return $result;
         }
 
-        $result = (new Rbac)->getAuth(session('admin_auth_key'));
+        $result = (new Rbac)->getAuth($this->uid);
         $result = $result['admin'];
         foreach ($result as $key => $value) {
             $result[$key] = [
                 'name' => $key,
-                'lang' => Lang::get('auth ' . $key),
+                'lang' => $this->lang->get('auth ' . $key),
             ];
             foreach ($value as $k => $val) {
                 $result[$key]['child'][$k] = [
                     'name' => $k,
-                    'lang' => Lang::get('auth ' . $k),
+                    'lang' => $this->lang->get('auth ' . $k),
                     'url'  => url($key . '/' . $k . '/index')
                 ];
             }
@@ -184,7 +186,7 @@ class User extends Base
             ->view('role_admin', [], 'role_admin.user_id=admin.id')
             ->view('role role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
             ->where([
-                ['admin.id', '=', session('admin_auth_key')]
+                ['admin.id', '=', $this->uid]
             ])
             ->find()
             ->toArray();
@@ -208,7 +210,7 @@ class User extends Base
 
         // 验证备份状态
         $status = true;
-        $file = (array)glob(app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
+        $file = (array)glob($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
         if (count($file) >= 2) {
             foreach ($file as $value) {
                 if (filectime($value) >= strtotime('-7 days')) {
@@ -221,24 +223,24 @@ class User extends Base
         }
         if ($status === false) {
             $result[] = [
-                'title' => Lang::get('please make a database backup'),
+                'title' => $this->lang->get('please make a database backup'),
                 'url'   => url('expand/database/index')
             ];
         }
 
         // 错误日志
-        if (is_file(app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . date('Ymd') . '_error.log')) {
+        if (is_file($this->app->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . date('Ymd') . '_error.log')) {
             $result[] = [
-                'title' => Lang::get('program error message'),
+                'title' => $this->lang->get('program error message'),
                 'url'   => url('expand/elog/index')
             ];
         }
 
         // 垃圾信息
-        $count = count((array)glob(app()->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*'));
+        $count = count((array)glob($this->app->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*'));
         if ($count >= 2000) {
             $result[] = [
-                'title' => Lang::get('too much junk information'),
+                'title' => $this->lang->get('too much junk information'),
                 'url'   => url('content/cache/index')
             ];
         }

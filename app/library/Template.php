@@ -187,7 +187,7 @@ class Template
         }
 
         if ($this->scriptReady) {
-            $foot .= '<script type="text/javascript">' . $this->scriptReady . '</script>';
+            $foot .= $this->scriptReady;
         }
 
         // 插件加载
@@ -195,7 +195,7 @@ class Template
         // 底部JS脚本
         $foot .= $this->templateReplace['__SCRIPT__'];
 
-        return $foot . '</body>' . '</html>';
+        return $foot . '</body></html>';
     }
 
     /**
@@ -287,16 +287,13 @@ class Template
             '}' .
             '};';
 
-        if (!Request::isMobile() && Config::get('app.entry') !== Request::subDomain()) {
-            $head .= 'if(navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i)){' .
-                'location.replace("//m.' . Request::rootDomain() . '");' .
-                '}';
-            unset($sub);
-        }
-        $head .= '</script>';
-        unset($root);
-
-        $head .= '</head>';
+        // if (!Request::isMobile() && Config::get('app.entry') !== Request::subDomain()) {
+        //     $head .= 'if(navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i)){' .
+        //         'location.replace("//m.' . Request::rootDomain() . '");' .
+        //         '}';
+        //     unset($sub);
+        // }
+        $head .= '</script></head>';
 
         return $head;
     }
@@ -350,19 +347,37 @@ class Template
      */
     private function parseTemplateTags(string $_content): string
     {
-        if (false !== preg_match_all('/({tag:)([a-zA-Z]+)(})(.*?)({\/tag})/si', $_content, $matches)) {
-            foreach ($matches[2] as $key => $tags) {
-                $tags = strtolower($tags);
-                $matches[4][$key] = call_user_func(['\taglib\Tags', $tags], $matches[4][$key]);
-                if (in_array($tags, ['script'])) {
-                    $_content = str_replace($matches[0][$key], '', $_content);
-                    $this->scriptReady .= $matches[4][$key];
-                } else {
-                    $_content = str_replace($matches[0][$key], $matches[4][$key], $_content);
-                }
+        return preg_replace_callback('/{tag:([a-zA-Z0-9 =\'\"]+)}(.*?){\/tag}/si', function ($matches) {
+            if (false !== strpos($matches[1], ' ')) {
+                list($action, $params) = explode(' ', $matches[1], 2);
+                $action = strtolower($action);
+                $params = str_replace(['"', "'", ' '], ['', '', '&'], $params);
+                parse_str($params, $params);
+                $params['content'] = $matches[2];
+            } else {
+                $action = strtolower($matches[1]);
+                $params = [
+                    'content' => $matches[2]
+                ];
             }
-        }
-        return $_content;
+
+            if (false !== strpos($action, ':')) {
+                list($tags, $action) = explode(':', 2);
+                $tags = '\taglib\\' . ucfirst($tags);
+            } else {
+                $tags = '\taglib\Core';
+            }
+
+            if (class_exists($tags) && method_exists($tags, $action)) {
+                if ('script' === $action) {
+                    $this->scriptReady .= call_user_func([$tags, $action], $params);
+                } else {
+                    return call_user_func([$tags, $action], $params);
+                }
+            } else {
+                return '<!-- ' . htmlspecialchars_decode($matches[0]) . ' -->';
+            }
+        }, $_content);
     }
 
     /**
@@ -373,20 +388,14 @@ class Template
      */
     private function parseTemplateFunc(string $_content): string
     {
-        $safe_func = ['echo', 'str_replace', 'strlen', 'strtoupper', 'lang', 'url','date'];
-
-        if (false !== preg_match_all('/({:)([a-zA-Z_]+\()(.*?)(\)})/si', $_content, $matches)) {
-            foreach ($matches[2] as $key => $func) {
-                $func = rtrim($func, '(');
-                if (in_array($func, $safe_func)) {
-                    eval('$func = ' . $func . '(' . $matches[3][$key] . ');');
-                }
-
-                $_content = str_replace($matches[0][$key], $func, $_content);
+        return preg_replace_callback('/{:([a-zA-Z_]+)\((.*?)\)}/si', function ($matches) {
+            $safe_func = ['echo', 'str_replace', 'strlen', 'strtoupper', 'lang', 'url', 'date'];
+            if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
+                return eval('return ' . $matches[1] . '(' . $matches[2] . ');');
+            } else {
+                return '<!-- ' . htmlspecialchars_decode($matches[0]) . ' -->';
             }
-        }
-
-        return $_content;
+        }, $_content);
     }
 
     /**
@@ -478,16 +487,11 @@ class Template
      */
     private function parseTemplateInclude(string $_content): string
     {
-        if (false !== preg_match_all('/({:include file=["|\'])([a-zA-Z_]+)(["|\']})/si', $_content, $matches)) {
-            foreach ($matches[2] as $key => $value) {
-                if ($value && is_file($this->templatePath . $this->theme . $value . '.html')) {
-                    $file = file_get_contents($this->templatePath . $this->theme . $value . '.html');
-                    $_content = str_replace($matches[0][$key], $file, $_content);
-                }
+        return preg_replace_callback('/{:include file=["|\']+([a-zA-Z_]+)["|\']+}/si', function ($matches) {
+            if ($matches[1] && is_file($this->templatePath . $this->theme . $matches[1] . '.html')) {
+                return file_get_contents($this->templatePath . $this->theme . $matches[1] . '.html');
             }
-        }
-
-        return $_content;
+        }, $_content);
     }
 
     /**

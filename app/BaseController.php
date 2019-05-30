@@ -18,7 +18,6 @@ namespace app;
 use think\App;
 use think\Response;
 use think\exception\HttpResponseException;
-use think\facade\Config;
 use app\library\Rbac;
 use app\library\Template;
 
@@ -54,10 +53,12 @@ abstract class BaseController extends Template
      */
     public function __construct(App $_app)
     {
-        $this->app     = $_app;
-        $this->app->debug(Config::get('app.debug'));
-
+        $this->app = $_app;
+        $this->config = $this->app->config;
+        $this->lang = $this->app->lang;
         $this->request = $this->app->request;
+
+        $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('defalut_filter');
 
         // 控制器初始化

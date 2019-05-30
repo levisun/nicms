@@ -24,50 +24,6 @@ use app\library\Ip;
 
 class Api extends Async
 {
-    /**
-     * 应用实例
-     * @var \think\App
-     */
-    protected $app;
-
-    /**
-     * Request实例
-     * @var \think\Request
-     */
-    protected $request;
-
-    /**
-     * 控制器中间件
-     * @var array
-     */
-    protected $middleware = [];
-
-    /**
-     * 应用实例
-     * @var bool
-     */
-    protected $referer = false;
-
-    /**
-     * 构造方法
-     * @access public
-     * @param  string $_input_name
-     * @return void
-     */
-    public function __construct(App $app)
-    {
-        $this->app     = $app;
-        $this->request = $this->app->request;
-
-        $this->app->debug(Config::get('app.debug'));
-
-        $max_input_vars = (int)ini_get('max_input_vars');
-        if (count($_POST) + count($_FILES) >= $max_input_vars - 5) {
-            $this->error('非法参数', 40002);
-        }
-
-        $this->referer = $this->request->server('HTTP_REFERER') && $this->request->param('method');
-    }
 
     /**
      * 查询接口

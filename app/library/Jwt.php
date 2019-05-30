@@ -84,7 +84,7 @@ class JWT
      */
     public function expiresAt(int $_expiration)
     {
-        $this->playload['exp'] = $_expiration;
+        $this->playload['exp'] = $_expiration + 300;
         return $this;
     }
 
