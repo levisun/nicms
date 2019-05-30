@@ -24,7 +24,7 @@ use app\library\Upload;
 use app\model\Action as ModelAction;
 use app\model\ActionLog as ModelActionLog;
 
-class BaseService
+abstract class BaseService
 {
     /**
      * 应用实例
