@@ -15,7 +15,8 @@ return [
     'id'             => '',
     // SESSION_ID的提交变量,解决flash上传跨域
     'var_session_id' => '',
-    // 'name'           => 'sid',
+    // SESSION name
+    'name'           => '__' . substr(md5(__DIR__), 7, 3) . 'i',
     // 驱动方式 支持redis memcache memcached
     'type'           => 'app\library\Session',
     // 是否自动开启 SESSION

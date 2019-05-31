@@ -95,11 +95,15 @@ class DataMaintenance
                     }
 
                     if (0 === ($i + 1) % 200) {
-                        $btime[$name . $num] = time();
+                        if (!isset($btime[$name . $num]) || false === $btime[$name . $num]) {
+                            $btime[$name . $num] = time();
+                        }
                         ++$num;
                     }
                 }
-                $btime[$name . $num] = time();
+                if (!isset($btime[$name . $num]) || false === $btime[$name . $num]) {
+                    $btime[$name . $num] = time();
+                }
             }
 
             unlink(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sab.lock');

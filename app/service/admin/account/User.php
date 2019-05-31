@@ -5,7 +5,7 @@
  * 用户登录
  *
  * @package   NICMS
- * @category  app\logic\admin\account
+ * @category  app\service\admin\account
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -32,32 +32,26 @@ class User extends BaseService
      * @param
      * @return array
      */
-    public function login(): array
+    public function login()
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin user login')) {
-            return $result;
-        }
-
         if ($result = $this->validate(__METHOD__)) {
             return $result;
         }
 
         $lock = $this->app->getRuntimePath() . md5($this->request->ip() . date('YmdH')) . '.lock';
-        clearstatcache();
-        if (is_file($lock)) {
-            $result = 'login lock';
-        } else {
-            $result = (new ModelAdmin)
+        if (!is_file($lock)) {
+            $user = (new ModelAdmin)
+                ->field(['id', 'username', 'password', 'salt', 'flag'])
                 ->where([
                     ['username', '=', $this->request->param('username')]
                 ])
                 ->find();
 
-            if ($result && $result['password'] === Base64::password($this->request->param('password'), $result['salt'])) {
+            if ($user && $user['password'] === Base64::password($this->request->param('password'), $user['salt'])) {
                 $ip = (new Ip)->info();
                 (new ModelAdmin)
                     ->where([
-                        ['id', '=', $result['id']]
+                        ['id', '=', $user['id']]
                     ])
                     ->data([
                         'flag'               => $this->session->getId(false),
@@ -67,17 +61,24 @@ class User extends BaseService
                     ])
                     ->update();
 
-                if ($result['flag'] && $result['flag'] !== $this->session->getId(false)) {
-                    (new LibSession)->delete($result['flag']);
+                // 唯一登录, 踢掉
+                if ($user['flag'] && $user['flag'] !== $this->session->getId(false)) {
+                    (new LibSession)->delete($user['flag']);
                 }
 
-                session('admin_auth_key', $result['id']);
+                // 登录令牌
+                session('admin_auth_key', $user['id']);
                 session('login_lock', null);
 
-                if ($result = $this->authenticate(__METHOD__, 'admin user login')) {
-                    return $result;
-                }
-                $result = 'login success';
+                $this->uid = $result['id'];
+                $this->authenticate(__METHOD__, 'admin user login');
+
+                unset($user);
+                return [
+                    'debug' => false,
+                    'cache' => false,
+                    'msg'   => 'login success'
+                ];
             } else {
                 $login_lock = session('?login_lock') ? session('login_lock') : 0;
                 ++$login_lock;
@@ -87,14 +88,13 @@ class User extends BaseService
                 } else {
                     session('login_lock', $login_lock);
                 }
-                $result = 'login error';
             }
         }
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => $result
+            'msg'   => 'login error'
         ];
     }
 

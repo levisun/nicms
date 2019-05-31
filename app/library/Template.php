@@ -107,29 +107,19 @@ class Template
         if (!$content = $this->templateBuildRead($_template)) {
             $this->templateConfig = $this->parseTemplateConfig();
 
-            echo $this->parseTemplateHead();
-
             $content = file_get_contents($this->parseTemplateFile($_template));
-
             $content = $this->parseTemplateLayout($content);                    // 解析模板模板模式
             $content = $this->parseTemplateInclude($content);                   // 解析模板引入文件
             $content = $this->parseTemplateReplace($content);                   // 解析模板替换字符
             $content = $this->parseTemplateVars($content);                      // 解析模板变量
             $content = $this->parseTemplateFunc($content);                      // 解析模板函数
-
-            $content = preg_replace(['/(<!--)(.*?)(-->)/si'], '', $content);
-
+            $content = $this->parseTemplateTags($content);                      // 解析模板标签方法
             $content = DataFilter::string($content);
 
-            // 解析模板标签方法
-            $content = $this->parseTemplateTags($content);
-
             if (false === strpos($content, '<body')) {
-                echo '<body>';
+                $content = '<body>' . $content;
             }
-
-            echo $content;
-            echo $this->parseTemplateFoot();
+            echo $this->parseTemplateHead() . $content . $this->parseTemplateFoot();
         } else {
             echo $content;
         }
@@ -389,7 +379,7 @@ class Template
     private function parseTemplateFunc(string $_content): string
     {
         return preg_replace_callback('/{:([a-zA-Z_]+)\((.*?)\)}/si', function ($matches) {
-            $safe_func = ['echo', 'str_replace', 'strlen', 'strtoupper', 'lang', 'url', 'date'];
+            $safe_func = ['echo', 'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'lang', 'url', 'date'];
             if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
                 return eval('return ' . $matches[1] . '(' . $matches[2] . ');');
             } else {

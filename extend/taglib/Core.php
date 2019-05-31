@@ -28,6 +28,9 @@ class Core
             ],
             $_params['content']
         );
+        $_params['content'] .= '<!-- 1321321 -->/* 3213213  321321321
+        321321321  321321
+        */';
         return '<script type="' . $type . '">' . $_params['content'] . '</script>';
     }
 }

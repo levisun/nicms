@@ -39,7 +39,7 @@ class Maintain
                 (new ReGarbage)->run();
             }
             // 自动备份数据库
-            elseif (1 === rand(1, 199)) {
+            elseif (1 === rand(1, 99)) {
                 (new DataMaintenance)->autoBackup();
             }
             // 优化修复数据库表

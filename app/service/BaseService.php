@@ -138,8 +138,8 @@ abstract class BaseService
     protected function authenticate(string $_method, string $_write_log = '')
     {
         $_method = str_replace('app\service\\', '', strtolower($_method));
-        list($_method, $action) = explode('::', $_method);
-        list($app, $service, $logic) = explode('\\', $_method);
+        list($_method, $action) = explode('::', $_method, 2);
+        list($app, $service, $logic) = explode('\\', $_method, 3);
 
         $result = (new Rbac)->authenticate($this->uid, $app, $service, $logic, $action, $this->not_auth);
 

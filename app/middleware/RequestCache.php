@@ -132,9 +132,11 @@ class RequestCache
     private function getCacheKey()
     {
         if ($this->request->isGet() && false === Config::get('app.debug')) {
-            $key  = $this->request->cookie('PHPSESSID');
-            $key .= $this->request->ip();
-            $key .= preg_replace_callback('/timestamp=[0-9]+|sign=[A-Za-z0-9]{32,40}/si', function ($matches) {
+            $key  = $this->request->ip();
+            $key .= client_mac();
+            $key .= $this->request->cookie(Config::get('session.name'));
+            $key .= $this->request->server('HTTP_USER_AGENT');
+            $key .= preg_replace_callback('/timestamp=[0-9]+|sign=[A-Za-z0-9]{32,40}/si', function () {
                 return '*';
             }, $this->request->url(true));
             return md5($key);

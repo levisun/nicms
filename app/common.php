@@ -32,6 +32,38 @@ function isWechat(): bool
     return strpos(Request::server('HTTP_USER_AGENT'), 'MicroMessenger') !== false ? true : false;
 }
 
+if (!function_exists('client_mac')) {
+    /**
+     * 客户端网卡物理MAC值
+     * @return string
+     */
+    function client_mac()
+    {
+        $os = strtolower(PHP_OS);
+        if (!in_array($os, ['unix', 'solaris', 'aix'])) {
+            if ('linux' == $os) {
+                @exec("ifconfig -a", $result);
+            } else {
+                @exec("ipconfig /all", $result);
+                if (!$result) {
+                    $ipconfig = DIRECTORY_SEPARATOR . 'system32' . DIRECTORY_SEPARATOR . 'ipconfig.exe';
+                    if(is_file($_SERVER['WINDIR'] . $ipconfig)) {
+                        @exec($_SERVER['WINDIR'] . $ipconfig." /all", $result);
+                    } else {
+                        @exec($_SERVER['WINDIR'] . DIRECTORY_SEPARATOR . 'system' . DIRECTORY_SEPARATOR . 'ipconfig.exe /all', $result);
+                    }
+                }
+            }
+
+            foreach ($result as $value) {
+                if (preg_match('/([0-9a-f]{2}[\:\-]{1}){5}[0-9a-f]{2}/i', $value, $mac)) {
+                    return $mac[0];
+                }
+            }
+        }
+    }
+}
+
 if (!function_exists('get_img_url')) {
     /**
      * 拼接图片地址

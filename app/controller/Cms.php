@@ -53,7 +53,7 @@ class Cms extends BaseController
      */
     public function index()
     {
-        var_dump(!preg_match('/^[YmdHis]+$/u', str_replace(['-',':'], '', 'dede')));
+        echo client_mac();die();
         // $this->fetch('index');
     }
 

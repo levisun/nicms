@@ -104,15 +104,17 @@ class DataFilter
     private static function enter(string $_str): string
     {
         $pattern = [
-            '/>(\n|\r|\f)+/si'  => '>',
-            '/(\n|\r|\f)+</si'  => '<',
+            '/>(\n|\r|\f)+/'       => '>',
+            '/(\n|\r|\f)+</'       => '<',
+            // '/(<!--)(.*?)(-->)/si' => '',
+            // '/\/\*(.*?)\*\//si'    => '',
 
-            '/(\n|\r|\f)+\}/si' => '}',
-            '/\}(\n|\r|\f)+/si' => '}',
-            '/\{(\n|\r|\f)+/si' => '{',
-            '/;(\n|\r|\f)+/si'  => ';',
-            '/,(\n|\r|\f)+/si'  => ',',
-            '/\)(\n|\r|\f)+/si' => ')',
+            // '/(\n|\r|\f)+\}/si' => '}',
+            // '/\}(\n|\r|\f)+/si' => '}',
+            // '/\{(\n|\r|\f)+/si' => '{',
+            // '/;(\n|\r|\f)+/si'  => ';',
+            // '/,(\n|\r|\f)+/si'  => ',',
+            // '/\)(\n|\r|\f)+/si' => ')',
         ];
         return preg_replace(array_keys($pattern), array_values($pattern), $_str);
     }
