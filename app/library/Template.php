@@ -46,7 +46,6 @@ class Template
      */
     protected $templateReplace = [];
 
-
     protected $varData = [];
 
     protected $scriptReady = '';
@@ -107,19 +106,20 @@ class Template
         if (!$content = $this->templateBuildRead($_template)) {
             $this->templateConfig = $this->parseTemplateConfig();
 
+            echo $this->parseTemplateHead();
+
             $content = file_get_contents($this->parseTemplateFile($_template));
-            $content = $this->parseTemplateLayout($content);                    // 解析模板模板模式
-            $content = $this->parseTemplateInclude($content);                   // 解析模板引入文件
-            $content = $this->parseTemplateReplace($content);                   // 解析模板替换字符
-            $content = $this->parseTemplateVars($content);                      // 解析模板变量
-            $content = $this->parseTemplateFunc($content);                      // 解析模板函数
-            $content = $this->parseTemplateTags($content);                      // 解析模板标签方法
+            $content = $this->parseTemplateLayout($content);        // 解析布局模板
+            $content = $this->parseTemplateInclude($content);       // 解析模板引入文件
+            $content = $this->parseTemplateReplace($content);       // 解析模板替换字符
+            $content = $this->parseTemplateVars($content);          // 解析模板变量
+            $content = $this->parseTemplateFunc($content);          // 解析模板函数
+            $content = $this->parseTemplateTags($content);          // 解析模板标签方法
             $content = DataFilter::string($content);
 
-            if (false === strpos($content, '<body')) {
-                $content = '<body>' . $content;
-            }
-            echo $this->parseTemplateHead() . $content . $this->parseTemplateFoot();
+            echo false === strpos($content, '<body') ? '<body>' : '';
+            echo $content;
+            echo $this->parseTemplateFoot();
         } else {
             echo $content;
         }
@@ -308,7 +308,7 @@ class Template
         if (true === Config::get('app.debug') && is_file($this->buildPath)) {
             unlink($this->buildPath);
         } elseif (is_file($this->buildPath)) {
-            return file_get_contents($this->buildPath);
+            return include_once($this->buildPath);
         }
 
         return false;
@@ -359,13 +359,25 @@ class Template
             }
 
             if (class_exists($tags) && method_exists($tags, $action)) {
+                $result = call_user_func([$tags, $action], $params);
+                $pattern = [
+                    '/>(\n|\r|\f)+/'      => '>',
+                    '/(\n|\r|\f)+</'      => '<',
+                    '/<\!\-\-.*?\-\->/si' => '',
+                    '/\/\*.*?\*\//si'     => '',
+                    '/\/\/.*?(\n|\r)+/i'  => '',
+                    '/\n|\r|\f/'          => '',
+                    '/( ){2,}/si'         => '',
+                ];
+                $result = preg_replace(array_keys($pattern), array_values($pattern), $result);
+
                 if ('script' === $action) {
-                    $this->scriptReady .= call_user_func([$tags, $action], $params);
+                    $this->scriptReady .= $result;
                 } else {
-                    return call_user_func([$tags, $action], $params);
+                    return $result;
                 }
             } else {
-                return '<!-- ' . htmlspecialchars_decode($matches[0]) . ' -->';
+                return '<!-- 无法解析:' . $matches[1] . htmlspecialchars_decode($matches[0]) . ' -->';
             }
         }, $_content);
     }
@@ -383,7 +395,7 @@ class Template
             if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
                 return eval('return ' . $matches[1] . '(' . $matches[2] . ');');
             } else {
-                return '<!-- ' . htmlspecialchars_decode($matches[0]) . ' -->';
+                return '<!-- 无法解析:' . $matches[1] .htmlspecialchars_decode($matches[0]) . ' -->';
             }
         }, $_content);
     }

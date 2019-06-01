@@ -56,7 +56,7 @@ class DataMaintenance
 
             ignore_user_abort(true);
             $table_name = $this->queryTableName();
-            shuffle($table_name);
+            // shuffle($table_name);
 
             foreach ($table_name as $name) {
                 $sql_file = $this->savePath . $name . '.sql';
@@ -332,7 +332,7 @@ class DataMaintenance
      */
     private function write(string $_file, string $_data): void
     {
-        Log::record(pathinfo($_file, PATHINFO_BASENAME), 'alert');
+        // Log::record(pathinfo($_file, PATHINFO_BASENAME), 'alert');
         file_put_contents($_file, $_data, FILE_APPEND);
     }
 }
