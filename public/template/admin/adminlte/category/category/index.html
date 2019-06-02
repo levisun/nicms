@@ -53,7 +53,7 @@
                         </a>
                     </td>
                 </tr>
-                <tr v-if="vo.child" v-for="cv in vo.child" v-bind:class="vo.id" style="display: none;">
+                <tr v-if="vo.child" v-bind:class="vo.id" v-for="cv in vo.child" style="display: none;">
                     <td>
                         <input type="text" class="form-control" v-bind:name="'sort_order['+cv.id+']'" v-bind:value="cv.sort_order">
                     </td>

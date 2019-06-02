@@ -73,7 +73,6 @@ class User extends BaseService
                 $this->uid = $result['id'];
                 $this->authenticate(__METHOD__, 'admin user login');
 
-                unset($user);
                 return [
                     'debug' => false,
                     'cache' => false,

@@ -14,8 +14,6 @@ declare (strict_types = 1);
 
 namespace app\event;
 
-use think\Response;
-use think\exception\HttpResponseException;
 use think\facade\Log;
 
 class LockRequest
