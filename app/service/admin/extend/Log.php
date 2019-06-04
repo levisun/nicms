@@ -21,6 +21,7 @@ use app\model\ActionLog as ModelActionLog;
 class Log extends BaseService
 {
     protected $auth_key = 'admin_auth_key';
+    protected $cache_tag = 'admin';
 
     /**
      * 查询

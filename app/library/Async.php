@@ -29,6 +29,12 @@ abstract class Async
     protected $app;
 
     /**
+     * Cache实例
+     * @var \think\Cache
+     */
+    protected $cache;
+
+    /**
      * Config实例
      * @var \think\Config
      */
@@ -151,13 +157,13 @@ abstract class Async
      * 浏览器数据缓存开关
      * @var bool
      */
-    protected $cache = false;
+    protected $api_cache = false;
 
     /**
      * 浏览器数据缓存时间
      * @var int
      */
-    protected $expire = 1440;
+    protected $api_expire = 1440;
 
 
     /**
@@ -200,6 +206,7 @@ abstract class Async
     public function __construct(App $_app)
     {
         $this->app      = $_app;
+        $this->cache    = $this->app->cache;
         $this->config   = $this->app->config;
         $this->lang     = $this->app->lang;
         $this->log      = $this->app->log;
@@ -270,7 +277,7 @@ abstract class Async
      */
     protected function expire(int $_expire = 0)
     {
-        $this->expire = $_expire > 0 ? $_expire : (int)$this->config->get('cache.expire');
+        $this->api_expire = $_expire > 0 ? $_expire : (int)$this->config->get('cache.expire');
         return $this;
     }
 
@@ -294,7 +301,7 @@ abstract class Async
      */
     protected function cache(bool $_cache = false)
     {
-        $this->cache = (true === $this->debug) ? false : $_cache;
+        $this->api_cache = (true === $this->debug) ? false : $_cache;
         return $this;
     }
 
@@ -554,8 +561,8 @@ abstract class Async
         ];
         $result = array_filter($result);
 
-        if ($this->request->isGet() && true === $this->cache && $this->expire && 10000 === $_code) {
-            $result['expire'] .= $this->expire . 's';
+        if ($this->request->isGet() && true === $this->api_cache && $this->api_expire && 10000 === $_code) {
+            $result['expire'] .= $this->api_expire . 's';
         } else {
             $result['expire'] .= 'close';
         }
@@ -566,10 +573,10 @@ abstract class Async
         }
 
         $response = $this->response->create($result, $this->format)->allowCache(false);
-        if ($this->request->isGet() && true === $this->cache && $this->expire && 10000 === $_code) {
+        if ($this->request->isGet() && true === $this->api_cache && $this->api_expire && 10000 === $_code) {
             $response->allowCache(true)
-                ->cacheControl('public, max-age=' . $this->expire)
-                ->expires(gmdate('D, d M Y H:i:s', time() + $this->expire) . ' GMT')
+                ->cacheControl('public, max-age=' . $this->api_expire)
+                ->expires(gmdate('D, d M Y H:i:s', time() + $this->api_expire) . ' GMT')
                 ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
                 ->header(['X-Powered-By' => 'NIAPI']);
         }

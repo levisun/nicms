@@ -10,10 +10,7 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-
 use think\facade\Env;
-use think\facade\Lang;
-use think\facade\Request;
 
 return [
     // 驱动方式
@@ -26,8 +23,10 @@ return [
     'expire'        => Env::get('cache.expire', 1440),
     // 关闭子目录
     'cache_subdir'  => false,
-    // 开启转义
-    'serialize'     => true,
+    // 缓存标签前缀
+    'tag_prefix'    => 'tag:',
+    // 序列化机制 例如 ['serialize', 'unserialize']
+    'serialize'     => ['serialize', 'unserialize'],
     // 开启压缩
     'data_compress' => true,
 ];

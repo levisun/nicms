@@ -33,6 +33,12 @@ abstract class BaseService
     protected $app;
 
     /**
+     * Cache实例
+     * @var \think\Cache
+     */
+    protected $cache;
+
+    /**
      * Config实例
      * @var \think\Config
      */
@@ -81,6 +87,12 @@ abstract class BaseService
     protected $uid;
 
     /**
+     * 缓存标签
+     * @var string
+     */
+    protected $cache_tag;
+
+    /**
      * 不用验证
      * @var array
      */
@@ -104,6 +116,7 @@ abstract class BaseService
     public function __construct(App $_app)
     {
         $this->app      = $_app;
+        $this->cache    = $this->app->cache;
         $this->config   = $this->app->config;
         $this->lang     = $this->app->lang;
         $this->log      = $this->app->log;
@@ -115,6 +128,10 @@ abstract class BaseService
         $this->request->filter('defalut_filter');
 
         $this->uid = session($this->auth_key);
+
+        $this->cache_tag = $this->cache_tag ? : $this->request->subDomain();
+        $this->cache_tag .= $this->uid ? : '';
+        $this->cache->tag($this->cache_tag);
 
         $this->initialize();
     }

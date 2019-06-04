@@ -12,16 +12,12 @@
  */
 
 return [
-    'id'             => '',
+    // session name
+    'name'           => '__' . substr(md5(__DIR__), 7, 3) . 'i',
     // SESSION_ID的提交变量,解决flash上传跨域
     'var_session_id' => '',
-    // SESSION name
-    'name'           => '__' . substr(md5(__DIR__), 7, 3) . 'i',
-    // 驱动方式 支持redis memcache memcached
+    // 驱动方式 支持file redis memcache memcached
     'type'           => 'app\library\Session',
-    // 是否自动开启 SESSION
-    'auto_start'     => false,
-    // Session配置参数
-    'options'        => [
-    ],
+    // 过期时间
+    'expire'         => 0,
 ];

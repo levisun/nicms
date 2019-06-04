@@ -25,6 +25,7 @@ use app\model\Admin as ModelAdmin;
 class User extends BaseService
 {
     protected $auth_key = 'admin_auth_key';
+    protected $cache_tag = 'admin';
 
     /**
      * 登录
@@ -109,6 +110,7 @@ class User extends BaseService
             return $result;
         }
 
+        $this->cache->tag($this->cache_tag)->clear();
         session('admin_auth_key', null);
 
         return [
@@ -144,20 +146,25 @@ class User extends BaseService
             return $result;
         }
 
-        $result = (new Rbac)->getAuth($this->uid);
-        $result = $result['admin'];
-        foreach ($result as $key => $value) {
-            $result[$key] = [
-                'name' => $key,
-                'lang' => $this->lang->get('auth ' . $key),
-            ];
-            foreach ($value as $k => $val) {
-                $result[$key]['child'][$k] = [
-                    'name' => $k,
-                    'lang' => $this->lang->get('auth ' . $k),
-                    'url'  => url($key . '/' . $k . '/index')
+        if (!$result = $this->cache->has(__METHOD__ . $this->uid)) {
+            $result = (new Rbac)->getAuth($this->uid);
+            $result = $result['admin'];
+            foreach ($result as $key => $value) {
+                $result[$key] = [
+                    'name' => $key,
+                    'lang' => $this->lang->get('auth ' . $key),
                 ];
+                foreach ($value as $k => $val) {
+                    $result[$key]['child'][$k] = [
+                        'name' => $k,
+                        'lang' => $this->lang->get('auth ' . $k),
+                        'url'  => url($key . '/' . $k . '/index')
+                    ];
+                }
             }
+            $this->cache->set(__METHOD__ . $this->uid, $result);
+        } else {
+            $result = $this->cache->get(__METHOD__ . $this->uid);
         }
 
         return [

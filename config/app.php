@@ -34,8 +34,6 @@ return [
 
     // 应用地址
     'app_host'              => Env::get('app.host', ''),
-    // 应用Trace（环境变量优先读取）
-    'app_trace'             => Env::get('app.debug', 1) ? true : false,
     // 应用的命名空间
     'app_namespace'         => '',
     // 是否启用路由
@@ -52,13 +50,6 @@ return [
     'default_app'           => 'index',
     // 默认时区
     'default_timezone'      => 'Asia/Shanghai',
-    // 是否开启多语言
-    'lang_switch_on'        => true,
-    // 默认语言
-    'default_lang'          => 'zh-cn',
-    // 默认验证器
-    'default_validate'      => '',
-
     // 异常页面的模板文件
     'exception_tmpl'        => app()->getThinkPath() . 'tpl/think_exception.tpl',
 

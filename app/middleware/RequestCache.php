@@ -31,7 +31,7 @@ class RequestCache
 
         // 开启调试清空请求缓存
         if (true === Config::get('app.debug')) {
-            $this->cache->clear('RequestCache');
+            $this->cache->tag('RequestCache')->clear();
         }
     }
 
