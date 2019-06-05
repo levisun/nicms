@@ -146,7 +146,7 @@ class User extends BaseService
             return $result;
         }
 
-        if (!$result = $this->cache->has(__METHOD__ . $this->uid)) {
+        if (!$this->cache->has(__METHOD__ . $this->uid)) {
             $result = (new Rbac)->getAuth($this->uid);
             $result = $result['admin'];
             foreach ($result as $key => $value) {
@@ -199,10 +199,10 @@ class User extends BaseService
         $result['last_login_time'] = date('Y-m-d H:i:s', $result['last_login_time']);
 
         return [
-            'debug' => false,
-            'cache' => true,
-            'msg'   => 'user profile',
-            'data'  => $result
+            'debug'  => false,
+            'cache'  => false,
+            'msg'    => 'user profile',
+            'data'   => $result
         ];
     }
 
@@ -253,7 +253,7 @@ class User extends BaseService
 
         return [
             'debug' => false,
-            'cache' => true,
+            'cache' => false,
             'msg'   => 'user notice',
             'data'  => [
                 'list'  => $result,

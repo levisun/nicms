@@ -53,6 +53,7 @@ class Cms extends BaseController
      */
     public function index()
     {
+        echo trim('    dfds fdifdskflds             dieked	');
         echo client_mac();die();
         // $this->fetch('index');
     }

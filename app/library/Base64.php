@@ -32,18 +32,14 @@ class Base64
      */
     public static function password(string $_str, string $_salt = '', string $_type = 'md5'): string
     {
-        if (function_exists($_type)) {
-            // 第一次加密
-            $_str = hash_hmac('sha1', trim($_str), $_salt);
-
-            // 第二次加密
-            $_str = hash_hmac('sha1', $_str . $_salt, $_str);
-
-            // 第三次加密
-            return call_user_func($_type, $_salt . $_str . $_type);
-        } else {
-            throw new HttpException(502, '参数错误');
-        }
+        // 返回类型
+        $_type = function_exists($_type) ? trim($_type) : 'md5';
+        // 加密佐料
+        $_salt = hash_hmac('sha256', trim($_salt), $_type);
+        // 加密密码
+        $_str = hash_hmac('sha256', trim($_str) . $_salt, $_type);
+        // 返回密码
+        return call_user_func($_type, $_str . $_salt . $_type);
     }
 
     /**
@@ -54,10 +50,10 @@ class Base64
      */
     public static function flag($_str = '', int $_length = 7)
     {
-        $_str = (string)$_str;
-        $_str .= Config::get('app.secretkey');
+        $_str = (string)trim($_str);
+        $_str = hash_hmac('sha1', $_str, Config::get('app.secretkey'));
         $_length = $_length > 40 ? 40 : $_length;
-        return substr(sha1($_str), 0, $_length);
+        return substr($_str, 0, $_length);
     }
 
     /**
@@ -72,14 +68,14 @@ class Base64
     {
         if (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[self::encrypt($key, $_secretkey)] = self::encrypt($value, $_secretkey);
-                unset($_data[$key]);
+                $_data[$key] = self::decrypt($value, $_secretkey);
             }
             return $_data;
         } elseif (is_null($_data) || is_bool($_data)) {
             return $_data;
         } else {
-            $_secretkey .= Config::get('app.secretkey');
+            $_secretkey = $_secretkey ? trim($_secretkey) : __DIR__;
+            $_secretkey = hash_hmac('sha256', $_secretkey, Config::get('app.secretkey'));
             $iv = substr(sha1($_secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
             return base64_encode(openssl_encrypt((string)$_data, 'AES-256-CBC', $_secretkey, OPENSSL_RAW_DATA, $iv));
         }
@@ -97,14 +93,14 @@ class Base64
     {
         if (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[self::decrypt($key, $_secretkey)] = self::decrypt($value, $_secretkey);
-                unset($_data[$key]);
+                $_data[$key] = self::decrypt($value, $_secretkey);
             }
             return $_data;
         } elseif (is_null($_data) || is_bool($_data)) {
             return $_data;
         } else {
-            $_secretkey .= Config::get('app.secretkey');
+            $_secretkey = $_secretkey ? trim($_secretkey) : __DIR__;
+            $_secretkey = hash_hmac('sha256', $_secretkey, Config::get('app.secretkey'));
             $iv = substr(sha1($_secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
             return openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $_secretkey, OPENSSL_RAW_DATA, $iv);
         }

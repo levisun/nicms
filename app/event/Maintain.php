@@ -17,7 +17,8 @@ declare (strict_types = 1);
 
 namespace app\event;
 
-use think\facade\Request;
+use think\Env;
+use think\Request;
 use app\library\Accesslog;
 use app\library\DataMaintenance;
 use app\library\ReGarbage;
@@ -26,29 +27,17 @@ use app\library\Sitemap;
 class Maintain
 {
 
-    public function handle()
+    public function handle(Request $_request, Env $_env)
     {
-        clearstatcache();
-
-        if ('www' === Request::subDomain()) {
+        if (!in_array($_request->controller(true), [$_env->get('admin.entry'), 'api'])) {
             (new Accesslog)->record();      // 生成访问日志
             (new Sitemap)->create();        // 生成网站地图
         }
 
-        if ('api' !== Request::subDomain()) {
-            // 清除过期缓存和日志等
-            $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR .  'garbage.lock';
-            if (!is_file($lock)) file_put_contents($lock, 'true');
-            if (1 === rand(1, 99) && filemtime($lock) <= strtotime('Y-m-d')) {
-                (new ReGarbage)->run();
-            }
-            // 自动备份数据库
-            elseif (1 === rand(1, 99)) {
-                (new DataMaintenance)->autoBackup();
-            }
-
+        if (!in_array($_request->controller(true), ['api'])) {
             // 优化修复数据库表
-            $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR .  'datamaintenance.lock';
+            clearstatcache();
+            $lock = app()->getRuntimePath() . 'dmor.lock';
             if (!is_file($lock)) file_put_contents($lock, date('Y-m-d H:i:s'));
             $date = (string)(date('Ymd') - 10);
             if (0 === date('Ymd') % 10 && filemtime($lock) <= strtotime($date)) {
@@ -57,6 +46,14 @@ class Maintain
                 (new DataMaintenance)->optimize();  // 优化表
                 (new DataMaintenance)->repair();    // 修复表
                 ignore_user_abort(false);
+            }
+            // 清除过期缓存和日志等
+            elseif (1 === rand(1, 69)) {
+                (new ReGarbage)->run();
+            }
+            // 自动备份数据库
+            elseif (1 === rand(1, 69)) {
+                (new DataMaintenance)->autoBackup();
             }
         }
     }

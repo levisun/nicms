@@ -86,7 +86,8 @@ class Api extends Async
                 throw new HttpResponseException($response);
             }
         } else {
-            die('权限不足');
+            echo '缺少参数';
+            exit();
         }
     }
 

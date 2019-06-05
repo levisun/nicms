@@ -14,25 +14,37 @@ declare (strict_types = 1);
 
 namespace app\event;
 
+use think\App;
 use think\facade\Log;
 
 class LockRequest
 {
+    /**
+     * 应用实例
+     * @var \think\App
+     */
+    protected $app;
+
+    /**
+     * log实例
+     * @var \think\Log
+     */
+    protected $log;
 
     protected $request_log = '';
 
-    public function __construct()
+    public function handle(App $_app)
     {
-        $this->request_log = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
+        $this->app = $_app;
+        $this->log = $this->app->log;
+
+        $this->request_log = $this->app->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
         if (!is_dir($this->request_log)) {
-            chmod(app()->getRuntimePath(), 0777);
+            chmod($this->app->getRuntimePath(), 0777);
             mkdir($this->request_log, 0777, true);
         }
-        $this->request_log .= md5(app()->request->ip() . date('Ymd')) . '.php';
-    }
+        $this->request_log .= md5($this->app->request->ip() . date('Ymd')) . '.php';
 
-    public function handle()
-    {
         $this->lockRequest();
         $this->recordRequest();
         $this->concurrent();
@@ -75,7 +87,7 @@ class LockRequest
     {
         // 锁定频繁请求IP
         if (is_file($this->request_log . '.lock')) {
-            Log::record('[锁定]', 'alert')->save();
+            $this->log->record('[锁定]', 'alert')->save();
             $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>502</title><section><h2>502</h2><h3>Oops! Something went wrong.</h3></section>';
 
             http_response_code(500);
@@ -92,8 +104,8 @@ class LockRequest
      */
     protected function concurrent(): void
     {
-        if ('api' !== app()->request->subDomain() && 1 === rand(1, 999)) {
-            Log::record('[并发]', 'alert')->save();
+        if ('api' !== $this->app->request->subDomain() && 1 === rand(1, 999)) {
+            $this->log->record('[并发]', 'alert')->save();
             $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>500</title><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section>';
 
             http_response_code(500);

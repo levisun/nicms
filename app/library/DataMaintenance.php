@@ -35,7 +35,7 @@ class DataMaintenance
      * @param  int $_hour 相隔几小时更新备份
      * @return bool
      */
-    public function autoBackup(int $_hour = 24): bool
+    public function autoBackup(int $_hour = 48): bool
     {
         Log::record('[AUTO BACKUP] 自动备份数据库', 'alert');
 
@@ -64,7 +64,7 @@ class DataMaintenance
                     $sql = $this->queryTableStructure($name);
                     $this->write($sql_file, $sql);
                     $btime[$name] = time();
-                } elseif (isset($btime[$name]) && $btime[$name] <= strtotime('-1 days')) {
+                } elseif (isset($btime[$name]) && $btime[$name] <= strtotime('-7 days')) {
                     $sql = $this->queryTableStructure($name);
                     $this->write($sql_file, $sql);
                     $btime[$name] = time();
