@@ -32,14 +32,10 @@ class Base64
      */
     public static function password(string $_str, string $_salt = '', string $_type = 'md5'): string
     {
-        // 返回类型
-        $_type = function_exists($_type) ? trim($_type) : 'md5';
-        // 加密佐料
-        $_salt = hash_hmac('sha256', trim($_salt), $_type);
-        // 加密密码
-        $_str = hash_hmac('sha256', trim($_str) . $_salt, $_type);
-        // 返回密码
-        return call_user_func($_type, $_str . $_salt . $_type);
+        $_type = function_exists($_type) ? trim($_type) : 'md5';    // 返回类型
+        $_salt = hash_hmac('sha256', trim($_salt), $_type);         // 加密佐料
+        $_str = hash_hmac('sha256', trim($_str) . $_salt, $_type);  // 加密密码
+        return call_user_func($_type, $_str . $_salt . $_type);     // 返回密码
     }
 
     /**

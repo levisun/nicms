@@ -14,14 +14,36 @@ declare (strict_types = 1);
 
 namespace app\library;
 
+use think\App;
 use think\exception\HttpException;
-use think\facade\Config;
-use think\facade\Lang;
-use think\facade\Request;
 use app\library\DataFilter;
 
-class Template
+abstract class Template
 {
+    /**
+     * 应用实例
+     * @var \think\App
+     */
+    protected $app;
+
+    /**
+     * Config实例
+     * @var \think\Config
+     */
+    protected $config;
+
+    /**
+     * Lang实例
+     * @var \think\Lang
+     */
+    protected $lang;
+
+    /**
+     * request实例
+     * @var \think\Request
+     */
+    protected $request;
+
     /**
      * 模板路径
      * @var string
@@ -55,21 +77,29 @@ class Template
      * @access public
      * @param  array $config
      */
-    public function __construct()
+    public function __construct(App $_app)
     {
-        $this->templatePath  = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+        $this->app     = $_app;
+        $this->config  = $this->app->config;
+        $this->lang    = $this->app->lang;
+        $this->request = $this->app->request;
+
+        $this->app->debug($this->config->get('app.debug'));
+        $this->request->filter('defalut_filter');
+
+        $this->templatePath  = $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
         $this->templatePath .= 'template' . DIRECTORY_SEPARATOR;
 
-        $this->buildPath  = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
+        $this->buildPath  = $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
 
-        $theme = Config::get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme);
+        $theme = $this->config->get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme);
         $this->setReplace([
-            'version'     => Config::get('app.version', '1.0.1'),
+            'version'     => $this->config->get('app.version', '1.0.1'),
             'theme'       => $theme . 'theme/',
             'css'         => $theme . 'css/',
             'img'         => $theme . 'img/',
             'js'          => $theme . 'js/',
-            'static'      => Config::get('app.cdn_host') . '/static/',
+            'static'      => $this->config->get('app.cdn_host') . '/static/',
             'name'        => 'nicms',
             'title'       => 'nicms',
             'keywords'    => 'nicms',
@@ -170,7 +200,7 @@ class Template
         if (!empty($this->templateConfig['js'])) {
             foreach ($this->templateConfig['js'] as $js) {
                 // $foot .= '<script type="text/css" name=' . pathinfo($js, PATHINFO_BASENAME) . '>';
-                // $foot .= file_get_contents(str_replace(Config::get('app.cdn_host'), app()->getRootPath() . 'public', $js));
+                // $foot .= file_get_contents(str_replace($this->config->get('app.cdn_host'), $this->app->getRootPath() . 'public', $js));
                 // $foot .= '</script>';
                 $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $this->templateConfig['theme_version'] . '"></script>';
             }
@@ -198,7 +228,7 @@ class Template
     {
         $head =
             '<!DOCTYPE html>' .
-            '<html lang="' . Lang::getLangSet() . '">' .
+            '<html lang="' . $this->lang->getLangSet() . '">' .
             '<head>' .
             '<meta charset="utf-8" />' .
             '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
@@ -219,10 +249,10 @@ class Template
             '<meta http-equiv="Cache-Control" content="no-transform" />' .
 
             '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
-            '<link rel="dns-prefetch" href="' . Config::get('app.api_host') . '" />' .
-            '<link rel="dns-prefetch" href="' . Config::get('app.cdn_host') . '" />' .
+            '<link rel="dns-prefetch" href="' . $this->config->get('app.api_host') . '" />' .
+            '<link rel="dns-prefetch" href="' . $this->config->get('app.cdn_host') . '" />' .
 
-            '<link href="' . Config::get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />';
+            '<link href="' . $this->config->get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />';
 
         // 网站标题 关键词 描述
         $head .= '<title>' . $this->templateReplace['__TITLE__'] . '</title>';
@@ -230,7 +260,7 @@ class Template
         $head .= '<meta name="description" content="' . $this->templateReplace['__DESCRIPTION__'] . '" />';
         $head .= '<meta property="og:title" content="' . $this->templateReplace['__NAME__'] . '">';
         $head .= '<meta property="og:type" content="website">';
-        $head .= '<meta property="og:url" content="' . Request::url(true) . '">';
+        $head .= '<meta property="og:url" content="' . $this->request->url(true) . '">';
         $head .= '<meta property="og:image" content="">';
 
         if (!empty($this->templateConfig['meta'])) {
@@ -247,26 +277,26 @@ class Template
         if (!empty($this->templateConfig['css'])) {
             foreach ($this->templateConfig['css'] as $css) {
                 // $head .= '<style type="text/css" name="' . pathinfo($css, PATHINFO_BASENAME) . '">';
-                // $head .= file_get_contents(str_replace(Config::get('app.cdn_host'), app()->getRootPath() . 'public', $css));
+                // $head .= file_get_contents(str_replace($this->config->get('app.cdn_host'), $this->app->getRootPath() . 'public', $css));
                 // $head .= '</style>';
                 $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->templateConfig['theme_version'] . '" />';
             }
         }
 
-        list($root) = explode('.', Request::rootDomain(), 2);
+        list($root) = explode('.', $this->request->rootDomain(), 2);
         $head .= '<script type="text/javascript">' .
             'var NICMS={' .
-            'domain:"' . '//' . Request::subDomain() . '.' . Request::rootDomain() . '",' .
-            'url:"' . Request::baseUrl(true) . '",' .
-            'param:' . json_encode(Request::param()) . ',' .
+            'domain:"' . '//' . $this->request->subDomain() . '.' . $this->request->rootDomain() . '",' .
+            'url:"' . $this->request->baseUrl(true) . '",' .
+            'param:' . json_encode($this->request->param()) . ',' .
             'api:{' .
-            'url:"' . Config::get('app.api_host') . '",' .
+            'url:"' . $this->config->get('app.api_host') . '",' .
             'root:"' . $root . '",' .
             'version:"' . $this->templateConfig['api_version'] . '",' .
             'appid:"' . $this->templateConfig['api_appid'] . '",' .
             'appsecret:"' . $this->templateConfig['api_appsecret'] . '",' .
             'authorization:"{:__AUTHORIZATION__}",' .
-            'param:' . json_encode(Request::param()) .
+            'param:' . json_encode($this->request->param()) .
             '},' .
             'cdn:{' .
             'static:"' . $this->templateReplace['__STATIC__'] . '",' .
@@ -277,9 +307,9 @@ class Template
             '}' .
             '};';
 
-        // if (!Request::isMobile() && Config::get('app.entry') !== Request::subDomain()) {
+        // if (!$this->request->isMobile() && $this->config->get('app.entry') !== $this->request->subDomain()) {
         //     $head .= 'if(navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i)){' .
-        //         'location.replace("//m.' . Request::rootDomain() . '");' .
+        //         'location.replace("//m.' . $this->request->rootDomain() . '");' .
         //         '}';
         //     unset($sub);
         // }
@@ -297,15 +327,15 @@ class Template
     private function templateBuildRead(string $_template)
     {
         if (!is_dir($this->buildPath)) {
-            chmod(app()->getRuntimePath(), 0777);
+            chmod($this->app->getRuntimePath(), 0777);
             mkdir($this->buildPath, 0777, true);
         }
 
-        $_template .= Lang::getLangSet() . Request::subDomain();
+        $_template .= $this->lang->getLangSet() . $this->request->subDomain();
         $this->buildPath .= md5($_template) . '.html';
 
         clearstatcache();
-        if (true === Config::get('app.debug') && is_file($this->buildPath)) {
+        if (true === $this->config->get('app.debug') && is_file($this->buildPath)) {
             unlink($this->buildPath);
         } elseif (is_file($this->buildPath)) {
             return include_once($this->buildPath);
@@ -323,8 +353,8 @@ class Template
     private function templateBuildWrite(string $_content): void
     {
         clearstatcache();
-        if (false === Config::get('app.debug') && !is_file($this->buildPath)) {
-            $_content = '<!-- ' . Request::pathinfo() . ' -->' . $_content;
+        if (false === $this->config->get('app.debug') && !is_file($this->buildPath)) {
+            $_content = '<!-- ' . $this->request->pathinfo() . ' -->' . $_content;
             file_put_contents($this->buildPath, $_content);
         }
     }
@@ -583,7 +613,7 @@ class Template
         // 微信和移动端访问时,判断模板是否存在.
         if (isWechat() && is_file($this->templatePath . $this->theme . 'wechat' . DIRECTORY_SEPARATOR . $_template)) {
             $_template = 'wechat' . DIRECTORY_SEPARATOR . $_template;
-        } elseif (Request::isMobile() && is_file($this->templatePath . $this->theme . 'mobile' . DIRECTORY_SEPARATOR . $_template)) {
+        } elseif ($this->request->isMobile() && is_file($this->templatePath . $this->theme . 'mobile' . DIRECTORY_SEPARATOR . $_template)) {
             $_template = 'mobile' . DIRECTORY_SEPARATOR . $_template;
         }
 

@@ -1,19 +1,22 @@
 <?php
 /**
  *
- * 应用公共文件
+ * API接口层
+ * 基础方法
+ *     $this->authenticate(__METHOD__, ?操作日志) 权限验证
+ *     $this->upload() 上传方法
+ *     $this->validate(验证器, ?数据) 验证方法
  *
  * @package   NICMS
- * @category  app
+ * @category  app\controller
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
  * @since     2019
  */
-
 declare (strict_types = 1);
 
-namespace app;
+namespace app\controller;
 
 use think\App;
 use think\Response;
@@ -21,29 +24,8 @@ use think\exception\HttpResponseException;
 use app\library\Rbac;
 use app\library\Template;
 
-/**
- * 控制器基础类
- */
 abstract class BaseController extends Template
 {
-    /**
-     * 应用实例
-     * @var \think\App
-     */
-    protected $app;
-
-    /**
-     * Request实例
-     * @var \think\Request
-     */
-    protected $request;
-
-
-    /**
-     * 控制器中间件
-     * @var array
-     */
-    protected $middleware = [];
 
     /**
      * 构造方法
@@ -53,18 +35,10 @@ abstract class BaseController extends Template
      */
     public function __construct(App $_app)
     {
-        $this->app = $_app;
-        $this->config = $this->app->config;
-        $this->lang = $this->app->lang;
-        $this->request = $this->app->request;
-
-        $this->app->debug($this->config->get('app.debug'));
-        $this->request->filter('defalut_filter');
-
         // 控制器初始化
         $this->initialize();
 
-        parent::__construct();
+        parent::__construct($_app);
     }
 
     // 初始化

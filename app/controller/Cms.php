@@ -15,10 +15,9 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
-use app\BaseController;
+use app\controller\BaseController;
 use app\library\Filter;
 use app\library\Siteinfo;
-use app\library\Template;
 use app\model\Category as ModelCategory;
 
 class Cms extends BaseController
@@ -53,8 +52,7 @@ class Cms extends BaseController
      */
     public function index()
     {
-        echo trim('    dfds fdifdskflds             dieked	');
-        echo client_mac();die();
+        echo $this->app->getBasePath();
         // $this->fetch('index');
     }
 
@@ -67,7 +65,7 @@ class Cms extends BaseController
      */
     public function lists(string $name)
     {
-        $name = Filter::str($name);
+        $name = $this->verification($name);
 
         $this->fetch('list_' . $name);
     }
@@ -82,7 +80,7 @@ class Cms extends BaseController
      */
     public function details(string $name)
     {
-        $name = Filter::str($name);
+        $name = $this->verification($name);
 
         $this->fetch('details_' . $name);
     }

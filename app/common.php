@@ -73,7 +73,7 @@ if (!function_exists('get_img_url')) {
      * @param  string      $_water 水印文字
      * @return string
      */
-    function get_img_url(string $_img, int $_size = 200, string $_water = ''): string
+    function get_img_url(string $_img, int $_size = 300, string $_water = ''): string
     {
         $root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
         $font_path = $root_path . 'static' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf';
@@ -252,19 +252,6 @@ if (!function_exists('create_authorization')) {
     function create_authorization(): string
     {
         return (new Jwt)->getToken();
-
-        $session_id = Session::getId(false);
-
-        $authorization = hash_hmac(
-            'sha1',
-            strtotime(date('Ymd')) . Request::server('HTTP_USER_AGENT') .
-                Request::ip() . app()->getRootPath() . $session_id,
-            Config::get('app.secretkey')
-        );
-
-        $authorization .= $session_id ? '.' . $session_id : '';
-
-        return 'Basic ' . Base64::encrypt($authorization);
     }
 }
 

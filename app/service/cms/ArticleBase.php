@@ -60,7 +60,8 @@ class ArticleBase extends BaseService
 
             $cache_key = md5($category_id . $com . $top . $hot . $type_id . $query_limit . $query_page, $date_format);
             if (!$this->cache->tag('LISTS')->has($cache_key)) {
-                $result = (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+                $result = (new ModelArticle)
+                    ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
                     ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                     ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
@@ -145,7 +146,8 @@ class ArticleBase extends BaseService
             $map[] = ['article.id', '=', $id];
             $cache_key = md5($id);
             if (!$this->cache->tag('DETAILS')->has($cache_key)) {
-                $result = (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+                $result = (new ModelArticle)
+                    ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
                     ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                     ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
@@ -269,7 +271,8 @@ class ArticleBase extends BaseService
             ->order('is_top, is_hot, is_com, sort_order DESC, id DESC')
             ->min('id');
 
-        $result = (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+        $result = (new ModelArticle)
+            ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
             ->where([
@@ -305,7 +308,8 @@ class ArticleBase extends BaseService
             ->order('is_top, is_hot, is_com, sort_order DESC, id DESC')
             ->max('id');
 
-        $result = (new ModelArticle)->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+        $result = (new ModelArticle)
+            ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
             ->where([

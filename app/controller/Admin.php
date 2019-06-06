@@ -16,7 +16,7 @@ declare (strict_types = 1);
 namespace app\controller;
 
 use think\facade\Env;
-use app\BaseController;
+use app\controller\BaseController;
 
 class admin extends BaseController
 {
