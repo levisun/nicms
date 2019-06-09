@@ -1,0 +1,25 @@
+{
+    "layout": true,
+    "theme": "default",
+    "api_version": "1.0.1",
+    "theme_version": "1.0.1",
+    "css": [
+        "{:__STATIC__}layui/css/layui.css",
+        "{:__CSS__}style.css"
+    ],
+    "js": [
+        "{:__STATIC__}vue.min.js",
+        "{:__STATIC__}md5.min.js",
+        "{:__STATIC__}layui/layui.js",
+        "{:__JS__}core.js"
+    ],
+    "hook": [
+
+    ],
+    "meta": [
+        {
+            "type": "rel=\"dns-prefetch\"",
+            "content": "href=\"https://cdn.bootcss.com\""
+        }
+    ]
+}

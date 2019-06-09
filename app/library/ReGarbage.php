@@ -33,7 +33,7 @@ class ReGarbage
 
         $this->remove($runtime_path . 'cache', 4);
         $this->remove($runtime_path . 'compile', 72);
-        $this->remove($runtime_path . 'lock', 4);
+        // $this->remove($runtime_path . 'lock', 4);
         $this->remove($runtime_path . 'log', 72);
         $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 72);
 
@@ -86,7 +86,10 @@ class ReGarbage
                 yield $files;
             } elseif (is_dir($files . DIRECTORY_SEPARATOR)) {
                 $sub = $this->getDirAllFile($files . DIRECTORY_SEPARATOR . '*', $_expire);
-                // yield $files;
+                if (!$sub->valid()) {
+                    yield $files;
+                }
+
                 while ($sub->valid()) {
                     $filename = $sub->current();
                     if (is_file($filename) && filemtime($files) <= $hour) {

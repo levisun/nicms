@@ -36,7 +36,7 @@ class admin extends BaseController
      */
     public function initialize()
     {
-        $this->setTheme('admin/' . Env::get('admin.theme', 'default'));
+        $this->setTheme(Env::get('admin.theme', 'default'));
     }
 
     /**

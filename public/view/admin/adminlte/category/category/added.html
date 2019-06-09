@@ -1,0 +1,158 @@
+<div class="box">
+    <div class="box-body">
+        <form id="category">
+            <div class="form-group">
+                <label>{:lang('parent')}</label>
+                <input type="text" class="form-control" disabled="true" v-bind:value="items.parent">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('name')}</label>
+                <input type="text" name="name" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('aliases')}</label>
+                <input type="text" name="aliases" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('title')}</label>
+                <input type="text" name="title" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('keywords')}</label>
+                <input type="text" name="keywords" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('description')}</label>
+                <input type="text" name="description" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('image')}</label>
+                <input type="text" name="image" class="image form-control">
+                <input type="file" name="upload" id="upload" class="form-control">
+                <img class="image-box" style="display: none;">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('type')}</label>
+                <select class="form-control" name="type_id">
+                    <template v-for="vo in items.type_name" >
+                    <option v-bind:value="vo.id" v-text="vo.name"></option>
+                    </template>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('model')}</label>
+                <select class="form-control" name="model_id">
+                    <option>{:lang('select')}</option>
+                    <template v-for="vo in items.model_name" >
+                    <option v-bind:value="vo.id" v-text="vo.name"></option>
+                    </template>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('show')}</label>
+                <label>
+                    <input type="radio" name="is_show" value="1" checked="checked"> {:lang('yes')}
+                </label>
+                <label>
+                    <input type="radio" name="is_show" value="0"> {:lang('no')}
+                </label>
+                <br>
+                <label>{:lang('channel')}</label>
+                <label>
+                    <input type="radio" name="is_channel" value="1"> {:lang('yes')}
+                </label>
+                <label>
+                    <input type="radio" name="is_channel" value="0" checked="checked"> {:lang('no')}
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('sort')}</label>
+                <input type="text" name="sort_order" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('access')}</label>
+                <select class="form-control" name="access_id">
+                    <option value="0">{:lang('select')}</option>
+                    <template v-for="vo in items.access_name" >
+                    <option v-bind:value="vo.id" v-text="vo.name"></option>
+                    </template>
+                </select>
+            </div>
+
+            <p><b>{:lang('url')}</b></p>
+            <div class="input-group">
+                <span class="input-group-addon">http://</span>
+                <input type="text" name="url" class="form-control">
+            </div>
+        </form>
+    </div>
+    <div class="box-footer">
+        <button class="btn btn-primary">{:lang('save')}</button>
+    </div>
+</div>
+{tag:script}
+jQuery.pjax({
+    url: NICMS.api.url + '/query.do',
+    type: 'GET',
+    data: {
+        method: 'category.category.find',
+        pid: NICMS.api.param.id
+    },
+    success: function(result){
+        if (result.code == 10000) {
+            var vue = new Vue({
+                el: '.box',
+                data: {
+                    items: result.data
+                }
+            });
+        }
+    }
+});
+jQuery(document).on('click', '.btn', function(){
+    var btn = jQuery(this).button('{:lang('saveing')}');
+    var data = jQuery.getForm('#category');
+    data['method'] = 'category.category.added';
+    data['pid'] = NICMS.api.param.id;
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle.do',
+        type: 'POST',
+        data: data,
+        success: function(result){
+            if (result.code === 10000) {
+                jQuery.uiToast(result.message);
+                history.back();
+            }
+        }
+    });
+});
+jQuery(document).on('change', '#upload', function(){
+    jQuery.upload({
+        url: NICMS.api.url + '/upload.do',
+        file: 'category',
+        data: {
+            method: 'category.category.upload',
+            width: 100,
+            height: 100
+        },
+        success: function(result){
+            jQuery.uiToast(result.message);
+            if (result.code === 10000) {
+                jQuery('.image').val(result.data.original_url);
+                jQuery('.image-box').show().attr('src', result.data.url);
+            }
+        }
+    });
+});
+{/tag}

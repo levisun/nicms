@@ -22,9 +22,9 @@ use think\App;
 use think\Response;
 use think\exception\HttpResponseException;
 use app\library\Rbac;
-use app\library\Template;
+use app\library\TemplateE;
 
-abstract class BaseController extends Template
+abstract class BaseController extends TemplateE
 {
 
     /**

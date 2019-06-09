@@ -1,0 +1,19 @@
+{:NOT_LAYOUT}
+
+{tag:script}
+var data = {
+    method: 'account.user.login',
+    username: 'levisun',
+    password: 'Horadric'
+};
+jQuery.pjax({
+    url: NICMS.api.url + '/handle/admin.do',
+    type: 'POST',
+    data: data,
+    success: function(result){
+        jQuery.uiToast(result.message);
+        location.reload();
+    }
+});
+
+{/tag}
