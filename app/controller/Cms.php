@@ -20,6 +20,7 @@ use app\library\Filter;
 use app\library\Siteinfo;
 use app\model\Category as ModelCategory;
 
+
 class Cms extends BaseController
 {
 
@@ -31,17 +32,16 @@ class Cms extends BaseController
      */
     public function initialize()
     {
-        $this->setTheme('cms/' . Siteinfo::theme());
-
-        $this->setReplace([
-            'name'        => Siteinfo::name(),
-            'title'       => Siteinfo::title(),
-            'keywords'    => Siteinfo::keywords(),
-            'description' => Siteinfo::description(),
-            'footer_msg'  => Siteinfo::footer(),
-            'copyright'   => Siteinfo::copyright(),
-            'script'      => Siteinfo::script(),
-        ]);
+        $this->setTheme(Siteinfo::theme())
+            ->setReplace([
+                '__NAME__'        => Siteinfo::name(),
+                '__TITLE__'       => Siteinfo::title(),
+                '__KEYWORDS__'    => Siteinfo::keywords(),
+                '__DESCRIPTION__' => Siteinfo::description(),
+                '__FOOTER_MSG__'  => Siteinfo::footer(),
+                '__COPYRIGHT__'   => Siteinfo::copyright(),
+                '__SCRIPT__'      => Siteinfo::script(),
+            ]);
     }
 
     /**

@@ -27,6 +27,12 @@ class TemplateE
     protected $app;
 
     /**
+     * Config实例
+     * @var \think\Config
+     */
+    protected $config;
+
+    /**
      * Lang实例
      * @var \think\Lang
      */
@@ -88,19 +94,19 @@ class TemplateE
      * 架构函数
      * @access public
      * @param  \think\App $_app
-     * @param  array      $_config
      * @return void
      */
     public function __construct(App $_app)
     {
         $this->app     = $_app;
+        $this->config  = $this->app->config;
         $this->lang    = $this->app->lang;
         $this->request = $this->app->request;
 
         $this->view_path = $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR;
 
-        $this->replace['__VERSION__'] = $this->app->config->get('app.version', '1.0.1');
-        $this->replace['__STATIC__'] = $this->app->config->get('app.cdn_host') . '/static/';
+        $this->replace['__VERSION__'] = $this->config->get('app.version', '1.0.1');
+        $this->replace['__STATIC__'] = $this->config->get('app.cdn_host') . '/static/';
     }
 
     /**
@@ -113,7 +119,6 @@ class TemplateE
     public function fetch(string $_template, array $_data = []): void
     {
         if (!$content = $this->compileRead($_template)) {
-            // extract($_data, EXTR_OVERWRITE);
             $this->vars = array_merge($this->vars, $_data);
 
             $this->parseTemplate($_template);
@@ -150,10 +155,10 @@ class TemplateE
                 '<meta http-equiv="Cache-Control" content="no-transform" />' .
 
                 '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
-                '<link rel="dns-prefetch" href="' . $this->app->config->get('app.api_host') . '" />' .
-                '<link rel="dns-prefetch" href="' . $this->app->config->get('app.cdn_host') . '" />' .
+                '<link rel="dns-prefetch" href="' . $this->config->get('app.api_host') . '" />' .
+                '<link rel="dns-prefetch" href="' . $this->config->get('app.cdn_host') . '" />' .
 
-                '<link href="' . $this->app->config->get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />';
+                '<link href="' . $this->config->get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />';
 
             // 网站标题 关键词 描述
             echo '<title>' . $this->replace['__TITLE__'] . '</title>' .
@@ -185,27 +190,29 @@ class TemplateE
             }
 
             list($root) = explode('.', $this->request->rootDomain(), 2);
-            $NICMS = [
-                'domain'            => '//' . $this->request->subDomain() . '.' . $this->request->rootDomain(),
-                'url'               => $this->request->baseUrl(true),
-                'param'             => $this->request->param(),
-                'api'               => [
-                    'url'           => $this->app->config->get('app.api_host'),
-                    'root'          => $root,
-                    'vresion'       => $this->theme_config['api_version'],
-                    'appid'         => $this->theme_config['api_appid'],
-                    'authorization' => '{:__AUTHORIZATION__}',
-                    'param'         => $this->request->param()
-                ],
-                'cdn'               => [
-                    'static'        => $this->replace['__STATIC__'],
-                    'theme'         => $this->replace['__THEME__'],
-                    'css'           => $this->replace['__CSS__'],
-                    'img'           => $this->replace['__IMG__'],
-                    'js'            => $this->replace['__JS__']
-                ]
-            ];
-            echo '<script type="text/javascript">var NICMS=' . json_encode($NICMS) . '</script></head>';
+            echo '<script type="text/javascript">' .
+            'var NICMS={' .
+            'domain:"' . '//' . $this->request->subDomain() . '.' . $this->request->rootDomain() . '",' .
+            'url:"' . $this->request->baseUrl(true) . '",' .
+            'param:' . json_encode($this->request->param()) . ',' .
+            'api:{' .
+            'url:"' . $this->config->get('app.api_host') . '",' .
+            'root:"' . $root . '",' .
+            'version:"' . $this->theme_config['api_version'] . '",' .
+            'appid:"' . $this->theme_config['api_appid'] . '",' .
+            'appsecret:"' . $this->theme_config['api_appsecret'] . '",' .
+            'authorization:"{:__AUTHORIZATION__}",' .
+            'param:' . json_encode($this->request->param()) .
+            '},' .
+            'cdn:{' .
+            'static:"' . $this->replace['__STATIC__'] . '",' .
+            'theme:"' .  $this->replace['__THEME__'] . '",' .
+            'css:"' .    $this->replace['__CSS__'] . '",' .
+            'img:"' .    $this->replace['__IMG__'] . '",' .
+            'js:"' .     $this->replace['__JS__'] . '"' .
+            '}' .
+            '};</script>';
+            echo '</head>';
             echo false === strpos($this->content, '<body') ? '<body>' : '';
             echo DataFilter::string($this->content);
 
@@ -219,7 +226,7 @@ class TemplateE
             }
 
             echo $this->script;
-            echo '</body></html>';
+            echo '</body></html><!-- ' . $this->request->baseUrl(true) . ' -->';
             $content = ob_get_clean();
             $content = $this->parseReplace($content);
             $this->compileWrite($_template, $content);
@@ -244,30 +251,32 @@ class TemplateE
      * 设置模板替换字符
      * @access public
      * @param  array $_replace
-     * @return void
+     * @return object
      */
-    public function setReplace(array $_replace): void
+    public function setReplace(array $_replace)
     {
         $rep = [];
         foreach ($_replace as $key => $value) {
             $rep[strtoupper($key)] = $value;
         }
         $this->replace = array_merge($this->replace, $rep);
+        return $this;
     }
 
     /**
      * 设置模板主题
      * @access public
      * @param  string $_name
-     * @return void
+     * @return object
      */
-    public function setTheme(string $_name): void
+    public function setTheme(string $_name)
     {
         $_name = trim($_name, '/');
         $_name = trim($_name, '\\');
         $_name = str_replace('/', DIRECTORY_SEPARATOR, $_name);
         $_name = str_replace('\\', DIRECTORY_SEPARATOR, $_name);
-        $this->theme = $_name;
+        $this->theme = $_name . DIRECTORY_SEPARATOR;
+        return $this;
     }
 
     /**
@@ -279,7 +288,7 @@ class TemplateE
      */
     private function compileWrite(string $_template, $_content): void
     {
-        $_template .= $this->request->pathinfo();
+        $_template .= $this->request->baseUrl(true);
         $_template .= $this->lang->getLangSet();
         if ($this->request->isMobile()) {
             $_template .= 'mobile';
@@ -289,8 +298,8 @@ class TemplateE
             md5($_template) . '.php';
 
         clearstatcache();
-        if (false === $this->app->config->get('app.debug')) {
-            $_content = '<!-- ' . $this->request->pathinfo() . ' -->' . $_content;
+        if (false === $this->config->get('app.debug')) {
+            $_content = function_exists('gzcompress') ? gzcompress($_content) : $_content;
             file_put_contents($path, $_content);
         }
     }
@@ -303,7 +312,7 @@ class TemplateE
      */
     private function compileRead(string $_template)
     {
-        $_template .= $this->request->pathinfo();
+        $_template .= $this->request->baseUrl(true);
         $_template .= $this->lang->getLangSet();
         if ($this->request->isMobile()) {
             $_template .= 'mobile';
@@ -313,10 +322,12 @@ class TemplateE
             md5($_template) . '.php';
 
         clearstatcache();
-        if (true === $this->app->config->get('app.debug') && is_file($path)) {
+        if (true === $this->config->get('app.debug') && is_file($path)) {
             unlink($path);
         } elseif (is_file($path)) {
-            return include_once($path);
+            $content = file_get_contents($path);
+            $content = function_exists('gzcompress') ? gzuncompress($content) : $content;
+            return $content;
         }
 
         return false;
@@ -485,11 +496,11 @@ class TemplateE
     private function parseLayout(): void
     {
         if (true === $this->theme_config['layout'] && false === strpos($this->content, '{:NOT_LAYOUT}')) {
-            if (is_file($this->view_path . $this->theme . 'layout.html')) {
-                $layout = file_get_contents($this->view_path . $this->theme . 'layout.html');
+            if (is_file($this->view_path . $this->theme . DIRECTORY_SEPARATOR . 'layout.html')) {
+                $layout = file_get_contents($this->view_path . $this->theme . DIRECTORY_SEPARATOR . 'layout.html');
                 $this->content = str_replace('{:__CONTENT__}', $this->content, $layout);
             } else {
-                throw new TemplateNotFoundException('template layout not exists:' . $this->theme . 'layout.html');
+                throw new TemplateNotFoundException('template layout not exists:' . $this->theme . DIRECTORY_SEPARATOR . 'layout.html');
             }
         } else {
             $this->content = str_replace('{:NOT_LAYOUT}', '', $this->content);
@@ -504,11 +515,11 @@ class TemplateE
      */
     private function parseConfig(): void
     {
-        if (!is_file($this->view_path . 'config.json')) {
+        if (!is_file($this->view_path . $this->theme . 'config.json')) {
             throw new TemplateNotFoundException('template config not exists:' . 'config.json');
         }
 
-        $config = file_get_contents($this->view_path . 'config.json');
+        $config = file_get_contents($this->view_path . $this->theme . 'config.json');
         $config = json_decode(strip_tags($config), true);
         if (!$config) {
             throw new TemplateNotFoundException('template config error:' . $this->theme . 'config.json');
@@ -532,22 +543,21 @@ class TemplateE
 
         $app = isset($app) ? $app : $this->request->controller(true);
         $this->view_path .= $app . DIRECTORY_SEPARATOR;
-        $this->view_path .= $this->theme ? $this->theme . DIRECTORY_SEPARATOR : '';
+        $path = $this->view_path . $this->theme;
 
         $_template = str_replace(['/', ':'], DIRECTORY_SEPARATOR, $_template);
         $_template = $_template ?: $this->request->action(true);
         $_template = ltrim($_template, DIRECTORY_SEPARATOR) . '.html';
 
-        if ($this->request->isMobile() && is_file($this->view_path . 'mobile' . DIRECTORY_SEPARATOR . $_template)) {
+        if ($this->request->isMobile() && is_file($path . 'mobile' . DIRECTORY_SEPARATOR . $_template)) {
             $this->view_path .= 'mobile' . DIRECTORY_SEPARATOR;
         }
 
         // 模板不存在 抛出异常
-        if (!is_file($this->view_path . $_template)) {
-            echo $this->view_path . $_template;
+        if (!is_file($path . $_template)) {
             throw new TemplateNotFoundException('template not exists:' . $_template, $_template);
         }
 
-        $this->content = file_get_contents($this->view_path . $_template);
+        $this->content = file_get_contents($path . $_template);
     }
 }

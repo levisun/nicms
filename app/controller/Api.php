@@ -15,9 +15,7 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
-use think\App;
 use think\exception\HttpResponseException;
-use think\facade\Config;
 use app\library\Async;
 use app\library\Download;
 use app\library\Ip;

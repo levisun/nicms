@@ -35,10 +35,9 @@ abstract class BaseController extends TemplateE
      */
     public function __construct(App $_app)
     {
+        parent::__construct($_app);
         // 控制器初始化
         $this->initialize();
-
-        parent::__construct($_app);
     }
 
     // 初始化

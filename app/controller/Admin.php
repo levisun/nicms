@@ -36,7 +36,20 @@ class admin extends BaseController
      */
     public function initialize()
     {
-        $this->setTheme(Env::get('admin.theme', 'default'));
+        $theme = $this->config->get('app.cdn_host') . '/view/admin/' . Env::get('admin.theme', 'default') . '/';
+        $this->setTheme(Env::get('admin.theme', 'default'))
+            ->setReplace([
+                '__THEME__'       => $theme,
+                '__CSS__'         => $theme . 'css/',
+                '__IMG__'         => $theme . 'img/',
+                '__JS__'          => $theme . 'js/',
+                '__NAME__'        => 'nicms',
+                '__TITLE__'       => 'nicms',
+                '__KEYWORDS__'    => 'nicms',
+                '__DESCRIPTION__' => 'nicms',
+                '__BOTTOM_MSG__'  => 'nicms',
+                '__COPYRIGHT__'   => 'nicms',
+            ]);
     }
 
     /**

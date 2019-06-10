@@ -33,7 +33,7 @@ class ReGarbage
 
         $this->remove($runtime_path . 'cache', 4);
         $this->remove($runtime_path . 'compile', 72);
-        // $this->remove($runtime_path . 'lock', 4);
+        $this->remove($runtime_path . 'lock', 24);
         $this->remove($runtime_path . 'log', 72);
         $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 72);
 
