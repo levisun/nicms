@@ -32,7 +32,7 @@ class Api extends Async
     public function query(): void
     {
         if ($this->referer && $this->request->isGet()) {
-            $result = $this->run();
+            $result = $this->validate()->run();
             $this->success($result['msg'], $result['data'], $result['code']);
         } else {
             $this->error('权限不足', 40006);
@@ -48,7 +48,7 @@ class Api extends Async
     public function handle(): void
     {
         if ($this->referer && $this->request->isPost()) {
-            $result = $this->run();
+            $result = $this->validate()->run();
             $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
         } else {
             $this->error('权限不足', 40006);
@@ -64,8 +64,18 @@ class Api extends Async
     public function upload(): void
     {
         if ($this->referer && $this->request->isPost() && !empty($_FILES)) {
-            $result = $this->run();
+            $result = $this->validate()->run();
             $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
+        } else {
+            $this->error('权限不足', 40006);
+        }
+    }
+
+    public function sms(): void
+    {
+        if ($this->referer && $this->request->isPost()) {
+            $this->validate();
+            # code...
         } else {
             $this->error('权限不足', 40006);
         }
@@ -98,6 +108,7 @@ class Api extends Async
     public function ip(): void
     {
         if ($this->request->isGet() && $ip = $this->request->param('ip', false)) {
+            $this->validate();
             $ip = (new Ip)->info($ip);
             $this->cache(true)->success('success', $ip);
         } else {

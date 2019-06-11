@@ -233,11 +233,7 @@ abstract class Async
      */
     protected function run(): array
     {
-        $exec = $this->analysisHeader()
-            ->checkAppId()
-            ->checkSign()
-            ->checkTimestamp()
-            ->analysisMethod();
+        $exec = $this->analysisMethod();
 
         // 执行类方法
         $class = Container::getInstance()->make($exec['class']);
@@ -270,10 +266,22 @@ abstract class Async
     }
 
     /**
+     * 验证
+     * @access protected
+     * @param
+     * @return $this
+     */
+    protected function validate()
+    {
+        $this->analysisHeader()->checkAppId()->checkSign()->checkTimestamp();
+        return $this;
+    }
+
+    /**
      * 设置缓存时间
      * @access protected
      * @param
-     * @return void
+     * @return $this
      */
     protected function expire(int $_expire = 0)
     {
@@ -285,7 +293,7 @@ abstract class Async
      * 开启调试
      * @access protected
      * @param
-     * @return void
+     * @return $this
      */
     protected function debug(bool $_debug)
     {
@@ -297,7 +305,7 @@ abstract class Async
      * 设置缓存
      * @access protected
      * @param
-     * @return void
+     * @return $this
      */
     protected function cache(bool $_cache = false)
     {

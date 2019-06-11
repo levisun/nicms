@@ -20,6 +20,15 @@ use think\facade\Config;
 class Base64
 {
 
+    public static function verifyPassword()
+    {
+        # code...
+    }
+    public static function pw(string $_str, string $_salt = ''): string
+    {
+        return password_hash($_str . $_salt, PASSWORD_BCRYPT, ['cost' => 11]);
+    }
+
     /**
      * 密码加密
      * 不可逆

@@ -52,7 +52,13 @@ class Cms extends BaseController
      */
     public function index()
     {
-        echo $this->app->getBasePath();
+        $d = password_hash('JptsftovWifi$8955', PASSWORD_BCRYPT, ['cost' => 11]);
+        $is = password_verify('JptsftovWifi$8955', $d);
+        var_dump($is);
+
+        $is = password_needs_rehash($d, PASSWORD_BCRYPT, ['cost' => 11]);
+        var_dump($is);
+
         // $this->fetch('index');
     }
 
