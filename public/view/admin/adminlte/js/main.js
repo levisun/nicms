@@ -1,5 +1,5 @@
 
-export class main {
+export default class main {
     constructor() {
     };
 

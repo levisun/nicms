@@ -309,7 +309,7 @@ class Category extends BaseService
      * @param
      * @return array
      */
-    public function remove()
+    public function remove(): array
     {
         if ($result = $this->authenticate(__METHOD__, 'admin category remove')) {
             return $result;
@@ -360,7 +360,7 @@ class Category extends BaseService
      * @param
      * @return array
      */
-    public function upload()
+    public function upload(): array
     {
         if ($result = $this->authenticate(__METHOD__, 'admin category upload image')) {
             return $result;

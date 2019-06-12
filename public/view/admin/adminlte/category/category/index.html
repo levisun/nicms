@@ -35,7 +35,7 @@
                         </span>
                     </td>
                     <td>
-                        <a class="child" v-if="vo.child" v-bind:data="vo.id">
+                        <a v-if="vo.child" v-on:click="child(vo.id)">
                             <i class="fa fa-plus"></i>
                             {:lang('child')}
                         </a>
@@ -47,13 +47,13 @@
                             <i class="fa fa-plus"></i>
                             {:lang('editor')}
                         </a>
-                        <a class="remove" v-bind:data="vo.id">
+                        <a v-on:click="remove(vo.id)" v-bind:data="vo.id">
                             <i class="fa fa-trash"></i>
                             {:lang('remove')}
                         </a>
                     </td>
                 </tr>
-                <tr v-if="vo.child" v-bind:class="vo.id" v-for="cv in vo.child" style="display: none;">
+                <tr v-if="vo.child" v-bind:class="'child-'+vo.id" v-for="cv in vo.child" style="display: none;">
                     <td>
                         <input type="text" class="form-control" v-bind:name="'sort_order['+cv.id+']'" v-bind:value="cv.sort_order">
                     </td>
@@ -103,6 +103,26 @@ jQuery.pjax({
                 el: '.box',
                 data: {
                     items: result.data.list
+                },
+                methods: {
+                    child: function(id) {
+                        jQuery('.child-'+id).toggle();
+                    },
+                    remove: function(id) {
+                        jQuery.pjax({
+                            url: NICMS.api.url + '/handle.do',
+                            type: 'POST',
+                            data: {
+                                method: 'category.category.remove',
+                                id: id,
+                            },
+                            success: function(result){
+                                if (result.code == 10000) {
+
+                                }
+                            }
+                        });
+                    }
                 }
             });
         }
@@ -111,7 +131,7 @@ jQuery.pjax({
 jQuery(document).on('click', '.child', function(){
     var id = jQuery(this).attr('data');
     var self = this;
-    jQuery('.'+id).toggle();
+    jQuery('.child-'+id).toggle();
 });
 jQuery(document).on('click', '#added', function(){
     window.location.href = NICMS.domain + '/category/category/added.html';

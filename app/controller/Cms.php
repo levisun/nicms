@@ -27,13 +27,18 @@ class Cms extends BaseController
     /**
      * 构造方法
      * @access public
-     * @param  App  $app  应用对象
+     * @param
      * @return void
      */
     public function initialize()
     {
+        $theme = $this->config->get('app.cdn_host') . '/view/cms/' . Siteinfo::theme() . '/';
         $this->setTheme(Siteinfo::theme())
             ->setReplace([
+                '__THEME__'       => $theme,
+                '__CSS__'         => $theme . 'css/',
+                '__IMG__'         => $theme . 'img/',
+                '__JS__'          => $theme . 'js/',
                 '__NAME__'        => Siteinfo::name(),
                 '__TITLE__'       => Siteinfo::title(),
                 '__KEYWORDS__'    => Siteinfo::keywords(),
@@ -52,14 +57,9 @@ class Cms extends BaseController
      */
     public function index()
     {
-        $d = password_hash('JptsftovWifi$8955', PASSWORD_BCRYPT, ['cost' => 11]);
-        $is = password_verify('JptsftovWifi$8955', $d);
-        var_dump($is);
+        // echo \app\library\Base64::createPassword('Horadric', '0af476');
 
-        $is = password_needs_rehash($d, PASSWORD_BCRYPT, ['cost' => 11]);
-        var_dump($is);
-
-        // $this->fetch('index');
+        $this->fetch('index');
     }
 
     /**

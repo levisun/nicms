@@ -229,7 +229,7 @@ abstract class BaseService
                 }
             } elseif ('date_format' === $name) {
                 $result = (string)$this->request->param('date_format', 'Y-m-d H:i:s');
-                if (!$result || !preg_match('/^[YmdHis]+$/u', str_replace(['-', ':'], '', $result))) {
+                if (!$result || !preg_match('/^[YymdHhis\-: ]+$/u', $result)) {
                     $result = false;
                     break;
                 }

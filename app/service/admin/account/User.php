@@ -48,7 +48,7 @@ class User extends BaseService
                 ])
                 ->find();
 
-            if ($user && $user['password'] === Base64::password($this->request->param('password'), $user['salt'])) {
+            if ($user && false !== Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {
                 $ip = (new Ip)->info();
                 (new ModelAdmin)
                     ->where([

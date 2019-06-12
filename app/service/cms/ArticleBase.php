@@ -31,7 +31,7 @@ class ArticleBase extends BaseService
      * @param
      * @return array
      */
-    protected function lists()
+    protected function query()
     {
         $map = [
             ['article.is_pass', '=', '1'],

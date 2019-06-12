@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS `np_admin`;
 CREATE TABLE IF NOT EXISTS `np_admin` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `username` varchar(20) NOT NULL DEFAULT '' COMMENT '用户名',
-  `password` varchar(32) NOT NULL DEFAULT '' COMMENT '密码',
+  `password` varchar(60) NOT NULL DEFAULT '' COMMENT '密码',
   `email` varchar(40) NOT NULL DEFAULT '' COMMENT '邮箱',
   `salt` char(6) NOT NULL DEFAULT '' COMMENT '佐料',
   `flag` varchar(40) NOT NULL DEFAULT '' COMMENT '登录标识',
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `np_admin` (
   KEY `password` (`password`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='管理员表';
 INSERT INTO `np_admin` (`id`, `username`, `password`, `email`, `salt`, `last_login_ip`, `last_login_ip_attr`, `last_login_time`, `update_time`, `create_time`) VALUES
-(1, 'levisun', 'bc1727bad0b07254444e94cf5de45e4a', 'levisun@mail.com', '0af476', '', '', 1556499533, 1556499533, 1556499533);
+(1, 'levisun', '$2y$11$d.FUHJoQT8EEsuJVv9GOQ.D6.GquPRJHb.7VfU89yugmVwzxzo6qG', 'levisun@mail.com', '0af476', '', '', 1556499533, 1556499533, 1556499533);
 
 
 

@@ -14,17 +14,42 @@ declare (strict_types = 1);
 
 namespace app\library;
 
-use think\exception\HttpException;
 use think\facade\Config;
 
 class Base64
 {
 
-    public static function verifyPassword()
+    /**
+     * 验证密码
+     * @access public
+     * @static
+     * @param  string $_password
+     * @param  string $_salt
+     * @param  string $_hash
+     * @return mixed
+     */
+    public static function verifyPassword(string $_password, string $_salt, string $_hash)
     {
-        # code...
+        if (password_verify($_password . $_salt, $_hash)) {
+            if (password_needs_rehash($_hash, PASSWORD_BCRYPT, ['cost' => 11])) {
+                return self::createPassword($_password . $_salt);
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
     }
-    public static function pw(string $_str, string $_salt = ''): string
+
+    /**
+     * 创建密码
+     * @access public
+     * @static
+     * @param  string $_str
+     * @param  string $_salt
+     * @return string
+     */
+    public static function createPassword(string $_str, string $_salt = ''): string
     {
         return password_hash($_str . $_salt, PASSWORD_BCRYPT, ['cost' => 11]);
     }

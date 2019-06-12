@@ -182,45 +182,39 @@ class TemplateE
 
             if (!empty($this->theme_config['css'])) {
                 foreach ($this->theme_config['css'] as $css) {
-                    // $head .= '<style type="text/css" name="' . pathinfo($css, PATHINFO_BASENAME) . '">';
-                    // $head .= file_get_contents(str_replace($this->config->get('app.cdn_host'), $this->app->getRootPath() . 'public', $css));
-                    // $head .= '</style>';
                     echo '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->theme_config['theme_version'] . '" />';
                 }
             }
 
             list($root) = explode('.', $this->request->rootDomain(), 2);
             echo '<script type="text/javascript">' .
-            'var NICMS={' .
-            'domain:"' . '//' . $this->request->subDomain() . '.' . $this->request->rootDomain() . '",' .
-            'url:"' . $this->request->baseUrl(true) . '",' .
-            'param:' . json_encode($this->request->param()) . ',' .
-            'api:{' .
-            'url:"' . $this->config->get('app.api_host') . '",' .
-            'root:"' . $root . '",' .
-            'version:"' . $this->theme_config['api_version'] . '",' .
-            'appid:"' . $this->theme_config['api_appid'] . '",' .
-            'appsecret:"' . $this->theme_config['api_appsecret'] . '",' .
-            'authorization:"{:__AUTHORIZATION__}",' .
-            'param:' . json_encode($this->request->param()) .
-            '},' .
-            'cdn:{' .
-            'static:"' . $this->replace['__STATIC__'] . '",' .
-            'theme:"' .  $this->replace['__THEME__'] . '",' .
-            'css:"' .    $this->replace['__CSS__'] . '",' .
-            'img:"' .    $this->replace['__IMG__'] . '",' .
-            'js:"' .     $this->replace['__JS__'] . '"' .
-            '}' .
-            '};</script>';
+                'var NICMS={' .
+                'domain:"' . '//' . $this->request->subDomain() . '.' . $this->request->rootDomain() . '",' .
+                'url:"' . $this->request->baseUrl(true) . '",' .
+                'param:' . json_encode($this->request->param()) . ',' .
+                'api:{' .
+                'url:"' . $this->config->get('app.api_host') . '",' .
+                'root:"' . $root . '",' .
+                'version:"' . $this->theme_config['api_version'] . '",' .
+                'appid:"' . $this->theme_config['api_appid'] . '",' .
+                'appsecret:"' . $this->theme_config['api_appsecret'] . '",' .
+                'authorization:"{:__AUTHORIZATION__}",' .
+                'param:' . json_encode($this->request->param()) .
+                '},' .
+                'cdn:{' .
+                'static:"' . $this->replace['__STATIC__'] . '",' .
+                'theme:"' .  $this->replace['__THEME__'] . '",' .
+                'css:"' .    $this->replace['__CSS__'] . '",' .
+                'img:"' .    $this->replace['__IMG__'] . '",' .
+                'js:"' .     $this->replace['__JS__'] . '"' .
+                '}' .
+                '};</script>';
             echo '</head>';
             echo false === strpos($this->content, '<body') ? '<body>' : '';
             echo DataFilter::string($this->content);
 
             if (!empty($this->theme_config['js'])) {
                 foreach ($this->theme_config['js'] as $js) {
-                    // $foot .= '<script type="text/css" name=' . pathinfo($js, PATHINFO_BASENAME) . '>';
-                    // $foot .= file_get_contents(str_replace($this->config->get('app.cdn_host'), $this->app->getRootPath() . 'public', $js));
-                    // $foot .= '</script>';
                     echo '<script type="text/javascript" src="' . $js . '?v=' . $this->theme_config['theme_version'] . '"></script>';
                 }
             }
@@ -294,8 +288,7 @@ class TemplateE
             $_template .= 'mobile';
         }
 
-        $path = $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR .
-            md5($_template) . '.php';
+        $path = $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR . md5($_template) . '.php';
 
         clearstatcache();
         if (false === $this->config->get('app.debug')) {
@@ -318,8 +311,7 @@ class TemplateE
             $_template .= 'mobile';
         }
 
-        $path = $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR .
-            md5($_template) . '.php';
+        $path = $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR . md5($_template) . '.php';
 
         clearstatcache();
         if (true === $this->config->get('app.debug') && is_file($path)) {
@@ -387,7 +379,7 @@ class TemplateE
 
                     $var_name = explode('.', $var_name);
                     foreach ($var_name as $name) {
-                        $vars = (is_array($vars) && isset($vars[$name])) ? $vars[$name] : $vars;
+                        $vars = (is_array($vars) && isset($vars[$name])) ? $vars[$name] : '';
                     }
                 }
 
@@ -516,7 +508,7 @@ class TemplateE
     private function parseConfig(): void
     {
         if (!is_file($this->view_path . $this->theme . 'config.json')) {
-            throw new TemplateNotFoundException('template config not exists:' . 'config.json');
+            throw new TemplateNotFoundException('template config not exists:' . $this->theme . 'config.json');
         }
 
         $config = file_get_contents($this->view_path . $this->theme . 'config.json');
