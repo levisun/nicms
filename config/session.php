@@ -13,7 +13,7 @@
 
 return [
     // session name
-    'name'           => '__' . substr(md5(__DIR__), 7, 3) . 'i',
+    'name'           => '__' . substr(sha1(__DIR__), 7, 3) . 'i',
     // SESSION_ID的提交变量,解决flash上传跨域
     'var_session_id' => '',
     // 驱动方式 支持file redis memcache memcached

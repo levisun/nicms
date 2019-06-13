@@ -43,7 +43,7 @@ class LockRequest
             chmod($this->app->getRuntimePath(), 0777);
             mkdir($this->request_log, 0777, true);
         }
-        $this->request_log .= md5($this->app->request->ip() . date('Ymd')) . '.php';
+        $this->request_log .= md5(client_mac() . date('Ymd')) . '.php';
 
         $this->lockRequest();
         $this->recordRequest();
@@ -69,11 +69,11 @@ class LockRequest
             } else {
                 $request_number[$time] = isset($request_number[$time]) ? ++$request_number[$time] : 1;
                 $request_number = [$time => end($request_number)];
-                @file_put_contents($this->request_log, '<?php return ' . var_export($request_number, true) . ';');
+                @file_put_contents($this->request_log, '<?php /*' . client_mac() . '*/ return ' . var_export($request_number, true) . ';');
             }
         } else {
             $request_number = [$time => 1];
-            @file_put_contents($this->request_log, '<?php return ' . var_export($request_number, true) . ';');
+            @file_put_contents($this->request_log, '<?php /*' . client_mac() . '*/ return ' . var_export($request_number, true) . ';');
         }
     }
 
