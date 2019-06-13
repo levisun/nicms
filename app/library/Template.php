@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * 模板类
+ * 模板驱动
  *
  * @package   NICMS
  * @category  app\library
@@ -15,10 +15,10 @@ declare (strict_types = 1);
 namespace app\library;
 
 use think\App;
-use think\exception\HttpException;
+use think\template\exception\TemplateNotFoundException;
 use app\library\DataFilter;
 
-abstract class Template
+class Template
 {
     /**
      * 应用实例
@@ -48,34 +48,53 @@ abstract class Template
      * 模板路径
      * @var string
      */
-    private $templatePath;
-
-    /**
-     * 模板路径
-     * @var string
-     */
-    private $buildPath;
+    protected $view_path;
 
     /**
      * 主题
      * @var string
      */
-    protected $theme = '';
+    protected $theme;
 
     /**
-     * 替换变量
+     * 主题配置
      * @var array
      */
-    protected $templateReplace = [];
+    protected $theme_config = [];
 
-    protected $varData = [];
+    /**
+     * HTML
+     * @var string
+     */
+    protected $content;
 
-    protected $scriptReady = '';
+    /**
+     * javascript
+     * @var string
+     */
+    protected $script;
+
+    protected $vars = [];
+
+    protected $replace = [
+        '__THEME__'       => 'theme/',
+        '__CSS__'         => 'css/',
+        '__IMG__'         => 'img/',
+        '__JS__'          => 'js/',
+        '__STATIC__'      => 'static/',
+        '__NAME__'        => '',
+        '__TITLE__'       => '',
+        '__KEYWORDS__'    => '',
+        '__DESCRIPTION__' => '',
+        '__BOTTOM_MSG__'  => '',
+        '__COPYRIGHT__'   => '',
+    ];
 
     /**
      * 架构函数
      * @access public
-     * @param  array $config
+     * @param  \think\App $_app
+     * @return void
      */
     public function __construct(App $_app)
     {
@@ -84,543 +103,466 @@ abstract class Template
         $this->lang    = $this->app->lang;
         $this->request = $this->app->request;
 
-        $this->app->debug($this->config->get('app.debug'));
-        $this->request->filter('defalut_filter');
+        $this->view_path = $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR;
 
-        $this->templatePath  = $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
-        $this->templatePath .= 'template' . DIRECTORY_SEPARATOR;
-
-        $this->buildPath  = $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
-
-        $theme = $this->config->get('app.cdn_host') . '/template/' . str_replace('\\', '/', $this->theme);
-        $this->setReplace([
-            'version'     => $this->config->get('app.version', '1.0.1'),
-            'theme'       => $theme . 'theme/',
-            'css'         => $theme . 'css/',
-            'img'         => $theme . 'img/',
-            'js'          => $theme . 'js/',
-            'static'      => $this->config->get('app.cdn_host') . '/static/',
-            'name'        => 'nicms',
-            'title'       => 'nicms',
-            'keywords'    => 'nicms',
-            'description' => 'nicms',
-            'bottom_msg'  => 'nicms',
-            'copyright'   => 'nicms',
-            'script'      => '<script type="text/javascript"></script>',
-        ]);
-        unset($theme);
+        $this->replace['__VERSION__'] = $this->config->get('app.version', '1.0.1');
+        $this->replace['__STATIC__'] = $this->config->get('app.cdn_host') . '/static/';
     }
 
     /**
-     * [assign description]
-     * @param  array  $_vars [description]
-     * @return [type]        [description]
+     * 渲染模板文件
+     * @access public
+     * @param  string $_template 模板文件
+     * @param  array  $_data     模板变量
+     * @return void
      */
-    protected function assign(array $_vars = [])
+    public function fetch(string $_template, array $_data = []): void
     {
-        $this->varData = array_merge($this->varData, $_vars);
-        return $this;
-    }
+        if (!$content = $this->compileRead($_template)) {
+            $this->vars = array_merge($this->vars, $_data);
 
-    /**
-     * [fetch description]
-     * @param  string $_template [description]
-     * @return [type]            [description]
-     */
-    protected function fetch(string $_template = '')
-    {
-        // 页面缓存
-        ob_start();
-        ob_implicit_flush(0);
+            $this->parseTemplate($_template);
+            $this->parseConfig();
+            $this->parseLayout();
+            $this->parseInclude();
+            $this->parseFunc();
+            $this->parseTags();
+            $this->parseVars();
 
-        if (!$content = $this->templateBuildRead($_template)) {
-            $this->templateConfig = $this->parseTemplateConfig();
+            // 页面缓存
+            ob_start();
+            ob_implicit_flush(0);
 
-            echo $this->parseTemplateHead();
+            echo '<!DOCTYPE html>' .
+                '<html lang="' . $this->lang->getLangSet() . '">' .
+                '<head>' .
+                '<meta charset="utf-8" />' .
+                '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
+                '<meta name="robots" content="all" />' .                                // 蜘蛛抓取
+                '<meta name="revisit-after" content="1 days" />' .                      // 蜘蛛重访
+                '<meta name="renderer" content="webkit" />' .                           // 强制使用webkit渲染
+                '<meta name="force-rendering" content="webkit" />' .
+                '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' .
 
-            $content = file_get_contents($this->parseTemplateFile($_template));
-            $content = $this->parseTemplateLayout($content);        // 解析布局模板
-            $content = $this->parseTemplateInclude($content);       // 解析模板引入文件
-            $content = $this->parseTemplateReplace($content);       // 解析模板替换字符
-            $content = $this->parseTemplateVars($content);          // 解析模板变量
-            $content = $this->parseTemplateFunc($content);          // 解析模板函数
-            $content = $this->parseTemplateTags($content);          // 解析模板标签方法
-            $content = DataFilter::string($content);
+                '<meta name="generator" content="nicms" />' .
+                '<meta name="author" content="levisun.mail@gmail.com" />' .
+                '<meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" />' .
 
-            echo false === strpos($content, '<body') ? '<body>' : '';
-            echo $content;
-            echo $this->parseTemplateFoot();
-        } else {
-            echo $content;
+                '<meta http-equiv="Window-target" content="_blank">' .
+                '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' .
+
+                '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
+                '<meta http-equiv="Cache-Control" content="no-transform" />' .
+
+                '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
+                '<link rel="dns-prefetch" href="' . $this->config->get('app.api_host') . '" />' .
+                '<link rel="dns-prefetch" href="' . $this->config->get('app.cdn_host') . '" />' .
+
+                '<link href="' . $this->config->get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />';
+
+            // 网站标题 关键词 描述
+            echo '<title>' . $this->replace['__TITLE__'] . '</title>' .
+                '<meta name="keywords" content="' . $this->replace['__KEYWORDS__'] . '" />' .
+                '<meta name="description" content="' . $this->replace['__DESCRIPTION__'] . '" />' .
+                '<meta property="og:title" content="' . $this->replace['__NAME__'] . '">' .
+                '<meta property="og:type" content="website">' .
+                '<meta property="og:url" content="' . $this->request->url(true) . '">' .
+                '<meta property="og:image" content="">';
+
+            if (!empty($this->theme_config['meta'])) {
+                foreach ($this->theme_config['meta'] as $m) {
+                    echo '<meta ' . $m['type'] . ' ' . $m['content'] . ' />';
+                }
+            }
+            if (!empty($this->theme_config['link'])) {
+                foreach ($this->theme_config['link'] as $m) {
+                    echo '<link rel="' . $m['rel'] . '" href="' . $m['href'] . '" />';
+                }
+            }
+
+            if (!empty($this->theme_config['css'])) {
+                foreach ($this->theme_config['css'] as $css) {
+                    echo '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->theme_config['theme_version'] . '" />';
+                }
+            }
+
+            list($root) = explode('.', $this->request->rootDomain(), 2);
+            echo '<script type="text/javascript">' .
+                'var NICMS={' .
+                'domain:"' . '//' . $this->request->subDomain() . '.' . $this->request->rootDomain() . '",' .
+                'url:"' . $this->request->baseUrl(true) . '",' .
+                'param:' . json_encode($this->request->param()) . ',' .
+                'api:{' .
+                'url:"' . $this->config->get('app.api_host') . '",' .
+                'root:"' . $root . '",' .
+                'version:"' . $this->theme_config['api_version'] . '",' .
+                'appid:"' . $this->theme_config['api_appid'] . '",' .
+                'appsecret:"' . $this->theme_config['api_appsecret'] . '",' .
+                'authorization:"{:__AUTHORIZATION__}",' .
+                'param:' . json_encode($this->request->param()) .
+                '},' .
+                'cdn:{' .
+                'static:"' . $this->replace['__STATIC__'] . '",' .
+                'theme:"' .  $this->replace['__THEME__'] . '",' .
+                'css:"' .    $this->replace['__CSS__'] . '",' .
+                'img:"' .    $this->replace['__IMG__'] . '",' .
+                'js:"' .     $this->replace['__JS__'] . '"' .
+                '}' .
+                '};</script>';
+            echo '</head>';
+            echo false === strpos($this->content, '<body') ? '<body>' : '';
+
+            $this->content = preg_replace_callback('/<script( type="(.*?)")?>(.*?)<\/script>/si', function ($matches) {
+                $type = $matches[2] ? : 'text/javascript';
+                $matches[3] = DataFilter::string($matches[3]);
+                $pattern = [
+                    '/\/\/.*?(\n|\r)+/i',
+                    '/\n|\r|\f/'
+                ];
+                $matches[3] = preg_replace($pattern, '', $matches[3]);
+                $this->script .= '<script type="' . $type . '">' . $matches[3] . '</script>';
+                return '';
+            }, $this->content);
+
+            echo DataFilter::string($this->content);
+
+            if (!empty($this->theme_config['js'])) {
+                foreach ($this->theme_config['js'] as $js) {
+                    echo '<script type="text/javascript" src="' . $js . '?v=' . $this->theme_config['theme_version'] . '"></script>';
+                }
+            }
+
+            echo $this->script;
+            echo '</body></html><!-- ' . $this->request->baseUrl(true) . ' -->';
+            $content = ob_get_clean();
+            $content = $this->parseReplace($content);
+            $this->compileWrite($_template, $content);
         }
-
-        $content = ob_get_clean();
-
-        $this->templateBuildWrite($content);
 
         echo str_replace('{:__AUTHORIZATION__}', create_authorization(), $content);
     }
 
     /**
-     * 设置模板替换字符
-     * @access protected
-     * @param  array $_replace
+     * 设置模板变量
+     * @access public
+     * @param  array $_vars
      * @return void
      */
-    protected function setReplace(array $_replace)
+    public function assign(array $_vars = [])
+    {
+        $this->vars = array_merge($this->vars, $_vars);
+        return $this;
+    }
+
+    /**
+     * 设置模板替换字符
+     * @access public
+     * @param  array $_replace
+     * @return object
+     */
+    public function setReplace(array $_replace)
     {
         $rep = [];
         foreach ($_replace as $key => $value) {
-            $rep['__' . strtoupper($key) . '__'] = $value;
+            $rep[strtoupper($key)] = $value;
         }
-        $this->templateReplace = array_merge($this->templateReplace, $rep);
+        $this->replace = array_merge($this->replace, $rep);
+        return $this;
     }
 
     /**
      * 设置模板主题
-     * @access protected
+     * @access public
      * @param  string $_name
+     * @return object
+     */
+    public function setTheme(string $_name)
+    {
+        $_name = trim($_name, '/');
+        $_name = trim($_name, '\\');
+        $_name = str_replace('/', DIRECTORY_SEPARATOR, $_name);
+        $_name = str_replace('\\', DIRECTORY_SEPARATOR, $_name);
+        $this->theme = $_name . DIRECTORY_SEPARATOR;
+        return $this;
+    }
+
+    /**
+     * 生成模板静态文件
+     * @access private
+     * @param  string $_template
+     * @param  string $_content
      * @return void
      */
-    protected function setTheme(string $_name)
+    private function compileWrite(string $_template, $_content): void
     {
-        $this->theme = str_replace('/', DIRECTORY_SEPARATOR, $_name) . DIRECTORY_SEPARATOR;
-    }
-
-    /**
-     * 解析foot
-     * @access private
-     * @param
-     * @return string 底部HTML
-     */
-    private function parseTemplateFoot(): string
-    {
-        $foot = '';
-
-        if (!empty($this->templateConfig['js'])) {
-            foreach ($this->templateConfig['js'] as $js) {
-                // $foot .= '<script type="text/css" name=' . pathinfo($js, PATHINFO_BASENAME) . '>';
-                // $foot .= file_get_contents(str_replace($this->config->get('app.cdn_host'), $this->app->getRootPath() . 'public', $js));
-                // $foot .= '</script>';
-                $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $this->templateConfig['theme_version'] . '"></script>';
-            }
+        $_template .= $this->request->baseUrl(true);
+        $_template .= $this->lang->getLangSet();
+        if ($this->request->isMobile()) {
+            $_template .= 'mobile';
         }
 
-        if ($this->scriptReady) {
-            $foot .= $this->scriptReady;
-        }
-
-        // 插件加载
-
-        // 底部JS脚本
-        $foot .= $this->templateReplace['__SCRIPT__'];
-
-        return $foot . '</body></html>';
-    }
-
-    /**
-     * 解析head
-     * @access private
-     * @param
-     * @return string 头部HTML
-     */
-    private function parseTemplateHead(): string
-    {
-        $head =
-            '<!DOCTYPE html>' .
-            '<html lang="' . $this->lang->getLangSet() . '">' .
-            '<head>' .
-            '<meta charset="utf-8" />' .
-            '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
-            '<meta name="robots" content="all" />' .                                // 蜘蛛抓取
-            '<meta name="revisit-after" content="1 days" />' .                      // 蜘蛛重访
-            '<meta name="renderer" content="webkit" />' .                           // 强制使用webkit渲染
-            '<meta name="force-rendering" content="webkit" />' .
-            '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' .
-
-            '<meta name="generator" content="nicms" />' .
-            '<meta name="author" content="levisun.mail@gmail.com" />' .
-            '<meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" />' .
-
-            '<meta http-equiv="Window-target" content="_blank">' .
-            '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' .
-
-            '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
-            '<meta http-equiv="Cache-Control" content="no-transform" />' .
-
-            '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
-            '<link rel="dns-prefetch" href="' . $this->config->get('app.api_host') . '" />' .
-            '<link rel="dns-prefetch" href="' . $this->config->get('app.cdn_host') . '" />' .
-
-            '<link href="' . $this->config->get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />';
-
-        // 网站标题 关键词 描述
-        $head .= '<title>' . $this->templateReplace['__TITLE__'] . '</title>';
-        $head .= '<meta name="keywords" content="' . $this->templateReplace['__KEYWORDS__'] . '" />';
-        $head .= '<meta name="description" content="' . $this->templateReplace['__DESCRIPTION__'] . '" />';
-        $head .= '<meta property="og:title" content="' . $this->templateReplace['__NAME__'] . '">';
-        $head .= '<meta property="og:type" content="website">';
-        $head .= '<meta property="og:url" content="' . $this->request->url(true) . '">';
-        $head .= '<meta property="og:image" content="">';
-
-        if (!empty($this->templateConfig['meta'])) {
-            foreach ($this->templateConfig['meta'] as $m) {
-                $head .= '<meta ' . $m['type'] . ' ' . $m['content'] . ' />';
-            }
-        }
-        if (!empty($this->templateConfig['link'])) {
-            foreach ($this->templateConfig['link'] as $m) {
-                $head .= '<link rel="' . $m['rel'] . '" href="' . $m['href'] . '" />';
-            }
-        }
-
-        if (!empty($this->templateConfig['css'])) {
-            foreach ($this->templateConfig['css'] as $css) {
-                // $head .= '<style type="text/css" name="' . pathinfo($css, PATHINFO_BASENAME) . '">';
-                // $head .= file_get_contents(str_replace($this->config->get('app.cdn_host'), $this->app->getRootPath() . 'public', $css));
-                // $head .= '</style>';
-                $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->templateConfig['theme_version'] . '" />';
-            }
-        }
-
-        list($root) = explode('.', $this->request->rootDomain(), 2);
-        $head .= '<script type="text/javascript">' .
-            'var NICMS={' .
-            'domain:"' . '//' . $this->request->subDomain() . '.' . $this->request->rootDomain() . '",' .
-            'url:"' . $this->request->baseUrl(true) . '",' .
-            'param:' . json_encode($this->request->param()) . ',' .
-            'api:{' .
-            'url:"' . $this->config->get('app.api_host') . '",' .
-            'root:"' . $root . '",' .
-            'version:"' . $this->templateConfig['api_version'] . '",' .
-            'appid:"' . $this->templateConfig['api_appid'] . '",' .
-            'appsecret:"' . $this->templateConfig['api_appsecret'] . '",' .
-            'authorization:"{:__AUTHORIZATION__}",' .
-            'param:' . json_encode($this->request->param()) .
-            '},' .
-            'cdn:{' .
-            'static:"' . $this->templateReplace['__STATIC__'] . '",' .
-            'theme:"' .  $this->templateReplace['__THEME__'] . '",' .
-            'css:"' .    $this->templateReplace['__CSS__'] . '",' .
-            'img:"' .    $this->templateReplace['__IMG__'] . '",' .
-            'js:"' .     $this->templateReplace['__JS__'] . '"' .
-            '}' .
-            '};';
-
-        // if (!$this->request->isMobile() && $this->config->get('app.entry') !== $this->request->subDomain()) {
-        //     $head .= 'if(navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i)){' .
-        //         'location.replace("//m.' . $this->request->rootDomain() . '");' .
-        //         '}';
-        //     unset($sub);
-        // }
-        $head .= '</script></head>';
-
-        return $head;
-    }
-
-    /**
-     * 读取模板静态文件
-     * @access private
-     * @param
-     * @return bool|string
-     */
-    private function templateBuildRead(string $_template)
-    {
-        if (!is_dir($this->buildPath)) {
-            chmod($this->app->getRuntimePath(), 0777);
-            mkdir($this->buildPath, 0777, true);
-        }
-
-        $_template .= $this->lang->getLangSet() . $this->request->subDomain();
-        $this->buildPath .= md5($_template) . '.html';
+        $path = $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR . md5($_template) . '.php';
 
         clearstatcache();
-        if (true === $this->config->get('app.debug') && is_file($this->buildPath)) {
-            unlink($this->buildPath);
-        } elseif (is_file($this->buildPath)) {
-            return include_once($this->buildPath);
+        if (false === $this->config->get('app.debug')) {
+            $_content = function_exists('gzcompress') ? gzcompress($_content) : $_content;
+            file_put_contents($path, $_content);
+        }
+    }
+
+    /**
+     * 读取编译缓存
+     * @access private
+     * @param  string $_template
+     * @return string|bool
+     */
+    private function compileRead(string $_template)
+    {
+        $_template .= $this->request->baseUrl(true);
+        $_template .= $this->lang->getLangSet();
+        if ($this->request->isMobile()) {
+            $_template .= 'mobile';
+        }
+
+        $path = $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR . md5($_template) . '.php';
+
+        clearstatcache();
+        if (true === $this->config->get('app.debug') && is_file($path)) {
+            unlink($path);
+        } elseif (is_file($path)) {
+            $content = file_get_contents($path);
+            $content = function_exists('gzcompress') ? gzuncompress($content) : $content;
+            return $content;
         }
 
         return false;
     }
 
     /**
-     * 生成模板静态文件
+     * 解析模板替换字符
      * @access private
-     * @param  string $_content
+     * @param
+     * @return string
+     */
+    private function parseReplace($_content): string
+    {
+        return
+            str_replace(
+                array_keys($this->replace),
+                array_values($this->replace),
+                $_content
+            );
+    }
+
+    /**
+     * 解析模板变量
+     * @access private
+     * @param
      * @return void
      */
-    private function templateBuildWrite(string $_content): void
+    private function parseVars(): void
     {
-        clearstatcache();
-        if (false === $this->config->get('app.debug') && !is_file($this->buildPath)) {
-            $_content = '<!-- ' . $this->request->pathinfo() . ' -->' . $_content;
-            file_put_contents($this->buildPath, $_content);
+        if (false !== preg_match_all('/({:\$)([a-zA-Z_.]+)(})/si', $this->content, $matches)) {
+            foreach ($matches[2] as $key => $var_name) {
+                if (false !== strpos($var_name, '.')) {
+                    list($var_type, $var_name) = explode('.', $var_name, 2);
+                    $var_type = strtoupper(trim($var_type));
+                }
+
+                if ('CONST' === $var_type) {
+                    eval('$vars = defined(\'' . $var_name . '\') ? ' . strtoupper($var_name) . ' : null;');
+                } else {
+                    switch ($var_type) {
+                        case 'GET':
+                            $vars = $_GET;
+                            break;
+
+                        case 'POST':
+                            $vars = $_POST;
+                            break;
+
+                        case 'COOKIE':
+                            $vars = $_COOKIE;
+                            break;
+
+                        default:
+                            $vars = $this->vars;
+                            break;
+                    }
+
+                    $var_name = explode('.', $var_name);
+                    foreach ($var_name as $name) {
+                        $vars = (is_array($vars) && isset($vars[$name])) ? $vars[$name] : '';
+                    }
+                }
+
+                $this->content = str_replace($matches[0][$key], $vars, $this->content);
+            }
         }
     }
 
     /**
      * 解析模板变量
      * @access private
-     * @param  string $_content
-     * @return string content
+     * @param
+     * @return void
      */
-    private function parseTemplateTags(string $_content): string
+    private function parseTags(): void
     {
-        return preg_replace_callback('/{tag:([a-zA-Z0-9 =\'\"]+)}(.*?){\/tag}/si', function ($matches) {
-            if (false !== strpos($matches[1], ' ')) {
-                list($action, $params) = explode(' ', $matches[1], 2);
-                $action = strtolower($action);
-                $params = str_replace(['"', "'", ' '], ['', '', '&'], $params);
-                parse_str($params, $params);
-                $params['content'] = $matches[2];
-            } else {
-                $action = strtolower($matches[1]);
-                $params = [
-                    'content' => $matches[2]
-                ];
-            }
-
-            if (false !== strpos($action, ':')) {
-                list($tags, $action) = explode(':', 2);
-                $tags = '\taglib\\' . ucfirst($tags);
-            } else {
-                $tags = '\taglib\Core';
-            }
-
-            if (class_exists($tags) && method_exists($tags, $action)) {
-                $result = call_user_func([$tags, $action], $params);
-                $pattern = [
-                    '/>(\n|\r|\f)+/'      => '>',
-                    '/(\n|\r|\f)+</'      => '<',
-                    '/<\!\-\-.*?\-\->/si' => '',
-                    '/\/\*.*?\*\//si'     => '',
-                    '/\/\/.*?(\n|\r)+/i'  => '',
-                    '/\n|\r|\f/'          => '',
-                    '/( ){2,}/si'         => '',
-                ];
-                $result = preg_replace(array_keys($pattern), array_values($pattern), $result);
-
-                if ('script' === $action) {
-                    $this->scriptReady .= $result;
+        $this->content =
+            preg_replace_callback('/{tag:([a-zA-Z0-9 =\'\"]+)}(.*?){\/tag}/si', function ($matches) {
+                if (false !== strpos($matches[1], ' ')) {
+                    list($action, $params) = explode(' ', $matches[1], 2);
+                    $action = strtolower($action);
+                    $params = str_replace(['"', "'", ' '], ['', '', '&'], $params);
+                    parse_str($params, $params);
+                    $params['content'] = $matches[2];
                 } else {
-                    return $result;
+                    $action = strtolower($matches[1]);
+                    $params = [
+                        'content' => $matches[2]
+                    ];
                 }
-            } else {
-                return '<!-- 无法解析:' . $matches[1] . htmlspecialchars_decode($matches[0]) . ' -->';
-            }
-        }, $_content);
+
+                if (false !== strpos($action, ':')) {
+                    list($tags, $action) = explode(':', 2);
+                    $tags = '\taglib\\' . ucfirst($tags);
+                } else {
+                    $tags = '\taglib\Core';
+                }
+
+                if (class_exists($tags) && method_exists($tags, $action)) {
+                    $result = call_user_func([$tags, $action], $params);
+                    $pattern = [
+                        '/>(\n|\r|\f)+/'      => '>',
+                        '/(\n|\r|\f)+</'      => '<',
+                        '/<\!\-\-.*?\-\->/si' => '',
+                        '/\/\*.*?\*\//si'     => '',
+                        '/\/\/.*?(\n|\r)+/i'  => '',
+                        '/\n|\r|\f/'          => '',
+                        '/( ){2,}/si'         => '',
+                    ];
+                    $result = preg_replace(array_keys($pattern), array_values($pattern), $result);
+
+                    if ('script' === $action) {
+                        $this->script .= $result;
+                    } else {
+                        return $result;
+                    }
+                } else {
+                    return '<!-- 无法解析:' . $matches[1] . htmlspecialchars_decode($matches[0]) . ' -->';
+                }
+            }, $this->content);
     }
 
     /**
      * 解析模板函数
      * @access private
-     * @param  string $_content
-     * @return string content
+     * @param
+     * @return void
      */
-    private function parseTemplateFunc(string $_content): string
+    private function parseFunc(): void
     {
-        return preg_replace_callback('/{:([a-zA-Z_]+)\((.*?)\)}/si', function ($matches) {
-            $safe_func = ['echo', 'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'lang', 'url', 'date'];
-            if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
-                return eval('return ' . $matches[1] . '(' . $matches[2] . ');');
+        $this->content =
+            preg_replace_callback('/{:([a-zA-Z_]+)\((.*?)\)}/si', function ($matches) {
+                $safe_func = ['echo', 'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'lang', 'url', 'date'];
+                if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
+                    return eval('return ' . $matches[1] . '(' . $matches[2] . ');');
+                } else {
+                    return '<!-- 无法解析:' . $matches[1] . htmlspecialchars_decode($matches[0]) . ' -->';
+                }
+            }, $this->content);
+    }
+
+    /**
+     * 引入文件
+     * @access private
+     * @param
+     * @return void
+     */
+    private function parseInclude(): void
+    {
+        $this->content =
+            preg_replace_callback('/{:include file=["|\']+([a-zA-Z_]+)["|\']+}/si', function ($matches) {
+                if ($matches[1] && is_file($this->view_path . $this->theme . $matches[1] . '.html')) {
+                    return file_get_contents($this->view_path . $this->theme . $matches[1] . '.html');
+                } else {
+                    return '<!-- 无法解析:' . $matches[1] . htmlspecialchars_decode($matches[0]) . ' -->';
+                }
+            }, $this->content);
+    }
+
+    /**
+     * 布局模板
+     * @access private
+     * @param
+     * @return void
+     */
+    private function parseLayout(): void
+    {
+        if (true === $this->theme_config['layout'] && false === strpos($this->content, '{:NOT_LAYOUT}')) {
+            if (is_file($this->view_path . $this->theme . DIRECTORY_SEPARATOR . 'layout.html')) {
+                $layout = file_get_contents($this->view_path . $this->theme . DIRECTORY_SEPARATOR . 'layout.html');
+                $this->content = str_replace('{:__CONTENT__}', $this->content, $layout);
             } else {
-                return '<!-- 无法解析:' . $matches[1] .htmlspecialchars_decode($matches[0]) . ' -->';
+                throw new TemplateNotFoundException('template layout not exists:' . $this->theme . DIRECTORY_SEPARATOR . 'layout.html');
             }
-        }, $_content);
+        } else {
+            $this->content = str_replace('{:NOT_LAYOUT}', '', $this->content);
+        }
     }
 
     /**
-     * 解析模板变量
+     * 获得模板配置
      * @access private
-     * @param  string $_content
-     * @return string content
+     * @param
+     * @return void
      */
-    private function parseTemplateVars(string $_content): string
+    private function parseConfig(): void
     {
-        if (false !== preg_match_all('/({:\$)([a-zA-Z_.]+)(})/si', $_content, $matches)) {
-            foreach ($matches[2] as $key => $var_name) {
-                if (false === strpos($var_name, '.')) {
-                    $var_type = '';
-                    $vars = $var_name;
-                } else {
-                    list($var_type, $vars) = explode('.', $var_name, 2);
-                    $var_type = strtoupper(trim($var_type));
-                }
-                switch ($var_type) {
-                    case 'SERVER':
-                        $var_type = '$_SERVER';
-                        $var_name = $vars;
-                        break;
-
-                    case 'GET':
-                        $var_type = '$_GET';
-                        $var_name = $vars;
-                        break;
-
-                    case 'POST':
-                        $var_type = '$_POST';
-                        $var_name = $vars;
-                        break;
-
-                    case 'COOKIE':
-                        $var_type = '$_COOKIE';
-                        $var_name = $vars;
-                        break;
-
-                    case 'SESSION':
-                        $var_type = '$_SESSION';
-                        $var_name = $vars;
-                        break;
-
-                    case 'ENV':
-                        $var_type = '$_ENV';
-                        $var_name = $vars;
-                        break;
-
-                    case 'REQUEST':
-                        $var_type = '$_REQUEST';
-                        $var_name = $vars;
-                        break;
-
-                    case 'CONST':
-                        $var_type = 'CONST';
-                        $var_name = strtoupper($vars);
-                        break;
-
-                    default:
-                        $var_type = '$this->varData';
-                        break;
-                }
-                unset($vars);
-
-                if ($var_type === 'CONST') {
-                    eval('$var_name = defined(\'' . $var_name . '\') ? ' . $var_name . ' : null;');
-                } else {
-                    $var_name = $var_type . '[\'' . str_replace('.', '\'][\'', $var_name) . '\']';
-                    eval('$var_name = isset(' . $var_name . ') ? ' . $var_name . ' : null;');
-                }
-                if (is_null($var_name)) {
-                    // throw new HttpException(200, '未定义!');
-                }
-                $_content = str_replace($matches[0][$key], $var_name, $_content);
-                unset($var_type);
-            }
+        if (!is_file($this->view_path . $this->theme . 'config.json')) {
+            throw new TemplateNotFoundException('template config not exists:' . $this->theme . 'config.json');
         }
 
-        return $_content;
+        $config = file_get_contents($this->view_path . $this->theme . 'config.json');
+        $config = json_decode(strip_tags($config), true);
+        if (!$config) {
+            throw new TemplateNotFoundException('template config error:' . $this->theme . 'config.json');
+        }
+        $this->theme_config = $config;
     }
 
     /**
-     * 解析模板引入文件
+     * 模板文件
      * @access private
-     * @param  string $_content 模板内容
-     * @return string
+     * @param  string $_template 模板文件规则
+     * @return void
      */
-    private function parseTemplateInclude(string $_content): string
+    private function parseTemplate(string $_template): void
     {
-        return preg_replace_callback('/{:include file=["|\']+([a-zA-Z_]+)["|\']+}/si', function ($matches) {
-            if ($matches[1] && is_file($this->templatePath . $this->theme . $matches[1] . '.html')) {
-                return file_get_contents($this->templatePath . $this->theme . $matches[1] . '.html');
-            }
-        }, $_content);
-    }
-
-    /**
-     * 解析布局模板
-     * @access private
-     * @param  string $_template 模板名
-     * @return string 模板路径
-     */
-    private function parseTemplateLayout(string $_content): string
-    {
-        if (true == $this->templateConfig['layout']) {
-            if (false === strpos($_content, '{:NOT_LAYOUT}')) {
-                if (is_file($this->templatePath . $this->theme . 'layout.html')) {
-                    $layout = file_get_contents($this->templatePath . $this->theme . 'layout.html');
-                    $_content = str_replace('{:__CONTENT__}', $_content, $layout);
-                } else {
-                    throw new HttpException(200, '布局模板不存在.');
-                }
-            } else {
-                $_content = str_replace('{:NOT_LAYOUT}', '', $_content);
-            }
+        // 获取视图根目录
+        if (strpos($_template, '@')) {
+            // 跨模块调用
+            list($app, $_template) = explode('@', $_template, 2);
         }
 
-        return $_content;
-    }
+        $app = isset($app) ? $app : $this->request->controller(true);
+        $this->view_path .= $app . DIRECTORY_SEPARATOR;
+        $path = $this->view_path . $this->theme;
 
-    /**
-     * 解析模板配置
-     * @access private
-     * @param  string $_template 模板名
-     * @return string 模板路径
-     */
-    private function parseTemplateConfig(): array
-    {
-        if (is_file($this->templatePath . $this->theme . 'config.json')) {
-            $config = file_get_contents($this->templatePath . $this->theme . 'config.json');
-            $config = strip_tags($config);
-            $config = $this->parseTemplateReplace($config);
-            $config = json_decode($config, true);
-            if (!empty($config) && is_array($config)) {
-                $keys = array_keys($config);
-                if (!in_array('layout', $keys)) {
-                    throw new HttpException(200, '模板配置文件错误.');
-                } elseif (!in_array('api_version', $keys)) {
-                    throw new HttpException(200, '模板配置文件错误.');
-                } elseif (!in_array('theme_version', $keys)) {
-                    throw new HttpException(200, '模板配置文件错误.');
-                }
+        $_template = str_replace(['/', ':'], DIRECTORY_SEPARATOR, $_template);
+        $_template = $_template ?: $this->request->action(true);
+        $_template = ltrim($_template, DIRECTORY_SEPARATOR) . '.html';
 
-                return $config;
-            }
+        if ($this->request->isMobile() && is_file($path . 'mobile' . DIRECTORY_SEPARATOR . $_template)) {
+            $this->view_path .= 'mobile' . DIRECTORY_SEPARATOR;
         }
 
-        throw new HttpException(200, '模板配置文件错误.' . $this->theme);
-    }
-
-    /**
-     * 解析模板替换字符
-     * @access private
-     * @param  string $_content 模板内容
-     * @return string 模板路径
-     */
-    private function parseTemplateReplace(string $_content): string
-    {
-        if (!empty($this->templateReplace)) {
-            $search = array_keys($this->templateReplace);
-            $replace = array_values($this->templateReplace);
-
-            $_content = trim($_content);
-            $_content = str_replace($search, $replace, $_content);
+        // 模板不存在 抛出异常
+        if (!is_file($path . $_template)) {
+            throw new TemplateNotFoundException('template not exists:' . $_template, $_template);
         }
 
-        return $_content;
-    }
-
-    /**
-     * 解析模板路径
-     * @access private
-     * @param  string $_template 模板名
-     * @return string 模板路径
-     */
-    private function parseTemplateFile(string $_template): string
-    {
-        $_template  = str_replace(['\\', ':'], DIRECTORY_SEPARATOR, $_template);
-        $_template .= '.html';
-
-        // 微信和移动端访问时,判断模板是否存在.
-        if (isWechat() && is_file($this->templatePath . $this->theme . 'wechat' . DIRECTORY_SEPARATOR . $_template)) {
-            $_template = 'wechat' . DIRECTORY_SEPARATOR . $_template;
-        } elseif ($this->request->isMobile() && is_file($this->templatePath . $this->theme . 'mobile' . DIRECTORY_SEPARATOR . $_template)) {
-            $_template = 'mobile' . DIRECTORY_SEPARATOR . $_template;
-        }
-
-        if (is_file($this->templatePath . $this->theme .  $_template)) {
-            return $this->templatePath . $this->theme .  $_template;
-        }
-
-        throw new HttpException(200, '模板不存在:' . $this->theme . $_template);
+        $this->content = file_get_contents($path . $_template);
     }
 }

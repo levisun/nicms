@@ -42,30 +42,44 @@ class DataFilter
     /**
      * 内容过滤
      * @access public
-     * @param  string $_str
-     * @return string
+     * @param  mixed $_str
+     * @return mixed
      */
-    public static function content(string $_str): string
+    public static function content($_data)
     {
-        $_str = self::safe($_str);
-        $_str = self::enter($_str);
-        $_str = self::fun($_str);
-        $_str = htmlspecialchars($_str);
-        return $_str;
+        if (is_array($_data)) {
+            foreach ($_data as $key => $value) {
+                $_data[$key] = self::content($value);
+            }
+            return $_data;
+        } elseif (is_string($_data)) {
+            $_data = self::safe($_data);
+            $_data = self::enter($_data);
+            $_data = self::fun($_data);
+            $_data = htmlspecialchars($_data);
+            return $_data;
+        }
     }
 
     /**
      * 字符过滤
      * @access public
-     * @param  string $_str
-     * @return string
+     * @param  mixed $_str
+     * @return mixed
      */
-    public static function string(string $_str): string
+    public static function string($_data)
     {
-        $_str = self::safe($_str);
-        $_str = self::enter($_str);
-        $_str = self::fun($_str);
-        return $_str;
+        if (is_array($_data)) {
+            foreach ($_data as $key => $value) {
+                $_data[$key] = self::content($value);
+            }
+            return $_data;
+        } elseif (is_string($_data)) {
+            $_data = self::safe($_data);
+            $_data = self::enter($_data);
+            $_data = self::fun($_data);
+            return $_data;
+        }
     }
 
     /**
@@ -104,8 +118,11 @@ class DataFilter
     private static function enter(string $_str): string
     {
         $pattern = [
-            '/>(\n|\r|\f)+/'       => '>',
-            '/(\n|\r|\f)+</'       => '<',
+            '/( ){2,}/si'           => '',
+            '/>(\n|\r|\f)+/si'      => '>',
+            '/(\n|\r|\f)+</si'      => '<',
+            '/<\!\-\-(.*?)\-\->/si' => '',
+            '/\/\*(.*?)\*\//si'     => '',
             // '/(<!--)(.*?)(-->)/si' => '',
             // '/\/\*(.*?)\*\//si'    => '',
 
@@ -140,9 +157,9 @@ class DataFilter
             '/<expression.*?>(.*?)<\/expression.*?>/si',
 
             // XXE XML 实体扩展攻击
-            /* '/<html.*?>(.*?)<\/html.*?>/si',
-            '/<head.*?>(.*?)<\/head.*?>/si',
+            '/<html.*?>(.*?)<\/html.*?>/si',
             '/<title.*?>(.*?)<\/title.*?>/si',
+            /* '/<head.*?>(.*?)<\/head.*?>/si',
             '/<body.*?>(.*?)<\/body.*?>/si', */
             '/<style.*?>(.*?)<\/style.*?>/si',
             '/<iframe.*?>(.*?)<\/iframe.*?>/si',
@@ -161,7 +178,6 @@ class DataFilter
 
             '/<\?php/si',
             '/<\?/si',
-            '/( ){2,}/si',
         ], '', $_str);
     }
 }

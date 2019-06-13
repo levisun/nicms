@@ -90,7 +90,7 @@
         <button class="btn btn-primary">{:lang('sort')}</button>
     </div>
 </div>
-{tag:script}
+<script type="text/javascript">
 jQuery.pjax({
     url: NICMS.api.url + '/query.do',
     type: 'GET',
@@ -151,4 +151,4 @@ jQuery(document).on('click', '.remove', function(){
         }
     });
 });
-{/tag}
+</script>
