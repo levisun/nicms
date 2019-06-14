@@ -37,16 +37,16 @@ class DataMaintenance
      */
     public function autoBackup(int $_hour = 48): bool
     {
-        Log::record('[AUTO BACKUP] 自动备份数据库', 'alert');
-
         $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
         if (!is_dir($this->savePath)) {
             chmod(app()->getRuntimePath(), 0777);
             mkdir($this->savePath, 0777, true);
         }
 
-        if (!is_file(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sab.lock')) {
-            file_put_contents(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sab.lock', 'lock');
+        $path = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sab.lock';
+        $fp = @fopen($path, 'w+');
+        if ($fp && flock($fp, LOCK_EX | LOCK_NB)) {
+            Log::record('[AUTO BACKUP] 自动备份数据库', 'alert');
 
             if (is_file($this->savePath . 'backup_time.json')) {
                 $btime = json_decode(file_get_contents($this->savePath . 'backup_time.json'), true);
@@ -64,7 +64,7 @@ class DataMaintenance
                     $sql = $this->queryTableStructure($name);
                     $this->write($sql_file, $sql);
                     $btime[$name] = time();
-                } elseif (isset($btime[$name]) && $btime[$name] <= strtotime('-7 days')) {
+                } elseif (isset($btime[$name]) && $btime[$name] <= strtotime('-1 days')) {
                     $sql = $this->queryTableStructure($name);
                     $this->write($sql_file, $sql);
                     $btime[$name] = time();
@@ -106,9 +106,13 @@ class DataMaintenance
                 }
             }
 
-            unlink(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sab.lock');
             file_put_contents($this->savePath . 'backup_time.json', json_encode($btime));
             ignore_user_abort(false);
+
+            fwrite($fp, date('Y-m-d H:i:s'));
+            flock($fp, LOCK_UN);
+
+            fclose($fp);
         }
 
         return true;

@@ -38,21 +38,26 @@ class Maintain
             // 优化修复数据库表
             clearstatcache();
             $lock = app()->getRuntimePath() . 'dmor.lock';
-            if (!is_file($lock)) file_put_contents($lock, date('Y-m-d H:i:s'));
             $date = (string)(date('Ymd') - 10);
             if (0 === date('Ymd') % 10 && filemtime($lock) <= strtotime($date)) {
-                ignore_user_abort(true);
-                file_put_contents($lock, date('Y-m-d H:i:s'));
-                (new DataMaintenance)->optimize();  // 优化表
-                (new DataMaintenance)->repair();    // 修复表
-                ignore_user_abort(false);
+                $fp = @fopen($lock, 'w+');
+                if ($fp && flock($fp, LOCK_EX | LOCK_NB)) {
+                    ignore_user_abort(true);
+                    (new DataMaintenance)->optimize();  // 优化表
+                    (new DataMaintenance)->repair();    // 修复表
+                    ignore_user_abort(false);
+
+                    fwrite($fp, date('Y-m-d H:i:s'));
+                    flock($fp, LOCK_UN);
+                    fclose($fp);
+                }
             }
             // 清除过期缓存和日志等
-            elseif (1 === rand(1, 69)) {
+            elseif (1 === rand(1, 99)) {
                 (new ReGarbage)->run();
             }
             // 自动备份数据库
-            elseif (1 === rand(1, 69)) {
+            elseif (1 === rand(1, 99)) {
                 (new DataMaintenance)->autoBackup();
             }
         }

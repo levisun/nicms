@@ -49,7 +49,7 @@ class Api extends Async
     {
         if ($this->referer && $this->request->isPost()) {
             $result = $this->validate()->run();
-            $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
+            $this->setCache(false)->success($result['msg'], $result['data'], $result['code']);
         } else {
             $this->error('权限不足', 40006);
         }
@@ -65,12 +65,18 @@ class Api extends Async
     {
         if ($this->referer && $this->request->isPost() && !empty($_FILES)) {
             $result = $this->validate()->run();
-            $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
+            $this->setCache(false)->success($result['msg'], $result['data'], $result['code']);
         } else {
             $this->error('权限不足', 40006);
         }
     }
 
+    /**
+     * 短信接口
+     * @access public
+     * @param
+     * @return void
+     */
     public function sms(): void
     {
         if ($this->referer && $this->request->isPost() && $phone = $this->request->param('phone', false)) {
@@ -78,15 +84,32 @@ class Api extends Async
             $key = md5($this->request->ip() . client_mac());
             $has = session('sms_' . $key);
             if ($has && $has['time'] >= time()) {
-                $this->cache(false)->success('请勿重复请求');
+                $this->setCache(false)->success('请勿重复请求');
             } else {
                 $time = time() + 120;
                 $captcha = rand(100000, 999999);
                 session('sms_' . $key, ['phone' => $phone, 'time' => $time, 'captcha' => $captcha]);
-                $this->cache(false)->success('手机验证码发送成功');
+                $this->setCache(false)->success('手机验证码发送成功');
             }
         } else {
             $this->error('权限不足', 40006);
+        }
+    }
+
+    /**
+     * IP地址信息接口
+     * @access public
+     * @param
+     * @return void
+     */
+    public function ip(): void
+    {
+        if ($this->request->isGet() && $ip = $this->request->param('ip', false)) {
+            $this->validate();
+            $ip = (new Ip)->info($ip);
+            $this->setCache(true)->success('success', $ip);
+        } else {
+            $this->error('缺少参数', 40001);
         }
     }
 
@@ -103,25 +126,8 @@ class Api extends Async
                 throw new HttpResponseException($response);
             }
         } else {
-            echo '缺少参数';
+            echo '错误请求';
             exit();
-        }
-    }
-
-    /**
-     * IP地址信息接口
-     * @access public
-     * @param
-     * @return void
-     */
-    public function ip(): void
-    {
-        if ($this->request->isGet() && $ip = $this->request->param('ip', false)) {
-            $this->validate();
-            $ip = (new Ip)->info($ip);
-            $this->cache(true)->success('success', $ip);
-        } else {
-            $this->error('缺少参数', 40001);
         }
     }
 }

@@ -543,11 +543,11 @@ class Template
         // 获取视图根目录
         if (strpos($_template, '@')) {
             // 跨模块调用
-            list($app, $_template) = explode('@', $_template, 2);
+            list($model, $_template) = explode('@', $_template, 2);
         }
 
-        $app = isset($app) ? $app : $this->request->controller(true);
-        $this->view_path .= $app . DIRECTORY_SEPARATOR;
+        $model = isset($model) ? $model : $this->request->controller(true);
+        $this->view_path .= $model . DIRECTORY_SEPARATOR;
         $path = $this->view_path . $this->theme;
 
         $_template = str_replace(['/', ':'], DIRECTORY_SEPARATOR, $_template);

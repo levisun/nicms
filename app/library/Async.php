@@ -151,19 +151,19 @@ abstract class Async
      * 调试开关
      * @var bool
      */
-    protected $debug = false;
+    protected $apiDebug = false;
 
     /**
      * 浏览器数据缓存开关
      * @var bool
      */
-    protected $api_cache = false;
+    protected $apiCache = false;
 
     /**
      * 浏览器数据缓存时间
      * @var int
      */
-    protected $api_expire = 1440;
+    protected $apiExpire = 1440;
 
 
     /**
@@ -218,7 +218,7 @@ abstract class Async
         $this->request->filter('defalut_filter');
 
         $max_input_vars = (int)ini_get('max_input_vars');
-        if (count($_POST) + count($_FILES) >= $max_input_vars - 5) {
+        if (count($_POST) + count($_FILES) + count($_GET) >= $max_input_vars - 5) {
             $this->error('非法参数', 40002);
         }
 
@@ -243,21 +243,14 @@ abstract class Async
             $this->error('缺少参数', 40001);
         }
 
-        // 调试与缓存设置
-        // 调试模式 返回数据没有指定默认关闭
-        if (isset($result['debug'])) {
-            $this->debug($result['debug']);
-        }
+        // 调试模式设置 返回数据没有指定默认关闭
+        $this->setDebug(isset($result['debug']) ? $result['debug'] : false);
 
-        // 缓存
-        if (isset($result['cache'])) {
-            $this->cache($result['cache']);
-        }
+        // 缓存设置 返回数据没有指定默认开启
+        $this->setCache(isset($result['cache']) ? $result['cache'] : true);
 
-        // 缓存时间
-        if (isset($result['expire'])) {
-            $this->expire($result['expire']);
-        }
+        // 缓存时间设置 返回数据没有指定默认1440秒
+        $this->setExpire(isset($result['expire']) ? $result['expire'] : 1440);
 
         $result['data'] = isset($result['data']) ? $result['data'] : [];
         $result['code'] = isset($result['code']) ? $result['code'] : 10000;
@@ -283,9 +276,9 @@ abstract class Async
      * @param
      * @return $this
      */
-    protected function expire(int $_expire = 0)
+    protected function setExpire(int $_expire)
     {
-        $this->api_expire = $_expire > 0 ? $_expire : (int)$this->config->get('cache.expire');
+        $this->apiExpire = $_expire > 0 ? $_expire : (int)$this->config->get('cache.expire');
         return $this;
     }
 
@@ -295,9 +288,9 @@ abstract class Async
      * @param
      * @return $this
      */
-    protected function debug(bool $_debug)
+    protected function setDebug(bool $_debug)
     {
-        $this->debug = $_debug;
+        $this->apiDebug = $_debug;
         return $this;
     }
 
@@ -307,9 +300,9 @@ abstract class Async
      * @param
      * @return $this
      */
-    protected function cache(bool $_cache = false)
+    protected function setCache(bool $_cache)
     {
-        $this->api_cache = (true === $this->debug) ? false : $_cache;
+        $this->apiCache = (true === $this->apiDebug) ? false : $_cache;
         return $this;
     }
 
@@ -326,7 +319,7 @@ abstract class Async
         if ($this->method && preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $this->method)) {
             list($logic, $class, $action) = explode('.', $this->method, 3);
 
-            $method = 'app\service\\' . $this->module . '\\';
+            $method  = 'app\service\\' . $this->module . '\\';
             $method .= $this->openVersion ? 'v' . implode('_', $this->version) . '\\' : '';
             $method .= $logic . '\\' . ucfirst($class);
 
@@ -343,7 +336,7 @@ abstract class Async
             }
 
             // 加载语言包
-            $lang = $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $this->module . DIRECTORY_SEPARATOR;
+            $lang  = $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $this->module . DIRECTORY_SEPARATOR;
             $lang .= $this->openVersion ? 'v' . implode('_', $this->version) . DIRECTORY_SEPARATOR : '';
             $lang .= $this->lang->getLangSet() . '.php';
             $this->lang->load($lang);
@@ -428,7 +421,7 @@ abstract class Async
      */
     protected function checkAppId()
     {
-        $this->appid = (int)$this->request->param('appid/f', 1000001);
+        $this->appid  = (int)$this->request->param('appid/f', 1000001);
         $this->appid -= 1000000;
         if ($this->appid && $this->appid >= 1) {
             $result = (new ModelApiApp)
@@ -569,22 +562,22 @@ abstract class Async
         ];
         $result = array_filter($result);
 
-        if ($this->request->isGet() && true === $this->api_cache && $this->api_expire && 10000 === $_code) {
-            $result['expire'] .= $this->api_expire . 's';
+        if ($this->request->isGet() && true === $this->apiCache && $this->apiExpire && 10000 === $_code) {
+            $result['expire'] .= $this->apiExpire . 's';
         } else {
             $result['expire'] .= 'close';
         }
 
         // 记录日志
-        if (true === $this->debug) {
+        if (true === $this->apiDebug) {
             $result['debug'] = $this->writeLog();
         }
 
         $response = $this->response->create($result, $this->format)->allowCache(false);
-        if ($this->request->isGet() && true === $this->api_cache && $this->api_expire && 10000 === $_code) {
+        if ($this->request->isGet() && true === $this->apiCache && $this->apiExpire && 10000 === $_code) {
             $response->allowCache(true)
-                ->cacheControl('public, max-age=' . $this->api_expire)
-                ->expires(gmdate('D, d M Y H:i:s', time() + $this->api_expire) . ' GMT')
+                ->cacheControl('public, max-age=' . $this->apiExpire)
+                ->expires(gmdate('D, d M Y H:i:s', time() + $this->apiExpire) . ' GMT')
                 ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
                 ->header(['X-Powered-By' => 'NIAPI']);
         }
