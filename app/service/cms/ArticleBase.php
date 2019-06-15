@@ -58,8 +58,8 @@ class ArticleBase extends BaseService
             $query_page = (int)$this->request->param('page/f', 1);
             $date_format = $this->request->param('date_format', 'Y-m-d');
 
-            $cache_key = md5($category_id . $com . $top . $hot . $type_id . $query_limit . $query_page, $date_format);
-            if (!$this->cache->tag('LISTS')->has($cache_key)) {
+            $cache_key = md5($category_id . $com . $top . $hot . $type_id . $query_limit . $query_page . $date_format);
+            if (!$this->cache->has($cache_key)) {
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
                     ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
@@ -112,7 +112,7 @@ class ArticleBase extends BaseService
                         $list['data'][$key] = $value;
                     }
 
-                    $this->cache->tag('LISTS')->set($cache_key, $list);
+                    $this->cache->tag('list')->set($cache_key, $list);
                     return $list;
                 }
             } else {
@@ -145,7 +145,7 @@ class ArticleBase extends BaseService
         if ($id = (int)$this->request->param('id/f')) {
             $map[] = ['article.id', '=', $id];
             $cache_key = md5($id);
-            if (!$this->cache->tag('DETAILS')->has($cache_key)) {
+            if (!$this->cache->tag('details')->has($cache_key)) {
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
                     ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
@@ -205,7 +205,7 @@ class ArticleBase extends BaseService
                         ->toArray();
                 }
 
-                $this->cache->tag('DETAILS')->set($cache_key, $result);
+                $this->cache->tag('details')->set($cache_key, $result);
                 return $result;
             } else {
                 return $this->cache->get($cache_key);
@@ -242,7 +242,7 @@ class ArticleBase extends BaseService
                 ->update();
 
             return (new ModelArticle)->where($map)
-                ->cache(__METHOD__ . $id, 60, 'DETAILS')
+                ->cache(__METHOD__ . $id, 60, 'hits')
                 ->value('hits');
         } else {
             return [

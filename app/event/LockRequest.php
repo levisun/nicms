@@ -43,7 +43,7 @@ class LockRequest
             chmod($this->app->getRuntimePath(), 0777);
             mkdir($this->requestLog, 0777, true);
         }
-        $this->requestLog .= md5($this->app->request->ip() . date('Ymd')) . '.php';
+        $this->requestLog .= md5($this->app->request->ip()) . '.php';
 
         $this->lockRequest();
         $this->recordRequest();

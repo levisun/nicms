@@ -43,7 +43,7 @@ class DataMaintenance
             mkdir($this->savePath, 0777, true);
         }
 
-        $path = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'sab.lock';
+        $path = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'dab.lock';
         $fp = @fopen($path, 'w+');
         if ($fp && flock($fp, LOCK_EX | LOCK_NB)) {
             Log::record('[AUTO BACKUP] 自动备份数据库', 'alert');
@@ -109,7 +109,7 @@ class DataMaintenance
             file_put_contents($this->savePath . 'backup_time.json', json_encode($btime));
             ignore_user_abort(false);
 
-            fwrite($fp, date('Y-m-d H:i:s'));
+            fwrite($fp, '自动备份数据库' . date('Y-m-d H:i:s'));
             flock($fp, LOCK_UN);
 
             fclose($fp);

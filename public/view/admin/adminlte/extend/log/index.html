@@ -12,24 +12,24 @@
             </thead>
             <tbody>
                 <template v-for="vo in items.list">
-                <tr>
-                    <td>
-                        [<font v-text="vo.role_name"></font>]
-                        <font v-text="vo.username"></font>
-                    </td>
-                    <td>
-                        <font v-text="vo.action_name"></font>
-                    </td>
-                    <td>
-                        <font v-text="vo.remark"></font>
-                    </td>
-                    <td>
-                        <font v-text="vo.action_ip"></font>
-                    </td>
-                    <td>
-                        <font v-text="vo.create_time"></font>
-                    </td>
-                </tr>
+                    <tr>
+                        <td>
+                            [<font v-text="vo.role_name"></font>]
+                            <font v-text="vo.username"></font>
+                        </td>
+                        <td>
+                            <font v-text="vo.action_name"></font>
+                        </td>
+                        <td>
+                            <font v-text="vo.remark"></font>
+                        </td>
+                        <td>
+                            <font v-text="vo.action_ip"></font>
+                        </td>
+                        <td>
+                            <font v-text="vo.create_time"></font>
+                        </td>
+                    </tr>
                 </template>
             </tbody>
         </table>
@@ -37,34 +37,34 @@
     <div class="box-footer clearfix" v-html="items.page"></div>
 </div>
 
-{tag:script}
-var v = null;
-paging(1);
-function paging(_p){
-    jQuery.pjax({
-        url: NICMS.api.url + '/query.do',
-        type: 'GET',
-        push: true,
-        replace: true,
-        requestUrl: NICMS.url + '?page=' + _p,
-        data: {
-            method: 'extend.log.query',
-            page: _p,
-        },
-        success: function(result){
-            if (result.code == 10000) {
-                if (v) {
-                    v.items = result.data;
-                } else {
-                    v = new Vue({
-                        el: '.box',
-                        data: {
-                            items: result.data
-                        }
-                    });
+<script>
+    var v = null;
+    paging(1);
+    function paging(_p) {
+        jQuery.pjax({
+            url: NICMS.api.url + '/query.do',
+            type: 'GET',
+            push: true,
+            replace: true,
+            requestUrl: NICMS.url + '?page=' + _p,
+            data: {
+                method: 'extend.log.query',
+                page: _p,
+            },
+            success: function (result) {
+                if (result.code == 10000) {
+                    if (v) {
+                        v.items = result.data;
+                    } else {
+                        v = new Vue({
+                            el: '.box',
+                            data: {
+                                items: result.data
+                            }
+                        });
+                    }
                 }
             }
-        }
-    });
-}
-{/tag}
+        });
+    }
+</script>

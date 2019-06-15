@@ -139,6 +139,7 @@ class RequestCache
             $key .= preg_replace_callback('/timestamp=[0-9]+|sign=[A-Za-z0-9]{32,40}/si', function () {
                 return '*';
             }, $this->request->url(true));
+            // \think\facade\Log::record($key, 'alert')->save();
             return md5($key);
         } else {
             return false;

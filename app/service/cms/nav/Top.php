@@ -40,7 +40,7 @@ class Top extends BaseService
                 ['c.lang', '=', $this->lang->getLangSet()]
             ])
             ->order('c.sort_order ASC, c.id DESC')
-            ->cache(__METHOD__, null, 'NAV')
+            ->cache(__METHOD__ . $this->lang->getLangSet(), 0, 'nav')
             ->select()
             ->toArray();
 
@@ -84,7 +84,7 @@ class Top extends BaseService
                 ['c.lang', '=', $this->lang->getLangSet()]
             ])
             ->order('c.sort_order ASC, c.id DESC')
-            ->cache(__METHOD__ . $_pid . $_type_id, null, 'NAV')
+            ->cache(__METHOD__ . $_pid . $_type_id, 0, 'nav')
             ->select()
             ->toArray();
 

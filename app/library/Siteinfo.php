@@ -20,7 +20,7 @@ use app\model\Config as ModelConfig;
 use app\model\Article as ModelArticle;
 use app\model\Category as ModelCategory;
 
-class Siteinfo
+class siteinfo
 {
 
 
@@ -53,7 +53,7 @@ class Siteinfo
                 ['name', '=', Request::controller(true) . '_description'],
                 ['lang', '=', Lang::getLangSet()]
             ])
-                ->cache(__METHOD__ . Request::controller(true) . '_description' . Lang::getLangSet(), null, 'SITEINFO')
+                ->cache(__METHOD__ . Request::controller(true) . '_description' . Lang::getLangSet(), null, 'siteinfo')
                 ->value('value', '');
         }
 
@@ -92,7 +92,7 @@ class Siteinfo
                     ['name', '=', Request::controller(true) . '_keywords'],
                     ['lang', '=', Lang::getLangSet()]
                 ])
-                ->cache(__METHOD__ . Request::controller(true) . '_keywords' . Lang::getLangSet(), null, 'SITEINFO')
+                ->cache(__METHOD__ . Request::controller(true) . '_keywords' . Lang::getLangSet(), null, 'siteinfo')
                 ->value('value', '');
         }
 
@@ -131,7 +131,7 @@ class Siteinfo
                     ['name', '=', Request::controller(true) . '_sitename'],
                     ['lang', '=', Lang::getLangSet()]
                 ])
-                ->cache(__METHOD__ . Request::controller(true) . '_sitename' . Lang::getLangSet(), null, 'SITEINFO')
+                ->cache(__METHOD__ . Request::controller(true) . '_sitename' . Lang::getLangSet(), null, 'siteinfo')
                 ->value('value', 'NICMS');
         }
 
@@ -152,7 +152,7 @@ class Siteinfo
                 ['name', '=', Request::controller(true) . '_sitename'],
                 ['lang', '=', Lang::getLangSet()]
             ])
-            ->cache(__METHOD__ . Request::controller(true) . '_sitename' . Lang::getLangSet(), null, 'SITEINFO')
+            ->cache(__METHOD__ . Request::controller(true) . '_sitename' . Lang::getLangSet(), null, 'siteinfo')
             ->value('value', 'NICMS');
     }
 
@@ -170,7 +170,7 @@ class Siteinfo
                 ['name', '=', Request::controller(true) . '_copyright'],
                 ['lang', '=', Lang::getLangSet()]
             ])
-            ->cache(__METHOD__ . Request::controller(true) . '_copyright' . Lang::getLangSet(), null, 'SITEINFO')
+            ->cache(__METHOD__ . Request::controller(true) . '_copyright' . Lang::getLangSet(), null, 'siteinfo')
             ->value('value', '');
 
         $beian = (new ModelConfig)
@@ -178,7 +178,7 @@ class Siteinfo
                 ['name', '=', Request::controller(true) . '_beian'],
                 ['lang', '=', Lang::getLangSet()]
             ])
-            ->cache(__METHOD__ . Request::controller(true) . '_beian' . Lang::getLangSet(), null, 'SITEINFO')
+            ->cache(__METHOD__ . Request::controller(true) . '_beian' . Lang::getLangSet(), null, 'siteinfo')
             ->value('value', '备案号');
 
         return htmlspecialchars_decode($copyright) .
@@ -199,7 +199,7 @@ class Siteinfo
                 ['name', '=', Request::controller(true) . '_footer'],
                 ['lang', '=', Lang::getLangSet()]
             ])
-            ->cache(__METHOD__ . Request::controller(true) . '_footer' . Lang::getLangSet(), null, 'SITEINFO')
+            ->cache(__METHOD__ . Request::controller(true) . '_footer' . Lang::getLangSet(), null, 'siteinfo')
             ->value('value', 'footer');
 
         return htmlspecialchars_decode($result);
@@ -219,7 +219,7 @@ class Siteinfo
                 ['name', '=', Request::controller(true) . '_script'],
                 ['lang', '=', Lang::getLangSet()]
             ])
-            ->cache(__METHOD__ . Request::controller(true) . '_script' . Lang::getLangSet(), null, 'SITEINFO')
+            ->cache(__METHOD__ . Request::controller(true) . '_script' . Lang::getLangSet(), null, 'siteinfo')
             ->value('value', '');
 
         return htmlspecialchars_decode($result);
@@ -239,7 +239,7 @@ class Siteinfo
                 ['name', '=', Request::controller(true) . '_theme'],
                 ['lang', '=', Lang::getLangSet()]
             ])
-            ->cache(__METHOD__ . Request::controller(true) . '_theme' . Lang::getLangSet(), null, 'SITEINFO')
+            ->cache(__METHOD__ . Request::controller(true) . '_theme' . Lang::getLangSet(), null, 'siteinfo')
             ->value('value', 'default');
     }
 }

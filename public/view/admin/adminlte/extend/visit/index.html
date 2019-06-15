@@ -11,21 +11,21 @@
             </thead>
             <tbody>
                 <template v-for="vo in items.list">
-                <tr>
-                    <td>
-                        <font v-text="vo.ip"></font>
-                        [<font v-text="vo.ip_attr"></font>]
-                    </td>
-                    <td>
-                        <font v-text="vo.count"></font>
-                    </td>
-                    <td>
-                        <font v-text="vo.user_agent"></font>
-                    </td>
-                    <td>
-                        <font v-text="vo.date"></font>
-                    </td>
-                </tr>
+                    <tr>
+                        <td>
+                            <font v-text="vo.ip"></font>
+                            [<font v-text="vo.ip_attr"></font>]
+                        </td>
+                        <td>
+                            <font v-text="vo.count"></font>
+                        </td>
+                        <td>
+                            <font v-text="vo.user_agent"></font>
+                        </td>
+                        <td>
+                            <font v-text="vo.date"></font>
+                        </td>
+                    </tr>
                 </template>
             </tbody>
         </table>
@@ -33,34 +33,34 @@
     <div class="box-footer clearfix" v-html="items.page"></div>
 </div>
 
-{tag:script}
-var v = null;
-paging(1);
-function paging(_p){
-    jQuery.pjax({
-        url: NICMS.api.url + '/query.do',
-        type: 'GET',
-        push: true,
-        replace: true,
-        requestUrl: NICMS.url + '?page=' + _p,
-        data: {
-            method: 'extend.visit.query',
-            page: _p,
-        },
-        success: function(result){
-            if (result.code == 10000) {
-                if (v) {
-                    v.items = result.data;
-                } else {
-                    v = new Vue({
-                        el: '.box',
-                        data: {
-                            items: result.data
-                        }
-                    });
+<script>
+    var v = null;
+    paging(1);
+    function paging(_p) {
+        jQuery.pjax({
+            url: NICMS.api.url + '/query.do',
+            type: 'GET',
+            push: true,
+            replace: true,
+            requestUrl: NICMS.url + '?page=' + _p,
+            data: {
+                method: 'extend.visit.query',
+                page: _p,
+            },
+            success: function (result) {
+                if (result.code == 10000) {
+                    if (v) {
+                        v.items = result.data;
+                    } else {
+                        v = new Vue({
+                            el: '.box',
+                            data: {
+                                items: result.data
+                            }
+                        });
+                    }
                 }
             }
-        }
-    });
-}
-{/tag}
+        });
+    }
+</script>

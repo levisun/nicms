@@ -25,7 +25,4 @@ return [
     'httponly'  => true,
     // 是否使用 setcookie
     'setcookie' => true,
-
-    // cookie 名称前缀
-    'prefix'    => '__',
 ];

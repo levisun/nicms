@@ -40,7 +40,7 @@ class Main extends BaseService
                 ['category.lang', '=', $this->lang->getLangSet()]
             ])
             ->order('category.sort_order ASC, category.id DESC')
-            ->cache(__METHOD__, null, 'NAV')
+            ->cache(__METHOD__ . $this->lang->getLangSet(), 0, 'nav')
             ->select()
             ->toArray();
 
@@ -84,7 +84,7 @@ class Main extends BaseService
                 ['category.lang', '=', $this->lang->getLangSet()]
             ])
             ->order('category.sort_order ASC, category.id DESC')
-            ->cache(__METHOD__ . $_pid . $_type_id, null, 'NAV')
+            ->cache(__METHOD__ . $_pid . $_type_id, 0, 'nav')
             ->select()
             ->toArray();
 

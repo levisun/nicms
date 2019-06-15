@@ -126,7 +126,7 @@ class Ip
             ->where([
                 ['i.ip', '=', bindec(Request::ip2bin($_ip))]
             ])
-            ->cache(__METHOD__ . $_ip)
+            ->cache(__METHOD__ . $_ip, 28800, 'library')
             ->find();
 
         return $result ? $result->toArray() : [];
@@ -148,7 +148,7 @@ class Ip
                 ['pid', '=', $_pid],
                 ['name', 'LIKE', $_name . '%']
             ])
-            ->cache(__METHOD__ . $_name . $_pid, 28800)
+            ->cache(__METHOD__ . $_name . $_pid, 28800, 'library')
             ->value('id');
 
         return $result ? (int)$result : 0;

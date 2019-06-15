@@ -26,6 +26,13 @@ use app\library\Template;
 
 abstract class BaseController extends Template
 {
+    /**
+     * 控制器中间件
+     * @var array
+     */
+    protected $middleware = [
+        'think\middleware\SessionInit'
+    ];
 
     /**
      * 构造方法

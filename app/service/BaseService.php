@@ -129,6 +129,7 @@ abstract class BaseService
 
         $this->uid = session($this->auth_key);
 
+        // 指定缓存标签
         $this->cache_tag  = $this->cache_tag ? : $this->request->subDomain();
         $this->cache_tag .= $this->uid ? : '';
         $this->cache->tag($this->cache_tag);

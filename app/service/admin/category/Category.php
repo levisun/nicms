@@ -162,6 +162,8 @@ class Category extends BaseService
 
         (new ModelCategory)->create($receive_data);
 
+        $this->cache->tag('nav')->clear();
+
         return [
             'debug' => false,
             'cache' => false,
@@ -291,15 +293,20 @@ class Category extends BaseService
                 ->data($receive_data)
                 ->update();
 
-            $msg = 'category editor success';
-        } else {
-            $msg = 'category editor error';
+            $this->cache->tag('nav')->clear();
+
+            return [
+                'debug' => false,
+                'cache' => false,
+                'msg'   => 'category editor success'
+            ];
         }
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => $msg
+            'code'  => 40001,
+            'msg'   => '缺少参数'
         ];
     }
 
@@ -341,16 +348,22 @@ class Category extends BaseService
                         ['id', '=', $id]
                     ])
                     ->delete();
-                $msg = lang('remove category success');
-            } else {
-                $msg = lang('remove category not article');
+
+                $this->cache->tag('nav')->clear();
+
+                return [
+                    'debug' => false,
+                    'cache' => false,
+                    'msg'   => 'remove category success'
+                ];
             }
         }
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => $msg
+            'code'  => 40001,
+            'msg'   => '缺少参数'
         ];
     }
 
@@ -371,8 +384,8 @@ class Category extends BaseService
             return [
                 'debug' => false,
                 'cache' => false,
-                'code'  => 'ERROR',
-                'msg'   => $result
+                'code'  => 40001,
+                'msg'   => '缺少参数'
             ];
         } else {
             return [

@@ -15,7 +15,7 @@ layui.use(['jquery', 'laypage', 'nicms'], function(){
             method: 'nav.main.query'
         },
         success: function(result) {
-            if (result.code == 'SUCCESS') {
+            if (result.code == '10000') {
                 new Vue({
                     el: '#header-nav',
                     data: {

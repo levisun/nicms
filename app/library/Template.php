@@ -129,6 +129,12 @@ class Template
             $this->parseTags();
             $this->parseVars();
 
+            // \think\facade\Cookie::set('izs', $this->theme_config['api_appsecret']);
+            // \think\facade\Cookie::set('izt', token());
+            // \think\facade\Cookie::set('izt', $this->request->server('REQUEST_TIME') . '.' . memory_get_usage());
+
+
+
             // 页面缓存
             ob_start();
             ob_implicit_flush(0);
@@ -187,6 +193,7 @@ class Template
             }
 
             list($root) = explode('.', $this->request->rootDomain(), 2);
+
             echo '<script type="text/javascript">' .
                 'var NICMS={' .
                 'domain:"' . '//' . $this->request->subDomain() . '.' . $this->request->rootDomain() . '",' .
@@ -199,6 +206,7 @@ class Template
                 'appid:"' . $this->theme_config['api_appid'] . '",' .
                 'appsecret:"' . $this->theme_config['api_appsecret'] . '",' .
                 'authorization:"{:__AUTHORIZATION__}",' .
+                'token:"",' .
                 'param:' . json_encode($this->request->param()) .
                 '},' .
                 'cdn:{' .
@@ -213,7 +221,7 @@ class Template
             echo false === strpos($this->content, '<body') ? '<body>' : '';
 
             $this->content = preg_replace_callback('/<script( type="(.*?)")?>(.*?)<\/script>/si', function ($matches) {
-                $type = $matches[2] ? : 'text/javascript';
+                $type = $matches[2] ?: 'text/javascript';
                 $matches[3] = DataFilter::string($matches[3]);
                 $pattern = [
                     '/\/\/.*?(\n|\r)+/i',
@@ -465,7 +473,10 @@ class Template
     {
         $this->content =
             preg_replace_callback('/{:([a-zA-Z_]+)\((.*?)\)}/si', function ($matches) {
-                $safe_func = ['echo', 'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'lang', 'url', 'date'];
+                $safe_func = [
+                    'echo', 'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'date',
+                    'cookie', 'lang', 'url'
+                ];
                 if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
                     return eval('return ' . $matches[1] . '(' . $matches[2] . ');');
                 } else {

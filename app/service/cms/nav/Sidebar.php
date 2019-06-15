@@ -40,7 +40,7 @@ class Sidebar extends BaseService
                     ['category.id', '=', $cid],
                     ['category.lang', '=', $this->lang->getLangSet()]
                 ])
-                ->cache(__METHOD__ . $cid, null, 'NAV')
+                ->cache(__METHOD__ . $cid, 0, 'nav')
                 ->find()
                 ->toArray();
 
@@ -87,7 +87,7 @@ class Sidebar extends BaseService
                 ['category.lang', '=', $this->lang->getLangSet()]
             ])
             ->order('category.sort_order ASC, category.id DESC')
-            ->cache(__METHOD__ . $_id, null, 'NAV')
+            ->cache(__METHOD__ . $_id, 0, 'nav')
             ->select()
             ->toArray();
 

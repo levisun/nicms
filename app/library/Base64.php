@@ -80,7 +80,8 @@ class Base64
      */
     public static function flag($_str = '', int $_length = 7)
     {
-        $_str = (string)trim($_str);
+        $_str = (string)$_str;
+        $_str = trim($_str);
         $_str = hash_hmac('sha1', $_str, Config::get('app.secretkey'));
         $_length = $_length > 40 ? 40 : $_length;
         return substr($_str, 0, $_length);

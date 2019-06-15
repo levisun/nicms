@@ -43,7 +43,7 @@ class Accesslog
                     ['user_agent', '=', $this->user_agent],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])
-                ->cache(__METHOD__ . md5($spider . $this->user_agent))
+                ->cache(__METHOD__ . md5($spider . $this->user_agent, 28800, 'library'))
                 ->value('name');
 
             if ($has) {
@@ -73,7 +73,7 @@ class Accesslog
                     ['user_agent', '=', $this->user_agent],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])
-                ->cache(__METHOD__ . md5($this->ip['ip'] . $this->user_agent))
+                ->cache(__METHOD__ . md5($this->ip['ip'] . $this->user_agent, 28800, 'library'))
                 ->value('ip');
 
             if ($has) {

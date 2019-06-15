@@ -294,12 +294,12 @@ if (!function_exists('cookie')) {
      */
     function cookie($_name, $_value = '', $_option = null)
     {
-        if (is_null($_name)) {
+        if (is_null($_value)) {
             // 删除
             Cookie::delete($_name);
         } elseif ('' === $_value) {
             // 获取
-            return 0 === strpos($_name, '?') ? Request::has(substr($_name, 1), 'cookie') : Base64::decrypt(Request::cookie($_name));
+            return 0 === strpos($_name, '?') ? Cookie::has(substr($_name, 1)) : Base64::decrypt(Cookie::get($_name));
         } else {
             // 设置
             return Cookie::set($_name, Base64::encrypt($_value), $_option);

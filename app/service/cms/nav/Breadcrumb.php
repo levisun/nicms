@@ -59,7 +59,7 @@ class Breadcrumb extends BaseService
                 ['category.id', '=', $_pid],
                 ['category.lang', '=', $this->lang->getLangSet()]
             ])
-            ->cache(__METHOD__ . $_pid, null, 'NAV')
+            ->cache(__METHOD__ . $_pid, 0, 'nav')
             ->find()
             ->toArray();
 

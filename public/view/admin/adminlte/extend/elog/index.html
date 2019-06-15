@@ -11,14 +11,15 @@
             </thead>
             <tbody>
                 <template v-for="vo in items.list">
-                <tr>
-                    <td v-text="vo.name"></td>
-                    <td v-text="vo.date"></td>
-                    <td v-text="vo.size"></td>
-                    <td>
-                        <a id="open" data-toggle="modal" data-target="#modal-default" v-bind:data="vo.id"><i></i>{:lang('open')}</a>
-                    </td>
-                </tr>
+                    <tr>
+                        <td v-text="vo.name"></td>
+                        <td v-text="vo.date"></td>
+                        <td v-text="vo.size"></td>
+                        <td>
+                            <a id="open" data-toggle="modal" data-target="#modal-default"
+                                v-bind:data="vo.id"><i></i>{:lang('open')}</a>
+                        </td>
+                    </tr>
                 </template>
             </tbody>
         </table>
@@ -47,56 +48,56 @@
 </div>
 
 
-{tag:script}
-paging();
-var v = null;
-function paging () {
-    jQuery.pjax({
-        url: NICMS.api.url + '/query.do',
-        type: 'GET',
-        data: {
-            method: 'extend.elog.query'
-        },
-        success: function(result){
-            if (result.code == 10000) {
-                if (v) {
-                    v.items = result.data;
-                } else {
-                    v = new Vue({
-                        el: '.box',
-                        data: {
-                            items: result.data
-                        }
-                    });
+<script>
+    paging();
+    var v = null;
+    function paging() {
+        jQuery.pjax({
+            url: NICMS.api.url + '/query.do',
+            type: 'GET',
+            data: {
+                method: 'extend.elog.query'
+            },
+            success: function (result) {
+                if (result.code == 10000) {
+                    if (v) {
+                        v.items = result.data;
+                    } else {
+                        v = new Vue({
+                            el: '.box',
+                            data: {
+                                items: result.data
+                            }
+                        });
+                    }
                 }
             }
-        }
-    });
-}
-var vue = null;
-jQuery(document).on('click', '#open', function(){
-    var id = jQuery(this).attr('data');
-    jQuery.pjax({
-        url: NICMS.api.url + '/handle.do',
-        type: 'POST',
-        data: {
-            method: 'extend.elog.find',
-            id: id
-        },
-        success: function(result){
-            if (result.code == 10000) {
-                if (vue) {
-                    vue.items = result.data;
-                } else {
-                    vue = new Vue({
-                        el: '.modal-content',
-                        data: {
-                            items: result.data
-                        }
-                    });
+        });
+    }
+    var vue = null;
+    jQuery(document).on('click', '#open', function () {
+        var id = jQuery(this).attr('data');
+        jQuery.pjax({
+            url: NICMS.api.url + '/handle.do',
+            type: 'POST',
+            data: {
+                method: 'extend.elog.find',
+                id: id
+            },
+            success: function (result) {
+                if (result.code == 10000) {
+                    if (vue) {
+                        vue.items = result.data;
+                    } else {
+                        vue = new Vue({
+                            el: '.modal-content',
+                            data: {
+                                items: result.data
+                            }
+                        });
+                    }
                 }
             }
-        }
+        });
     });
-});
-{/tag}
+</script>

@@ -15,38 +15,45 @@
 
             <div class="form-group">
                 <label>{:lang('database hostname')}</label>
-                <input type="text" name="database[hostname]" class="form-control" disabled="true" v-bind:value="items.database.hostname">
+                <input type="text" name="database[hostname]" class="form-control" disabled="true"
+                    v-bind:value="items.database.hostname">
             </div>
 
             <div class="form-group">
                 <label>{:lang('database database')}</label>
-                <input type="text" name="database[database]" class="form-control" disabled="true" v-bind:value="items.database.database">
+                <input type="text" name="database[database]" class="form-control" disabled="true"
+                    v-bind:value="items.database.database">
             </div>
 
             <div class="form-group">
                 <label>{:lang('database username')}</label>
-                <input type="text" name="database[username]" class="form-control" disabled="true" v-bind:value="items.database.username">
+                <input type="text" name="database[username]" class="form-control" disabled="true"
+                    v-bind:value="items.database.username">
             </div>
 
             <div class="form-group">
                 <label>{:lang('database password')}</label>
-                <input type="text" name="database[password]" class="form-control" disabled="true" v-bind:value="items.database.password">
+                <input type="text" name="database[password]" class="form-control" disabled="true"
+                    v-bind:value="items.database.password">
             </div>
 
             <p><b>{:lang('database hostport')}</b></p>
             <div class="input-group">
-                <input type="text" name="database[hostport]" class="form-control" disabled="true" v-bind:value="items.database.hostport">
+                <input type="text" name="database[hostport]" class="form-control" disabled="true"
+                    v-bind:value="items.database.hostport">
                 <span class="input-group-addon">3306</span>
             </div>
 
             <div class="form-group">
                 <label>{:lang('database prefix')}</label>
-                <input type="text" name="database[prefix]" class="form-control" disabled="true" v-bind:value="items.database.prefix">
+                <input type="text" name="database[prefix]" class="form-control" disabled="true"
+                    v-bind:value="items.database.prefix">
             </div>
 
             <div class="form-group">
                 <label>{:lang('cache type')}</label>
-                <input type="text" name="cache[type]" class="form-control" disabled="true" v-bind:value="items.cache.type">
+                <input type="text" name="cache[type]" class="form-control" disabled="true"
+                    v-bind:value="items.cache.type">
             </div>
 
             <div class="form-group">
@@ -58,26 +65,31 @@
                 <label>{:lang('admin debug')}</label>
                 <br>
                 <label>
-                    <input type="radio" name="admin[debug]" value="1" v-bind:checked="items.admin.debug==1 ? true : false"> {:lang('open')}
+                    <input type="radio" name="admin[debug]" value="1"
+                        v-bind:checked="items.admin.debug==1 ? true : false"> {:lang('open')}
                 </label>
                 <label>
-                    <input type="radio" name="admin[debug]" value="0" v-bind:checked="items.admin.debug==0 ? true : false"> {:lang('close')}
+                    <input type="radio" name="admin[debug]" value="0"
+                        v-bind:checked="items.admin.debug==0 ? true : false"> {:lang('close')}
                 </label>
             </div>
 
             <div class="form-group">
                 <label>{:lang('admin authkey')}</label>
-                <input type="text" name="admin[authkey]" class="form-control" disabled="true" v-bind:value="items.admin.authkey">
+                <input type="text" name="admin[authkey]" class="form-control" disabled="true"
+                    v-bind:value="items.admin.authkey">
             </div>
 
             <div class="form-group">
                 <label>{:lang('admin entry')}</label>
-                <input type="text" name="admin[entry]" class="form-control" disabled="true" v-bind:value="items.admin.entry">
+                <input type="text" name="admin[entry]" class="form-control" disabled="true"
+                    v-bind:value="items.admin.entry">
             </div>
 
             <div class="form-group">
                 <label>{:lang('admin theme')}</label>
-                <input type="text" name="admin[theme]" class="form-control" disabled="true" v-bind:value="items.admin.theme">
+                <input type="text" name="admin[theme]" class="form-control" disabled="true"
+                    v-bind:value="items.admin.theme">
             </div>
         </form>
     </div>
@@ -85,41 +97,38 @@
         <button type="submit" class="btn btn-primary">{:lang('save')}</button>
     </div>
 </div>
-{tag:script}
-
-
-
-jQuery.pjax({
-    url: NICMS.api.url + '/query.do',
-    type: 'GET',
-    data: {
-        method: 'settings.safe.query'
-    },
-    success: function(result){
-        if (result.code == 10000) {
-            new Vue({
-                el: '.box-body',
-                data: {
-                    items: result.data
-                }
-            });
-        }
-    }
-});
-jQuery(document).on('click', '.btn', function(){
-    var btn = jQuery(this).button('{:lang('saveing')}');
-    var data = jQuery.getForm('#safe-config');
-    data['method'] = 'settings.safe.editor';
+<script>
     jQuery.pjax({
-        url: NICMS.api.url + '/handle.do',
-        type: 'POST',
-        data: data,
-        success: function(result){
+        url: NICMS.api.url + '/query.do',
+        type: 'GET',
+        data: {
+            method: 'settings.safe.query'
+        },
+        success: function (result) {
             if (result.code == 10000) {
-                jQuery.uiToast(result.message);
-                location.reload();
+                new Vue({
+                    el: '.box-body',
+                    data: {
+                        items: result.data
+                    }
+                });
             }
         }
     });
-});
-{/tag}
+    jQuery(document).on('click', '.btn', function () {
+        var btn = jQuery(this).button("{:lang('saveing')}");
+        var data = jQuery.getForm('#safe-config');
+        data['method'] = 'settings.safe.editor';
+        jQuery.pjax({
+            url: NICMS.api.url + '/handle.do',
+            type: 'POST',
+            data: data,
+            success: function (result) {
+                if (result.code == 10000) {
+                    jQuery.uiToast(result.message);
+                    location.reload();
+                }
+            }
+        });
+    });
+</script>

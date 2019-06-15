@@ -7,22 +7,22 @@
         </div>
     </div>
 </div>
-{tag:script}
-jQuery.pjax({
-    url: NICMS.api.url + '/query.do',
-    type: 'GET',
-    data: {
-        method: 'theme.cms.query'
-    },
-    success: function(result){
-        if (result.code == 10000) {
-            new Vue({
-                el: '.box',
-                data: {
-                    items: result.data.list
-                }
-            });
+<script>
+    jQuery.pjax({
+        url: NICMS.api.url + '/query.do',
+        type: 'GET',
+        data: {
+            method: 'theme.cms.query'
+        },
+        success: function (result) {
+            if (result.code == 10000) {
+                new Vue({
+                    el: '.box',
+                    data: {
+                        items: result.data.list
+                    }
+                });
+            }
         }
-    }
-});
-{/tag}
+    });
+</script>

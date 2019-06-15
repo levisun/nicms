@@ -41,38 +41,38 @@
         <button type="submit" class="btn btn-primary">{:lang('save')}</button>
     </div>
 </div>
-{tag:script}
-jQuery.pjax({
-    url: NICMS.api.url + '/query.do',
-    type: 'GET',
-    data: {
-        method: 'settings.basic.query'
-    },
-    success: function(result){
-        if (result.code == 10000) {
-            new Vue({
-                el: '.box-body',
-                data: {
-                    items: result.data
-                }
-            });
-        }
-    }
-});
-jQuery(document).on('click', '.btn', function(){
-    var btn = jQuery(this).button('{:lang('saveing')}');
-    var data = jQuery.getForm('#basic-config');
-    data['method'] = 'settings.basic.editor';
+<script>
     jQuery.pjax({
-        url: NICMS.api.url + '/handle.do',
-        type: 'POST',
-        data: data,
-        success: function(result){
+        url: NICMS.api.url + '/query.do',
+        type: 'GET',
+        data: {
+            method: 'settings.basic.query'
+        },
+        success: function (result) {
             if (result.code == 10000) {
-                jQuery.uiToast(result.message);
-                location.reload();
+                new Vue({
+                    el: '.box-body',
+                    data: {
+                        items: result.data
+                    }
+                });
             }
         }
     });
-});
-{/tag}
+    jQuery(document).on('click', '.btn', function () {
+        var btn = jQuery(this).button("{:lang('saveing')}");
+        var data = jQuery.getForm('#basic-config');
+        data['method'] = 'settings.basic.editor';
+        jQuery.pjax({
+            url: NICMS.api.url + '/handle.do',
+            type: 'POST',
+            data: data,
+            success: function (result) {
+                if (result.code == 10000) {
+                    jQuery.uiToast(result.message);
+                    location.reload();
+                }
+            }
+        });
+    });
+</script>

@@ -429,6 +429,7 @@ abstract class Async
                 ->where([
                     ['id', '=', $this->appid]
                 ])
+                ->cache(__METHOD__ . $this->appid, 1440, 'library')
                 ->find();
 
             if ($result) {
@@ -461,7 +462,6 @@ abstract class Async
                 $this->session->setId($this->authorization['jti']);
             }
         } else {
-            $this->debugLog['authorization'] = $this->authorization;
             $this->log->record('[Async] header-authorization params error', 'alert')->save();
             $this->error('权限不足', 20001);
         }

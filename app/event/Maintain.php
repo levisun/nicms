@@ -47,7 +47,7 @@ class Maintain
                     (new DataMaintenance)->repair();    // 修复表
                     ignore_user_abort(false);
 
-                    fwrite($fp, date('Y-m-d H:i:s'));
+                    fwrite($fp, '优化|修复数据' . date('Y-m-d H:i:s'));
                     flock($fp, LOCK_UN);
                     fclose($fp);
                 }

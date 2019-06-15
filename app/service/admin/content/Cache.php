@@ -34,11 +34,13 @@ class Cache extends BaseService
             return $result;
         }
 
-        $dir = (array)glob($this->app->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*');
-        foreach ($dir as $path) {
-            $path = (array)glob($path . DIRECTORY_SEPARATOR . '*');
-            array_map('unlink', $path);
-        }
+        $this->cache->clear();
+
+        // $dir = (array)glob($this->app->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*');
+        // foreach ($dir as $path) {
+        //     $path = (array)glob($path . DIRECTORY_SEPARATOR . '*');
+        //     array_map('unlink', $path);
+        // }
 
         return [
             'debug' => false,

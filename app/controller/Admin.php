@@ -20,13 +20,6 @@ use app\controller\BaseController;
 
 class admin extends BaseController
 {
-    /**
-     * 控制器中间件
-     * @var array
-     */
-    protected $middleware = [
-        'think\middleware\SessionInit'
-    ];
 
     /**
      * 初始化
