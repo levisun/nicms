@@ -15,7 +15,6 @@ declare (strict_types = 1);
 
 namespace app\service\cms\nav;
 
-use think\facade\Request;
 use app\library\Base64;
 use app\service\BaseService;
 use app\model\Category as ModelCategory;

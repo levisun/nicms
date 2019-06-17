@@ -175,17 +175,20 @@ class Template
                 '<meta property="og:url" content="' . $this->request->url(true) . '">' .
                 '<meta property="og:image" content="">';
 
+            // 自定义meta标签
             if (!empty($this->theme_config['meta'])) {
                 foreach ($this->theme_config['meta'] as $m) {
                     echo '<meta ' . $m['type'] . ' ' . $m['content'] . ' />';
                 }
             }
+            // 自定义link标签
             if (!empty($this->theme_config['link'])) {
                 foreach ($this->theme_config['link'] as $m) {
                     echo '<link rel="' . $m['rel'] . '" href="' . $m['href'] . '" />';
                 }
             }
 
+            // CSS引入
             if (!empty($this->theme_config['css'])) {
                 foreach ($this->theme_config['css'] as $css) {
                     echo '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $this->theme_config['theme_version'] . '" />';
@@ -206,7 +209,8 @@ class Template
                 'appid:"' . $this->theme_config['api_appid'] . '",' .
                 'appsecret:"' . $this->theme_config['api_appsecret'] . '",' .
                 'authorization:"{:__AUTHORIZATION__}",' .
-                'token:"",' .
+                'izs:"' . $this->theme_config['api_appsecret'] . '",' .
+                'izt:"' . md5(date('Ymd')) . '",' .
                 'param:' . json_encode($this->request->param()) .
                 '},' .
                 'cdn:{' .
@@ -220,6 +224,8 @@ class Template
             echo '</head>';
             echo false === strpos($this->content, '<body') ? '<body>' : '';
 
+            // 解析JS
+            // JS移至底部
             $this->content = preg_replace_callback('/<script( type="(.*?)")?>(.*?)<\/script>/si', function ($matches) {
                 $type = $matches[2] ?: 'text/javascript';
                 $matches[3] = DataFilter::string($matches[3]);
@@ -232,8 +238,10 @@ class Template
                 return '';
             }, $this->content);
 
+            // 过滤非法信息
             echo DataFilter::string($this->content);
 
+            // JS引入
             if (!empty($this->theme_config['js'])) {
                 foreach ($this->theme_config['js'] as $js) {
                     echo '<script type="text/javascript" src="' . $js . '?v=' . $this->theme_config['theme_version'] . '"></script>';
@@ -313,7 +321,7 @@ class Template
 
         clearstatcache();
         if (false === $this->config->get('app.debug')) {
-            $_content = function_exists('gzcompress') ? gzcompress($_content) : $_content;
+            // $_content = function_exists('gzcompress') ? gzcompress($_content) : $_content;
             file_put_contents($path, $_content);
         }
     }
@@ -339,7 +347,7 @@ class Template
             unlink($path);
         } elseif (is_file($path)) {
             $content = file_get_contents($path);
-            $content = function_exists('gzcompress') ? gzuncompress($content) : $content;
+            // $content = function_exists('gzcompress') ? gzuncompress($content) : $content;
             return $content;
         }
 

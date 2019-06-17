@@ -74,8 +74,8 @@ class LockRequest
                 fwrite($fp, $data);
             }
             flock($fp, LOCK_UN);
-            fclose($fp);
         }
+        fclose($fp);
     }
 
     /**

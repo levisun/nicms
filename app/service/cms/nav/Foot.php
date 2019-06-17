@@ -30,35 +30,39 @@ class Foot extends BaseService
      */
     public function query(): array
     {
-        $result =
-        (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-        ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-        ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
-        ->where([
-            ['category.is_show', '=', 1],
-            ['category.type_id', '=', 3],
-            ['category.pid', '=', 0],
-            ['category.lang', '=', $this->lang->getLangSet()]
-        ])
-        ->order('category.sort_order ASC, category.id DESC')
-        ->cache(__METHOD__ . $this->lang->getLangSet(), 0, 'nav')
-        ->select()
-        ->toArray();
+        $cache_key = md5('foot' . $this->lang->getLangSet());
+        if (!$this->cache->has($cache_key)) {
+            $result = (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+                ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+                ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
+                ->where([
+                    ['category.is_show', '=', 1],
+                    ['category.type_id', '=', 3],
+                    ['category.pid', '=', 0],
+                    ['category.lang', '=', $this->lang->getLangSet()]
+                ])
+                ->order('category.sort_order ASC, category.id DESC')
+                ->select()
+                ->toArray();
 
-        foreach ($result as $key => $value) {
-            $value['image'] = get_img_url($value['image']);
-            $value['flag'] = Base64::flag($value['id'], 7);
+            foreach ($result as $key => $value) {
+                $value['image'] = get_img_url($value['image']);
+                $value['flag'] = Base64::flag($value['id'], 7);
 
-            $value['child'] = $this->child($value['id'], 3);
+                $value['child'] = $this->child($value['id'], 3);
 
-            $value['id'] = Base64::encrypt($value['id']);
-            $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
-            if ($value['access_id']) {
-                $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
+                $value['id'] = Base64::encrypt($value['id']);
+                $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
+                if ($value['access_id']) {
+                    $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
+                }
+                unset($value['action_name']);
+
+                $result[$key] = $value;
             }
-            unset($value['action_name']);
-
-            $result[$key] = $value;
+            $this->cache->tag(['cms', 'nav'])->set($cache_key, $result);
+        } else {
+            $result = $this->cache->get($cache_key);
         }
 
         return [
@@ -78,20 +82,18 @@ class Foot extends BaseService
      */
     private function child(int $_pid, int $_type_id)
     {
-        $result =
-        (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-        ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-        ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
-        ->where([
-            ['category.is_show', '=', 1],
-            ['category.type_id', '=', $_type_id],
-            ['category.pid', '=', $_pid],
-            ['category.lang', '=', $this->lang->getLangSet()]
-        ])
-        ->order('category.sort_order ASC, category.id DESC')
-        ->cache(__METHOD__ . $_pid . $_type_id, 0, 'nav')
-        ->select()
-        ->toArray();
+        $result = (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+            ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
+            ->where([
+                ['category.is_show', '=', 1],
+                ['category.type_id', '=', $_type_id],
+                ['category.pid', '=', $_pid],
+                ['category.lang', '=', $this->lang->getLangSet()]
+            ])
+            ->order('category.sort_order ASC, category.id DESC')
+            ->select()
+            ->toArray();
 
         foreach ($result as $key => $value) {
             $value['image'] = get_img_url($value['image']);
@@ -105,7 +107,6 @@ class Foot extends BaseService
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
             }
             unset($value['action_name']);
-
 
             $result[$key] = $value;
         }

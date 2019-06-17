@@ -111,9 +111,8 @@ class DataMaintenance
 
             fwrite($fp, '自动备份数据库' . date('Y-m-d H:i:s'));
             flock($fp, LOCK_UN);
-
-            fclose($fp);
         }
+        fclose($fp);
 
         return true;
     }

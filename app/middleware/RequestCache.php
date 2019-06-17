@@ -111,15 +111,13 @@ class RequestCache
             if ($_response->getHeader('Cache-control')) {
                 $expire = (int)str_replace('public, max-age=', '', $_response->getHeader('Cache-control'));
             } else {
-                $expire = Config::get('cache.expire');
+                $expire = 1440;
                 $_response->cacheControl('public, max-age=' . $expire)
                     ->expires(gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT')
                     ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
             }
 
-            if (isset($expire)) {
-                $this->cache->set($key, [$_response->getContent(), $_response->getHeader()], $expire);
-            }
+            $this->cache->set($key, [$_response->getContent(), $_response->getHeader()], $expire);
         }
     }
 

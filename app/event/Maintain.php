@@ -37,7 +37,7 @@ class Maintain
         if (!in_array($_request->controller(true), ['api'])) {
             // 优化修复数据库表
             clearstatcache();
-            $lock = app()->getRuntimePath() . 'dmor.lock';
+            $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'dmor.lock';
             $date = (string)(date('Ymd') - 10);
             if (0 === date('Ymd') % 10 && filemtime($lock) <= strtotime($date)) {
                 $fp = @fopen($lock, 'w+');
@@ -49,8 +49,8 @@ class Maintain
 
                     fwrite($fp, '优化|修复数据' . date('Y-m-d H:i:s'));
                     flock($fp, LOCK_UN);
-                    fclose($fp);
                 }
+                fclose($fp);
             }
             // 清除过期缓存和日志等
             elseif (1 === rand(1, 99)) {

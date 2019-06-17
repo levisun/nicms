@@ -30,31 +30,36 @@ class Main extends BaseService
      */
     public function query(): array
     {
-        $result = (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-            ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
-            ->where([
-                ['category.is_show', '=', 1],
-                ['category.type_id', '=', 2],
-                ['category.pid', '=', 0],
-                ['category.lang', '=', $this->lang->getLangSet()]
-            ])
-            ->order('category.sort_order ASC, category.id DESC')
-            ->cache(__METHOD__ . $this->lang->getLangSet(), 0, 'nav')
-            ->select()
-            ->toArray();
+        $cache_key = md5('main' . $this->lang->getLangSet());
+        if (!$this->cache->has($cache_key)) {
+            $result = (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+                ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+                ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
+                ->where([
+                    ['category.is_show', '=', 1],
+                    ['category.type_id', '=', 2],
+                    ['category.pid', '=', 0],
+                    ['category.lang', '=', $this->lang->getLangSet()]
+                ])
+                ->order('category.sort_order ASC, category.id DESC')
+                ->select()
+                ->toArray();
 
-        foreach ($result as $key => $value) {
-            $value['image'] = get_img_url($value['image']);
-            $value['flag'] = Base64::flag($value['id'], 7);
-            $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
-            if ($value['access_id']) {
-                $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
+            foreach ($result as $key => $value) {
+                $value['image'] = get_img_url($value['image']);
+                $value['flag'] = Base64::flag($value['id'], 7);
+                $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
+                if ($value['access_id']) {
+                    $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
+                }
+                $value['child'] = $this->child($value['id'], 2);
+                unset($value['action_name']);
+
+                $result[$key] = $value;
             }
-            $value['child'] = $this->child($value['id'], 2);
-            unset($value['action_name']);
-
-            $result[$key] = $value;
+            $this->cache->tag(['cms', 'nav'])->set($cache_key, $result);
+        } else {
+            $result = $this->cache->get($cache_key);
         }
 
         return [
@@ -84,7 +89,6 @@ class Main extends BaseService
                 ['category.lang', '=', $this->lang->getLangSet()]
             ])
             ->order('category.sort_order ASC, category.id DESC')
-            ->cache(__METHOD__ . $_pid . $_type_id, 0, 'nav')
             ->select()
             ->toArray();
 

@@ -58,7 +58,7 @@ class ArticleBase extends BaseService
             $query_page = (int)$this->request->param('page/f', 1);
             $date_format = $this->request->param('date_format', 'Y-m-d');
 
-            $cache_key = md5($category_id . $com . $top . $hot . $type_id . $query_limit . $query_page . $date_format);
+            $cache_key = md5(date('Ymd') . $category_id . $com . $top . $hot . $type_id . $query_limit . $query_page . $date_format);
             if (!$this->cache->has($cache_key)) {
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
@@ -92,7 +92,6 @@ class ArticleBase extends BaseService
                         // ->where([
                         //     ['data.main_id', '=', $value['id']],
                         // ])
-                        // ->cache('modelarticledata' . $value['id'], null, 'LISTS')
                         // ->select()
                         // ->toArray();
                         // foreach ($fields as $val) {
@@ -112,7 +111,7 @@ class ArticleBase extends BaseService
                         $list['data'][$key] = $value;
                     }
 
-                    $this->cache->tag('list')->set($cache_key, $list);
+                    $this->cache->tag(['cms', 'list', 'list_' . $category_id])->set($cache_key, $list);
                     return $list;
                 }
             } else {
@@ -145,7 +144,7 @@ class ArticleBase extends BaseService
         if ($id = (int)$this->request->param('id/f')) {
             $map[] = ['article.id', '=', $id];
             $cache_key = md5($id);
-            if (!$this->cache->tag('details')->has($cache_key)) {
+            if (!$this->cache->has($cache_key)) {
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
                     ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
@@ -188,7 +187,6 @@ class ArticleBase extends BaseService
                     // ->where([
                     //     ['data.main_id', '=', $value['id']],
                     // ])
-                    // ->cache('modelarticledata' . $value['id'], null, 'DETAILS')
                     // ->select()
                     // ->toArray();
                     // foreach ($fields as $val) {
@@ -205,7 +203,7 @@ class ArticleBase extends BaseService
                         ->toArray();
                 }
 
-                $this->cache->tag('details')->set($cache_key, $result);
+                $this->cache->tag(['cms', 'details', 'details' . $id])->set($cache_key, $result);
                 return $result;
             } else {
                 return $this->cache->get($cache_key);

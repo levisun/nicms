@@ -30,31 +30,36 @@ class Top extends BaseService
      */
     public function query(): array
     {
-        $result = (new ModelCategory)->view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-            ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
-            ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
-            ->where([
-                ['c.is_show', '=', 1],
-                ['c.type_id', '=', 1],
-                ['c.pid', '=', 0],
-                ['c.lang', '=', $this->lang->getLangSet()]
-            ])
-            ->order('c.sort_order ASC, c.id DESC')
-            ->cache(__METHOD__ . $this->lang->getLangSet(), 0, 'nav')
-            ->select()
-            ->toArray();
+        $cache_key = md5('top' . $this->lang->getLangSet());
+        if (!$this->cache->has($cache_key)) {
+            $result = (new ModelCategory)->view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+                ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
+                ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
+                ->where([
+                    ['c.is_show', '=', 1],
+                    ['c.type_id', '=', 1],
+                    ['c.pid', '=', 0],
+                    ['c.lang', '=', $this->lang->getLangSet()]
+                ])
+                ->order('c.sort_order ASC, c.id DESC')
+                ->select()
+                ->toArray();
 
-        foreach ($result as $key => $value) {
-            $value['image'] = get_img_url($value['image']);
-            $value['flag'] = Base64::flag($value['id'], 7);
-            $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
-            if ($value['access_id']) {
-                $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
+            foreach ($result as $key => $value) {
+                $value['image'] = get_img_url($value['image']);
+                $value['flag'] = Base64::flag($value['id'], 7);
+                $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
+                if ($value['access_id']) {
+                    $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
+                }
+                $value['child'] = $this->child($value['id'], 1);
+                unset($value['action_name']);
+
+                $result[$key] = $value;
             }
-            $value['child'] = $this->child($value['id'], 1);
-            unset($value['action_name']);
-
-            $result[$key] = $value;
+            $this->cache->tag(['cms', 'nav'])->set($cache_key, $result);
+        } else {
+            $result = $this->cache->get($cache_key);
         }
 
         return [
@@ -84,7 +89,6 @@ class Top extends BaseService
                 ['c.lang', '=', $this->lang->getLangSet()]
             ])
             ->order('c.sort_order ASC, c.id DESC')
-            ->cache(__METHOD__ . $_pid . $_type_id, 0, 'nav')
             ->select()
             ->toArray();
 
