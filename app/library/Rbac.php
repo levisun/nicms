@@ -43,6 +43,7 @@ class Rbac
 
         $this->config = array_merge($this->config, $_config);
 
+        // 登录并请求方法需要审核
         if ($_uid && $this->checkAccess($_app, $_service, $_logic, $_action)) {
             // 实时检验权限
             if ($this->config['auth_type'] == 1) {

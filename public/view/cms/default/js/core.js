@@ -39,7 +39,7 @@ layui.use(['jquery', 'laypage', 'nicms'], function(){
                 cid: NICMS.param.cid
             },
             success: function(result) {
-                if (result.code == 'SUCCESS') {
+                if (result.code == '10000') {
                     new Vue({
                         el: '#sidebar',
                         data: {
@@ -59,7 +59,7 @@ layui.use(['jquery', 'laypage', 'nicms'], function(){
                 cid: NICMS.param.cid
             },
             success: function(result) {
-                if (result.code == 'SUCCESS') {
+                if (result.code == '10000') {
                     new Vue({
                         el: '#breadcrumb',
                         data: {
@@ -84,7 +84,7 @@ layui.use(['jquery', 'laypage', 'nicms'], function(){
     //         method: 'upload.file.save'
     //     },
     //     success: function(result) {
-    //         if (result.code == 'SUCCESS') {
+    //         if (result.code == '10000') {
 
     //         }
     //     }

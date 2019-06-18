@@ -14,13 +14,14 @@ declare (strict_types = 1);
 
 namespace app\library;
 
+use think\facade\Cache;
 use think\facade\Lang;
 use think\facade\Request;
 use app\model\Config as ModelConfig;
 use app\model\Article as ModelArticle;
 use app\model\Category as ModelCategory;
 
-class siteinfo
+class Siteinfo
 {
 
 
@@ -33,31 +34,42 @@ class siteinfo
      */
     public static function description(): string
     {
-        $result = '';
+        $id = Request::param('id/f', null);
+        $cid = Request::param('cid/f', null);
 
-        // 文章描述
-        if ($id = Request::param('id/f', null)) {
-            $result = (new ModelArticle)->where([
-                ['id', '=', $id]
-            ])
-                ->value('description', '');
-        }
-        // 栏目描述
-        elseif ($cid = Request::param('cid/f', null)) {
-            $result = (new ModelCategory)->where([
-                ['id', '=', $cid]
-            ])
-                ->value('description', '');
+        $cache_key = md5(__METHOD__ . $id . $cid);
+        if (!Cache::has($cache_key)) {
+            // 文章描述
+            if ($id) {
+                $result = (new ModelArticle)
+                    ->where([
+                        ['id', '=', $id]
+                    ])
+                    ->value('description', '');
+            }
+            // 栏目描述
+            elseif ($cid) {
+                $result = (new ModelCategory)
+                    ->where([
+                        ['id', '=', $cid]
+                    ])
+                    ->value('description', '');
+            } else {
+                $result = (new ModelConfig)
+                    ->where([
+                        ['name', '=', Request::controller(true) . '_description'],
+                        ['lang', '=', Lang::getLangSet()]
+                    ])
+                    ->value('value', '');
+            }
+
+            $result = strip_tags(htmlspecialchars_decode($result));
+
+            Cache::tag(['cms', 'siteinfo'])->set($cache_key, $result);
+            return $result;
         } else {
-            $result .= (new ModelConfig)->where([
-                ['name', '=', Request::controller(true) . '_description'],
-                ['lang', '=', Lang::getLangSet()]
-            ])
-                ->cache(__METHOD__ . Request::controller(true) . '_description' . Lang::getLangSet(), null, 'siteinfo')
-                ->value('value', '');
+            return Cache::get($cache_key);
         }
-
-        return $result;
     }
 
     /**
@@ -69,34 +81,42 @@ class siteinfo
      */
     public static function keywords(): string
     {
-        $result = '';
+        $id = Request::param('id/f', null);
+        $cid = Request::param('cid/f', null);
 
-        // 文章关键词
-        if ($id = Request::param('id/f', false)) {
-            $result = (new ModelArticle)
-                ->where([
-                    ['id', '=', $id]
-                ])
-                ->value('keywords', '');
-        }
-        // 栏目关键词
-        elseif ($cid = Request::param('cid/f', false)) {
-            $result = (new ModelCategory)
-                ->where([
-                    ['id', '=', $cid]
-                ])
-                ->value('keywords', '');
+        $cache_key = md5(__METHOD__ . $id . $cid);
+        if (!Cache::has($cache_key)) {
+            // 文章关键词
+            if ($id) {
+                $result = (new ModelArticle)
+                    ->where([
+                        ['id', '=', $id]
+                    ])
+                    ->value('keywords', '');
+            }
+            // 栏目关键词
+            elseif ($cid) {
+                $result = (new ModelCategory)
+                    ->where([
+                        ['id', '=', $cid]
+                    ])
+                    ->value('keywords', '');
+            } else {
+                $result = (new ModelConfig)
+                    ->where([
+                        ['name', '=', Request::controller(true) . '_keywords'],
+                        ['lang', '=', Lang::getLangSet()]
+                    ])
+                    ->value('value', '');
+            }
+
+            $result = strip_tags(htmlspecialchars_decode($result));
+
+            Cache::tag(['cms', 'siteinfo'])->set($cache_key, $result);
+            return $result;
         } else {
-            $result .= (new ModelConfig)
-                ->where([
-                    ['name', '=', Request::controller(true) . '_keywords'],
-                    ['lang', '=', Lang::getLangSet()]
-                ])
-                ->cache(__METHOD__ . Request::controller(true) . '_keywords' . Lang::getLangSet(), null, 'siteinfo')
-                ->value('value', '');
+            return Cache::get($cache_key);
         }
-
-        return strip_tags($result);
     }
 
     /**
@@ -108,34 +128,42 @@ class siteinfo
      */
     public static function title(): string
     {
-        $result = '';
+        $id = Request::param('id/f', null);
+        $cid = Request::param('cid/f', null);
 
-        // 文章名
-        if ($id = Request::param('id/f', false)) {
-            $result = (new ModelArticle)
-                ->where([
-                    ['id', '=', $id]
-                ])
-                ->value('title', '');
-        }
-        // 栏目名
-        elseif ($cid = Request::param('cid/f', false)) {
-            $result = (new ModelCategory)
-                ->where([
-                    ['id', '=', $cid]
-                ])
-                ->value('name', 'NICMS');
+        $cache_key = md5(__METHOD__ . $id . $cid);
+        if (!Cache::has($cache_key)) {
+            // 文章名
+            if ($id) {
+                $result = (new ModelArticle)
+                    ->where([
+                        ['id', '=', $id]
+                    ])
+                    ->value('title', '');
+            }
+            // 栏目名
+            elseif ($cid) {
+                $result = (new ModelCategory)
+                    ->where([
+                        ['id', '=', $cid]
+                    ])
+                    ->value('name', 'NICMS');
+            } else {
+                $result = (new ModelConfig)
+                    ->where([
+                        ['name', '=', Request::controller(true) . '_sitename'],
+                        ['lang', '=', Lang::getLangSet()]
+                    ])
+                    ->value('value', 'NICMS');
+            }
+
+            $result = strip_tags(htmlspecialchars_decode($result));
+
+            Cache::tag(['cms', 'siteinfo'])->set($cache_key, $result);
+            return $result;
         } else {
-            $result .= (new ModelConfig)
-                ->where([
-                    ['name', '=', Request::controller(true) . '_sitename'],
-                    ['lang', '=', Lang::getLangSet()]
-                ])
-                ->cache(__METHOD__ . Request::controller(true) . '_sitename' . Lang::getLangSet(), null, 'siteinfo')
-                ->value('value', 'NICMS');
+            return Cache::get($cache_key);
         }
-
-        return strip_tags($result);
     }
 
     /**
@@ -147,13 +175,22 @@ class siteinfo
      */
     public static function name(): string
     {
-        return (new ModelConfig)
-            ->where([
-                ['name', '=', Request::controller(true) . '_sitename'],
-                ['lang', '=', Lang::getLangSet()]
-            ])
-            ->cache(__METHOD__ . Request::controller(true) . '_sitename' . Lang::getLangSet(), null, 'siteinfo')
-            ->value('value', 'NICMS');
+        $cache_key = md5(__METHOD__);
+        if (!Cache::has($cache_key)) {
+            $result = (new ModelConfig)
+                ->where([
+                    ['name', '=', Request::controller(true) . '_sitename'],
+                    ['lang', '=', Lang::getLangSet()]
+                ])
+                ->value('value', 'NICMS');
+
+            $result = strip_tags(htmlspecialchars_decode($result));
+
+            Cache::tag(['cms', 'siteinfo'])->set($cache_key, $result);
+            return $result;
+        } else {
+            return Cache::get($cache_key);
+        }
     }
 
     /**
@@ -165,24 +202,30 @@ class siteinfo
      */
     public static function copyright(): string
     {
-        $copyright = (new ModelConfig)
-            ->where([
-                ['name', '=', Request::controller(true) . '_copyright'],
-                ['lang', '=', Lang::getLangSet()]
-            ])
-            ->cache(__METHOD__ . Request::controller(true) . '_copyright' . Lang::getLangSet(), null, 'siteinfo')
-            ->value('value', '');
+        $cache_key = md5(__METHOD__);
+        if (!Cache::has($cache_key)) {
+            $copyright = (new ModelConfig)
+                ->where([
+                    ['name', '=', Request::controller(true) . '_copyright'],
+                    ['lang', '=', Lang::getLangSet()]
+                ])
+                ->value('value', '');
 
-        $beian = (new ModelConfig)
-            ->where([
-                ['name', '=', Request::controller(true) . '_beian'],
-                ['lang', '=', Lang::getLangSet()]
-            ])
-            ->cache(__METHOD__ . Request::controller(true) . '_beian' . Lang::getLangSet(), null, 'siteinfo')
-            ->value('value', '备案号');
+            $beian = (new ModelConfig)
+                ->where([
+                    ['name', '=', Request::controller(true) . '_beian'],
+                    ['lang', '=', Lang::getLangSet()]
+                ])
+                ->value('value', '备案号');
 
-        return htmlspecialchars_decode($copyright) .
-            '<p><a href="http://www.miitbeian.gov.cn" target="_blank" rel="nofollow">' . $beian . '</a> Powered by <a href="http://www.niphp.com" target="_blank" rel="nofollow">nicms</a></p>';
+            $result = htmlspecialchars_decode($copyright) .
+                '<p><a href="http://www.miitbeian.gov.cn" target="_blank" rel="nofollow">' . $beian . '</a> Powered by <a href="http://www.niphp.com" target="_blank" rel="nofollow">nicms</a></p>';
+
+            Cache::tag(['cms', 'siteinfo'])->set($cache_key, $result);
+            return $result;
+        } else {
+            return Cache::get($cache_key);
+        }
     }
 
     /**
@@ -194,15 +237,22 @@ class siteinfo
      */
     public static function footer(): string
     {
-        $result = (new ModelConfig)
-            ->where([
-                ['name', '=', Request::controller(true) . '_footer'],
-                ['lang', '=', Lang::getLangSet()]
-            ])
-            ->cache(__METHOD__ . Request::controller(true) . '_footer' . Lang::getLangSet(), null, 'siteinfo')
-            ->value('value', 'footer');
+        $cache_key = md5(__METHOD__);
+        if (!Cache::has($cache_key)) {
+            $result = (new ModelConfig)
+                ->where([
+                    ['name', '=', Request::controller(true) . '_footer'],
+                    ['lang', '=', Lang::getLangSet()]
+                ])
+                ->value('value', 'footer');
 
-        return htmlspecialchars_decode($result);
+            $result = htmlspecialchars_decode($result);
+
+            Cache::tag(['cms', 'siteinfo'])->set($cache_key, $result);
+            return $result;
+        } else {
+            return Cache::get($cache_key);
+        }
     }
 
     /**
@@ -214,15 +264,22 @@ class siteinfo
      */
     public static function script(): string
     {
-        $result = (new ModelConfig)
-            ->where([
-                ['name', '=', Request::controller(true) . '_script'],
-                ['lang', '=', Lang::getLangSet()]
-            ])
-            ->cache(__METHOD__ . Request::controller(true) . '_script' . Lang::getLangSet(), null, 'siteinfo')
-            ->value('value', '');
+        $cache_key = md5(__METHOD__);
+        if (!Cache::has($cache_key)) {
+            $result = (new ModelConfig)
+                ->where([
+                    ['name', '=', Request::controller(true) . '_script'],
+                    ['lang', '=', Lang::getLangSet()]
+                ])
+                ->value('value', '');
 
-        return htmlspecialchars_decode($result);
+            $result = htmlspecialchars_decode($result);
+
+            Cache::tag(['cms', 'siteinfo'])->set($cache_key, $result);
+            return $result;
+        } else {
+            return Cache::get($cache_key);
+        }
     }
 
     /**
@@ -234,12 +291,21 @@ class siteinfo
      */
     public static function theme(): string
     {
-        return (new ModelConfig)
-            ->where([
-                ['name', '=', Request::controller(true) . '_theme'],
-                ['lang', '=', Lang::getLangSet()]
-            ])
-            ->cache(__METHOD__ . Request::controller(true) . '_theme' . Lang::getLangSet(), null, 'siteinfo')
-            ->value('value', 'default');
+        $cache_key = md5(__METHOD__);
+        if (!Cache::has($cache_key)) {
+            $result = (new ModelConfig)
+                ->where([
+                    ['name', '=', Request::controller(true) . '_theme'],
+                    ['lang', '=', Lang::getLangSet()]
+                ])
+                ->value('value', 'default');
+
+            $result = strip_tags(htmlspecialchars_decode($result));
+
+            Cache::tag(['cms', 'siteinfo'])->set($cache_key, $result);
+            return $result;
+        } else {
+            return Cache::get($cache_key);
+        }
     }
 }

@@ -379,21 +379,6 @@ class Category extends BaseService
             return $result;
         }
 
-        $result = $this->uploadFile('category');
-        if (is_string($result)) {
-            return [
-                'debug' => false,
-                'cache' => false,
-                'code'  => 40001,
-                'msg'   => '缺少参数'
-            ];
-        } else {
-            return [
-                'debug' => false,
-                'cache' => false,
-                'msg'   => 'upload success',
-                'data'  => $result
-            ];
-        }
+        return $this->uploadFile('category');
     }
 }

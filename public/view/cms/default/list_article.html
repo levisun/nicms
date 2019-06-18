@@ -4,15 +4,15 @@
         {:include file="breadcrumb"}
         <table class="layui-table" lay-even lay-skin="nob">
             <template v-for="vo in lists">
-            <tr>
-                <td>
-                    <span class="layui-badge layui-bg-blue" v-text="vo.cat_name"></span>
-                    <a v-bind:href="vo.url" v-text="vo.title"></a>
-                </td>
-                <td>
-                    <time v-text="vo.update_time"></time>
-                </td>
-            </tr>
+                <tr>
+                    <td>
+                        <span class="layui-badge layui-bg-blue" v-text="vo.cat_name"></span>
+                        <a v-bind:href="vo.url" v-text="vo.title"></a>
+                    </td>
+                    <td>
+                        <time v-text="vo.update_time"></time>
+                    </td>
+                </tr>
             </template>
         </table>
     </div>
@@ -21,9 +21,8 @@
     </div>
 </div>
 
-{tag:script}
-window.onload=function(){
-    layui.use(['jquery', 'nicms', 'table'], function(){
+<script>
+    layui.use(['jquery', 'nicms', 'table'], function () {
         var nc = layui.nicms;
         var table = layui.table;
         nc.pjax({
@@ -33,8 +32,8 @@ window.onload=function(){
                 method: 'article.lists.query',
                 cid: NICMS.param.cid
             },
-            success: function(result) {
-                if (result.code == 'SUCCESS') {
+            success: function (result) {
+                if (result.code == 10000) {
                     new Vue({
                         el: "#lists",
                         data: {
@@ -45,5 +44,4 @@ window.onload=function(){
             }
         });
     });
-}
-{/tag}
+</script>

@@ -15,7 +15,6 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
-use think\exception\HttpResponseException;
 use app\library\Async;
 use app\library\Download;
 use app\library\Ip;
@@ -122,9 +121,7 @@ class Api extends Async
     public function download(): void
     {
         if ($this->request->isGet() && $file = $this->request->param('file', false)) {
-            if ($response = (new Download)->file($file)) {
-                throw new HttpResponseException($response);
-            }
+            Download::file($file);
         } else {
             echo '错误请求';
             exit();

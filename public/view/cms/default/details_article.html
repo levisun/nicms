@@ -12,20 +12,20 @@
         123
     </div>
 </div>
-{tag:script}
+<script>
 window.onload=function(){
     layui.use(['nicms'], function(){
         var nc = layui.nicms;
 
         nc.pjax({
-            url: NICMS.api.url + '/cms.do',
+            url: NICMS.api.url + '/query.do',
             method: 'get',
             data: {
                 method: 'article.details.query',
                 id: NICMS.param.id
             },
             success: function(result) {
-                if (result.code == 'SUCCESS') {
+                if (result.code == '10000') {
                     new Vue({
                         el: "#article",
                         data: {
@@ -37,14 +37,14 @@ window.onload=function(){
         });
 
         nc.pjax({
-            url: NICMS.api.url + '/cms.do',
+            url: NICMS.api.url + '/query.do',
             method: 'get',
             data: {
                 method: 'article.details.hits',
                 id: NICMS.param.id
             },
             success: function(result) {
-                if (result.code == 'SUCCESS') {
+                if (result.code == '10000') {
 
                 }
             }
@@ -52,4 +52,4 @@ window.onload=function(){
 
     });
 }
-{/tag}
+</script>

@@ -19,6 +19,7 @@ declare (strict_types = 1);
 namespace app\service;
 
 use think\App;
+use app\library\Ip;
 use app\library\Rbac;
 use app\library\Upload;
 use app\model\Action as ModelAction;
@@ -108,6 +109,12 @@ abstract class BaseService
     ];
 
     /**
+     * IP信息
+     * @var array
+     */
+    protected $ipinfo = [];
+
+    /**
      * 构造方法
      * @access public
      * @param  App  $app  应用对象
@@ -130,9 +137,11 @@ abstract class BaseService
         $this->uid = session($this->auth_key);
 
         // 指定缓存标签
-        $this->cache_tag  = $this->cache_tag ? : $this->request->subDomain();
-        $this->cache_tag .= $this->uid ? : '';
+        // $this->cache_tag  = $this->cache_tag ? : $this->request->subDomain();
+        $this->cache_tag = $this->uid ? : $this->request->subDomain();
         $this->cache->tag($this->cache_tag);
+
+        $this->ipinfo = Ip::info();
 
         $this->initialize();
     }
@@ -291,13 +300,16 @@ abstract class BaseService
      */
     protected function uploadFile(string $_dir = '')
     {
-        if ($this->request->isPost() && !empty($_FILES)) {
+        if ($this->request->isPost() && !empty($_FILES) && $this->uid) {
             $input_name = $this->request->param('input_name', 'upload');
             $result = (new Upload)->save($input_name, $_dir);
-        } else {
-            $result = 'upload error';
         }
 
-        return $result;
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => isset($result) ? 'upload success' : 'upload error',
+            'data'  => isset($result) ? $result : []
+        ];
     }
 }

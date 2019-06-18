@@ -30,7 +30,7 @@ class Top extends BaseService
      */
     public function query(): array
     {
-        $cache_key = md5('top' . $this->lang->getLangSet());
+        $cache_key = md5(__METHOD__ . $this->lang->getLangSet());
         if (!$this->cache->has($cache_key)) {
             $result = (new ModelCategory)->view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
                 ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')

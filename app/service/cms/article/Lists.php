@@ -28,20 +28,20 @@ class Lists extends ArticleBase
      */
     public function query(): array
     {
-        $result = parent::query();
+        $result = $this->lists();
 
         return [
             'debug' => false,
-            'cache' => true,
-            'msg'   => 'article lists data',
-            'data'  => [
+            'cache' => $result ? true : false,
+            'msg'   => $result ? 'article list data' : 'article list error',
+            'data'  => $result ? [
                 'list'         => $result['data'],
                 'total'        => $result['total'],
                 'per_page'     => $result['per_page'],
                 'current_page' => $result['current_page'],
                 'last_page'    => $result['last_page'],
                 'page'         => $result['render'],
-            ]
+            ] : []
         ];
     }
 }

@@ -30,54 +30,57 @@ class Sidebar extends BaseService
      */
     public function query(): array
     {
-        if ($cid = (int)$this->request->param('cid/f')) {
-            $result = (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-                ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-                ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
-                ->where([
-                    ['category.is_show', '=', 1],
-                    ['category.id', '=', $cid],
-                    ['category.lang', '=', $this->lang->getLangSet()]
-                ])
-                ->cache(__METHOD__ . $cid, 0, 'nav')
-                ->find()
-                ->toArray();
+        $cid = (int)$this->request->param('cid/f');
+        if ($cid) {
+            $id = $this->parent($cid);
+            $cache_key = md5(__METHOD__ . $id);
+            if (!$this->cache->has($cache_key)) {
+                $result = (new ModelCategory)
+                    ->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+                    ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+                    ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
+                    ->where([
+                        ['category.is_show', '=', 1],
+                        ['category.id', '=', $id],
+                        ['category.lang', '=', $this->lang->getLangSet()]
+                    ])
+                    ->find()
+                    ->toArray();
 
+                $result['image'] = get_img_url($result['image']);
+                $result['flag'] = Base64::flag($result['id'], 7);
+                $result['url'] = url('list/' . $result['action_name'] . '/' . $result['id']);
+                if ($result['access_id']) {
+                    $result['url'] = url('channel/' . $result['action_name'] . '/' . $result['id']);
+                }
+                unset($result['action_name']);
 
-            $result['image'] = get_img_url($result['image']);
-            $result['flag'] = Base64::flag($result['id'], 7);
-            $result['url'] = url('list/' . $result['action_name'] . '/' . $result['id']);
-            if ($result['access_id']) {
-                $result['url'] = url('channel/' . $result['action_name'] . '/' . $result['id']);
+                $result['child'] = $this->child($result['id']);
+
+                $this->cache->tag(['cms', 'nav'])->set($cache_key, $result);
+            } else {
+                $result = $this->cache->get($cache_key);
             }
-            $result['child'] = $this->child($result['id']);
-            unset($result['action_name']);
-
-            return [
-                'debug' => false,
-                'cache' => false,
-                'msg'   => $this->lang->get('success'),
-                'data'  => $result
-            ];
-        } else {
-            return [
-                'debug' => false,
-                'cache' => false,
-                'msg'   => $this->lang->get('error')
-            ];
         }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'sidebar',
+            'data'  => isset($result) ? $result : []
+        ];
     }
 
     /**
      * 获得子导航
      * @access private
      * @param  int    $_id      ID
-     * @param  int    $_type_id 类型
      * @return array
      */
     private function child(int $_id)
     {
-        $result = (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+        $result = (new ModelCategory)
+            ->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
             ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
             ->where([
@@ -86,7 +89,6 @@ class Sidebar extends BaseService
                 ['category.lang', '=', $this->lang->getLangSet()]
             ])
             ->order('category.sort_order ASC, category.id DESC')
-            ->cache(__METHOD__ . $_id, 0, 'nav')
             ->select()
             ->toArray();
 
@@ -98,11 +100,29 @@ class Sidebar extends BaseService
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
             }
             $value['child'] = $this->child($value['id']);
+
             unset($value['action_name']);
 
             $result[$key] = $value;
         }
 
         return $result ? $result : false;
+    }
+
+    /**
+     * 获得父级导航ID
+     * @access private
+     * @param  int    $_id      ID
+     * @return array
+     */
+    private function parent(int $_id)
+    {
+        $result = (new ModelCategory)
+            ->where([
+                ['id', '=', $_id],
+            ])
+            ->value('pid');
+
+        return $result ? $this->parent($result) : $_id;
     }
 }

@@ -31,7 +31,7 @@ class ArticleBase extends BaseService
      * @param
      * @return array
      */
-    protected function query()
+    protected function lists()
     {
         $map = [
             ['article.is_pass', '=', '1'],
@@ -58,7 +58,7 @@ class ArticleBase extends BaseService
             $query_page = (int)$this->request->param('page/f', 1);
             $date_format = $this->request->param('date_format', 'Y-m-d');
 
-            $cache_key = md5(date('Ymd') . $category_id . $com . $top . $hot . $type_id . $query_limit . $query_page . $date_format);
+            $cache_key = md5(__METHOD__ . date('Ymd') . $category_id . $com . $top . $hot . $type_id . $query_limit . $query_page . $date_format);
             if (!$this->cache->has($cache_key)) {
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
@@ -112,19 +112,13 @@ class ArticleBase extends BaseService
                     }
 
                     $this->cache->tag(['cms', 'list', 'list_' . $category_id])->set($cache_key, $list);
-                    return $list;
                 }
             } else {
-                return $this->cache->get($cache_key);
+                $list = $this->cache->get($cache_key);
             }
-        } else {
-            return [
-                'debug' => false,
-                'cache' => false,
-                'msg'   => $this->lang->get('param error'),
-                'data'  => $this->request->param('', [], 'trim')
-            ];
         }
+
+        return isset($list) ? $list : false;
     }
 
     /**
@@ -143,7 +137,7 @@ class ArticleBase extends BaseService
 
         if ($id = (int)$this->request->param('id/f')) {
             $map[] = ['article.id', '=', $id];
-            $cache_key = md5($id);
+            $cache_key = md5(__METHOD__ . $id);
             if (!$this->cache->has($cache_key)) {
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
@@ -204,27 +198,21 @@ class ArticleBase extends BaseService
                 }
 
                 $this->cache->tag(['cms', 'details', 'details' . $id])->set($cache_key, $result);
-                return $result;
             } else {
-                return $this->cache->get($cache_key);
+                $result = $this->cache->get($cache_key);
             }
-        } else {
-            return [
-                'debug' => false,
-                'cache' => false,
-                'msg'   => $this->lang->get('param error'),
-                'data'  => $this->request->param('', [], 'trim')
-            ];
         }
+
+        return isset($result) ? $result : false;
     }
 
     /**
      * 更新浏览量
-     * @access protected
+     * @access public
      * @param
      * @return array
      */
-    protected function hits()
+    public function hits(): array
     {
         if ($id = (int)$this->request->param('id/f')) {
             $map = [
@@ -239,17 +227,18 @@ class ArticleBase extends BaseService
                 ->inc('hits', 1, 60)
                 ->update();
 
-            return (new ModelArticle)->where($map)
-                ->cache(__METHOD__ . $id, 60, 'hits')
+            $result = (new ModelArticle)
+                ->where($map)
                 ->value('hits');
-        } else {
-            return [
-                'debug' => false,
-                'cache' => false,
-                'msg'   => $this->lang->get('param error'),
-                'data'  => $this->request->param('', [], 'trim')
-            ];
         }
+
+        return [
+            'debug'  => false,
+            'cache'  => isset($result) ? true : false,
+            'expire' => 60,
+            'msg'    => isset($result) ? 'article hits' : 'article hits error',
+            'data'   => isset($result) ? ['hits' => $result] : []
+        ];
     }
 
     /**

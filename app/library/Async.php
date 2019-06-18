@@ -17,6 +17,7 @@ namespace app\library;
 use think\App;
 use think\Container;
 use think\exception\HttpResponseException;
+use app\library\Ip;
 use app\library\Jwt;
 use app\model\ApiApp as ModelApiApp;
 
@@ -196,6 +197,12 @@ abstract class Async
      */
     protected $referer = false;
 
+    /**
+     * IP信息
+     * @var array
+     */
+    protected $ipinfo = [];
+
 
     /**
      * 构造方法
@@ -223,6 +230,8 @@ abstract class Async
         }
 
         $this->referer = $this->request->server('HTTP_REFERER') && $this->request->param('method');
+
+        $this->ipinfo = Ip::info();
     }
 
     /**
@@ -558,7 +567,7 @@ abstract class Async
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'expire'  => $this->request->ip() . ';' . date('Y-m-d H:i:s') . ';'
+            'expire'  => $this->ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';'
         ];
         $result = array_filter($result);
 

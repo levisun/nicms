@@ -51,21 +51,4 @@ class Details extends ArticleBase
             ];
         }
     }
-
-    /**
-     * 更新浏览量
-     * @access public
-     * @param
-     * @return array
-     */
-    public function hits(): array
-    {
-        return [
-            'debug' => false,
-            'cache' => true,
-            'expire' => 30,
-            'msg'   => $this->lang->get('success'),
-            'data'  => parent::hits()
-        ];
-    }
 }

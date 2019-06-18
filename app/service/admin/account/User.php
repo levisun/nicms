@@ -49,7 +49,6 @@ class User extends BaseService
                 ->find();
 
             if ($user && false !== Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {
-                $ip = (new Ip)->info();
                 (new ModelAdmin)
                     ->where([
                         ['id', '=', $user['id']]
@@ -57,8 +56,8 @@ class User extends BaseService
                     ->data([
                         'flag'               => $this->session->getId(false),
                         'last_login_time'    => time(),
-                        'last_login_ip'      => $ip['ip'],
-                        'last_login_ip_attr' => $ip['province_id'] ? $ip['province'] . $ip['city'] . $ip['area'] : ''
+                        'last_login_ip'      => $this->ipinfo['ip'],
+                        'last_login_ip_attr' => $this->ipinfo['province_id'] ? $this->ipinfo['province'] . $this->ipinfo['city'] . $this->ipinfo['area'] : ''
                     ])
                     ->update();
 
