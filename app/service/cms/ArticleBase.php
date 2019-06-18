@@ -18,9 +18,8 @@ namespace app\service\cms;
 use app\library\Base64;
 use app\service\BaseService;
 use app\model\Article as ModelArticle;
-use app\model\ArticleContent as ModelArticleContent;
-use app\model\ArticleData as ModelArticleData;
-use app\model\TagsArticle as ModelTagsArticle;
+use app\model\ArticleExtend as ArticleExtend;
+use app\model\ArticleTags as ModelArticleTags;
 
 class ArticleBase extends BaseService
 {
@@ -86,21 +85,21 @@ class ArticleBase extends BaseService
                         $value['url'] = url('details/' . $value['model_name'] . '/' . $value['category_id'] . '/' . $value['id']);
 
                         // 附加字段数据
-                        // $fields =
-                        // (new ModelArticleData)->view('article_data data', ['data'])
-                        // ->view('fields fields', ['name' => 'fields_name'], 'fields.id=data.fields_id')
-                        // ->where([
-                        //     ['data.main_id', '=', $value['id']],
-                        // ])
-                        // ->select()
-                        // ->toArray();
-                        // foreach ($fields as $val) {
-                        //    $value[$val['fields_name']] = $val['data'];
-                        // }
-
+                        $fields = (new ArticleExtend)
+                            ->view('article_extend extend', ['data'])
+                            ->view('fields fields', ['name' => 'fields_name'], 'fields.id=extend.fields_id')
+                            ->where([
+                                ['extend.article_id', '=', $value['id']],
+                            ])
+                            ->select()
+                            ->toArray();
+                        foreach ($fields as $val) {
+                            $value[$val['fields_name']] = $val['data'];
+                        }
 
                         // 标签
-                        $value['tags'] = (new ModelTagsArticle)->view('tags_article article', ['tags_id'])
+                        $value['tags'] = (new ModelArticleTags)
+                            ->view('article_tags article', ['tags_id'])
                             ->view('tags tags', ['name'], 'tags.id=article.tags_id')
                             ->where([
                                 ['article.article_id', '=', $value['id']],
@@ -138,7 +137,7 @@ class ArticleBase extends BaseService
         if ($id = (int)$this->request->param('id/f')) {
             $map[] = ['article.id', '=', $id];
             $cache_key = md5(__METHOD__ . $id);
-            if (!$this->cache->has($cache_key)) {
+            if (!$this->cache->has($cache_key) || true) {
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
                     ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
@@ -159,13 +158,19 @@ class ArticleBase extends BaseService
 
                     $result['content'] = htmlspecialchars_decode($result['content']);
 
-                    if (false !== preg_match_all('/(src=["|\'])(.*?)(["|\'])/si', $result['content'], $matches)) {
-                        foreach ($matches[2] as $key => $value) {
-                            $thumb = get_img_url($value, 300);
-                            $replace = 'src="' . $thumb . '" original="' . get_img_url($value, 0) . '"';
-                            $result['content'] = str_replace($matches[0][$key], $replace, $result['content']);
-                        }
-                    }
+                    $result['content'] =
+                        preg_replace_callback('/(src=["|\'])(.*?)(["|\'])/si', function ($matches) {
+                            $thumb = get_img_url($matches[2], 300);
+                            return 'src="' . $thumb . '" original="' . get_img_url($matches[2], 0) . '"';
+                        }, $result['content']);
+
+                    $result['content'] =
+                        preg_replace_callback([
+                            '/(style=["|\'])(.*?)(["|\'])/si',
+                            '/<\/?h[1-4]{1}(.*?)>/si'
+                        ], function ($matches) {
+                            return '';
+                        }, $result['content']);
 
                     $result['url'] = url('details/' . $result['model_name'] . '/' . $result['category_id'] . '/' . $result['id']);
                     $result['cat_url'] = url('list/' . $result['model_name'] . '/' . $result['category_id']);
@@ -175,35 +180,36 @@ class ArticleBase extends BaseService
                     $result['prev'] = $this->prev($result['id']);
 
                     // 附加字段数据
-                    // $fields =
-                    // (new ModelArticleData)->view('article_data data', ['data'])
-                    // ->view('fields fields', ['name' => 'fields_name'], 'fields.id=data.fields_id')
-                    // ->where([
-                    //     ['data.main_id', '=', $value['id']],
-                    // ])
-                    // ->select()
-                    // ->toArray();
-                    // foreach ($fields as $val) {
-                    //    $value[$val['fields_name']] = $val['data'];
-                    // }
-
-                    // 标签
-                    $result['tags'] = (new ModelTagsArticle)->view('tags_article', ['tags_id'])
-                        ->view('tags', ['name'], 'tags.id=tags_article.tags_id')
+                    $fields = (new ArticleExtend)
+                        ->view('article_extend extend', ['data'])
+                        ->view('fields fields', ['name' => 'fields_name'], 'fields.id=extend.fields_id')
                         ->where([
-                            ['tags_article.article_id', '=', $result['id']],
+                            ['extend.article_id', '=', $result['id']],
                         ])
                         ->select()
                         ->toArray();
-                }
+                    foreach ($fields as $val) {
+                        $result[$val['fields_name']] = $val['data'];
+                    }
 
-                $this->cache->tag(['cms', 'details', 'details' . $id])->set($cache_key, $result);
+                    // 标签
+                    $result['tags'] = (new ModelArticleTags)
+                        ->view('article_tags', ['tags_id'])
+                        ->view('tags', ['name'], 'tags.id=article_tags.tags_id')
+                        ->where([
+                            ['article_tags.article_id', '=', $result['id']],
+                        ])
+                        ->select()
+                        ->toArray();
+
+                    $this->cache->tag(['cms', 'details', 'details' . $id])->set($cache_key, $result);
+                }
             } else {
                 $result = $this->cache->get($cache_key);
             }
         }
 
-        return isset($result) ? $result : false;
+        return !empty($result) ? $result : false;
     }
 
     /**

@@ -226,17 +226,18 @@ class Template
 
             // 解析JS
             // JS移至底部
-            $this->content = preg_replace_callback('/<script( type="(.*?)")?>(.*?)<\/script>/si', function ($matches) {
-                $type = $matches[2] ?: 'text/javascript';
-                $matches[3] = DataFilter::string($matches[3]);
-                $pattern = [
-                    '/\/\/.*?(\n|\r)+/i',
-                    '/\n|\r|\f/'
-                ];
-                $matches[3] = preg_replace($pattern, '', $matches[3]);
-                $this->script .= '<script type="' . $type . '">' . $matches[3] . '</script>';
-                return '';
-            }, $this->content);
+            $this->content =
+                preg_replace_callback('/<script( type="(.*?)")?>(.*?)<\/script>/si', function ($matches) {
+                    $type = $matches[2] ?: 'text/javascript';
+                    $matches[3] = DataFilter::string($matches[3]);
+                    $pattern = [
+                        '/\/\/.*?(\n|\r)+/i',
+                        '/\n|\r|\f/'
+                    ];
+                    $matches[3] = preg_replace($pattern, '', $matches[3]);
+                    $this->script .= '<script type="' . $type . '">' . $matches[3] . '</script>';
+                    return '';
+                }, $this->content);
 
             // 过滤非法信息
             echo DataFilter::string($this->content);

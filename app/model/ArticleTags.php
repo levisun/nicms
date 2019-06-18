@@ -15,9 +15,9 @@ namespace app\model;
 
 use think\Model;
 
-class TagsArticle extends Model
+class ArticleTags extends Model
 {
-    protected $name = 'tags_article';
+    protected $name = 'article_tags';
     protected $autoWriteTimestamp = false;
     protected $updateTime = false;
     protected $pk = 'id';

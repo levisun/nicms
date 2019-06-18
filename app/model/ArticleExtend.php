@@ -2,7 +2,7 @@
 /**
  *
  * 数据层
- * 文章附加数据
+ * 文章扩展表
  *
  * @package   NICMS
  * @category  app\model
@@ -15,19 +15,19 @@ namespace app\model;
 
 use think\Model;
 
-class ArticleData extends Model
+class ArticleExtend extends Model
 {
-    protected $name = 'article_data';
+    protected $name = 'article_extend';
     protected $autoWriteTimestamp = false;
     protected $updateTime = false;
     protected $pk = 'id';
     protected $type = [
-        'main_id'   => 'integer',
-        'fields_id' => 'integer',
+        'article_id' => 'integer',
+        'fields_id'  => 'integer',
     ];
     protected $field = [
         'id',
-        'main_id',
+        'article_id',
         'fields_id',
         'data'
     ];

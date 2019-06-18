@@ -13,8 +13,7 @@
     </div>
 </div>
 <script>
-window.onload=function(){
-    layui.use(['nicms'], function(){
+    layui.use(['nicms'], function () {
         var nc = layui.nicms;
 
         nc.pjax({
@@ -24,7 +23,7 @@ window.onload=function(){
                 method: 'article.details.query',
                 id: NICMS.param.id
             },
-            success: function(result) {
+            success: function (result) {
                 if (result.code == '10000') {
                     new Vue({
                         el: "#article",
@@ -43,7 +42,7 @@ window.onload=function(){
                 method: 'article.details.hits',
                 id: NICMS.param.id
             },
-            success: function(result) {
+            success: function (result) {
                 if (result.code == '10000') {
 
                 }
@@ -51,5 +50,4 @@ window.onload=function(){
         });
 
     });
-}
 </script>

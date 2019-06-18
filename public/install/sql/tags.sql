@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS `np_tags` (
   KEY `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='标签表';
 
-DROP TABLE IF EXISTS `np_tags_article`;
-CREATE TABLE IF NOT EXISTS `np_tags_article` (
+DROP TABLE IF EXISTS `np_article_tags`;
+CREATE TABLE IF NOT EXISTS `np_article_tags` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `tags_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '标签ID',
   `article_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '文章ID',

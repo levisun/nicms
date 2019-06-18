@@ -30,25 +30,14 @@ class Details extends ArticleBase
     {
         if ($result = $this->details()) {
 
-            $result['content'] = preg_replace('/(style=["|\'])(.*?)(["|\'])/si', '', $result['content']);
 
-
-            // $result['content']
-
-
-
-            return [
-                'debug' => false,
-                'cache' => true,
-                'msg'   => $this->lang->get('success'),
-                'data'  => $result
-            ];
-        } else {
-            return [
-                'debug' => false,
-                'cache' => true,
-                'msg'   => $this->lang->get('article not')
-            ];
         }
+
+        return [
+            'debug' => false,
+            'cache' => true,
+            'msg'   => $result ? 'details' : 'error',
+            'data'  => $result ? : []
+        ];
     }
 }
