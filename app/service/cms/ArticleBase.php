@@ -137,7 +137,7 @@ class ArticleBase extends BaseService
         if ($id = (int)$this->request->param('id/f')) {
             $map[] = ['article.id', '=', $id];
             $cache_key = md5(__METHOD__ . $id);
-            if (!$this->cache->has($cache_key) || true) {
+            if (!$this->cache->has($cache_key)) {
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
                     ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
@@ -230,7 +230,7 @@ class ArticleBase extends BaseService
 
             // 更新浏览数
             (new ModelArticle)->where($map)
-                ->inc('hits', 1, 60)
+                ->inc('hits', 1)
                 ->update();
 
             $result = (new ModelArticle)

@@ -57,6 +57,9 @@ class Cms extends BaseController
      */
     public function index()
     {
+
+        echo md5(uniqid((string)mt_rand(), true));
+        die();
         // echo \app\library\Base64::createPassword('Horadric', '0af476');
 
         $this->fetch('index');

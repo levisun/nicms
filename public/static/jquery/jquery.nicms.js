@@ -85,6 +85,7 @@
         _params = jQuery.extend(true, defaults, _params);
 
         _params.data.sign = jQuery.sign(_params.data);
+        _params.data.token = NICMS.api.token;
 
         // 设置头部
         _params.beforeSend = function (xhr) {

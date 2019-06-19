@@ -18,6 +18,7 @@ use Closure;
 use think\Cache;
 use think\Response;
 use think\facade\Config;
+use think\facade\Cookie;
 
 class RequestCache
 {
@@ -27,17 +28,26 @@ class RequestCache
     public function __construct(Cache $_cache)
     {
         $this->cache = $_cache;
-        $this->cache->tag('RequestCache');
 
-        // 开启调试清空请求缓存
-        if (true === Config::get('app.debug')) {
-            $this->cache->tag('RequestCache')->clear();
+        $req_key = '__' . substr(sha1(__DIR__ . __METHOD__), 7, 3);
+
+        if (!Cookie::has($req_key)) {
+            Cookie::set($req_key, md5(uniqid((string)mt_rand(), true)));
         }
     }
 
     public function handle($_request, Closure $_next): Response
     {
         $this->request = $_request;
+
+        // $config = Config::get('cache');
+        // $config['prefix'] = 'request_' . $this->request->subDomain();
+        // $this->cache->init($config, true);
+
+        // // 开启调试清空请求缓存
+        // if (true === Config::get('app.debug')) {
+        //     $this->cache->clear();
+        // }
 
         if ($response = $this->readCache()) {
             $response = $this->gzip($response);
@@ -85,8 +95,10 @@ class RequestCache
         $key = $this->getCacheKey();
         if (false !== $key && $this->cache->has($key)) {
             list($content, $header) = $this->cache->get($key);
-            if ($if_modified_since = $this->request->server('HTTP_IF_MODIFIED_SINCE')) {
-                $expire = (int)str_replace('public, max-age=', '', $header['Cache-control']);
+
+            $if_modified_since = $this->request->server('HTTP_IF_MODIFIED_SINCE');
+            $expire = (int)str_replace('public, max-age=', '', $header['Cache-control']);
+            if ($if_modified_since && $expire) {
                 if (strtotime($if_modified_since) + $expire >= $this->request->server('REQUEST_TIME')) {
                     return Response::create()->code(304);
                 }
@@ -130,17 +142,13 @@ class RequestCache
     private function getCacheKey()
     {
         if ($this->request->isGet() && false === Config::get('app.debug')) {
-            $key  = $this->request->ip();
-            $key .= client_mac();
-            $key .= $this->request->cookie(Config::get('session.name'));
-            $key .= $this->request->server('HTTP_USER_AGENT');
-            $key .= preg_replace_callback('/timestamp=[0-9]+|sign=[A-Za-z0-9]{32,40}/si', function () {
+            $key = preg_replace_callback('/timestamp=[0-9]+|sign=[A-Za-z0-9]{32,40}/si', function () {
                 return '*';
             }, $this->request->url(true));
             // \think\facade\Log::record($key, 'alert')->save();
             return md5($key);
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

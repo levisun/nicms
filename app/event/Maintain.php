@@ -53,11 +53,11 @@ class Maintain
                 fclose($fp);
             }
             // 清除过期缓存和日志等
-            elseif (1 === rand(1, 99)) {
+            elseif (1 === rand(1, 299)) {
                 (new ReGarbage)->run();
             }
             // 自动备份数据库
-            elseif (1 === rand(1, 99)) {
+            elseif (1 === rand(1, 299)) {
                 (new DataMaintenance)->autoBackup();
             }
         }

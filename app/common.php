@@ -42,9 +42,9 @@ if (!function_exists('client_mac')) {
         $os = strtolower(PHP_OS);
         if (!in_array($os, ['unix', 'solaris', 'aix'])) {
             if ('linux' == $os) {
-                @exec("ifconfig -a", $result);
+                @exec('ifconfig -a', $result);
             } else {
-                @exec("ipconfig /all", $result);
+                @exec('ipconfig /all', $result);
                 if (!$result) {
                     $ipconfig = DIRECTORY_SEPARATOR . 'system32' . DIRECTORY_SEPARATOR . 'ipconfig.exe';
                     if(is_file($_SERVER['WINDIR'] . $ipconfig)) {

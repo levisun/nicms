@@ -129,12 +129,6 @@ class Template
             $this->parseTags();
             $this->parseVars();
 
-            // \think\facade\Cookie::set('izs', $this->theme_config['api_appsecret']);
-            // \think\facade\Cookie::set('izt', token());
-            // \think\facade\Cookie::set('izt', $this->request->server('REQUEST_TIME') . '.' . memory_get_usage());
-
-
-
             // 页面缓存
             ob_start();
             ob_implicit_flush(0);
@@ -210,7 +204,7 @@ class Template
                 'appsecret:"' . $this->theme_config['api_appsecret'] . '",' .
                 'authorization:"{:__AUTHORIZATION__}",' .
                 'izs:"' . $this->theme_config['api_appsecret'] . '",' .
-                'izt:"' . md5(date('Ymd')) . '",' .
+                'token:"{:__AUTH_TOKEN__}",' .
                 'param:' . json_encode($this->request->param()) .
                 '},' .
                 'cdn:{' .
@@ -256,7 +250,9 @@ class Template
             $this->compileWrite($_template, $content);
         }
 
-        echo str_replace('{:__AUTHORIZATION__}', create_authorization(), $content);
+        $content = str_replace('{:__AUTHORIZATION__}', create_authorization(), $content);
+        $content = str_replace('{:__AUTH_TOKEN__}', md5(json_encode($this->request->cookie())), $content);
+        echo $content;
     }
 
     /**

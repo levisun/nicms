@@ -136,9 +136,20 @@ abstract class BaseService
 
         $this->uid = session($this->auth_key);
 
-        // 指定缓存标签
-        // $this->cache_tag  = $this->cache_tag ? : $this->request->subDomain();
-        $this->cache_tag = $this->uid ? : $this->request->subDomain();
+        // 重新设定缓存
+        $config = $this->config->get('cache');
+        $method = $this->request->param('method');
+        if ($method && preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $method)) {
+            $config['prefix'] = $this->request->subDomain() . '_' . str_replace('.', '_', $method);
+            $this->cache->init($config, true);
+
+            // 开启调试清空请求缓存
+            if (true === $this->config->get('app.debug')) {
+                $this->cache->clear();
+            }
+        }
+
+        $this->cache_tag = $this->uid ?: $this->request->subDomain();
         $this->cache->tag($this->cache_tag);
 
         $this->ipinfo = Ip::info();
