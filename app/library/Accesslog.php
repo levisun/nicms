@@ -33,7 +33,7 @@ class Accesslog
     public function record(): void
     {
         $this->user_agent = Request::server('HTTP_USER_AGENT');
-        $this->ip = (new Ip)->info();
+        $this->ip = Ip::info();
 
         // 蜘蛛
         if ($spider = $this->isSpider()) {
@@ -43,7 +43,7 @@ class Accesslog
                     ['user_agent', '=', $this->user_agent],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])
-                ->cache(__METHOD__ . md5($spider . $this->user_agent, 28800, 'library'))
+                ->cache(__METHOD__ . sha1($spider . $this->user_agent, 28800, 'library'))
                 ->value('name');
 
             if ($has) {
@@ -73,7 +73,7 @@ class Accesslog
                     ['user_agent', '=', $this->user_agent],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])
-                ->cache(__METHOD__ . md5($this->ip['ip'] . $this->user_agent, 28800, 'library'))
+                ->cache(__METHOD__ . sha1($this->ip['ip'] . $this->user_agent), 28800, 'library')
                 ->value('ip');
 
             if ($has) {

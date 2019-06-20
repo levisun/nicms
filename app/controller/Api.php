@@ -80,7 +80,7 @@ class Api extends Async
     {
         if ($this->referer && $this->request->isPost() && $phone = $this->request->param('phone', false)) {
             $this->validate();
-            $key = md5($this->request->ip() . client_mac());
+            $key = sha1($this->request->ip());
             $has = session('sms_' . $key);
             if ($has && $has['time'] >= time()) {
                 $this->setCache(false)->success('请勿重复请求');

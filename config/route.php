@@ -63,17 +63,14 @@ return [
     // 表单pjax伪装变量
     'var_pjax'              => '_pjax',
     // 是否开启请求缓存 true自动缓存 支持设置请求缓存规则
-    'request_cache_key'     => function () {
-        if (!Env::get('app.debug', 1)) {
-            $key = preg_replace_callback('/timestamp=[0-9]+|sign=[A-Za-z0-9]{32,40}/si', function () {
-                return '*';
-            }, \think\facade\Request::url(true));
-            return md5($key);
-        }
-        return false;
+    'request_cache_key'     => Env::get('app.debug', 1) ? false : function () {
+        $key = preg_replace_callback('/timestamp=[0-9]+|sign=[A-Za-z0-9]{32,40}/si', function () {
+            return '*';
+        }, \think\facade\Request::url(true));
+        return md5($key);
     },
     // 请求缓存有效期
-    'request_cache_expire'  => Env::get('cache.expire', 1440),
+    'request_cache_expire'  => 1440,
     // 全局请求缓存排除规则
     'request_cache_except'  => [],
     // 请求缓存的Tag

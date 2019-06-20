@@ -46,6 +46,12 @@ abstract class BaseService
     protected $config;
 
     /**
+     * 应用实例
+     * @var \think\Cookie
+     */
+    protected $cookie;
+
+    /**
      * Lang实例
      * @var \think\Lang
      */
@@ -125,6 +131,7 @@ abstract class BaseService
         $this->app      = $_app;
         $this->cache    = $this->app->cache;
         $this->config   = $this->app->config;
+        $this->cookie   = $this->app->cookie;
         $this->lang     = $this->app->lang;
         $this->log      = $this->app->log;
         $this->request  = $this->app->request;

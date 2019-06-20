@@ -16,29 +16,55 @@ declare (strict_types = 1);
 namespace app\middleware;
 
 use Closure;
+use think\Config;
+use think\Request;
 use think\Response;
 
+/**
+ * 跨域请求支持
+ */
 class AllowCrossDomain
 {
+    protected $cookieDomain;
+
     protected $header = [
-        'Access-Control-Allow-Origin'  => '*',
-        'Access-Control-Allow-Methods' => 'GET, POST, PATCH, PUT, DELETE',
-        'Access-Control-Allow-Headers' => 'Accept, Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
+        'Access-Control-Allow-Credentials' => 'true',
+        'Access-Control-Allow-Methods'     => 'GET, POST, PATCH, PUT, DELETE',
+        'Access-Control-Allow-Headers'     => 'Accept, Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
     ];
 
-    public function handle($_request, Closure $_next, ?array $_header = []): Response
+    public function __construct(Config $config)
     {
-        $this->header['Access-Control-Allow-Origin'] = $_request->server('HTTP_ORIGIN', '*');
-        $_header = !empty($_header) ? array_merge($this->header, $_header) : $this->header;
+        $this->cookieDomain = $config->get('cookie.domain', '');
+    }
 
-        if ($_request->isOptions()) {
-            $_header['Access-Control-Max-Age'] = 14400;
-            return Response::create()->code(204)->header($_header);
+    /**
+     * 允许跨域请求
+     * @access public
+     * @param Request $request
+     * @param Closure $next
+     * @param array   $header
+     * @return Response
+     */
+    public function handle($request, Closure $next, ? array $header = [])
+    {
+        $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
+
+        if (!isset($header['Access-Control-Allow-Origin'])) {
+            $origin = $request->header('origin');
+
+            if ($origin && strpos($this->cookieDomain, $origin)) {
+                $header['Access-Control-Allow-Origin'] = $origin;
+            } else {
+                $header['Access-Control-Allow-Origin'] = '*';
+            }
         }
 
-        $_header = !empty($_header) ? $_header : [];
-        $response = $_next($_request)->header($_header);
+        if ($request->method(true) == 'OPTIONS') {
+            $header['Access-Control-Max-Age'] = 14400;
+            return Response::create()->code(204)->header($header);
+        }
 
-        return $response;
+        return $next($request)->header($header);
     }
 }

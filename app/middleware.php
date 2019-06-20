@@ -13,11 +13,8 @@
  */
 
 return [
-    // 请求缓存
-    // 'app\middleware\RequestCache',
-
     // 全局请求缓存
-    'think\middleware\CheckRequestCache',
+    'app\middleware\CheckRequestCache',
     // 多语言加载
     'think\middleware\LoadLangPack',
     // Session初始化

@@ -36,21 +36,26 @@ class Maintain
 
         if (!in_array($_request->controller(true), ['api'])) {
             // 优化修复数据库表
-            clearstatcache();
-            $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'dmor.lock';
-            $date = (string)(date('Ymd') - 10);
-            if (0 === date('Ymd') % 10 && filemtime($lock) <= strtotime($date)) {
-                $fp = @fopen($lock, 'w+');
-                if ($fp && flock($fp, LOCK_EX | LOCK_NB)) {
-                    ignore_user_abort(true);
-                    (new DataMaintenance)->optimize();  // 优化表
-                    (new DataMaintenance)->repair();    // 修复表
-                    ignore_user_abort(false);
-
-                    fwrite($fp, '优化|修复数据' . date('Y-m-d H:i:s'));
-                    flock($fp, LOCK_UN);
+            if (0 === date('Ymd') % 10) {
+                $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'dmor.lock';
+                if (!is_file($lock)) {
+                    file_put_contents($lock, date('Y-m-d H:i:s'));
                 }
-                fclose($fp);
+                $date = (string)(date('Ymd') - 10);
+                clearstatcache();
+                if (filemtime($lock) <= strtotime($date)) {
+                    $fp = @fopen($lock, 'w+');
+                    if ($fp && flock($fp, LOCK_EX | LOCK_NB)) {
+                        ignore_user_abort(true);
+                        (new DataMaintenance)->optimize();  // 优化表
+                        (new DataMaintenance)->repair();    // 修复表
+                        ignore_user_abort(false);
+
+                        fwrite($fp, '优化|修复数据' . date('Y-m-d H:i:s'));
+                        flock($fp, LOCK_UN);
+                    }
+                    fclose($fp);
+                }
             }
             // 清除过期缓存和日志等
             elseif (1 === rand(1, 299)) {

@@ -21,7 +21,7 @@ return [
     // 缓存前缀
     'prefix'        => Request::subDomain(),
     // 缓存有效期 0表示永久缓存
-    'expire'        => Env::get('cache.expire', 604800),
+    'expire'        => Env::get('cache.expire', 28800),
     // 关闭子目录
     'cache_subdir'  => false,
     // 缓存标签前缀

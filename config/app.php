@@ -24,11 +24,10 @@ return [
     // 加密密钥
     'secretkey'             => hash_hmac('sha256', Env::get('app.secretkey', Request::rootDomain()), __DIR__),
     // 上传文件大小,单位MB
-    'upload_size'           => Env::get('app.upload_size'),
+    'upload_size'           => Env::get('app.upload_size', '1'),
     // 上传文件类型(扩展名)
-    'upload_type'           => Env::get('app.upload_type'),
+    'upload_type'           => Env::get('app.upload_type', 'gif,jpg,png,zip,rar'),
 
-    // 'www_host'              => '//www.' . Request::rootDomain() . Request::root(),
     'api_host'              => '//api.' . Request::rootDomain() . Request::root(),
     'cdn_host'              => '//cdn.' . Request::rootDomain() . Request::root(),
 
