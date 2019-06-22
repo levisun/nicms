@@ -2,10 +2,10 @@
 /**
  *
  * API接口层
- * 访问日志
+ * 网站栏目
  *
  * @package   NICMS
- * @category  app\service\admin\extend
+ * @category  app\service\admin\user
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -13,12 +13,12 @@
  */
 declare (strict_types = 1);
 
-namespace app\service\admin\extend;
+namespace app\service\admin\user;
 
 use app\service\BaseService;
-use app\model\Visit as ModelVisit;
+use app\model\User as ModelUser;
 
-class Visit extends BaseService
+class User extends BaseService
 {
     protected $auth_key = 'admin_auth_key';
     protected $cache_tag = 'admin';
@@ -41,23 +41,26 @@ class Visit extends BaseService
 
         $query_limit = (int)$this->request->param('limit/f', 10);
 
-        $result = (new ModelVisit)
-            ->order('date DESC')
+        $result = (new ModelUser)
+            ->view('user', ['id', 'username', 'realname', 'nickname', 'email', 'phone', 'status', 'phone', 'phone'])
+            ->view('level', ['name' => 'level_name'], 'level.id=user.id')
+            ->order('user.create_time DESC')
             ->paginate($query_limit, false, ['path' => 'javascript:paging([PAGE]);']);
 
         $list = $result->toArray();
         $list['render'] = $result->render();
 
-        $date_format = $this->request->param('date_format', 'Y-m-d');
+        $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
         foreach ($list['data'] as $key => $value) {
-            $value['date'] = date($date_format, $value['date']);
+            $value['create_time'] = strtotime($value['create_time']);
+            $value['create_time'] = date($date_format, $value['create_time']);
             $list['data'][$key] = $value;
         }
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'visit log data',
+            'msg'   => 'user data',
             'data'  => [
                 'list'         => $list['data'],
                 'total'        => $list['total'],

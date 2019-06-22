@@ -63,7 +63,7 @@ class Log extends BaseService
 
         return [
             'debug' => false,
-            'cache' => true,
+            'cache' => false,
             'msg'   => 'action log data',
             'data'  => [
                 'list'         => $list['data'],

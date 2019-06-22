@@ -34,13 +34,12 @@ class Cache extends BaseService
             return $result;
         }
 
-        $this->cache->clear();
-
-        // $dir = (array)glob($this->app->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*');
-        // foreach ($dir as $path) {
-        //     $path = (array)glob($path . DIRECTORY_SEPARATOR . '*');
-        //     array_map('unlink', $path);
-        // }
+        // $this->cache->clear(); 方法无法清除全部缓存
+        $dir = (array)glob($this->app->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*');
+        foreach ($dir as $path) {
+            $path = (array)glob($path . DIRECTORY_SEPARATOR . '*');
+            array_map('unlink', $path);
+        }
 
         return [
             'debug' => false,

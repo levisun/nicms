@@ -105,7 +105,7 @@ class Api extends Async
     {
         if ($this->request->isGet() && $ip = $this->request->param('ip', false)) {
             $this->validate();
-            $ip = (new Ip)->info($ip);
+            $ip = Ip::info($ip);
             $this->setCache(true)->success('success', $ip);
         } else {
             $this->error('缺少参数', 40001);

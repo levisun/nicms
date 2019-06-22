@@ -65,7 +65,7 @@ class Sidebar extends BaseService
 
         return [
             'debug' => false,
-            'cache' => false,
+            'cache' => true,
             'msg'   => 'sidebar',
             'data'  => isset($result) ? $result : []
         ];

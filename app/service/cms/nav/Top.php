@@ -64,7 +64,7 @@ class Top extends BaseService
 
         return [
             'debug' => false,
-            'cache' => false,
+            'cache' => true,
             'msg'   => 'nav top data',
             'data'  => $result
         ];

@@ -64,7 +64,7 @@ class Other extends BaseService
 
         return [
             'debug' => false,
-            'cache' => false,
+            'cache' => true,
             'msg'   => 'nav other data',
             'data'  => $result
         ];

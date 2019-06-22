@@ -35,7 +35,7 @@ class DataMaintenance
      * @param  int $_hour 相隔几小时更新备份
      * @return bool
      */
-    public function autoBackup(int $_hour = 48): bool
+    public function autoBackup(int $_hour = 72): bool
     {
         $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
         if (!is_dir($this->savePath)) {
@@ -44,75 +44,76 @@ class DataMaintenance
         }
 
         $path = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'dab.lock';
-        $fp = @fopen($path, 'w+');
-        if ($fp && flock($fp, LOCK_EX | LOCK_NB)) {
-            Log::record('[AUTO BACKUP] 自动备份数据库', 'alert');
+        if ($fp = fopen($path, 'w+')) {
+            if (flock($fp, LOCK_EX | LOCK_NB)) {
+                Log::record('[AUTO BACKUP] 自动备份数据库', 'alert');
 
-            if (is_file($this->savePath . 'backup_time.json')) {
-                $btime = json_decode(file_get_contents($this->savePath . 'backup_time.json'), true);
-            } else {
-                $btime = [];
-            }
-
-            ignore_user_abort(true);
-            $table_name = $this->queryTableName();
-            // shuffle($table_name);
-
-            foreach ($table_name as $name) {
-                $sql_file = $this->savePath . $name . '.sql';
-                if (!isset($btime[$name]) || !is_file($sql_file)) {
-                    $sql = $this->queryTableStructure($name);
-                    $this->write($sql_file, $sql);
-                    $btime[$name] = time();
-                } elseif (isset($btime[$name]) && $btime[$name] <= strtotime('-1 days')) {
-                    $sql = $this->queryTableStructure($name);
-                    $this->write($sql_file, $sql);
-                    $btime[$name] = time();
-                    continue;
+                if (is_file($this->savePath . 'backup_time.json')) {
+                    $btime = json_decode(file_get_contents($this->savePath . 'backup_time.json'), true);
+                } else {
+                    $btime = [];
                 }
 
-                $total = $this->queryTableInsertTotal($name);
-                $field = $this->queryTableInsertField($name);
-                $num = 1;
-                for ($i = 0; $i < $total; $i++) {
-                    $hour = '-' . rand($_hour, $_hour + 7) . ' hour';
-                    $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
+                ignore_user_abort(true);
+                $table_name = $this->queryTableName();
+                // shuffle($table_name);
 
-                    if (isset($btime[$name . $num])) {
-                        if (false !== $btime[$name . $num] && $btime[$name . $num] <= strtotime($hour) && is_file($sql_file)) {
-                            unlink($sql_file);
-                            $btime[$name . $num] = false;
-                            break 2;
-                        }
-                        if (false === $btime[$name . $num]) {
+                foreach ($table_name as $name) {
+                    $sql_file = $this->savePath . $name . '.sql';
+                    if (!isset($btime[$name]) || !is_file($sql_file)) {
+                        $sql = $this->queryTableStructure($name);
+                        $this->write($sql_file, $sql);
+                        $btime[$name] = time();
+                    } elseif (isset($btime[$name]) && $btime[$name] <= strtotime('-1 days')) {
+                        $sql = $this->queryTableStructure($name);
+                        $this->write($sql_file, $sql);
+                        $btime[$name] = time();
+                        continue;
+                    }
+
+                    $total = $this->queryTableInsertTotal($name);
+                    $field = $this->queryTableInsertField($name);
+                    $num = 1;
+                    for ($i = 0; $i < $total; $i++) {
+                        $hour = '-' . rand($_hour, $_hour + 7) . ' hour';
+                        $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
+
+                        if (isset($btime[$name . $num])) {
+                            if (false !== $btime[$name . $num] && $btime[$name . $num] <= strtotime($hour) && is_file($sql_file)) {
+                                unlink($sql_file);
+                                $btime[$name . $num] = false;
+                                break 2;
+                            }
+                            if (false === $btime[$name . $num]) {
+                                $sql = $this->queryTableInsertData($name, $field, $i);
+                                $this->write($sql_file, $sql);
+                            }
+                        } elseif (!isset($btime[$name . $num])) {
                             $sql = $this->queryTableInsertData($name, $field, $i);
                             $this->write($sql_file, $sql);
+                            $btime[$name . $num] = false;
                         }
-                    } elseif (!isset($btime[$name . $num])) {
-                        $sql = $this->queryTableInsertData($name, $field, $i);
-                        $this->write($sql_file, $sql);
-                        $btime[$name . $num] = false;
-                    }
 
-                    if (0 === ($i + 1) % 200) {
-                        if (!isset($btime[$name . $num]) || false === $btime[$name . $num]) {
-                            $btime[$name . $num] = time();
+                        if (0 === ($i + 1) % 200) {
+                            if (!isset($btime[$name . $num]) || false === $btime[$name . $num]) {
+                                $btime[$name . $num] = time();
+                            }
+                            ++$num;
                         }
-                        ++$num;
+                    }
+                    if (!isset($btime[$name . $num]) || false === $btime[$name . $num]) {
+                        $btime[$name . $num] = time();
                     }
                 }
-                if (!isset($btime[$name . $num]) || false === $btime[$name . $num]) {
-                    $btime[$name . $num] = time();
-                }
+
+                file_put_contents($this->savePath . 'backup_time.json', json_encode($btime));
+                ignore_user_abort(false);
+
+                fwrite($fp, '自动备份数据库' . date('Y-m-d H:i:s'));
+                flock($fp, LOCK_UN);
             }
-
-            file_put_contents($this->savePath . 'backup_time.json', json_encode($btime));
-            ignore_user_abort(false);
-
-            fwrite($fp, '自动备份数据库' . date('Y-m-d H:i:s'));
-            flock($fp, LOCK_UN);
+            fclose($fp);
         }
-        fclose($fp);
 
         return true;
     }

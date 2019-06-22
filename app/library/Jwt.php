@@ -104,7 +104,7 @@ class JWT
      * 接收者
      * @access public
      * @param  string $_audience
-     * @return JWT
+     * @return mixed
      */
     public function audience(string $_audience, $_aud = false)
     {
@@ -141,48 +141,44 @@ class JWT
 
             // 签名验
             $alg = (json_decode(base64_decode($headers)))->alg;
-            if (!hash_equals($signature, $this->getSignature($alg, $headers . '.' . $playload))) {
-                $result = false;
-            } else {
+            if (hash_equals($signature, $this->getSignature($alg, $headers . '.' . $playload))) {
                 $playload = json_decode(base64_decode($playload), true);
-                $playload['jti'] = Base64::decrypt($playload['jti']);
+                $playload['jti'] = $playload['jti'] ? Base64::decrypt($playload['jti']) : null;
 
                 // 接受者验证
                 $audience = $this->audience($playload['iat'] . parse_url(Request::server('HTTP_REFERER'), PHP_URL_PATH), true);
                 if (!hash_equals($audience, $playload['aud'])) {
-                    $result = false;
+                    return false;
                 }
 
                 // 签发者验证
                 elseif (!hash_equals(Request::rootDomain(), $playload['iss'])) {
-                    $result = false;
+                    return false;
                 }
 
                 // 签发时间验证
                 elseif ($playload['iat'] >= Request::time()) {
-                    $result = false;
+                    return false;
                 }
 
                 // 有效期验证
                 elseif ($playload['exp'] <= Request::time()) {
-                    $result = false;
+                    return false;
                 }
 
                 // 身份标识验证
                 elseif (!$playload['jti'] || !preg_match('/^[A-Za-z0-9]{32,40}$/u', $playload['jti'])) {
-                    $result = false;
+                    return false;
                 }
 
                 // 验证通过
                 else {
-                    $result = true;
+                    return $playload;
                 }
             }
-        } else {
-            $result = false;
         }
 
-        return true === $result ? $playload : false;
+        return false;
     }
 
     /**

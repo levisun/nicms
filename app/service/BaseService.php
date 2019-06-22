@@ -141,19 +141,14 @@ abstract class BaseService
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('defalut_filter');
 
-        $this->uid = session($this->auth_key);
+        $this->uid = $this->auth_key ? session($this->auth_key) : null;
 
         // 重新设定缓存
-        $config = $this->config->get('cache');
         $method = $this->request->param('method');
         if ($method && preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $method)) {
+            $config = $this->config->get('cache');
             $config['prefix'] = $this->request->subDomain() . '_' . str_replace('.', '_', $method);
             $this->cache->init($config, true);
-
-            // 开启调试清空请求缓存
-            if (true === $this->config->get('app.debug')) {
-                $this->cache->clear();
-            }
         }
 
         $this->cache_tag = $this->uid ?: $this->request->subDomain();

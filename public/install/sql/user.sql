@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `np_user_wechat` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
   `appid` varchar(32) NOT NULL DEFAULT '' COMMENT 'APPID',
-  `appname` varchar(32) NOT NULL DEFAULT '' COMMENT 'APP NAME'
+  `appname` varchar(32) NOT NULL DEFAULT '' COMMENT 'APP NAME',
   `subscribe` tinyint(1) NOT NULL DEFAULT '0' COMMENT '关注状态',
   `openid` varchar(32) NOT NULL DEFAULT '' COMMENT '用户标识',
   `nickname` varchar(50) NOT NULL DEFAULT '' COMMENT '昵称',
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `np_user_wechat` (
   `province` varchar(10) NOT NULL DEFAULT '' COMMENT '省份',
   `language` varchar(10) NOT NULL DEFAULT '' COMMENT '语言',
   `avatar_url` varchar(500) NOT NULL DEFAULT '' COMMENT '头像',
-  `subscribe_time` int(11) NOT NULL DEFAULT '' COMMENT '关注时间',
+  `subscribe_time` int(11) NOT NULL DEFAULT '0' COMMENT '关注时间',
   `unionid` varchar(32) NOT NULL DEFAULT '' COMMENT '',
   `remark` varchar(50) NOT NULL DEFAULT '' COMMENT '备注',
   `groupid` varchar(50) NOT NULL DEFAULT '' COMMENT '分组ID',

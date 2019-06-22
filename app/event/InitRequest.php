@@ -15,7 +15,6 @@ declare (strict_types = 1);
 namespace app\event;
 
 use think\App;
-use think\facade\Cookie;
 
 class InitRequest
 {
@@ -38,7 +37,7 @@ class InitRequest
     protected $log;
 
     /**
-     * log实例
+     * request实例
      * @var \think\Request
      */
     protected $request;
@@ -97,20 +96,21 @@ class InitRequest
         $number = is_file($this->requestLog) ? include $this->requestLog : '';
 
         // 非阻塞模式并发
-        $fp = @fopen($this->requestLog, 'w+');
-        if ($fp && flock($fp, LOCK_EX | LOCK_NB)) {
-            $time = (int)date('i');     // 以分钟统计请求量
-            $number = !empty($number) ? (array)$number : [$time => 1];
-            if (isset($number[$time]) && $number[$time] >= 50) {
-                file_put_contents($this->requestLog . '.lock', date('Y-m-d H:i:s'));
-            } else {
-                $number[$time] = isset($number[$time]) ? ++$number[$time] : 1;
-                $number = [$time => end($number)];
-                $data = '<?php /*' . $this->request->ip() . '*/ return ' . var_export($number, true) . ';';
-                fwrite($fp, $data);
+        if ($fp = @fopen($this->requestLog, 'w+')) {
+            if (flock($fp, LOCK_EX | LOCK_NB)) {
+                $time = (int)date('i');     // 以分钟统计请求量
+                $number = !empty($number) ? (array)$number : [$time => 1];
+                if (isset($number[$time]) && $number[$time] >= 50) {
+                    file_put_contents($this->requestLog . '.lock', date('Y-m-d H:i:s'));
+                } else {
+                    $number[$time] = isset($number[$time]) ? ++$number[$time] : 1;
+                    $number = [$time => end($number)];
+                    $data = '<?php /*' . $this->request->ip() . '*/ return ' . var_export($number, true) . ';';
+                    fwrite($fp, $data);
+                }
+                flock($fp, LOCK_UN);
             }
-            flock($fp, LOCK_UN);
+            fclose($fp);
         }
-        fclose($fp);
     }
 }

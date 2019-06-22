@@ -28,32 +28,33 @@ class ReGarbage
     public function run(): void
     {
         $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'rg.lock';
-        $fp = @fopen($lock, 'w+');
-        if ($fp && flock($fp, LOCK_EX | LOCK_NB)) {
-            Log::record('[REGARBAGE] 删除垃圾信息', 'alert');
-            $runtime_path = app()->getRuntimePath();
-            $root_path = app()->getRootPath();
+        if ($fp = @fopen($lock, 'w+')) {
+            if (flock($fp, LOCK_EX | LOCK_NB)) {
+                Log::record('[REGARBAGE] 删除垃圾信息', 'alert');
+                $runtime_path = app()->getRuntimePath();
+                $root_path = app()->getRootPath();
 
-            $this->remove($runtime_path . 'cache', 192);
-            $this->remove($runtime_path . 'compile', 72);
-            $this->remove($runtime_path . 'lock', 72);
-            $this->remove($runtime_path . 'log', 72);
-            $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 24);
+                $this->remove($runtime_path . 'cache', 192);
+                $this->remove($runtime_path . 'compile', 72);
+                $this->remove($runtime_path . 'lock', 72);
+                $this->remove($runtime_path . 'log', 72);
+                $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 24);
 
-            $dir = (array)glob($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*');
-            foreach ($dir as $path) {
-                $date = (int)date('Ym');
-                $this->remove($path . DIRECTORY_SEPARATOR . $date, 192);
-                --$date;
-                $this->remove($path . DIRECTORY_SEPARATOR . $date, 192);
+                $dir = (array)glob($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*');
+                foreach ($dir as $path) {
+                    $date = (int)date('Ym');
+                    $this->remove($path . DIRECTORY_SEPARATOR . $date, 192);
+                    --$date;
+                    $this->remove($path . DIRECTORY_SEPARATOR . $date, 192);
+                }
+
+                unset($runtime_path, $root_path, $dir, $date);
+
+                fwrite($fp, '清除垃圾数据' . date('Y-m-d H:i:s'));
+                flock($fp, LOCK_UN);
             }
-
-            unset($runtime_path, $root_path, $dir, $date);
-
-            fwrite($fp, '清除垃圾数据' . date('Y-m-d H:i:s'));
-            flock($fp, LOCK_UN);
+            fclose($fp);
         }
-        fclose($fp);
     }
 
     /**
