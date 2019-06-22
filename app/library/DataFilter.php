@@ -71,7 +71,7 @@ class DataFilter
     {
         if (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::content($value);
+                $_data[$key] = self::string($value);
             }
             return $_data;
         } elseif (is_string($_data)) {

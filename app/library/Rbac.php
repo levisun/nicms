@@ -20,7 +20,7 @@ class Rbac
 {
     private $config = [
         'auth_founder'     => 1,                                             // 超级管理员ID
-        'auth_type'        => 1,                                             // 验证方式
+        'auth_type'        => 1,                                             // 实时验证方式
         'not_auth_app'     => [],
         'not_auth_service' => [],
         'not_auth_logic'   => [],
@@ -177,7 +177,6 @@ class Rbac
                     ['level', '=', $_level],
                     ['pid', '=', $_pid],
                 ])
-                // ->cache(__METHOD__ . 'founder' . $_uid . $_level . $_pid, 28800, 'library')
                 ->select()
                 ->toArray();
         } else {
@@ -191,7 +190,6 @@ class Rbac
                     ['node.level', '=', $_level],
                     ['node.pid', '=', $_pid],
                 ])
-                // ->cache(__METHOD__ . $_uid . $_level . $_pid, 28800, 'library')
                 ->select()
                 ->toArray();
         }

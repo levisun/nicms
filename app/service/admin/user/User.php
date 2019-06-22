@@ -71,4 +71,32 @@ class User extends BaseService
             ]
         ];
     }
+
+    /**
+     * 查询
+     * @access public
+     * @param
+     * @return array
+     */
+    public function find(): array
+    {
+        if ($result = $this->authenticate(__METHOD__)) {
+            return $result;
+        }
+
+        if ($id = (int)$this->request->param('id/f')) {
+            $result = (new ModelUser)
+                ->where([
+                    ['id', '=', $id],
+                 ])
+                ->find();
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'user data',
+            'data'  => $result ?: []
+        ];
+    }
 }

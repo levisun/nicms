@@ -47,8 +47,8 @@ if (!function_exists('client_mac')) {
                 @exec('ipconfig /all', $result);
                 if (!$result) {
                     $ipconfig = DIRECTORY_SEPARATOR . 'system32' . DIRECTORY_SEPARATOR . 'ipconfig.exe';
-                    if(is_file($_SERVER['WINDIR'] . $ipconfig)) {
-                        @exec($_SERVER['WINDIR'] . $ipconfig." /all", $result);
+                    if (is_file($_SERVER['WINDIR'] . $ipconfig)) {
+                        @exec($_SERVER['WINDIR'] . $ipconfig . " /all", $result);
                     } else {
                         @exec($_SERVER['WINDIR'] . DIRECTORY_SEPARATOR . 'system' . DIRECTORY_SEPARATOR . 'ipconfig.exe /all', $result);
                     }
@@ -78,14 +78,13 @@ if (!function_exists('get_img_url')) {
         $root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
         $font_path = $root_path . 'static' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf';
 
-        if (false === $_img && stripos($_img, 'http')) {
+        if (false === stripos($_img, 'http')) {
             // 规定缩略图大小
             $_size = $_size >= 800 ? 800 : round($_size / 100) * 100;
             $_size = (int)$_size;
 
             // URL路径转换目录路径
-            $img_path = trim($_img, '/');
-            $img_path = str_replace('/', DIRECTORY_SEPARATOR, $img_path);
+            $img_path = str_replace('/', DIRECTORY_SEPARATOR, trim($_img, '/'));
             $img_ext = '.' . pathinfo($root_path . $img_path, PATHINFO_EXTENSION);
 
             // 修正原始图片名
@@ -96,40 +95,44 @@ if (!function_exists('get_img_url')) {
             $img_path = $new_img;
             unset($new_img);
 
-            if (is_file($root_path . $img_path) && $_size) {
-                $thumb_path = str_replace($img_ext, '', $img_path) . $_size . 'x' . $_size . $img_ext;
-                if (!is_file($root_path . $thumb_path)) {
-
-                    // 修正原始图片名带尺寸
-                    $image = Image::open($root_path . $img_path);
-                    $newname = str_replace($img_ext, '', $img_path) . $image->width() . 'x' . $image->height() . $img_ext;
-                    if (!is_file($root_path . $newname)) {
-                        $_water = $_water ? $_water : Request::rootDomain();
-                        $image->text($_water, $font_path, 15, '#00000000', Image::WATER_SOUTHEAST);
-                        $image->save($root_path . $newname, null, 50);
-                    }
-                    unset($image);
-
-                    // 原始尺寸大于指定缩略尺寸,生成缩略图
-                    $image = Image::open($root_path . $img_path);
-                    if ($image->width() > $_size) {
-                        $image->thumb($_size, $_size, Image::THUMB_SCALING);
-                    }
-
-                    // 添加水印
+            $thumb_path = str_replace($img_ext, '', $img_path) . $_size . 'x' . $_size . $img_ext;
+            if ($_size && is_file($root_path . $img_path) && !is_file($root_path . $thumb_path)) {
+                // 修正原始图片名带尺寸
+                $image = Image::open($root_path . $img_path);
+                $newname = str_replace($img_ext, '', $img_path) . $image->width() . 'x' . $image->height() . $img_ext;
+                if (!is_file($root_path . $newname)) {
                     $_water = $_water ? $_water : Request::rootDomain();
                     $image->text($_water, $font_path, 15, '#00000000', Image::WATER_SOUTHEAST);
+                    $image->save($root_path . $newname, null, 50);
+                }
+                unset($image);
 
-                    $image->save($root_path . $thumb_path, null, 40);
-                    unset($image);
+                // 原始尺寸大于指定缩略尺寸,生成缩略图
+                $image = Image::open($root_path . $img_path);
+                if ($image->width() > $_size) {
+                    $image->thumb($_size, $_size, Image::THUMB_SCALING);
                 }
 
-                $_img = '/' . str_replace(DIRECTORY_SEPARATOR, '/', $thumb_path);
-            } elseif (is_file($root_path . $img_path)) {
-                $_img = '/' . str_replace(DIRECTORY_SEPARATOR, '/', $img_path);
-            } else {
-                $_img = Config::get('app.default_img');
+                // 添加水印
+                $_water = $_water ? $_water : Request::rootDomain();
+                $image->text($_water, $font_path, 15, '#00000000', Image::WATER_SOUTHEAST);
+
+                $image->save($root_path . $thumb_path, null, 40);
+                unset($image);
             }
+
+
+                // $_img = '/' . str_replace(DIRECTORY_SEPARATOR, '/', $thumb_path);
+
+
+            $_img = is_file($root_path . $thumb_path) ? $thumb_path : $img_path;
+            $_img = '/' . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
+
+            // elseif (is_file($root_path . $img_path)) {
+            //     $_img = '/' . str_replace(DIRECTORY_SEPARATOR, '/', $img_path);
+            // } else {
+            //     $_img = Config::get('app.default_img');
+            // }
         }
 
         return Config::get('app.cdn_host') . $_img;

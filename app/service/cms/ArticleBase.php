@@ -17,6 +17,7 @@ namespace app\service\cms;
 
 use app\library\Base64;
 use app\service\BaseService;
+use app\library\DataFilter;
 use app\model\Article as ModelArticle;
 use app\model\ArticleExtend as ArticleExtend;
 use app\model\ArticleTags as ModelArticleTags;
@@ -157,19 +158,18 @@ class ArticleBase extends BaseService
                     $result['thumb'] = get_img_url($result['thumb'], 300);
 
                     $result['content'] = htmlspecialchars_decode($result['content']);
+                    $result['content'] = DataFilter::string($result['content']);
+                    $result['content'] = preg_replace_callback([
+                        '/(style=["|\'])(.*?)(["|\'])/si',
+                        '/<\/?h[1-4]{1}(.*?)>/si'
+                    ], function () {
+                        return '';
+                    }, $result['content']);
 
                     $result['content'] =
                         preg_replace_callback('/(src=["|\'])(.*?)(["|\'])/si', function ($matches) {
                             $thumb = get_img_url($matches[2], 300);
                             return 'src="' . $thumb . '" original="' . get_img_url($matches[2], 0) . '"';
-                        }, $result['content']);
-
-                    $result['content'] =
-                        preg_replace_callback([
-                            '/(style=["|\'])(.*?)(["|\'])/si',
-                            '/<\/?h[1-4]{1}(.*?)>/si'
-                        ], function ($matches) {
-                            return '';
                         }, $result['content']);
 
                     $result['url'] = url('details/' . $result['model_name'] . '/' . $result['category_id'] . '/' . $result['id']);
