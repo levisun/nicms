@@ -29,5 +29,5 @@ return [
     // 序列化机制 例如 ['serialize', 'unserialize']
     'serialize'     => ['serialize', 'unserialize'],
     // 开启压缩
-    'data_compress' => false,
+    'data_compress' => true,
 ];

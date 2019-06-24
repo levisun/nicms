@@ -318,7 +318,7 @@ class Template
 
         clearstatcache();
         if (false === $this->config->get('app.debug')) {
-            // $_content = function_exists('gzcompress') ? gzcompress($_content) : $_content;
+            $_content = function_exists('gzcompress') ? gzcompress($_content) : $_content;
             file_put_contents($path, $_content);
         }
     }
@@ -344,7 +344,7 @@ class Template
             unlink($path);
         } elseif (is_file($path)) {
             $content = file_get_contents($path);
-            // $content = function_exists('gzcompress') ? gzuncompress($content) : $content;
+            $content = function_exists('gzcompress') ? gzuncompress($content) : $content;
             return $content;
         }
 
@@ -359,12 +359,11 @@ class Template
      */
     private function parseReplace($_content): string
     {
-        return
-            str_replace(
-                array_keys($this->replace),
-                array_values($this->replace),
-                $_content
-            );
+        return str_replace(
+            array_keys($this->replace),
+            array_values($this->replace),
+            $_content
+        );
     }
 
     /**

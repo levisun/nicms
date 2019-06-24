@@ -35,6 +35,7 @@ ThinkPHP6
 composer create-project topthink/think nicms 6.0.*-dev
 composer update topthink/framework
 
+依赖
 composer require topthink/think-image
 composer require topthink/think-captcha
 ~~~
