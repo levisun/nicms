@@ -34,7 +34,7 @@ class ReGarbage
                 $runtime_path = app()->getRuntimePath();
                 $root_path = app()->getRootPath();
 
-                $this->remove($runtime_path . 'cache', 192);
+                $this->remove($runtime_path . 'cache', 72 + rand(1, 24));
                 $this->remove($runtime_path . 'compile', 72);
                 $this->remove($runtime_path . 'lock', 72);
                 $this->remove($runtime_path . 'log', 72);

@@ -19,12 +19,11 @@ declare (strict_types = 1);
 namespace app\controller;
 
 use think\App;
-use think\Response;
+use think\Container;
 use think\exception\HttpResponseException;
 use app\library\Rbac;
-use app\library\Template;
 
-abstract class BaseController extends Template
+abstract class BaseController
 {
     /**
      * 控制器中间件
@@ -35,6 +34,36 @@ abstract class BaseController extends Template
     ];
 
     /**
+     * 模板实例化方法
+     * @var object
+     */
+    protected $view = null;
+
+    /**
+     * 应用实例
+     * @var \think\App
+     */
+    protected $app;
+
+    /**
+     * Config实例
+     * @var \think\Config
+     */
+    protected $config;
+
+    /**
+     * Lang实例
+     * @var \think\Lang
+     */
+    protected $lang;
+
+    /**
+     * request实例
+     * @var \think\Request
+     */
+    protected $request;
+
+    /**
      * 构造方法
      * @access public
      * @param  App  $app  应用对象
@@ -42,7 +71,14 @@ abstract class BaseController extends Template
      */
     public function __construct(App $_app)
     {
-        parent::__construct($_app);
+        $this->app      = $_app;
+        $this->config   = $this->app->config;
+        $this->lang     = $this->app->lang;
+        $this->request  = $this->app->request;
+        $this->response = $this->app->response;
+
+        $this->view = Container::getInstance()->make('\app\library\Template');
+
         // 控制器初始化
         $this->initialize();
     }
@@ -50,6 +86,54 @@ abstract class BaseController extends Template
     // 初始化
     protected function initialize()
     { }
+
+    /**
+     * 渲染模板文件
+     * @access public
+     * @param  string $_template 模板文件
+     * @param  array  $_data     模板变量
+     * @return void
+     */
+    public function fetch(string $_template, array $_data = []): void
+    {
+        $this->view->fetch($_template, $_data);
+    }
+
+    /**
+     * 设置模板变量
+     * @access public
+     * @param  array $_vars
+     * @return void
+     */
+    public function assign(array $_vars = [])
+    {
+        $this->view->assign($_vars);
+        return $this;
+    }
+
+    /**
+     * 设置模板替换字符
+     * @access public
+     * @param  array $_replace
+     * @return object
+     */
+    public function setReplace(array $_replace)
+    {
+        $this->view->setReplace($_replace);
+        return $this;
+    }
+
+    /**
+     * 设置模板主题
+     * @access public
+     * @param  string $_name
+     * @return object
+     */
+    public function setTheme(string $_name)
+    {
+        $this->view->setTheme($_name);
+        return $this;
+    }
 
     /**
      * 校验请求参数合法性
@@ -60,7 +144,7 @@ abstract class BaseController extends Template
     protected function verification(string $_str): void
     {
         if (empty($_str) || preg_match('/[^A-Za-z]+/si', $_str)) {
-            $response = Response::create(url('404'), 'redirect', 302);
+            $response = $this->response->create(url('404'), 'redirect', 302);
             throw new HttpResponseException($response);
         }
     }
@@ -96,7 +180,7 @@ abstract class BaseController extends Template
         }
 
         if (isset($url)) {
-            $response = Response::create($url, 'redirect', 302);
+            $response = $this->response->create($url, 'redirect', 302);
             throw new HttpResponseException($response);
         }
     }

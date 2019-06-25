@@ -63,7 +63,7 @@ class InitRequest
             chmod($this->app->getRuntimePath(), 0777);
             mkdir($this->requestLog, 0777, true);
         }
-        $this->requestLog .= sha1($this->request->ip()) . '.php';
+        $this->requestLog .= bindec($this->request->ip2bin($this->request->ip())). '.php';
 
         // 锁定频繁请求IP
         if (is_file($this->requestLog . '.lock')) {

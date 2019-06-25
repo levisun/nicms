@@ -60,7 +60,7 @@ class CheckRequestCache
      * @param mixed   $cache
      * @return Response
      */
-    public function handle($request, Closure $next, $cache = null)
+    public function handle(Request $request, Closure $next, $cache = null)
     {
         if ($request->isGet() && false !== $cache) {
             $cache = $cache ?: $this->getRequestCache($request);

@@ -143,18 +143,17 @@ abstract class BaseService
 
         $this->uid = $this->auth_key ? session($this->auth_key) : null;
 
+        $this->ipinfo = Ip::info();
+
         // 重新设定缓存
+        $config = $this->config->get('cache');
         $method = $this->request->param('method');
         if ($method && preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $method)) {
-            $config = $this->config->get('cache');
-            $config['prefix'] = $this->request->subDomain() . '_' . str_replace('.', '_', $method);
-            $this->cache->init($config, true);
+            $config['prefix'] = $this->request->controller(true) . DIRECTORY_SEPARATOR . str_replace('.', '_', $method);
         }
-
+        $this->cache->init($config, true);
         $this->cache_tag = $this->uid ?: $this->request->subDomain();
         $this->cache->tag($this->cache_tag);
-
-        $this->ipinfo = Ip::info();
 
         $this->initialize();
     }

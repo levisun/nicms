@@ -88,7 +88,7 @@ if (!function_exists('get_img_url')) {
             $img_ext = '.' . pathinfo($root_path . $img_path, PATHINFO_EXTENSION);
 
             // 修正原始图片名
-            $new_img = str_replace($img_ext, '_skl_' . $img_ext, $img_path);
+            $new_img = str_replace($img_ext, '_skl' . $img_ext, $img_path);
             if (is_file($root_path . $img_path) && !is_file($root_path . $new_img)) {
                 rename($root_path . $img_path, $root_path . $new_img);
             }
@@ -121,21 +121,10 @@ if (!function_exists('get_img_url')) {
                 unset($image);
             }
 
-
-                // $_img = '/' . str_replace(DIRECTORY_SEPARATOR, '/', $thumb_path);
-
-
-            $_img = is_file($root_path . $thumb_path) ? $thumb_path : $img_path;
-            $_img = '/' . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
-
-            // elseif (is_file($root_path . $img_path)) {
-            //     $_img = '/' . str_replace(DIRECTORY_SEPARATOR, '/', $img_path);
-            // } else {
-            //     $_img = Config::get('app.default_img');
-            // }
+            $_img = is_file($root_path . $thumb_path) ? '/' . $thumb_path : '/' . $img_path;
         }
 
-        return Config::get('app.cdn_host') . $_img;
+        return Config::get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
     }
 }
 
