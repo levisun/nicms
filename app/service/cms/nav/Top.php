@@ -31,7 +31,7 @@ class Top extends BaseService
     public function query(): array
     {
         $cache_key = md5(__METHOD__ . $this->lang->getLangSet());
-        if (!$this->cache->has($cache_key)) {
+        if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
             $result = (new ModelCategory)->view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
                 ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
                 ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
@@ -58,8 +58,6 @@ class Top extends BaseService
                 $result[$key] = $value;
             }
             $this->cache->tag(['cms', 'nav'])->set($cache_key, $result);
-        } else {
-            $result = $this->cache->get($cache_key);
         }
 
         return [

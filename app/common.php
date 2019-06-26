@@ -298,28 +298,3 @@ if (!function_exists('cookie')) {
         }
     }
 }
-
-if (!function_exists('session')) {
-    /**
-     * Session管理
-     * @param  string|array  $_name session名称，如果为数组表示进行session设置
-     * @param  mixed         $_value session值
-     * @return mixed
-     */
-    function session($_name, $_value = '')
-    {
-        if (is_null($_name)) {
-            // 清除
-            Session::clear();
-        } elseif (is_null($_value)) {
-            // 删除
-            Session::delete($_name);
-        } elseif ('' === $_value) {
-            // 判断或获取
-            return 0 === strpos($_name, '?') ? Session::has(substr($_name, 1)) : Base64::decrypt(Session::get($_name));
-        } else {
-            // 设置
-            Session::set($_name, Base64::encrypt($_value));
-        }
-    }
-}

@@ -18,7 +18,6 @@ declare (strict_types = 1);
 namespace app\event;
 
 use think\App;
-use think\Env;
 use app\library\Accesslog;
 use app\library\DataMaintenance;
 use app\library\ReGarbage;
@@ -45,19 +44,26 @@ class Maintain
     protected $config;
 
     /**
+     * Env实例
+     * @var \think\Env
+     */
+    protected $env;
+
+    /**
      * request实例
      * @var \think\Request
      */
     protected $request;
 
-    public function handle(App $_app, Env $_env)
+    public function handle(App $_app)
     {
         $this->app     = $_app;
         $this->cache   = $this->app->cache;
         $this->config  = $this->app->config;
+        $this->env     = $this->app->env;
         $this->request = $this->app->request;
 
-        if (!in_array($this->request->controller(true), [$_env->get('admin.entry'), 'api'])) {
+        if (!in_array($this->request->controller(true), [$this->env->get('admin.entry'), 'api'])) {
             (new Accesslog)->record();      // 生成访问日志
             (new Sitemap)->create();        // 生成网站地图
         }

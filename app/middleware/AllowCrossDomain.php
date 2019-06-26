@@ -41,9 +41,9 @@ class AllowCrossDomain
     /**
      * 允许跨域请求
      * @access public
-     * @param Request $request
-     * @param Closure $next
-     * @param array   $header
+     * @param  Request $request
+     * @param  Closure $next
+     * @param  array   $header
      * @return Response
      */
     public function handle($request, Closure $next, ? array $header = [])

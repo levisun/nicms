@@ -46,10 +46,16 @@ abstract class BaseService
     protected $config;
 
     /**
-     * 应用实例
+     * Cookie实例
      * @var \think\Cookie
      */
     protected $cookie;
+
+    /**
+     * Env实例
+     * @var \think\Env
+     */
+    protected $env;
 
     /**
      * Lang实例
@@ -58,25 +64,25 @@ abstract class BaseService
     protected $lang;
 
     /**
-     * log实例
+     * Log实例
      * @var \think\Log
      */
     protected $log;
 
     /**
-     * request实例
+     * Request实例
      * @var \think\Request
      */
     protected $request;
 
     /**
-     * response实例
+     * Response实例
      * @var \think\Response
      */
     protected $response;
 
     /**
-     * session实例
+     * Session实例
      * @var \think\Session
      */
     protected $session;
@@ -85,19 +91,13 @@ abstract class BaseService
      * 权限认证KEY
      * @var string
      */
-    protected $auth_key;
+    protected $auth_key = 'user_auth_key';
 
     /**
      * uid
      * @var int
      */
     protected $uid;
-
-    /**
-     * 缓存标签
-     * @var string
-     */
-    protected $cache_tag;
 
     /**
      * 不用验证
@@ -132,6 +132,7 @@ abstract class BaseService
         $this->cache    = $this->app->cache;
         $this->config   = $this->app->config;
         $this->cookie   = $this->app->cookie;
+        $this->env      = $this->app->env;
         $this->lang     = $this->app->lang;
         $this->log      = $this->app->log;
         $this->request  = $this->app->request;
@@ -141,19 +142,22 @@ abstract class BaseService
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('defalut_filter');
 
-        $this->uid = $this->auth_key ? session($this->auth_key) : null;
-
-        $this->ipinfo = Ip::info();
+        if ($this->session->has($this->auth_key)) {
+            $this->uid = $this->session->get($this->auth_key);
+        }
 
         // 重新设定缓存
         $config = $this->config->get('cache');
+        $config['prefix']  = $this->request->controller(true) . DIRECTORY_SEPARATOR;
+        $config['prefix'] .= $this->uid ? sha1($this->auth_key . $this->uid) : 'public';
+        $config['prefix'] .= DIRECTORY_SEPARATOR;
         $method = $this->request->param('method');
         if ($method && preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $method)) {
-            $config['prefix'] = $this->request->controller(true) . DIRECTORY_SEPARATOR . str_replace('.', '_', $method);
+            $config['prefix'] .= str_replace('.', '_', $method);
         }
         $this->cache->init($config, true);
-        $this->cache_tag = $this->uid ?: $this->request->subDomain();
-        $this->cache->tag($this->cache_tag);
+
+        $this->ipinfo = Ip::info();
 
         $this->initialize();
     }

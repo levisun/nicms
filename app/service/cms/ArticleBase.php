@@ -59,7 +59,7 @@ class ArticleBase extends BaseService
             $date_format = $this->request->param('date_format', 'Y-m-d');
 
             $cache_key = md5(__METHOD__ . date('Ymd') . $category_id . $com . $top . $hot . $type_id . $query_limit . $query_page . $date_format);
-            if (!$this->cache->has($cache_key)) {
+            if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
                     ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
@@ -113,8 +113,6 @@ class ArticleBase extends BaseService
 
                     $this->cache->tag(['cms', 'list', 'list_' . $category_id])->set($cache_key, $list);
                 }
-            } else {
-                $list = $this->cache->get($cache_key);
             }
         }
 
@@ -138,7 +136,7 @@ class ArticleBase extends BaseService
         if ($id = (int)$this->request->param('id/f')) {
             $map[] = ['article.id', '=', $id];
             $cache_key = md5(__METHOD__ . $id);
-            if (!$this->cache->has($cache_key)) {
+            if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
                     ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
@@ -204,8 +202,6 @@ class ArticleBase extends BaseService
 
                     $this->cache->tag(['cms', 'details', 'details' . $id])->set($cache_key, $result);
                 }
-            } else {
-                $result = $this->cache->get($cache_key);
             }
         }
 
@@ -230,7 +226,7 @@ class ArticleBase extends BaseService
 
             // 更新浏览数
             (new ModelArticle)->where($map)
-                ->inc('hits', 1)
+                ->inc('hits', 1, 60)
                 ->update();
 
             $result = (new ModelArticle)

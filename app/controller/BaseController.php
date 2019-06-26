@@ -87,6 +87,12 @@ abstract class BaseController
     protected function initialize()
     { }
 
+    public function _404()
+    {
+        $response = $this->response->create(url('404'), 'redirect', 302);
+        throw new HttpResponseException($response);
+    }
+
     /**
      * 渲染模板文件
      * @access public

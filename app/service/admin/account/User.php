@@ -24,7 +24,6 @@ use app\model\Admin as ModelAdmin;
 class User extends BaseService
 {
     protected $auth_key = 'admin_auth_key';
-    protected $cache_tag = 'admin';
 
     /**
      * 登录
@@ -66,8 +65,8 @@ class User extends BaseService
                 }
 
                 // 登录令牌
-                session('admin_auth_key', $user['id']);
-                session('login_lock', null);
+                $this->session->set('admin_auth_key', $user['id']);
+                $this->session->delete('login_lock');
 
                 $this->uid = $result['id'];
                 $this->authenticate(__METHOD__, 'admin user login');
@@ -81,10 +80,10 @@ class User extends BaseService
                 $login_lock = session('?login_lock') ? session('login_lock') : 0;
                 ++$login_lock;
                 if ($login_lock >= 5) {
-                    session('login_lock', null);
+                    $this->session->delete('login_lock');
                     file_put_contents($lock, 'lock');
                 } else {
-                    session('login_lock', $login_lock);
+                    $this->session->set('login_lock', $login_lock);
                 }
             }
         }
@@ -108,8 +107,8 @@ class User extends BaseService
             return $result;
         }
 
-        $this->cache->tag($this->cache_tag)->clear();
-        session('admin_auth_key', null);
+        $this->cache->clear();
+        $this->session->delete('admin_auth_key');
 
         return [
             'debug' => false,
@@ -144,7 +143,7 @@ class User extends BaseService
             return $result;
         }
 
-        if (!$this->cache->has(__METHOD__ . $this->uid)) {
+        if (!$this->cache->has(__METHOD__ . $this->uid) || !$result = $this->cache->get(__METHOD__ . $this->uid)) {
             $result = (new Rbac)->getAuth($this->uid);
             $result = $result['admin'];
             foreach ($result as $key => $value) {
@@ -161,8 +160,6 @@ class User extends BaseService
                 }
             }
             $this->cache->set(__METHOD__ . $this->uid, $result);
-        } else {
-            $result = $this->cache->get(__METHOD__ . $this->uid);
         }
 
         return [

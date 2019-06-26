@@ -20,7 +20,6 @@ use app\service\BaseService;
 class Info extends BaseService
 {
     protected $auth_key = 'admin_auth_key';
-    protected $cache_tag = 'admin';
 
     public function query()
     {

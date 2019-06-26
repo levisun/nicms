@@ -15,10 +15,8 @@ declare (strict_types = 1);
 namespace app\middleware;
 
 use Closure;
-use think\Cache;
-use think\Config;
+use think\App;
 use think\Request;
-use think\Response;
 
 /**
  * 请求缓存处理
@@ -26,10 +24,28 @@ use think\Response;
 class CheckRequestCache
 {
     /**
-     * 缓存对象
-     * @var Cache
+     * 应用实例
+     * @var \think\App
+     */
+    protected $app;
+
+    /**
+     * Cache实例
+     * @var \think\Cache
      */
     protected $cache;
+
+    /**
+     * Response实例
+     * @var \think\Response
+     */
+    protected $response;
+
+    /**
+     * Session实例
+     * @var \think\Session
+     */
+    protected $session;
 
     /**
      * 配置参数
@@ -46,18 +62,28 @@ class CheckRequestCache
         'request_cache_tag'    => '',
     ];
 
-    public function __construct(Cache $cache, Config $config)
+    public function __construct(App $_app)
     {
-        $this->cache  = $cache;
-        $this->config = array_merge($this->config, $config->get('route'));
+        $this->app      = $_app;
+        $this->cache    = $this->app->cache;
+        $this->response = $this->app->response;
+        $this->session  = $this->app->session;
+
+        $uid = $this->session->has('user_auth_key') ? $this->session->get('user_auth_key') : '';
+        $config = $this->app->config->get('cache');
+        $config['prefix']  = $this->app->request->controller(true) . DIRECTORY_SEPARATOR;
+        $config['prefix'] .= $uid ? sha1('user_auth_key' . $uid) : 'public';
+        $this->cache->init($config, true);
+
+        $this->config = array_merge($this->config, $this->app->config->get('route'));
     }
 
     /**
      * 设置当前地址的请求缓存
      * @access public
-     * @param Request $request
-     * @param Closure $next
-     * @param mixed   $cache
+     * @param  Request $request
+     * @param  Closure $next
+     * @param  mixed   $cache
      * @return Response
      */
     public function handle(Request $request, Closure $next, $cache = null)
@@ -76,11 +102,11 @@ class CheckRequestCache
 
                 if (strtotime($request->server('HTTP_IF_MODIFIED_SINCE', '')) + $expire > $request->server('REQUEST_TIME')) {
                     // 读取缓存
-                    return Response::create()->code(304);
+                    return $this->response->create()->code(304);
                 } elseif ($this->cache->has($key)) {
                     list($content, $header) = $this->cache->get($key);
 
-                    return Response::create($content)->header($header);
+                    return $this->response->create($content)->header($header);
                 }
             }
         }
@@ -93,7 +119,10 @@ class CheckRequestCache
             $header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
             $header['Expires']       = gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT';
 
-            $this->cache->tag($tag)->set($key, [$response->getContent(), $header], $expire);
+            if ($tag) {
+                $this->cache->tag($tag);
+            }
+            $this->cache->set($key, [$response->getContent(), $header], $expire);
         }
 
         return $response;

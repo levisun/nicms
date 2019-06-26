@@ -16,8 +16,8 @@ declare (strict_types = 1);
 namespace app\controller;
 
 use app\controller\BaseController;
-use app\library\Filter;
 use app\library\Siteinfo;
+use app\model\Article as ModelArticle;
 use app\model\Category as ModelCategory;
 
 
@@ -32,20 +32,51 @@ class Cms extends BaseController
      */
     public function initialize()
     {
-        $theme = $this->config->get('app.cdn_host') . '/view/cms/' . Siteinfo::theme() . '/';
-        $this->setTheme(Siteinfo::theme())
+        $cid = $this->request->param('cid/f', null);
+        if (null !== $cid) {
+            $count = (new ModelCategory)
+                ->where([
+                    ['is_show', '=', 1],
+                    ['lang', '=', $this->lang->getLangSet()]
+                ])
+                ->cache('verification category' . $this->lang->getLangSet())
+                ->count();
+            if ($cid < 1 || $cid > $count) {
+                $this->_404();
+            }
+        }
+
+        $id = $this->request->param('id/f', null);
+        if (null !== $id) {
+            $count = (new ModelArticle)
+                ->where([
+                    ['is_pass', '=', '1'],
+                    ['show_time', '<=', time()],
+                    ['lang', '=', $this->lang->getLangSet()]
+                ])
+                ->cache('verification article' . $this->lang->getLangSet())
+                ->count();
+            if ($cid < 1 || $id > $count) {
+                $this->_404();
+            }
+        }
+
+
+        $result = Siteinfo::query();
+        $theme = $this->config->get('app.cdn_host') . '/view/cms/' . $result['theme'] . '/';
+        $this->setTheme($result['theme'])
             ->setReplace([
                 '__THEME__'       => $theme,
                 '__CSS__'         => $theme . 'css/',
                 '__IMG__'         => $theme . 'img/',
                 '__JS__'          => $theme . 'js/',
-                '__NAME__'        => Siteinfo::name(),
-                '__TITLE__'       => Siteinfo::title(),
-                '__KEYWORDS__'    => Siteinfo::keywords(),
-                '__DESCRIPTION__' => Siteinfo::description(),
-                '__FOOTER_MSG__'  => Siteinfo::footer(),
-                '__COPYRIGHT__'   => Siteinfo::copyright(),
-                '__SCRIPT__'      => Siteinfo::script(),
+                '__NAME__'        => $result['name'],
+                '__TITLE__'       => $result['title'],
+                '__KEYWORDS__'    => $result['keywords'],
+                '__DESCRIPTION__' => $result['description'],
+                '__FOOTER_MSG__'  => $result['footer'],
+                '__COPYRIGHT__'   => $result['copyright'],
+                '__SCRIPT__'      => $result['script'],
             ]);
     }
 

@@ -24,32 +24,37 @@ use app\model\Category as ModelCategory;
 class Siteinfo
 {
 
-    public function query()
+    public static function query()
     {
-        $cache_key = md5(__METHOD__ . Request::param('id/f', null) . Request::param('cid/f', null));
-        if (!$result = Cache::has($cache_key)) {
-            $result = [
-                'theme' => self::theme(),
-                'script' => self::script(),
-                'footer' => self::footer(),
-                'theme' => self::theme(),
-                'theme' => self::theme(),
-                'theme' => self::theme(),
-                'theme' => self::theme(),
+        $cache_key = md5(Request::controller(true) . Lang::getLangSet());
+        if (!Cache::has($cache_key) || !$common = Cache::get($cache_key)) {
+            $common = [
+                'theme'     => self::theme(),
+                'script'    => self::script(),
+                'footer'    => self::footer(),
+                'copyright' => self::copyright(),
+                'name'      => self::name(),
             ];
-
-            // Cache::tag(['cms', 'siteinfo'])->set($cache_key, $result);
+            Cache::tag(['cms', 'siteinfo'])->set($cache_key, $common);
         }
+
+        $result = [
+            'title'       => self::title(),
+            'keywords'    => self::keywords(),
+            'description' => self::description(),
+        ];
+
+        return array_merge($common, $result);
     }
 
     /**
      * 网站描述
-     * @access public
+     * @access private
      * @static
      * @param
      * @return string
      */
-    public static function description(): string
+    private static function description(): string
     {
         // 文章描述
         if ($id = Request::param('id/f', null)) {
@@ -80,12 +85,12 @@ class Siteinfo
 
     /**
      * 网站关键词
-     * @access public
+     * @access private
      * @static
      * @param
      * @return string
      */
-    public static function keywords(): string
+    private static function keywords(): string
     {
         // 文章关键词
         if ($id = Request::param('id/f', null)) {
@@ -116,12 +121,12 @@ class Siteinfo
 
     /**
      * 网站标题
-     * @access public
+     * @access private
      * @static
      * @param
      * @return string
      */
-    public static function title(): string
+    private static function title(): string
     {
         // 文章名
         if ($id = Request::param('id/f', null)) {
@@ -152,12 +157,12 @@ class Siteinfo
 
     /**
      * 网站名称
-     * @access public
+     * @access private
      * @static
      * @param
      * @return string
      */
-    public static function name(): string
+    private static function name(): string
     {
         $result = (new ModelConfig)
             ->where([
@@ -171,12 +176,12 @@ class Siteinfo
 
     /**
      * 网站版权
-     * @access public
+     * @access private
      * @static
      * @param
      * @return string
      */
-    public static function copyright(): string
+    private static function copyright(): string
     {
         $copyright = (new ModelConfig)
             ->where([
@@ -198,12 +203,12 @@ class Siteinfo
 
     /**
      * 网站底部
-     * @access public
+     * @access private
      * @static
      * @param
      * @return string
      */
-    public static function footer(): string
+    private static function footer(): string
     {
         $result = (new ModelConfig)
             ->where([
@@ -217,12 +222,12 @@ class Siteinfo
 
     /**
      * JS脚本
-     * @access public
+     * @access private
      * @static
      * @param
      * @return string
      */
-    public static function script(): string
+    private static function script(): string
     {
         $result = (new ModelConfig)
             ->where([
@@ -236,12 +241,12 @@ class Siteinfo
 
     /**
      * 主题
-     * @access public
+     * @access private
      * @static
      * @param
      * @return string
      */
-    public static function theme(): string
+    private static function theme(): string
     {
         $result = (new ModelConfig)
             ->where([

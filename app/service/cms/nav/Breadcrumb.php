@@ -31,8 +31,7 @@ class Breadcrumb extends BaseService
      */
     public function query(): array
     {
-        $cid = (int)$this->request->param('cid/f');
-        if ($cid) {
+        if ($cid = (int)$this->request->param('cid/f')) {
             $cache_key = md5(__METHOD__ . $cid);
             if (!$this->cache->has($cache_key)) {
                 $this->parentCate($cid);

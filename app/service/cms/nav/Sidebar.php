@@ -34,7 +34,7 @@ class Sidebar extends BaseService
         if ($cid) {
             $id = $this->parent($cid);
             $cache_key = md5(__METHOD__ . $id);
-            if (!$this->cache->has($cache_key)) {
+            if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $result = (new ModelCategory)
                     ->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
                     ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
@@ -58,8 +58,6 @@ class Sidebar extends BaseService
                 $result['child'] = $this->child($result['id']);
 
                 $this->cache->tag(['cms', 'nav'])->set($cache_key, $result);
-            } else {
-                $result = $this->cache->get($cache_key);
             }
         }
 
