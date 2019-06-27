@@ -26,22 +26,26 @@ class Info extends BaseService
         if ($result = $this->authenticate(__METHOD__)) {
             return $result;
         }
+        if (!$this->cache->has(__METHOD__) || !$result = $this->cache->get(__METHOD__)) {
+            $result = \think\facade\Db::query('SELECT version()');
+            $db_version = $result[0]['version()'];
 
-        $result = \think\facade\Db::query('SELECT version()');
-        $db_version = $result[0]['version()'];
+            $result = [
+                'sysinfo' => [
+                    $this->lang->get('sys version')   => 'nicms' . env('app.version'),
+                    $this->lang->get('sys os')        => PHP_OS,
+                    $this->lang->get('sys env')       => 'PHP' . PHP_VERSION . ' ' . php_sapi_name(),
+                    $this->lang->get('sys db')        => 'Mysql' . $db_version,
+                    'GD'                       => '',
+                    $this->lang->get('sys timezone')  => $this->config->get('app.default_timezone'),
+                    $this->lang->get('sys copyright') => '失眠小枕头 [levisun.mail@gmail.com]',
+                    $this->lang->get('sys upgrade')   => '',
+                ],
+            ];
 
-        $result = [
-            'sysinfo' => [
-                $this->lang->get('sys version')   => 'nicms' . env('app.version'),
-                $this->lang->get('sys os')        => PHP_OS,
-                $this->lang->get('sys env')       => 'PHP' . PHP_VERSION . ' ' . php_sapi_name(),
-                $this->lang->get('sys db')        => 'Mysql' . $db_version,
-                'GD'                       => '',
-                $this->lang->get('sys timezone')  => $this->config->get('app.default_timezone'),
-                $this->lang->get('sys copyright') => '失眠小枕头 [levisun.mail@gmail.com]',
-                $this->lang->get('sys upgrade')   => '',
-            ],
-        ];
+            $this->cache->set(__METHOD__, $result);
+        }
+
 
         return [
             'debug' => false,

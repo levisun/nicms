@@ -104,7 +104,7 @@ class Maintain
 
         // 开启调试清空请求缓存
         if (true === $this->config->get('app.debug')) {
-            $this->cache->clear();
+            // $this->cache->clear();
         }
     }
 }

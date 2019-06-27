@@ -74,7 +74,7 @@ return [
     // 全局请求缓存排除规则
     'request_cache_except'  => [],
     // 请求缓存的Tag
-    'request_cache_tag'     => '',
+    'request_cache_tag'     => 'request',
     // 默认控制器名
     'default_controller'    => 'Index',
     // 默认操作名

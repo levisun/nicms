@@ -105,7 +105,7 @@ class Template
         $this->request = $this->app->request;
 
         $this->view_path = $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR;
-        $this->compile_path = $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR . $this->request->controller(true) . DIRECTORY_SEPARATOR;
+        $this->compile_path = $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
         if (!is_dir($this->compile_path)) {
             chmod(app()->getRuntimePath(), 0777);
             mkdir($this->compile_path, 0777, true);
@@ -320,11 +320,10 @@ class Template
             $_template .= 'mobile';
         }
 
-        $path = $this->compile_path . md5($_template) . '.php';
+        $path = $this->compile_path . md5($this->request->controller(true) . $_template) . '.php';
 
-        clearstatcache();
         if (false === $this->config->get('app.debug')) {
-            // $_content = function_exists('gzcompress') ? gzcompress($_content) : $_content;
+            $_content = function_exists('gzcompress') ? gzcompress($_content) : $_content;
             file_put_contents($path, $_content);
         }
     }
@@ -343,14 +342,14 @@ class Template
             $_template .= 'mobile';
         }
 
-        $path = $this->compile_path . md5($_template) . '.php';
+        $path = $this->compile_path . md5($this->request->controller(true) . $_template) . '.php';
 
         clearstatcache();
         if (true === $this->config->get('app.debug') && is_file($path)) {
             unlink($path);
         } elseif (is_file($path)) {
             $content = file_get_contents($path);
-            // $content = function_exists('gzcompress') ? gzuncompress($content) : $content;
+            $content = function_exists('gzcompress') ? gzuncompress($content) : $content;
             return $content;
         }
 

@@ -97,7 +97,8 @@ abstract class BaseService
      * uid
      * @var int
      */
-    protected $uid;
+    protected $uid = 0;
+    protected $urole = 0;
 
     /**
      * 不用验证
@@ -142,20 +143,10 @@ abstract class BaseService
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('defalut_filter');
 
-        if ($this->session->has($this->auth_key)) {
+        if ($this->session->has($this->auth_key) && $this->session->has($this->auth_key . 'role')) {
             $this->uid = $this->session->get($this->auth_key);
+            $this->urole = $this->session->get($this->auth_key . 'role');
         }
-
-        // 重新设定缓存
-        $config = $this->config->get('cache');
-        $config['prefix']  = $this->request->controller(true) . DIRECTORY_SEPARATOR;
-        $config['prefix'] .= $this->uid ? sha1($this->auth_key . $this->uid) : 'public';
-        $config['prefix'] .= DIRECTORY_SEPARATOR;
-        $method = $this->request->param('method');
-        if ($method && preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $method)) {
-            $config['prefix'] .= str_replace('.', '_', $method);
-        }
-        $this->cache->init($config, true);
 
         $this->ipinfo = Ip::info();
 

@@ -34,7 +34,7 @@ class ReGarbage
                 $runtime_path = app()->getRuntimePath();
                 $root_path = app()->getRootPath();
 
-                $this->remove($runtime_path . 'cache', 72 + rand(1, 24));
+                $this->remove($runtime_path . 'cache', 24);
                 $this->remove($runtime_path . 'compile', 72);
                 $this->remove($runtime_path . 'lock', 72);
                 $this->remove($runtime_path . 'log', 72);
@@ -59,20 +59,20 @@ class ReGarbage
 
     /**
      * 清理目录中的垃圾信息
-     * @access private
+     * @access public
      * @param  string $_dir
      * @param  int    $_expire
      * @return void
      */
-    private function remove(string $_dir, int $_expire): void
+    public function remove(string $_dir, int $_expire = 0): void
     {
         $dir = $this->getDirAllFile($_dir . DIRECTORY_SEPARATOR . '*', $_expire);
         while ($dir->valid()) {
             $filename = $dir->current();
             Log::record(pathinfo($filename, PATHINFO_BASENAME), 'alert');
             if (is_dir($filename)) {
-                @rmdir($filename);
-            } elseif (false === strpos($filename, '_skl_')) {
+                // @rmdir($filename);
+            } elseif (is_file($filename) && false === strpos($filename, '_skl')) {
                 @unlink($filename);
             }
             $dir->next();
@@ -86,22 +86,28 @@ class ReGarbage
      * @param  int   $_expire
      * @return
      */
-    private function getDirAllFile(string $_path, int $_expire)
+    private function getDirAllFile(string $_path, int $_expire = 0)
     {
+        $hour = $_expire ? strtotime('-' . $_expire . ' hour') : false;
         $dir = (array)glob($_path);
-        $hour = strtotime('-' . $_expire . ' hour');
         foreach ($dir as $files) {
-            if (is_file($files) && filemtime($files) <= $hour) {
+            if (false === $hour && is_file($files)) {
+                yield $files;
+            } elseif (false !== $hour && is_file($files) && filemtime($files) <= $hour) {
                 yield $files;
             } elseif (is_dir($files . DIRECTORY_SEPARATOR)) {
                 $sub = $this->getDirAllFile($files . DIRECTORY_SEPARATOR . '*', $_expire);
-                // if (!$sub->valid()) {
-                //     yield $files;
-                // }
+                if (!$sub->valid()) {
+                    yield $files;
+                }
 
                 while ($sub->valid()) {
                     $filename = $sub->current();
-                    if (is_file($filename) && filemtime($files) <= $hour) {
+                    if (false === $hour && is_file($filename)) {
+                        yield $filename;
+                    } elseif (false !== $hour && is_file($filename) && filemtime($filename) <= $hour) {
+                        yield $filename;
+                    } elseif (is_dir($filename . DIRECTORY_SEPARATOR)) {
                         yield $filename;
                     }
                     $sub->next();

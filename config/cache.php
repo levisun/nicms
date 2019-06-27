@@ -21,9 +21,9 @@ return [
     // 缓存前缀
     'prefix'        => '',
     // 缓存有效期 0表示永久缓存
-    'expire'        => (int)Env::get('cache.expire', 28800) + rand(1, 1440),
+    'expire'        => (int)Env::get('cache.expire', 28800) - rand(1, 1440),
     // 关闭子目录
-    'cache_subdir'  => false,
+    'cache_subdir'  => true,
     // 缓存标签前缀
     'tag_prefix'    => 'tag:',
     // 序列化机制 例如 ['serialize', 'unserialize']

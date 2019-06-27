@@ -111,7 +111,7 @@ class ArticleBase extends BaseService
                         $list['data'][$key] = $value;
                     }
 
-                    $this->cache->tag(['cms', 'list', 'list_' . $category_id])->set($cache_key, $list);
+                    $this->cache->tag('cms_list')->set($cache_key, $list);
                 }
             }
         }
@@ -200,7 +200,7 @@ class ArticleBase extends BaseService
                         ->select()
                         ->toArray();
 
-                    $this->cache->tag(['cms', 'details', 'details' . $id])->set($cache_key, $result);
+                    $this->cache->tag('cms_details')->set($cache_key, $result);
                 }
             }
         }

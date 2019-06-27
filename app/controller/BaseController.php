@@ -64,6 +64,12 @@ abstract class BaseController
     protected $request;
 
     /**
+     * Session实例
+     * @var \think\Session
+     */
+    protected $session;
+
+    /**
      * 构造方法
      * @access public
      * @param  App  $app  应用对象
@@ -76,6 +82,7 @@ abstract class BaseController
         $this->lang     = $this->app->lang;
         $this->request  = $this->app->request;
         $this->response = $this->app->response;
+        $this->session  = $this->app->session;
 
         $this->view = Container::getInstance()->make('\app\library\Template');
 

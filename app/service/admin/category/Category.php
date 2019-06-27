@@ -348,7 +348,7 @@ class Category extends BaseService
                     ])
                     ->delete();
 
-                $this->cache->tag('nav')->clear();
+                $this->cache->tag('cms_nav')->clear();
 
                 return [
                     'debug' => false,

@@ -57,7 +57,7 @@ class Top extends BaseService
 
                 $result[$key] = $value;
             }
-            $this->cache->tag(['cms', 'nav'])->set($cache_key, $result);
+            $this->cache->tag('cms_nav')->set($cache_key, $result);
         }
 
         return [

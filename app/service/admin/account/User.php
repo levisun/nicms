@@ -40,9 +40,11 @@ class User extends BaseService
         $lock = $this->app->getRuntimePath() . md5($this->request->ip() . date('YmdH')) . '.lock';
         if (!is_file($lock)) {
             $user = (new ModelAdmin)
-                ->field(['id', 'username', 'password', 'salt', 'flag'])
+                ->view('admin', ['id', 'username', 'password', 'salt', 'flag'])
+                ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
+                ->view('role role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
                 ->where([
-                    ['username', '=', $this->request->param('username')]
+                    ['admin.username', '=', $this->request->param('username')]
                 ])
                 ->find();
 
@@ -65,10 +67,12 @@ class User extends BaseService
                 }
 
                 // 登录令牌
-                $this->session->set('admin_auth_key', $user['id']);
+                $this->session->set($this->auth_key, $user['id']);
+                $this->session->set($this->auth_key . 'role', $user['id']);
                 $this->session->delete('login_lock');
 
                 $this->uid = $result['id'];
+                $this->urole = $result['role'];
                 $this->authenticate(__METHOD__, 'admin user login');
 
                 return [
@@ -77,7 +81,7 @@ class User extends BaseService
                     'msg'   => 'login success'
                 ];
             } else {
-                $login_lock = session('?login_lock') ? session('login_lock') : 0;
+                $login_lock = $this->session->has('login_lock') ? $this->session->get('login_lock') : 0;
                 ++$login_lock;
                 if ($login_lock >= 5) {
                     $this->session->delete('login_lock');
@@ -107,8 +111,10 @@ class User extends BaseService
             return $result;
         }
 
-        $this->cache->clear();
-        $this->session->delete('admin_auth_key');
+        // $this->cache->clear();
+        $this->cache->tag((string)$this->uid)->clear();
+        $this->session->delete($this->auth_key);
+        $this->session->delete($this->auth_key . 'role');
 
         return [
             'debug' => false,
@@ -159,7 +165,7 @@ class User extends BaseService
                     ];
                 }
             }
-            $this->cache->set(__METHOD__ . $this->uid, $result);
+            $this->cache->tag((string)$this->uid)->set(__METHOD__ . $this->uid, $result);
         }
 
         return [
@@ -184,7 +190,7 @@ class User extends BaseService
 
         $result = (new ModelAdmin)
             ->view('admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
-            ->view('role_admin', [], 'role_admin.user_id=admin.id')
+            ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
             ->view('role role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
             ->where([
                 ['admin.id', '=', $this->uid]

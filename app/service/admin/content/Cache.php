@@ -16,6 +16,7 @@ declare (strict_types = 1);
 namespace app\service\admin\content;
 
 use app\service\BaseService;
+use app\library\ReGarbage;
 
 class Cache extends BaseService
 {
@@ -34,11 +35,7 @@ class Cache extends BaseService
         }
 
         // $this->cache->clear(); 方法无法清除全部缓存
-        $dir = (array)glob($this->app->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*');
-        foreach ($dir as $path) {
-            $path = (array)glob($path . DIRECTORY_SEPARATOR . '*');
-            array_map('unlink', $path);
-        }
+        (new ReGarbage)->remove($this->app->getRuntimePath(). 'cache', 0);
 
         return [
             'debug' => false,
@@ -59,11 +56,7 @@ class Cache extends BaseService
             return $result;
         }
 
-        $dir = (array)glob($this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR . '*');
-        foreach ($dir as $path) {
-            $path = (array)glob($path . DIRECTORY_SEPARATOR . '*');
-            array_map('unlink', $path);
-        }
+        (new ReGarbage)->remove($this->app->getRuntimePath(). 'compile', 0);
 
         return [
             'debug' => false,
