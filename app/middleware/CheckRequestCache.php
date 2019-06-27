@@ -33,7 +33,7 @@ class CheckRequestCache
     public function handle(Request $request, Closure $next, Config $config)
     {
         if ($request->isGet() && false === $config->get('app.debug')) {
-            if (strtotime($request->server('HTTP_IF_MODIFIED_SINCE', '0')) + 1440 > $request->server('REQUEST_TIME')) {
+            if (strtotime($request->server('HTTP_IF_MODIFIED_SINCE', '')) + 1440 > $request->server('REQUEST_TIME')) {
                 // 读取缓存
                 return Response::create()->code(304);
             }
