@@ -48,7 +48,7 @@ class Api extends Async
     {
         if ($this->referer && $this->request->isPost()) {
             $result = $this->validate()->run();
-            $this->setCache(false)->success($result['msg'], $result['data'], $result['code']);
+            $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
         } else {
             $this->error('权限不足', 40006);
         }
@@ -64,7 +64,7 @@ class Api extends Async
     {
         if ($this->referer && $this->request->isPost() && !empty($_FILES)) {
             $result = $this->validate()->run();
-            $this->setCache(false)->success($result['msg'], $result['data'], $result['code']);
+            $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
         } else {
             $this->error('权限不足', 40006);
         }
@@ -83,12 +83,12 @@ class Api extends Async
             $key = sha1($this->request->ip());
             $has = session('sms_' . $key);
             if ($has && $has['time'] >= time()) {
-                $this->setCache(false)->success('请勿重复请求');
+                $this->cache(false)->success('请勿重复请求');
             } else {
                 $time = time() + 120;
                 $captcha = rand(100000, 999999);
                 session('sms_' . $key, ['phone' => $phone, 'time' => $time, 'captcha' => $captcha]);
-                $this->setCache(false)->success('手机验证码发送成功');
+                $this->cache(false)->success('手机验证码发送成功');
             }
         } else {
             $this->error('权限不足', 40006);
@@ -106,7 +106,7 @@ class Api extends Async
         if ($this->request->isGet() && $ip = $this->request->param('ip', false)) {
             $this->validate();
             $ip = Ip::info($ip);
-            $this->setCache(true)->success('success', $ip);
+            $this->cache(true)->success('success', $ip);
         } else {
             $this->error('缺少参数', 40001);
         }

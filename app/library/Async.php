@@ -253,13 +253,10 @@ abstract class Async
         }
 
         // 调试模式设置 返回数据没有指定默认关闭
-        $this->setDebug(isset($result['debug']) ? $result['debug'] : false);
+        $this->debug(isset($result['debug']) ? $result['debug'] : false);
 
         // 缓存设置 返回数据没有指定默认开启
-        $this->setCache(isset($result['cache']) ? $result['cache'] : true);
-
-        // 缓存时间设置 返回数据没有指定默认1440秒
-        $this->setExpire(isset($result['expire']) ? $result['expire'] : 1440);
+        $this->cache(isset($result['cache']) ? $result['cache'] : true);
 
         $result['data'] = isset($result['data']) ? $result['data'] : [];
         $result['code'] = isset($result['code']) ? $result['code'] : 10000;
@@ -280,24 +277,12 @@ abstract class Async
     }
 
     /**
-     * 设置缓存时间
-     * @access protected
-     * @param
-     * @return $this
-     */
-    protected function setExpire(int $_expire)
-    {
-        $this->apiExpire = $_expire > 0 ? $_expire : (int)$this->config->get('cache.expire');
-        return $this;
-    }
-
-    /**
      * 开启调试
      * @access protected
      * @param
      * @return $this
      */
-    protected function setDebug(bool $_debug)
+    protected function debug(bool $_debug)
     {
         $this->apiDebug = $_debug;
         return $this;
@@ -309,7 +294,7 @@ abstract class Async
      * @param
      * @return $this
      */
-    protected function setCache(bool $_cache)
+    protected function cache(bool $_cache)
     {
         $this->apiCache = (true === $this->apiDebug) ? false : $_cache;
         return $this;
@@ -571,21 +556,15 @@ abstract class Async
         ];
         $result = array_filter($result);
 
-        if ($this->request->isGet() && true === $this->apiCache && $this->apiExpire && 10000 === $_code) {
-            $result['expire'] .= $this->apiExpire . 's';
-        } else {
-            $result['expire'] .= 'close';
-        }
-
         // 记录日志
         if (true === $this->apiDebug) {
             $result['debug'] = $this->writeLog();
         }
 
         $response = $this->response->create($result, $this->format)->allowCache(false);
-        if ($this->request->isGet() && true === $this->apiCache && $this->apiExpire && 10000 === $_code) {
+        if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
             $response->allowCache(true)
-                ->cacheControl('public, max-age=' . $this->apiExpire)
+                ->cacheControl('max-age=' . $this->apiExpire . ',must-revalidate')
                 ->expires(gmdate('D, d M Y H:i:s', time() + $this->apiExpire) . ' GMT')
                 ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
                 ->header(['X-Powered-By' => 'NIAPI']);

@@ -14,10 +14,8 @@
 use think\Image;
 use think\facade\Config;
 use think\facade\Cookie;
-use think\facade\Lang;
 use think\facade\Request;
 use think\facade\Route;
-use think\facade\Session;
 use app\library\Base64;
 use app\library\DataFilter;
 use app\library\Jwt;
@@ -128,20 +126,6 @@ if (!function_exists('get_img_url')) {
     }
 }
 
-if (!function_exists('lang')) {
-    /**
-     * 获取语言变量值
-     * @param  string $_name 语言变量名
-     * @param  array  $_vars 动态变量值
-     * @param  string $_lang 语言
-     * @return mixed
-     */
-    function lang(string $_name, array $_vars = [], string $_lang = ''): string
-    {
-        return Lang::get($_name, $_vars, $_lang);
-    }
-}
-
 if (!function_exists('url')) {
     /**
      * Url生成
@@ -150,22 +134,15 @@ if (!function_exists('url')) {
      * @param  string $_sub  子域名
      * @return string
      */
-    function url(string $_url = '', array $_vars = [], string $_sub = 'www')
+    function url(string $_url = '', array $_vars = [])
     {
-        $_url = '/' . $_url;
-        $_url = Route::buildUrl($_url, $_vars, true, true);
-
         if ($referer = Request::server('HTTP_REFERER', false)) {
             $host = parse_url($referer, PHP_URL_HOST);
-            list($_sub) = explode('.', $host, 2);
+        } else {
+            $host = false;
         }
 
-        $replace = [
-            Request::scheme() . '://' => '//',
-            'api.'                    => $_sub . '.',
-        ];
-
-        return str_replace(array_keys($replace), array_values($replace), $_url);
+        return (string)Route::buildUrl('/' . $_url, $_vars)->suffix(true)->domain($host);
     }
 }
 
