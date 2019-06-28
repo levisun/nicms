@@ -126,26 +126,6 @@ if (!function_exists('get_img_url')) {
     }
 }
 
-if (!function_exists('url')) {
-    /**
-     * Url生成
-     * @param  string $_url  路由地址
-     * @param  array  $_vars 变量
-     * @param  string $_sub  子域名
-     * @return string
-     */
-    function url(string $_url = '', array $_vars = [])
-    {
-        if ($referer = Request::server('HTTP_REFERER', false)) {
-            $host = parse_url($referer, PHP_URL_HOST);
-        } else {
-            $host = false;
-        }
-
-        return (string)Route::buildUrl('/' . $_url, $_vars)->suffix(true)->domain($host);
-    }
-}
-
 if (!function_exists('emoji_encode')) {
     /**
      * Emoji原形转换为String
@@ -221,6 +201,26 @@ if (!function_exists('create_authorization')) {
     function create_authorization(): string
     {
         return (new Jwt)->getToken();
+    }
+}
+
+if (!function_exists('url')) {
+    /**
+     * Url生成
+     * @param  string $_url  路由地址
+     * @param  array  $_vars 变量
+     * @param  string $_sub  子域名
+     * @return string
+     */
+    function url(string $_url = '', array $_vars = []): string
+    {
+        if ($referer = Request::server('HTTP_REFERER', false)) {
+            $host = parse_url($referer, PHP_URL_HOST);
+        } else {
+            $host = false;
+        }
+
+        return (string)Route::buildUrl('/' . $_url, $_vars)->suffix(true)->domain($host);
     }
 }
 

@@ -174,6 +174,7 @@ class Template
                 '<meta property="og:type" content="website">' .
                 '<meta property="og:url" content="' . $this->request->url(true) . '">' .
                 '<meta property="og:image" content="">';
+            echo '{:__TOKEN__}';
 
             // 自定义meta标签
             if (!empty($this->theme_config['meta'])) {
@@ -209,8 +210,8 @@ class Template
                 'appid:"' . $this->theme_config['api_appid'] . '",' .
                 'appsecret:"' . $this->theme_config['api_appsecret'] . '",' .
                 'authorization:"{:__AUTHORIZATION__}",' .
-                'izs:"' . $this->theme_config['api_appsecret'] . '",' .
-                'token:"{:__AUTH_TOKEN__}",' .
+                // 'izs:"' . $this->theme_config['api_appsecret'] . '",' .
+                // 'token:"{:__AUTH_TOKEN__}",' .
                 'param:' . json_encode($this->request->param()) .
                 '},' .
                 'cdn:{' .
@@ -257,7 +258,8 @@ class Template
         }
 
         $content = str_replace('{:__AUTHORIZATION__}', create_authorization(), $content);
-        $content = str_replace('{:__AUTH_TOKEN__}', md5(json_encode($this->request->cookie())), $content);
+        // $content = str_replace('{:__TOKEN__}', md5(json_encode($this->request->cookie())), $content);
+        $content = str_replace('{:__TOKEN__}', token_meta(), $content);
         echo $content;
     }
 

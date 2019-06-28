@@ -36,15 +36,7 @@ Route::domain(Env::get('admin.entry'), function () {
     Route::get('/', 'admin/index');
     Route::get(':logic/:controller/:action$', 'admin/index');
     Route::get(':logic/:controller/:action/:id$', 'admin/index');
-})
-    ->bind('admin')
-    ->ext('html')
-    ->pattern([
-        'logic'      => '\w+',
-        'controller' => '\w+',
-        'action'     => '\w+',
-        'id'         => '\d+',
-    ]);
+})->bind('admin')->ext('html')->cache(1440);
 
 Route::domain('api', function () {
     Route::rule('download$', 'api/download');
@@ -52,13 +44,4 @@ Route::domain('api', function () {
     Route::rule('query$', 'api/query');
     Route::rule('handle$', 'api/handle');
     Route::rule('upload$', 'api/upload');
-})
-    ->bind('api')
-    ->ext('do')
-    ->middleware('app\middleware\AllowCrossDomain');
-    // ->pattern([
-    //     'appid'     => '\d+',
-    //     'timestamp' => '\d+',
-    //     'method'    => '\w+',
-    //     'sign'      => '\w+',
-    // ]);
+})->bind('api')->ext('do')->middleware('app\middleware\AllowCrossDomain');

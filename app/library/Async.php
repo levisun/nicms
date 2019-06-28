@@ -552,14 +552,12 @@ abstract class Async
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'expire'  => $this->ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';'
+            'expire'  => $this->ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';',
+            'token'   => $this->request->isPost() ? $this->request->buildToken('__token__', 'md5') : '',
+            'debug'   => true === $this->apiDebug ? $this->debugLog : '',
         ];
-        $result = array_filter($result);
 
-        // 记录日志
-        if (true === $this->apiDebug) {
-            $result['debug'] = $this->writeLog();
-        }
+        $result = array_filter($result);
 
         $response = $this->response->create($result, $this->format)->allowCache(false);
         if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
@@ -570,27 +568,5 @@ abstract class Async
                 ->header(['X-Powered-By' => 'NIAPI']);
         }
         throw new HttpResponseException($response);
-    }
-
-    /**
-     * 调试日志
-     * @access private
-     * @param
-     * @return string
-     */
-    private function writeLog(): string
-    {
-        $log = '[API] METHOD:' . $this->request->param('method', 'NULL') .
-            ' TIME:' . number_format(microtime(true) - Container::pull('app')->getBeginTime(), 2) . 's' .
-            ' MEMORY:' . number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024 / 1024, 2) . 'MB' .
-            ' CACHE:' . Container::pull('cache')->getReadTimes() . 'reads,' . Container::pull('cache')->getWriteTimes() . 'writes';
-
-        $log .= PHP_EOL . 'PARAM:' . json_encode($this->request->param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
-        $log .= PHP_EOL . 'DEBUG:' . json_encode($this->debugLog, JSON_UNESCAPED_UNICODE);
-        // $log .= PHP_EOL . 'RESULT:' . json_encode($_result, JSON_UNESCAPED_UNICODE);
-
-        $this->log->record($log, 'alert')->save();
-
-        return $log;
     }
 }

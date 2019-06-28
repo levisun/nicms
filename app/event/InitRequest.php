@@ -25,12 +25,6 @@ class InitRequest
     protected $app;
 
     /**
-     * 应用实例
-     * @var \think\Cookie
-     */
-    protected $cookie;
-
-    /**
      * log实例
      * @var \think\Log
      */
@@ -47,16 +41,8 @@ class InitRequest
     public function handle(App $_app)
     {
         $this->app     = $_app;
-        $this->cookie  = $this->app->cookie;
         $this->log     = $this->app->log;
         $this->request = $this->app->request;
-
-        // 客户端唯一ID
-        // 用于保证请求缓存唯一
-        $req_key = '__' . substr(sha1(__DIR__ . __METHOD__), 7, 3);
-        if (!$this->cookie->has($req_key)) {
-            $this->cookie->set($req_key, sha1(uniqid((string)mt_rand(), true)));
-        }
 
         $this->requestLog = $this->app->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
         if (!is_dir($this->requestLog)) {
