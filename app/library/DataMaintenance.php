@@ -43,7 +43,7 @@ class DataMaintenance
             mkdir($this->savePath, 0777, true);
         }
 
-        $path = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'dab.lock';
+        $path = app()->getRuntimePath() . 'db_auto_back.lock';
         if ($fp = fopen($path, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 Log::record('[AUTO BACKUP] 自动备份数据库', 'alert');
@@ -132,8 +132,9 @@ class DataMaintenance
             mkdir($this->savePath, 0777, true);
         }
 
-        if (!is_file(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'backup.lock')) {
-            file_put_contents(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'backup.lock', 'lock');
+        $path = app()->getRuntimePath() . 'db_back.lock';
+        if (!is_file($path)) {
+            file_put_contents($path, 'lock');
             $table_name = $this->queryTableName();
 
             ignore_user_abort(true);
@@ -150,7 +151,7 @@ class DataMaintenance
                     $this->write($sql_file, $sql);
                 }
             }
-            unlink(app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'backup.lock');
+            unlink($path);
             ignore_user_abort(false);
         }
 

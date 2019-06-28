@@ -27,7 +27,7 @@ class ReGarbage
      */
     public function run(): void
     {
-        $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'rg.lock';
+        $lock = app()->getRuntimePath() . 'remove_garbage.lock';
         if ($fp = @fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 Log::record('[REGARBAGE] 删除垃圾信息', 'alert');

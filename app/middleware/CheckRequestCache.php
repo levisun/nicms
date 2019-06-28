@@ -41,6 +41,13 @@ class CheckRequestCache
 
         $response = $next($request);
 
+        if (false === $config->get('app.debug') && 200 == $response->getCode() && $response->isAllowCache()) {
+            $response->allowCache(true)
+                ->cacheControl('max-age=1440,must-revalidate')
+                ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
+        }
+
         return $response;
     }
 }

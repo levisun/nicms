@@ -84,7 +84,7 @@ class InitRequest
         // 非阻塞模式并发
         if ($fp = @fopen($this->requestLog, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
-                $time = (int)date('i');     // 以分钟统计请求量
+                $time = (int)date('Hi');     // 以分钟统计请求量
                 $number = !empty($number) ? (array)$number : [$time => 1];
                 if (isset($number[$time]) && $number[$time] >= 50) {
                     file_put_contents($this->requestLog . '.lock', date('Y-m-d H:i:s'));

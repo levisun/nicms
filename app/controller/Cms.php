@@ -100,7 +100,6 @@ class Cms extends BaseController
      */
     public function lists(string $name)
     {
-        $this->verification($name);
         $this->fetch('list_' . $name);
     }
 
@@ -114,7 +113,6 @@ class Cms extends BaseController
      */
     public function details(string $name)
     {
-        $this->verification($name);
         $this->fetch('details_' . $name);
     }
 

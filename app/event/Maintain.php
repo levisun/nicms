@@ -70,14 +70,13 @@ class Maintain
 
         if (!in_array($this->request->controller(true), ['api'])) {
             // 优化修复数据库表
-            if (0 === date('Ymd') % 10) {
-                $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'dmor.lock';
+            if (0 === strtotime(date('Ymd')) % 7) {
+                $lock = app()->getRuntimePath() . 'db_op.lock';
                 if (!is_file($lock)) {
                     file_put_contents($lock, date('Y-m-d H:i:s'));
                 }
-                $date = (string)(date('Ymd') - 10);
                 clearstatcache();
-                if (filemtime($lock) <= strtotime($date)) {
+                if (filemtime($lock) <= strtotime((string)(date('Ymd') - 7))) {
                     if ($fp = @fopen($lock, 'w+')) {
                         if (flock($fp, LOCK_EX | LOCK_NB)) {
                             ignore_user_abort(true);

@@ -15,21 +15,20 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
-use app\library\Template;
+use app\controller\BaseController;
 
-class Error extends Template
+class Error extends BaseController
 {
 
     /**
-     * 构造方法
+     * 初始化
      * @access public
      * @param
      * @return void
      */
-    public function __construct()
+    public function initialize()
     {
-        $this->setTheme('error/default');
-        parent::__construct();
+        $this->setTheme('default');
     }
 
     /**

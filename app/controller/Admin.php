@@ -16,7 +16,9 @@ declare (strict_types = 1);
 namespace app\controller;
 
 use think\facade\Env;
+use think\exception\HttpResponseException;
 use app\controller\BaseController;
+use app\library\Rbac;
 
 class admin extends BaseController
 {
@@ -48,21 +50,51 @@ class admin extends BaseController
     /**
      * 主页
      * @access public
-     * @param  string $_logic
-     * @param  string $_controller
-     * @param  string $_action
+     * @param  string $service
+     * @param  string $logic
+     * @param  string $action
      * @return void
      */
-    public function index(string $logic = 'account', string $controller = 'user', string $action = 'login')
+    public function index(string $service = 'account', string $logic = 'user', string $action = 'login')
     {
-        $this->verification($logic);
-        $this->verification($controller);
-        $this->verification($action);
+        $this->authenticate($service, $logic, $action);
 
-        $this->authenticate('admin_auth_key', 'admin', $logic, $controller, $action);
-
-        $tpl  = $logic . DIRECTORY_SEPARATOR . $controller . DIRECTORY_SEPARATOR . $action;
+        $tpl  = $service . DIRECTORY_SEPARATOR . $logic . DIRECTORY_SEPARATOR . $action;
 
         $this->fetch($tpl);
+    }
+
+    /**
+     * 操作验证权限
+     * @access private
+     * @param  string $_service 业务层
+     * @param  string $_logic   控制器
+     * @param  string $_action  方法
+     * @return void
+     */
+    protected function authenticate(string $_service, string $_logic, string $_action): void
+    {
+        if ($this->session->has('admin_auth_key')) {
+            $result = (new Rbac)->authenticate(
+                $this->session->get('admin_auth_key'),
+                'admin',
+                $_service,
+                $_logic,
+                $_action
+            );
+
+            if (false === $result) {
+                $url = url('settings/info/index');
+            }
+        } elseif ($this->session->has('admin_auth_key') && $_service === 'account') {
+            $url = url('settings/info/index');
+        } elseif (!$this->session->has('admin_auth_key') && !in_array($_action, ['login', 'forget'])) {
+            $url = url('account/user/login');
+        }
+
+        if (isset($url)) {
+            $response = $this->response->create($url, 'redirect', 302);
+            throw new HttpResponseException($response);
+        }
     }
 }
