@@ -254,10 +254,10 @@ abstract class Async
         }
 
         // 调试模式设置 返回数据没有指定默认关闭
-        $this->debug(isset($result['debug']) ? $result['debug'] : false);
+        $this->openDebug(isset($result['debug']) ? $result['debug'] : false);
 
         // 缓存设置 返回数据没有指定默认开启
-        $this->cache(isset($result['cache']) ? $result['cache'] : true);
+        $this->openCache(isset($result['cache']) ? $result['cache'] : true);
 
         $result['data'] = isset($result['data']) ? $result['data'] : [];
         $result['code'] = isset($result['code']) ? $result['code'] : 10000;
@@ -283,7 +283,7 @@ abstract class Async
      * @param
      * @return $this
      */
-    protected function debug(bool $_debug)
+    protected function openDebug(bool $_debug)
     {
         $this->apiDebug = $_debug;
         return $this;
@@ -295,7 +295,7 @@ abstract class Async
      * @param
      * @return $this
      */
-    protected function cache(bool $_cache)
+    protected function openCache(bool $_cache)
     {
         $this->apiCache = (true === $this->apiDebug) ? false : $_cache;
         return $this;
