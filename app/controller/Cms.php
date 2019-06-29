@@ -42,7 +42,7 @@ class Cms extends BaseController
                 ->cache('verification category' . $this->lang->getLangSet())
                 ->count();
             if ($cid < 1 || $cid > $count) {
-                $this->_404();
+                $this->redirect('404');
             }
         }
 
@@ -57,7 +57,7 @@ class Cms extends BaseController
                 ->cache('verification article' . $this->lang->getLangSet())
                 ->count();
             if ($cid < 1 || $id > $count) {
-                $this->_404();
+                $this->redirect('404');
             }
         }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 控制层
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\controller;
 
@@ -84,17 +86,12 @@ class admin extends BaseController
             );
 
             if (false === $result) {
-                $url = url('settings/info/index');
+                $this->redirect('settings/info/index');
             }
         } elseif ($this->session->has('admin_auth_key') && $_service === 'account') {
-            $url = url('settings/info/index');
+            $this->redirect('settings/info/index');
         } elseif (!$this->session->has('admin_auth_key') && !in_array($_action, ['login', 'forget'])) {
-            $url = url('account/user/login');
-        }
-
-        if (isset($url)) {
-            $response = $this->response->create($url, 'redirect', 302);
-            throw new HttpResponseException($response);
+            $this->redirect('account/user/login');
         }
     }
 }

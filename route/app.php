@@ -42,7 +42,7 @@ Route::domain(Env::get('admin.entry'), function () {
     Route::get(':service/:logic/:action$', 'admin/index');
     Route::get(':service/:logic/:action/:id$', 'admin/index');
     Route::miss('error/index');
-})->bind('admin')->ext('do')->pattern([
+})->bind('admin')->ext('html')->pattern([
     'service' => '[a-z]+',
     'logic'   => '[a-z]+',
     'action'  => '[a-z]+',

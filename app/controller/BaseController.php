@@ -29,7 +29,7 @@ abstract class BaseController
      * @var array
      */
     protected $middleware = [
-        'think\middleware\SessionInit'
+        'think\middleware\SessionInit',
     ];
 
     /**
@@ -103,9 +103,15 @@ abstract class BaseController
     protected function initialize()
     { }
 
-    public function _404()
+    /**
+     * 302重指向
+     * @access public
+     * @param  string $_route 路由
+     * @return void
+     */
+    public function redirect(string $_route)
     {
-        $response = $this->response->create(url('404'), 'redirect', 302);
+        $response = $this->response->create(url($_route), 'redirect', 302);
         throw new HttpResponseException($response);
     }
 

@@ -214,15 +214,15 @@ if (!function_exists('url')) {
      */
     function url(string $_url = '', array $_vars = []): string
     {
-        static $host = false;
-        static $ext  = true;
+        // static $host = false;
+        // static $ext  = true;
 
-        if (false === $host && true === $ext && $referer = Request::server('HTTP_REFERER', false)) {
-            $host = parse_url($referer, PHP_URL_HOST);
-            $ext  = pathinfo(parse_url($referer, PHP_URL_PATH), PATHINFO_EXTENSION);
-        }
+        // if (false === $host && true === $ext && $referer = Request::server('HTTP_REFERER', false)) {
+        //     $host = parse_url($referer, PHP_URL_HOST);
+        //     $ext  = pathinfo(parse_url($referer, PHP_URL_PATH), PATHINFO_EXTENSION);
+        // }
 
-        return (string)Route::buildUrl('/' . $_url, $_vars)->suffix($ext)->domain($host);
+        return (string)Route::buildUrl('/' . $_url, $_vars)->suffix(true)->domain(false);
     }
 }
 

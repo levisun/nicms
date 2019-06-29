@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 数据维护类
@@ -10,7 +11,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\library;
 
@@ -133,26 +135,30 @@ class DataMaintenance
         }
 
         $path = app()->getRuntimePath() . 'db_back.lock';
-        if (!is_file($path)) {
-            file_put_contents($path, 'lock');
-            $table_name = $this->queryTableName();
+        if ($fp = fopen($path, 'w+')) {
+            if (flock($fp, LOCK_EX | LOCK_NB)) {
+                $table_name = $this->queryTableName();
 
-            ignore_user_abort(true);
-            foreach ($table_name as $name) {
-                $sql_file = $this->savePath . $name . '.sql';
-                if ($sql = $this->queryTableStructure($name)) {
-                    $this->write($sql_file, $sql);
-                }
+                ignore_user_abort(true);
+                foreach ($table_name as $name) {
+                    $sql_file = $this->savePath . $name . '.sql';
+                    if ($sql = $this->queryTableStructure($name)) {
+                        $this->write($sql_file, $sql);
+                    }
 
-                $total = $this->queryTableInsertTotal($name);
-                $field = $this->queryTableInsertField($name);
-                for ($limit = 0; $limit < $total; $limit++) {
-                    $sql = $this->queryTableInsertData($name, $field, $limit);
-                    $this->write($sql_file, $sql);
+                    $total = $this->queryTableInsertTotal($name);
+                    $field = $this->queryTableInsertField($name);
+                    for ($limit = 0; $limit < $total; $limit++) {
+                        $sql = $this->queryTableInsertData($name, $field, $limit);
+                        $this->write($sql_file, $sql);
+                    }
                 }
+                ignore_user_abort(false);
+
+                fwrite($fp, '备份数据库' . date('Y-m-d H:i:s'));
+                flock($fp, LOCK_UN);
             }
-            unlink($path);
-            ignore_user_abort(false);
+            fclose($fp);
         }
 
         return true;
@@ -285,7 +291,7 @@ class DataMaintenance
     {
         $total = Db::table($_table_name)->count();
         if ($total) {
-            return (int)ceil($total / 500);
+            return (int) ceil($total / 500);
         } else {
             return 0;
         }

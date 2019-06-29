@@ -65,7 +65,7 @@ return [
     // 是否开启请求缓存 true自动缓存 支持设置请求缓存规则
     'request_cache_key'     => false,
     // 请求缓存有效期
-    'request_cache_expire'  => 1440,
+    'request_cache_expire'  => null,
     // 全局请求缓存排除规则
     'request_cache_except'  => [],
     // 请求缓存的Tag

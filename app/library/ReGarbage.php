@@ -71,7 +71,7 @@ class ReGarbage
             $filename = $dir->current();
             Log::record(pathinfo($filename, PATHINFO_BASENAME), 'alert');
             if (is_dir($filename)) {
-                // @rmdir($filename);
+                @rmdir($filename);
             } elseif (is_file($filename) && false === strpos($filename, '_skl')) {
                 @unlink($filename);
             }

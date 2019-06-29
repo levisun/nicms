@@ -91,8 +91,9 @@ abstract class Async
      * @var array
      */
     protected $version = [
-        'major' => '1',
-        'minor' => '0'
+        // 'paradigm' => '1',
+        'major'    => '1',
+        'minor'    => '0'
     ];
 
     /**
