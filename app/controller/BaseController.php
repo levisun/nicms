@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -14,7 +15,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\controller;
 
@@ -29,7 +31,10 @@ abstract class BaseController
      * @var array
      */
     protected $middleware = [
+        // Session初始化
         'think\middleware\SessionInit',
+        // 页面Trace调试
+        'think\middleware\TraceDebug',
     ];
 
     /**
@@ -55,6 +60,12 @@ abstract class BaseController
      * @var \think\Cookie
      */
     protected $cookie;
+
+    /**
+     * Env实例
+     * @var \think\Env
+     */
+    protected $env;
 
     /**
      * Lang实例
@@ -85,6 +96,7 @@ abstract class BaseController
         $this->app      = $_app;
         $this->config   = $this->app->config;
         $this->cookie   = $this->app->cookie;
+        $this->env      = $this->app->env;
         $this->lang     = $this->app->lang;
         $this->request  = $this->app->request;
         $this->response = $this->app->response;
@@ -92,6 +104,11 @@ abstract class BaseController
 
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('defalut_filter');
+
+        // 开启调试清空请求缓存
+        if ($this->app->isDebug()) {
+            $this->app->cache->clear();
+        }
 
         $this->view = Container::getInstance()->make('\app\library\Template');
 

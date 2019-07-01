@@ -1,0 +1,74 @@
+<div class="box">
+    <div class="box-header clearfix">
+        <div class="no-margin pull-right">
+            <button class="btn btn-primary" v-on:click="added()">{:lang('added')}</button>
+        </div>
+    </div>
+    <div class="box-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>{:lang('category')}</th>
+                    <th>{:lang('name')}</th>
+                    <th>{:lang('operation')}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template v-for="vo in items">
+                    <tr>
+                        <td v-text="vo.model_name"></td>
+                        <td v-text="vo.name"></td>
+                        <td>
+                            <a class="editor" v-bind:href="vo.url.editor">
+                                {:lang('editor')}
+                            </a>
+                            <a class="remove" v-on:click="remove(vo.id)" v-bind:data="vo.id">
+                                <i class="fa fa-trash"></i>
+                                {:lang('remove')}
+                            </a>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script type="text/javascript">
+    jQuery.pjax({
+        url: NICMS.api.url + '/query.do',
+        type: 'GET',
+        data: {
+            method: 'category.type.query',
+        },
+        success: function (result) {
+            if (result.code == 10000) {
+                var vue = new Vue({
+                    el: '.box',
+                    data: {
+                        items: result.data.list
+                    },
+                    methods: {
+                        added: function () {
+                            window.location.href = NICMS.domain + '/category/category/added.html';
+                        },
+                        remove: function (id) {
+                            jQuery.pjax({
+                                url: NICMS.api.url + '/handle.do',
+                                type: 'POST',
+                                data: {
+                                    method: 'category.category.remove',
+                                    id: id,
+                                },
+                                success: function (result) {
+                                    if (result.code == 10000) {
+
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        }
+    });
+</script>

@@ -1,17 +1,10 @@
 <div class="box">
-    <div class="box-header clearfix">
-        <div class="no-margin pull-right">
-            <button id="added" class="btn btn-primary">{:lang('added')}</button>
-        </div>
-    </div>
     <div class="box-body">
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
                     <th>{:lang('name')}</th>
                     <th>{:lang('table')}</th>
-                    <th>{:lang('attribute')}</th>
-                    <th>{:lang('operation')}</th>
                 </tr>
             </thead>
             <tbody>
@@ -19,24 +12,10 @@
                     <tr>
                         <td v-text="vo.name"></td>
                         <td v-text="vo.table_name"></td>
-                        <td v-text="vo.type_name"></td>
-                        <td>
-                            <a class="editor" v-bind:href="vo.url.editor">
-                                <i class="fa fa-trash"></i>
-                                {:lang('editor')}
-                            </a>
-                            <a class="remove" v-bind:data="vo.id">
-                                <i class="fa fa-trash"></i>
-                                {:lang('remove')}
-                            </a>
-                        </td>
                     </tr>
                 </template>
             </tbody>
         </table>
-    </div>
-    <div class="box-footer">
-        <button class="btn btn-primary">{:lang('sort')}</button>
     </div>
 </div>
 <script>
@@ -56,8 +35,5 @@
                 });
             }
         }
-    });
-    jQuery(document).on('click', '#added', function () {
-        window.location.href = NICMS.domain + '/category/model/added.html';
     });
 </script>

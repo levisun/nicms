@@ -17,8 +17,6 @@ declare(strict_types=1);
 
 namespace app\controller;
 
-use think\facade\Env;
-use think\exception\HttpResponseException;
 use app\controller\BaseController;
 use app\library\Rbac;
 
@@ -33,8 +31,8 @@ class admin extends BaseController
      */
     public function initialize()
     {
-        $theme = $this->config->get('app.cdn_host') . '/view/admin/' . Env::get('admin.theme', 'default') . '/';
-        $this->setTheme(Env::get('admin.theme', 'default'))
+        $theme = $this->config->get('app.cdn_host') . '/view/admin/' . $this->env->get('admin.theme', 'default') . '/';
+        $this->setTheme($this->env->get('admin.theme', 'default'))
             ->setReplace([
                 '__THEME__'       => $theme,
                 '__CSS__'         => $theme . 'css/',

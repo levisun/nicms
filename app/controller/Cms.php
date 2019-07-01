@@ -32,35 +32,7 @@ class Cms extends BaseController
      */
     public function initialize()
     {
-        $cid = $this->request->param('cid/f', null);
-        if (null !== $cid) {
-            $count = (new ModelCategory)
-                ->where([
-                    ['is_show', '=', 1],
-                    ['lang', '=', $this->lang->getLangSet()]
-                ])
-                ->cache('verification category' . $this->lang->getLangSet())
-                ->count();
-            if ($cid < 1 || $cid > $count) {
-                $this->redirect('404');
-            }
-        }
-
-        $id = $this->request->param('id/f', null);
-        if (null !== $id) {
-            $count = (new ModelArticle)
-                ->where([
-                    ['is_pass', '=', '1'],
-                    ['show_time', '<=', time()],
-                    ['lang', '=', $this->lang->getLangSet()]
-                ])
-                ->cache('verification article' . $this->lang->getLangSet())
-                ->count();
-            if ($cid < 1 || $id > $count) {
-                $this->redirect('404');
-            }
-        }
-
+        $this->authenticate();
 
         $result = Siteinfo::query();
         $theme = $this->config->get('app.cdn_host') . '/view/cms/' . $result['theme'] . '/';
@@ -127,5 +99,43 @@ class Cms extends BaseController
     public function search()
     {
         $this->fetch('search');
+    }
+
+    /**
+     * 操作验证权限
+     * @access private
+     * @param
+     * @return void
+     */
+    protected function authenticate(): void
+    {
+        $cid = $this->request->param('cid/f', null);
+        if (null !== $cid) {
+            $count = (new ModelCategory)
+                ->where([
+                    ['is_show', '=', 1],
+                    ['lang', '=', $this->lang->getLangSet()]
+                ])
+                ->cache('verification category' . $this->lang->getLangSet())
+                ->count();
+            if ($cid < 1 || $cid > $count) {
+                $this->redirect('404');
+            }
+        }
+
+        $id = $this->request->param('id/f', null);
+        if (null !== $id) {
+            $count = (new ModelArticle)
+                ->where([
+                    ['is_pass', '=', '1'],
+                    ['show_time', '<=', time()],
+                    ['lang', '=', $this->lang->getLangSet()]
+                ])
+                ->cache('verification article' . $this->lang->getLangSet())
+                ->count();
+            if ($cid < 1 || $id > $count) {
+                $this->redirect('404');
+            }
+        }
     }
 }

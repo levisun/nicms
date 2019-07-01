@@ -61,7 +61,11 @@ class Template
      * 主题配置
      * @var array
      */
-    protected $theme_config = [];
+    protected $theme_config = [
+        'layout' => false,
+        'suffix' => 'html',
+        'theme'  => 'default',
+    ];
 
     /**
      * HTML
@@ -547,11 +551,10 @@ class Template
         }
 
         $config = file_get_contents($this->view_path . $this->theme . 'config.json');
-        $config = json_decode(strip_tags($config), true);
-        if (!$config) {
+        if (!$config = json_decode(strip_tags($config), true)) {
             throw new TemplateNotFoundException('template config error:' . $this->theme . 'config.json');
         }
-        $this->theme_config = $config;
+        $this->theme_config = array_merge($this->theme_config, $config);
     }
 
     /**
@@ -574,7 +577,7 @@ class Template
 
         $_template = str_replace(['/', ':'], DIRECTORY_SEPARATOR, $_template);
         $_template = $_template ?: $this->request->action(true);
-        $_template = ltrim($_template, DIRECTORY_SEPARATOR) . '.html';
+        $_template = ltrim($_template, DIRECTORY_SEPARATOR) . '.' . $this->theme_config['suffix'];
 
         if ($this->request->isMobile() && is_file($path . 'mobile' . DIRECTORY_SEPARATOR . $_template)) {
             $this->view_path .= 'mobile' . DIRECTORY_SEPARATOR;

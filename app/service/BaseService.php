@@ -148,6 +148,11 @@ abstract class BaseService
             $this->urole = $this->session->get($this->auth_key . 'role');
         }
 
+        // 开启调试清空请求缓存
+        if ($this->app->isDebug()) {
+            $this->cache->clear();
+        }
+
         $this->ipinfo = Ip::info();
 
         $this->initialize();

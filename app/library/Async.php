@@ -225,6 +225,11 @@ abstract class Async
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('defalut_filter');
 
+        // 开启调试清空请求缓存
+        if ($this->app->isDebug()) {
+            $this->cache->clear();
+        }
+
         $max_input_vars = (int)ini_get('max_input_vars');
         if (count($_POST) + count($_FILES) + count($_GET) >= $max_input_vars - 5) {
             $this->error('非法参数', 40002);
@@ -321,12 +326,14 @@ abstract class Async
             // 校验类是否存在
             if (!class_exists($method)) {
                 $this->debugLog['method not found'] = $method;
+                $this->log->record('[Async] method not found ' . $method, 'alert');
                 $this->error('非法参数', 20002);
             }
 
             // 校验类方法是否存在
             if (!method_exists($method, $action)) {
                 $this->debugLog['action not found'] = $method . '->' . $action . '();';
+                $this->log->record('[Async] action not found ' . $method . '->' . $action . '();', 'alert');
                 $this->error('非法参数', 20002);
             }
 
@@ -391,17 +398,17 @@ abstract class Async
                 if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
                     $this->debugLog['sign_str'] = $str;
                     $this->debugLog['sign'] = call_user_func($this->signType, $str);
-                    $this->log->record('[Async] params-sign error', 'alert')->save();
+                    $this->log->record('[Async] params-sign error', 'alert');
                     $this->error('授权权限不足', 20001);
                 }
             } else {
                 $this->debugLog['sign'] = $this->sign;
-                $this->log->record('[Async] params-sign error', 'alert')->save();
+                $this->log->record('[Async] params-sign error', 'alert');
                 $this->error('非法参数', 20002);
             }
         } else {
             $this->debugLog['sign_type'] = $this->signType;
-            $this->log->record('[Async] params-sign_type error', 'alert')->save();
+            $this->log->record('[Async] params-sign_type error', 'alert');
             $this->error('非法参数', 20002);
         }
 
@@ -432,11 +439,11 @@ abstract class Async
                 $this->appsecret = $result['secret'];
                 $this->module    = $result['module'];
             } else {
-                $this->log->record('[Async] auth-appid error', 'alert')->save();
+                $this->log->record('[Async] auth-appid error', 'alert');
                 $this->error('权限不足', 20001);
             }
         } else {
-            $this->log->record('[Async] auth-appid not', 'alert')->save();
+            $this->log->record('[Async] auth-appid not', 'alert');
             $this->error('非法参数', 20002);
         }
 
@@ -457,7 +464,7 @@ abstract class Async
                 $this->session->setId($this->authorization['jti']);
             }
         } else {
-            $this->log->record('[Async] header-authorization params error', 'alert')->save();
+            $this->log->record('[Async] header-authorization params error', 'alert');
             $this->error('权限不足', 20001);
         }
 
@@ -471,7 +478,7 @@ abstract class Async
             list($domain, $accept) = explode('.', $accept, 2);
             list($root) = explode('.', $this->request->rootDomain(), 2);
             if (!hash_equals($domain, $root)) {
-                $this->log->record('[Async] header-accept domain error', 'alert')->save();
+                $this->log->record('[Async] header-accept domain error', 'alert');
                 $this->error('权限不足', 20001);
             }
             unset($doamin, $root);
@@ -488,20 +495,20 @@ abstract class Async
                 unset($version, $major, $minor);
             } else {
                 $this->debugLog['version'] = $version;
-                $this->log->record('[Async] header-accept version error', 'alert')->save();
+                $this->log->record('[Async] header-accept version error', 'alert');
                 $this->error('非法参数', 20002);
             }
             // 校验返回数据类型
             if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
                 $this->debugLog['format'] = $this->format;
-                $this->log->record('[Async] header-accept format error', 'alert')->save();
+                $this->log->record('[Async] header-accept format error', 'alert');
                 $this->error('非法参数', 20002);
             }
 
             unset($accept);
         } else {
             $this->debugLog['accept'] = $this->accept;
-            $this->log->record('[Async] header-accept error', 'alert')->save();
+            $this->log->record('[Async] header-accept error', 'alert');
             $this->error('非法参数', 20002);
         }
 
@@ -560,7 +567,7 @@ abstract class Async
         ];
 
         $result = array_filter($result);
-
+        $this->log->save();
         $response = $this->response->create($result, $this->format)->allowCache(false);
         if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
             $response->allowCache(true)
