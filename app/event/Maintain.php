@@ -63,12 +63,12 @@ class Maintain
         $this->env     = $this->app->env;
         $this->request = $this->app->request;
 
-        if (!in_array($this->request->controller(true), [$this->env->get('admin.entry'), 'api'])) {
-            (new Accesslog)->record();      // 生成访问日志
-            (new Sitemap)->create();        // 生成网站地图
-        }
+        if ('api' !== $this->request->controller(true)) {
+            if ($this->env->get('admin.entry') !== $this->request->controller(true)) {
+                (new Accesslog)->record();      // 生成访问日志
+                (new Sitemap)->create();        // 生成网站地图
+            }
 
-        if (!in_array($this->request->controller(true), ['api'])) {
             // 优化修复数据库表
             if (0 === strtotime(date('Ymd')) % 7) {
                 $lock = app()->getRuntimePath() . 'db_op.lock';

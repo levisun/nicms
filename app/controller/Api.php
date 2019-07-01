@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 控制层
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\controller;
 
@@ -34,7 +36,7 @@ class Api extends Async
             $result = $this->validate()->run();
             $this->success($result['msg'], $result['data'], $result['code']);
         } else {
-            $this->error('权限不足', 40006);
+            $this->error('错误请求', 40009);
         }
     }
 
@@ -50,7 +52,7 @@ class Api extends Async
             $result = $this->validate()->run();
             $this->openCache(false)->success($result['msg'], $result['data'], $result['code']);
         } else {
-            $this->error('权限不足', 40006);
+            $this->error('错误请求', 40009);
         }
     }
 
@@ -66,7 +68,7 @@ class Api extends Async
             $result = $this->validate()->run();
             $this->openCache(false)->success($result['msg'], $result['data'], $result['code']);
         } else {
-            $this->error('权限不足', 40006);
+            $this->error('错误请求', 40009);
         }
     }
 
@@ -80,18 +82,24 @@ class Api extends Async
     {
         if ($this->referer && $this->request->isPost() && $phone = $this->request->param('phone', false)) {
             $this->validate();
-            $key = sha1($this->request->ip());
-            $has = session('sms_' . $key);
-            if ($has && $has['time'] >= time()) {
-                $this->openCache(false)->success('请勿重复请求');
-            } else {
-                $time = time() + 120;
-                $captcha = rand(100000, 999999);
-                session('sms_' . $key, ['phone' => $phone, 'time' => $time, 'captcha' => $captcha]);
-                $this->openCache(false)->success('手机验证码发送成功');
+
+            $key = md5('sms_' . $this->request->ip());
+
+            if ($this->session->has($key) && $result = $this->session->get($key)) {
+                if ($result['time'] >= time()) {
+                    $this->openCache(false)->success('请勿重复请求');
+                }
             }
+
+            $result = [
+                'captcha' => rand(100000, 999999),
+                'time'    => time() + 120,
+                'phone'   => $phone,
+            ];
+            $this->session->set($key, $result);
+            $this->openCache(false)->success('验证码发送成功');
         } else {
-            $this->error('权限不足', 40006);
+            $this->error('错误请求', 40009);
         }
     }
 
@@ -106,7 +114,7 @@ class Api extends Async
         if ($this->request->isGet() && $ip = $this->request->param('ip', false)) {
             $this->validate();
             $ip = Ip::info($ip);
-            $this->openCache(true)->success('success', $ip);
+            $this->openCache(true)->success('IP INFO', $ip);
         } else {
             $this->error('缺少参数', 40001);
         }

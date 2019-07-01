@@ -32,10 +32,12 @@ class DataFilter
             return $_data;
         } elseif (is_string($_data)) {
             $_data = self::safe($_data);
-            $_data = self::enter($_data);
             $_data = self::fun($_data);
+            $_data = self::enter($_data);
             $_data = strip_tags($_data);
             return $_data;
+        } else {
+            return null;
         }
     }
 
@@ -54,10 +56,12 @@ class DataFilter
             return $_data;
         } elseif (is_string($_data)) {
             $_data = self::safe($_data);
-            $_data = self::enter($_data);
             $_data = self::fun($_data);
+            $_data = self::enter($_data);
             $_data = htmlspecialchars($_data);
             return $_data;
+        } else {
+            return null;
         }
     }
 
@@ -76,37 +80,10 @@ class DataFilter
             return $_data;
         } elseif (is_string($_data)) {
             $_data = self::safe($_data);
-            $_data = self::enter($_data);
             $_data = self::fun($_data);
+            $_data = self::enter($_data);
             return $_data;
         }
-    }
-
-    /**
-     * 过滤PHP危害函数方法
-     * @access private
-     * @param  string $_str
-     * @return string
-     */
-    private static function fun(string $_str): string
-    {
-        $pattern = [
-            '/(base64_decode)/si'        => 'ba&#115;e64_decode',
-            '/(call_user_func_array)/si' => 'cal&#108;_user_func_array',
-            '/(chown)/si'                => 'ch&#111;wn',
-            '/(eval)/si'                 => 'ev&#97;l',
-            '/(exec)/si'                 => 'ex&#101;c',
-            '/(passthru)/si'             => 'pa&#115;sthru',
-            '/(phpinfo)/si'              => 'ph&#112;info',
-            '/(proc_open)/si'            => 'pr&#111;c_open',
-            '/(popen)/si'                => 'po&#112;en',
-            '/(shell_exec)/si'           => 'sh&#101;ll_exec',
-            '/(system)/si'               => 'sy&#115;tem',
-
-            // '/(\()/si'                   => '&#40;',
-            // '/(\))/si'                   => '&#41;',
-        ];
-        return preg_replace(array_keys($pattern), array_values($pattern), $_str);
     }
 
     /**
@@ -137,6 +114,33 @@ class DataFilter
     }
 
     /**
+     * 过滤PHP危害函数方法
+     * @access private
+     * @param  string $_str
+     * @return string
+     */
+    private static function fun(string $_str): string
+    {
+        $pattern = [
+            '/(base64_decode)/si'        => 'ba&#115;e64_decode',
+            '/(call_user_func_array)/si' => 'cal&#108;_user_func_array',
+            '/(chown)/si'                => 'ch&#111;wn',
+            '/(eval)/si'                 => 'ev&#97;l',
+            '/(exec)/si'                 => 'ex&#101;c',
+            '/(passthru)/si'             => 'pa&#115;sthru',
+            '/(phpinfo)/si'              => 'ph&#112;info',
+            '/(proc_open)/si'            => 'pr&#111;c_open',
+            '/(popen)/si'                => 'po&#112;en',
+            '/(shell_exec)/si'           => 'sh&#101;ll_exec',
+            '/(system)/si'               => 'sy&#115;tem',
+
+            // '/(\()/si'                   => '&#40;',
+            // '/(\))/si'                   => '&#41;',
+        ];
+        return preg_replace(array_keys($pattern), array_values($pattern), $_str);
+    }
+
+    /**
      * 安全过滤
      * XSS跨站脚本攻击
      * XXE XML 实体扩展攻击
@@ -146,33 +150,35 @@ class DataFilter
      */
     private static function safe(string $_str): string
     {
+        libxml_disable_entity_loader(true);
+
         return preg_replace([
             // XSS跨站脚本攻击
             '/on([a-zA-Z0-9]+)([ ]*?=[ ]*?)["|\'](.*?)["|\']/si',
             '/(javascript:)(.*?)(\))/si',
-            '/<javascript.*?>(.*?)<\/javascript.*?>/si',
-            '/<script.*?>(.*?)<\/script.*?>/si',
-            '/<applet.*?>(.*?)<\/applet.*?>/si',
-            '/<vbscript.*?>(.*?)<\/vbscript.*?>/si',
-            '/<expression.*?>(.*?)<\/expression.*?>/si',
+            '/<javascript.*?>(.*?)<\/javascript.*?>/si',    '/<(\/?javascript.*?)>/si',
+            '/<script.*?>(.*?)<\/script.*?>/si',            '/<(\/?script.*?)>/si',
+            '/<applet.*?>(.*?)<\/applet.*?>/si',            '/<(\/?applet.*?)>/si',
+            '/<vbscript.*?>(.*?)<\/vbscript.*?>/si',        '/<(\/?vbscript.*?)>/si',
+            '/<expression.*?>(.*?)<\/expression.*?>/si',    '/<(\/?expression.*?)>/si',
 
             // XXE XML 实体扩展攻击
-            '/<html.*?>(.*?)<\/html.*?>/si',
-            '/<title.*?>(.*?)<\/title.*?>/si',
+            '/<html.*?>(.*?)<\/html.*?>/si',                '/<(\/?html.*?)>/si',
+            '/<title.*?>(.*?)<\/title.*?>/si',              '/<(\/?title.*?)>/si',
             /* '/<head.*?>(.*?)<\/head.*?>/si',
             '/<body.*?>(.*?)<\/body.*?>/si', */
-            '/<style.*?>(.*?)<\/style.*?>/si',
-            '/<iframe.*?>(.*?)<\/iframe.*?>/si',
-            '/<frame.*?>(.*?)<\/frame.*?>/si',
-            '/<frameset.*?>(.*?)<\/frameset.*?>/si',
-            '/<object.*?>(.*?)<\/object.*?>/si',
-            '/<xml.*?>(.*?)<\/xml.*?>/si',
-            '/<blink.*?>(.*?)<\/blink.*?>/si',
-            '/<link.*?>(.*?)<\/link.*?>/si',
-            '/<embed.*?>(.*?)<\/embed.*?>/si',
-            '/<ilayer.*?>(.*?)<\/ilayer.*?>/si',
-            '/<layer.*?>(.*?)<\/layer.*?>/si',
-            '/<bgsound.*?>(.*?)<\/bgsound.*?>/si',
+            '/<style.*?>(.*?)<\/style.*?>/si',              '/<(\/?style.*?)>/si',
+            '/<iframe.*?>(.*?)<\/iframe.*?>/si',            '/<(\/?iframe.*?)>/si',
+            '/<frame.*?>(.*?)<\/frame.*?>/si',              '/<(\/?frame.*?)>/si',
+            '/<frameset.*?>(.*?)<\/frameset.*?>/si',        '/<(\/?frameset.*?)>/si',
+            '/<object.*?>(.*?)<\/object.*?>/si',            '/<(\/?object.*?)>/si',
+            '/<xml.*?>(.*?)<\/xml.*?>/si',                  '/<(\/?xml.*?)>/si',
+            '/<blink.*?>(.*?)<\/blink.*?>/si',              '/<(\/?blink.*?)>/si',
+            '/<link.*?>(.*?)<\/link.*?>/si',                '/<(\/?link.*?)>/si',
+            '/<embed.*?>(.*?)<\/embed.*?>/si',              '/<(\/?embed.*?)>/si',
+            '/<ilayer.*?>(.*?)<\/ilayer.*?>/si',            '/<(\/?ilayer.*?)>/si',
+            '/<layer.*?>(.*?)<\/layer.*?>/si',              '/<(\/?layer.*?)>/si',
+            '/<bgsound.*?>(.*?)<\/bgsound.*?>/si',          '/<(\/?bgsound.*?)>/si',
             '/<base.*?\/?>/si',
             '/<meta.*?\/?>/si',
 

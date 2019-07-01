@@ -62,6 +62,20 @@ if (!function_exists('client_mac')) {
     }
 }
 
+if (!function_exists('remove_img')) {
+    function remove_img(string $_img)
+    {
+        $root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+        if (false === stripos($_img, 'http')) {
+            $img_path = str_replace('/', DIRECTORY_SEPARATOR, trim($_img, '/'));
+            $img_ext = '.' . pathinfo($root_path . $img_path, PATHINFO_EXTENSION);
+            if (is_file($root_path . $_img)) {
+                # code...
+            }
+        }
+    }
+}
+
 if (!function_exists('get_img_url')) {
     /**
      * 拼接图片地址
@@ -93,11 +107,11 @@ if (!function_exists('get_img_url')) {
             $img_path = $new_img;
             unset($new_img);
 
-            $thumb_path = str_replace($img_ext, '', $img_path) . $_size . 'x' . $_size . $img_ext;
+            $thumb_path = str_replace($img_ext, '', $img_path) . '_' . $_size . 'x' . $_size . $img_ext;
             if ($_size && is_file($root_path . $img_path) && !is_file($root_path . $thumb_path)) {
                 // 修正原始图片名带尺寸
                 $image = Image::open($root_path . $img_path);
-                $newname = str_replace($img_ext, '', $img_path) . $image->width() . 'x' . $image->height() . $img_ext;
+                $newname = str_replace($img_ext, '', $img_path) . '_' . $image->width() . 'x' . $image->height() . $img_ext;
                 if (!is_file($root_path . $newname)) {
                     $_water = $_water ? $_water : Request::rootDomain();
                     $image->text($_water, $font_path, 15, '#00000000', Image::WATER_SOUTHEAST);

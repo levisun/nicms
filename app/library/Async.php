@@ -529,6 +529,7 @@ abstract class Async
      * 40001 缺少参数
      * 40002 非法参数
      * 40006 权限不足
+     * 40009 错误请求
      * @access protected
      * @param  string  $msg  提示信息
      * @param  integer $code 错误码，默认为40001
@@ -554,7 +555,7 @@ abstract class Async
             'data'    => $_data,
             'message' => $_msg,
             'expire'  => $this->ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';',
-            'token'   => $this->request->isPost() ? $this->request->buildToken('__token__', 'md5') : '',
+            // 'token'   => $this->request->isPost() ? $this->request->buildToken('__token__', 'md5') : '',
             'debug'   => true === $this->apiDebug ? $this->debugLog : '',
         ];
 
