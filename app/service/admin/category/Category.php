@@ -2,7 +2,7 @@
 /**
  *
  * API接口层
- * 网站栏目
+ * 栏目
  *
  * @package   NICMS
  * @category  app\service\admin\category

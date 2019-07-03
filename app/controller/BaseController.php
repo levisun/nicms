@@ -105,11 +105,6 @@ abstract class BaseController
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('defalut_filter');
 
-        // 开启调试清空请求缓存
-        if ($this->app->isDebug()) {
-            $this->app->cache->clear();
-        }
-
         $this->view = Container::getInstance()->make('\app\library\Template');
 
         // 客户端唯一ID 用于保证请求缓存唯一

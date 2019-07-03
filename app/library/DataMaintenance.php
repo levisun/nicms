@@ -109,10 +109,10 @@ class DataMaintenance
                 }
 
                 file_put_contents($this->savePath . 'backup_time.json', json_encode($btime));
-                ignore_user_abort(false);
 
                 fwrite($fp, '自动备份数据库' . date('Y-m-d H:i:s'));
                 flock($fp, LOCK_UN);
+                ignore_user_abort(false);
             }
             fclose($fp);
         }
@@ -153,10 +153,10 @@ class DataMaintenance
                         $this->write($sql_file, $sql);
                     }
                 }
-                ignore_user_abort(false);
 
                 fwrite($fp, '备份数据库' . date('Y-m-d H:i:s'));
                 flock($fp, LOCK_UN);
+                ignore_user_abort(false);
             }
             fclose($fp);
         }

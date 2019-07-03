@@ -53,7 +53,7 @@ class admin extends BaseController
      * @param  string $service
      * @param  string $logic
      * @param  string $action
-     * @return void
+     * @return
      */
     public function index(string $service = 'account', string $logic = 'user', string $action = 'login')
     {
@@ -61,7 +61,7 @@ class admin extends BaseController
 
         $tpl  = $service . DIRECTORY_SEPARATOR . $logic . DIRECTORY_SEPARATOR . $action;
 
-        $this->fetch($tpl);
+        return $this->fetch($tpl);
     }
 
     /**

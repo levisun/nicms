@@ -214,8 +214,6 @@ class Template
                 'appid:"' . $this->theme_config['api_appid'] . '",' .
                 'appsecret:"' . $this->theme_config['api_appsecret'] . '",' .
                 'authorization:"{:__AUTHORIZATION__}",' .
-                // 'izs:"' . $this->theme_config['api_appsecret'] . '",' .
-                // 'token:"{:__AUTH_TOKEN__}",' .
                 'param:' . json_encode($this->request->param()) .
                 '},' .
                 'cdn:{' .
@@ -227,7 +225,7 @@ class Template
                 '}' .
                 '};</script>';
             echo '</head>';
-            echo false === strpos($this->content, '<body') ? '<body>' : '';
+            echo false === stripos($this->content, '<body') ? '<body>' : '';
 
             // 解析JS
             // JS移至底部
@@ -262,7 +260,6 @@ class Template
         }
 
         $content = str_replace('{:__AUTHORIZATION__}', create_authorization(), $content);
-        // $content = str_replace('{:__TOKEN__}', md5(json_encode($this->request->cookie())), $content);
         $content = str_replace('{:__TOKEN__}', token_meta(), $content);
         echo $content;
     }
@@ -312,7 +309,7 @@ class Template
     }
 
     /**
-     * 生成模板静态文件
+     * 生成模板编译文件
      * @access private
      * @param  string $_template
      * @param  string $_content
@@ -392,31 +389,32 @@ class Template
                     $var_type = strtoupper(trim($var_type));
                 }
 
-                if ('CONST' === $var_type) {
-                    eval('$vars = defined(\'' . $var_name . '\') ? ' . strtoupper($var_name) . ' : null;');
-                } else {
-                    switch ($var_type) {
-                        case 'GET':
-                            $vars = $_GET;
-                            break;
+                switch ($var_type) {
+                    case 'GET':
+                        $vars = $_GET;
+                        break;
 
-                        case 'POST':
-                            $vars = $_POST;
-                            break;
+                    case 'POST':
+                        $vars = $_POST;
+                        break;
 
-                        case 'COOKIE':
-                            $vars = $_COOKIE;
-                            break;
+                    case 'COOKIE':
+                        $vars = $_COOKIE;
+                        break;
 
-                        default:
-                            $vars = $this->vars;
-                            break;
-                    }
+                    case 'CONST':
+                        $defined = get_defined_constants();
+                        $vars = isset($defined[strtoupper($var_name)]) ? $defined[strtoupper($var_name)] : null;
+                        break;
 
-                    $var_name = explode('.', $var_name);
-                    foreach ($var_name as $name) {
-                        $vars = (is_array($vars) && isset($vars[$name])) ? $vars[$name] : '';
-                    }
+                    default:
+                        $vars = $this->vars;
+                        break;
+                }
+
+                $var_name = explode('.', $var_name);
+                foreach ($var_name as $name) {
+                    $vars = (is_array($vars) && isset($vars[$name])) ? $vars[$name] : '';
                 }
 
                 $this->content = str_replace($matches[0][$key], $vars, $this->content);
@@ -493,7 +491,8 @@ class Template
                     'cookie', 'lang', 'url'
                 ];
                 if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
-                    return eval('return ' . $matches[1] . '(' . $matches[2] . ');');
+                    $matches[2] = str_replace(['"', "'"], '', $matches[2]);
+                    return call_user_func($matches[1], $matches[2]);
                 } else {
                     return '<!-- 无法解析:' . $matches[1] . htmlspecialchars_decode($matches[0]) . ' -->';
                 }
@@ -526,7 +525,7 @@ class Template
      */
     private function parseLayout(): void
     {
-        if (true === $this->theme_config['layout'] && false === strpos($this->content, '{:NOT_LAYOUT}')) {
+        if (true === $this->theme_config['layout'] && false === stripos($this->content, '{:NOT_LAYOUT}')) {
             if (is_file($this->view_path . $this->theme . DIRECTORY_SEPARATOR . 'layout.html')) {
                 $layout = file_get_contents($this->view_path . $this->theme . DIRECTORY_SEPARATOR . 'layout.html');
                 $this->content = str_replace('{:__CONTENT__}', $this->content, $layout);

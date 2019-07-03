@@ -17,7 +17,7 @@ return [
     'listen'    => [
         'AppInit'  => [],
         'HttpRun'  => [
-            'app\event\InitRequest'
+            'app\event\CheckRequest'
         ],
         'HttpEnd'  => [
             'app\event\Maintain'

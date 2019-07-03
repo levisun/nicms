@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\service\cms;
 
@@ -39,34 +41,34 @@ class ArticleBase extends BaseService
             ['article.lang', '=', $this->lang->getLangSet()]
         ];
 
-        if ($category_id = (int)$this->request->param('cid/f')) {
+        if ($category_id = (int) $this->request->param('cid/f')) {
             $map[] = ['article.category_id', '=', $category_id];
 
-            if ($com = (int)$this->request->param('com/f', 0)) {
+            if ($com = (int) $this->request->param('com/f', 0)) {
                 $map[] = ['article.is_com', '=', '1'];
-            } elseif ($top = (int)$this->request->param('top/f', 0)) {
+            } elseif ($top = (int) $this->request->param('top/f', 0)) {
                 $map[] = ['article.is_top', '=', '1'];
-            } elseif ($hot = (int)$this->request->param('hot/f', 0)) {
+            } elseif ($hot = (int) $this->request->param('hot/f', 0)) {
                 $map[] = ['article.is_hot', '=', '1'];
             }
 
-            if ($type_id = (int)$this->request->param('tid/f', 0)) {
+            if ($type_id = (int) $this->request->param('tid/f', 0)) {
                 $map[] = ['article.type_id', '=', $type_id];
             }
 
-            $query_limit = (int)$this->request->param('limit/f', 10);
-            $query_page = (int)$this->request->param('page/f', 1);
+            $query_limit = (int) $this->request->param('limit/f', 10);
+            $query_page = (int) $this->request->param('page/f', 1);
             $date_format = $this->request->param('date_format', 'Y-m-d');
 
             $cache_key = md5(__METHOD__ . date('Ymd') . $category_id . $com . $top . $hot . $type_id . $query_limit . $query_page . $date_format);
             if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-                    ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                     ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
+                    ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
+                    ->view('article_type', ['id' => 'type_id', 'name' => 'type_name'], 'article_type.id=article.type_id', 'LEFT')
                     ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
-                    ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                     ->where($map)
                     ->order('article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.id DESC')
                     ->paginate($query_limit, false, ['path' => 'javascript:paging([PAGE]);']);
@@ -133,17 +135,17 @@ class ArticleBase extends BaseService
             ['article.lang', '=', $this->lang->getLangSet()]
         ];
 
-        if ($id = (int)$this->request->param('id/f')) {
+        if ($id = (int) $this->request->param('id/f')) {
             $map[] = ['article.id', '=', $id];
             $cache_key = md5(__METHOD__ . $id);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $result = (new ModelArticle)
-                    ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-                    ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
+                    > view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                     ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
+                    ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
+                    ->view('article_type', ['id' => 'type_id', 'name' => 'type_name'], 'article_type.id=article.type_id', 'LEFT')
                     ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
-                    ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                     ->where($map)
                     ->find()
                     ->toArray();
@@ -216,7 +218,7 @@ class ArticleBase extends BaseService
      */
     public function hits(): array
     {
-        if ($id = (int)$this->request->param('id/f')) {
+        if ($id = (int) $this->request->param('id/f')) {
             $map = [
                 ['id', '=', $id],
                 ['is_pass', '=', '1'],

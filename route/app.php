@@ -17,6 +17,13 @@ Route::rule('error', 'error/index');
 Route::rule('404', 'error/_404');
 Route::rule('500', 'error/_500');
 
+Route::domain(['cdn'], function () {
+    $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
+    http_response_code(404);
+    echo $error;
+    exit();
+});
+
 Route::domain(['www', 'm'], function () {
     Route::get('/', 'cms/index');
     Route::get('index', 'cms/index');
@@ -29,13 +36,6 @@ Route::domain(['www', 'm'], function () {
     'cid'  => '\d+',
     'id'   => '\d+',
 ]);
-
-Route::domain(['cdn'], function () {
-    $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
-    http_response_code(404);
-    echo $error;
-    exit();
-});
 
 Route::domain(Env::get('admin.entry'), function () {
     Route::get('/', 'admin/index');

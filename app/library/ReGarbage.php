@@ -34,11 +34,11 @@ class ReGarbage
                 $runtime_path = app()->getRuntimePath();
                 $root_path = app()->getRootPath();
 
-                $this->remove($runtime_path . 'cache', 24);
-                $this->remove($runtime_path . 'compile', 72);
-                $this->remove($runtime_path . 'lock', 72);
-                $this->remove($runtime_path . 'log', 72);
-                $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 24);
+                $this->remove($runtime_path . 'cache', 3);
+                $this->remove($runtime_path . 'compile', 3);
+                $this->remove($runtime_path . 'log', 3);
+                $this->remove($runtime_path . 'req', 1);
+                $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 1);
 
                 $dir = (array)glob($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*');
                 foreach ($dir as $path) {
@@ -64,7 +64,7 @@ class ReGarbage
      * @param  int    $_expire
      * @return void
      */
-    public function remove(string $_dir, int $_expire = 0): void
+    public function remove(string $_dir, int $_expire): void
     {
         $dir = $this->getDirAllFile($_dir . DIRECTORY_SEPARATOR . '*', $_expire);
         while ($dir->valid()) {
@@ -86,14 +86,12 @@ class ReGarbage
      * @param  int   $_expire
      * @return
      */
-    private function getDirAllFile(string $_path, int $_expire = 0)
+    private function getDirAllFile(string $_path, int $_expire)
     {
-        $hour = $_expire ? strtotime('-' . $_expire . ' hour') : false;
+        $day = strtotime('-' . $_expire . ' days');
         $dir = (array)glob($_path);
         foreach ($dir as $files) {
-            if (false === $hour && is_file($files)) {
-                yield $files;
-            } elseif (false !== $hour && is_file($files) && filemtime($files) <= $hour) {
+            if (is_file($files) && filemtime($files) <= $day) {
                 yield $files;
             } elseif (is_dir($files . DIRECTORY_SEPARATOR)) {
                 $sub = $this->getDirAllFile($files . DIRECTORY_SEPARATOR . '*', $_expire);
@@ -103,9 +101,7 @@ class ReGarbage
 
                 while ($sub->valid()) {
                     $filename = $sub->current();
-                    if (false === $hour && is_file($filename)) {
-                        yield $filename;
-                    } elseif (false !== $hour && is_file($filename) && filemtime($filename) <= $hour) {
+                    if (is_file($filename) && filemtime($filename) <= $day) {
                         yield $filename;
                     } elseif (is_dir($filename . DIRECTORY_SEPARATOR)) {
                         yield $filename;

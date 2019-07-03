@@ -34,8 +34,7 @@ class Cache extends BaseService
             return $result;
         }
 
-        // $this->cache->clear(); 方法无法清除全部缓存
-        (new ReGarbage)->remove($this->app->getRuntimePath(). 'cache', 0);
+        $this->cache->clear(); // 方法无法清除全部缓存
 
         return [
             'debug' => false,
@@ -56,7 +55,6 @@ class Cache extends BaseService
             return $result;
         }
 
-        (new ReGarbage)->remove($this->app->getRuntimePath(). 'compile', 0);
 
         return [
             'debug' => false,

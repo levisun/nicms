@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 维护事件
@@ -13,7 +14,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\event;
 
@@ -38,18 +40,6 @@ class Maintain
     protected $cache;
 
     /**
-     * Config实例
-     * @var \think\Config
-     */
-    protected $config;
-
-    /**
-     * Env实例
-     * @var \think\Env
-     */
-    protected $env;
-
-    /**
      * request实例
      * @var \think\Request
      */
@@ -59,51 +49,83 @@ class Maintain
     {
         $this->app     = $_app;
         $this->cache   = $this->app->cache;
-        $this->config  = $this->app->config;
-        $this->env     = $this->app->env;
         $this->request = $this->app->request;
 
-        if ('api' !== $this->request->controller(true)) {
-            if ($this->env->get('admin.entry') !== $this->request->controller(true)) {
-                (new Accesslog)->record();      // 生成访问日志
-                (new Sitemap)->create();        // 生成网站地图
-            }
-
-            // 优化修复数据库表
-            if (0 === strtotime(date('Ymd')) % 7) {
-                $lock = app()->getRuntimePath() . 'db_op.lock';
-                if (!is_file($lock)) {
-                    file_put_contents($lock, date('Y-m-d H:i:s'));
-                }
-                clearstatcache();
-                if (filemtime($lock) <= strtotime((string)(date('Ymd') - 7))) {
-                    if ($fp = @fopen($lock, 'w+')) {
-                        if (flock($fp, LOCK_EX | LOCK_NB)) {
-                            ignore_user_abort(true);
-                            (new DataMaintenance)->optimize();  // 优化表
-                            (new DataMaintenance)->repair();    // 修复表
-                            ignore_user_abort(false);
-
-                            fwrite($fp, '优化|修复数据' . date('Y-m-d H:i:s'));
-                            flock($fp, LOCK_UN);
-                        }
-                        fclose($fp);
-                    }
-                }
-            }
-            // 清除过期缓存和日志等
-            elseif (1 === rand(1, 299)) {
-                (new ReGarbage)->run();
-            }
-            // 自动备份数据库
-            elseif (1 === rand(1, 299)) {
-                (new DataMaintenance)->autoBackup();
-            }
+        // CMS请求
+        if ('cms' === $this->request->controller(true)) {
+            (new Accesslog)->record();      // 生成访问日志
+            (new Sitemap)->create();        // 生成网站地图
         }
+
+        // 数据库优化|修复
+        $this->DBOptimize();
+        // 数据库备份
+        $this->DBBackup();
+        // 垃圾信息维护
+        $this->garbage();
 
         // 开启调试清空请求缓存
         if ($this->app->isDebug()) {
             $this->app->cache->clear();
+        }
+    }
+
+    /**
+     * 数据库优化|修复
+     * @access protected
+     * @param
+     * @return void
+     */
+    protected function DBOptimize(): void
+    {
+        if ('api' !== $this->request->controller(true) && 0 === strtotime(date('Ymd')) % 7) {
+            $lock = app()->getRuntimePath() . 'db_op.lock';
+            if (!is_file($lock)) {
+                file_put_contents($lock, date('Y-m-d H:i:s'));
+            }
+            clearstatcache();
+            if (filemtime($lock) <= strtotime((string) (date('Ymd') - 7))) {
+                if ($fp = @fopen($lock, 'w+')) {
+                    if (flock($fp, LOCK_EX | LOCK_NB)) {
+                        ignore_user_abort(true);
+
+                        (new DataMaintenance)->optimize();  // 优化表
+                        (new DataMaintenance)->repair();    // 修复表
+
+                        fwrite($fp, '优化|修复数据' . date('Y-m-d H:i:s'));
+                        flock($fp, LOCK_UN);
+
+                        ignore_user_abort(false);
+                    }
+                    fclose($fp);
+                }
+            }
+        }
+    }
+
+    /**
+     * 数据库备份
+     * @access protected
+     * @param
+     * @return void
+     */
+    protected function DBBackup(): void
+    {
+        if ('api' !== $this->request->controller(true) && 1 === rand(1, 299)) {
+            (new DataMaintenance)->autoBackup();
+        }
+    }
+
+    /**
+     * 垃圾信息维护
+     * @access protected
+     * @param
+     * @return void
+     */
+    protected function garbage(): void
+    {
+        if ('api' !== $this->request->controller(true) && 1 === rand(1, 299)) {
+            (new ReGarbage)->run();
         }
     }
 }

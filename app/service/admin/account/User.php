@@ -2,7 +2,7 @@
 /**
  *
  * API接口层
- * 用户登录
+ * 登录
  *
  * @package   NICMS
  * @category  app\service\admin\account
