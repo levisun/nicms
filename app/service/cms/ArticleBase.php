@@ -35,14 +35,13 @@ class ArticleBase extends BaseService
      */
     protected function lists()
     {
-        $map = [
-            ['article.is_pass', '=', '1'],
-            ['article.show_time', '<=', time()],
-            ['article.lang', '=', $this->lang->getLangSet()]
-        ];
-
         if ($category_id = (int) $this->request->param('cid/f')) {
-            $map[] = ['article.category_id', '=', $category_id];
+            $map = [
+                ['article.category_id', '=', $category_id],
+                ['article.is_pass', '=', '1'],
+                ['article.show_time', '<=', time()],
+                ['article.lang', '=', $this->lang->getLangSet()]
+            ];
 
             if ($com = (int) $this->request->param('com/f', 0)) {
                 $map[] = ['article.is_com', '=', '1'];
@@ -113,7 +112,7 @@ class ArticleBase extends BaseService
                         $list['data'][$key] = $value;
                     }
 
-                    $this->cache->tag('cms_list')->set($cache_key, $list);
+                    $this->cache->tag('CMS LIST ' . $category_id)->set($cache_key, $list);
                 }
             }
         }
@@ -129,15 +128,14 @@ class ArticleBase extends BaseService
      */
     protected function details(): array
     {
-        $map = [
-            ['article.is_pass', '=', '1'],
-            ['article.show_time', '<=', time()],
-            ['article.lang', '=', $this->lang->getLangSet()]
-        ];
-
         if ($id = (int) $this->request->param('id/f')) {
-            $map[] = ['article.id', '=', $id];
-            $cache_key = md5(__METHOD__ . $id);
+            $map = [
+                ['article.id', '=', $id],
+                ['article.is_pass', '=', '1'],
+                ['article.show_time', '<=', time()],
+                ['article.lang', '=', $this->lang->getLangSet()]
+            ];
+            $cache_key = md5('CMS DETAILS ' . $id);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $result = (new ModelArticle)
                     > view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
@@ -202,7 +200,7 @@ class ArticleBase extends BaseService
                         ->select()
                         ->toArray();
 
-                    $this->cache->tag('cms_details')->set($cache_key, $result);
+                    $this->cache->set($cache_key, $result);
                 }
             }
         }
