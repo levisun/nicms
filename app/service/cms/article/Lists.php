@@ -28,7 +28,7 @@ class Lists extends ArticleBase
      */
     public function query(): array
     {
-        $result = $this->lists();
+        $result = $this->ArticleList();
 
         return [
             'debug' => false,

@@ -50,10 +50,11 @@ Route::domain(Env::get('admin.entry'), function () {
 ]);
 
 Route::domain('api', function () {
-    Route::rule('download$', 'api/download');
-    Route::rule('ip$', 'api/ip');
     Route::rule('query$', 'api/query');
     Route::rule('handle$', 'api/handle');
     Route::rule('upload$', 'api/upload');
+    Route::rule('sms$', 'api/sms');
+    Route::rule('ip$', 'api/ip');
+    Route::rule('download$', 'api/download');
     Route::miss('error/index');
 })->bind('api')->ext('do')->middleware('app\middleware\AllowCrossDomain');

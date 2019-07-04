@@ -103,12 +103,14 @@ abstract class BaseController
         $this->session  = $this->app->session;
 
         $this->app->debug($this->config->get('app.debug'));
-        $this->request->filter('defalut_filter');
+        $this->request->filter('default_filter');
 
         $this->view = Container::getInstance()->make('\app\library\Template');
 
         // 客户端唯一ID 用于保证请求缓存唯一
         // !$this->cookie->has('__uid') and $this->cookie->set('__uid', sha1(uniqid((string)mt_rand(), true)));
+
+        // $this->ipinfo = Ip::info();
 
         // 控制器初始化
         $this->initialize();

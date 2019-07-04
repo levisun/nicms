@@ -141,14 +141,14 @@ abstract class BaseService
         $this->session  = $this->app->session;
 
         $this->app->debug($this->config->get('app.debug'));
-        $this->request->filter('defalut_filter');
+        $this->request->filter('default_filter');
 
         if ($this->session->has($this->auth_key) && $this->session->has($this->auth_key . 'role')) {
             $this->uid = $this->session->get($this->auth_key);
             $this->urole = $this->session->get($this->auth_key . 'role');
         }
 
-        $this->ipinfo = Ip::info();
+        $this->ipinfo = Ip::info($this->request->ip());
 
         $this->initialize();
     }

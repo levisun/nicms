@@ -2,7 +2,7 @@
 /**
  *
  * 验证器
- * 栏目 - 网站栏目
+ * 栏目 - 栏目
  *
  * @package   NICMS
  * @category  app\validate\admin\category
@@ -34,15 +34,15 @@ class Category extends Validate
     ];
 
     protected $message = [
-        'name.require'       => '{%error catname require}',
-        'name.length'        => '{%error catname length not}',
-        'name.unique'        => '{%error catname unique}',
+        'name.require'       => '{%error category name require}',
+        'name.length'        => '{%error category name length not}',
+        'name.unique'        => '{%error category name unique}',
         'aliases.length'     => '{%error aliases length not}',
         'aliases.unique'     => '{%error aliases unique}',
         'aliases.alpha'      => '{%error aliases alpha}',
-        'title.max'          => '{%error image}',
-        'keywords.max'       => '{%error image}',
-        'description.max'    => '{%error image}',
+        'title.max'          => '{%error title}',
+        'keywords.max'       => '{%error keywords}',
+        'description.max'    => '{%error description}',
         'image.max'          => '{%error image}',
         'type_id.require'    => '{%error type}',
         'type_id.number'     => '{%error type}',

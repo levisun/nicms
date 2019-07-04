@@ -161,7 +161,7 @@ class Category extends BaseService
 
         (new ModelCategory)->create($receive_data);
 
-        $this->cache->tag('nav')->clear();
+        $this->cache->tag('CMS NAV')->clear();
 
         return [
             'debug' => false,
@@ -292,7 +292,7 @@ class Category extends BaseService
                 ->data($receive_data)
                 ->update();
 
-            $this->cache->tag('nav')->clear();
+            $this->cache->tag('CMS NAV')->clear();
 
             return [
                 'debug' => false,
@@ -348,7 +348,7 @@ class Category extends BaseService
                     ])
                     ->delete();
 
-                $this->cache->tag('cms_nav')->clear();
+                $this->cache->tag('CMS NAV')->clear();
 
                 return [
                     'debug' => false,

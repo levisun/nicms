@@ -23,11 +23,11 @@ class DataFilter
      * @param  mixed $_data
      * @return mixed
      */
-    public static function defalut($_data)
+    public static function default($_data)
     {
         if (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::defalut($value);
+                $_data[$key] = self::default($value);
             }
             return $_data;
         } elseif (is_string($_data)) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 应用设置
@@ -10,6 +11,7 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
+
 use think\facade\Env;
 use think\facade\Request;
 
@@ -22,7 +24,7 @@ return [
     // 调试
     'debug'                 => Env::get('app.debug', 1) ? true : false,
     // 加密密钥
-    'secretkey'             => hash_hmac('sha256', Env::get('app.secretkey', Request::rootDomain()), __DIR__),
+    'secretkey'             => hash_hmac('sha256', Env::get('app.secretkey', 'nicms'), __DIR__),
     // 上传文件大小,单位MB
     'upload_size'           => Env::get('app.upload_size', '1'),
     // 上传文件类型(扩展名)
@@ -45,6 +47,8 @@ return [
     'app_map'               => [],
     // 域名绑定（自动多应用模式有效）
     'domain_bind'           => [],
+    // 禁止URL访问的应用列表（自动多应用模式有效）
+    'deny_app_list'         => [],
     // 默认应用
     'default_app'           => 'index',
     // 默认时区

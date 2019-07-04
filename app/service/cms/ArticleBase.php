@@ -33,7 +33,7 @@ class ArticleBase extends BaseService
      * @param
      * @return array
      */
-    protected function lists()
+    protected function ArticleList()
     {
         if ($category_id = (int) $this->request->param('cid/f')) {
             $map = [
@@ -126,7 +126,7 @@ class ArticleBase extends BaseService
      * @param
      * @return array
      */
-    protected function details(): array
+    protected function ArticleDetails(): array
     {
         if ($id = (int) $this->request->param('id/f')) {
             $map = [

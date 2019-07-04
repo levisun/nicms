@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * IP信息类
@@ -10,7 +11,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\library;
 
@@ -31,8 +33,9 @@ class Ip
      */
     public static function info(string $_ip = ''): array
     {
-        $_ip = $_ip ? $_ip : Request::ip();
-        if ($_ip && preg_match('/[0-9.]/u', $_ip) && true === self::validate($_ip)) {
+        $_ip = $_ip ?: Request::ip();
+
+        if ($_ip && false !== filter_var($_ip, FILTER_VALIDATE_IP) && true === self::validate($_ip)) {
             $cache_key = md5(__METHOD__ . $_ip);
             if (!Cache::has($cache_key)) {
                 // 查询IP地址库
@@ -86,7 +89,7 @@ class Ip
         if (count($_ip) == 4) {
             foreach ($_ip as $key => $value) {
                 if ($value != '') {
-                    $_ip[$key] = (int)$value;
+                    $_ip[$key] = (int) $value;
                 } else {
                     return false;
                 }
@@ -153,7 +156,7 @@ class Ip
             ])
             ->value('id');
 
-        return $result ? (int)$result : 0;
+        return $result ? (int) $result : 0;
     }
 
     /**

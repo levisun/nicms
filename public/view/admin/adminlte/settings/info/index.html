@@ -1,12 +1,7 @@
-{tag:script type="module"}
-import {main} from '/view/admin/adminlte/js/main.js';
-
-{/tag}
-
+<button class="sms">SMS</button>
 
 
 <script>
-
     jQuery.pjax({
         url: NICMS.api.url + '/query.do',
         type: 'GET',
@@ -17,4 +12,27 @@ import {main} from '/view/admin/adminlte/js/main.js';
 
         }
     });
+    jQuery(document).on('click', '.sms', function(){
+        jQuery.pjax({
+            url: NICMS.api.url + '/sms.do',
+            type: 'POST',
+            data: {
+                phone: '18629503709'
+            },
+            success: function () {
+
+            }
+        });
+
+        jQuery.pjax({
+            url: NICMS.api.url + '/ip.do',
+            type: 'GET',
+            data: {
+                ip: '125.76.177.154'
+            },
+            success: function () {
+
+            }
+        });
+    })
 </script>

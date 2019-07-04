@@ -22,6 +22,7 @@ namespace app\event;
 use think\App;
 use app\library\Accesslog;
 use app\library\DataMaintenance;
+use app\library\Ip;
 use app\library\ReGarbage;
 use app\library\Sitemap;
 
@@ -63,6 +64,8 @@ class Maintain
         $this->DBBackup();
         // 垃圾信息维护
         $this->garbage();
+
+        // Ip::info(rand(1, 255) . '.' . rand(1, 255) . '.' . rand(1, 255) . '.' . rand(1, 255));
 
         // 开启调试清空请求缓存
         if ($this->app->isDebug()) {

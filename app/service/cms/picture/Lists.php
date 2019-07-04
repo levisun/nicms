@@ -29,7 +29,7 @@ class Lists extends ArticleBase
      */
     public function query(): array
     {
-        $list = $this->lists();
+        $list = $this->ArticleList();
 
         return [
             'debug' => false,

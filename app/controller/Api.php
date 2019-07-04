@@ -80,24 +80,28 @@ class Api extends Async
      */
     public function sms(): void
     {
-        if ($this->referer && $this->request->isPost() && $phone = $this->request->param('phone', false)) {
-            $this->validate();
+        if ($this->request->isPost() && $phone = $this->request->param('phone', false)) {
+            if (preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
+                $this->validate();
 
-            $key = md5('sms_' . $this->request->ip());
+                $key = md5('sms_' . $this->request->ip());
 
-            if ($this->session->has($key) && $result = $this->session->get($key)) {
-                if ($result['time'] >= time()) {
-                    $this->openCache(false)->success('请勿重复请求');
+                if ($this->session->has($key) && $result = $this->session->get($key)) {
+                    if ($result['time'] >= time()) {
+                        $this->openCache(false)->success('请勿重复请求');
+                    }
                 }
-            }
 
-            $result = [
-                'captcha' => rand(100000, 999999),
-                'time'    => time() + 120,
-                'phone'   => $phone,
-            ];
-            $this->session->set($key, $result);
-            $this->openCache(false)->success('验证码发送成功');
+                $result = [
+                    'captcha' => rand(100000, 999999),
+                    'time'    => time() + 120,
+                    'phone'   => $phone,
+                ];
+                $this->session->set($key, $result);
+                $this->openCache(false)->success('验证码发送成功');
+            } else {
+                $this->error('非法参数', 40002);
+            }
         } else {
             $this->error('错误请求', 40009);
         }
@@ -111,10 +115,12 @@ class Api extends Async
      */
     public function ip(): void
     {
-        if ($this->request->isGet() && $ip = $this->request->param('ip', false)) {
-            $this->validate();
-            $ip = Ip::info($ip);
-            $this->openCache(true)->success('IP INFO', $ip);
+        if ($ip = $this->request->param('ip', false)) {
+            if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
+                $this->validate();
+                $ip = Ip::info($ip);
+                $this->openCache(true)->setExpire(28800)->success('IP INFO', $ip);
+            }
         } else {
             $this->error('缺少参数', 40001);
         }

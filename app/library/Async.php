@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 异步请求实现
@@ -10,7 +11,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\library;
 
@@ -223,21 +225,21 @@ abstract class Async
         $this->session  = $this->app->session;
 
         $this->app->debug($this->config->get('app.debug'));
-        $this->request->filter('defalut_filter');
+        $this->request->filter('default_filter');
 
         // 开启调试清空请求缓存
         if ($this->app->isDebug()) {
             $this->cache->clear();
         }
 
-        $max_input_vars = (int)ini_get('max_input_vars');
+        $max_input_vars = (int) ini_get('max_input_vars');
         if (count($_POST) + count($_FILES) + count($_GET) >= $max_input_vars - 5) {
             $this->error('非法参数', 40002);
         }
 
         $this->referer = $this->request->server('HTTP_REFERER') && $this->request->param('method');
 
-        $this->ipinfo = Ip::info();
+        $this->ipinfo = Ip::info($this->request->ip());
     }
 
     /**
@@ -307,6 +309,18 @@ abstract class Async
     }
 
     /**
+     * 设置缓存时间
+     * @access protected
+     * @param
+     * @return $this
+     */
+    protected function setExpire(int $_expire)
+    {
+        $this->apiExpire = $_expire ?: $this->apiExpire;
+        return $this;
+    }
+
+    /**
      * 初始化
      * @access protected
      * @param
@@ -360,7 +374,7 @@ abstract class Async
      */
     protected function checkTimestamp()
     {
-        $this->timestamp = (int)$this->request->param('timestamp/f', $this->request->time());
+        $this->timestamp = (int) $this->request->param('timestamp/f', $this->request->time());
         if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
             $this->error('请求超时', 20000);
         }
@@ -423,7 +437,7 @@ abstract class Async
      */
     protected function checkAppId()
     {
-        $this->appid  = (int)$this->request->param('appid/f', 1000001);
+        $this->appid  = (int) $this->request->param('appid/f', 1000001);
         $this->appid -= 1000000;
         if ($this->appid && $this->appid >= 1) {
             $result = (new ModelApiApp)
@@ -561,7 +575,7 @@ abstract class Async
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'expire'  => $this->ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';',
+            'expire'  => $this->ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';' . $this->apiExpire . ';',
             // 'token'   => $this->request->isPost() ? $this->request->buildToken('__token__', 'md5') : '',
             'debug'   => true === $this->apiDebug ? $this->debugLog : '',
         ];

@@ -65,4 +65,26 @@ class Type extends BaseService
             ]
         ];
     }
+
+    /**
+     * 添加
+     * @access public
+     * @param
+     * @return array
+     */
+    public function added(): array
+    {
+        if ($result = $this->authenticate(__METHOD__, 'admin type added')) {
+            return $result;
+        }
+
+        $receive_data = [
+            'name'        => $this->request->param('name'),
+            'remark'      => $this->request->param('remark'),
+            'category_id' => (int)$this->request->param('category_id/f'),
+        ];
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+    }
 }

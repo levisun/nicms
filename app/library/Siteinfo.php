@@ -35,7 +35,7 @@ class Siteinfo
                 'copyright' => self::copyright(),
                 'name'      => self::name(),
             ];
-            Cache::tag(['cms', 'siteinfo'])->set($cache_key, $common);
+            Cache::tag('CMS SITEINFO')->set($cache_key, $common);
         }
 
         $result = [

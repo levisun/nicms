@@ -194,15 +194,15 @@ if (!function_exists('content_filter')) {
     }
 }
 
-if (!function_exists('defalut_filter')) {
+if (!function_exists('default_filter')) {
     /**
      * 默认过滤
      * @param  mixed $_data
      * @return mixed
      */
-    function defalut_filter($_data)
+    function default_filter($_data)
     {
-        return DataFilter::defalut($_data);
+        return DataFilter::default($_data);
     }
 }
 

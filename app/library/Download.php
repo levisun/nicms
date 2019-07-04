@@ -69,7 +69,7 @@ class Download
                     $response = Response::create($file_name, 'file')
                         ->name(md5(pathinfo($file_name, PATHINFO_BASENAME) . Request::ip() . date('Ymd')))
                         ->isContent(false)
-                        ->expire(180);
+                        ->expire(28800);
                 }
             }
         }
