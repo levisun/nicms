@@ -27,6 +27,12 @@ class CheckRequest
     protected $app;
 
     /**
+     * Cookie实例
+     * @var \think\Cookie
+     */
+    protected $cookie;
+
+    /**
      * request实例
      * @var \think\Request
      */
@@ -35,7 +41,14 @@ class CheckRequest
     public function handle(App $_app)
     {
         $this->app     = $_app;
+        $this->cookie  = $this->app->cookie;
         $this->request = $this->app->request;
+
+        // 客户端唯一ID 用于保证请求缓存唯一
+        $client_id = bindec($this->request->ip2bin($this->request->ip())) + mt_rand();
+        $client_id = (float) str_pad((string) $client_id, 11, (string) mt_rand(), STR_PAD_LEFT);
+        $client_id = date('ymdHis') . $client_id . rand(100000000, 999999999);
+        !$this->cookie->has('__uid') and $this->cookie->set('__uid', md5(uniqid($client_id, true)));
 
         if ('api' !== $this->request->controller(true) && 1 === rand(1, 1999)) {
             $this->log->record('[并发]', 'alert')->save();

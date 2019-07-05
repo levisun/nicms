@@ -107,9 +107,6 @@ abstract class BaseController
 
         $this->view = Container::getInstance()->make('\app\library\Template');
 
-        // 客户端唯一ID 用于保证请求缓存唯一
-        // !$this->cookie->has('__uid') and $this->cookie->set('__uid', sha1(uniqid((string)mt_rand(), true)));
-
         // $this->ipinfo = Ip::info();
 
         // 控制器初始化
