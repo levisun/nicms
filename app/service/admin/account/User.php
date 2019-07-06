@@ -111,8 +111,7 @@ class User extends BaseService
             return $result;
         }
 
-        // $this->cache->clear();
-        $this->cache->tag((string)$this->uid)->clear();
+        $this->cache->delete('auth' . $this->uid);
         $this->session->delete($this->auth_key);
         $this->session->delete($this->auth_key . 'role');
 
@@ -149,7 +148,7 @@ class User extends BaseService
             return $result;
         }
 
-        if (!$this->cache->has(__METHOD__ . $this->uid) || !$result = $this->cache->get(__METHOD__ . $this->uid)) {
+        if (!$this->cache->has('auth' . $this->uid) || !$result = $this->cache->get('auth' . $this->uid)) {
             $result = (new Rbac)->getAuth($this->uid);
             $result = $result['admin'];
             foreach ($result as $key => $value) {
@@ -165,7 +164,7 @@ class User extends BaseService
                     ];
                 }
             }
-            $this->cache->tag((string)$this->uid)->set(__METHOD__ . $this->uid, $result);
+            $this->cache->set('auth' . $this->uid, $result);
         }
 
         return [

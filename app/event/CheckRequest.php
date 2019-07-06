@@ -32,6 +32,8 @@ class CheckRequest
      */
     protected $cookie;
 
+    protected $requestId;
+
     /**
      * request实例
      * @var \think\Request
@@ -44,12 +46,6 @@ class CheckRequest
         $this->cookie  = $this->app->cookie;
         $this->request = $this->app->request;
 
-        // 客户端唯一ID 用于保证请求缓存唯一
-        $client_id = bindec($this->request->ip2bin($this->request->ip())) + mt_rand();
-        $client_id = (float) str_pad((string) $client_id, 11, (string) mt_rand(), STR_PAD_LEFT);
-        $client_id = date('ymdHis') . $client_id . rand(100000000, 999999999);
-        !$this->cookie->has('__uid') and $this->cookie->set('__uid', md5(uniqid($client_id, true)));
-
         if ('api' !== $this->request->controller(true) && 1 === rand(1, 1999)) {
             $this->log->record('[并发]', 'alert')->save();
             $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>500</title><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section>';
@@ -58,6 +54,12 @@ class CheckRequest
             echo $error;
             exit();
         }
+
+        // 客户端唯一ID
+        !$this->cookie->has('__uid') and $this->cookie->set('__uid', md5(uniqid(client_id(), true)));
+
+        $this->requestId = $this->cookie->has('__uid') ? $this->cookie->get('__uid') : $this->request->ip();
+        $this->requestId = md5($this->requestId);
 
         // 锁定频繁请求IP
         $this->lockRequest();
@@ -78,7 +80,7 @@ class CheckRequest
             chmod($this->app->getRuntimePath(), 0777);
             mkdir($log, 0777, true);
         }
-        $log .= md5($this->request->ip()) . '.php.lock';
+        $log .= $this->requestId . '.php.lock';
 
         if (is_file($log)) {
             $this->log->record('[锁定]', 'alert')->save();
@@ -99,7 +101,7 @@ class CheckRequest
     protected function recordRequest(): void
     {
         $log = $this->app->getRuntimePath() . 'req' . DIRECTORY_SEPARATOR;
-        $log .= md5($this->request->ip()) . '.php';
+        $log .= $this->requestId . '.php';
 
         $number = is_file($log) ? include $log : '';
 

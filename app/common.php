@@ -182,6 +182,22 @@ if (!function_exists('emoji_clear')) {
     }
 }
 
+if (!function_exists('client_id')) {
+    /**
+     * 客户端唯一ID
+     * @param  int    $_extend
+     * @return string
+     */
+    function client_id(int $_extend = 0)
+    {
+        $client_id = bindec(Request::ip2bin(Request::ip())) + mt_rand();
+        $client_id = (float) str_pad((string) $client_id, 11, (string) mt_rand(), STR_PAD_LEFT);
+        $client_id = date('ymdHis') . $client_id . (mt_rand() + $_extend);
+
+        return $client_id;
+    }
+}
+
 if (!function_exists('content_filter')) {
     /**
      * 内容过滤

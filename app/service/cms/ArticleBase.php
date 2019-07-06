@@ -138,10 +138,10 @@ class ArticleBase extends BaseService
             $cache_key = md5('CMS DETAILS ' . $id);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $result = (new ModelArticle)
-                    > view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+                    ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                     ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
-                    ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
+                    ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
                     ->view('article_type', ['id' => 'type_id', 'name' => 'type_name'], 'article_type.id=article.type_id', 'LEFT')
                     ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
                     ->where($map)
