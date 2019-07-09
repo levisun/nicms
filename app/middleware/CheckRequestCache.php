@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace app\middleware;
 
@@ -32,22 +32,48 @@ class CheckRequestCache
      */
     public function handle(Request $request, Closure $next, Config $config)
     {
-        if ($request->isGet() && false === $config->get('app.debug')) {
-            if (strtotime($request->server('HTTP_IF_MODIFIED_SINCE', '')) + 1440 > $request->server('REQUEST_TIME')) {
-                // 读取缓存
-                return Response::create()->code(304);
+        if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
+            if (strtotime($ms) + 1440 > $request->server('REQUEST_TIME')) {
+                return Response::create()->code(304);   // 读取缓存
             }
         }
 
         $response = $next($request);
 
-        if (200 == $response->getCode() && $response->isAllowCache()) {
-            $response->allowCache(true)
-                ->cacheControl('max-age=1440,must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
+        $response->allowCache(!$config->get('app.debug'));
+
+        if (200 == $response->getCode() && $request->isGet() && $response->isAllowCache()) {
+            $header = [
+                'Cache-control' => 'max-age=1440,must-revalidate',
+                'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+                'Expires'       => gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT',
+                'X-Powered-By'  => 'NICMS'
+            ];
+            $header = array_merge($header, $response->getHeader());
+
+            $response->allowCache(true)->header($header);
         }
 
+        return $response;
+    }
+
+    /**
+     * 输出压缩
+     * @access private
+     * @param  Response $response
+     * @return Response
+     */
+    private function gzip($response): Response
+    {
+        if ($this->request->isGet() && !headers_sent() && function_exists('gzencode')) {
+            $content = $response->getContent();
+            $content = gzencode($content, 2, FORCE_GZIP);
+            $response->content($content);
+            $response->header([
+                'Content-Encoding' => 'gzip',
+                'Content-Length'   => strlen($content)
+            ]);
+        }
         return $response;
     }
 }

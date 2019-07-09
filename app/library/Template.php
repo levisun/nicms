@@ -326,7 +326,7 @@ class Template
         $path = $this->compile_path . md5($this->request->controller(true) . $_template) . '.php';
 
         if (false === $this->config->get('app.debug')) {
-            $_content = function_exists('gzcompress') ? gzcompress($_content) : $_content;
+            // $_content = function_exists('gzcompress') ? gzcompress($_content) : $_content;
             file_put_contents($path, $_content);
         }
     }
@@ -352,7 +352,7 @@ class Template
             unlink($path);
         } elseif (is_file($path)) {
             $content = file_get_contents($path);
-            $content = function_exists('gzcompress') ? gzuncompress($content) : $content;
+            // $content = function_exists('gzcompress') ? gzuncompress($content) : $content;
             return $content;
         }
 

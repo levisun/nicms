@@ -23,6 +23,7 @@ namespace app\controller;
 use think\App;
 use think\Container;
 use think\exception\HttpResponseException;
+use app\library\Ip;
 
 abstract class BaseController
 {
@@ -107,7 +108,8 @@ abstract class BaseController
 
         $this->view = Container::getInstance()->make('\app\library\Template');
 
-        // $this->ipinfo = Ip::info();
+        $this->ipinfo = Ip::info($this->request->ip());
+        Ip::info('125.' . mt_rand(1, 255) . '.' . mt_rand(1, 255) . '.' . mt_rand(1, 255));
 
         // 控制器初始化
         $this->initialize();

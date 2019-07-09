@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -11,10 +12,13 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\logic\cms\history;
 
+use app\service\BaseService;
+use app\model\ArticleTags as ModelArticleTags;
 // use think\facade\Cache;
 // use think\facade\Config;
 // use think\facade\Lang;
@@ -22,7 +26,7 @@ namespace app\logic\cms\history;
 use app\model\TagsArticle as ModelTagsArticle;
 // use app\library\Base64;
 
-class Tags
+class Tags extends BaseService
 {
 
     /**
@@ -31,26 +35,33 @@ class Tags
      */
     public function record()
     {
-        if ($id = Request::param('id/f', null)) {
-            $map = [
-                ['article_id', '=', $id]
-            ];
-        } else {
-            return [
-                'debug' => false,
-                'cache' => false,
-                'msg'   => Lang::get('param error'),
-                'data'  => Request::param('', [], 'trim')
-            ];
-        }
+        if ($id = (int) $this->request->param('id/f', 0)) {
+            $tags = (new ModelArticleTags)
+                ->view('article_tags', ['tags_id'])
+                ->view('tags', ['name'], 'tags.id=article_tags.tags_id')
+                ->where([
+                    ['article_tags.article_id', '=', $id],
+                ])
+                ->select()
+                ->toArray();
+            if (!empty($tags)) {
+                if (cookie('?__htags')) {
+                    $user_tags = cookie('__htags');
+                }
 
-        $result =
-        ModelTagsArticle::view('tags_article article')
-        ->view('tags tags', ['name' => 'tags_name'], 'tags.id=article.tags_id')
-        ->where($map)
-        ->cache(__METHOD__ . $id, null, 'HISTORY')
-        ->select()
-        ->toArray();
+
+
+                if ($this->uid) {
+                    # code...
+                }
+            }
+
+            if (!empty($tags) && $this->uid) {
+                # code...
+            } elseif (!empty($tags)) {
+                $this->cookie->has('__htags');
+            }
+        }
     }
 
     /**

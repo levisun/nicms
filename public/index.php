@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 应用入口文件
@@ -12,15 +13,8 @@
  * CB|Alpha 内测版 RC|Beta  正式候选版 Demo 演示版
  * Stable 稳定版 Release 正式版
  */
-namespace think;
 
-version_compare(PHP_VERSION, '7.1.0', '>=') or die('系统需要PHP7.1+版本! 当前PHP版本:' . PHP_VERSION . '.');
-extension_loaded('pdo') or die('请开启 pdo 模块!');
-extension_loaded('pdo_mysql') or die('请开启 pdo_mysql 模块!');
-ini_set('memory_limit', '16M');
-// ini_set('max_execution_time', '30');
-set_time_limit(30);
-header('X-Powered-By: NICMS');
+namespace think;
 
 require __DIR__ . '/../vendor/autoload.php';
 

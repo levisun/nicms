@@ -309,18 +309,6 @@ abstract class Async
     }
 
     /**
-     * 设置缓存时间
-     * @access protected
-     * @param
-     * @return $this
-     */
-    protected function setExpire(int $_expire)
-    {
-        $this->apiExpire = $_expire ?: $this->apiExpire;
-        return $this;
-    }
-
-    /**
      * 初始化
      * @access protected
      * @param
@@ -445,7 +433,7 @@ abstract class Async
                 ->where([
                     ['id', '=', $this->appid]
                 ])
-                ->cache(__METHOD__ . $this->appid, 1440, 'library')
+                ->cache(__METHOD__ . $this->appid, null, 'SYSTEM')
                 ->find();
 
             if ($result) {

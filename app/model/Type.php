@@ -15,9 +15,9 @@ namespace app\model;
 
 use think\Model;
 
-class ArticleType extends Model
+class Type extends Model
 {
-    protected $name = 'article_type';
+    protected $name = 'type';
     protected $autoWriteTimestamp = false;
     protected $updateTime = false;
     protected $pk = 'id';

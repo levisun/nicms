@@ -42,12 +42,15 @@ class CheckRequest
 
     public function handle(App $_app)
     {
+        @ini_set('memory_limit', '16M');
+        set_time_limit(30); // ini_set('max_execution_time', '30');
+
         $this->app     = $_app;
         $this->cookie  = $this->app->cookie;
         $this->request = $this->app->request;
 
-        if ('api' !== $this->request->controller(true) && 1 === rand(1, 1999)) {
-            $this->log->record('[并发]', 'alert')->save();
+        if ('api' !== $this->request->controller(true) && 1 === mt_rand(1, 999)) {
+            $this->app->log->record('[并发]', 'alert')->save();
             $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>500</title><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section>';
 
             http_response_code(500);
@@ -56,15 +59,39 @@ class CheckRequest
         }
 
         // 客户端唯一ID
-        !$this->cookie->has('__uid') and $this->cookie->set('__uid', md5(uniqid(client_id(), true)));
+        if (!$this->cookie->has('__uid')) {
+            $this->cookie->set('__uid', md5(uniqid(client_id(), true)));
+        }
 
         $this->requestId = $this->cookie->has('__uid') ? $this->cookie->get('__uid') : $this->request->ip();
         $this->requestId = md5($this->requestId);
 
+        // 检查空间环境支持
+        $this->inspect();
         // 锁定频繁请求IP
         $this->lockRequest();
         // 记录请求数
         $this->recordRequest();
+    }
+
+    /**
+     * 检查空间环境支持
+     * @access protected
+     * @param
+     * @return void
+     */
+    protected function inspect(): void
+    {
+        $lock  = $this->app->getRuntimePath() . md5(__DIR__ . 'inspect lock') . '_inspect.lock';
+        if (!is_file($lock)) {
+            version_compare(PHP_VERSION, '7.1.0', '>=') or die('系统需要PHP7.1+版本! 当前PHP版本:' . PHP_VERSION . '.');
+            extension_loaded('pdo') or die('请开启 pdo 模块!');
+            extension_loaded('pdo_mysql') or die('请开启 pdo_mysql 模块!');
+            function_exists('file_put_contents') or die('空间不支持 file_put_contents 函数,系统无法写文件.');
+            function_exists('fopen') or die('空间不支持 fopen 函数,系统无法读写文件.');
+            get_extension_funcs('gd') or die('空间不支持 gd 模块,图片打水印和缩略生成功能无法使用.');
+            file_put_contents($lock, date('Y-m-d H:i:s'));
+        }
     }
 
     /**
@@ -75,11 +102,7 @@ class CheckRequest
      */
     protected function lockRequest(): void
     {
-        $log  = $this->app->getRuntimePath() . 'req' . DIRECTORY_SEPARATOR;
-        if (!is_dir($log)) {
-            chmod($this->app->getRuntimePath(), 0777);
-            mkdir($log, 0777, true);
-        }
+        $log  = $this->app->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR;
         $log .= $this->requestId . '.php.lock';
 
         if (is_file($log)) {
@@ -101,6 +124,10 @@ class CheckRequest
     protected function recordRequest(): void
     {
         $log = $this->app->getRuntimePath() . 'req' . DIRECTORY_SEPARATOR;
+        if (!is_dir($log)) {
+            mkdir($log, 0777, true);
+        }
+
         $log .= $this->requestId . '.php';
 
         $number = is_file($log) ? include $log : '';

@@ -28,6 +28,10 @@ class ReGarbage
     public function run(): void
     {
         $lock = app()->getRuntimePath() . 'remove_garbage.lock';
+        clearstatcache();
+        if (is_file($lock) && filemtime($lock) >= strtotime('-1 days')) {
+            return;
+        }
         if ($fp = @fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 Log::record('[REGARBAGE] 删除垃圾信息', 'alert');
@@ -35,9 +39,8 @@ class ReGarbage
                 $root_path = app()->getRootPath();
 
                 $this->remove($runtime_path . 'cache', 3);
-                $this->remove($runtime_path . 'compile', 3);
+                $this->remove($runtime_path . 'compile', 7);
                 $this->remove($runtime_path . 'log', 3);
-                $this->remove($runtime_path . 'req', 1);
                 $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 1);
 
                 $dir = (array)glob($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*');

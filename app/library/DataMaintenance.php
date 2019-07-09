@@ -27,12 +27,43 @@ class DataMaintenance
     public function __construct()
     {
         $this->savePath = app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR;
-        clearstatcache();
-        set_time_limit(0);
+        set_time_limit(28800);
     }
 
     /**
-     * 自动更新
+     * 自动优化,修复数据
+     * @access public
+     * @param
+     * @return bool
+     */
+    public function autoOptimize(): bool
+    {
+        $lock = app()->getRuntimePath() . 'db_op.lock';
+        clearstatcache();
+        if (is_file($lock) && filemtime($lock) >= strtotime('-7 days')) {
+            return false;
+        }
+
+        if ($fp = @fopen($lock, 'w+')) {
+            if (flock($fp, LOCK_EX | LOCK_NB)) {
+                ignore_user_abort(true);
+
+                $this->optimize();  // 优化表
+                $this->repair();    // 修复表
+
+                fwrite($fp, '优化|修复数据' . date('Y-m-d H:i:s'));
+                flock($fp, LOCK_UN);
+
+                ignore_user_abort(false);
+            }
+            fclose($fp);
+        }
+        return true;
+
+    }
+
+    /**
+     * 自动备份
      * @access public
      * @param  int $_hour 相隔几小时更新备份
      * @return bool
@@ -45,8 +76,12 @@ class DataMaintenance
             mkdir($this->savePath, 0777, true);
         }
 
-        $path = app()->getRuntimePath() . 'db_auto_back.lock';
-        if ($fp = fopen($path, 'w+')) {
+        $lock = app()->getRuntimePath() . 'db_auto_back.lock';
+        clearstatcache();
+        if (is_file($lock) && filemtime($lock) >= strtotime('-1 hour')) {
+            return false;
+        }
+        if ($fp = fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 Log::record('[AUTO BACKUP] 自动备份数据库', 'alert');
 
@@ -77,7 +112,7 @@ class DataMaintenance
                     $field = $this->queryTableInsertField($name);
                     $num = 1;
                     for ($i = 0; $i < $total; $i++) {
-                        $hour = '-' . rand($_hour, $_hour + 7) . ' hour';
+                        $hour = '-' . mt_rand($_hour, $_hour + 7) . ' hour';
                         $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
 
                         if (isset($btime[$name . $num])) {
@@ -134,8 +169,8 @@ class DataMaintenance
             mkdir($this->savePath, 0777, true);
         }
 
-        $path = app()->getRuntimePath() . 'db_back.lock';
-        if ($fp = fopen($path, 'w+')) {
+        $lock = app()->getRuntimePath() . 'db_back.lock';
+        if ($fp = fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 $table_name = $this->queryTableName();
 

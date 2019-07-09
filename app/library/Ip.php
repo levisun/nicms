@@ -53,7 +53,7 @@ class Ip
                 unset($region['id'], $region['update_time']);
                 $region['ip'] = $_ip;
 
-                Cache::tag('library')->set($cache_key, $region);
+                Cache::tag('SYSTEM')->set($cache_key, $region);
             } else {
                 $region = Cache::get($cache_key);
             }

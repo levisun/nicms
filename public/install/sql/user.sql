@@ -101,3 +101,12 @@ INSERT INTO `np_level` (`id`, `name`, `credit`, `status`, `remark`) VALUES
 (4, 'VIP会员', 3000, 1, ''),
 (5, '高级会员', 500, 1, ''),
 (6, '普通会员', 0, 1, '');
+
+DROP TABLE IF EXISTS `np_user_history`;
+CREATE TABLE IF NOT EXISTS `np_user_history` (
+  `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
+  `tags` text COMMENT '标签',
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户历史记录';
