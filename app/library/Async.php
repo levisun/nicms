@@ -227,11 +227,6 @@ abstract class Async
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('default_filter');
 
-        // 开启调试清空请求缓存
-        if ($this->app->isDebug()) {
-            $this->cache->clear();
-        }
-
         $max_input_vars = (int) ini_get('max_input_vars');
         if (count($_POST) + count($_FILES) + count($_GET) >= $max_input_vars - 5) {
             $this->error('非法参数', 40002);

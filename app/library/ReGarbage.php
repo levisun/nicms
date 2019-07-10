@@ -41,6 +41,7 @@ class ReGarbage
                 $this->remove($runtime_path . 'cache', 3);
                 $this->remove($runtime_path . 'compile', 7);
                 $this->remove($runtime_path . 'log', 3);
+                $this->remove($runtime_path . 'req', 1);
                 $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 1);
 
                 $dir = (array)glob($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*');

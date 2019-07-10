@@ -123,7 +123,7 @@ class Safe extends BaseService
 
         file_put_contents($this->app->getRootPath() . '.env', $result);
 
-        $this->cache->tag('siteinfo')->clear();
+        $this->cache->tag('SYSTEM')->clear();
 
         return [
             'debug' => false,

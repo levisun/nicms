@@ -93,7 +93,7 @@ class Basic extends BaseService
                 ->update();
         }
 
-        $this->cache->tag('siteinfo')->clear();
+        $this->cache->tag('SYSTEM')->clear();
 
         return [
             'debug' => false,

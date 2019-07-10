@@ -70,7 +70,7 @@ class Maintain
 
         // 开启调试清空请求缓存
         if ($this->app->isDebug()) {
-            $this->app->cache->clear();
+            // $this->app->cache->clear();
         }
     }
 }

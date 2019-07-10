@@ -78,7 +78,7 @@ class DataMaintenance
 
         $lock = app()->getRuntimePath() . 'db_auto_back.lock';
         clearstatcache();
-        if (is_file($lock) && filemtime($lock) >= strtotime('-1 hour')) {
+        if (is_file($lock) && filemtime($lock) >= strtotime('-30 minute')) {
             return false;
         }
         if ($fp = fopen($lock, 'w+')) {
