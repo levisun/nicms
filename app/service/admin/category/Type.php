@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\service\admin\category;
 
 use app\service\BaseService;
-use app\model\ArticleType as ModelArticleType;
+use app\model\Type as ModelType;
 
 class Type extends BaseService
 {
@@ -42,10 +42,10 @@ class Type extends BaseService
 
         $query_limit = (int) $this->request->param('limit/f', 10);
 
-        $result = (new ModelArticleType)
-            ->view('article_type', ['id', 'name', 'remark'])
-            ->view('category', ['name' => 'cat_name'], 'category.id=article_type.category_id')
-            ->order('category.id DESC, article_type.id')
+        $result = (new ModelType)
+            ->view('type', ['id', 'name', 'remark'])
+            ->view('category', ['name' => 'cat_name'], 'category.id=type.category_id')
+            ->order('category.id DESC, type.id')
             ->paginate($query_limit, false, ['path' => 'javascript:paging([PAGE]);']);
 
         $list = $result->toArray();
