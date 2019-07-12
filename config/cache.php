@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 缓存设置
@@ -10,24 +11,30 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
+
 use think\facade\Env;
-use think\facade\Request;
 
 return [
-    // 驱动方式
-    'type'          => Env::get('cache.type', 'file'),
-    // 缓存保存目录
-    'path'          => '',
-    // 缓存前缀
-    'prefix'        => '',
-    // 缓存有效期 0表示永久缓存
-    'expire'        => (int)Env::get('cache.expire', 28800) - rand(1, 1440),
-    // 关闭子目录
-    'cache_subdir'  => false,
-    // 缓存标签前缀
-    'tag_prefix'    => 'tag:',
-    // 序列化机制 例如 ['serialize', 'unserialize']
-    'serialize'     => ['serialize', 'unserialize'],
-    // 开启压缩
-    'data_compress' => false,
+    // 默认缓存驱动
+    'default' => Env::get('cache.driver', 'file'),
+    // 缓存连接方式配置
+    'stores'  => [
+        'file' => [
+            // 驱动方式
+            'type'         => 'File',
+            // 缓存保存目录
+            'path'         => app()->getRuntimePath() . 'cache',
+            // 缓存前缀
+            'prefix'       => '',
+            // 缓存有效期 0表示永久缓存
+            'expire'       => (int) Env::get('cache.expire', 28800) - mt_rand(1, 1440),
+            // 关闭子目录
+            'cache_subdir' => false,
+            // 缓存标签前缀
+            'tag_prefix'   => 'tag:',
+            // 序列化机制 例如 ['serialize', 'unserialize']
+            'serialize'    => [],
+        ],
+        // 更多的缓存连接
+    ],
 ];

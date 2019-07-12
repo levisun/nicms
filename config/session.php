@@ -19,5 +19,5 @@ return [
     // 驱动方式 支持file redis memcache memcached
     'type'           => 'app\library\Session',
     // 过期时间
-    'expire'         => 0,
+    'expire'         => 28800,
 ];

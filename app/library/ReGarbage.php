@@ -73,7 +73,6 @@ class ReGarbage
         $dir = $this->getDirAllFile($_dir . DIRECTORY_SEPARATOR . '*', $_expire);
         while ($dir->valid()) {
             $filename = $dir->current();
-            Log::record(pathinfo($filename, PATHINFO_BASENAME), 'alert');
             if (is_dir($filename)) {
                 @rmdir($filename);
             } elseif (is_file($filename) && false === strpos($filename, '_skl')) {

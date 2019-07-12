@@ -185,14 +185,16 @@ if (!function_exists('emoji_clear')) {
 if (!function_exists('client_id')) {
     /**
      * 客户端唯一ID
-     * @param  int    $_extend
+     * @param
      * @return string
      */
-    function client_id(int $_extend = 0)
+    function client_id(): string
     {
-        $client_id = bindec(Request::ip2bin(Request::ip())) + mt_rand();
-        $client_id = (float) str_pad((string) $client_id, 11, (string) mt_rand(), STR_PAD_LEFT);
-        $client_id = date('ymdHis') . $client_id . (mt_rand() + $_extend);
+        $client_id  = mt_rand((int) date('mdHis'), time());
+        $client_id += bindec(Request::ip2bin(Request::ip()));
+        $client_id += mt_rand((int) date('mdHis'), time());
+        $client_id = str_pad((string) $client_id, 20, (string) mt_rand(), STR_PAD_LEFT);
+        $client_id = date('ymdHis') . $client_id;
 
         return $client_id;
     }

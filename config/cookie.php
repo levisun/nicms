@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Cookie设置
@@ -10,6 +11,7 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
+
 use think\facade\Request;
 
 return [

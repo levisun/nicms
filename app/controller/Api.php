@@ -84,7 +84,8 @@ class Api extends Async
             if (preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
                 $this->validate();
 
-                $key = md5('sms_' . $this->request->ip());
+                $key = $this->cookie->has('__uid') ? $this->cookie->get('__uid') : $this->request->ip();
+                $key = md5('sms_' . $key);
 
                 if ($this->session->has($key) && $result = $this->session->get($key)) {
                     if ($result['time'] >= time()) {
@@ -93,7 +94,7 @@ class Api extends Async
                 }
 
                 $result = [
-                    'captcha' => rand(100000, 999999),
+                    'captcha' => mt_rand(100000, 999999),
                     'time'    => time() + 120,
                     'phone'   => $phone,
                 ];
@@ -119,7 +120,7 @@ class Api extends Async
             if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
                 $this->validate();
                 $ip = Ip::info($ip);
-                $this->openCache(true)->setExpire(28800)->success('IP INFO', $ip);
+                $this->openCache(true)->success('IP INFO', $ip);
             }
         } else {
             $this->error('缺少参数', 40001);

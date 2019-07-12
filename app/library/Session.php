@@ -61,7 +61,7 @@ class Session implements SessionHandlerInterface
             ['session_id', '=', $this->config['prefix'] . $sessID]
         ];
 
-        if ($this->config['expire'] != 0) {
+        if (0 !== $this->config['expire']) {
             $map[] = ['update_time', '>=', time() - $this->config['expire']];
         }
 
