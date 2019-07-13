@@ -34,7 +34,7 @@ class ReGarbage
         }
         if ($fp = @fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
-                Log::record('[REGARBAGE] 删除垃圾信息', 'alert');
+                Log::record('[REGARBAGE] 删除垃圾信息', 'alert')->save();
                 $runtime_path = app()->getRuntimePath();
                 $root_path = app()->getRootPath();
 
@@ -44,15 +44,15 @@ class ReGarbage
                 $this->remove($runtime_path . 'req', 1);
                 $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 1);
 
-                $dir = (array)glob($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*');
-                foreach ($dir as $path) {
-                    $date = (int)date('Ym');
-                    $this->remove($path . DIRECTORY_SEPARATOR . $date, 192);
-                    --$date;
-                    $this->remove($path . DIRECTORY_SEPARATOR . $date, 192);
-                }
+                // $dir = (array)glob($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*');
+                // foreach ($dir as $path) {
+                //     $date = (int)date('Ym');
+                //     $this->remove($path . DIRECTORY_SEPARATOR . $date, 192);
+                //     --$date;
+                //     $this->remove($path . DIRECTORY_SEPARATOR . $date, 192);
+                // }
 
-                unset($runtime_path, $root_path, $dir, $date);
+                // unset($runtime_path, $root_path, $dir, $date);
 
                 fwrite($fp, '清除垃圾数据' . date('Y-m-d H:i:s'));
                 flock($fp, LOCK_UN);

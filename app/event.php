@@ -17,10 +17,10 @@ return [
     'listen'    => [
         'AppInit'  => [],
         'HttpRun'  => [
-            'app\event\CheckRequest'
+            \app\event\CheckRequest::class
         ],
         'HttpEnd'  => [
-            'app\event\Maintain'
+            \app\event\Maintain::class
         ],
         'LogLevel' => [],
         'LogWrite' => [],

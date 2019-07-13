@@ -14,7 +14,7 @@
 
 return [
     // 全局请求缓存
-    'app\middleware\CheckRequestCache',
+    \app\middleware\CheckRequestCache::class,
     // 多语言加载
-    'think\middleware\LoadLangPack',
+    \think\middleware\LoadLangPack::class,
 ];

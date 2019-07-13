@@ -83,7 +83,7 @@ class DataMaintenance
         }
         if ($fp = fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
-                Log::record('[AUTO BACKUP] 自动备份数据库', 'alert');
+                Log::record('[AUTO BACKUP] 自动备份数据库', 'alert')->save();
 
                 if (is_file($this->savePath . 'backup_time.json')) {
                     $btime = json_decode(file_get_contents($this->savePath . 'backup_time.json'), true);
@@ -207,12 +207,12 @@ class DataMaintenance
      */
     public function optimize(): bool
     {
-        Log::record('[DATAMAINTENANCE OPTIMIZE] 优化表', 'alert');
+        Log::record('[DATAMAINTENANCE OPTIMIZE] 优化表', 'alert')->save();
         $tables = $this->queryTableName();
         foreach ($tables as $name) {
             if (false === $this->analyze($name)) {
                 Db::query('OPTIMIZE TABLE `' . $name . '`');
-                Log::record($name, 'alert');
+                // Log::record($name, 'alert');
             }
         }
         return true;
@@ -226,7 +226,7 @@ class DataMaintenance
      */
     public function repair(): bool
     {
-        Log::record('[DATAMAINTENANCE REPAIR] 修复表', 'alert');
+        Log::record('[DATAMAINTENANCE REPAIR] 修复表', 'alert')->save();
         $config = Db::getConfig();
         $config['params'][\PDO::ATTR_EMULATE_PREPARES] = true;
         Db::connect($config, true);
@@ -234,7 +234,7 @@ class DataMaintenance
         foreach ($tables as $name) {
             if (false === $this->check($name)) {
                 Db::query('REPAIR TABLE `' . $name . '`');
-                Log::record($name, 'alert');
+                // Log::record($name, 'alert');
             }
         }
         return true;

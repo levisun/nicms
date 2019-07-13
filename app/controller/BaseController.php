@@ -33,9 +33,9 @@ abstract class BaseController
      */
     protected $middleware = [
         // Session初始化
-        'think\middleware\SessionInit',
+        \think\middleware\SessionInit::class,
         // 页面Trace调试
-        'think\middleware\TraceDebug',
+        \think\middleware\TraceDebug::class,
     ];
 
     /**

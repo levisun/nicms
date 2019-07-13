@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 数据层
@@ -11,6 +12,18 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
+/*
+DROP TABLE IF EXISTS `nc_article_tags`;
+CREATE TABLE IF NOT EXISTS `nc_article_tags` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `tags_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '标签ID',
+  `article_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '文章ID',
+  PRIMARY KEY (`id`),
+  KEY `tags_id` (`tags_id`) USING BTREE,
+  KEY `article_id` (`article_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='标签文章关联表';
+ */
+
 namespace app\model;
 
 use think\Model;
