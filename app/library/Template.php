@@ -313,9 +313,9 @@ class Template
      * @access private
      * @param  string $_template
      * @param  string $_content
-     * @return void
+     * @return bool
      */
-    private function compileWrite(string $_template, $_content): void
+    private function compileWrite(string $_template, $_content)
     {
         $_template .= $this->request->baseUrl(true);
         $_template .= $this->lang->getLangSet();
@@ -325,10 +325,12 @@ class Template
 
         $path = $this->compile_path . md5($this->request->controller(true) . $_template) . '.php';
 
-        if (false === $this->config->get('app.debug')) {
-            // $_content = function_exists('gzcompress') ? gzcompress($_content) : $_content;
-            file_put_contents($path, $_content);
+        if (false === $this->config->get('app.debug') && is_file($path)) {
+            return true;
         }
+
+        // $_content = function_exists('gzcompress') ? gzcompress($_content) : $_content;
+        file_put_contents($path, $_content);
     }
 
     /**
@@ -348,9 +350,7 @@ class Template
         $path = $this->compile_path . md5($this->request->controller(true) . $_template) . '.php';
 
         clearstatcache();
-        if (true === $this->config->get('app.debug') && is_file($path)) {
-            unlink($path);
-        } elseif (is_file($path)) {
+        if (false === $this->config->get('app.debug') && is_file($path)) {
             $content = file_get_contents($path);
             // $content = function_exists('gzcompress') ? gzuncompress($content) : $content;
             return $content;
@@ -560,9 +560,9 @@ class Template
      * 模板文件
      * @access private
      * @param  string $_template 模板文件规则
-     * @return void
+     * @return string 模板路径
      */
-    private function parseTemplate(string $_template): void
+    private function parseTemplate(string $_template): string
     {
         // 获取视图根目录
         if (strpos($_template, '@')) {
@@ -588,5 +588,7 @@ class Template
         }
 
         $this->content = file_get_contents($path . $_template);
+
+        return $path . $_template;
     }
 }

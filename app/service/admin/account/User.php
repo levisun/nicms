@@ -68,11 +68,11 @@ class User extends BaseService
 
                 // 登录令牌
                 $this->session->set($this->auth_key, $user['id']);
-                $this->session->set($this->auth_key . 'role', $user['id']);
+                $this->session->set($this->auth_key . '_role', $user['id']);
                 $this->session->delete('login_lock');
 
                 $this->uid = $result['id'];
-                $this->urole = $result['role'];
+                $this->urole = $result['_role'];
                 $this->authenticate(__METHOD__, 'admin user login');
 
                 return [
