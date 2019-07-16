@@ -170,45 +170,43 @@ class Ip
     {
         $result = self::get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
         // $result = self::get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
-
-        if ($result && $result = json_decode($result, true)) {
-            if (!empty($result) && $result['code'] == 0) {
-                $result = $result['data'];
-                $isp     = !empty($result['isp']) ? DataFilter::default($result['isp']) : '';
-                $country = self::queryRegion($result['country'], 0);
-                if ($country) {
-                    $province = self::queryRegion($result['region'], $country);
-                    $city     = self::queryRegion($result['city'], $province);
-                    $area     = !empty($result['area']) ? self::queryRegion($result['area'], $city) : 0;
-
-                    $has = (new IpInfo)
-                        ->where([
-                            ['ip', '=', bindec(Request::ip2bin($_ip))]
-                        ])
-                        ->value('id');
-
-                    if (!$has) {
-                        (new IpInfo)
-                            ->create([
-                                'ip'          => bindec(Request::ip2bin($_ip)),
-                                'country_id'  => $country,
-                                'province_id' => $province,
-                                'city_id'     => $city,
-                                'area_id'     => $area,
-                                'isp'         => $isp,
-                                'update_time' => time(),
-                                'create_time' => time()
-                            ]);
-                    }
-
-                    $result = self::query($_ip);
-                }
-            }
-        } else {
-            $result = false;
+        $result = $result ? json_decode($result, true) : null;
+        if (!is_array($result) || empty($result) || $result['code'] == 0) {
+            return false;
         }
 
-        return $result;
+        $result = $result['data'];
+        $isp     = !empty($result['isp']) ? DataFilter::default($result['isp']) : '';
+        $country = self::queryRegion($result['country'], 0);
+        if (!$country) {
+            return false;
+        }
+
+        $province = self::queryRegion($result['region'], $country);
+        $city     = self::queryRegion($result['city'], $province);
+        $area     = !empty($result['area']) ? self::queryRegion($result['area'], $city) : 0;
+
+        $has = (new IpInfo)
+            ->where([
+                ['ip', '=', bindec(Request::ip2bin($_ip))]
+            ])
+            ->value('id');
+
+        if (!$has) {
+            (new IpInfo)
+                ->create([
+                    'ip'          => bindec(Request::ip2bin($_ip)),
+                    'country_id'  => $country,
+                    'province_id' => $province,
+                    'city_id'     => $city,
+                    'area_id'     => $area,
+                    'isp'         => $isp,
+                    'update_time' => time(),
+                    'create_time' => time()
+                ]);
+        }
+
+        return self::query($_ip);
     }
 
     /**
@@ -216,48 +214,50 @@ class Ip
      * @access private
      *
      * @param
-     * @return void
+     * @return bool
      */
-    private static function update($_ip): void
+    private static function update($_ip)
     {
         $result = self::get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
         // $result = self::get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
-
-        if ($result && $result = json_decode($result, true)) {
-            if (!empty($result) && $result['code'] == 0) {
-                $result = $result['data'];
-                $isp     = !empty($result['isp']) ? DataFilter::default($result['isp']) : '';
-                $country = self::queryRegion($result['country'], 0);
-                if ($country) {
-                    $province = self::queryRegion($result['region'], $country);
-                    $city     = self::queryRegion($result['city'], $province);
-                    $area     = !empty($result['area']) ? self::queryRegion($result['area'], $city) : 0;
-
-                    $has = (new IpInfo)
-                        ->where([
-                            ['ip', '=', bindec(Request::ip2bin($_ip))]
-                        ])
-                        ->value('id');
-
-                    if ($has) {
-                        (new IpInfo)
-                            ->where([
-                                ['ip', '=', bindec(Request::ip2bin($_ip))],
-                            ])
-                            ->update([
-                                'country_id'  => $country,
-                                'province_id' => $province,
-                                'city_id'     => $city,
-                                'area_id'     => $area,
-                                'isp'         => $isp,
-                                'update_time' => time()
-                            ]);
-                    }
-
-                    $result = self::query($_ip);
-                }
-            }
+        $result = $result ? json_decode($result, true) : null;
+        if (!is_array($result) || empty($result) || $result['code'] == 0) {
+            return false;
         }
+
+        $result = $result['data'];
+        $isp     = !empty($result['isp']) ? DataFilter::default($result['isp']) : '';
+        $country = self::queryRegion($result['country'], 0);
+        if (!$country) {
+            return false;
+        }
+
+        $province = self::queryRegion($result['region'], $country);
+        $city     = self::queryRegion($result['city'], $province);
+        $area     = !empty($result['area']) ? self::queryRegion($result['area'], $city) : 0;
+
+        $has = (new IpInfo)
+            ->where([
+                ['ip', '=', bindec(Request::ip2bin($_ip))]
+            ])
+            ->value('id');
+
+        if ($has) {
+            (new IpInfo)
+                ->where([
+                    ['ip', '=', bindec(Request::ip2bin($_ip))],
+                ])
+                ->update([
+                    'country_id'  => $country,
+                    'province_id' => $province,
+                    'city_id'     => $city,
+                    'area_id'     => $area,
+                    'isp'         => $isp,
+                    'update_time' => time()
+                ]);
+        }
+
+        return self::query($_ip);
     }
 
     private static function get_curl($_url): string

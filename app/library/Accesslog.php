@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 访问日志
@@ -10,7 +11,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\library;
 
@@ -36,8 +38,10 @@ class Accesslog
         $this->ip = Ip::info(Request::ip());
 
         // 蜘蛛
-        if ($spider = $this->isSpider()) {
-            $has = (new ModelSearchengine)
+        $spider = $this->isSpider();
+        if (is_string($spider)) {
+            $searchengine = new ModelSearchengine;
+            $has = $searchengine
                 ->where([
                     ['name', '=', $spider],
                     ['user_agent', '=', $this->user_agent],
@@ -47,7 +51,7 @@ class Accesslog
                 ->value('name');
 
             if ($has) {
-                (new ModelSearchengine)
+                $searchengine
                     ->where([
                         ['name', '=', $spider],
                         ['user_agent', '=', $this->user_agent],
@@ -56,7 +60,7 @@ class Accesslog
                     ->inc('count', 1, 60)
                     ->update();
             } else {
-                (new ModelSearchengine)
+                $searchengine
                     ->create([
                         'name'       => $spider,
                         'user_agent' => $this->user_agent,
@@ -66,8 +70,9 @@ class Accesslog
         }
 
         // 访问
-        else {
-            $has = (new ModelVisit)
+        if (false === $spider) {
+            $visit = new ModelVisit;
+            $has = $visit
                 ->where([
                     ['ip', '=', $this->ip['ip']],
                     ['user_agent', '=', $this->user_agent],
@@ -77,7 +82,7 @@ class Accesslog
                 ->value('ip');
 
             if ($has) {
-                (new ModelVisit)
+                $visit
                     ->where([
                         ['ip', '=', $this->ip['ip']],
                         ['user_agent', '=', $this->user_agent],
@@ -86,7 +91,7 @@ class Accesslog
                     ->inc('count', 1, 60)
                     ->update();
             } else {
-                (new ModelVisit)
+                $visit
                     ->create([
                         'ip'         => $this->ip['ip'],
                         'ip_attr'    => $this->ip['country'] .  $this->ip['region'] . $this->ip['city'] .  $this->ip['area'],
@@ -97,7 +102,7 @@ class Accesslog
         }
 
         // 删除过期信息
-        if (1 === rand(1, 5)) {
+        if (1 === mt_rand(1, 9)) {
             (new ModelSearchengine)
                 ->where([
                     ['date', '<=', strtotime('-90 days')]
@@ -136,7 +141,7 @@ class Accesslog
             'SOGOU'          => 'sogou push spider',
             'YISOU'          => 'yisouspider',
         ];
-        $this->user_agent = $this->user_agent ? $this->user_agent : Request::server('HTTP_USER_AGENT');
+        $this->user_agent = $this->user_agent ?: Request::server('HTTP_USER_AGENT');
 
         $user_agent = strtolower($this->user_agent);
         foreach ($searchengine as $key => $value) {

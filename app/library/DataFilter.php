@@ -30,14 +30,13 @@ class DataFilter
                 $_data[$key] = self::default($value);
             }
             return $_data;
-        } elseif (is_string($_data)) {
+        }
+        if (is_string($_data)) {
             $_data = self::safe($_data);
             $_data = self::fun($_data);
             $_data = self::enter($_data);
             $_data = strip_tags($_data);
             return $_data;
-        } else {
-            return null;
         }
     }
 
@@ -54,14 +53,13 @@ class DataFilter
                 $_data[$key] = self::content($value);
             }
             return $_data;
-        } elseif (is_string($_data)) {
+        }
+        if (is_string($_data)) {
             $_data = self::safe($_data);
             $_data = self::fun($_data);
             $_data = self::enter($_data);
             $_data = htmlspecialchars($_data);
             return $_data;
-        } else {
-            return null;
         }
     }
 
@@ -78,7 +76,8 @@ class DataFilter
                 $_data[$key] = self::string($value);
             }
             return $_data;
-        } elseif (is_string($_data)) {
+        }
+        if (is_string($_data)) {
             $_data = self::safe($_data);
             $_data = self::fun($_data);
             $_data = self::enter($_data);

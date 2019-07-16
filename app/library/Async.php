@@ -320,40 +320,40 @@ abstract class Async
     {
         // 校验API方法
         $this->method = $this->request->param('method');
-        if ($this->method && preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $this->method)) {
-            list($logic, $class, $action) = explode('.', $this->method, 3);
-
-            $method  = 'app\service\\' . $this->module . '\\';
-            $method .= $this->openVersion ? 'v' . implode('_', $this->version) . '\\' : '';
-            $method .= $logic . '\\' . ucfirst($class);
-
-            // 校验类是否存在
-            if (!class_exists($method)) {
-                $this->debugLog['method not found'] = $method;
-                $this->log->record('[Async] method not found ' . $method, 'alert');
-                $this->error('非法参数', 20002);
-            }
-
-            // 校验类方法是否存在
-            if (!method_exists($method, $action)) {
-                $this->debugLog['action not found'] = $method . '->' . $action . '();';
-                $this->log->record('[Async] action not found ' . $method . '->' . $action . '();', 'alert');
-                $this->error('非法参数', 20002);
-            }
-
-            // 加载语言包
-            $lang  = $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $this->module . DIRECTORY_SEPARATOR;
-            $lang .= $this->openVersion ? 'v' . implode('_', $this->version) . DIRECTORY_SEPARATOR : '';
-            $lang .= $this->lang->getLangSet() . '.php';
-            $this->lang->load($lang);
-
-            return [
-                'class'  => $method,
-                'action' => $action
-            ];
-        } else {
+        if (!$this->method || false === preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $this->method)) {
             $this->error('非法参数', 20002);
         }
+
+        list($logic, $class, $action) = explode('.', $this->method, 3);
+
+        $method  = 'app\service\\' . $this->module . '\\';
+        $method .= $this->openVersion ? 'v' . implode('_', $this->version) . '\\' : '';
+        $method .= $logic . '\\' . ucfirst($class);
+
+        // 校验类是否存在
+        if (!class_exists($method)) {
+            $this->debugLog['method not found'] = $method;
+            $this->log->record('[Async] method not found ' . $method, 'alert');
+            $this->error('非法参数', 20002);
+        }
+
+        // 校验类方法是否存在
+        if (!method_exists($method, $action)) {
+            $this->debugLog['action not found'] = $method . '->' . $action . '();';
+            $this->log->record('[Async] action not found ' . $method . '->' . $action . '();', 'alert');
+            $this->error('非法参数', 20002);
+        }
+
+        // 加载语言包
+        $lang  = $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $this->module . DIRECTORY_SEPARATOR;
+        $lang .= $this->openVersion ? 'v' . implode('_', $this->version) . DIRECTORY_SEPARATOR : '';
+        $lang .= $this->lang->getLangSet() . '.php';
+        $this->lang->load($lang);
+
+        return [
+            'class'  => $method,
+            'action' => $action
+        ];
     }
 
     /**
@@ -382,38 +382,38 @@ abstract class Async
     {
         // 校验签名类型
         $this->signType = $this->request->param('sign_type', 'md5');
-        if ($this->signType && function_exists($this->signType)) {
-            // 校验签名合法性
-            $this->sign = $this->request->param('sign');
-            if ($this->sign && preg_match('/^[A-Za-z0-9]+$/u', $this->sign)) {
-                $params = $this->request->param('', '', 'trim');
-                ksort($params);
-
-                $str = '';
-                $c_f = ['appid', 'sign_type', 'timestamp', 'method'];
-                foreach ($params as $key => $value) {
-                    if (is_string($value) && !is_null($value) && in_array($key, $c_f)) {
-                        $str .= $key . '=' . $value . '&';
-                    }
-                }
-                $str = rtrim($str, '&');
-                $str .= $this->appsecret;
-
-                if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
-                    $this->debugLog['sign_str'] = $str;
-                    $this->debugLog['sign'] = call_user_func($this->signType, $str);
-                    $this->log->record('[Async] params-sign error', 'alert');
-                    $this->error('授权权限不足', 20001);
-                }
-            } else {
-                $this->debugLog['sign'] = $this->sign;
-                $this->log->record('[Async] params-sign error', 'alert');
-                $this->error('非法参数', 20002);
-            }
-        } else {
+        if (!$this->signType || !function_exists($this->signType)) {
             $this->debugLog['sign_type'] = $this->signType;
             $this->log->record('[Async] params-sign_type error', 'alert');
             $this->error('非法参数', 20002);
+        }
+
+        // 校验签名合法性
+        $this->sign = $this->request->param('sign');
+        if (!$this->sign || false === preg_match('/^[A-Za-z0-9]+$/u', $this->sign)) {
+            $this->debugLog['sign'] = $this->sign;
+            $this->log->record('[Async] params-sign error', 'alert');
+            $this->error('非法参数', 20002);
+        }
+
+        $params = $this->request->param('', '', 'trim');
+        ksort($params);
+
+        $str = '';
+        $c_f = ['appid', 'sign_type', 'timestamp', 'method'];
+        foreach ($params as $key => $value) {
+            if (is_string($value) && !is_null($value) && in_array($key, $c_f)) {
+                $str .= $key . '=' . $value . '&';
+            }
+        }
+        $str = rtrim($str, '&');
+        $str .= $this->appsecret;
+
+        if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
+            $this->debugLog['sign_str'] = $str;
+            $this->debugLog['sign'] = call_user_func($this->signType, $str);
+            $this->log->record('[Async] params-sign error', 'alert');
+            $this->error('授权权限不足', 20001);
         }
 
         return $this;
@@ -429,26 +429,26 @@ abstract class Async
     {
         $this->appid  = (int) $this->request->param('appid/f', 1000001);
         $this->appid -= 1000000;
-        if ($this->appid && $this->appid >= 1) {
-            $result = (new ModelApiApp)
-                ->field('secret, module')
-                ->where([
-                    ['id', '=', $this->appid]
-                ])
-                ->cache(__METHOD__ . $this->appid, null, 'SYSTEM')
-                ->find();
-
-            if ($result) {
-                $result = $result->toArray();
-                $this->appsecret = $result['secret'];
-                $this->module    = $result['module'];
-            } else {
-                $this->log->record('[Async] auth-appid error', 'alert');
-                $this->error('权限不足', 20001);
-            }
-        } else {
+        if (!$this->appid || $this->appid <= 0) {
             $this->log->record('[Async] auth-appid not', 'alert');
             $this->error('非法参数', 20002);
+        }
+
+        $result = (new ModelApiApp)
+            ->field('secret, module')
+            ->where([
+                ['id', '=', $this->appid]
+            ])
+            ->cache(__METHOD__ . $this->appid, null, 'SYSTEM')
+            ->find();
+
+        if ($result) {
+            $result = $result->toArray();
+            $this->appsecret = $result['secret'];
+            $this->module    = $result['module'];
+        } else {
+            $this->log->record('[Async] auth-appid error', 'alert');
+            $this->error('权限不足', 20001);
         }
 
         return $this;
@@ -463,58 +463,60 @@ abstract class Async
     private function analysisHeader()
     {
         $this->authorization = $this->request->header('authorization');
-        if ($this->authorization && $this->authorization = (new Jwt)->verify($this->authorization)) {
-            if (!empty($this->authorization['jti'])) {
-                $this->session->setId($this->authorization['jti']);
-            }
-        } else {
+        $this->authorization = $this->authorization ? (new Jwt)->verify($this->authorization) : false;
+
+        if (false === $this->authorization || empty($this->authorization['jti'])) {
             $this->log->record('[Async] header-authorization params error', 'alert');
             $this->error('权限不足', 20001);
         }
 
+        // 规定sessionID
+        $this->session->setId($this->authorization['jti']);
+
         // 解析版本号与返回数据类型
         $this->accept = $this->request->header('accept');
-        if ($this->accept && preg_match('/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]+\+[A-Za-z]{3,5}+$/u', $this->accept)) {
-            // 过滤多余信息
-            $accept = str_replace('application/vnd.', '', $this->accept);
-
-            // 校验域名合法性
-            list($domain, $accept) = explode('.', $accept, 2);
-            list($root) = explode('.', $this->request->rootDomain(), 2);
-            if (!hash_equals($domain, $root)) {
-                $this->log->record('[Async] header-accept domain error', 'alert');
-                $this->error('权限不足', 20001);
-            }
-            unset($doamin, $root);
-
-            // 取得版本与数据类型
-            list($version, $this->format) = explode('+', $accept, 2);
-            if ($version && preg_match('/^[v0-9.]+$/u', $version)) {
-                $version = substr($version, 1);
-                list($major, $minor) = explode('.', $version, 3);
-                $this->version = [
-                    'major' => $major,
-                    'minor' => $minor
-                ];
-                unset($version, $major, $minor);
-            } else {
-                $this->debugLog['version'] = $version;
-                $this->log->record('[Async] header-accept version error', 'alert');
-                $this->error('非法参数', 20002);
-            }
-            // 校验返回数据类型
-            if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
-                $this->debugLog['format'] = $this->format;
-                $this->log->record('[Async] header-accept format error', 'alert');
-                $this->error('非法参数', 20002);
-            }
-
-            unset($accept);
-        } else {
+        if (!$this->accept || false === preg_match('/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]+\+[A-Za-z]{3,5}+$/u', $this->accept)) {
             $this->debugLog['accept'] = $this->accept;
             $this->log->record('[Async] header-accept error', 'alert');
             $this->error('非法参数', 20002);
         }
+
+        // 过滤多余信息
+        $accept = str_replace('application/vnd.', '', $this->accept);
+
+        // 校验域名合法性
+        list($domain, $accept) = explode('.', $accept, 2);
+        list($root) = explode('.', $this->request->rootDomain(), 2);
+        if (!hash_equals($domain, $root)) {
+            $this->log->record('[Async] header-accept domain error', 'alert');
+            $this->error('权限不足', 20001);
+        }
+        unset($doamin, $root);
+
+        // 取得版本与数据类型
+        list($version, $this->format) = explode('+', $accept, 2);
+        if (!$version || false === preg_match('/^[v0-9.]+$/u', $version)) {
+            $this->debugLog['version'] = $version;
+            $this->log->record('[Async] header-accept version error', 'alert');
+            $this->error('非法参数', 20002);
+        }
+
+        $version = substr($version, 1);
+        list($major, $minor) = explode('.', $version, 3);
+        $this->version = [
+            'major' => $major,
+            'minor' => $minor
+        ];
+        unset($version, $major, $minor);
+
+        // 校验返回数据类型
+        if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
+            $this->debugLog['format'] = $this->format;
+            $this->log->record('[Async] header-accept format error', 'alert');
+            $this->error('非法参数', 20002);
+        }
+
+        unset($accept);
 
         return $this;
     }

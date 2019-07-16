@@ -90,6 +90,10 @@ class Upload
      */
     private function saveFile(object $_object): array
     {
+        $result = $_object->validate($this->rule)->rule('uniqid')->move($this->savePath);
+
+
+
         if ($result = $_object->validate($this->rule)->rule('uniqid')->move($this->savePath)) {
             $extension = strtolower(pathinfo($result->getSaveName(), PATHINFO_EXTENSION));
 

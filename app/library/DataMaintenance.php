@@ -59,7 +59,6 @@ class DataMaintenance
             fclose($fp);
         }
         return true;
-
     }
 
     /**
@@ -72,7 +71,6 @@ class DataMaintenance
     {
         $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
         if (!is_dir($this->savePath)) {
-            chmod(app()->getRuntimePath(), 0777);
             mkdir($this->savePath, 0777, true);
         }
 
@@ -81,6 +79,7 @@ class DataMaintenance
         if (is_file($lock) && filemtime($lock) >= strtotime('-30 minute')) {
             return false;
         }
+
         if ($fp = fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 Log::record('[AUTO BACKUP] 自动备份数据库', 'alert')->save();
@@ -99,11 +98,11 @@ class DataMaintenance
                     $sql_file = $this->savePath . $name . '.sql';
                     if (!isset($btime[$name]) || !is_file($sql_file)) {
                         $sql = $this->queryTableStructure($name);
-                        $this->write($sql_file, $sql);
+                        file_put_contents($sql_file, $sql, FILE_APPEND);
                         $btime[$name] = time();
                     } elseif (isset($btime[$name]) && $btime[$name] <= strtotime('-1 days')) {
                         $sql = $this->queryTableStructure($name);
-                        $this->write($sql_file, $sql);
+                        file_put_contents($sql_file, $sql, FILE_APPEND);
                         $btime[$name] = time();
                         continue;
                     }
@@ -123,11 +122,11 @@ class DataMaintenance
                             }
                             if (false === $btime[$name . $num]) {
                                 $sql = $this->queryTableInsertData($name, $field, $i);
-                                $this->write($sql_file, $sql);
+                                file_put_contents($sql_file, $sql, FILE_APPEND);
                             }
                         } elseif (!isset($btime[$name . $num])) {
                             $sql = $this->queryTableInsertData($name, $field, $i);
-                            $this->write($sql_file, $sql);
+                            file_put_contents($sql_file, $sql, FILE_APPEND);
                             $btime[$name . $num] = false;
                         }
 
@@ -165,7 +164,6 @@ class DataMaintenance
     {
         $this->savePath .= date('YmdHis') . DIRECTORY_SEPARATOR;
         if (!is_dir($this->savePath)) {
-            chmod(app()->getRuntimePath(), 0777);
             mkdir($this->savePath, 0777, true);
         }
 
@@ -178,14 +176,14 @@ class DataMaintenance
                 foreach ($table_name as $name) {
                     $sql_file = $this->savePath . $name . '.sql';
                     if ($sql = $this->queryTableStructure($name)) {
-                        $this->write($sql_file, $sql);
+                        file_put_contents($sql_file, $sql, FILE_APPEND);
                     }
 
                     $total = $this->queryTableInsertTotal($name);
                     $field = $this->queryTableInsertField($name);
                     for ($limit = 0; $limit < $total; $limit++) {
                         $sql = $this->queryTableInsertData($name, $field, $limit);
-                        $this->write($sql_file, $sql);
+                        file_put_contents($sql_file, $sql, FILE_APPEND);
                     }
                 }
 
@@ -212,7 +210,6 @@ class DataMaintenance
         foreach ($tables as $name) {
             if (false === $this->analyze($name)) {
                 Db::query('OPTIMIZE TABLE `' . $name . '`');
-                // Log::record($name, 'alert');
             }
         }
         return true;
@@ -234,7 +231,6 @@ class DataMaintenance
         foreach ($tables as $name) {
             if (false === $this->check($name)) {
                 Db::query('REPAIR TABLE `' . $name . '`');
-                // Log::record($name, 'alert');
             }
         }
         return true;
@@ -272,10 +268,10 @@ class DataMaintenance
      */
     private function queryTableInsertData(string $_table_name, string $_field, int $_limit): string
     {
-        $_limit = $_limit * 500;
+        $_limit = $_limit * 200;
         $data = Db::table($_table_name)
             ->field($_field)
-            ->limit($_limit, 500)
+            ->limit($_limit, 200)
             ->select();
 
         $insert_into = 'INSERT INTO `' . $_table_name . '` (' . $_field . ') VALUES' . PHP_EOL;
@@ -325,11 +321,7 @@ class DataMaintenance
     private function queryTableInsertTotal(string $_table_name): int
     {
         $total = Db::table($_table_name)->count();
-        if ($total) {
-            return (int) ceil($total / 500);
-        } else {
-            return 0;
-        }
+        return $total ? (int) ceil($total / 200) : 0;
     }
 
     /**
@@ -341,15 +333,16 @@ class DataMaintenance
     private function queryTableStructure(string $_table_name)
     {
         $tableRes = Db::query('SHOW CREATE TABLE `' . $_table_name . '`');
-        if (!empty($tableRes[0]['Create Table'])) {
-            $structure  = 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
-            $structure .= $tableRes[0]['Create Table'] . ';' . PHP_EOL;
-            return preg_replace_callback('/(AUTO_INCREMENT=[0-9]+ DEFAULT)/si', function ($matches) {
-                return 'DEFAULT';
-            }, $structure);
-        } else {
+        if (empty($tableRes[0]['Create Table'])) {
             return false;
         }
+
+        $structure  = 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
+        $structure .= $tableRes[0]['Create Table'] . ';' . PHP_EOL;
+
+        return preg_replace_callback('/(AUTO_INCREMENT=[0-9]+ DEFAULT)/si', function ($matches) {
+            return 'DEFAULT';
+        }, $structure);
     }
 
     /**

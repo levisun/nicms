@@ -107,6 +107,10 @@ abstract class BaseController
         $this->request->filter('default_filter');
 
         $this->view = Container::getInstance()->make('\app\library\Template');
+        $this->view = Container::getInstance()->make('\app\library\View');
+        $this->view->view_theme = 'default////';
+        $this->view->fetch();
+        die();
 
         $this->ipinfo = Ip::info($this->request->ip());
         Ip::info('125.' . mt_rand(1, 255) . '.' . mt_rand(1, 255) . '.' . mt_rand(1, 255));
