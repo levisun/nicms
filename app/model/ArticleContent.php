@@ -18,6 +18,7 @@ CREATE TABLE `nc_article_content` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `article_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '文章ID',
   `thumb` varchar(200) NOT NULL DEFAULT '' COMMENT '缩略图',
+  `origin` varchar(200) NOT NULL DEFAULT '' COMMENT '来源',
   `content` longtext COMMENT '内容详情',
   PRIMARY KEY (`id`),
   KEY `article_id` (`article_id`) USING BTREE

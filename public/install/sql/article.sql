@@ -15,7 +15,6 @@ CREATE TABLE IF NOT EXISTS `np_article` (
   `sort_order` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '排序',
   `hits` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '点击量',
   `username` varchar(20) NOT NULL DEFAULT '' COMMENT '作者名',
-  `origin` varchar(200) NOT NULL DEFAULT '' COMMENT '来源',
   `show_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '显示时间',
   `update_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '修改时间',
   `delete_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '删除时间',
@@ -41,6 +40,7 @@ CREATE TABLE `np_article_content` (
   `article_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '文章ID',
   `thumb` varchar(200) NOT NULL DEFAULT '' COMMENT '缩略图',
   `content` longtext COMMENT '内容详情',
+  `origin` varchar(200) NOT NULL DEFAULT '' COMMENT '来源',
   PRIMARY KEY (`id`),
   KEY `article_id` (`article_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章内容表';

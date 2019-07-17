@@ -30,7 +30,6 @@ CREATE TABLE IF NOT EXISTS `nc_article` (
   `sort_order` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '排序',
   `hits` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '点击量',
   `username` varchar(20) NOT NULL DEFAULT '' COMMENT '作者名',
-  `origin` varchar(200) NOT NULL DEFAULT '' COMMENT '来源',
   `show_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '显示时间',
   `update_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '修改时间',
   `delete_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '删除时间',

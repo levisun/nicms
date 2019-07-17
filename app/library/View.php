@@ -77,7 +77,7 @@ class View
         'tpl_deny_php'       => false,                  // 默认模板引擎是否禁用PHP原生代码
         'tpl_begin'          => '{',                    // 模板引擎普通标签开始标记
         'tpl_end'            => '}',                    // 模板引擎普通标签结束标记
-        'strip_space'        => false,                  // 是否去除模板文件里面的html空格与换行
+        'strip_space'        => true,                   // 是否去除模板文件里面的html空格与换行
 
         'layout_on'          => true,                   // 布局模板开关
         'layout_name'        => 'layout',               // 布局模板入口文件
@@ -174,9 +174,9 @@ class View
             ob_start();
             ob_implicit_flush(0);
 
-            if ($this->vars) {
-                extract($this->vars, EXTR_OVERWRITE);
-            }
+            // if ($this->vars) {
+            //     extract($this->vars, EXTR_OVERWRITE);
+            // }
 
             //载入模版缓存文件
             include $cache_file;
@@ -242,33 +242,19 @@ class View
      */
     private function compiler(string &$_content, $_cache_file)
     {
-
-
         // 模板解析
         $this->parse($_content);
 
         // 去除html空格与换行
         if ($this->config['strip_space']) {
-            $pattern = [
-                '/>(\n|\r|\f)+/'      => '>',
-                '/(\n|\r|\f)+</'      => '<',
-                '/<\!\-\-.*?\-\->/si' => '',
-                '/\/\*.*?\*\//si'     => '',
-                '/\/\/.*?(\n|\r)+/i'  => '',
-                '/\n|\r|\f/'          => '',
-                '/( ){2,}/si'         => '',
-            ];
-            // $find    = ['~>\s+<~', '~>(\s+\n|\r)~'];
-            // $replace = ['><', '>'];
-            $_content = preg_replace(array_keys($pattern), array_values($pattern), $_content);
+            /* 去除html空格与换行 */
+            $find    = ['~>\s+<~', '~>(\s+\n|\r)~', '/( ){2,}/si'];
+            $replace = ['><', '>', ''];
+            $_content = preg_replace($find, $replace, $_content);
         }
 
-        // 模板过滤输出
-        $replace = $this->config['tpl_replace_string'];
-        $_content = str_replace(array_keys($replace), array_values($replace), $_content);
-
         // 过滤非法信息
-        $_content = DataFilter::string($_content);
+        // $_content = DataFilter::string($_content);
 
         // 添加安全代码及模板引用记录
         $_content = '<?php /*' . serialize($this->includeFile) . '*/ ?>' . "\n" . $_content;
@@ -292,21 +278,161 @@ class View
      */
     private function parse(string &$_content)
     {
+        // 解析布局
         $this->parseLayout($_content);
         // 检查include语法
         $this->parseInclude($_content);
+
+        // 解析函数
+        $this->parseFunc($_content);
+
+        // 解析标签
+        $this->parseTags($_content);
+
+        // 解析变量
+        $this->parseVars($_content);
+
+        // 模板过滤输出
+        $replace = $this->config['tpl_replace_string'];
+        $_content = str_replace(array_keys($replace), array_values($replace), $_content);
+    }
+
+    /**
+     * 模板标签解析
+     * 格式： {标签名:方法 参数名=值}{/标签名}
+     * @access private
+     * @param  string $content 要解析的模板内容
+     * @return void
+     */
+    private function parseTags(string &$_content): void
+    {
+        // 单标签解析
+        $pattern = '/' . $this->config['tpl_begin'] . '([a-zA-Z]+):([a-zA-Z0-9 $.="\']+)\/' . $this->config['tpl_end'] . '/si';
+        if (false !== preg_match_all($pattern, $_content, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $tags = '\taglib\\' . ucfirst($match[1]);
+
+                $match[2] = strtolower($match[2]);
+                if (false !== strpos($match[2], ' ')) {
+                    list($action, $params) = explode(' ', $match[2], 2);
+                    $params = str_replace(['"', "'", ' '], ['', '', '&'], $params);
+                    parse_str($params, $params);
+                } else {
+                    $action = trim($match[2]);
+                    $params = [];
+                }halt($params);
+
+                if (!class_exists($tags) || !method_exists($tags, $action)) {
+                    $str = '<!-- 无法解析:' . htmlspecialchars_decode($match[0]) . ' -->';
+                    $_content = str_replace($matches[0], $str, $_content);
+                }
+
+                $str = call_user_func([$tags, $action], $params, $this->config);
+                $_content = str_replace($matches[0], $str, $_content);
+            }
+        }
+
+        // 闭合标签解析
+        $pattern = '/' .
+            $this->config['tpl_begin'] . '([a-zA-Z]+):([a-zA-Z0-9 ="\']+)' . $this->config['tpl_end'] .
+            '(.*?)' .
+            $this->config['tpl_begin'] . '\/([a-zA-Z]+)' . $this->config['tpl_end'] . '/si';
+        $_content =
+            preg_replace_callback($pattern, function ($matches) {
+                $tags = '\taglib\\' . ucfirst($matches[1]);
+                $action = trim($matches[2]);
+                if (!class_exists($tags) || !method_exists($tags, $action)) {
+                    return '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
+                }
+
+                $result = call_user_func([$tags, $action], $params);
+                print_r($matches);
+                // code
+            }, $_content);
+    }
+
+    /**
+     * 模板变量解析,支持使用函数 支持多维数组
+     * 格式： {$类型.名称}
+     * @access private
+     * @param  string  $_content 要解析的模板内容
+     * @return void
+     */
+    private function parseVars(string &$_content): void
+    {
+        $pattern = '/' . $this->config['tpl_begin'] . '\$([a-zA-Z0-9_.]+)' . $this->config['tpl_end'] . '/si';
+
+        $_content =
+            preg_replace_callback($pattern, function ($matches) {
+                $var_type = '';
+                $var_name = $matches[1];
+                if (false !== strpos($matches[1], '.')) {
+                    list($var_type, $var_name) = explode('.', $matches[1], 2);
+                    $var_type = strtoupper(trim($var_type));
+                }
+
+                if ('CONST' === $var_type) {
+                    $defined = get_defined_constants();
+                    $var_name = strtoupper($var_name);
+                    return isset($defined[$var_name]) ? '<?php echo ' . $var_name . ';?>' : $var_name;
+                }
+
+                if ('GET' === $var_type) {
+                    $vars = '$_GET';
+                }
+                if ('POST' === $var_type) {
+                    $vars = '$_POST';
+                }
+                if ('COOKIE' === $var_type) {
+                    $vars = '$_COOKIE';
+                }
+
+                $var_name = explode('.', $var_name);
+                foreach ($var_name as $name) {
+                    $vars .= '["' . $name . '"]';
+                }
+                return '<?php echo isset(' . $vars . ') ? ' . $vars . ' : null;?>';
+            }, $_content);
+    }
+
+    /**
+     * 对模板中使用了函数进行解析
+     * 格式 {:函数名(参数)}
+     * @access private
+     * @param  string  $_content 要解析的模板内容
+     * @return void
+     */
+    private function parseFunc(string &$_content): void
+    {
+        $pattern = '/' . $this->config['tpl_begin'] . ':([a-zA-Z0-9_]+)\((.*?)\)' . $this->config['tpl_end'] . '/si';
+
+        $_content =
+            preg_replace_callback($pattern, function ($matches) {
+                $safe_func = [
+                    'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'strtolower', 'date',
+                    'cookie', 'lang', 'url', 'current', 'end', 'sprintf',
+                ];
+                if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
+                    $matches[2] = str_replace(['"', "'"], '', $matches[2]);
+                    return call_user_func($matches[1], $matches[2]);
+                } else {
+                    return '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
+                }
+            }, $_content);
     }
 
     /**
      * 引入文件
      * @access private
-     * @param
+     * @param  string  $_content 要解析的模板内容
      * @return void
      */
-    private function parseInclude(string &$_content)
+    private function parseInclude(string &$_content): void
     {
+        $pattern = '/' . $this->config['tpl_begin'] . 'include file=["|\']+([a-zA-Z_]+)["|\']+' . $this->config['tpl_end'] . '/si';
+
         $_content =
-            preg_replace_callback('/{include file=["|\']+([a-zA-Z_]+)["|\']+}/si', function ($matches) {
+            preg_replace_callback($pattern, function ($matches) {
                 if ($matches[1] && $template = $this->parseTemplateFile($matches[1])) {
                     return file_get_contents($template);
                 }
@@ -316,9 +442,9 @@ class View
     }
 
     /**
-     * 布局模板
+     * 解析模板中的布局标签
      * @access private
-     * @param
+     * @param  string  $_content 要解析的模板内容
      * @return void
      */
     private function parseLayout(string &$_content): void
