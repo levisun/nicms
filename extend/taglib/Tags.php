@@ -18,17 +18,43 @@ namespace taglib;
 
 class Tags
 {
+
+    public static function foot(array $_attr = [], $_config)
+    {
+        $path = $_config['view_path'] . request()->controller(true) . DIRECTORY_SEPARATOR . $_config['view_theme'];
+
+        $config = '';
+        if (request()->isMobile() && is_file($path . 'mobile' . DIRECTORY_SEPARATOR . 'config.json')) {
+            $config = file_get_contents($path . 'mobile' . DIRECTORY_SEPARATOR . 'config.json');
+        } elseif (is_file($path . 'config.json')) {
+            $config = file_get_contents($path . 'config.json');
+        }
+
+        $foot = '';
+        if ($config && $config = json_decode(strip_tags($config), true)) {
+            // JS引入
+            foreach ($config['js'] as $js) {
+                $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $config['theme_version'] . '"></script>';
+            }
+        }
+
+        // $foot .= '</body></html>';
+
+        return $foot;
+    }
+
     public static function meta(array $_attr = [], $_config)
     {
         $path = $_config['view_path'] . request()->controller(true) . DIRECTORY_SEPARATOR . $_config['view_theme'];
 
+        $config = '';
         if (request()->isMobile() && is_file($path . 'mobile' . DIRECTORY_SEPARATOR . 'config.json')) {
             $config = file_get_contents($path . 'mobile' . DIRECTORY_SEPARATOR . 'config.json');
         } elseif (is_file($path . 'config.json')) {
             $config = file_get_contents($path . 'config.json');
         }
         $head = '';
-        if ($config = json_decode(strip_tags($config), true)) {
+        if ($config && $config = json_decode(strip_tags($config), true)) {
             // 自定义meta标签
             if (!empty($config['meta'])) {
                 foreach ($config['meta'] as $m) {
@@ -100,10 +126,10 @@ class Tags
                 'api'    => [
                     'url'           => app()->config->get('app.api_host'),
                     'root'          => $root,
-                    'version'       => '__API_VERSION__',
-                    'appid'         => '__API_APPID__',
-                    'appsecret'     => '__API_APPSECRET__',
-                    'authorization' => '{: __AUTHORIZATION__}',
+                    'version'       => $config['api_version'],
+                    'appid'         => $config['api_appid'],
+                    'appsecret'     => $config['api_appsecret'],
+                    'authorization' => '{__AUTHORIZATION__}',
                     'param'         => request()->param()
                 ],
                 'cdn' => [
@@ -114,7 +140,6 @@ class Tags
                     'js'     => '__JS__',
                 ]
             ]) .
-            '</script>' .
-            '<body>';
+            '</script>';
     }
 }

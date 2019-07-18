@@ -1,0 +1,63 @@
+<aside class="main-sidebar">
+    <section class="sidebar">
+        <form action="#" method="get" class="sidebar-form">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search...">
+                <span class="input-group-btn">
+                    <button type="submit" name="search" id="search-btn" class="btn btn-flat">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </span>
+            </div>
+        </form>
+
+        <ul class="sidebar-menu" data-widget="tree">
+            <li v-for="vo in user_auth" v-bind:class="NICMS.api.param.service==vo.name ? 'treeview active' : 'treeview'">
+                <a>
+                    <i v-bind:class="ICON[vo.name]"></i> <span v-text="vo.lang"></span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li v-for="v in vo.child" v-bind:class="NICMS.api.param.logic==v.name ? 'active' : ''">
+                        <a v-bind:href="v.url"><i class="fa fa-circle-o"></i><font v-text="v.lang"></font></a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+</aside>
+<script>
+var ICON = {
+    settings: 'fa fa-gear',
+    theme: 'fa fa-dashboard',
+    category: 'fa fa-navicon',
+    content: 'fa fa-edit',
+    user: 'fa fa-group',
+    wechat: 'fa fa-wechat',
+    book: 'fa fa-book',
+    extend: 'fa fa-plus-circle',
+};
+jQuery.pjax({
+    url: NICMS.api.url + '/query.do',
+    type: 'GET',
+    data: {
+        method: 'account.user.auth'
+    },
+    success: function(result){
+        if (result.code == 10000 && result.data) {
+            jQuery('.content-header h1 font').text(result.data[NICMS.api.param.service].lang);
+            jQuery('.content-header h1 small').text(result.data[NICMS.api.param.service].child[NICMS.api.param.logic].lang);
+            jQuery('.content-header .breadcrumb').append('<li><a>'+result.data[NICMS.api.param.service].lang+'</a></li>');
+            jQuery('.content-header .breadcrumb').append('<li class="active"><a href="'+result.data[NICMS.api.param.service].child[NICMS.api.param.logic].url+'">'+result.data[NICMS.api.param.service].child[NICMS.api.param.logic].lang+'</a></li>');
+            new Vue({
+                el: '.sidebar-menu',
+                data: {
+                    user_auth: result.data
+                }
+            });
+        }
+    }
+});
+</script>

@@ -53,6 +53,12 @@ class View
     private $literal = [];
 
     /**
+     * JS脚本内容
+     * @var string
+     */
+    private $script = '';
+
+    /**
      * 模板配置参数
      * @var array
      */
@@ -62,16 +68,12 @@ class View
         'view_suffix'        => 'html',                 // 默认模板文件后缀
         'view_depr'          => DIRECTORY_SEPARATOR,
 
-
-
         'cache_path'         => '',
         'cache_suffix'       => 'php',                  // 默认模板缓存后缀
         'cache_prefix'       => '',                     // 模板缓存前缀标识，可以动态改变
         'cache_time'         => 0,                      // 模板缓存有效期 0 为永久，(以数字为值，单位:秒)
-        'tpl_cache'          => false,                   // 是否开启模板编译缓存,设为false则每次都会重新编译
-        // 'compile_type'       => 'file',                 // 模板编译类型
-
-
+        'cache_id'           => '',                     // 模板缓存ID
+        'tpl_cache'          => false,                  // 是否开启模板编译缓存,设为false则每次都会重新编译
 
         'tpl_deny_func_list' => 'echo,exit',            // 模板引擎禁用函数
         'tpl_deny_php'       => false,                  // 默认模板引擎是否禁用PHP原生代码
@@ -85,23 +87,18 @@ class View
 
         'taglib_begin'       => '{',                    // 标签库标签开始标记
         'taglib_end'         => '}',                    // 标签库标签结束标记
-        'taglib_load'        => true,                   // 是否使用内置标签库之外的其它标签库，默认自动检测
-        'taglib_build_in'    => 'cx',                   // 内置标签库名称(标签使用不必指定标签库名称),以逗号分隔 注意解析顺序
-        'taglib_pre_load'    => '',                     // 需要额外加载的标签库(须指定标签库名称)，多个以逗号分隔
-        'display_cache'      => false,                  // 模板渲染缓存
-        'cache_id'           => '',                     // 模板缓存ID
         'tpl_replace_string' => [
             '__THEME__'       => 'theme/',
             '__CSS__'         => 'css/',
             '__IMG__'         => 'img/',
             '__JS__'          => 'js/',
             '__STATIC__'      => 'static/',
-            '__NAME__'        => '',
-            '__TITLE__'       => '',
-            '__KEYWORDS__'    => '',
-            '__DESCRIPTION__' => '',
-            '__BOTTOM_MSG__'  => '',
-            '__COPYRIGHT__'   => '',
+            '__NAME__'        => 'nicms',
+            '__TITLE__'       => 'nicms',
+            '__KEYWORDS__'    => 'nicms',
+            '__DESCRIPTION__' => 'nicms',
+            '__BOTTOM_MSG__'  => 'nicms',
+            '__COPYRIGHT__'   => 'nicms',
         ],
         'tpl_var_identify'   => 'array',                // .语法变量识别，array|object|'', 为空时自动识别
         'default_filter'     => 'htmlentities',         // 默认过滤方法 用于普通标签输出
@@ -120,18 +117,13 @@ class View
 
         // 拼装模板目录路径
         $config = [
-            'view_path'    => $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR,
+            'view_path'    => $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR,
             'cache_path'   => $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR,
             'cache_prefix' => $this->request->controller(true) . DIRECTORY_SEPARATOR,
-
-            'tpl_replace_string' => [
-                '__STATIC__' => $this->app->config->get('app.cdn_host') . '/static/'
-            ],
+            'tpl_cache'    => !$this->app->config->get('app.debug')
         ];
 
         $this->config = array_merge($this->config, $config);
-        // $this->config['tpl_replace_string']['__VERSION__'] = $this->app->config->get('app.version', '1.0.1');
-        // $this->config['tpl_replace_string']['__STATIC__'] = $this->app->config->get('app.cdn_host') . '/static/';
     }
 
     /**
@@ -142,7 +134,11 @@ class View
      */
     public function __set($name, $value)
     {
-        $this->config[$name] = $value;
+        if (is_array($value)) {
+            $this->config[$name] = array_merge($this->config[$name], $value);
+        } else {
+            $this->config[$name] = $value;
+        }
     }
 
     /**
@@ -183,6 +179,7 @@ class View
 
             // 获取并清空缓存
             $content = ob_get_clean();
+            $content = str_replace('{__AUTHORIZATION__}', create_authorization(), $content);
 
             echo $content;
         }
@@ -253,8 +250,9 @@ class View
             $_content = preg_replace($find, $replace, $_content);
         }
 
-        // 过滤非法信息
-        // $_content = DataFilter::string($_content);
+        // 优化生成的php代码
+        $_content = preg_replace('/\?>\s*<\?php\s(?!echo\b|\bend)/s', '', $_content);
+        $_content = str_replace('\/', '/', $_content);
 
         // 添加安全代码及模板引用记录
         $_content = '<?php /*' . serialize($this->includeFile) . '*/ ?>' . "\n" . $_content;
@@ -280,11 +278,17 @@ class View
     {
         // 解析布局
         $this->parseLayout($_content);
+
         // 检查include语法
         $this->parseInclude($_content);
 
+        // 解析JS脚本
+        $this->paresScript($_content);
+
         // 解析函数
         $this->parseFunc($_content);
+
+        $_content .= false === stripos($_content, '<body') ? '<body>' : '';
 
         // 解析标签
         $this->parseTags($_content);
@@ -293,7 +297,33 @@ class View
         $this->parseVars($_content);
 
         // 模板过滤输出
-        $replace = $this->config['tpl_replace_string'];
+        $this->paresReplace($_content);
+
+        $_content .= false === stripos($_content, '</body>') ? '</body>' : '';
+        $_content .= false === stripos($_content, '</html>') ? '</html>' : '';
+    }
+
+    /**
+     * 模板过滤输出
+     * @access private
+     * @param  string $content 要解析的模板内容
+     * @return void
+     */
+    private function paresReplace(string &$_content): void
+    {
+        $theme = $this->app->config->get('app.cdn_host') . '/theme/';
+        $theme .= $this->request->controller(true) . '/';
+        $theme .= str_replace(DIRECTORY_SEPARATOR, '/', $this->config['view_theme']);
+        $replace = [
+            '__SYS_VERSION__' => $this->app->config->get('app.version', '1.0.1'),
+            '__STATIC__'      => $this->app->config->get('app.cdn_host') . '/static/',
+            '__THEME__'       => $theme,
+            '__CSS__'         => $theme . 'css/',
+            '__IMG__'         => $theme . 'img/',
+            '__JS__'          => $theme . 'js/',
+        ];
+
+        $replace = array_merge($this->config['tpl_replace_string'], $replace);
         $_content = str_replace(array_keys($replace), array_values($replace), $_content);
     }
 
@@ -307,7 +337,7 @@ class View
     private function parseTags(string &$_content): void
     {
         // 单标签解析
-        $pattern = '/' . $this->config['tpl_begin'] . '([a-zA-Z]+):([a-zA-Z0-9 $.="\']+)\/' . $this->config['tpl_end'] . '/si';
+        $pattern = '/' . $this->config['tpl_begin'] . '([a-zA-Z]+):([a-zA-Z0-9 $.="\'_]+)\/' . $this->config['tpl_end'] . '/si';
         if (false !== preg_match_all($pattern, $_content, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
                 $tags = '\taglib\\' . ucfirst($match[1]);
@@ -320,35 +350,62 @@ class View
                 } else {
                     $action = trim($match[2]);
                     $params = [];
-                }halt($params);
+                }
 
                 if (!class_exists($tags) || !method_exists($tags, $action)) {
                     $str = '<!-- 无法解析:' . htmlspecialchars_decode($match[0]) . ' -->';
-                    $_content = str_replace($matches[0], $str, $_content);
+                } else {
+                    $str = call_user_func([$tags, $action], $params, $this->config);
                 }
 
-                $str = call_user_func([$tags, $action], $params, $this->config);
-                $_content = str_replace($matches[0], $str, $_content);
+                $_content = str_replace($match[0], $str, $_content);
             }
         }
 
         // 闭合标签解析
-        $pattern = '/' .
-            $this->config['tpl_begin'] . '([a-zA-Z]+):([a-zA-Z0-9 ="\']+)' . $this->config['tpl_end'] .
-            '(.*?)' .
-            $this->config['tpl_begin'] . '\/([a-zA-Z]+)' . $this->config['tpl_end'] . '/si';
-        $_content =
-            preg_replace_callback($pattern, function ($matches) {
-                $tags = '\taglib\\' . ucfirst($matches[1]);
-                $action = trim($matches[2]);
-                if (!class_exists($tags) || !method_exists($tags, $action)) {
-                    return '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
-                }
+        // $pattern = '/' .
+        //     $this->config['tpl_begin'] . '([a-zA-Z]+):([a-zA-Z0-9 ="\']+)' . $this->config['tpl_end'] .
+        //     '(.*?)' .
+        //     $this->config['tpl_begin'] . '\/([a-zA-Z]+)' . $this->config['tpl_end'] . '/si';
+        // $_content =
+        //     preg_replace_callback($pattern, function ($matches) {
+        //         $tags = '\taglib\\' . ucfirst($matches[1]);
+        //         $action = trim($matches[2]);
+        //         if (!class_exists($tags) || !method_exists($tags, $action)) {
+        //             return '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
+        //         }
 
-                $result = call_user_func([$tags, $action], $params);
-                print_r($matches);
-                // code
+        //         $result = call_user_func([$tags, $action], $params);
+        //         print_r($matches);
+        //         // code
+        //     }, $_content);
+    }
+
+    /**
+     * 模板JS脚本解析.脚本移至DOM底部
+     * @access private
+     * @param  string  $_content 要解析的模板内容
+     * @return void
+     */
+    private function paresScript(string &$_content): void
+    {
+        $_content =
+            preg_replace_callback('/<script( type="(.*?)")?>(.*?)<\/script>/si', function ($matches) {
+                $type = $matches[2] ?: 'text/javascript';
+                $matches[3] = DataFilter::string($matches[3]);
+                $pattern = [
+                    '/\/\/.*?(\n|\r)+/i',
+                    '/\n|\r|\f/'
+                ];
+                $matches[3] = preg_replace($pattern, '', $matches[3]);
+                $this->script .= '<script type="' . $type . '">' . $matches[3] . '</script>';
+                return '';
             }, $_content);
+
+        // 过滤非法信息
+        $_content = DataFilter::string($_content);
+        $_content .= $this->script;
+        $this->script = '';
     }
 
     /**
@@ -378,20 +435,16 @@ class View
                 }
 
                 if ('GET' === $var_type) {
-                    $vars = '$_GET';
+                    $vars = 'request()->get("' . $var_name . '")';
                 }
                 if ('POST' === $var_type) {
-                    $vars = '$_POST';
+                    $vars = 'request()->post("' . $var_name . '")';
                 }
                 if ('COOKIE' === $var_type) {
-                    $vars = '$_COOKIE';
+                    $vars = 'request()->cookie("' . $var_name . '")';
                 }
 
-                $var_name = explode('.', $var_name);
-                foreach ($var_name as $name) {
-                    $vars .= '["' . $name . '"]';
-                }
-                return '<?php echo isset(' . $vars . ') ? ' . $vars . ' : null;?>';
+                return '<?php echo ' . $vars . ';?>';
             }, $_content);
     }
 

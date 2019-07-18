@@ -1,0 +1,66 @@
+<div class="box">
+    <div class="box-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>{:lang('ip')}</th>
+                    <th>{:lang('count')}</th>
+                    <th>{:lang('agent')}</th>
+                    <th>{:lang('date')}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template v-for="vo in items.list">
+                    <tr>
+                        <td>
+                            <font v-text="vo.ip"></font>
+                            [<font v-text="vo.ip_attr"></font>]
+                        </td>
+                        <td>
+                            <font v-text="vo.count"></font>
+                        </td>
+                        <td>
+                            <font v-text="vo.user_agent"></font>
+                        </td>
+                        <td>
+                            <font v-text="vo.date"></font>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+    <div class="box-footer clearfix" v-html="items.page"></div>
+</div>
+
+<script>
+    var v = null;
+    paging(1);
+    function paging(_p) {
+        jQuery.pjax({
+            url: NICMS.api.url + '/query.do',
+            type: 'GET',
+            push: true,
+            replace: true,
+            requestUrl: NICMS.url + '?page=' + _p,
+            data: {
+                method: 'extend.visit.query',
+                page: _p,
+            },
+            success: function (result) {
+                if (result.code == 10000) {
+                    if (v) {
+                        v.items = result.data;
+                    } else {
+                        v = new Vue({
+                            el: '.box',
+                            data: {
+                                items: result.data
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
+</script>

@@ -1,0 +1,66 @@
+<div class="box">
+    <div class="box-body">
+        <form id="type">
+            <div class="form-group">
+                <label>{:lang('name')}</label>
+                <input type="text" name="name" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('remark')}</label>
+                <input type="text" name="remark" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('category_id')}</label>
+                <select class="form-control" name="category_id">
+                    <option>{:lang('select')}</option>
+                    <template v-for="vo in category" >
+                    <option v-bind:value="vo.id" v-text="vo.name"></option>
+
+                    <option v-for="v in vo.child" v-bind:value="v.id" v-text="'|__'+v.name"></option>
+
+                    </template>
+                </select>
+            </div>
+        </form>
+    </div>
+    <div class="box-footer">
+        <button class="btn btn-primary">{:lang('save')}</button>
+    </div>
+</div>
+<script>
+jQuery.pjax({
+    url: NICMS.api.url + '/query.do',
+    type: 'GET',
+    data: {
+        method: 'category.category.query',
+    },
+    success: function(result){
+        if (result.code == 10000) {
+            var vue = new Vue({
+                el: '.box',
+                data: {
+                    category: result.data.list
+                }
+            });
+        }
+    }
+});
+jQuery(document).on('click', '.btn', function(){
+    var btn = jQuery(this).button("{:lang('saveing')}");
+    var data = jQuery.getForm('#type');
+    data['method'] = 'category.type.added';
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle.do',
+        type: 'POST',
+        data: data,
+        success: function(result){
+            if (result.code === 10000) {
+                jQuery.uiToast(result.message);
+                history.back();
+            }
+        }
+    });
+});
+</script>

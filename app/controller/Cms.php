@@ -35,21 +35,22 @@ class Cms extends BaseController
         $this->authenticate();
 
         $result = Siteinfo::query();
-        $theme = $this->config->get('app.cdn_host') . '/view/cms/' . $result['theme'] . '/';
-        $this->setTheme($result['theme'])
-            ->setReplace([
-                '__THEME__'       => $theme,
-                '__CSS__'         => $theme . 'css/',
-                '__IMG__'         => $theme . 'img/',
-                '__JS__'          => $theme . 'js/',
-                '__NAME__'        => $result['name'],
-                '__TITLE__'       => $result['title'],
-                '__KEYWORDS__'    => $result['keywords'],
-                '__DESCRIPTION__' => $result['description'],
-                '__FOOTER_MSG__'  => $result['footer'],
-                '__COPYRIGHT__'   => $result['copyright'],
-                '__SCRIPT__'      => $result['script'],
-            ]);
+        $this->view->view_theme = $result['theme'];
+        // $theme = $this->config->get('app.cdn_host') . '/view/cms/' . $result['theme'] . '/';
+        // $this->setTheme($result['theme'])
+        //     ->setReplace([
+        //         '__THEME__'       => $theme,
+        //         '__CSS__'         => $theme . 'css/',
+        //         '__IMG__'         => $theme . 'img/',
+        //         '__JS__'          => $theme . 'js/',
+        //         '__NAME__'        => $result['name'],
+        //         '__TITLE__'       => $result['title'],
+        //         '__KEYWORDS__'    => $result['keywords'],
+        //         '__DESCRIPTION__' => $result['description'],
+        //         '__FOOTER_MSG__'  => $result['footer'],
+        //         '__COPYRIGHT__'   => $result['copyright'],
+        //         '__SCRIPT__'      => $result['script'],
+        //     ]);
     }
 
     /**

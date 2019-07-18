@@ -1,0 +1,239 @@
+<header class="main-header">
+    <a href="/" class="logo">
+        <span class="logo-mini"><b>N</b>I</span>
+        <span class="logo-lg"><b>Admin</b>NI</span>
+    </a>
+
+    <nav class="navbar navbar-static-top">
+        <a class="sidebar-toggle" data-toggle="push-menu" role="button">
+            <span class="sr-only">Toggle navigation</span>
+        </a>
+
+        <div class="navbar-custom-menu">
+            <ul class="nav navbar-nav">
+                <li class="dropdown lang-menu">
+                    <a class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-language"></i>
+                        <span class="label label-language"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <ul class="menu">
+                                <li>
+                                    <a>
+                                        <font>中文</font>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a>
+                                        <font>English</font>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="dropdown notifications-menu">
+                    <a class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-bell-o"></i>
+                        <span class="label label-warning" v-text="user_notice.total"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <ul class="menu">
+                                <li v-for="vo in user_notice.list">
+                                    <a v-bind:href="vo.url">
+                                        <i class="fa fa-warning text-yellow"></i> <font v-text="vo.title"></font>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="dropdown tasks-menu">
+                    <a class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-flag-o"></i>
+                        <span class="label label-danger">9</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class="header">You have 9 tasks</li>
+                        <li>
+                            <ul class="menu">
+                                <li>
+                                    <a href="#">
+                                        <h3>
+                                            Design some buttons
+                                            <small class="pull-right">20%</small>
+                                        </h3>
+                                        <div class="progress xs">
+                                            <div class="progress-bar progress-bar-aqua" style="width: 20%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+                                            <span class="sr-only">20% Complete</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <h3>
+                                            Create a nice theme
+                                            <small class="pull-right">40%</small>
+                                        </h3>
+                                        <div class="progress xs">
+                                            <div class="progress-bar progress-bar-green" style="width: 40%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+                                                <span class="sr-only">40% Complete</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <h3>
+                                            Some task I need to do
+                                            <small class="pull-right">60%</small>
+                                        </h3>
+                                        <div class="progress xs">
+                                            <div class="progress-bar progress-bar-red" style="width: 60%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+                                                <span class="sr-only">60% Complete</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <h3>
+                                            Make beautiful transitions
+                                            <small class="pull-right">80%</small>
+                                        </h3>
+                                        <div class="progress xs">
+                                            <div class="progress-bar progress-bar-yellow" style="width: 80%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+                                                <span class="sr-only">80% Complete</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="footer">
+                            <a href="#">View all tasks</a>
+                        </li>
+                    </ul>
+                </li>
+
+
+
+                <li class="dropdown user user-menu">
+                    <a class="dropdown-toggle" data-toggle="dropdown">
+                        <img src="__IMG__user2-160x160.jpg" class="user-image" alt="User Image">
+                        <span class="hidden-xs" v-text="user_profile.username"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class="user-header">
+                            <img src="__IMG__user2-160x160.jpg" class="img-circle" alt="User Image">
+                            <p>
+                                <font v-text="user_profile.username"></font>
+                                <small v-text="user_profile.role_name"></small>
+                            </p>
+                        </li>
+                        <li class="user-body">
+                            <div class="row">
+                                <div class="col-xs-4 text-center">
+                                    <a id="nc-re-cache-btn">{:lang('remove cache')}</a>
+                                </div>
+                                <div class="col-xs-4 text-center">
+                                    <a>{:lang('backup database')}</a>
+                                </div>
+                                <div class="col-xs-4 text-center">
+                                    <a>{:lang('log')}</a>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="user-footer">
+                            <div class="pull-left">
+                                <a class="btn btn-default btn-flat">{:lang('profile')}</a>
+                            </div>
+                            <div class="pull-right">
+                                <a class="btn btn-default btn-flat" id="nc-logout-btn">{:lang('sign out')}</a>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+<script>
+jQuery.pjax({
+    url: NICMS.api.url + '/query.do',
+    type: 'GET',
+    data: {
+        method: 'account.user.profile'
+    },
+    success: function(result){
+        if (result.code == 10000 && result.data) {
+            new Vue({
+                el: '.user-menu',
+                data: {
+                    user_profile: result.data
+                }
+            });
+        }
+    }
+});
+jQuery.pjax({
+    url: NICMS.api.url + '/query.do',
+    type: 'GET',
+    data: {
+        method: 'account.user.notice'
+    },
+    success: function(result){
+        if (result.code == 10000 && result.data) {
+            new Vue({
+                el: '.notifications-menu',
+                data: {
+                    user_notice: result.data
+                }
+            });
+        }
+    }
+});
+jQuery(document).on('click', '#nc-logout-btn', function(){
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle.do',
+        type: 'POST',
+        data: {
+            method: 'account.user.logout'
+        },
+        success: function(result){
+            if (result.code == 10000) {
+                location.reload();
+            }
+        }
+    });
+});
+jQuery(document).on('click', '#nc-re-cache-btn', function(){
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle.do',
+        type: 'POST',
+        data: {
+            method: 'content.cache.recache'
+        },
+        success: function(result){
+            if (result.code == 10000) {
+            }
+        }
+    });
+    jQuery.pjax({
+        url: NICMS.api.url + '/handle.do',
+        type: 'POST',
+        data: {
+            method: 'content.cache.recompile'
+        },
+        success: function(result){
+            if (result.code == 10000) {
+            }
+        }
+    });
+});
+</script>
