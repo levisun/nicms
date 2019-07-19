@@ -3,7 +3,9 @@
 <div class="wrapper">
     {include file="header"}
     {include file="sidebar"}
-
+{tags:foreach $data as $key => $value}
+echo $value;
+{/foreach}
     <div class="content-wrapper">
         <section class="content-header">
             <h1>

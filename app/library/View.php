@@ -337,25 +337,26 @@ class View
     private function parseTags(string &$_content): void
     {
         // 单标签解析
-        $pattern = '/' . $this->config['tpl_begin'] . '([a-zA-Z]+):([a-zA-Z0-9 $.="\'_]+)\/' . $this->config['tpl_end'] . '/si';
+        $pattern = '/' . $this->config['tpl_begin'] . '([a-zA-Z]+):([a-zA-Z]+)([a-zA-Z0-9 $.="\'_]+)\/' . $this->config['tpl_end'] . '/si';
         if (false !== preg_match_all($pattern, $_content, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
                 $tags = '\taglib\\' . ucfirst($match[1]);
+                $action = strtolower($match[2]);
 
-                $match[2] = strtolower($match[2]);
-                if (false !== strpos($match[2], ' ')) {
-                    list($action, $params) = explode(' ', $match[2], 2);
-                    $params = str_replace(['"', "'", ' '], ['', '', '&'], $params);
+                $match[3] = $match[3] ? trim($match[3]) : null;
+                if ($match[3]) {
+                    $params = str_replace(['"', "'", ' '], ['', '', '&'], $match[3]);
                     parse_str($params, $params);
                 } else {
-                    $action = trim($match[2]);
                     $params = [];
                 }
 
                 if (!class_exists($tags) || !method_exists($tags, $action)) {
                     $str = '<!-- 无法解析:' . htmlspecialchars_decode($match[0]) . ' -->';
                 } else {
-                    $str = call_user_func([$tags, $action], $params, $this->config);
+                    $str = '<?php /* ' . $match[0] . ' start */ ?>' .
+                        call_user_func([$tags, $action], $params, $this->config) .
+                        '<?php /* ' . $match[0] . ' end */ ?>';
                 }
 
                 $_content = str_replace($match[0], $str, $_content);
@@ -363,10 +364,26 @@ class View
         }
 
         // 闭合标签解析
-        // $pattern = '/' .
-        //     $this->config['tpl_begin'] . '([a-zA-Z]+):([a-zA-Z0-9 ="\']+)' . $this->config['tpl_end'] .
-        //     '(.*?)' .
-        //     $this->config['tpl_begin'] . '\/([a-zA-Z]+)' . $this->config['tpl_end'] . '/si';
+        $pattern = '/' .
+            $this->config['tpl_begin'] . '([a-zA-Z]+):([a-zA-Z0-9]+)([a-zA-Z0-9 $.=>"\'_]+)' . $this->config['tpl_end'] .
+            '(.*?)' .
+            $this->config['tpl_begin'] . '\/([a-zA-Z]+)' . $this->config['tpl_end'] . '/si';
+
+        if (false !== preg_match_all($pattern, $_content, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $tags = '\taglib\\' . ucfirst($match[1]);
+                $action = strtolower($match[2]);
+
+                $match[3] = $match[3] ? trim($match[3]) : null;
+                if ($match[3]) {
+                    $params = str_replace(['"', "'", ' as', ' =>', ' '], ['', '', '', '', '&'], $match[3]);
+                    parse_str($params, $params);
+                } else {
+                    $params = [];
+                }
+            }
+            print_r($matches);die();
+        }
         // $_content =
         //     preg_replace_callback($pattern, function ($matches) {
         //         $tags = '\taglib\\' . ucfirst($matches[1]);
@@ -463,11 +480,10 @@ class View
             preg_replace_callback($pattern, function ($matches) {
                 $safe_func = [
                     'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'strtolower', 'date',
-                    'cookie', 'lang', 'url', 'current', 'end', 'sprintf',
+                    'lang', 'url', 'current', 'end', 'sprintf',
                 ];
                 if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
-                    $matches[2] = str_replace(['"', "'"], '', $matches[2]);
-                    return call_user_func($matches[1], $matches[2]);
+                    return '<?php echo ' . $matches[1] . '(' . $matches[2] . ');?>';
                 } else {
                     return '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
                 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -14,7 +15,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\service;
 
@@ -234,18 +236,18 @@ abstract class BaseService
     {
         foreach ($_var_name as $name) {
             if ('limit' === $name) {
-                $result = (int)$this->request->param('limit/f', 10);
+                $result = (int) $this->request->param('limit/f', 10);
                 if (!$result || $result > 30) {
                     $result = false;
                     break;
                 }
-                $result = (int)$this->request->param('page/f');
+                $result = (int) $this->request->param('page/f');
                 if (!$result) {
                     $result = false;
                     break;
                 }
             } elseif ('date_format' === $name) {
-                $result = (string)$this->request->param('date_format', 'Y-m-d H:i:s');
+                $result = (string) $this->request->param('date_format', 'Y-m-d H:i:s');
                 if (!$result || !preg_match('/^[YymdHhis\-: ]+$/u', $result)) {
                     $result = false;
                     break;
@@ -302,7 +304,7 @@ abstract class BaseService
     /**
      * 上传文件
      * @access protected
-     * @param
+     * @param  string       子目录
      * @return string|array
      */
     protected function uploadFile(string $_dir = '')

@@ -19,6 +19,12 @@ namespace taglib;
 class Tags
 {
 
+    public static function foreach(array $_attr = [], $_content, $_config)
+    {
+        # code...
+    }
+
+
     public static function foot(array $_attr = [], $_config)
     {
         $path = $_config['view_path'] . request()->controller(true) . DIRECTORY_SEPARATOR . $_config['view_theme'];
@@ -37,8 +43,6 @@ class Tags
                 $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $config['theme_version'] . '"></script>';
             }
         }
-
-        // $foot .= '</body></html>';
 
         return $foot;
     }
@@ -75,8 +79,6 @@ class Tags
                 }
             }
         }
-        // halt();
-
 
         list($root) = explode('.', request()->rootDomain(), 2);
 
