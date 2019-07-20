@@ -42,16 +42,13 @@ class CheckRequest
 
     public function handle(App $_app)
     {
-        @ini_set('memory_limit', '16M');
-        set_time_limit(30); // ini_set('max_execution_time', '30');
-
         $this->app     = $_app;
         $this->cookie  = $this->app->cookie;
         $this->request = $this->app->request;
 
         if ('api' !== $this->request->subDomain() && 1 === mt_rand(1, 999)) {
             $this->app->log->record('[并发]', 'alert')->save();
-            $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>500</title><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section>';
+            $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>500</title><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section><script>setTimeout(function(){location.href="/";}, 3000);</script>';
 
             http_response_code(500);
             echo $error;

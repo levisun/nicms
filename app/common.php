@@ -182,6 +182,19 @@ if (!function_exists('emoji_clear')) {
     }
 }
 
+function avatar(string $_str)
+{
+    $length = strlen($_str);
+    $bg = [
+        intval(($length % 6) * 0.19 * 255),
+        intval(($length % 3 + 3) * 0.19 * 255),
+        intval(($length % 2 + 4) * 0.19 * 255),
+    ];
+    print_r($bg);
+    return 'data:image/svg+xml;base64,' .
+        base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="100" width="100"><rect fill="rgb(' . implode(',', $bg) . ')" x="0" y="0" width="100" height="100"></rect><text x="50" y="65" font-size="50" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="admin" alignment-baseline="central">' . mb_strtoupper(mb_substr($_str, 0, 1)) . '</text></svg>');
+}
+
 if (!function_exists('client_id')) {
     /**
      * 客户端唯一ID
@@ -255,57 +268,5 @@ if (!function_exists('url')) {
         // }
 
         return (string)Route::buildUrl('/' . $_url, $_vars)->suffix(true)->domain(false);
-    }
-}
-
-if (!function_exists('validate')) {
-    /**
-     * 验证数据
-     * @param string $_validate 验证器名或者验证规则数组
-     * @param array  $_data 数据
-     * @return bool
-     */
-    function validate(string $_validate, array $_data = [])
-    {
-        if (strpos($_validate, '.')) {
-            // 支持场景
-            list($_validate, $scene) = explode('.', $_validate);
-        }
-
-        $class = app()->parseClass('validate', $_validate);
-        $v     = new $class;
-
-        if (!empty($scene)) {
-            $v->scene($scene);
-        }
-
-        if (false === $v->batch(false)->failException(false)->check($_data)) {
-            return $v->getError();
-        } else {
-            return false;
-        }
-    }
-}
-
-if (!function_exists('cookie')) {
-    /**
-     * Cookie管理
-     * @param  string|array  $_name   cookie名称，如果为数组表示进行cookie设置
-     * @param  mixed         $_value  cookie值
-     * @param  mixed         $_option 参数
-     * @return mixed
-     */
-    function cookie($_name, $_value = '', $_option = null)
-    {
-        if (is_null($_value)) {
-            // 删除
-            Cookie::delete($_name);
-        } elseif ('' === $_value) {
-            // 获取
-            return 0 === strpos($_name, '?') ? Cookie::has(substr($_name, 1)) : Base64::decrypt(Cookie::get($_name));
-        } else {
-            // 设置
-            return Cookie::set($_name, Base64::encrypt($_value), $_option);
-        }
     }
 }

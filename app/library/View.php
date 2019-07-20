@@ -120,7 +120,7 @@ class View
             'view_path'    => $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR,
             'cache_path'   => $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR,
             'cache_prefix' => $this->request->controller(true) . DIRECTORY_SEPARATOR,
-            'tpl_cache'    => !$this->app->config->get('app.debug')
+            'tpl_cache'    => !$this->app->config->get('app.debug'),
         ];
 
         $this->config = array_merge($this->config, $config);
@@ -170,15 +170,17 @@ class View
             ob_start();
             ob_implicit_flush(0);
 
-            // if ($this->vars) {
-            //     extract($this->vars, EXTR_OVERWRITE);
-            // }
+            if ($this->vars) {
+                // 模板阵列变量分解成为独立变量
+                extract($this->vars, EXTR_OVERWRITE);
+            }
 
             //载入模版缓存文件
             include $cache_file;
 
             // 获取并清空缓存
             $content = ob_get_clean();
+
             $content = str_replace('{__AUTHORIZATION__}', create_authorization(), $content);
 
             echo $content;
@@ -354,9 +356,9 @@ class View
                 if (!class_exists($tags) || !method_exists($tags, $action)) {
                     $str = '<!-- 无法解析:' . htmlspecialchars_decode($match[0]) . ' -->';
                 } else {
-                    $str = '<?php /* ' . $match[0] . ' start */ ?>' .
+                    $str = '<?php /* ' . $match[1] . '::' . $match[2] . ' start */ ?>' .
                         call_user_func([$tags, $action], $params, $this->config) .
-                        '<?php /* ' . $match[0] . ' end */ ?>';
+                        '<?php /* ' . $match[1] . '::' . $match[2] . ' end */ ?>';
                 }
 
                 $_content = str_replace($match[0], $str, $_content);
@@ -373,29 +375,28 @@ class View
             foreach ($matches as $match) {
                 $tags = '\taglib\\' . ucfirst($match[1]);
                 $action = strtolower($match[2]);
+                $tags_content = trim($match[4]);
 
                 $match[3] = $match[3] ? trim($match[3]) : null;
                 if ($match[3]) {
-                    $params = str_replace(['"', "'", ' as', ' =>', ' '], ['', '', '', '', '&'], $match[3]);
+                    $params = str_replace(['"', "'", '=>', ' '], ['', '', '', '&'], $match[3]);
                     parse_str($params, $params);
+                    $params['expression'] = trim($match[3]);
                 } else {
                     $params = [];
                 }
-            }
-            print_r($matches);die();
-        }
-        // $_content =
-        //     preg_replace_callback($pattern, function ($matches) {
-        //         $tags = '\taglib\\' . ucfirst($matches[1]);
-        //         $action = trim($matches[2]);
-        //         if (!class_exists($tags) || !method_exists($tags, $action)) {
-        //             return '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
-        //         }
 
-        //         $result = call_user_func([$tags, $action], $params);
-        //         print_r($matches);
-        //         // code
-        //     }, $_content);
+                if (!class_exists($tags) || !method_exists($tags, $action)) {
+                    $str = '<!-- 无法解析:' . htmlspecialchars_decode($match[0]) . ' -->';
+                } else {
+                    $str = '<?php /* ' . $match[1] . '::' . $match[2] . ' start */ ?>' .
+                        call_user_func([$tags, $action], $params, $tags_content, $this->config) .
+                        '<?php /* ' . $match[1] . '::' . $match[2] . ' end */ ?>';
+                }
+
+                $_content = str_replace($match[0], $str, $_content);
+            }
+        }
     }
 
     /**

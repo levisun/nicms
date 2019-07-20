@@ -19,13 +19,41 @@ namespace taglib;
 class Tags
 {
 
-    public static function foreach(array $_attr = [], $_content, $_config)
+    /**
+     * foreach标签解析
+     * 输出HTML底部部内容
+     * 格式1： {tags:foreach name="变量名" [key="键" value="值"]}循环体{/foreach}
+     * 格式2： {tags:foreach 变量名 键 => 值}循环体{/foreach}
+     * @access public
+     * @static
+     * @param  array  $_attr    标签属性
+     * @param  string $_content 循环体
+     * @param  array  $_config  模板配置
+     * @return string
+     */
+    public static function foreach(array $_attr = [], string $_content, array $_config)
     {
-        # code...
+        $params  = isset($_attr['name']) ? '$' . $_attr['name'] . ' as ' : '';
+        if ($params) {
+            $params .= isset($_attr['key']) ? '$' . $_attr['key'] . ' => ' : '$key => ';
+            $params .= isset($_attr['value']) ? '$' . $_attr['value'] : '$value';
+            return '<?php foreach (' . $params . ') {' . $_content . '} ?>';
+        } else {
+            return '<?php foreach (' . $_attr['expression'] . ') {' . $_content . '} ?>';
+        }
     }
 
-
-    public static function foot(array $_attr = [], $_config)
+    /**
+     * foot标签解析
+     * 输出HTML底部部内容
+     * 格式： {tags:foot /}
+     * @access public
+     * @static
+     * @param  array $_attr   标签属性
+     * @param  array $_config 模板配置
+     * @return string
+     */
+    public static function foot(array $_attr = [], array $_config)
     {
         $path = $_config['view_path'] . request()->controller(true) . DIRECTORY_SEPARATOR . $_config['view_theme'];
 
@@ -47,7 +75,17 @@ class Tags
         return $foot;
     }
 
-    public static function meta(array $_attr = [], $_config)
+    /**
+     * meta标签解析
+     * 输出HTML头部内容
+     * 格式： {tags:meta /}
+     * @access public
+     * @static
+     * @param  array $_attr   标签属性
+     * @param  array $_config 模板配置
+     * @return string
+     */
+    public static function meta(array $_attr = [], array $_config): string
     {
         $path = $_config['view_path'] . request()->controller(true) . DIRECTORY_SEPARATOR . $_config['view_theme'];
 

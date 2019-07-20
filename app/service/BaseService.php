@@ -152,6 +152,8 @@ abstract class BaseService
 
         $this->ipinfo = Ip::info($this->request->ip());
 
+        @ini_set('memory_limit', '16M');set_time_limit(30);
+
         $this->initialize();
     }
 

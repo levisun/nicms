@@ -59,6 +59,18 @@ class admin extends BaseController
      */
     public function index(string $service = 'account', string $logic = 'user', string $action = 'login')
     {
+        $length = unpack('L', hash('adler32', '$log21i2c2', true))[1];
+        $length = floor($length % 360 / 360 * 6);
+        $bg = 'rgb(' . intval($length*0.1*255) . ',' . intval(($length-3)*0.1*255) . ',' . intval(($length-1)*0.9*255) . ')';
+        $color = "#ffffff";
+
+        echo '<img src="' . avatar('12345612') . '" width="50" />';
+
+
+
+
+
+        die();
         $this->authenticate($service, $logic, $action);
 
         $tpl  = $service . DIRECTORY_SEPARATOR . $logic . DIRECTORY_SEPARATOR . $action;
