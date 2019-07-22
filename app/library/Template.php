@@ -48,8 +48,8 @@ class Template
      * 模板路径
      * @var string
      */
-    protected $view_path;
-    protected $compile_path;
+    protected $viewPath;
+    protected $compilePath;
 
     /**
      * 主题
@@ -108,11 +108,11 @@ class Template
         $this->lang    = $this->app->lang;
         $this->request = $this->app->request;
 
-        $this->view_path = $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR;
-        $this->compile_path = $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
-        if (!is_dir($this->compile_path)) {
+        $this->viewPath = $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR;
+        $this->compilePath = $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
+        if (!is_dir($this->compilePath)) {
             chmod(app()->getRuntimePath(), 0777);
-            mkdir($this->compile_path, 0777, true);
+            mkdir($this->compilePath, 0777, true);
         }
 
         $this->replace['__VERSION__'] = $this->config->get('app.version', '1.0.1');
@@ -323,7 +323,7 @@ class Template
             $_template .= 'mobile';
         }
 
-        $path = $this->compile_path . md5($this->request->controller(true) . $_template) . '.php';
+        $path = $this->compilePath . md5($this->request->controller(true) . $_template) . '.php';
 
         if (false === $this->config->get('app.debug') && is_file($path)) {
             return true;
@@ -347,7 +347,7 @@ class Template
             $_template .= 'mobile';
         }
 
-        $path = $this->compile_path . md5($this->request->controller(true) . $_template) . '.php';
+        $path = $this->compilePath . md5($this->request->controller(true) . $_template) . '.php';
 
         clearstatcache();
         if (false === $this->config->get('app.debug') && is_file($path)) {
@@ -509,8 +509,8 @@ class Template
     {
         $this->content =
             preg_replace_callback('/{:include file=["|\']+([a-zA-Z_]+)["|\']+}/si', function ($matches) {
-                if ($matches[1] && is_file($this->view_path . $this->theme . $matches[1] . '.html')) {
-                    return file_get_contents($this->view_path . $this->theme . $matches[1] . '.html');
+                if ($matches[1] && is_file($this->viewPath . $this->theme . $matches[1] . '.html')) {
+                    return file_get_contents($this->viewPath . $this->theme . $matches[1] . '.html');
                 } else {
                     return '<!-- 无法解析:' . $matches[1] . htmlspecialchars_decode($matches[0]) . ' -->';
                 }
@@ -526,8 +526,8 @@ class Template
     private function parseLayout(): void
     {
         if (true === $this->theme_config['layout'] && false === stripos($this->content, '{:NOT_LAYOUT}')) {
-            if (is_file($this->view_path . $this->theme . DIRECTORY_SEPARATOR . 'layout.html')) {
-                $layout = file_get_contents($this->view_path . $this->theme . DIRECTORY_SEPARATOR . 'layout.html');
+            if (is_file($this->viewPath . $this->theme . DIRECTORY_SEPARATOR . 'layout.html')) {
+                $layout = file_get_contents($this->viewPath . $this->theme . DIRECTORY_SEPARATOR . 'layout.html');
                 $this->content = str_replace('{:__CONTENT__}', $this->content, $layout);
             } else {
                 throw new TemplateNotFoundException('template layout not exists:' . $this->theme . DIRECTORY_SEPARATOR . 'layout.html');
@@ -545,11 +545,11 @@ class Template
      */
     private function parseConfig(): void
     {
-        if (!is_file($this->view_path . $this->theme . 'config.json')) {
+        if (!is_file($this->viewPath . $this->theme . 'config.json')) {
             throw new TemplateNotFoundException('template config not exists:' . $this->theme . 'config.json');
         }
 
-        $config = file_get_contents($this->view_path . $this->theme . 'config.json');
+        $config = file_get_contents($this->viewPath . $this->theme . 'config.json');
         if (!$config = json_decode(strip_tags($config), true)) {
             throw new TemplateNotFoundException('template config error:' . $this->theme . 'config.json');
         }
@@ -571,15 +571,15 @@ class Template
         }
 
         $model = isset($model) ? $model : $this->request->controller(true);
-        $this->view_path .= $model . DIRECTORY_SEPARATOR;
-        $path = $this->view_path . $this->theme;
+        $this->viewPath .= $model . DIRECTORY_SEPARATOR;
+        $path = $this->viewPath . $this->theme;
 
         $_template = str_replace(['/', ':'], DIRECTORY_SEPARATOR, $_template);
         $_template = $_template ?: $this->request->action(true);
         $_template = ltrim($_template, DIRECTORY_SEPARATOR) . '.' . $this->theme_config['suffix'];
 
         if ($this->request->isMobile() && is_file($path . 'mobile' . DIRECTORY_SEPARATOR . $_template)) {
-            $this->view_path .= 'mobile' . DIRECTORY_SEPARATOR;
+            $this->viewPath .= 'mobile' . DIRECTORY_SEPARATOR;
         }
 
         // 模板不存在 抛出异常

@@ -11,7 +11,10 @@
         "__CSS__style.css"
     ],
     "js": [
-        "__STATIC__vue.min.js"
+        "__STATIC__vue.min.js",
+        "__STATIC__md5.min.js",
+        "__STATIC__layui/layui.js",
+        "__JS__core.js"
     ],
     "hook": [
 

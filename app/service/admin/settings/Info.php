@@ -19,7 +19,7 @@ use app\service\BaseService;
 
 class Info extends BaseService
 {
-    protected $auth_key = 'admin_auth_key';
+    protected $authKey = 'admin_auth_key';
 
     public function query()
     {

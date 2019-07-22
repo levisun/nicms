@@ -20,7 +20,7 @@ use app\library\ReGarbage;
 
 class Cache extends BaseService
 {
-    protected $auth_key = 'admin_auth_key';
+    protected $authKey = 'admin_auth_key';
 
     /**
      * 清除数据缓存

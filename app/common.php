@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 应用公共文件
@@ -93,7 +94,7 @@ if (!function_exists('get_img_url')) {
         if (false === stripos($_img, 'http')) {
             // 规定缩略图大小
             $_size = $_size >= 800 ? 800 : round($_size / 100) * 100;
-            $_size = (int)$_size;
+            $_size = (int) $_size;
 
             // URL路径转换目录路径
             $img_path = str_replace('/', DIRECTORY_SEPARATOR, trim($_img, '/'));
@@ -182,17 +183,36 @@ if (!function_exists('emoji_clear')) {
     }
 }
 
-function avatar(string $_str)
-{
-    $length = strlen($_str);
-    $bg = [
-        intval(($length % 6) * 0.19 * 255),
-        intval(($length % 3 + 3) * 0.19 * 255),
-        intval(($length % 2 + 4) * 0.19 * 255),
-    ];
-    print_r($bg);
-    return 'data:image/svg+xml;base64,' .
-        base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="100" width="100"><rect fill="rgb(' . implode(',', $bg) . ')" x="0" y="0" width="100" height="100"></rect><text x="50" y="65" font-size="50" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="admin" alignment-baseline="central">' . mb_strtoupper(mb_substr($_str, 0, 1)) . '</text></svg>');
+if (!function_exists('portrait')) {
+    /**
+     * 首字符头像
+     * 用户未上传头像时,根据用户名生成头像
+     * @param  string $_img      头像地址
+     * @param  string $_username 用户名
+     * @return string
+     */
+    function portrait(string $_img, string $_username): string
+    {
+        $_img = trim($_img, '/.');
+        $img_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
+            str_replace('/', DIRECTORY_SEPARATOR, $_img);
+        if ($_img && is_file($img_path)) {
+            Config::get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
+        }
+
+        $length = unpack('L', hash('adler32', $_username, true))[1];
+        $length = $length % 360 / 360;
+        $length = $length > 0 ?: $length * -1;
+        $bg = [
+            intval($length * 200),
+            intval(($length + 0.03) * 200),
+            intval(($length + 0.09) * 200),
+        ];
+        $bg = implode(',', $bg);
+
+        return 'data:image/svg+xml;base64,' .
+            base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="100" width="100"><rect fill="rgb(' . $bg . ')" x="0" y="0" width="100" height="100"></rect><text x="50" y="65" font-size="50" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="admin" alignment-baseline="central">' . mb_strtoupper(mb_substr($_username, 0, 1)) . '</text></svg>');
+    }
 }
 
 if (!function_exists('client_id')) {
@@ -267,6 +287,6 @@ if (!function_exists('url')) {
         //     $ext  = pathinfo(parse_url($referer, PHP_URL_PATH), PATHINFO_EXTENSION);
         // }
 
-        return (string)Route::buildUrl('/' . $_url, $_vars)->suffix(true)->domain(false);
+        return (string) Route::buildUrl('/' . $_url, $_vars)->suffix(true)->domain(false);
     }
 }

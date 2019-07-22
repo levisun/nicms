@@ -20,7 +20,7 @@ use app\service\BaseService;
 
 class Elog extends BaseService
 {
-    protected $auth_key = 'admin_auth_key';
+    protected $authKey = 'admin_auth_key';
 
     /**
      * 查询

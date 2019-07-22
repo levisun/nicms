@@ -23,7 +23,7 @@ use app\library\Base64;
 use app\library\Upload;
 
 
-class File
+class File extends BaseService
 {
     public function save(): array
     {

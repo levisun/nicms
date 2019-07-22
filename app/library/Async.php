@@ -568,6 +568,7 @@ abstract class Async
             'data'    => $_data,
             'message' => $_msg,
             'expire'  => $this->ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';' . $this->apiExpire . ';',
+            // 'token'   => $this->request->buildToken('__token__', 'md5'),
             // 'token'   => $this->request->isPost() ? $this->request->buildToken('__token__', 'md5') : '',
             'debug'   => true === $this->apiDebug ? $this->debugLog : '',
         ];

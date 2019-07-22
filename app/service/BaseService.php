@@ -93,7 +93,7 @@ abstract class BaseService
      * 权限认证KEY
      * @var string
      */
-    protected $auth_key = 'user_auth_key';
+    protected $authKey = 'user_auth_key';
 
     /**
      * uid
@@ -106,7 +106,7 @@ abstract class BaseService
      * 不用验证
      * @var array
      */
-    protected $not_auth = [
+    protected $notAuth = [
         'not_auth_action' => [
             'login',
             'logout',
@@ -145,14 +145,15 @@ abstract class BaseService
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('default_filter');
 
-        if ($this->session->has($this->auth_key) && $this->session->has($this->auth_key . '_role')) {
-            $this->uid = $this->session->get($this->auth_key);
-            $this->urole = $this->session->get($this->auth_key . '_role');
+        if ($this->session->has($this->authKey) && $this->session->has($this->authKey . '_role')) {
+            $this->uid = $this->session->get($this->authKey);
+            $this->urole = $this->session->get($this->authKey . '_role');
         }
 
         $this->ipinfo = Ip::info($this->request->ip());
 
-        @ini_set('memory_limit', '16M');set_time_limit(30);
+        @ini_set('memory_limit', '16M');
+        set_time_limit(30);
 
         $this->initialize();
     }
@@ -179,7 +180,7 @@ abstract class BaseService
         list($_method, $action) = explode('::', $_method, 2);
         list($app, $service, $logic) = explode('\\', $_method, 3);
 
-        $result = (new Rbac)->authenticate($this->uid, $app, $service, $logic, $action, $this->not_auth);
+        $result = (new Rbac)->authenticate($this->uid, $app, $service, $logic, $action, $this->notAuth);
 
         // 验证成功,记录操作日志
         if ($result && $_write_log) {
@@ -322,5 +323,67 @@ abstract class BaseService
             'msg'   => isset($result) ? 'upload success' : 'upload error',
             'data'  => isset($result) ? $result : []
         ];
+    }
+
+    protected function uploadF(string $_input_name = 'upload', string $_dir = '')
+    {
+        if ($this->request->isPost() && !empty($_FILES) && $this->uid) {
+            $files = (array) $this->request->file($_input_name);
+
+            try {
+                $size = (int) $this->config->get('app.upload_size', 1) * 1048576;
+                $ext = $this->config->get('app.upload_type', 'gif,jpg,jpeg,png,zip,rar');
+                $mime = [
+                    'doc'  => 'application/msword',
+                    'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'gif'  => 'image/gif',
+                    'gz'   => 'application/x-gzip',
+                    'jpeg' => 'image/jpeg',
+                    'mp4'  => 'video/mp4',
+                    'pdf'  => 'application/pdf',
+                    'png'  => 'image/png',
+                    'ppt'  => 'application/vnd.ms-powerpoint',
+                    'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                    'rar'  => 'application/octet-stream',
+                    'xls'  => 'application/vnd.ms-excel',
+                    'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'zip'  => 'application/zip',
+                    'xls'  => 'application/vnd.ms-excel',
+                    'xls'  => 'application/vnd.ms-excel',
+                    'xls'  => 'application/vnd.ms-excel',
+                ];
+                $result = $this->app->validate->rule([
+                    $_input_name => [
+                        'filesize' => $size,
+                        'fileExt'  => $ext,
+                        'fileMime' => $mime
+                    ]
+                ])->check($files);
+                // $error = validate([
+                //     $_input_name => [
+                //         'filesize' => $size,
+                //         'fileExt'  => $ext,
+                //         'fileMime' => $mime
+                //     ]
+                // ]);
+                    // ->check($files);
+
+                if (is_array($files) || is_object(($files))) {
+
+                } else {
+                    // $result = \think\facade\Filesystem::disk('public')->putFile($_dir, $files, 'uniqid');
+                }
+            } catch (think\exception\ValidateException $e) {
+                $error = $e->getMessage();
+            }
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => isset($error) ? $error : 'upload success',
+            'data'  => isset($result) ? $result : []
+        ];
+        # code...
     }
 }

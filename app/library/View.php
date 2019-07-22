@@ -85,20 +85,19 @@ class View
         'layout_name'        => 'layout',               // 布局模板入口文件
         'layout_item'        => '{__CONTENT__}',        // 布局模板的内容替换标识
 
-        'taglib_begin'       => '{',                    // 标签库标签开始标记
-        'taglib_end'         => '}',                    // 标签库标签结束标记
         'tpl_replace_string' => [
-            '__THEME__'       => 'theme/',
-            '__CSS__'         => 'css/',
-            '__IMG__'         => 'img/',
-            '__JS__'          => 'js/',
-            '__STATIC__'      => 'static/',
-            '__NAME__'        => 'nicms',
-            '__TITLE__'       => 'nicms',
-            '__KEYWORDS__'    => 'nicms',
-            '__DESCRIPTION__' => 'nicms',
-            '__BOTTOM_MSG__'  => 'nicms',
-            '__COPYRIGHT__'   => 'nicms',
+            '{__AUTHORIZATION__}' => '<?php echo create_authorization(); ?>',
+            '__THEME__'           => 'theme/',
+            '__CSS__'             => 'css/',
+            '__IMG__'             => 'img/',
+            '__JS__'              => 'js/',
+            '__STATIC__'          => 'static/',
+            '__NAME__'            => 'nicms',
+            '__TITLE__'           => 'nicms',
+            '__KEYWORDS__'        => 'nicms',
+            '__DESCRIPTION__'     => 'nicms',
+            '__BOTTOM_MSG__'      => 'nicms',
+            '__COPYRIGHT__'       => 'nicms',
         ],
         'tpl_var_identify'   => 'array',                // .语法变量识别，array|object|'', 为空时自动识别
         'default_filter'     => 'htmlentities',         // 默认过滤方法 用于普通标签输出
@@ -181,7 +180,7 @@ class View
             // 获取并清空缓存
             $content = ob_get_clean();
 
-            $content = str_replace('{__AUTHORIZATION__}', create_authorization(), $content);
+            // $content = str_replace('{__AUTHORIZATION__}', create_authorization(), $content);
 
             echo $content;
         }

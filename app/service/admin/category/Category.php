@@ -23,7 +23,7 @@ use app\model\Models as ModelModels;
 
 class Category extends BaseService
 {
-    protected $auth_key = 'admin_auth_key';
+    protected $authKey = 'admin_auth_key';
 
     /**
      * 查询
@@ -378,6 +378,7 @@ class Category extends BaseService
             return $result;
         }
 
+        return $this->uploadF();
         return $this->uploadFile('category');
     }
 }

@@ -1,11 +1,63 @@
 {tags:meta /}
 
-<template>
-  <div>This will be pre-compiled</div>
-</template>
+<header class="layui-bg-white">
+    <div class="layui-container">
+        <section class="layui-row">
+            <hgroup class="layui-col-md2">
+                <a href="/">__NAME__</a>
+            </hgroup>
+            <nav class="layui-col-md7">
+                <ul id="header-nav" class="layui-nav layui-bg-white" lay-filter="">
+                    <li class="layui-nav-item layui-this">
+                        <a href="/">首页</a>
+                    </li>
+                    <template v-for="vo in main_nav">
+                    <li class="layui-nav-item">
+                        <a v-text="vo.name" v-bind:href="vo.url"></a>
+                        <template v-if="vo.child">
+                        <dl class="layui-nav-child">
+                            <dd v-for="ch in vo.child">
+                                <a v-text="ch.name" v-bind:href="ch.url"></a>
+                            </dd>
+                        </dl>
+                        </template>
+                    </li>
+                    </template>
+                </ul>
+            </nav>
+            <div class="layui-col-md3 layui-hide-xs header-search">
+                <form action="{:url('search')}" class="layui-form layui-form-pane">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">
+                            <i class="layui-icon layui-icon-search"></i>
+                        </label>
+                        <div class="layui-input-block">
+                            <input type="text" name="key" placeholder="搜索内容" class="layui-input">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+</header>
 
-<script>
-alert(1);
-</script>
+
+<main class="layui-container">
+
+{__CONTENT__}
+
+</main>
+
+
+<footer class="layui-bg-black">
+    <div class="layui-container">
+        <div class="layui-row">
+            <div class="layui-col-md12">
+                <div>__FOOTER_MSG__</div>
+                <div>__COPYRIGHT__</div>
+            </div>
+        </div>
+    </div>
+</footer>
 
 {tags:foot /}

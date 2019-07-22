@@ -23,7 +23,7 @@ use app\model\Visit as ModelVisit;
 
 class Accesslog
 {
-    private $user_agent;
+    private $userAgent;
     private $ip;
 
     /**
@@ -34,7 +34,7 @@ class Accesslog
      */
     public function record(): void
     {
-        $this->user_agent = Request::server('HTTP_USER_AGENT');
+        $this->userAgent = Request::server('HTTP_USER_AGENT');
         $this->ip = Ip::info(Request::ip());
 
         // 蜘蛛
@@ -44,17 +44,17 @@ class Accesslog
             $has = $searchengine
                 ->where([
                     ['name', '=', $spider],
-                    ['user_agent', '=', $this->user_agent],
+                    ['user_agent', '=', $this->userAgent],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])
-                ->cache(__METHOD__ . sha1($spider . $this->user_agent))
+                ->cache(__METHOD__ . sha1($spider . $this->userAgent))
                 ->value('name');
 
             if ($has) {
                 $searchengine
                     ->where([
                         ['name', '=', $spider],
-                        ['user_agent', '=', $this->user_agent],
+                        ['user_agent', '=', $this->userAgent],
                         ['date', '=', strtotime(date('Y-m-d'))]
                     ])
                     ->inc('count', 1, 60)
@@ -63,7 +63,7 @@ class Accesslog
                 $searchengine
                     ->create([
                         'name'       => $spider,
-                        'user_agent' => $this->user_agent,
+                        'user_agent' => $this->userAgent,
                         'date'       => strtotime(date('Y-m-d'))
                     ]);
             }
@@ -75,17 +75,17 @@ class Accesslog
             $has = $visit
                 ->where([
                     ['ip', '=', $this->ip['ip']],
-                    ['user_agent', '=', $this->user_agent],
+                    ['user_agent', '=', $this->userAgent],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])
-                ->cache(__METHOD__ . sha1($this->ip['ip'] . $this->user_agent))
+                ->cache(__METHOD__ . sha1($this->ip['ip'] . $this->userAgent))
                 ->value('ip');
 
             if ($has) {
                 $visit
                     ->where([
                         ['ip', '=', $this->ip['ip']],
-                        ['user_agent', '=', $this->user_agent],
+                        ['user_agent', '=', $this->userAgent],
                         ['date', '=', strtotime(date('Y-m-d'))]
                     ])
                     ->inc('count', 1, 60)
@@ -95,7 +95,7 @@ class Accesslog
                     ->create([
                         'ip'         => $this->ip['ip'],
                         'ip_attr'    => $this->ip['country'] .  $this->ip['region'] . $this->ip['city'] .  $this->ip['area'],
-                        'user_agent' => $this->user_agent,
+                        'user_agent' => $this->userAgent,
                         'date'       => strtotime(date('Y-m-d'))
                     ]);
             }
@@ -141,9 +141,9 @@ class Accesslog
             'SOGOU'          => 'sogou push spider',
             'YISOU'          => 'yisouspider',
         ];
-        $this->user_agent = $this->user_agent ?: Request::server('HTTP_USER_AGENT');
+        $this->userAgent = $this->userAgent ?: Request::server('HTTP_USER_AGENT');
 
-        $user_agent = strtolower($this->user_agent);
+        $user_agent = strtolower($this->userAgent);
         foreach ($searchengine as $key => $value) {
             if (preg_match('/(' . $value . ')/si', $user_agent)) {
                 return $key;

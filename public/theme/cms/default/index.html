@@ -1,0 +1,74 @@
+<div class="layui-row">
+    <div class="layui-col-md8">
+        <div class="layui-carousel" id="index-banner">
+            <div carousel-item>
+                <div>条目1</div>
+                <div>条目2</div>
+                <div>条目3</div>
+                <div>条目4</div>
+                <div>条目5</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-col-md4">
+        sider
+    </div>
+</div>
+{$CONST.DIRECTORY_SEPARATOR}
+{$cookie.__lang}
+{:echo('123')}
+
+
+
+
+
+<font style="font-size: 12px;">font</font>
+<a href="javascript:alert(123)"onclick = " alert(222);">de</a>
+
+
+
+<button type="button" class="layui-btn" id="test1">
+    <i class="layui-icon">&#xe67c;</i>上传图片
+</button>
+
+
+{tag:script}
+
+layui.use(['nicms', 'carousel', 'upload'], function(){
+    var nc = layui.nicms;
+    var carousel = layui.carousel;
+    var upload = layui.upload;
+
+    carousel.render({
+        elem: '#index-banner',
+        width: '100%',
+        arrow: 'hover',
+        anim: 'default'
+    });
+
+    //执行实例
+    var uploadInst = upload.render({
+        elem: '#test1',
+        url: NICMS.api.url + '/upload.do',
+        accept: 'file',
+        exts: 'gif|jpg|png|zip|rar',
+        size: 300,
+        data: {
+            method: 'upload.file.save',
+            input_name: 'file',
+            sign: nc.sign({
+                method: 'upload.file.save'
+            })
+        },
+        headers: nc.reqHeaders(),
+        done: function(res){
+
+        },
+        error: function(){
+
+        }
+    });
+});
+
+{/tag}

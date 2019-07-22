@@ -20,7 +20,7 @@ use app\model\Visit as ModelVisit;
 
 class Visit extends BaseService
 {
-    protected $auth_key = 'admin_auth_key';
+    protected $authKey = 'admin_auth_key';
 
     /**
      * 查询

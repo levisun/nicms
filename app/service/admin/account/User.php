@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\service\admin\account;
 
@@ -23,7 +25,7 @@ use app\model\Admin as ModelAdmin;
 
 class User extends BaseService
 {
-    protected $auth_key = 'admin_auth_key';
+    protected $authKey = 'admin_auth_key';
 
     /**
      * 登录
@@ -197,6 +199,7 @@ class User extends BaseService
             ->find()
             ->toArray();
         $result['last_login_time'] = date('Y-m-d H:i:s', $result['last_login_time']);
+        $result['portrait'] = portrait('', $result['username']);
 
         return [
             'debug'  => false,
@@ -216,7 +219,7 @@ class User extends BaseService
 
         // 验证备份状态
         $status = true;
-        $file = (array)glob($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
+        $file = (array) glob($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
         if (count($file) >= 2) {
             foreach ($file as $value) {
                 if (filectime($value) >= strtotime('-7 days')) {
@@ -243,7 +246,7 @@ class User extends BaseService
         }
 
         // 垃圾信息
-        $count = count((array)glob($this->app->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*'));
+        $count = count((array) glob($this->app->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*'));
         if ($count >= 2000) {
             $result[] = [
                 'title' => $this->lang->get('too much junk information'),
