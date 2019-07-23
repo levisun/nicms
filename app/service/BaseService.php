@@ -4,9 +4,11 @@
  *
  * API接口层
  * 基础方法
- *     $this->authenticate(__METHOD__, ?操作日志) 权限验证
- *     $this->upload() 上传方法
- *     $this->validate(验证器, ?数据) 验证方法
+ *
+ * @method BaseService authenticate(__METHOD__, ?操作日志) 权限验证
+ * @method BaseService check_params(array $_var_name) 审核请求变量
+ * @method BaseService validate(验证器, ?数据) 验证方法
+ * @method BaseService ploadFile(子目录, ?表单名) 文件上传方法
  *
  * @package   NICMS
  * @category  app\service

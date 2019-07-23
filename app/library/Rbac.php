@@ -41,9 +41,12 @@ class Rbac
      */
     public function authenticate($_uid, string $_app, string $_service, string $_logic, string $_action, array $_config = []): bool
     {
+        if (!empty($_config)) {
+            $this->config = array_merge($this->config, $_config);
+        }
+
         $_uid = (int) $_uid;
 
-        $this->config = array_merge($this->config, $_config);
 
         // 登录并请求方法需要审核
         if ($_uid && $this->checkAccess($_app, $_service, $_logic, $_action)) {

@@ -35,69 +35,73 @@ class User extends BaseService
      */
     public function login()
     {
-        if ($result = $this->validate(__METHOD__)) {
-            return $result;
-        }
-
         $lock = $this->app->getRuntimePath() . md5($this->request->ip() . date('YmdH')) . '.lock';
-        if (!is_file($lock)) {
-            $user = (new ModelAdmin)
-                ->view('admin', ['id', 'username', 'password', 'salt', 'flag'])
-                ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
-                ->view('role role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
-                ->where([
-                    ['admin.username', '=', $this->request->param('username')]
-                ])
-                ->find();
-
-            if ($user && false !== Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {
-                (new ModelAdmin)
-                    ->where([
-                        ['id', '=', $user['id']]
-                    ])
-                    ->data([
-                        'flag'               => $this->session->getId(false),
-                        'last_login_time'    => time(),
-                        'last_login_ip'      => $this->ipinfo['ip'],
-                        'last_login_ip_attr' => $this->ipinfo['province_id'] ? $this->ipinfo['province'] . $this->ipinfo['city'] . $this->ipinfo['area'] : ''
-                    ])
-                    ->update();
-
-                // 唯一登录, 踢掉
-                if ($user['flag'] && $user['flag'] !== $this->session->getId(false)) {
-                    (new LibSession)->delete($user['flag']);
-                }
-
-                // 登录令牌
-                $this->session->set($this->authKey, $user['id']);
-                $this->session->set($this->authKey . '_role', $user['id']);
-                $this->session->delete('login_lock');
-
-                $this->uid = $result['id'];
-                $this->urole = $result['_role'];
-                $this->authenticate(__METHOD__, 'admin user login');
-
-                return [
-                    'debug' => false,
-                    'cache' => false,
-                    'msg'   => 'login success'
-                ];
-            } else {
-                $login_lock = $this->session->has('login_lock') ? $this->session->get('login_lock') : 0;
-                ++$login_lock;
-                if ($login_lock >= 5) {
-                    $this->session->delete('login_lock');
-                    file_put_contents($lock, 'lock');
-                } else {
-                    $this->session->set('login_lock', $login_lock);
-                }
-            }
+        if (is_file($lock)) {
+            // 登录锁定
+            return [
+                'debug' => false,
+                'cache' => false,
+                'msg'   => 'login error'
+            ];
         }
+
+        $user = (new ModelAdmin)
+            ->view('admin', ['id', 'username', 'password', 'salt', 'flag'])
+            ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
+            ->view('role role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
+            ->where([
+                ['admin.username', '=', $this->request->param('username')]
+            ])
+            ->find();
+        if (!$user || false === Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {
+            // 记录登录错误次数
+            $login_lock = $this->session->has('login_lock') ? $this->session->get('login_lock') : 0;
+            ++$login_lock;
+            if ($login_lock >= 5) {
+                $this->session->delete('login_lock');
+                file_put_contents($lock, 'lock');
+            } else {
+                $this->session->set('login_lock', $login_lock);
+            }
+
+            return [
+                'debug' => false,
+                'cache' => false,
+                'msg'   => 'login error'
+            ];
+        }
+
+        // 更新登录信息
+        (new ModelAdmin)
+            ->where([
+                ['id', '=', $user['id']]
+            ])
+            ->data([
+                'flag'               => $this->session->getId(false),
+                'last_login_time'    => time(),
+                'last_login_ip'      => $this->ipinfo['ip'],
+                'last_login_ip_attr' => $this->ipinfo['province_id'] ? $this->ipinfo['province'] . $this->ipinfo['city'] . $this->ipinfo['area'] : ''
+            ])
+            ->update();
+
+        // 唯一登录
+        if ($user['flag'] && $user['flag'] !== $this->session->getId(false)) {
+            (new LibSession)->delete($user['flag']);
+        }
+
+        // 登录令牌
+        $this->session->set($this->authKey, $user['id']);
+        $this->session->set($this->authKey . '_role', $user['role_id']);
+        $this->session->delete('login_lock');
+
+        $this->uid = $user['id'];
+        $this->urole = $user['role_id'];
+        $this->authenticate(__METHOD__, 'admin user login');
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'login error'
+            'msg'   => 'login success'
         ];
     }
 
@@ -115,7 +119,7 @@ class User extends BaseService
 
         $this->cache->delete('auth' . $this->uid);
         $this->session->delete($this->authKey);
-        $this->session->delete($this->authKey . 'role');
+        $this->session->delete($this->authKey . '_role');
 
         return [
             'debug' => false,
@@ -132,7 +136,7 @@ class User extends BaseService
      */
     public function forget(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
+        if ($result = $this->authenticate(__METHOD__, 'admin user forget')) {
             return $result;
         }
         # code...

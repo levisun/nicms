@@ -14,10 +14,8 @@
 
 use think\Image;
 use think\facade\Config;
-use think\facade\Cookie;
 use think\facade\Request;
 use think\facade\Route;
-use app\library\Base64;
 use app\library\DataFilter;
 use app\library\Jwt;
 
