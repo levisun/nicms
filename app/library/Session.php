@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 数据安全过滤
@@ -10,6 +11,7 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
+
 namespace app\library;
 
 use think\contract\SessionHandlerInterface;
@@ -41,7 +43,7 @@ class Session implements SessionHandlerInterface
      */
     public function gc(): void
     {
-        $maxlifetime = (int)$this->config['gc_maxlifetime'];
+        $maxlifetime = (int) $this->config['gc_maxlifetime'];
         (new ModelSession)
             ->where([
                 ['update_time', '<=', time() - $maxlifetime]

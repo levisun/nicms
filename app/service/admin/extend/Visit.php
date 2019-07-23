@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\service\admin\extend;
 
@@ -38,7 +40,7 @@ class Visit extends BaseService
             return $result;
         }
 
-        $query_limit = (int)$this->request->param('limit/f', 10);
+        $query_limit = (int) $this->request->param('limit/f', 10);
 
         $result = (new ModelVisit)
             ->order('date DESC')

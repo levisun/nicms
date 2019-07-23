@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 数据层
@@ -11,6 +12,7 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
+
 namespace app\model;
 
 use think\Model;

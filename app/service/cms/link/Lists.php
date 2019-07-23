@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\service\cms\link;
 
@@ -50,15 +52,15 @@ class Lists
         }
 
         $result =
-        ModelLink::view('link link', ['id', 'category_id', 'title', 'url', 'logo'])
-        ->view('category category', ['name' => 'cat_name'], 'category.id=link.category_id')
-        ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id')
-        ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=link.type_id', 'LEFT')
-        ->where($map)
-        ->order('link.sort_order DESC, link.id DESC')
-        ->cache(__METHOD__ . $category_id, null, 'LISTS')
-        ->select()
-        ->toArray();
+            ModelLink::view('link link', ['id', 'category_id', 'title', 'url', 'logo'])
+            ->view('category category', ['name' => 'cat_name'], 'category.id=link.category_id')
+            ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id')
+            ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=link.type_id', 'LEFT')
+            ->where($map)
+            ->order('link.sort_order DESC, link.id DESC')
+            ->cache(__METHOD__ . $category_id, null, 'LISTS')
+            ->select()
+            ->toArray();
 
         foreach ($result as $key => $value) {
             $value['logo'] = imgUrl($value['logo'], 100, 50);

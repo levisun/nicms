@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\service\cms\article;
 
@@ -28,16 +30,13 @@ class Details extends ArticleBase
      */
     public function query(): array
     {
-        if ($result = $this->ArticleDetails()) {
-
-
-        }
+        if ($result = $this->ArticleDetails()) { }
 
         return [
             'debug' => false,
             'cache' => true,
             'msg'   => $result ? 'details' : 'error',
-            'data'  => $result ? : []
+            'data'  => $result ?: []
         ];
     }
 }

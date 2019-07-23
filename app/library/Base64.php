@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 加密类
@@ -10,7 +11,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\library;
 
@@ -80,7 +82,7 @@ class Base64
      */
     public static function flag($_str = '', int $_length = 7)
     {
-        $_str = (string)$_str;
+        $_str = (string) $_str;
         $_str = trim($_str);
         $_str = hash_hmac('sha1', $_str, Config::get('app.secretkey'));
         $_length = $_length > 40 ? 40 : $_length;
@@ -108,7 +110,7 @@ class Base64
             $_secretkey = $_secretkey ? trim($_secretkey) : __DIR__;
             $_secretkey = hash_hmac('sha256', $_secretkey, Config::get('app.secretkey'));
             $iv = substr(sha1($_secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
-            return base64_encode(openssl_encrypt((string)$_data, 'AES-256-CBC', $_secretkey, OPENSSL_RAW_DATA, $iv));
+            return base64_encode(openssl_encrypt((string) $_data, 'AES-256-CBC', $_secretkey, OPENSSL_RAW_DATA, $iv));
         }
     }
 

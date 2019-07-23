@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\service\admin\theme;
 
@@ -33,7 +35,7 @@ class Cms extends BaseService
             return $result;
         }
 
-        $file = (array)glob($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'template' . DIRECTORY_SEPARATOR . 'cms' . DIRECTORY_SEPARATOR . '*');
+        $file = (array) glob($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'template' . DIRECTORY_SEPARATOR . 'cms' . DIRECTORY_SEPARATOR . '*');
         rsort($file);
         foreach ($file as $key => $value) {
             $config = file_get_contents($value . DIRECTORY_SEPARATOR . 'config.json');

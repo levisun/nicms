@@ -57,7 +57,7 @@ class CheckRequest
 
         // 客户端唯一ID
         if (!$this->cookie->has('__uid')) {
-            $this->cookie->set('__uid', md5(uniqid(client_id(), true)));
+            $this->cookie->set('__uid', client_id());
         }
 
         $this->requestId = $this->cookie->has('__uid') ? $this->cookie->get('__uid') : $this->request->ip();

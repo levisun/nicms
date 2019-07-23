@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 加密类
@@ -10,7 +11,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\library;
 
@@ -33,8 +35,8 @@ class JWT
     {
         $this->setheaders('alg', 'sha256')
             ->issuedBy(Request::rootDomain())
-            ->issuedAt((int)Request::time())
-            ->expiresAt((int)Request::time() + 1440)
+            ->issuedAt((int) Request::time())
+            ->expiresAt((int) Request::time() + 1440)
             ->identifiedBy(Session::getId(false))
             ->audience($this->playload['iat'] . Request::baseUrl());
     }

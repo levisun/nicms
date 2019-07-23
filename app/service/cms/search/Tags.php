@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\service\cms\search;
 
@@ -57,15 +59,15 @@ class Tags
         $cache_key .= Request::isMobile() ? 'mobile' : '';
         if (!Cache::has($cache_key)) {
             $result =
-            ModelArticle::view('article article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-            ->view('article_content article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
-            ->view('category category', ['name' => 'cat_name'], 'category.id=article.category_id')
-            ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id')
-            ->view('level level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
-            ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
-            ->where($map)
-            ->order('article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.id DESC')
-            ->paginate($query_limit);
+                ModelArticle::view('article article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+                ->view('article_content article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
+                ->view('category category', ['name' => 'cat_name'], 'category.id=article.category_id')
+                ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id')
+                ->view('level level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
+                ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
+                ->where($map)
+                ->order('article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.id DESC')
+                ->paginate($query_limit);
             $list = $result->toArray();
             $list['render'] = $result->render();
 
@@ -98,14 +100,14 @@ class Tags
 
                 // 标签
                 $value['tags'] =
-                ModelTagsArticle::view('tags_article article', ['tags_id'])
-                ->view('tags tags', ['name'], 'tags.id=article.tags_id')
-                ->where([
-                    ['article.article_id', '=', $value['id']],
-                ])
-                ->cache(__METHOD__ . 'tags' . $value['id'], null, 'SEARCH')
-                ->select()
-                ->toArray();
+                    ModelTagsArticle::view('tags_article article', ['tags_id'])
+                    ->view('tags tags', ['name'], 'tags.id=article.tags_id')
+                    ->where([
+                        ['article.article_id', '=', $value['id']],
+                    ])
+                    ->cache(__METHOD__ . 'tags' . $value['id'], null, 'SEARCH')
+                    ->select()
+                    ->toArray();
 
                 $list['data'][$key] = $value;
             }

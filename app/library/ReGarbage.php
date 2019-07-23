@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 删除运行垃圾文件
@@ -10,7 +11,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\library;
 
@@ -92,7 +94,7 @@ class ReGarbage
     private function getDirAllFile(string $_path, int $_expire)
     {
         $day = strtotime('-' . $_expire . ' days');
-        $dir = (array)glob($_path);
+        $dir = (array) glob($_path);
         foreach ($dir as $files) {
             if (is_file($files) && filemtime($files) <= $day) {
                 yield $files;

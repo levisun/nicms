@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\service\cms\nav;
 
@@ -31,7 +33,7 @@ class Breadcrumb extends BaseService
      */
     public function query(): array
     {
-        if ($cid = (int)$this->request->param('cid/f')) {
+        if ($cid = (int) $this->request->param('cid/f')) {
             $cache_key = md5(__METHOD__ . $cid);
             if (!$this->cache->has($cache_key)) {
                 $this->parentCate($cid);

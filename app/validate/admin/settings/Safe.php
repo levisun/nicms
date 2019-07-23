@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 验证器
@@ -11,6 +12,7 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
+
 namespace app\validate\admin\settings;
 
 use think\Validate;

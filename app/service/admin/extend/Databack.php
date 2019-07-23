@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\service\admin\extend;
 
@@ -35,7 +37,7 @@ class Databack extends BaseService
             return $result;
         }
 
-        $file = (array)glob($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
+        $file = (array) glob($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
         rsort($file);
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
@@ -49,7 +51,7 @@ class Databack extends BaseService
 
                 $value = basename($value);
 
-                $child = (array)glob($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $value . DIRECTORY_SEPARATOR . '*');
+                $child = (array) glob($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $value . DIRECTORY_SEPARATOR . '*');
                 $size = 0;
                 foreach ($child as $k => $v) {
                     $size += filesize($v);
@@ -117,7 +119,7 @@ class Databack extends BaseService
         if ($id = $this->request->param('id')) {
             $id = Base64::decrypt($id);
 
-            $file = (array)glob($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . '*');
+            $file = (array) glob($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . '*');
             foreach ($file as $key => $value) {
                 if (is_file($value)) {
                     unlink($value);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\service\admin\category;
 
@@ -134,7 +136,7 @@ class Category extends BaseService
             return $result;
         }
 
-        $pid = $pid = (int)$this->request->param('pid/f', 0);
+        $pid = $pid = (int) $this->request->param('pid/f', 0);
 
         $receive_data = [
             'pid'         => $pid,
@@ -144,12 +146,12 @@ class Category extends BaseService
             'keywords'    => $this->request->param('keywords'),
             'description' => $this->request->param('description'),
             'image'       => $this->request->param('image'),
-            'model_id'    => (int)$this->request->param('model_id/f', 1),
-            'type_id'     => (int)$this->request->param('type_id/f', 1),
-            'is_show'     => (int)$this->request->param('is_show/f', 1),
-            'is_channel'  => (int)$this->request->param('is_channel/f', 0),
-            'sort_order'  => (int)$this->request->param('sort_order/f', 0),
-            'access_id'   => (int)$this->request->param('access_id/f'),
+            'model_id'    => (int) $this->request->param('model_id/f', 1),
+            'type_id'     => (int) $this->request->param('type_id/f', 1),
+            'is_show'     => (int) $this->request->param('is_show/f', 1),
+            'is_channel'  => (int) $this->request->param('is_channel/f', 0),
+            'sort_order'  => (int) $this->request->param('sort_order/f', 0),
+            'access_id'   => (int) $this->request->param('access_id/f'),
             'url'         => $this->request->param('url'),
             'update_time' => time(),
             'create_time' => time(),
@@ -182,7 +184,7 @@ class Category extends BaseService
             return $result;
         }
 
-        if ($id = (int)$this->request->param('id/f')) {
+        if ($id = (int) $this->request->param('id/f')) {
             $result = (new ModelCategory)
                 ->view('category')
                 ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
@@ -214,7 +216,7 @@ class Category extends BaseService
             }
         } else {
             $result = [];
-            if ($pid = (int)$this->request->param('pid/f', '0')) {
+            if ($pid = (int) $this->request->param('pid/f', '0')) {
                 $result['parent'] = (new ModelCategory)
                     ->where([
                         ['id', '=', $pid]
@@ -265,7 +267,7 @@ class Category extends BaseService
             return $result;
         }
 
-        if ($id = (int)$this->request->param('id/f')) {
+        if ($id = (int) $this->request->param('id/f')) {
             $receive_data = [
                 'name'        => $this->request->param('name'),
                 'aliases'     => $this->request->param('aliases'),
@@ -273,11 +275,11 @@ class Category extends BaseService
                 'keywords'    => $this->request->param('keywords'),
                 'description' => $this->request->param('description'),
                 'image'       => $this->request->param('image'),
-                'type_id'     => (int)$this->request->param('type_id/f'),
-                'is_show'     => (int)$this->request->param('is_show/f'),
-                'is_channel'  => (int)$this->request->param('is_channel/f'),
-                'sort_order'  => (int)$this->request->param('sort_order/f'),
-                'access_id'   => (int)$this->request->param('access_id/f'),
+                'type_id'     => (int) $this->request->param('type_id/f'),
+                'is_show'     => (int) $this->request->param('is_show/f'),
+                'is_channel'  => (int) $this->request->param('is_channel/f'),
+                'sort_order'  => (int) $this->request->param('sort_order/f'),
+                'access_id'   => (int) $this->request->param('access_id/f'),
                 'url'         => $this->request->param('url'),
                 'update_time' => time()
             ];
@@ -321,7 +323,7 @@ class Category extends BaseService
             return $result;
         }
 
-        if ($id = (int)$this->request->param('id/f')) {
+        if ($id = (int) $this->request->param('id/f')) {
             $result = (new ModelCategory)
                 ->where([
                     ['id', '=', $id],
@@ -378,7 +380,6 @@ class Category extends BaseService
             return $result;
         }
 
-        return $this->uploadF();
         return $this->uploadFile('category');
     }
 }

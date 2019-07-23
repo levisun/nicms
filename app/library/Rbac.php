@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 权限校验类
@@ -10,7 +11,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\library;
 
@@ -39,7 +41,7 @@ class Rbac
      */
     public function authenticate($_uid, string $_app, string $_service, string $_logic, string $_action, array $_config = []): bool
     {
-        $_uid = (int)$_uid;
+        $_uid = (int) $_uid;
 
         $this->config = array_merge($this->config, $_config);
 
@@ -74,7 +76,7 @@ class Rbac
      */
     public function getAuth($_uid): array
     {
-        $_uid = (int)$_uid;
+        $_uid = (int) $_uid;
         if ($this->config['auth_type'] == 1) {
             $result = $this->accessDecision($_uid);
         } elseif (session('?__authenticate_list')) {

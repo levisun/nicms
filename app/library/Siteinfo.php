@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 网站信息
@@ -10,7 +11,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\library;
 

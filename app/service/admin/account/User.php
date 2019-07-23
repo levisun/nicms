@@ -69,8 +69,8 @@ class User extends BaseService
                 }
 
                 // 登录令牌
-                $this->session->set($this->auth_key, $user['id']);
-                $this->session->set($this->auth_key . '_role', $user['id']);
+                $this->session->set($this->authKey, $user['id']);
+                $this->session->set($this->authKey . '_role', $user['id']);
                 $this->session->delete('login_lock');
 
                 $this->uid = $result['id'];
@@ -114,8 +114,8 @@ class User extends BaseService
         }
 
         $this->cache->delete('auth' . $this->uid);
-        $this->session->delete($this->auth_key);
-        $this->session->delete($this->auth_key . 'role');
+        $this->session->delete($this->authKey);
+        $this->session->delete($this->authKey . 'role');
 
         return [
             'debug' => false,

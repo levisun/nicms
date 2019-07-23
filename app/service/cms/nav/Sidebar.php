@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\service\cms\nav;
 
@@ -30,7 +32,7 @@ class Sidebar extends BaseService
      */
     public function query(): array
     {
-        $cid = (int)$this->request->param('cid/f');
+        $cid = (int) $this->request->param('cid/f');
         if ($cid) {
             $id = $this->parent($cid);
             $cache_key = md5(__METHOD__ . $id);

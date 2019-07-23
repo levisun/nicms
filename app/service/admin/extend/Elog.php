@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * API接口层
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\service\admin\extend;
 
@@ -34,7 +36,7 @@ class Elog extends BaseService
             return $result;
         }
 
-        $file = (array)glob($this->app->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . '*');
+        $file = (array) glob($this->app->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . '*');
         rsort($file);
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
@@ -83,7 +85,7 @@ class Elog extends BaseService
             if (is_file($file)) {
                 $data = file_get_contents($file);
                 $data = str_replace($this->app->getRootPath(), 'ROOT_PATH', $data);
-                $data = preg_replace_callback('/mysql\:host=[0-9A-Za-z_.=;]+;/si', function($matches){
+                $data = preg_replace_callback('/mysql\:host=[0-9A-Za-z_.=;]+;/si', function ($matches) {
                     return 'ROOT ';
                 }, $data);
             } else {

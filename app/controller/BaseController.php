@@ -112,7 +112,8 @@ abstract class BaseController
         $this->ipinfo = Ip::info($this->request->ip());
         // Ip::info('125.' . mt_rand(1, 255) . '.' . mt_rand(1, 255) . '.' . mt_rand(1, 255));
 
-        @ini_set('memory_limit', '16M');set_time_limit(30);
+        @ini_set('memory_limit', '16M');
+        set_time_limit(30);
 
         // 控制器初始化
         $this->initialize();

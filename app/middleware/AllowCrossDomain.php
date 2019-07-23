@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 跨域中间件
@@ -11,7 +12,8 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace app\middleware;
 
@@ -46,7 +48,7 @@ class AllowCrossDomain
      * @param  array   $header
      * @return Response
      */
-    public function handle($request, Closure $next, ? array $header = [])
+    public function handle($request, Closure $next, ?array $header = [])
     {
         $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
 
