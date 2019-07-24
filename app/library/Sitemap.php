@@ -16,9 +16,6 @@ declare(strict_types=1);
 
 namespace app\library;
 
-use think\facade\Log;
-use think\facade\Request;
-use app\library\Base64;
 use app\model\Article as ModelArticle;
 use app\model\Category as ModelCategory;
 
@@ -30,7 +27,7 @@ class Sitemap
         clearstatcache();
         $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemap.xml';
         if (!is_file($path) || filemtime($path) < strtotime('-24 hour')) {
-            Log::record('[SITEMAP] 网站地图', 'alert');
+            app('log')->record('[SITEMAP] 网站地图', 'alert');
 
             $category = (new ModelCategory)
                 ->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
@@ -64,14 +61,14 @@ class Sitemap
                 $category_xml = [];
                 foreach ($article as $vo_art) {
                     $article_xml[]['url'] = [
-                        'loc'        => Request::scheme() . url('details/' . $vo_art['action_name'] . '/' . $vo_art['category_id'] . '/' . $vo_art['id']),
+                        'loc'        => app('request')->scheme() . url('details/' . $vo_art['action_name'] . '/' . $vo_art['category_id'] . '/' . $vo_art['id']),
                         'lastmod'    => $vo_art['update_time'],
                         'changefreq' => 'weekly',
                         'priority'   => '0.8',
                     ];
 
                     $category_xml[]['url'] = [
-                        'loc'        => Request::scheme() . url('list/' . $vo_cate['action_name'] . '/' . $vo_cate['id']),
+                        'loc'        => app('request')->scheme() . url('list/' . $vo_cate['action_name'] . '/' . $vo_cate['id']),
                         'lastmod'    => $vo_art['update_time'],
                         'changefreq' => 'daily',
                         'priority'   => '1.0',
@@ -82,11 +79,11 @@ class Sitemap
                     self::save($category_xml, 'sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
 
                     $sitemap_xml[]['sitemap'] = [
-                        'loc'     => Request::domain() . '/sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
+                        'loc'     => app('request')->domain() . '/sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
                         'lastmod' => date('Y-m-d H:i:s')
                     ];
                     $sitemap_xml[]['sitemap'] = [
-                        'loc'     => Request::domain() . '/sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
+                        'loc'     => app('request')->domain() . '/sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
                         'lastmod' => date('Y-m-d H:i:s')
                     ];
                 }

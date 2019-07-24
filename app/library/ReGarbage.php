@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace app\library;
 
-use think\facade\Log;
-
 class ReGarbage
 {
 
@@ -36,7 +34,7 @@ class ReGarbage
         }
         if ($fp = @fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
-                Log::record('[REGARBAGE] 删除垃圾信息', 'alert')->save();
+                app('log')->record('[REGARBAGE] 删除垃圾信息', 'alert')->save();
                 $runtime_path = app()->getRuntimePath();
                 $root_path = app()->getRootPath();
 

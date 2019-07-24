@@ -200,10 +200,12 @@ class User extends BaseService
             ->where([
                 ['admin.id', '=', $this->uid]
             ])
-            ->find()
-            ->toArray();
-        $result['last_login_time'] = date('Y-m-d H:i:s', $result['last_login_time']);
-        $result['portrait'] = portrait('', $result['username']);
+            ->find();
+
+        if ($result && $result = $result->toArray()) {
+            $result['last_login_time'] = date('Y-m-d H:i:s', $result['last_login_time']);
+            $result['portrait'] = portrait('', $result['username']);
+        }
 
         return [
             'debug'  => false,

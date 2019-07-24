@@ -32,11 +32,10 @@ class Sidebar extends BaseService
      */
     public function query(): array
     {
-        $cid = (int) $this->request->param('cid/f');
-        if ($cid) {
-            $id = $this->parent($cid);
-            $cache_key = md5(__METHOD__ . $id);
+        if ($cid = (int) $this->request->param('cid/f')) {
+            $cache_key = md5(__METHOD__ . $cid);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
+                $id = $this->parent($cid);
                 $result = (new ModelCategory)
                     ->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
                     ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
@@ -46,18 +45,19 @@ class Sidebar extends BaseService
                         ['category.id', '=', $id],
                         ['category.lang', '=', $this->lang->getLangSet()]
                     ])
-                    ->find()
-                    ->toArray();
+                    ->find();
 
-                $result['image'] = get_img_url($result['image']);
-                $result['flag'] = Base64::flag($result['id'], 7);
-                $result['url'] = url('list/' . $result['action_name'] . '/' . $result['id']);
-                if ($result['access_id']) {
-                    $result['url'] = url('channel/' . $result['action_name'] . '/' . $result['id']);
+                if ($result) {
+                    $result['image'] = get_img_url($result['image']);
+                    $result['flag'] = Base64::flag($result['id'], 7);
+                    $result['url'] = url('list/' . $result['action_name'] . '/' . $result['id']);
+                    if ($result['access_id']) {
+                        $result['url'] = url('channel/' . $result['action_name'] . '/' . $result['id']);
+                    }
+                    unset($result['action_name']);
+
+                    $result['child'] = $this->child($result['id']);
                 }
-                unset($result['action_name']);
-
-                $result['child'] = $this->child($result['id']);
 
                 $this->cache->tag('CMS NAV')->set($cache_key, $result);
             }

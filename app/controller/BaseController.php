@@ -146,40 +146,4 @@ abstract class BaseController
     {
         $this->view->fetch($_template, $_data);
     }
-
-    /**
-     * 设置模板变量
-     * @access public
-     * @param  array $_vars
-     * @return void
-     */
-    public function assign(array $_vars = [])
-    {
-        $this->view->assign($_vars);
-        return $this;
-    }
-
-    /**
-     * 设置模板替换字符
-     * @access public
-     * @param  array $_replace
-     * @return object
-     */
-    public function setReplace(array $_replace)
-    {
-        $this->view->setReplace($_replace);
-        return $this;
-    }
-
-    /**
-     * 设置模板主题
-     * @access public
-     * @param  string $_name
-     * @return object
-     */
-    public function setTheme(string $_name)
-    {
-        $this->view->setTheme($_name);
-        return $this;
-    }
 }

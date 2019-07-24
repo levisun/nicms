@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace app\library;
 
-use think\facade\Config;
-
 class Base64
 {
 
@@ -84,7 +82,7 @@ class Base64
     {
         $_str = (string) $_str;
         $_str = trim($_str);
-        $_str = hash_hmac('sha1', $_str, Config::get('app.secretkey'));
+        $_str = hash_hmac('sha1', $_str, app('config')->get('app.secretkey'));
         $_length = $_length > 40 ? 40 : $_length;
         return substr($_str, 0, $_length);
     }
@@ -108,7 +106,7 @@ class Base64
             return $_data;
         } else {
             $_secretkey = $_secretkey ? trim($_secretkey) : __DIR__;
-            $_secretkey = hash_hmac('sha256', $_secretkey, Config::get('app.secretkey'));
+            $_secretkey = hash_hmac('sha256', $_secretkey, app('config')->get('app.secretkey'));
             $iv = substr(sha1($_secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
             return base64_encode(openssl_encrypt((string) $_data, 'AES-256-CBC', $_secretkey, OPENSSL_RAW_DATA, $iv));
         }
@@ -133,7 +131,7 @@ class Base64
             return $_data;
         } else {
             $_secretkey = $_secretkey ? trim($_secretkey) : __DIR__;
-            $_secretkey = hash_hmac('sha256', $_secretkey, Config::get('app.secretkey'));
+            $_secretkey = hash_hmac('sha256', $_secretkey, app('config')->get('app.secretkey'));
             $iv = substr(sha1($_secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
             return openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $_secretkey, OPENSSL_RAW_DATA, $iv);
         }

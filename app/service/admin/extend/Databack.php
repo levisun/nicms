@@ -37,7 +37,10 @@ class Databack extends BaseService
             return $result;
         }
 
-        $file = (array) glob($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
+        $path = app('config')->get('filesystem.disks.local.root') .
+            DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR;
+
+        $file = (array) glob($path . '*');
         rsort($file);
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
@@ -51,7 +54,7 @@ class Databack extends BaseService
 
                 $value = basename($value);
 
-                $child = (array) glob($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $value . DIRECTORY_SEPARATOR . '*');
+                $child = (array) glob($path . $value . DIRECTORY_SEPARATOR . '*');
                 $size = 0;
                 foreach ($child as $k => $v) {
                     $size += filesize($v);

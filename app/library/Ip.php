@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace app\library;
 
-use think\facade\Cache;
-use think\facade\Request;
 use app\library\DataFilter;
 use app\model\IpInfo;
 use app\model\Region;
@@ -33,11 +31,11 @@ class Ip
      */
     public static function info(string $_ip = ''): array
     {
-        $_ip = $_ip ?: Request::ip();
+        $_ip = $_ip ?: app('request')->ip();
 
         if ($_ip && false !== filter_var($_ip, FILTER_VALIDATE_IP) && true === self::validate($_ip)) {
             $cache_key = md5(__METHOD__ . $_ip);
-            if (!Cache::has($cache_key)) {
+            if (!app('cache')->has($cache_key)) {
                 // 查询IP地址库
                 $region = self::query($_ip);
 
@@ -53,9 +51,9 @@ class Ip
                 unset($region['id'], $region['update_time']);
                 $region['ip'] = $_ip;
 
-                Cache::tag('SYSTEM')->set($cache_key, $region);
+                app('cache')->tag('SYSTEM')->set($cache_key, $region);
             } else {
-                $region = Cache::get($cache_key);
+                $region = app('cache')->get($cache_key);
             }
 
             return $region;
@@ -131,7 +129,7 @@ class Ip
             ->view('region city', ['id' => 'city_id', 'name' => 'city'], 'city.id=i.city_id')
             ->view('region area', ['id' => 'area_id', 'name' => 'area'], 'area.id=i.area_id', 'LEFT')
             ->where([
-                ['i.ip', '=', bindec(Request::ip2bin($_ip))]
+                ['i.ip', '=', bindec(app('request')->ip2bin($_ip))]
             ])
             ->find();
 
@@ -188,14 +186,14 @@ class Ip
 
         $has = (new IpInfo)
             ->where([
-                ['ip', '=', bindec(Request::ip2bin($_ip))]
+                ['ip', '=', bindec(app('request')->ip2bin($_ip))]
             ])
             ->value('id');
 
         if (!$has) {
             (new IpInfo)
                 ->create([
-                    'ip'          => bindec(Request::ip2bin($_ip)),
+                    'ip'          => bindec(app('request')->ip2bin($_ip)),
                     'country_id'  => $country,
                     'province_id' => $province,
                     'city_id'     => $city,
@@ -238,14 +236,14 @@ class Ip
 
         $has = (new IpInfo)
             ->where([
-                ['ip', '=', bindec(Request::ip2bin($_ip))]
+                ['ip', '=', bindec(app('request')->ip2bin($_ip))]
             ])
             ->value('id');
 
         if ($has) {
             (new IpInfo)
                 ->where([
-                    ['ip', '=', bindec(Request::ip2bin($_ip))],
+                    ['ip', '=', bindec(app('request')->ip2bin($_ip))],
                 ])
                 ->update([
                     'country_id'  => $country,

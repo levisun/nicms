@@ -16,9 +16,6 @@ declare(strict_types=1);
 
 namespace app\library;
 
-use think\facade\Cache;
-use think\facade\Lang;
-use think\facade\Request;
 use app\model\Config as ModelConfig;
 use app\model\Article as ModelArticle;
 use app\model\Category as ModelCategory;
@@ -28,8 +25,8 @@ class Siteinfo
 
     public static function query()
     {
-        $cache_key = md5(Request::controller(true) . Lang::getLangSet());
-        if (!Cache::has($cache_key) || !$common = Cache::get($cache_key)) {
+        $cache_key = md5(app('request')->controller(true) . app('lang')->getLangSet());
+        if (!app('cache')->has($cache_key) || !$common = app('cache')->get($cache_key)) {
             $common = [
                 'theme'     => self::theme(),
                 'script'    => self::script(),
@@ -37,7 +34,7 @@ class Siteinfo
                 'copyright' => self::copyright(),
                 'name'      => self::name(),
             ];
-            Cache::tag('SYSTEM')->set($cache_key, $common);
+            app('cache')->tag('SYSTEM')->set($cache_key, $common);
         }
 
         $result = [
@@ -59,7 +56,7 @@ class Siteinfo
     private static function description(): string
     {
         // 文章描述
-        if ($id = Request::param('id/f', null)) {
+        if ($id = app('request')->param('id/f', null)) {
             $result = (new ModelArticle)
                 ->where([
                     ['id', '=', $id]
@@ -67,7 +64,7 @@ class Siteinfo
                 ->value('description', '');
         }
         // 栏目描述
-        elseif ($cid = Request::param('cid/f', null)) {
+        elseif ($cid = app('request')->param('cid/f', null)) {
             $result = (new ModelCategory)
                 ->where([
                     ['id', '=', $cid]
@@ -76,8 +73,8 @@ class Siteinfo
         } else {
             $result = (new ModelConfig)
                 ->where([
-                    ['name', '=', Request::controller(true) . '_description'],
-                    ['lang', '=', Lang::getLangSet()]
+                    ['name', '=', app('request')->controller(true) . '_description'],
+                    ['lang', '=', app('lang')->getLangSet()]
                 ])
                 ->value('value', '');
         }
@@ -95,7 +92,7 @@ class Siteinfo
     private static function keywords(): string
     {
         // 文章关键词
-        if ($id = Request::param('id/f', null)) {
+        if ($id = app('request')->param('id/f', null)) {
             $result = (new ModelArticle)
                 ->where([
                     ['id', '=', $id]
@@ -103,7 +100,7 @@ class Siteinfo
                 ->value('keywords', '');
         }
         // 栏目关键词
-        elseif ($cid = Request::param('cid/f', null)) {
+        elseif ($cid = app('request')->param('cid/f', null)) {
             $result = (new ModelCategory)
                 ->where([
                     ['id', '=', $cid]
@@ -112,8 +109,8 @@ class Siteinfo
         } else {
             $result = (new ModelConfig)
                 ->where([
-                    ['name', '=', Request::controller(true) . '_keywords'],
-                    ['lang', '=', Lang::getLangSet()]
+                    ['name', '=', app('request')->controller(true) . '_keywords'],
+                    ['lang', '=', app('lang')->getLangSet()]
                 ])
                 ->value('value', '');
         }
@@ -131,7 +128,7 @@ class Siteinfo
     private static function title(): string
     {
         // 文章名
-        if ($id = Request::param('id/f', null)) {
+        if ($id = app('request')->param('id/f', null)) {
             $result = (new ModelArticle)
                 ->where([
                     ['id', '=', $id]
@@ -139,7 +136,7 @@ class Siteinfo
                 ->value('title', '');
         }
         // 栏目名
-        elseif ($cid = Request::param('cid/f', null)) {
+        elseif ($cid = app('request')->param('cid/f', null)) {
             $result = (new ModelCategory)
                 ->where([
                     ['id', '=', $cid]
@@ -148,8 +145,8 @@ class Siteinfo
         } else {
             $result = (new ModelConfig)
                 ->where([
-                    ['name', '=', Request::controller(true) . '_sitename'],
-                    ['lang', '=', Lang::getLangSet()]
+                    ['name', '=', app('request')->controller(true) . '_sitename'],
+                    ['lang', '=', app('lang')->getLangSet()]
                 ])
                 ->value('value', 'NICMS');
         }
@@ -168,8 +165,8 @@ class Siteinfo
     {
         $result = (new ModelConfig)
             ->where([
-                ['name', '=', Request::controller(true) . '_sitename'],
-                ['lang', '=', Lang::getLangSet()]
+                ['name', '=', app('request')->controller(true) . '_sitename'],
+                ['lang', '=', app('lang')->getLangSet()]
             ])
             ->value('value', 'NICMS');
 
@@ -187,20 +184,20 @@ class Siteinfo
     {
         $copyright = (new ModelConfig)
             ->where([
-                ['name', '=', Request::controller(true) . '_copyright'],
-                ['lang', '=', Lang::getLangSet()]
+                ['name', '=', app('request')->controller(true) . '_copyright'],
+                ['lang', '=', app('lang')->getLangSet()]
             ])
             ->value('value', '');
 
         $beian = (new ModelConfig)
             ->where([
-                ['name', '=', Request::controller(true) . '_beian'],
-                ['lang', '=', Lang::getLangSet()]
+                ['name', '=', app('request')->controller(true) . '_beian'],
+                ['lang', '=', app('lang')->getLangSet()]
             ])
             ->value('value', '备案号');
 
         return htmlspecialchars_decode($copyright) .
-            '<p><a href="http://www.miitbeian.gov.cn" target="_blank" rel="nofollow">' . $beian . '</a> Powered by <a href="http://www.niphp.com" target="_blank" rel="nofollow">nicms</a></p>';
+            '<a href="http://www.miitbeian.gov.cn" target="_blank" rel="nofollow">' . $beian . '</a> Powered by <a href="http://www.niphp.com" target="_blank" rel="nofollow">nicms</a> <a href="https://github.com/levisun/nicms" target="_blank" rel="nofollow">Github</a>';
     }
 
     /**
@@ -214,8 +211,8 @@ class Siteinfo
     {
         $result = (new ModelConfig)
             ->where([
-                ['name', '=', Request::controller(true) . '_footer'],
-                ['lang', '=', Lang::getLangSet()]
+                ['name', '=', app('request')->controller(true) . '_footer'],
+                ['lang', '=', app('lang')->getLangSet()]
             ])
             ->value('value', 'footer');
 
@@ -233,8 +230,8 @@ class Siteinfo
     {
         $result = (new ModelConfig)
             ->where([
-                ['name', '=', Request::controller(true) . '_script'],
-                ['lang', '=', Lang::getLangSet()]
+                ['name', '=', app('request')->controller(true) . '_script'],
+                ['lang', '=', app('lang')->getLangSet()]
             ])
             ->value('value', '');
 
@@ -252,8 +249,8 @@ class Siteinfo
     {
         $result = (new ModelConfig)
             ->where([
-                ['name', '=', Request::controller(true) . '_theme'],
-                ['lang', '=', Lang::getLangSet()]
+                ['name', '=', app('request')->controller(true) . '_theme'],
+                ['lang', '=', app('lang')->getLangSet()]
             ])
             ->value('value', 'default');
 

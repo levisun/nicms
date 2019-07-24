@@ -13,9 +13,6 @@
  */
 
 use think\Image;
-use think\facade\Config;
-use think\facade\Request;
-use think\facade\Route;
 use app\library\DataFilter;
 use app\library\Jwt;
 
@@ -26,7 +23,7 @@ use app\library\Jwt;
  */
 function isWechat(): bool
 {
-    return strpos(Request::server('HTTP_USER_AGENT'), 'MicroMessenger') !== false ? true : false;
+    return strpos(app('request')->server('HTTP_USER_AGENT'), 'MicroMessenger') !== false ? true : false;
 }
 
 if (!function_exists('client_mac')) {
@@ -112,7 +109,7 @@ if (!function_exists('get_img_url')) {
                 $image = Image::open($root_path . $img_path);
                 $newname = str_replace($img_ext, '', $img_path) . '_' . $image->width() . 'x' . $image->height() . $img_ext;
                 if (!is_file($root_path . $newname)) {
-                    $_water = $_water ? $_water : Request::rootDomain();
+                    $_water = $_water ? $_water : app('request')->rootDomain();
                     $image->text($_water, $font_path, 15, '#00000000', Image::WATER_SOUTHEAST);
                     $image->save($root_path . $newname, null, 50);
                 }
@@ -125,7 +122,7 @@ if (!function_exists('get_img_url')) {
                 }
 
                 // 添加水印
-                $_water = $_water ? $_water : Request::rootDomain();
+                $_water = $_water ? $_water : app('request')->rootDomain();
                 $image->text($_water, $font_path, 15, '#00000000', Image::WATER_SOUTHEAST);
 
                 $image->save($root_path . $thumb_path, null, 40);
@@ -135,7 +132,7 @@ if (!function_exists('get_img_url')) {
             $_img = is_file($root_path . $thumb_path) ? '/' . $thumb_path : '/' . $img_path;
         }
 
-        return Config::get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
+        return app('config')->get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
     }
 }
 
@@ -195,7 +192,7 @@ if (!function_exists('portrait')) {
         $img_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
             str_replace('/', DIRECTORY_SEPARATOR, $_img);
         if ($_img && is_file($img_path)) {
-            Config::get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
+            app('config')->get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
         }
 
         $length = unpack('L', hash('adler32', $_username, true))[1];
@@ -222,7 +219,7 @@ if (!function_exists('client_id')) {
     function client_id(): string
     {
         $client_id = mt_rand((int) date('mdHis'), time())
-            + bindec(Request::ip2bin(Request::ip()))
+            + bindec(app('request')->ip2bin(app('request')->ip()))
             + mt_rand((int) date('mdHis'), time());
         $client_id = date('ymdHis') . str_pad((string) $client_id, 20, (string) mt_rand(), STR_PAD_LEFT);
         $client_id = md5(uniqid($client_id, true));
@@ -280,11 +277,11 @@ if (!function_exists('url')) {
         // static $host = false;
         // static $ext  = true;
 
-        // if (false === $host && true === $ext && $referer = Request::server('HTTP_REFERER', false)) {
+        // if (false === $host && true === $ext && $referer = app('request')->server('HTTP_REFERER', false)) {
         //     $host = parse_url($referer, PHP_URL_HOST);
         //     $ext  = pathinfo(parse_url($referer, PHP_URL_PATH), PATHINFO_EXTENSION);
         // }
 
-        return (string) Route::buildUrl('/' . $_url, $_vars)->suffix(true)->domain(false);
+        return (string) app('route')->buildUrl('/' . $_url, $_vars)->suffix(true)->domain(false);
     }
 }

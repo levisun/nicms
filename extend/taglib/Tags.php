@@ -38,8 +38,10 @@ class Tags
             $params .= isset($_attr['key']) ? '$' . $_attr['key'] . ' => ' : '$key => ';
             $params .= isset($_attr['value']) ? '$' . $_attr['value'] : '$value';
             return '<?php foreach (' . $params . ') {' . $_content . '} ?>';
-        } else {
+        } elseif (isset($_attr['expression'])) {
             return '<?php foreach (' . $_attr['expression'] . ') {' . $_content . '} ?>';
+        } else {
+            return '<!-- 无法解析:foreach ' . htmlspecialchars_decode($_content) . ' -->';
         }
     }
 
@@ -122,7 +124,7 @@ class Tags
 
         return
             '<!DOCTYPE html>' .
-            '<html lang="<?php echo $_COOKIE["__lang"];?>">' .
+            '<html lang="<?php echo request()->cookie("__lang");?>">' .
             '<head>' .
             '<meta charset="utf-8" />' .
             '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
@@ -134,7 +136,7 @@ class Tags
 
             '<meta name="generator" content="nicms" />' .
             '<meta name="author" content="levisun.mail@gmail.com" />' .
-            '<meta name="copyright" content="2013-<?php echo date("Y");?> nicms all rights reserved" />' .
+            '<meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" />' .
 
             '<meta http-equiv="Window-target" content="_blank">' .
             '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' .

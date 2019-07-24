@@ -92,12 +92,12 @@ class View
             '__IMG__'             => 'img/',
             '__JS__'              => 'js/',
             '__STATIC__'          => 'static/',
-            '__NAME__'            => 'nicms',
-            '__TITLE__'           => 'nicms',
-            '__KEYWORDS__'        => 'nicms',
-            '__DESCRIPTION__'     => 'nicms',
-            '__BOTTOM_MSG__'      => 'nicms',
-            '__COPYRIGHT__'       => 'nicms',
+            '__NAME__'            => 'NICMS',
+            '__TITLE__'           => 'NICMS',
+            '__KEYWORDS__'        => 'NICMS',
+            '__DESCRIPTION__'     => 'NICMS',
+            '__BOTTOM_MSG__'      => 'NICMS',
+            '__COPYRIGHT__'       => 'NICMS',
         ],
         'tpl_var_identify'   => 'array',                // .语法变量识别，array|object|'', 为空时自动识别
         'default_filter'     => 'htmlentities',         // 默认过滤方法 用于普通标签输出
@@ -141,6 +141,22 @@ class View
     }
 
     /**
+     * 设置模板替换字符
+     * @access public
+     * @param  array $_replace
+     * @return object
+     */
+    public function setReplace(array $_replace)
+    {
+        foreach ($_replace as $key => $value) {
+            unset($_replace[$key]);
+            $_replace[strtoupper($key)] = $value;
+        }
+        $this->config['tpl_replace_string'] = array_merge($this->config['tpl_replace_string'], $_replace);
+        return $this;
+    }
+
+    /**
      * 渲染模板文件
      * @access public
      * @param  string $_template 模板文件
@@ -180,8 +196,6 @@ class View
             // 获取并清空缓存
             $content = ob_get_clean();
 
-            // $content = str_replace('{__AUTHORIZATION__}', create_authorization(), $content);
-
             echo $content;
         }
     }
@@ -195,7 +209,7 @@ class View
      */
     private function checkCache($_cache_file)
     {
-        if (!$this->config['tpl_cache'] || !is_file($_cache_file) || !$handle = @fopen($_cache_file, "r")) {
+        if (!$this->config['tpl_cache'] || !is_file($_cache_file) || !$handle = @fopen($_cache_file, 'r')) {
             return false;
         }
 
@@ -378,7 +392,7 @@ class View
 
                 $match[3] = $match[3] ? trim($match[3]) : null;
                 if ($match[3]) {
-                    $params = str_replace(['"', "'", '=>', ' '], ['', '', '', '&'], $match[3]);
+                    $params = str_replace(['"', "'", '=>', ' = ', ' '], ['', '', '', '=', '&'], $match[3]);
                     parse_str($params, $params);
                     $params['expression'] = trim($match[3]);
                 } else {

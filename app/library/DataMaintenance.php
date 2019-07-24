@@ -16,17 +16,14 @@ declare(strict_types=1);
 
 namespace app\library;
 
-use think\facade\Config;
-use think\facade\Db;
-use think\facade\Log;
-
 class DataMaintenance
 {
     private $savePath;
 
     public function __construct()
     {
-        $this->savePath = app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR;
+        $this->savePath = app('config')->get('filesystem.disks.local.root') .
+            DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR;
         set_time_limit(28800);
     }
 
@@ -69,11 +66,6 @@ class DataMaintenance
      */
     public function autoBackup(int $_hour = 72): bool
     {
-        $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
-        if (!is_dir($this->savePath)) {
-            mkdir($this->savePath, 0777, true);
-        }
-
         $lock = app()->getRuntimePath() . 'db_auto_back.lock';
         clearstatcache();
         if (is_file($lock) && filemtime($lock) >= strtotime('-30 minute')) {
@@ -82,7 +74,12 @@ class DataMaintenance
 
         if ($fp = fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
-                Log::record('[AUTO BACKUP] 自动备份数据库', 'alert')->save();
+                app('log')->record('[AUTO BACKUP] 自动备份数据库', 'alert')->save();
+
+                $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
+                if (!is_dir($this->savePath)) {
+                    mkdir($this->savePath, 0777, true);
+                }
 
                 if (is_file($this->savePath . 'backup_time.json')) {
                     $btime = json_decode(file_get_contents($this->savePath . 'backup_time.json'), true);
@@ -162,14 +159,14 @@ class DataMaintenance
      */
     public function backup(): bool
     {
-        $this->savePath .= date('YmdHis') . DIRECTORY_SEPARATOR;
-        if (!is_dir($this->savePath)) {
-            mkdir($this->savePath, 0777, true);
-        }
-
         $lock = app()->getRuntimePath() . 'db_back.lock';
         if ($fp = fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
+                $this->savePath .= date('YmdHis') . DIRECTORY_SEPARATOR;
+                if (!is_dir($this->savePath)) {
+                    mkdir($this->savePath, 0777, true);
+                }
+
                 $table_name = $this->queryTableName();
 
                 ignore_user_abort(true);
@@ -205,11 +202,11 @@ class DataMaintenance
      */
     public function optimize(): bool
     {
-        Log::record('[DATAMAINTENANCE OPTIMIZE] 优化表', 'alert')->save();
+        app('log')->record('[DATAMAINTENANCE OPTIMIZE] 优化表', 'alert')->save();
         $tables = $this->queryTableName();
         foreach ($tables as $name) {
             if (false === $this->analyze($name)) {
-                Db::query('OPTIMIZE TABLE `' . $name . '`');
+                app('think\DbManager')->query('OPTIMIZE TABLE `' . $name . '`');
             }
         }
         return true;
@@ -223,14 +220,14 @@ class DataMaintenance
      */
     public function repair(): bool
     {
-        Log::record('[DATAMAINTENANCE REPAIR] 修复表', 'alert')->save();
-        $config = Db::getConfig();
+        app('log')->record('[DATAMAINTENANCE REPAIR] 修复表', 'alert')->save();
+        $config = app('think\DbManager')->getConfig();
         $config['params'][\PDO::ATTR_EMULATE_PREPARES] = true;
-        Db::connect($config, true);
+        app('think\DbManager')->connect($config, true);
         $tables = $this->queryTableName();
         foreach ($tables as $name) {
             if (false === $this->check($name)) {
-                Db::query('REPAIR TABLE `' . $name . '`');
+                app('think\DbManager')->query('REPAIR TABLE `' . $name . '`');
             }
         }
         return true;
@@ -244,7 +241,7 @@ class DataMaintenance
      */
     private function analyze(string $_table_name): bool
     {
-        $result = Db::query('ANALYZE TABLE `' . $_table_name . '`');
+        $result = app('think\DbManager')->query('ANALYZE TABLE `' . $_table_name . '`');
         return strtolower($result[0]['Msg_type']) === 'status';
     }
 
@@ -256,7 +253,7 @@ class DataMaintenance
      */
     private function check(string $_table_name): bool
     {
-        $result = Db::query('CHECK TABLE `' . $_table_name . '`');
+        $result = app('think\DbManager')->query('CHECK TABLE `' . $_table_name . '`');
         return strtolower($result[0]['Msg_type']) === 'status';
     }
 
@@ -269,7 +266,7 @@ class DataMaintenance
     private function queryTableInsertData(string $_table_name, string $_field, int $_limit): string
     {
         $_limit = $_limit * 200;
-        $data = Db::table($_table_name)
+        $data = app('think\DbManager')->table($_table_name)
             ->field($_field)
             ->limit($_limit, 200)
             ->select();
@@ -302,7 +299,7 @@ class DataMaintenance
      */
     private function queryTableInsertField(string $_table_name): string
     {
-        $result = Db::query('SHOW COLUMNS FROM `' . $_table_name . '`');
+        $result = app('think\DbManager')->query('SHOW COLUMNS FROM `' . $_table_name . '`');
         $field = '';
         foreach ($result as $value) {
             $field .= '`' . $value['Field'] . '`,';
@@ -320,7 +317,7 @@ class DataMaintenance
      */
     private function queryTableInsertTotal(string $_table_name): int
     {
-        $total = Db::table($_table_name)->count();
+        $total = app('think\DbManager')->table($_table_name)->count();
         return $total ? (int) ceil($total / 200) : 0;
     }
 
@@ -332,7 +329,7 @@ class DataMaintenance
      */
     private function queryTableStructure(string $_table_name)
     {
-        $tableRes = Db::query('SHOW CREATE TABLE `' . $_table_name . '`');
+        $tableRes = app('think\DbManager')->query('SHOW CREATE TABLE `' . $_table_name . '`');
         if (empty($tableRes[0]['Create Table'])) {
             return false;
         }
@@ -353,25 +350,13 @@ class DataMaintenance
      */
     private function queryTableName(): array
     {
-        $result = Db::query('SHOW TABLES FROM ' . Config::get('database.database'));
+        $result = app('think\DbManager')->query('SHOW TABLES FROM ' . app('env')->get('database.database'));
+
         $tables = array();
         foreach ($result as $value) {
             $value = current($value);
-            $tables[str_replace(Config::get('database.prefix'), '', $value)] = $value;
+            $tables[str_replace(app('env')->get('database.prefix'), '', $value)] = $value;
         }
         return $tables;
-    }
-
-    /**
-     * 写入SQL文件
-     * @access private
-     * @param  string $_file
-     * @param  string $_data
-     * @return void
-     */
-    private function write(string $_file, string $_data): void
-    {
-        // Log::record(pathinfo($_file, PATHINFO_BASENAME), 'alert');
-        file_put_contents($_file, $_data, FILE_APPEND);
     }
 }

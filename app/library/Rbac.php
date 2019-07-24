@@ -195,8 +195,8 @@ class Rbac
                     ['node.level', '=', $_level],
                     ['node.pid', '=', $_pid],
                 ])
-                ->select()
-                ->toArray();
+                ->select();
+            $result = $result ? $result->toArray() : [];
         }
 
         return $result;

@@ -16,7 +16,7 @@ use think\facade\Env;
 use think\facade\Request;
 
 return [
-    'version'          => '1.0.1 CB9',
+    'version'          => '1.0.1 CB10',
     'theme'            => Env::get('admin.theme', 'default'),
     // 后台入口域名
     'entry'            => Env::get('admin.entry', 'admin'),

@@ -47,8 +47,9 @@ class Category extends BaseService
                 ['category.lang', '=', $this->lang->getLangSet()]
             ])
             ->order('category.type_id ASC, category.sort_order ASC, category.id DESC')
-            ->select()
-            ->toArray();
+            ->select();
+
+        $result = $result ? $result->toArray() : [];
 
         foreach ($result as $key => $value) {
             $value['type_name'] = $this->typeName($value['type_id']);
@@ -88,8 +89,9 @@ class Category extends BaseService
                 ['category.lang', '=', $this->lang->getLangSet()]
             ])
             ->order('category.sort_order ASC, category.id DESC')
-            ->select()
-            ->toArray();
+            ->select();
+
+        $result = $result ? $result->toArray() : [];
 
         foreach ($result as $key => $value) {
             $value['type_name'] = $this->typeName($value['type_id']);
@@ -194,7 +196,7 @@ class Category extends BaseService
                 ])
                 ->find();
 
-            if ($result) {
+            if ($result && $result = $result->toArray()) {
                 $result['parent'] = (new ModelCategory)
                     ->where([
                         ['id', '=', $result['pid']]
@@ -267,47 +269,47 @@ class Category extends BaseService
             return $result;
         }
 
-        if ($id = (int) $this->request->param('id/f')) {
-            $receive_data = [
-                'name'        => $this->request->param('name'),
-                'aliases'     => $this->request->param('aliases'),
-                'title'       => $this->request->param('title'),
-                'keywords'    => $this->request->param('keywords'),
-                'description' => $this->request->param('description'),
-                'image'       => $this->request->param('image'),
-                'type_id'     => (int) $this->request->param('type_id/f'),
-                'is_show'     => (int) $this->request->param('is_show/f'),
-                'is_channel'  => (int) $this->request->param('is_channel/f'),
-                'sort_order'  => (int) $this->request->param('sort_order/f'),
-                'access_id'   => (int) $this->request->param('access_id/f'),
-                'url'         => $this->request->param('url'),
-                'update_time' => time()
-            ];
-            if ($result = $this->validate(__METHOD__, $receive_data)) {
-                return $result;
-            }
-
-            (new ModelCategory)
-                ->where([
-                    ['id', '=', $id]
-                ])
-                ->data($receive_data)
-                ->update();
-
-            $this->cache->tag('CMS NAV')->clear();
-
+        if (!$id = (int) $this->request->param('id/f')) {
             return [
                 'debug' => false,
                 'cache' => false,
-                'msg'   => 'category editor success'
+                'code'  => 40001,
+                'msg'   => '缺少参数'
             ];
         }
+
+        $receive_data = [
+            'name'        => $this->request->param('name'),
+            'aliases'     => $this->request->param('aliases'),
+            'title'       => $this->request->param('title'),
+            'keywords'    => $this->request->param('keywords'),
+            'description' => $this->request->param('description'),
+            'image'       => $this->request->param('image'),
+            'type_id'     => (int) $this->request->param('type_id/f'),
+            'is_show'     => (int) $this->request->param('is_show/f'),
+            'is_channel'  => (int) $this->request->param('is_channel/f'),
+            'sort_order'  => (int) $this->request->param('sort_order/f'),
+            'access_id'   => (int) $this->request->param('access_id/f'),
+            'url'         => $this->request->param('url'),
+            'update_time' => time()
+        ];
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+
+        (new ModelCategory)
+            ->where([
+                ['id', '=', $id]
+            ])
+            ->data($receive_data)
+            ->update();
+
+        $this->cache->tag('CMS NAV')->clear();
 
         return [
             'debug' => false,
             'cache' => false,
-            'code'  => 40001,
-            'msg'   => '缺少参数'
+            'msg'   => 'category editor success'
         ];
     }
 
@@ -323,48 +325,43 @@ class Category extends BaseService
             return $result;
         }
 
-        if ($id = (int) $this->request->param('id/f')) {
-            $result = (new ModelCategory)
-                ->where([
-                    ['id', '=', $id],
-                    ['lang', '=', $this->lang->getLangSet()]
-                ])
-                ->find();
+        if (!$id = (int) $this->request->param('id/f')) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40001,
+                'msg'   => '缺少参数'
+            ];
+        }
 
-            $total = (new ModelArticle)
-                ->where([
-                    ['category_id', '=', $result['id']],
-                ])
-                ->count();
-            if (0 === $total) {
-                if ($result['image'] && $result['image'] = str_replace('/', DIRECTORY_SEPARATOR, $result['image'])) {
-                    $result['image'] = $this->app->getRootPath() . 'public' . $result['image'];
-                    if (is_file($result['image'])) {
-                        @unlink($result['image']);
-                    }
+        $result = (new ModelCategory)
+            ->where([
+                ['id', '=', $id],
+                ['lang', '=', $this->lang->getLangSet()]
+            ])
+            ->find();
+
+        if ($result && $result = $result->toArray()) {
+            if ($result['image'] && $result['image'] = str_replace('/', DIRECTORY_SEPARATOR, $result['image'])) {
+                $result['image'] = $this->config->get('filesystem.disks.public.url') . $result['image'];
+                if (is_file($result['image'])) {
+                    @unlink($result['image']);
                 }
-
-                (new ModelCategory)
-                    ->where([
-                        ['id', '=', $id]
-                    ])
-                    ->delete();
-
-                $this->cache->tag('CMS NAV')->clear();
-
-                return [
-                    'debug' => false,
-                    'cache' => false,
-                    'msg'   => 'remove category success'
-                ];
             }
+
+            (new ModelCategory)
+                ->where([
+                    ['id', '=', $id]
+                ])
+                ->delete();
+
+            $this->cache->tag('CMS NAV')->clear();
         }
 
         return [
             'debug' => false,
             'cache' => false,
-            'code'  => 40001,
-            'msg'   => '缺少参数'
+            'msg'   => 'remove category success'
         ];
     }
 

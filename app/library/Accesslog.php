@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace app\library;
 
-use think\facade\Request;
 use app\library\Ip;
 use app\model\Searchengine as ModelSearchengine;
 use app\model\Visit as ModelVisit;
@@ -34,8 +33,8 @@ class Accesslog
      */
     public function record(): void
     {
-        $this->userAgent = Request::server('HTTP_USER_AGENT');
-        $this->ip = Ip::info(Request::ip());
+        $this->userAgent = app('request')->server('HTTP_USER_AGENT');
+        $this->ip = Ip::info(app('request')->ip());
 
         // 蜘蛛
         $spider = $this->isSpider();
@@ -141,7 +140,7 @@ class Accesslog
             'SOGOU'          => 'sogou push spider',
             'YISOU'          => 'yisouspider',
         ];
-        $this->userAgent = $this->userAgent ?: Request::server('HTTP_USER_AGENT');
+        $this->userAgent = $this->userAgent ?: app('request')->server('HTTP_USER_AGENT');
 
         $user_agent = strtolower($this->userAgent);
         foreach ($searchengine as $key => $value) {

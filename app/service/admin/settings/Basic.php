@@ -42,8 +42,9 @@ class Basic extends BaseService
                 ['lang', '=', $this->lang->getLangSet()],
                 ['name', 'in', 'cms_sitename,cms_keywords,cms_description,cms_footer,cms_copyright,cms_beian,cms_script']
             ])
-            ->select()
-            ->toArray();
+            ->select();
+
+        $result = $result ? $result->toArray() : [];
 
         foreach ($result as $key => $value) {
             $value['value'] = htmlspecialchars_decode($value['value']);

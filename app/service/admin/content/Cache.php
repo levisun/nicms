@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace app\service\admin\content;
 
 use app\service\BaseService;
-use app\library\ReGarbage;
 
 class Cache extends BaseService
 {

@@ -16,9 +16,6 @@ declare(strict_types=1);
 
 namespace app\library;
 
-use think\facade\Config;
-use think\facade\Request;
-use think\facade\Session;
 use app\library\Base64;
 
 class JWT
@@ -34,11 +31,11 @@ class JWT
     public function __construct()
     {
         $this->setheaders('alg', 'sha256')
-            ->issuedBy(Request::rootDomain())
-            ->issuedAt((int) Request::time())
-            ->expiresAt((int) Request::time() + 1440)
-            ->identifiedBy(Session::getId(false))
-            ->audience($this->playload['iat'] . Request::baseUrl());
+            ->issuedBy(app('request')->rootDomain())
+            ->issuedAt((int) app('request')->time())
+            ->expiresAt((int) app('request')->time() + 1440)
+            ->identifiedBy(app('session')->getId(false))
+            ->audience($this->playload['iat'] . app('request')->baseUrl());
     }
 
     /**
@@ -110,7 +107,7 @@ class JWT
      */
     public function audience(string $_audience, $_aud = false)
     {
-        $_audience .= Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $_audience .= app('request')->ip() . app('request')->rootDomain() . app('request')->server('HTTP_USER_AGENT');
         $this->playload['aud'] = hash_hmac('sha256', Base64::encrypt($_audience), date('Ymd'));
         return (true === $_aud) ? $this->playload['aud'] : $this;
     }
@@ -148,23 +145,23 @@ class JWT
                 $playload['jti'] = $playload['jti'] ? Base64::decrypt($playload['jti']) : null;
 
                 // 接受者验证
-                $audience = $this->audience($playload['iat'] . parse_url(Request::server('HTTP_REFERER'), PHP_URL_PATH), true);
+                $audience = $this->audience($playload['iat'] . parse_url(app('request')->server('HTTP_REFERER'), PHP_URL_PATH), true);
                 if (!hash_equals($audience, $playload['aud'])) {
                     return false;
                 }
 
                 // 签发者验证
-                elseif (!hash_equals(Request::rootDomain(), $playload['iss'])) {
+                elseif (!hash_equals(app('request')->rootDomain(), $playload['iss'])) {
                     return false;
                 }
 
                 // 签发时间验证
-                elseif ($playload['iat'] >= Request::time()) {
+                elseif ($playload['iat'] >= app('request')->time()) {
                     return false;
                 }
 
                 // 有效期验证
-                elseif ($playload['exp'] <= Request::time()) {
+                elseif ($playload['exp'] <= app('request')->time()) {
                     return false;
                 }
 
@@ -192,6 +189,6 @@ class JWT
      */
     private function getSignature(string $_alg, string $_data): string
     {
-        return hash_hmac($_alg, $_data, Config::get('app.secretkey'));
+        return hash_hmac($_alg, $_data, app('config')->get('app.secretkey'));
     }
 }
