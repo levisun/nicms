@@ -47,8 +47,8 @@ jQuery.pjax({
     },
     success: function(result){
         if (result.code == 10000 && result.data) {
-            jQuery('.content-header h1 font').text(result.data[NICMS.api.param.service].lang);
-            jQuery('.content-header h1 small').text(result.data[NICMS.api.param.service].child[NICMS.api.param.logic].lang);
+            jQuery('.content-header h1 font').text(result.data[NICMS.api.param.service].child[NICMS.api.param.logic].lang);
+            jQuery('.content-header h1 small').text(result.data[NICMS.api.param.service].lang);
             jQuery('.content-header .breadcrumb').append('<li><a>'+result.data[NICMS.api.param.service].lang+'</a></li>');
             jQuery('.content-header .breadcrumb').append('<li class="active"><a href="'+result.data[NICMS.api.param.service].child[NICMS.api.param.logic].url+'">'+result.data[NICMS.api.param.service].child[NICMS.api.param.logic].lang+'</a></li>');
             new Vue({

@@ -51,6 +51,14 @@ class Type extends BaseService
         $list = $result->toArray();
         $list['render'] = $result->render();
 
+        foreach ($list['data'] as $key => $value) {
+            $value['url'] = [
+                'editor' => url('category/type/editor/' . $value['id']),
+                'remove' => url('category/type/remove/' . $value['id']),
+            ];
+            $list['data'][$key] = $value;
+        }
+
         return [
             'debug' => false,
             'cache' => false,
@@ -86,5 +94,13 @@ class Type extends BaseService
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
         }
+
+        (new ModelType)->create($receive_data);
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'type added success',
+        ];
     }
 }
