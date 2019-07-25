@@ -383,6 +383,6 @@ class Category extends BaseService
             return $result;
         }
 
-        return $this->uploadFile('images/category');
+        return $this->uploadFile('category');
     }
 }

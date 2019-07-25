@@ -344,10 +344,6 @@ abstract class BaseService
             ];
         }
 
-        $_dir = $_dir ? '/' . $_dir : '';
-        $files = $this->request->file($_input_name);
-        $save_path = $this->config->get('filesystem.disks.public.url') . '/';
-
         $size = (int) $this->config->get('app.upload_size', 1) * 1048576;
         $ext = $this->config->get('app.upload_type', 'doc,docx,gif,gz,jpeg,mp4,pdf,png,ppt,pptx,rar,xls,xlsx,zip');
         $mime = [
@@ -367,6 +363,8 @@ abstract class BaseService
             'zip'  => 'application/zip'
         ];
 
+        $files = $this->request->file($_input_name);
+
         // $error = $this->app->validate->rule([
         //     $_input_name => [
         //         'fileExt'  => $ext,
@@ -376,9 +374,12 @@ abstract class BaseService
         // ])->batch(false)->failException(false)->check($files);
         // $this->app->validate->getError();
 
+        $save_path = $this->config->get('filesystem.disks.public.url') . '/';
+        $_dir = $_dir ? '/' . $_dir : '';
+
         // 单文件
         if (is_string($_FILES[$_input_name]['name'])) {
-            $_dir = in_array(pathinfo($files->extension(), PATHINFO_EXTENSION), ['gif', 'jpg', 'jpeg', 'png'])
+            $_dir = in_array($files->extension(), ['gif', 'jpg', 'jpeg', 'png'])
                 ? '/images' . $_dir . '/' . date('Ym')
                 : '/' . $files->extension() . $_dir . '/' . date('Ym');
 
@@ -406,7 +407,7 @@ abstract class BaseService
         if (is_array($_FILES[$_input_name]['name'])) {
             $result = [];
             foreach ($files as $file) {
-                $sub_dir = in_array(pathinfo($file->extension(), PATHINFO_EXTENSION), ['gif', 'jpg', 'jpeg', 'png'])
+                $sub_dir = in_array($file->extension(), ['gif', 'jpg', 'jpeg', 'png'])
                     ? '/images' . $_dir . '/' . date('Ym')
                     : '/' . $file->extension() . $_dir . '/' . date('Ym');
 
