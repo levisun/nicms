@@ -297,6 +297,17 @@ class Category extends BaseService
             return $result;
         }
 
+        // 删除旧图片
+        $image = (new ModelCategory)
+            ->where([
+                ['id', '=', $id],
+                ['lang', '=', $this->lang->getLangSet()]
+            ])
+            ->value('image');
+        if ($image !== $receive_data['image']) {
+            remove_img($image);
+        }
+
         (new ModelCategory)
             ->where([
                 ['id', '=', $id]
@@ -342,12 +353,7 @@ class Category extends BaseService
             ->find();
 
         if ($result && $result = $result->toArray()) {
-            if ($result['image'] && $result['image'] = str_replace('/', DIRECTORY_SEPARATOR, $result['image'])) {
-                $result['image'] = $this->config->get('filesystem.disks.public.url') . $result['image'];
-                if (is_file($result['image'])) {
-                    @unlink($result['image']);
-                }
-            }
+            remove_img($result['image']);
 
             (new ModelCategory)
                 ->where([
@@ -377,6 +383,6 @@ class Category extends BaseService
             return $result;
         }
 
-        return $this->uploadFile('category');
+        return $this->uploadFile('images/category');
     }
 }

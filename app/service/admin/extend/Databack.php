@@ -56,7 +56,7 @@ class Databack extends BaseService
 
                 $child = (array) glob($path . $value . DIRECTORY_SEPARATOR . '*');
                 $size = 0;
-                foreach ($child as $k => $v) {
+                foreach ($child as $v) {
                     $size += filesize($v);
                 }
                 $size = number_format($size / 1024 / 1024, 2) . 'MB';
@@ -119,19 +119,17 @@ class Databack extends BaseService
             return $result;
         }
 
-        if ($id = $this->request->param('id')) {
-            $id = Base64::decrypt($id);
-
-            $file = (array) glob($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . '*');
-            foreach ($file as $key => $value) {
+        $id = $this->request->param('id');
+        if ($id && $id = Base64::decrypt($id)) {
+            $path = app('config')->get('filesystem.disks.local.root') .
+                DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR;
+            $file = (array) glob($path . '*');
+            foreach ($file as $value) {
                 if (is_file($value)) {
                     unlink($value);
                 }
             }
-            if (is_dir($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id)) {
-                rmdir($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id);
-            }
-
+            @rmdir($path);
             $msg = 'remove success';
         } else {
             $msg = 'remove error';
@@ -156,9 +154,9 @@ class Databack extends BaseService
             return $result;
         }
 
-        $id = $this->request->param('id');
-        $id = Base64::decrypt($id);
+        // $id = $this->request->param('id');
+        // $id = Base64::decrypt($id);
 
-        (new DataMaintenance)->reduction($id);
+        // (new DataMaintenance)->reduction($id);
     }
 }

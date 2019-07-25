@@ -36,7 +36,9 @@ class Elog extends BaseService
             return $result;
         }
 
-        $file = (array) glob($this->app->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . '*');
+        $path = app('config')->get('filesystem.disks.local.root') .
+            DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR;
+        $file = (array) glob($path . '*');
         rsort($file);
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
@@ -78,10 +80,11 @@ class Elog extends BaseService
             return $result;
         }
 
-        if ($id = $this->request->param('id')) {
-            $id = Base64::decrypt($id);
+        $id = $this->request->param('id');
+        if ($id && $id = Base64::decrypt($id)) {
 
-            $file = $this->app->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . $id;
+            $file = app('config')->get('filesystem.disks.local.root') .
+                DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . $id;
             if (is_file($file)) {
                 $data = file_get_contents($file);
                 $data = str_replace($this->app->getRootPath(), 'ROOT_PATH', $data);

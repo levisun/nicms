@@ -68,18 +68,13 @@ class Maintain
             (new ReGarbage)->run();
         }
 
-        // 关闭调试模式
-        if (false === $this->app->isDebug()) {
-            // \think\facade\Console::call('optimize:config');
-            // \think\facade\Console::call('optimize:route');
-            // \think\facade\Console::call('optimize:schema');
-        } else {
-            // \think\facade\Console::call('clear');
-        }
-
-        // 开启调试清空请求缓存
-        if ($this->app->isDebug()) {
+        if (true === $this->app->isDebug()) {
+            // 开启调试清空请求缓存
             // $this->app->cache->clear();
+        } else {
+            // 生成效率文件
+            \think\facade\Console::call('optimize:route');
+            \think\facade\Console::call('optimize:schema');
         }
     }
 }

@@ -41,6 +41,7 @@ class Visit extends BaseService
         }
 
         $query_limit = (int) $this->request->param('limit/f', 10);
+        $date_format = $this->request->param('date_format', 'Y-m-d');
 
         $result = (new ModelVisit)
             ->order('date DESC')
@@ -49,7 +50,6 @@ class Visit extends BaseService
         $list = $result->toArray();
         $list['render'] = $result->render();
 
-        $date_format = $this->request->param('date_format', 'Y-m-d');
         foreach ($list['data'] as $key => $value) {
             $value['date'] = date($date_format, $value['date']);
             $list['data'][$key] = $value;

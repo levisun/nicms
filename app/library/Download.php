@@ -39,9 +39,8 @@ class Download
             return false;
         }
 
-        $path = app('config')->get('filesystem.disks.public.url') . $_file;
-        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
-        if (!is_file(app()->getRootPath() . 'public' . $path)) {
+        $path = app('config')->get('filesystem.disks.public.root') . $_file;
+        if (!is_file($path)) {
             return  false;
         }
 
@@ -63,8 +62,7 @@ class Download
 
             $ext = explode(',', app('config')->get('app.upload_type', 'gif,jpg,jpeg,png,zip,rar'));
 
-            $path = app('config')->get('filesystem.disks.public.url') . $file_name;
-            $path = app()->getRootPath() . 'public' . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+            $path = app('config')->get('filesystem.disks.public.root') . $file_name;
 
             if (in_array(pathinfo($path, PATHINFO_EXTENSION), $ext) && is_file($path)) {
                 $response = Response::create($path, 'file')
@@ -80,7 +78,7 @@ class Download
         $log  = '[API] 下载文件:' . app('request')->param('file', 'null');
         $log .= ' 文件地址:' . $file_name . PHP_EOL;
         $log .= 'PARAM:' . json_encode(app('request')->param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
-        app('log')->record($log, 'alert')->save();
+        app('log')->record($log, 'info')->save();
 
         throw new HttpResponseException($response);
     }

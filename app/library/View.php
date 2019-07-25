@@ -116,8 +116,8 @@ class View
 
         // 拼装模板目录路径
         $config = [
-            'view_path'    => $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR,
-            'cache_path'   => $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR,
+            'view_path'    => $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $this->request->controller(true) . DIRECTORY_SEPARATOR,
+            'cache_path'   => $this->app->getRuntimePath() . 'storage' . DIRECTORY_SEPARATOR. 'compile' . DIRECTORY_SEPARATOR,
             'cache_prefix' => $this->request->controller(true) . DIRECTORY_SEPARATOR,
             'tpl_cache'    => !$this->app->config->get('app.debug'),
         ];
@@ -196,6 +196,8 @@ class View
             // 获取并清空缓存
             $content = ob_get_clean();
 
+            $content = preg_replace('/<\!\-\-.*?\-\->/si', '', $content);
+
             echo $content;
         }
     }
@@ -260,17 +262,19 @@ class View
         // 去除html空格与换行
         if ($this->config['strip_space']) {
             /* 去除html空格与换行 */
-            $find    = ['~>\s+<~', '~>(\s+\n|\r)~', '/( ){2,}/si'];
-            $replace = ['><', '>', ''];
+            $find    = ['~>\s+<~', '~>(\s+\n|\r)~'];
+            $replace = ['><', '>'];
             $_content = preg_replace($find, $replace, $_content);
         }
 
         // 优化生成的php代码
-        $_content = preg_replace('/\?>\s*<\?php\s(?!echo\b|\bend)/s', '', $_content);
+        $_content = preg_replace(['/\?>\s*<\?php\s(?!echo\b|\bend)/s', '/( ){2,}/si'], '', $_content);
         $_content = str_replace('\/', '/', $_content);
 
         // 添加安全代码及模板引用记录
-        $_content = '<?php /*' . serialize($this->includeFile) . '*/ ?>' . "\n" . $_content;
+        $client = $this->request->isMobile() ? 'mobile' : 'pc';
+        $_content = '<?php /*' . serialize($this->includeFile) . '*/ ?>' . PHP_EOL .
+            '<!-- Client:' . $client . ' Time:' . date('Y-m-d H:i:s') . ' -->' . $_content;
 
         // 编译存储
         $dir = dirname($_cache_file);
@@ -326,9 +330,16 @@ class View
      */
     private function paresReplace(string &$_content): void
     {
-        $theme = $this->app->config->get('app.cdn_host') . '/theme/';
+        $theme  = $this->app->config->get('app.cdn_host') . '/theme/';
         $theme .= $this->request->controller(true) . '/';
         $theme .= str_replace(DIRECTORY_SEPARATOR, '/', $this->config['view_theme']);
+
+        // 拼装移动端模板路径
+        $mobile = 'mobile' . DIRECTORY_SEPARATOR;
+        if ($this->request->isMobile() && is_dir($this->config['view_path'] . $this->config['view_theme'] . $mobile)) {
+            $theme .= str_replace(DIRECTORY_SEPARATOR, '/', $this->config['view_theme']);
+        }
+
         $replace = [
             '__SYS_VERSION__' => $this->app->config->get('app.version', '1.0.1'),
             '__STATIC__'      => $this->app->config->get('app.cdn_host') . '/static/',
@@ -369,9 +380,9 @@ class View
                 if (!class_exists($tags) || !method_exists($tags, $action)) {
                     $str = '<!-- 无法解析:' . htmlspecialchars_decode($match[0]) . ' -->';
                 } else {
-                    $str = '<?php /* ' . $match[1] . '::' . $match[2] . ' start */ ?>' .
+                    $str = '<!-- ' . $match[1] . '::' . $match[2] . ' start -->' .
                         call_user_func([$tags, $action], $params, $this->config) .
-                        '<?php /* ' . $match[1] . '::' . $match[2] . ' end */ ?>';
+                        '<!-- ' . $match[1] . '::' . $match[2] . ' end -->';
                 }
 
                 $_content = str_replace($match[0], $str, $_content);
@@ -402,9 +413,9 @@ class View
                 if (!class_exists($tags) || !method_exists($tags, $action)) {
                     $str = '<!-- 无法解析:' . htmlspecialchars_decode($match[0]) . ' -->';
                 } else {
-                    $str = '<?php /* ' . $match[1] . '::' . $match[2] . ' start */ ?>' .
+                    $str = '<!-- ' . $match[1] . '::' . $match[2] . ' start -->' .
                         call_user_func([$tags, $action], $params, $tags_content, $this->config) .
-                        '<?php /* ' . $match[1] . '::' . $match[2] . ' end */ ?>';
+                        '<!-- ' . $match[1] . '::' . $match[2] . ' end -->';
                 }
 
                 $_content = str_replace($match[0], $str, $_content);
@@ -462,7 +473,7 @@ class View
                 if ('CONST' === $var_type) {
                     $defined = get_defined_constants();
                     $var_name = strtoupper($var_name);
-                    return isset($defined[$var_name]) ? '<?php echo ' . $var_name . ';?>' : $var_name;
+                    return isset($defined[$var_name]) ? '<?php echo ' . $var_name . '; ?>' : $var_name;
                 }
 
                 if ('GET' === $var_type) {
@@ -475,7 +486,7 @@ class View
                     $vars = 'request()->cookie("' . $var_name . '")';
                 }
 
-                return '<?php echo ' . $vars . ';?>';
+                return '<?php echo ' . $vars . '; ?>';
             }, $_content);
     }
 
@@ -570,7 +581,7 @@ class View
             ? str_replace(['/', '\\'], DIRECTORY_SEPARATOR, rtrim($_template, '.'))
             : $this->request->action(true);
         $_template = trim($_template, DIRECTORY_SEPARATOR) . '.' . $this->config['view_suffix'];
-        $_template = $this->request->controller(true) . DIRECTORY_SEPARATOR . $this->config['view_theme'] . $_template;
+        $_template = $this->config['view_theme'] . $_template;
 
         // 拼装移动端模板路径
         $mobile = 'mobile' . DIRECTORY_SEPARATOR;

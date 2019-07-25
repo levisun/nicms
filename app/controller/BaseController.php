@@ -106,7 +106,6 @@ abstract class BaseController
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('default_filter');
 
-        $this->view = Container::getInstance()->make('\app\library\Template');
         $this->view = Container::getInstance()->make('\app\library\View');
 
         $this->ipinfo = Ip::info($this->request->ip());

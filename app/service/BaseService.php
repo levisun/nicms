@@ -334,85 +334,101 @@ abstract class BaseService
      * @param  string $_input_name 表单名 默认upload
      * @return array
      */
-    protected function uploadFile(string $_dir = '', string $_input_name = 'upload')
+    protected function uploadFile(string $_dir = '', string $_input_name = 'upload'): array
     {
-        if ($this->request->isPost() && !empty($_FILES) && $this->uid) {
-            $files = $this->request->file($_input_name);
+        if (!$this->request->isPost() || empty($_FILES) || !$this->uid) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'msg'   => 'upload error'
+            ];
+        }
 
-            // $size = (int) $this->config->get('app.upload_size', 1) * 1048576;
-            // $ext = $this->config->get('app.upload_type', 'gif,jpg,jpeg,png,zip,rar');
-            // $mime = [
-            //     'doc'  => 'application/msword',
-            //     'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            //     'gif'  => 'image/gif',
-            //     'gz'   => 'application/x-gzip',
-            //     'jpeg' => 'image/jpeg',
-            //     'mp4'  => 'video/mp4',
-            //     'pdf'  => 'application/pdf',
-            //     'png'  => 'image/png',
-            //     'ppt'  => 'application/vnd.ms-powerpoint',
-            //     'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            //     'rar'  => 'application/octet-stream',
-            //     'xls'  => 'application/vnd.ms-excel',
-            //     'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            //     'zip'  => 'application/zip'
-            // ];
-            // $error = $this->app->validate->rule([
-            //     $_input_name => [
-            //         'fileExt'  => $ext,
-            //         'fileMime' => $mime,
-            //         'fileSize' => $size
-            //     ]
-            // ])->batch(false)->failException(false)->check($files);
+        $_dir = $_dir ? '/' . $_dir : '';
+        $files = $this->request->file($_input_name);
+        $save_path = $this->config->get('filesystem.disks.public.url') . '/';
 
-            $error = '';
-            if (false === $error) {
-                $msg = $this->app->validate->getError();
-            } elseif (is_array($_FILES[$_input_name]['name'])) {
-                $result = [];
-                foreach ($files as $file) {
-                    $_dir = $_dir ?: $file->extension();
-                    $_dir .= '/' . date('Ym');
-                    $save_file = $this->config->get('filesystem.disks.public.url') . '/' .
-                        $this->app->filesystem->disk('public')->putFile($_dir, $file, function () {
-                            return $this->uid . substr($this->authKey, 0, 1) . date('ymdHis') . uniqid();
-                        });
-                    $result[] = [
-                        'extension'    => $file->extension(),
-                        'name'         => $save_file,
-                        'old_name'     => $file->getOriginalName(),
-                        'original_url' => $save_file,
-                        'size'         => $file->getSize(),
-                        'type'         => $file->getMime(),
-                        'url'          => $this->config->get('app.cdn_host') . $save_file,
-                    ];
-                }
-            } else {
-                $_dir = $_dir ?: $files->extension();
-                $_dir .= '/' . date('Ym');
-                $save_file = $this->config->get('filesystem.disks.public.url') . '/' .
-                    $this->app->filesystem->disk('public')->putFile($_dir, $files, function () {
-                        return $this->uid . substr($this->authKey, 0, 1) . date('ymdHis') . uniqid();
-                    });
-                $result = [
-                    'extension'    => $files->extension(),
+        $size = (int) $this->config->get('app.upload_size', 1) * 1048576;
+        $ext = $this->config->get('app.upload_type', 'doc,docx,gif,gz,jpeg,mp4,pdf,png,ppt,pptx,rar,xls,xlsx,zip');
+        $mime = [
+            'doc'  => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'gif'  => 'image/gif',
+            'gz'   => 'application/x-gzip',
+            'jpeg' => 'image/jpeg',
+            'mp4'  => 'video/mp4',
+            'pdf'  => 'application/pdf',
+            'png'  => 'image/png',
+            'ppt'  => 'application/vnd.ms-powerpoint',
+            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'rar'  => 'application/octet-stream',
+            'xls'  => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'zip'  => 'application/zip'
+        ];
+
+        // $error = $this->app->validate->rule([
+        //     $_input_name => [
+        //         'fileExt'  => $ext,
+        //         'fileMime' => $mime,
+        //         'fileSize' => $size
+        //     ]
+        // ])->batch(false)->failException(false)->check($files);
+        // $this->app->validate->getError();
+
+        // 单文件
+        if (is_string($_FILES[$_input_name]['name'])) {
+            $_dir = in_array(pathinfo($files->extension(), PATHINFO_EXTENSION), ['gif', 'jpg', 'jpeg', 'png'])
+                ? '/images' . $_dir . '/' . date('Ym')
+                : '/' . $files->extension() . $_dir . '/' . date('Ym');
+
+            $save_file = $save_path . $this->app->filesystem->disk('public')->putFile($_dir, $files, 'uniqid');
+
+            $result = [
+                'extension'    => $files->extension(),
+                'name'         => $save_file,
+                'old_name'     => $files->getOriginalName(),
+                'original_url' => $save_file,
+                'size'         => $files->getSize(),
+                'type'         => $files->getMime(),
+                'url'          => $this->config->get('app.cdn_host') . $save_file,
+            ];
+
+            return [
+                'debug' => false,
+                'cache' => false,
+                'msg'   => 'upload success缺少验证',
+                'data'  => $result
+            ];
+        }
+
+        // 多文件
+        if (is_array($_FILES[$_input_name]['name'])) {
+            $result = [];
+            foreach ($files as $file) {
+                $sub_dir = in_array(pathinfo($file->extension(), PATHINFO_EXTENSION), ['gif', 'jpg', 'jpeg', 'png'])
+                    ? '/images' . $_dir . '/' . date('Ym')
+                    : '/' . $file->extension() . $_dir . '/' . date('Ym');
+
+                $save_file = $save_path . $this->app->filesystem->disk('public')->putFile($sub_dir, $file, 'uniqid');
+
+                $result[] = [
+                    'extension'    => $file->extension(),
                     'name'         => $save_file,
-                    'old_name'     => $files->getOriginalName(),
+                    'old_name'     => $file->getOriginalName(),
                     'original_url' => $save_file,
-                    'size'         => $files->getSize(),
-                    'type'         => $files->getMime(),
+                    'size'         => $file->getSize(),
+                    'type'         => $file->getMime(),
                     'url'          => $this->config->get('app.cdn_host') . $save_file,
                 ];
             }
-        } else {
-            $msg = 'upload error';
-        }
 
-        return [
-            'debug' => false,
-            'cache' => false,
-            'msg'   => isset($msg) ? $msg : 'upload success缺少验证',
-            'data'  => isset($result) ? $result : []
-        ];
+            return [
+                'debug' => false,
+                'cache' => false,
+                'msg'   => 'upload success缺少验证',
+                'data'  => $result
+            ];
+        }
     }
 }

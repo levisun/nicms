@@ -34,25 +34,16 @@ class ReGarbage
         }
         if ($fp = @fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
-                app('log')->record('[REGARBAGE] 删除垃圾信息', 'alert')->save();
-                $runtime_path = app()->getRuntimePath();
-                $root_path = app()->getRootPath();
-
+                app('log')->record('[REGARBAGE] 删除垃圾信息', 'info');
+                $runtime_path = app()->getRuntimePath() . 'storage' . DIRECTORY_SEPARATOR;
                 $this->remove($runtime_path . 'cache', 3);
                 $this->remove($runtime_path . 'compile', 7);
                 $this->remove($runtime_path . 'log', 3);
                 $this->remove($runtime_path . 'req', 1);
-                $this->remove($root_path . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 1);
 
-                // $dir = (array)glob($root_path . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*');
-                // foreach ($dir as $path) {
-                //     $date = (int)date('Ym');
-                //     $this->remove($path . DIRECTORY_SEPARATOR . $date, 192);
-                //     --$date;
-                //     $this->remove($path . DIRECTORY_SEPARATOR . $date, 192);
-                // }
-
-                // unset($runtime_path, $root_path, $dir, $date);
+                $root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+                $this->remove($root_path . 'sitemaps', 1);
+                $this->remove($root_path . 'storage' . DIRECTORY_SEPARATOR . 'images', 30);
 
                 fwrite($fp, '清除垃圾数据' . date('Y-m-d H:i:s'));
                 flock($fp, LOCK_UN);
@@ -74,7 +65,7 @@ class ReGarbage
         while ($dir->valid()) {
             $filename = $dir->current();
             if (is_dir($filename)) {
-                @rmdir($filename);
+                // @rmdir($filename);
             } elseif (is_file($filename) && false === strpos($filename, '_skl')) {
                 @unlink($filename);
             }

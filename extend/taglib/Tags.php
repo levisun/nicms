@@ -57,7 +57,7 @@ class Tags
      */
     public static function foot(array $_attr = [], array $_config)
     {
-        $path = $_config['view_path'] . request()->controller(true) . DIRECTORY_SEPARATOR . $_config['view_theme'];
+        $path = $_config['view_path'] . $_config['view_theme'];
 
         $config = '';
         if (request()->isMobile() && is_file($path . 'mobile' . DIRECTORY_SEPARATOR . 'config.json')) {
@@ -89,7 +89,7 @@ class Tags
      */
     public static function meta(array $_attr = [], array $_config): string
     {
-        $path = $_config['view_path'] . request()->controller(true) . DIRECTORY_SEPARATOR . $_config['view_theme'];
+        $path = $_config['view_path'] . $_config['view_theme'];
 
         $config = '';
         if (request()->isMobile() && is_file($path . 'mobile' . DIRECTORY_SEPARATOR . 'config.json')) {

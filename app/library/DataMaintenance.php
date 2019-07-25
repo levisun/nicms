@@ -74,11 +74,11 @@ class DataMaintenance
 
         if ($fp = fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
-                app('log')->record('[AUTO BACKUP] 自动备份数据库', 'alert')->save();
+                app('log')->record('[AUTO BACKUP] 自动备份数据库', 'info');
 
                 $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
                 if (!is_dir($this->savePath)) {
-                    mkdir($this->savePath, 0777, true);
+                    mkdir($this->savePath, 0755, true);
                 }
 
                 if (is_file($this->savePath . 'backup_time.json')) {
@@ -108,7 +108,7 @@ class DataMaintenance
                     $field = $this->queryTableInsertField($name);
                     $num = 1;
                     for ($i = 0; $i < $total; $i++) {
-                        $hour = '-' . mt_rand($_hour, $_hour + 7) . ' hour';
+                        $hour = '-' . mt_rand($_hour, $_hour + 3) . ' hour';
                         $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
 
                         if (isset($btime[$name . $num])) {
@@ -164,7 +164,7 @@ class DataMaintenance
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 $this->savePath .= date('YmdHis') . DIRECTORY_SEPARATOR;
                 if (!is_dir($this->savePath)) {
-                    mkdir($this->savePath, 0777, true);
+                    mkdir($this->savePath, 0755, true);
                 }
 
                 $table_name = $this->queryTableName();
@@ -202,7 +202,7 @@ class DataMaintenance
      */
     public function optimize(): bool
     {
-        app('log')->record('[DATAMAINTENANCE OPTIMIZE] 优化表', 'alert')->save();
+        app('log')->record('[DATAMAINTENANCE OPTIMIZE] 优化表', 'info');
         $tables = $this->queryTableName();
         foreach ($tables as $name) {
             if (false === $this->analyze($name)) {
@@ -220,7 +220,7 @@ class DataMaintenance
      */
     public function repair(): bool
     {
-        app('log')->record('[DATAMAINTENANCE REPAIR] 修复表', 'alert')->save();
+        app('log')->record('[DATAMAINTENANCE REPAIR] 修复表', 'info');
         $config = app('think\DbManager')->getConfig();
         $config['params'][\PDO::ATTR_EMULATE_PREPARES] = true;
         app('think\DbManager')->connect($config, true);

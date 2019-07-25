@@ -46,7 +46,7 @@ class CheckRequestCache
 
         // 调试模式关闭浏览器缓存
         // API有定义缓存,请勿开启缓存
-        if (true == $config->get('app.debug')) {
+        if (true === $config->get('app.debug')) {
             $response->allowCache(false);
         }
 
