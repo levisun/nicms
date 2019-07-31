@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS `nc_user_wechat` (
   `language` varchar(10) NOT NULL DEFAULT '' COMMENT '语言',
   `avatar_url` varchar(500) NOT NULL DEFAULT '' COMMENT '头像',
   `subscribe_time` int(11) NOT NULL DEFAULT '0' COMMENT '关注时间',
+  `scene_id` varchar(100) NOT NULL DEFAULT '' COMMENT '二维码场景值',
   `unionid` varchar(32) NOT NULL DEFAULT '' COMMENT '',
   `remark` varchar(50) NOT NULL DEFAULT '' COMMENT '备注',
   `groupid` varchar(50) NOT NULL DEFAULT '' COMMENT '分组ID',

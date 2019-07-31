@@ -25,7 +25,6 @@ namespace app\service;
 use think\App;
 use app\library\Ip;
 use app\library\Rbac;
-use app\library\Upload;
 use app\model\Action as ModelAction;
 use app\model\ActionLog as ModelActionLog;
 

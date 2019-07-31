@@ -50,11 +50,12 @@ Route::domain(Env::get('admin.entry'), function () {
 ]);
 
 Route::domain('api', function () {
-    Route::rule('query$', 'api/query');
-    Route::rule('handle$', 'api/handle');
-    Route::rule('upload$', 'api/upload');
-    Route::rule('sms$', 'api/sms');
+    Route::get('query$', 'api/query');
+    Route::post('handle$', 'api/handle');
+    Route::post('upload$', 'api/upload');
+    Route::post('sms$', 'api/sms');
     Route::rule('ip$', 'api/ip');
     Route::rule('download$', 'api/download');
+    Route::rule('wechat$', 'api/wechat');
     Route::miss('error/index');
 })->bind('api')->ext('do')->middleware('app\middleware\AllowCrossDomain');

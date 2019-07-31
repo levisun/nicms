@@ -148,7 +148,7 @@
                         <li class="user-body">
                             <div class="row">
                                 <div class="col-xs-4 text-center">
-                                    <a id="nc-re-cache-btn">{:lang('remove cache')}</a>
+                                    <a v-on:click="remove_cache">{:lang('remove cache')}</a>
                                 </div>
                                 <div class="col-xs-4 text-center">
                                     <a>{:lang('backup database')}</a>
@@ -208,7 +208,6 @@
                     }
                 });
             },
-
             logout: function () {
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
@@ -223,36 +222,32 @@
                     }
                 });
             },
-
-
+            remove_cache: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: {
+                        method: 'content.cache.recache'
+                    },
+                    success: function (result) {
+                        if (result.code == 10000) {
+                        }
+                    }
+                });
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: {
+                        method: 'content.cache.recompile'
+                    },
+                    success: function (result) {
+                        if (result.code == 10000) {
+                        }
+                    }
+                });
+            }
         }
     });
     header.profile();
     header.notice();
-
-
-    // jQuery(document).on('click', '#nc-re-cache-btn', function () {
-    //     jQuery.pjax({
-    //         url: NICMS.api.url + '/handle.do',
-    //         type: 'POST',
-    //         data: {
-    //             method: 'content.cache.recache'
-    //         },
-    //         success: function (result) {
-    //             if (result.code == 10000) {
-    //             }
-    //         }
-    //     });
-    //     jQuery.pjax({
-    //         url: NICMS.api.url + '/handle.do',
-    //         type: 'POST',
-    //         data: {
-    //             method: 'content.cache.recompile'
-    //         },
-    //         success: function (result) {
-    //             if (result.code == 10000) {
-    //             }
-    //         }
-    //     });
-    // });
 </script>
