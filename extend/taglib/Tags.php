@@ -182,6 +182,6 @@ class Tags
                     'js'     => '__JS__',
                 ]
             ]) .
-            '</script>';
+            '</script></head>';
     }
 }

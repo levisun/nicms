@@ -307,8 +307,6 @@ class View
         // 解析函数
         $this->parseFunc($_content);
 
-        $_content .= false === stripos($_content, '<body') ? '<body>' : '';
-
         // 解析标签
         $this->parseTags($_content);
 
@@ -318,6 +316,9 @@ class View
         // 模板过滤输出
         $this->paresReplace($_content);
 
+        if (false === stripos($_content, '<body')) {
+            $_content = str_replace('</head>', '</head><body>', $_content);
+        }
         $_content .= false === stripos($_content, '</body>') ? '</body>' : '';
         $_content .= false === stripos($_content, '</html>') ? '</html>' : '';
     }

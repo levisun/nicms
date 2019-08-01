@@ -128,7 +128,7 @@ abstract class BaseController
         $params = !empty($params) ? json_encode($params) : '';
         $params = $this->request->url() . $params;
 
-        $pattern = '/base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec|system|php|select|update|delete|insert|create/si';
+        $pattern = '/dist|upload|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec|system|php|select|update|delete|insert|create/si';
         if (false !== preg_match_all($pattern, $params, $matches) && count($matches[0])) {
             $log = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5($this->request->ip() . date('dH')) . '.php';
             if (!is_dir(dirname($log))) {
