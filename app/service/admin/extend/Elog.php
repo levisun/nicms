@@ -36,8 +36,7 @@ class Elog extends BaseService
             return $result;
         }
 
-        $path = app('config')->get('filesystem.disks.local.root') .
-            DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR;
+        $path = app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR;
         $file = (array) glob($path . '*');
         rsort($file);
 

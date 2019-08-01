@@ -45,7 +45,7 @@ Temporary Items
 #Project
 .vscode
 *.code-workspace
-*.env
+.env
 /*.json
 *.lock
 *.xml
@@ -55,3 +55,4 @@ think
 *.jpg
 *.png
 *.gif
+*.lock

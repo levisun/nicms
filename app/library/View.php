@@ -117,7 +117,7 @@ class View
         // 拼装模板目录路径
         $config = [
             'view_path'    => $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $this->request->controller(true) . DIRECTORY_SEPARATOR,
-            'cache_path'   => $this->app->getRuntimePath() . 'storage' . DIRECTORY_SEPARATOR. 'compile' . DIRECTORY_SEPARATOR,
+            'cache_path'   => $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR,
             'cache_prefix' => $this->request->controller(true) . DIRECTORY_SEPARATOR,
             'tpl_cache'    => !$this->app->config->get('app.debug'),
         ];
@@ -478,12 +478,12 @@ class View
 
                 if ('GET' === $var_type) {
                     $vars = 'request()->get("' . $var_name . '")';
-                }
-                if ('POST' === $var_type) {
+                } elseif ('POST' === $var_type) {
                     $vars = 'request()->post("' . $var_name . '")';
-                }
-                if ('COOKIE' === $var_type) {
+                } elseif ('COOKIE' === $var_type) {
                     $vars = 'request()->cookie("' . $var_name . '")';
+                } else {
+                    $vars = '$' . $var_name;
                 }
 
                 return '<?php echo ' . $vars . '; ?>';

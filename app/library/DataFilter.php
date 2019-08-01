@@ -125,6 +125,7 @@ class DataFilter
         $pattern = [
             '/(base64_decode)/si'        => 'ba&#115;e64_decode',
             '/(call_user_func_array)/si' => 'cal&#108;_user_func_array',
+            '/(call_user_func)/si'       => 'cal&#108;_user_func',
             '/(chown)/si'                => 'ch&#111;wn',
             '/(eval)/si'                 => 'ev&#97;l',
             '/(exec)/si'                 => 'ex&#101;c',
@@ -134,6 +135,13 @@ class DataFilter
             '/(popen)/si'                => 'po&#112;en',
             '/(shell_exec)/si'           => 'sh&#101;ll_exec',
             '/(system)/si'               => 'sy&#115;tem',
+
+            '/(select)/si'               => '&#115;elect',
+            '/(drop)/si'                 => 'dro&#112;',
+            '/(delete)/si'               => 'd&#101;lete',
+            '/(create)/si'               => 'cr#101;ate',
+            '/(update)/si'               => 'updat#101;',
+            '/(insert)/si'               => 'ins#101;rt',
 
             // '/(\()/si'                   => '&#40;',
             // '/(\))/si'                   => '&#41;',

@@ -39,7 +39,7 @@ class ReGarbage
                 $this->remove($runtime_path . 'cache', 3);
                 $this->remove($runtime_path . 'compile', 7);
                 $this->remove($runtime_path . 'log', 3);
-                $this->remove($runtime_path . 'req', 1);
+                $this->remove($runtime_path . 'temp', 1);
 
                 $root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
                 $this->remove($root_path . 'sitemaps', 1);

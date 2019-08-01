@@ -47,7 +47,7 @@ class Sidebar extends BaseService
                     ])
                     ->find();
 
-                if ($result) {
+                if ($result && $result = $result->toArray()) {
                     $result['image'] = get_img_url($result['image']);
                     $result['flag'] = Base64::flag($result['id'], 7);
                     $result['url'] = url('list/' . $result['action_name'] . '/' . $result['id']);

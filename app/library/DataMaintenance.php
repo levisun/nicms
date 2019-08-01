@@ -22,8 +22,7 @@ class DataMaintenance
 
     public function __construct()
     {
-        $this->savePath = app('config')->get('filesystem.disks.local.root') .
-            DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR;
+        $this->savePath = app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR;
         set_time_limit(28800);
     }
 
