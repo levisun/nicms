@@ -80,6 +80,7 @@ class DataMaintenance
                     mkdir($this->savePath, 0755, true);
                 }
 
+                // 备份记录文件
                 if (is_file($this->savePath . 'backup_time.json')) {
                     $btime = json_decode(file_get_contents($this->savePath . 'backup_time.json'), true);
                 } else {
@@ -92,11 +93,15 @@ class DataMaintenance
 
                 foreach ($table_name as $name) {
                     $sql_file = $this->savePath . $name . '.sql';
-                    if (!isset($btime[$name]) || !is_file($sql_file)) {
+
+                    // 表结构文件不存在
+                    if (!is_file($sql_file)) {
                         $sql = $this->queryTableStructure($name);
                         file_put_contents($sql_file, $sql, FILE_APPEND);
                         $btime[$name] = time();
-                    } elseif (isset($btime[$name]) && $btime[$name] <= strtotime('-1 days')) {
+                    }
+                    // 表结构文件存在并且写入时间过期
+                    elseif (isset($btime[$name]) && $btime[$name] <= strtotime('-3 days')) {
                         $sql = $this->queryTableStructure($name);
                         file_put_contents($sql_file, $sql, FILE_APPEND);
                         $btime[$name] = time();
@@ -105,26 +110,47 @@ class DataMaintenance
 
                     $total = $this->queryTableInsertTotal($name);
                     $field = $this->queryTableInsertField($name);
+
                     $num = 1;
                     for ($i = 0; $i < $total; $i++) {
                         $hour = '-' . mt_rand($_hour, $_hour + 3) . ' hour';
                         $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
 
-                        if (isset($btime[$name . $num])) {
-                            if (false !== $btime[$name . $num] && $btime[$name . $num] <= strtotime($hour) && is_file($sql_file)) {
-                                unlink($sql_file);
-                                $btime[$name . $num] = false;
-                                break 2;
-                            }
-                            if (false === $btime[$name . $num]) {
-                                $sql = $this->queryTableInsertData($name, $field, $i);
-                                file_put_contents($sql_file, $sql, FILE_APPEND);
-                            }
-                        } elseif (!isset($btime[$name . $num])) {
+                        // 表数据文件不存在
+                        if (!isset($btime[$name . $num])) {
                             $sql = $this->queryTableInsertData($name, $field, $i);
                             file_put_contents($sql_file, $sql, FILE_APPEND);
                             $btime[$name . $num] = false;
                         }
+
+                        // 表数据文件已过期删除,重新写入
+                        elseif (isset($btime[$name . $num]) && false === $btime[$name . $num]) {
+                            $sql = $this->queryTableInsertData($name, $field, $i);
+                            file_put_contents($sql_file, $sql, FILE_APPEND);
+                        }
+
+                        // 删除表数据过期文件
+                        elseif (isset($btime[$name . $num]) && $btime[$name . $num] <= strtotime($hour)) {
+                            is_file($sql_file) and unlink($sql_file);
+                            $btime[$name . $num] = false;
+                            break 2;
+                        }
+
+                        // if (isset($btime[$name . $num])) {
+                        //     if (false !== $btime[$name . $num] && $btime[$name . $num] <= strtotime($hour) && is_file($sql_file)) {
+                        //         unlink($sql_file);
+                        //         $btime[$name . $num] = false;
+                        //         break 2;
+                        //     }
+                        //     if (false === $btime[$name . $num]) {
+                        //         $sql = $this->queryTableInsertData($name, $field, $i);
+                        //         file_put_contents($sql_file, $sql, FILE_APPEND);
+                        //     }
+                        // } elseif (!isset($btime[$name . $num])) {
+                        //     $sql = $this->queryTableInsertData($name, $field, $i);
+                        //     file_put_contents($sql_file, $sql, FILE_APPEND);
+                        //     $btime[$name . $num] = false;
+                        // }
 
                         if (0 === ($i + 1) % 200) {
                             if (!isset($btime[$name . $num]) || false === $btime[$name . $num]) {
@@ -171,10 +197,13 @@ class DataMaintenance
                 ignore_user_abort(true);
                 foreach ($table_name as $name) {
                     $sql_file = $this->savePath . $name . '.sql';
+
+                    // 写入表结构文件
                     if ($sql = $this->queryTableStructure($name)) {
                         file_put_contents($sql_file, $sql, FILE_APPEND);
                     }
 
+                    // 写入表数据文件
                     $total = $this->queryTableInsertTotal($name);
                     $field = $this->queryTableInsertField($name);
                     for ($limit = 0; $limit < $total; $limit++) {
