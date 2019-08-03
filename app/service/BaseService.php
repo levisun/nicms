@@ -308,27 +308,6 @@ abstract class BaseService
     /**
      * 上传文件
      * @access protected
-     * @param  string       子目录
-     * @return string|array
-     */
-    // protected function uploadFile(string $_dir = '')
-    // {
-    //     if ($this->request->isPost() && !empty($_FILES) && $this->uid) {
-    //         $input_name = $this->request->param('input_name', 'upload');
-    //         $result = (new Upload)->save($input_name, $_dir);
-    //     }
-
-    //     return [
-    //         'debug' => false,
-    //         'cache' => false,
-    //         'msg'   => isset($result) ? 'upload success' : 'upload error',
-    //         'data'  => isset($result) ? $result : []
-    //     ];
-    // }
-
-    /**
-     * 上传文件
-     * @access protected
      * @param  string $_dir        子目录
      * @param  string $_input_name 表单名 默认upload
      * @return array
@@ -362,8 +341,9 @@ abstract class BaseService
             'zip'  => 'application/zip'
         ];
 
+        @ini_set('memory_limit', '256M');
         $files = $this->request->file($_input_name);
-
+        // halt($files);
         // $error = $this->app->validate->rule([
         //     $_input_name => [
         //         'fileExt'  => $ext,
@@ -374,13 +354,10 @@ abstract class BaseService
         // $this->app->validate->getError();
 
         $save_path = $this->config->get('filesystem.disks.public.url') . '/';
-        $_dir = $_dir ? '/' . $_dir : '';
 
         // 单文件
         if (is_string($_FILES[$_input_name]['name'])) {
-            $_dir = in_array($files->extension(), ['gif', 'jpg', 'jpeg', 'png'])
-                ? '/images' . $_dir . '/' . date('Ym')
-                : '/' . $files->extension() . $_dir . '/' . date('Ym');
+            $_dir = '/' . $files->extension() . '/' . $_dir . '/' . date('Ym');
 
             $save_file = $save_path . $this->app->filesystem->disk('public')->putFile($_dir, $files, 'uniqid');
 
@@ -406,9 +383,7 @@ abstract class BaseService
         if (is_array($_FILES[$_input_name]['name'])) {
             $result = [];
             foreach ($files as $file) {
-                $sub_dir = in_array($file->extension(), ['gif', 'jpg', 'jpeg', 'png'])
-                    ? '/images' . $_dir . '/' . date('Ym')
-                    : '/' . $file->extension() . $_dir . '/' . date('Ym');
+                $sub_dir = '/' . $file->extension() . '/' . $_dir . '/' . date('Ym');
 
                 $save_file = $save_path . $this->app->filesystem->disk('public')->putFile($sub_dir, $file, 'uniqid');
 

@@ -136,7 +136,7 @@ class DataFilter
             '/(shell_exec)/si'           => 'sh&#101;ll_exec',
             '/(system)/si'               => 'sy&#115;tem',
 
-            '/(select)/si'               => '&#115;elect',
+            // '/(select)/si'               => '&#115;elect',
             '/(drop)/si'                 => 'dro&#112;',
             '/(delete)/si'               => 'd&#101;lete',
             '/(create)/si'               => 'cr#101;ate',
