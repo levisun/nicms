@@ -14,27 +14,23 @@
 use think\facade\Env;
 use think\facade\Route;
 
-Route::domain('cdn', function () {
-    // http_response_code(404);
-    // echo '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
-    // exit();
-});
+$cache = app('config')->get('app.debug') ? false : mt_rand(1440, 2880);
 
 Route::domain(['www', 'm'], function () {
-    Route::miss('cms/_404');
+    Route::miss('cms/miss');
     Route::get('/', 'cms/index')->ext('html');
     Route::get('index', 'cms/index')->ext('html');
     Route::get('list/:name/:cid$', 'cms/lists')->ext('html');
     Route::get('details/:name/:cid/:id$', 'cms/details')->ext('html');
     Route::get('search', 'cms/search')->ext('html');
-})->bind('cms')->pattern([
+})->bind('cms')->cache($cache)->pattern([
     'name' => '[a-z]+',
     'cid'  => '\d+',
     'id'   => '\d+',
 ]);
 
 Route::domain(Env::get('admin.entry'), function () {
-    Route::miss('admin/_404');
+    Route::miss('admin/miss');
     Route::get('/', 'admin/index')->ext('html');
     Route::get(':service/:logic/:action$', 'admin/index')->ext('html');
     Route::get(':service/:logic/:action/:id$', 'admin/index')->ext('html');

@@ -34,7 +34,7 @@ class Info extends BaseService
 
             $result = [
                 'sysinfo' => [
-                    $this->lang->get('sys version')   => 'nicms' . env('app.version'),
+                    $this->lang->get('sys version')   => 'nicms' . $this->env->get('app.version'),
                     $this->lang->get('sys os')        => PHP_OS,
                     $this->lang->get('sys env')       => 'PHP' . PHP_VERSION . ' ' . php_sapi_name(),
                     $this->lang->get('sys db')        => 'Mysql' . $db_version,

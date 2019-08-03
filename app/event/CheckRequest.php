@@ -114,7 +114,7 @@ class CheckRequest
                 } else {
                     $number[$time] = isset($number[$time]) ? ++$number[$time] : 1;
                     $number = [$time => end($number)];
-                    $data = '<?php /*' . $this->request->ip() . '*/ return ' . var_export($number, true) . ';';
+                    $data = '<?php /*' . $this->request->ip() . '::' . $this->request->subDomain() . '*/ return ' . var_export($number, true) . ';';
                     fwrite($fp, $data);
                 }
                 flock($fp, LOCK_UN);
@@ -131,9 +131,11 @@ class CheckRequest
      */
     protected function inspect(): void
     {
+
         $lock  = $this->app->getRuntimePath() . md5(__DIR__ . 'inspect lock') . '_inspect.lock';
         if (!is_file($lock)) {
             version_compare(PHP_VERSION, '7.1.0', '>=') or die('系统需要PHP7.1+版本! 当前PHP版本:' . PHP_VERSION . '.');
+            version_compare(App::VERSION, '6.0.0RC3', '>=') or die('系统需要ThinkPHP 6.0+版本! 当前ThinkPHP版本:' . App::VERSION . '.');
             extension_loaded('pdo') or die('请开启 pdo 模块!');
             extension_loaded('pdo_mysql') or die('请开启 pdo_mysql 模块!');
             function_exists('file_put_contents') or die('空间不支持 file_put_contents 函数,系统无法写文件.');

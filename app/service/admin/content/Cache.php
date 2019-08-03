@@ -35,7 +35,9 @@ class Cache extends BaseService
             return $result;
         }
 
-        $this->cache->clear(); // 方法无法清除全部缓存
+        $this->app->console->call('clear', ['cache']);
+        $this->app->console->call('clear', ['schema']);
+        $this->app->console->call('clear', ['temp']);
 
         return [
             'debug' => false,
@@ -56,6 +58,7 @@ class Cache extends BaseService
             return $result;
         }
 
+        $this->app->console->call('clear', ['compile']);
 
         return [
             'debug' => false,

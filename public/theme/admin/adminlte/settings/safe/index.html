@@ -65,19 +65,19 @@
                 <label>{:lang('admin debug')}</label>
                 <br>
                 <label>
-                    <input type="radio" name="admin[debug]" value="1"
-                        v-bind:checked="items.admin.debug==1 ? true : false"> {:lang('open')}
+                    <input type="radio" name="app_debug" value="1"
+                        v-bind:checked="items.app_debug==1 ? true : false"> {:lang('open')}
                 </label>
                 <label>
-                    <input type="radio" name="admin[debug]" value="0"
-                        v-bind:checked="items.admin.debug==0 ? true : false"> {:lang('close')}
+                    <input type="radio" name="app_debug" value="0"
+                        v-bind:checked="items.app_debug==0 ? true : false"> {:lang('close')}
                 </label>
             </div>
 
             <div class="form-group">
                 <label>{:lang('admin authkey')}</label>
-                <input type="text" name="admin[authkey]" class="form-control" disabled="true"
-                    v-bind:value="items.admin.authkey">
+                <input type="text" name="app[secretkey]" class="form-control" disabled="true"
+                    v-bind:value="items.app.secretkey">
             </div>
 
             <div class="form-group">
