@@ -88,6 +88,7 @@ class DataMaintenance
                 }
 
                 ignore_user_abort(true);
+                $zip = new \ZipArchive;
                 $table_name = $this->queryTableName();
                 // shuffle($table_name);
 
@@ -135,22 +136,6 @@ class DataMaintenance
                             $btime[$name . $num] = false;
                             break 2;
                         }
-
-                        // if (isset($btime[$name . $num])) {
-                        //     if (false !== $btime[$name . $num] && $btime[$name . $num] <= strtotime($hour) && is_file($sql_file)) {
-                        //         unlink($sql_file);
-                        //         $btime[$name . $num] = false;
-                        //         break 2;
-                        //     }
-                        //     if (false === $btime[$name . $num]) {
-                        //         $sql = $this->queryTableInsertData($name, $field, $i);
-                        //         file_put_contents($sql_file, $sql, FILE_APPEND);
-                        //     }
-                        // } elseif (!isset($btime[$name . $num])) {
-                        //     $sql = $this->queryTableInsertData($name, $field, $i);
-                        //     file_put_contents($sql_file, $sql, FILE_APPEND);
-                        //     $btime[$name . $num] = false;
-                        // }
 
                         if (0 === ($i + 1) % 200) {
                             if (!isset($btime[$name . $num]) || false === $btime[$name . $num]) {
@@ -224,7 +209,7 @@ class DataMaintenance
                     foreach ($dir as $name) {
                         unlink($name);
                     }
-                    unlink($this->savePath);
+                    rmdir($this->savePath);
                 }
 
                 fwrite($fp, '备份数据库' . date('Y-m-d H:i:s'));

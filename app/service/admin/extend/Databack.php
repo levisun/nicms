@@ -48,23 +48,11 @@ class Databack extends BaseService
             if (basename($value) == 'sys_auto') {
                 unset($file[$key]);
             } else {
-                $date = filectime($value);
-                $date = date($date_format, $date);
-
-                $value = basename($value);
-
-                $child = (array) glob($path . $value . DIRECTORY_SEPARATOR . '*');
-                $size = 0;
-                foreach ($child as $v) {
-                    $size += filesize($v);
-                }
-                $size = number_format($size / 1024 / 1024, 2) . 'MB';
-
                 $file[$key] = [
                     'id'   => Base64::encrypt($value),
-                    'name' => $value,
-                    'date' => $date,
-                    'size' => $size,
+                    'name' => basename($value),
+                    'date' => date($date_format, filectime($value)),
+                    'size' => number_format(filesize($value) / 1024 / 1024, 2) . 'MB',
                 ];
             }
         }
