@@ -99,8 +99,6 @@ class View
             '__BOTTOM_MSG__'      => 'NICMS',
             '__COPYRIGHT__'       => 'NICMS',
         ],
-        'tpl_var_identify'   => 'array',                // .语法变量识别，array|object|'', 为空时自动识别
-        'default_filter'     => 'htmlentities',         // 默认过滤方法 用于普通标签输出
     ];
 
     /**
@@ -120,6 +118,7 @@ class View
             'cache_path'   => $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR,
             'cache_prefix' => $this->request->controller(true) . DIRECTORY_SEPARATOR,
             'tpl_cache'    => !$this->app->config->get('app.debug'),
+            'strip_space'  => !$this->app->config->get('app.debug'),
         ];
 
         $this->config = array_merge($this->config, $config);
@@ -262,13 +261,16 @@ class View
         // 去除html空格与换行
         if ($this->config['strip_space']) {
             /* 去除html空格与换行 */
-            $find    = ['~>\s+<~', '~>(\s+\n|\r)~'];
-            $replace = ['><', '>'];
+            $find    = ['~>\s+<~', '~>(\s+\n|\r)~', '/( ){2,}/si'];
+            $replace = ['><', '>', ''];
             $_content = preg_replace($find, $replace, $_content);
         }
 
         // 优化生成的php代码
-        $_content = preg_replace(['/\?>\s*<\?php\s(?!echo\b|\bend)/s', '/( ){2,}/si'], '', $_content);
+        $_content = preg_replace([
+            '/\?>\s*<\?php\s(?!echo\b|\bend)/s',
+            '/<\/script>\s*<script[a-z "\/=]+>/s'
+        ], '', $_content);
         $_content = str_replace('\/', '/', $_content);
 
         // 添加安全代码及模板引用记录
@@ -435,18 +437,18 @@ class View
         $_content =
             preg_replace_callback('/<script( type="(.*?)")?>(.*?)<\/script>/si', function ($matches) {
                 $type = $matches[2] ?: 'text/javascript';
-                $matches[3] = DataFilter::string($matches[3]);
+                // $matches[3] = DataFilter::string($matches[3]);
                 $pattern = [
                     '/\/\/.*?(\n|\r)+/i',
                     '/\n|\r|\f/'
                 ];
-                $matches[3] = preg_replace($pattern, '', $matches[3]);
-                $this->script .= '<script type="' . $type . '">' . $matches[3] . '</script>';
+                // $matches[3] = preg_replace($pattern, '', $matches[3]);
+                $this->script .= '<script type="' . $type . '">' . PHP_EOL . $matches[3] . PHP_EOL . '</script>' . PHP_EOL;
                 return '';
             }, $_content);
 
         // 过滤非法信息
-        $_content = DataFilter::string($_content);
+        // $_content = DataFilter::string($_content);
         $_content .= $this->script;
         $this->script = '';
     }
@@ -478,7 +480,7 @@ class View
                 }
 
                 if ('GET' === $var_type) {
-                    $vars = 'request()->get("' . $var_name . '")';
+                    $vars = 'request()->param("' . $var_name . '")';
                 } elseif ('POST' === $var_type) {
                     $vars = 'request()->post("' . $var_name . '")';
                 } elseif ('COOKIE' === $var_type) {

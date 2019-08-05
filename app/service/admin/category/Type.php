@@ -46,7 +46,10 @@ class Type extends BaseService
             ->view('type', ['id', 'name', 'remark'])
             ->view('category', ['name' => 'cat_name'], 'category.id=type.category_id')
             ->order('category.id DESC, type.id')
-            ->paginate($query_limit, false, ['path' => 'javascript:paging([PAGE]);']);
+            ->paginate([
+                'list_rows'=> $query_limit,
+                'path' => 'javascript:paging([PAGE]);',
+            ]);
 
         $list = $result->toArray();
         $list['render'] = $result->render();
@@ -89,7 +92,7 @@ class Type extends BaseService
         $receive_data = [
             'name'        => $this->request->param('name'),
             'remark'      => $this->request->param('remark'),
-            'category_id' => (int)$this->request->param('category_id/f'),
+            'category_id' => (int) $this->request->param('category_id/f'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -101,6 +104,113 @@ class Type extends BaseService
             'debug' => false,
             'cache' => false,
             'msg'   => 'type added success',
+        ];
+    }
+
+    /**
+     * 查询
+     * @access public
+     * @param
+     * @return array
+     */
+    public function find(): array
+    {
+        if ($result = $this->authenticate(__METHOD__)) {
+            return $result;
+        }
+
+        if ($id = (int) $this->request->param('id/f')) {
+            $result = (new ModelType)
+                ->where([
+                    ['id', '=', $id],
+                ])
+                ->find();
+            $result = $result ? $result->toArray() : [];
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'type data',
+            'data'  => isset($result) ? $result : []
+        ];
+    }
+
+    /**
+     * 编辑
+     * @access public
+     * @param
+     * @return array
+     */
+    public function editor(): array
+    {
+        if ($result = $this->authenticate(__METHOD__, 'admin type editor')) {
+            return $result;
+        }
+
+        if (!$id = (int) $this->request->param('id/f')) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40001,
+                'msg'   => '请求错误'
+            ];
+        }
+
+        $receive_data = [
+            'name'        => $this->request->param('name'),
+            'remark'      => $this->request->param('remark'),
+            'category_id' => (int) $this->request->param('category_id/f'),
+        ];
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+
+        (new ModelType)
+            ->where([
+                ['id', '=', $id]
+            ])
+            ->data($receive_data)
+            ->update();
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'type editor success'
+        ];
+    }
+
+    /**
+     * 删除
+     * @access public
+     * @param
+     * @return array
+     */
+    public function remove(): array
+    {
+        if ($result = $this->authenticate(__METHOD__, 'admin category remove')) {
+            return $result;
+        }
+
+        if (!$id = (int) $this->request->param('id/f')) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40001,
+                'msg'   => '请求错误'
+            ];
+        }
+
+        (new ModelType)
+            ->where([
+                ['id', '=', $id]
+            ])
+            ->delete();
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'remove category success'
         ];
     }
 }

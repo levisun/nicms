@@ -45,7 +45,10 @@ class Visit extends BaseService
 
         $result = (new ModelVisit)
             ->order('date DESC')
-            ->paginate($query_limit, false, ['path' => 'javascript:paging([PAGE]);']);
+            ->paginate([
+                'list_rows'=> $query_limit,
+                'path' => 'javascript:paging([PAGE]);',
+            ]);
 
         $list = $result->toArray();
         $list['render'] = $result->render();

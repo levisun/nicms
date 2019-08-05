@@ -70,7 +70,10 @@ class ArticleBase extends BaseService
                     ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
                     ->where($map)
                     ->order('article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.id DESC')
-                    ->paginate($query_limit, false, ['path' => 'javascript:paging([PAGE]);']);
+                    ->paginate([
+                        'list_rows'=> $query_limit,
+                        'path' => 'javascript:paging([PAGE]);',
+                    ]);
 
                 if ($result) {
                     $list = $result->toArray();

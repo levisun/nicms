@@ -18,7 +18,7 @@ namespace app\event;
 
 use think\App;
 
-class CheckRequest
+class Request
 {
     /**
      * 应用实例
@@ -53,13 +53,8 @@ class CheckRequest
             exit();
         }
 
-        // 客户端唯一ID
-        if ('api' !== $this->request->subDomain() && !$this->cookie->has('__uid')) {
-            $this->cookie->set('__uid', client_id());
-        }
-
-        $this->requestId = $this->cookie->has('__uid') ? $this->cookie->get('__uid') : $this->request->ip();
-        $this->requestId = md5($this->requestId);
+        // 客户端ID
+        $this->requestId = md5($this->request->ip() . date('Ymd'));
 
         // 检查空间环境支持
         $this->inspect();
@@ -70,7 +65,7 @@ class CheckRequest
     }
 
     /**
-     * 锁定频繁请求IP
+     * 锁定请求
      * @access protected
      * @param
      * @return void
@@ -114,7 +109,7 @@ class CheckRequest
                 } else {
                     $number[$time] = isset($number[$time]) ? ++$number[$time] : 1;
                     $number = [$time => end($number)];
-                    $data = '<?php /*' . $this->request->ip() . '::' . $this->request->subDomain() . '*/ return ' . var_export($number, true) . ';';
+                    $data = '<?php /*' . $this->request->ip() . '*/ return ' . var_export($number, true) . ';';
                     fwrite($fp, $data);
                 }
                 flock($fp, LOCK_UN);
@@ -138,6 +133,7 @@ class CheckRequest
             version_compare(App::VERSION, '6.0.0RC3', '>=') or die('系统需要ThinkPHP 6.0+版本! 当前ThinkPHP版本:' . App::VERSION . '.');
             extension_loaded('pdo') or die('请开启 pdo 模块!');
             extension_loaded('pdo_mysql') or die('请开启 pdo_mysql 模块!');
+            class_exists('ZipArchive') or die('空间不支持 ZipArchive 方法,系统备份功能无法使用.');
             function_exists('file_put_contents') or die('空间不支持 file_put_contents 函数,系统无法写文件.');
             function_exists('fopen') or die('空间不支持 fopen 函数,系统无法读写文件.');
             get_extension_funcs('gd') or die('空间不支持 gd 模块,图片打水印和缩略生成功能无法使用.');

@@ -15,10 +15,10 @@
                 <label>{:lang('category_id')}</label>
                 <select class="form-control" name="category_id">
                     <option>{:lang('select')}</option>
-                    <template v-for="vo in category" >
-                    <option v-bind:value="vo.id" v-text="vo.name"></option>
+                    <template v-for="vo in category">
+                        <option v-bind:value="vo.id" v-text="vo.name"></option>
 
-                    <option v-for="v in vo.child" v-bind:value="v.id" v-text="'|__'+v.name"></option>
+                        <option v-for="v in vo.child" v-bind:value="v.id" v-text="'|__'+v.name"></option>
 
                     </template>
                 </select>
@@ -26,41 +26,47 @@
         </form>
     </div>
     <div class="box-footer">
-        <button class="btn btn-primary">{:lang('save')}</button>
+        <button class="btn btn-primary" v-on:click="added()">{:lang('save')}</button>
     </div>
 </div>
 <script>
-jQuery.pjax({
-    url: NICMS.api.url + '/query.do',
-    type: 'GET',
-    data: {
-        method: 'category.category.query',
-    },
-    success: function(result){
-        if (result.code == 10000) {
-            var vue = new Vue({
-                el: '.box',
-                data: {
-                    category: result.data.list
-                }
-            });
-        }
-    }
-});
-jQuery(document).on('click', '.btn', function(){
-    var btn = jQuery(this).button("{:lang('saveing')}");
-    var data = jQuery.getForm('#type');
-    data['method'] = 'category.type.added';
-    jQuery.pjax({
-        url: NICMS.api.url + '/handle.do',
-        type: 'POST',
-        data: data,
-        success: function(result){
-            if (result.code === 10000) {
-                jQuery.uiToast(result.message);
-                history.back();
+    let type = new Vue({
+        el: '.box',
+        data: {
+            category: [],
+        },
+        methods: {
+            cat: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: {
+                        method: 'category.category.query',
+                    },
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            type.category = result.data.list;
+                        }
+                    }
+                });
+            },
+            added: function () {
+                var btn = jQuery(this).button("{:lang('saveing')}");
+                var data = jQuery.getForm('#type');
+                data['method'] = 'category.type.editor';
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: data,
+                    success: function (result) {
+                        if (result.code === 10000) {
+                            jQuery.uiToast(result.message);
+                            history.back();
+                        }
+                    }
+                });
             }
         }
     });
-});
+    type.cat();
 </script>

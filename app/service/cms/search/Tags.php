@@ -67,7 +67,11 @@ class Tags
                 ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                 ->where($map)
                 ->order('article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.id DESC')
-                ->paginate($query_limit);
+                ->paginate([
+                    'list_rows'=> $query_limit,
+                    'path' => 'javascript:paging([PAGE]);',
+                ]);
+
             $list = $result->toArray();
             $list['render'] = $result->render();
 

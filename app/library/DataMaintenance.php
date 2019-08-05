@@ -212,6 +212,21 @@ class DataMaintenance
                     }
                 }
 
+                $zip = new \ZipArchive;
+                $path = app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR .
+                    pathinfo($this->savePath, PATHINFO_BASENAME) . '.zip';
+                if (true === $zip->open($path, \ZipArchive::CREATE)) {
+                    $dir = (array) glob($this->savePath . '*');
+                    foreach ($dir as $name) {
+                        $zip->addFile($name, pathinfo($name, PATHINFO_BASENAME));
+                    }
+                    $zip->close();
+                    foreach ($dir as $name) {
+                        unlink($name);
+                    }
+                    unlink($this->savePath);
+                }
+
                 fwrite($fp, '备份数据库' . date('Y-m-d H:i:s'));
                 flock($fp, LOCK_UN);
                 ignore_user_abort(false);

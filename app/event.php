@@ -15,10 +15,10 @@
 return [
     'bind'      => [],
     'listen'    => [
-        'AppInit'  => [],
-        'HttpRun'  => [
-            \app\event\CheckRequest::class
+        'AppInit'  => [
+            \app\event\Request::class
         ],
+        'HttpRun'  => [],
         'HttpEnd'  => [
             \app\event\Maintain::class
         ],

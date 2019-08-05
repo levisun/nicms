@@ -274,7 +274,7 @@ class Category extends BaseService
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '缺少参数'
+                'msg'   => '请求错误'
             ];
         }
 
@@ -341,7 +341,7 @@ class Category extends BaseService
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '缺少参数'
+                'msg'   => '请求错误'
             ];
         }
 

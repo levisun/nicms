@@ -49,7 +49,10 @@ class Log extends BaseService
             ->view('role_admin', [], 'role_admin.user_id=admin.id')
             ->view('role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
             ->order('action_log.create_time DESC')
-            ->paginate($query_limit, false, ['path' => 'javascript:paging([PAGE]);']);
+            ->paginate([
+                'list_rows'=> $query_limit,
+                'path' => 'javascript:paging([PAGE]);',
+            ]);
 
         $list = $result->toArray();
         $list['render'] = $result->render();

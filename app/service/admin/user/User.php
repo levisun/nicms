@@ -46,7 +46,10 @@ class User extends BaseService
             ->view('user', ['id', 'username', 'realname', 'nickname', 'email', 'phone', 'status', 'phone', 'phone'])
             ->view('level', ['name' => 'level_name'], 'level.id=user.id')
             ->order('user.create_time DESC')
-            ->paginate($query_limit, false, ['path' => 'javascript:paging([PAGE]);']);
+            ->paginate([
+                'list_rows'=> $query_limit,
+                'path' => 'javascript:paging([PAGE]);',
+            ]);
 
         $list = $result->toArray();
         $list['render'] = $result->render();
