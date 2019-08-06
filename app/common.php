@@ -100,6 +100,57 @@ if (!function_exists('emoji_clear')) {
     }
 }
 
+if (!function_exists('illegal_request')) {
+    /**
+     * 非法请求
+     * @param
+     * @return void
+     */
+    function illegal_request(): string
+    {
+        // 组装请求参数
+        $params = array_merge($_GET, $_POST, $_FILES);
+        $params = !empty($params) ? json_encode($params) : '';
+        $params = app('request')->url(true) . $params;
+        unset($_GET, $_POST, $_FILES);
+        app('log')->record('错误访问:' . $params, 'info');
+
+        // 非法关键词
+        // $pattern = '/dist|upload|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec|system|php|select|update|delete|insert|create/si';
+        // if (false !== preg_match_all($pattern, $params, $matches) && 0 === count($matches[0])) {
+        //     return true;
+        // }
+
+        $log = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR .
+            md5(app('request')->ip() . date('Ymd')) . '.php';
+
+        if (!is_dir(dirname($log))) {
+            mkdir(dirname($log), 0755, true);
+        }
+        $number = is_file($log) ? include $log : '';
+
+        // 非阻塞模式并发
+        if ($fp = @fopen($log, 'w+')) {
+            if (flock($fp, LOCK_EX | LOCK_NB)) {
+                $time = (int) date('dH');   // 以分钟统计请求量
+                $number = !empty($number) ? (array) $number : [$time => 1];
+                if (isset($number[$time]) && $number[$time] >= 9) {
+                    file_put_contents($log . '.lock', date('Y-m-d H:i:s'));
+                } else {
+                    $number[$time] = isset($number[$time]) ? ++$number[$time] : 1;
+                    $number = [$time => end($number)];
+                    $data = '<?php /*' . app('request')->ip() . '::error request*/ return ' . var_export($number, true) . ';';
+                    fwrite($fp, $data);
+                }
+                flock($fp, LOCK_UN);
+            }
+            fclose($fp);
+        }
+
+        return '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
+    }
+}
+
 if (!function_exists('remove_img')) {
     /**
      * 删除图片
@@ -119,7 +170,7 @@ if (!function_exists('remove_img')) {
         $_img = str_replace($ext, '_skl' . $ext, $_img);
 
         if (is_file($path . $_img)) {
-            for ($i=1; $i <= 8; $i++) {
+            for ($i = 1; $i <= 8; $i++) {
                 $size = $i * 100;
                 $thumb = str_replace($ext, '_' . $size . $ext, $_img);
                 if (is_file($path . $thumb)) {

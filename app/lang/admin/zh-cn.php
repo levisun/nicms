@@ -29,6 +29,8 @@ return [
     'auth type'     => '类别管理',
     'auth model'    => '模型管理',
 
+    'auth user'     => '用户',
+    'auth node'     => '权限节点',
 
     'auth extend'   => '扩展',
     'auth log'      => '操作日志',

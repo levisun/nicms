@@ -128,49 +128,20 @@ abstract class BaseController
      * @param
      * @return void
      */
-    public function miss(): void
+    public function miss(string $code = ''): void
     {
-        // 组装请求参数
-        $params = array_merge($_GET, $_POST, $_FILES);
-        $params = !empty($params) ? json_encode($params) : '';
-        $params = $this->request->url() . $params;
-        $this->app->log->record('错误访问:' . $params, 'info');
-
-        // 非法关键词
-        // $pattern = '/dist|upload|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec|system|php|select|update|delete|insert|create/si';
-        // if (false !== preg_match_all($pattern, $params, $matches) && 0 === count($matches[0])) {
-        //     return true;
-        // }
-
-        $log = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5($this->request->ip() . date('YmdH')) . '.php';
-        if (!is_dir(dirname($log))) {
-            mkdir(dirname($log), 0755, true);
-        }
-        $number = is_file($log) ? include $log : '';
-
-        // 非阻塞模式并发
-        if ($fp = @fopen($log, 'w+')) {
-            if (flock($fp, LOCK_EX | LOCK_NB)) {
-                $time = (int) date('dH');   // 以分钟统计请求量
-                $number = !empty($number) ? (array) $number : [$time => 1];
-                if (isset($number[$time]) && $number[$time] >= 9) {
-                    file_put_contents($log . '.lock', date('Y-m-d H:i:s'));
-                } else {
-                    $number[$time] = isset($number[$time]) ? ++$number[$time] : 1;
-                    $number = [$time => end($number)];
-                    $data = '<?php /*' . $this->request->ip() . '::error request*/ return ' . var_export($number, true) . ';';
-                    fwrite($fp, $data);
-                }
-                flock($fp, LOCK_UN);
-            }
-            fclose($fp);
-        }
+        !$code and illegal_request();
 
         $assign = [
-            'url' => $this->request->url()
+            'url' => $this->request->url(true),
+            'param' => [
+                'get' => $_GET,
+                'post' => $_POST,
+            ]
         ];
 
-        $this->view->fetch('404', $assign);
+        $code = $code ?: '404';
+        $this->view->fetch($code, $assign);
     }
 
     /**
@@ -194,6 +165,16 @@ abstract class BaseController
      */
     public function fetch(string $_template, array $_data = []): void
     {
+        $vars = [
+            'debug' => [
+                'files'   => count(get_included_files()),
+                'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 2) . 's',
+                'queries' => app('think\DbManager')->getQueryTimes(),
+                'cache'   => $this->app->cache->getReadTimes() . ' reads,' . $this->app->cache->getWriteTimes() . ' writes',
+                'mem'     => number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024 / 1024, 2) . 'MB',
+            ]
+        ];
+        $_data = array_merge($vars, $_data);
         $this->view->fetch($_template, $_data);
     }
 }

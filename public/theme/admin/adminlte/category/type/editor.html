@@ -60,7 +60,7 @@
                     type: 'GET',
                     data: {
                         method: 'category.type.find',
-                        id: '{$get.id}'
+                        id: NICMS.api.param.id
                     },
                     success: function (result) {
                         if (result.code == 10000) {

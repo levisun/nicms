@@ -71,6 +71,7 @@ class Maintain
         if (true === $this->app->isDebug()) {
             // 开启调试清空请求缓存
             // $this->app->cache->clear();
+            $this->app->console->call('clear', ['route']);
             $this->app->console->call('clear', ['schema']);
         } else {
             // 生成效率文件

@@ -86,7 +86,7 @@ class View
         'layout_item'        => '{__CONTENT__}',        // 布局模板的内容替换标识
 
         'tpl_replace_string' => [
-            '{__AUTHORIZATION__}' => '<?php echo create_authorization(); ?>',
+            '{__AUTHORIZATION__}' => '<?php echo create_authorization();?>',
             '__THEME__'           => 'theme/',
             '__CSS__'             => 'css/',
             '__IMG__'             => 'img/',
@@ -114,9 +114,9 @@ class View
 
         // 拼装模板目录路径
         $config = [
-            'view_path'    => $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $this->request->controller(true) . DIRECTORY_SEPARATOR,
+            'view_path'    => $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR,
             'cache_path'   => $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR,
-            'cache_prefix' => $this->request->controller(true) . DIRECTORY_SEPARATOR,
+            // 'cache_prefix' => $this->request->controller(true) . DIRECTORY_SEPARATOR,
             'tpl_cache'    => !$this->app->config->get('app.debug'),
             'strip_space'  => !$this->app->config->get('app.debug'),
         ];
@@ -129,8 +129,9 @@ class View
      * @access public
      * @param  mixed $name
      * @param  mixed $value
+     * @return void
      */
-    public function __set($name, $value)
+    public function __set($name, $value): void
     {
         if (is_array($value)) {
             $this->config[$name] = array_merge($this->config[$name], $value);
@@ -268,8 +269,9 @@ class View
 
         // 优化生成的php代码
         $_content = preg_replace([
-            '/\?>\s*<\?php\s(?!echo\b|\bend)/s',
-            '/<\/script>\s*<script[a-z "\/=]+>/s'
+            /* '/\?>\s*<\?php\s(?!echo\b|\bend)/s', */
+            '/\?>\s*<\?php/s',
+            '/<\/script>\s*<script[a-z "\/=]*>/s'
         ], '', $_content);
         $_content = str_replace('\/', '/', $_content);
 
@@ -334,7 +336,6 @@ class View
     private function paresReplace(string &$_content): void
     {
         $theme  = $this->app->config->get('app.cdn_host') . '/theme/';
-        $theme .= $this->request->controller(true) . '/';
         $theme .= str_replace(DIRECTORY_SEPARATOR, '/', $this->config['view_theme']);
 
         // 拼装移动端模板路径
@@ -485,11 +486,18 @@ class View
                     $vars = 'request()->post("' . $var_name . '")';
                 } elseif ('COOKIE' === $var_type) {
                     $vars = 'request()->cookie("' . $var_name . '")';
+                } elseif (isset($var_type)) {
+                    $vars = '$' . strtolower($var_type);
+                    $arr = explode('.', $var_name);
+                    foreach ($arr as $name) {
+                        $vars .= '[\'' . $name . '\']';
+                    }
+                    $vars = 'isset(' . $vars . ') ? ' . $vars . ' : \'\'';
                 } else {
                     $vars = '$' . $var_name;
                 }
 
-                return '<?php echo ' . $vars . '; ?>';
+                return '<?php echo ' . $vars . ';?>';
             }, $_content);
     }
 

@@ -567,10 +567,16 @@ abstract class Async
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'expire'  => $this->ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';' . $this->apiExpire . ';',
+            'debug'   => true === $this->apiDebug ? $this->debugLog : '',
+            'expire'  => $this->ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';' .
+                number_format(microtime(true) - $this->app->getBeginTime(), 2) . 's' .
+                number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024 / 1024, 2) . 'MB;' .
+                count(get_included_files()) . 'l;' .
+                app('think\DbManager')->getQueryTimes() . 'q;' .
+                $this->cache->getReadTimes() . 'r,' . $this->cache->getWriteTimes() . 'w;' .
+                $this->apiExpire . 's;',
             // 'token'   => $this->request->buildToken('__token__', 'md5'),
             // 'token'   => $this->request->isPost() ? $this->request->buildToken('__token__', 'md5') : '',
-            'debug'   => true === $this->apiDebug ? $this->debugLog : '',
         ];
 
         $result = array_filter($result);

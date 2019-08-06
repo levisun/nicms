@@ -38,7 +38,7 @@ class ReGarbage
                 $runtime_path = app()->getRuntimePath() . 'storage' . DIRECTORY_SEPARATOR;
                 $this->remove($runtime_path . 'cache', 3);
                 $this->remove($runtime_path . 'compile', 7);
-                $this->remove($runtime_path . 'log', 3);
+                $this->remove($runtime_path . 'log', 7);
                 $this->remove($runtime_path . 'temp', 1);
 
                 $root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;

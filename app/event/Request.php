@@ -54,7 +54,7 @@ class Request
         }
 
         // 客户端ID
-        $this->requestId = md5($this->request->ip() . date('Ymd'));
+        $this->requestId = md5($this->request->ip());
 
         // 检查空间环境支持
         $this->inspect();
@@ -74,7 +74,7 @@ class Request
     {
         $log  = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . $this->requestId . '.php.lock';
 
-        $error_rlog  = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5($this->request->ip() . date('dH')) . '.php.lock';
+        $error_rlog  = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5($this->request->ip() . date('Ymd')) . '.php.lock';
 
         if (is_file($log) || is_file($error_rlog)) {
             $this->app->log->record('[锁定]', 'info');
