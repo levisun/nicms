@@ -91,6 +91,7 @@
         _params.beforeSend = function (xhr) {
             xhr.setRequestHeader('Accept', 'application/vnd.' + NICMS.api.root + '.v' + NICMS.api.version + '+json');
             xhr.setRequestHeader('Authorization', NICMS.api.authorization);
+            // xhr.setRequestHeader('X-CSRF-TOKEN', jQuery('meta[name="csrf-token"]').attr('content'));
         }
 
         var xhr = jQuery.ajax(_params);

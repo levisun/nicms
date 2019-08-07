@@ -101,7 +101,7 @@ class Api extends Async
                 $this->session->set($key, $result);
                 $this->openCache(false)->success('验证码发送成功');
             } else {
-                $this->error('非法参数', 40002);
+                $this->error('错误请求', 40002);
             }
         } else {
             $this->error('错误请求', 40009);
@@ -123,7 +123,7 @@ class Api extends Async
                 $this->openCache(true)->success('IP INFO', $ip);
             }
         } else {
-            $this->error('缺少参数', 40001);
+            $this->error('错误请求', 40001);
         }
     }
 

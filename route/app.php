@@ -14,7 +14,7 @@
 use think\facade\Env;
 use think\facade\Route;
 
-$cache = app('config')->get('app.debug') ? false : mt_rand(1440, 2880);
+$cache = boolval(Env::get('app_debug', false)) ? false : mt_rand(1440, 2880);
 
 Route::domain(['www', 'm', '*'], function () {
     Route::miss('cms/miss');
@@ -36,7 +36,7 @@ Route::domain(Env::get('admin.entry'), function () {
     Route::get('/', 'admin/index')->ext('html');
     Route::get(':service/:logic/:action$', 'admin/index')->ext('html');
     Route::get(':service/:logic/:action/:id$', 'admin/index')->ext('html');
-})->bind('admin')->pattern([
+})->bind('admin')->cache($cache)->pattern([
     'service' => '[a-z]+',
     'logic'   => '[a-z]+',
     'action'  => '[a-z]+',

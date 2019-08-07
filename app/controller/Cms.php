@@ -37,7 +37,7 @@ class Cms extends BaseController
         $this->authenticate();
 
         $result = Siteinfo::query();
-        $this->view->view_theme = $result['theme'];
+        $this->view->view_theme = $this->request->controller(true) . DIRECTORY_SEPARATOR . $result['theme'];
         $this->view->setReplace([
             '__NAME__'        => $result['name'],
             '__TITLE__'       => $result['title'],

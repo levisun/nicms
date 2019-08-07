@@ -35,7 +35,7 @@ class User extends BaseService
      */
     public function login()
     {
-        $lock = $this->app->getRuntimePath() . md5($this->request->ip() . date('YmdH')) . '.lock';
+        $lock = $this->app->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5($this->request->ip() . date('YmdH')) . '.lock';
         if (is_file($lock)) {
             // 登录锁定
             return [

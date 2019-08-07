@@ -87,6 +87,7 @@ class View
 
         'tpl_replace_string' => [
             '{__AUTHORIZATION__}' => '<?php echo create_authorization();?>',
+            '__TOKEN__'           => '<?php echo token_field();?>',
             '__THEME__'           => 'theme/',
             '__CSS__'             => 'css/',
             '__IMG__'             => 'img/',
@@ -116,7 +117,6 @@ class View
         $config = [
             'view_path'    => $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR,
             'cache_path'   => $this->app->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR,
-            // 'cache_prefix' => $this->request->controller(true) . DIRECTORY_SEPARATOR,
             'tpl_cache'    => !$this->app->config->get('app.debug'),
             'strip_space'  => !$this->app->config->get('app.debug'),
         ];
@@ -516,7 +516,7 @@ class View
             preg_replace_callback($pattern, function ($matches) {
                 $safe_func = [
                     'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'strtolower', 'date',
-                    'lang', 'url', 'current', 'end', 'sprintf',
+                    'lang', 'url', 'current', 'end', 'sprintf', 'token_field', 'token',
                 ];
                 if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
                     return '<?php echo ' . $matches[1] . '(' . $matches[2] . ');?>';

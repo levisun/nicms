@@ -5,30 +5,28 @@
                 <label>{:lang('parent')}</label>
                 <input type="text" class="form-control" disabled="true" v-bind:value="items.parent">
                 <input type="hidden" name="pid" v-bind:value="items.pid">
-                <input type="hidden" name="id" v-bind:value="items.id">
             </div>
 
             <div class="form-group">
                 <label>{:lang('node name')}</label>
-                <input type="text" name="name" class="form-control" v-bind:value="items.name">
+                <input type="text" name="name" class="form-control">
             </div>
 
             <div class="form-group">
                 <label>{:lang('node title')}</label>
-                <input type="text" name="title" class="form-control" v-bind:value="items.title">
+                <input type="text" name="title" class="form-control">
             </div>
 
             <div class="form-group">
                 <label>{:lang('remark')}</label>
-                <input type="text" name="remark" class="form-control" v-bind:value="items.remark">
+                <input type="text" name="remark" class="form-control">
             </div>
 
             <div class="form-group">
                 <label>{:lang('level')}</label>
                 <select class="form-control" name="level">
                     <template v-for="vo in items.level_list">
-                        <option v-bind:value="vo.id" v-text="vo.name" v-if="items.level==vo.id" selected></option>
-                        <option v-bind:value="vo.id" v-text="vo.name" v-else></option>
+                        <option v-bind:value="vo.id" v-text="vo.name"></option>
                     </template>
                 </select>
             </div>
@@ -36,23 +34,23 @@
             <div class="form-group">
                 <label>{:lang('show')}</label>
                 <label>
-                    <input type="radio" name="status" value="1" v-bind:checked="items.status==1 ? true : false">
+                    <input type="radio" name="status" value="1" checked="checked">
                     {:lang('open')}
                 </label>
                 <label>
-                    <input type="radio" name="status" value="0" v-bind:checked="items.status==0 ? true : false">
+                    <input type="radio" name="status" value="0">
                     {:lang('close')}
                 </label>
             </div>
 
             <div class="form-group">
                 <label>{:lang('sort')}</label>
-                <input type="text" name="sort_order" class="form-control" v-bind:value="items.sort_order">
+                <input type="text" name="sort_order" class="form-control">
             </div>
         </form>
     </div>
     <div class="box-footer">
-        <button class="btn btn-primary" v-on:click="editor()">{:lang('save')}</button>
+        <button class="btn btn-primary" v-on:click="added()">{:lang('save')}</button>
     </div>
 </div>
 <script>
@@ -68,7 +66,7 @@
                     type: 'GET',
                     data: {
                         method: 'user.node.find',
-                        id: NICMS.api.param.id
+                        pid: NICMS.api.param.id
                     },
                     success: function (result) {
                         if (result.code == 10000) {
@@ -77,10 +75,9 @@
                     }
                 });
             },
-            editor: function () {
+            added: function () {
                 var data = jQuery.getForm('#category');
-                data['method'] = 'user.node.editor';
-                data['id'] = NICMS.api.param.id;
+                data['method'] = 'user.node.added';
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',
@@ -88,7 +85,7 @@
                     success: function (result) {
                         if (result.code === 10000) {
                             jQuery.uiToast(result.message);
-                            location.reload();
+                            history.back();
                         }
                     }
                 });

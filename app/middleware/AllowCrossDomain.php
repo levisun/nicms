@@ -3,6 +3,7 @@
 /**
  *
  * 跨域中间件
+ * CORS
  * API模块
  *
  * @package   NICMS
@@ -63,7 +64,7 @@ class AllowCrossDomain
         }
 
         if ($request->method(true) == 'OPTIONS') {
-            $header['Access-Control-Max-Age'] = 14400;
+            $header['Access-Control-Max-Age'] = 28800;
             return Response::create()->code(204)->header($header);
         }
 

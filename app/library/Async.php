@@ -120,20 +120,6 @@ abstract class Async
     protected $authorization;
 
     /**
-     * 请求令牌
-     * 解析[authentication]获得
-     * @var string
-     */
-    protected $token;
-
-    /**
-     * session_id
-     * 解析[authentication]获得
-     * @var string
-     */
-    protected $sid;
-
-    /**
      * 签名类型
      * @var string
      */
@@ -259,7 +245,7 @@ abstract class Async
         $result = call_user_func([$class, $exec['action']]);
 
         if (!is_array($result) && empty($result['msg'])) {
-            $this->error('缺少参数', 40001);
+            $this->error('返回数据缺少参数', 40001);
         }
 
         // 调试模式设置 返回数据没有指定默认关闭
@@ -272,18 +258,6 @@ abstract class Async
         $result['code'] = isset($result['code']) ? $result['code'] : 10000;
 
         return $result;
-    }
-
-    /**
-     * 验证
-     * @access protected
-     * @param
-     * @return $this
-     */
-    protected function validate()
-    {
-        $this->analysisHeader()->checkAppId()->checkSign()->checkTimestamp();
-        return $this;
     }
 
     /**
@@ -307,6 +281,22 @@ abstract class Async
     protected function openCache(bool $_cache)
     {
         $this->apiCache = (true === $this->apiDebug) ? false : $_cache;
+        return $this;
+    }
+
+    /**
+     * 验证
+     * @access protected
+     * @param
+     * @return $this
+     */
+    protected function validate()
+    {
+        $this->analysisHeader()->checkAppId()->checkSign()->checkTimestamp();
+        // 表单校验
+        if (false === $this->request->checkToken()) {
+            $this->error('错误请求', 40009);
+        }
         return $this;
     }
 
@@ -470,18 +460,22 @@ abstract class Async
             $this->error('权限不足', 20001);
         }
 
+        // Session初始化
         // 规定sessionID
         $this->session->setId($this->authorization['jti']);
+        $this->request->withSession($this->session);
 
         // 解析版本号与返回数据类型
         $this->accept = $this->request->header('accept');
-        if (!$this->accept || false === preg_match('/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]+\+[A-Za-z]{3,5}+$/u', $this->accept)) {
+        $pattern = '/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]+\+[A-Za-z]{3,5}+$/u';
+        if (!$this->accept || false === preg_match($pattern, $this->accept)) {
             $this->debugLog['accept'] = $this->accept;
             $this->log->record('[Async] header-accept error', 'alert');
             $this->error('非法参数', 20002);
         }
 
         // 过滤多余信息
+        // application/vnd.nicms.v1.0.1+json
         $accept = str_replace('application/vnd.', '', $this->accept);
 
         // 校验域名合法性
@@ -501,6 +495,7 @@ abstract class Async
             $this->error('非法参数', 20002);
         }
 
+        // 去掉"v"
         $version = substr($version, 1);
         list($major, $minor) = explode('.', $version, 3);
         $this->version = [
@@ -567,16 +562,18 @@ abstract class Async
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
+            // 表单令牌
+            'token'   => $this->request->isPost() ? $this->request->buildToken('__token__', 'md5') : '',
+            // 调试数据
             'debug'   => true === $this->apiDebug ? $this->debugLog : '',
-            'expire'  => $this->ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';' .
-                number_format(microtime(true) - $this->app->getBeginTime(), 2) . 's' .
-                number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024 / 1024, 2) . 'MB;' .
-                count(get_included_files()) . 'l;' .
-                app('think\DbManager')->getQueryTimes() . 'q;' .
-                $this->cache->getReadTimes() . 'r,' . $this->cache->getWriteTimes() . 'w;' .
+            // 扩展数据
+            'extend'  => $this->ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';' .
+                number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 2) . 'MB;' .
+                number_format(microtime(true) - $this->app->getBeginTime(), 2) . 'S;' .
+                count(get_included_files()) . 'L;' .
+                app('think\DbManager')->getQueryTimes() . 'Q;' .
+                $this->cache->getReadTimes() . 'R,' . $this->cache->getWriteTimes() . 'W;' .
                 $this->apiExpire . 's;',
-            // 'token'   => $this->request->buildToken('__token__', 'md5'),
-            // 'token'   => $this->request->isPost() ? $this->request->buildToken('__token__', 'md5') : '',
         ];
 
         $result = array_filter($result);

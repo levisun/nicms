@@ -109,10 +109,9 @@ abstract class BaseController
         $this->view = Container::getInstance()->make('\app\library\View');
 
         $this->ipinfo = Ip::info($this->request->ip());
-        // Ip::info('125.' . mt_rand(1, 255) . '.' . mt_rand(1, 255) . '.' . mt_rand(1, 255));
 
-        @ini_set('memory_limit', '16M');
-        set_time_limit(30);
+        @ini_set('memory_limit', '8M');
+        set_time_limit(60);
 
         // 控制器初始化
         $this->initialize();
@@ -168,7 +167,7 @@ abstract class BaseController
         $vars = [
             'debug' => [
                 'files'   => count(get_included_files()),
-                'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 2) . 's',
+                'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 2) . 'S',
                 'queries' => app('think\DbManager')->getQueryTimes(),
                 'cache'   => $this->app->cache->getReadTimes() . ' reads,' . $this->app->cache->getWriteTimes() . ' writes',
                 'mem'     => number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024 / 1024, 2) . 'MB',

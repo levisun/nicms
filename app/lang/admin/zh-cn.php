@@ -30,6 +30,7 @@ return [
     'auth model'    => '模型管理',
 
     'auth user'     => '用户',
+    'auth role'     => '管理员组',
     'auth node'     => '权限节点',
 
     'auth extend'   => '扩展',
