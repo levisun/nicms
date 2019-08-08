@@ -35,43 +35,48 @@
                 <label>{:lang('website script')}</label>
                 <input type="text" name="cms_script" class="form-control" v-bind:value="items.cms_script">
             </div>
-            <div class="box-footer">
+            <div class="form-group">
                 __TOKEN__
-                <button type="button" class="btn btn-primary">{:lang('save')}</button>
+                <button type="button" class="btn btn-primary" v-on:click="save()">{:lang('save')}</button>
             </div>
         </form>
     </div>
 </div>
 <script>
-    jQuery.pjax({
-        url: NICMS.api.url + '/query.do',
-        type: 'GET',
+    var basic = new Vue({
+        el: '.box',
         data: {
-            method: 'settings.basic.query'
+            items: []
         },
-        success: function (result) {
-            if (result.code == 10000) {
-                new Vue({
-                    el: '.box-body',
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
                     data: {
-                        items: result.data
+                        method: 'settings.basic.query'
+                    },
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            basic.items = result.data;
+                        }
+                    }
+                });
+            },
+            save: function () {
+                var data = jQuery.getForm('#basic-config');
+                data['method'] = 'settings.basic.editor';
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: data,
+                    success: function (result) {
+                        jQuery.uiToast(result.message);
+                        jQuery('input[name="__token__"]').val(result.token);
                     }
                 });
             }
         }
     });
-    jQuery(document).on('click', '.btn', function () {
-        var btn = jQuery(this).button("{:lang('saveing')}");
-        var data = jQuery.getForm('#basic-config');
-        data['method'] = 'settings.basic.editor';
-        jQuery.pjax({
-            url: NICMS.api.url + '/handle.do',
-            type: 'POST',
-            data: data,
-            success: function (result) {
-                jQuery.uiToast(result.message);
-                jQuery('input[name="__token__"]').val(result.token);
-            }
-        });
-    });
+    basic.load();
 </script>

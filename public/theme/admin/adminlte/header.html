@@ -210,8 +210,8 @@
             },
             logout: function () {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/handle.do',
-                    type: 'POST',
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
                     data: {
                         method: 'account.user.logout'
                     },

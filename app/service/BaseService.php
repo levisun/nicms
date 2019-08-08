@@ -182,7 +182,6 @@ abstract class BaseService
         list($app, $service, $logic) = explode('\\', $_method, 3);
 
         $result = (new Rbac)->authenticate($this->uid, $app, $service, $logic, $action, $this->notAuth);
-
         // 验证成功,记录操作日志
         if ($result && $_write_log) {
             $map = $app . '_' . $service . '_' . $logic . '_' . $action;
@@ -226,7 +225,7 @@ abstract class BaseService
             'debug' => false,
             'cache' => false,
             'code'  => 40006,
-            'msg'   => '权限不足'
+            'msg'   => '请求错误'
         ];
     }
 

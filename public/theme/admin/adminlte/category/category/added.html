@@ -41,8 +41,8 @@
             <div class="form-group">
                 <label>{:lang('type')}</label>
                 <select class="form-control" name="type_id">
-                    <template v-for="vo in items.type_name" >
-                    <option v-bind:value="vo.id" v-text="vo.name"></option>
+                    <template v-for="vo in items.type_name">
+                        <option v-bind:value="vo.id" v-text="vo.name"></option>
                     </template>
                 </select>
             </div>
@@ -51,8 +51,8 @@
                 <label>{:lang('model')}</label>
                 <select class="form-control" name="model_id">
                     <option>{:lang('select')}</option>
-                    <template v-for="vo in items.model_name" >
-                    <option v-bind:value="vo.id" v-text="vo.name"></option>
+                    <template v-for="vo in items.model_name">
+                        <option v-bind:value="vo.id" v-text="vo.name"></option>
                     </template>
                 </select>
             </div>
@@ -84,8 +84,8 @@
                 <label>{:lang('access')}</label>
                 <select class="form-control" name="access_id">
                     <option value="0">{:lang('select')}</option>
-                    <template v-for="vo in items.access_name" >
-                    <option v-bind:value="vo.id" v-text="vo.name"></option>
+                    <template v-for="vo in items.access_name">
+                        <option v-bind:value="vo.id" v-text="vo.name"></option>
                     </template>
                 </select>
             </div>
@@ -98,61 +98,62 @@
         </form>
     </div>
     <div class="box-footer">
+        __TOKEN__
         <button class="btn btn-primary">{:lang('save')}</button>
     </div>
 </div>
 <script>
-jQuery.pjax({
-    url: NICMS.api.url + '/query.do',
-    type: 'GET',
-    data: {
-        method: 'category.category.find',
-        pid: NICMS.api.param.id
-    },
-    success: function(result){
-        if (result.code == 10000) {
-            var vue = new Vue({
-                el: '.box',
-                data: {
-                    items: result.data
-                }
-            });
-        }
-    }
-});
-jQuery(document).on('click', '.btn', function(){
-    var btn = jQuery(this).button("{:lang('saveing')}");
-    var data = jQuery.getForm('#category');
-    data['method'] = 'category.category.added';
-    data['pid'] = NICMS.api.param.id;
     jQuery.pjax({
-        url: NICMS.api.url + '/handle.do',
-        type: 'POST',
-        data: data,
-        success: function(result){
-            if (result.code === 10000) {
-                jQuery.uiToast(result.message);
-                history.back();
-            }
-        }
-    });
-});
-jQuery(document).on('change', '#upload', function(){
-    jQuery.upload({
-        url: NICMS.api.url + '/upload.do',
-        file: 'category',
+        url: NICMS.api.url + '/query.do',
+        type: 'GET',
         data: {
-            method: 'category.category.upload',
-            width: 100,
-            height: 100
+            method: 'category.category.find',
+            pid: NICMS.api.param.id
         },
-        success: function(result){
-            jQuery.uiToast(result.message);
-            if (result.code === 10000) {
-                jQuery('.image').val(result.data.original_url);
-                jQuery('.image-box').show().attr('src', result.data.url);
+        success: function (result) {
+            if (result.code == 10000) {
+                var vue = new Vue({
+                    el: '.box',
+                    data: {
+                        items: result.data
+                    }
+                });
             }
         }
     });
-});
+    jQuery(document).on('click', '.btn', function () {
+        var btn = jQuery(this).button("{:lang('saveing')}");
+        var data = jQuery.getForm('#category');
+        data['method'] = 'category.category.added';
+        data['pid'] = NICMS.api.param.id;
+        jQuery.pjax({
+            url: NICMS.api.url + '/handle.do',
+            type: 'POST',
+            data: data,
+            success: function (result) {
+                if (result.code === 10000) {
+                    jQuery.uiToast(result.message);
+                    history.back();
+                }
+            }
+        });
+    });
+    jQuery(document).on('change', '#upload', function () {
+        jQuery.upload({
+            url: NICMS.api.url + '/upload.do',
+            file: 'category',
+            data: {
+                method: 'category.category.upload',
+                width: 100,
+                height: 100
+            },
+            success: function (result) {
+                jQuery.uiToast(result.message);
+                if (result.code === 10000) {
+                    jQuery('.image').val(result.data.original_url);
+                    jQuery('.image-box').show().attr('src', result.data.url);
+                }
+            }
+        });
+    });
 </script>

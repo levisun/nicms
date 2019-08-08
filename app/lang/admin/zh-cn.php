@@ -13,13 +13,13 @@
  */
 
 return [
-    'auth settings' => '设置',
-    'auth info'     => '系统信息',
-    'auth basic'    => '网站设置',
-    'auth lang'     => '语言设置',
-    'auth image'    => '图片设置',
-    'auth safe'     => '安全设置',
-    'auth email'    => '邮箱设置',
+    'auth settings'  => '设置',
+    'auth dashboard' => '控制台',
+    'auth basic'     => '网站设置',
+    'auth lang'      => '语言设置',
+    'auth image'     => '图片设置',
+    'auth safe'      => '安全设置',
+    'auth email'     => '邮箱设置',
 
     'auth theme'    => '主题设置',
     'auth cms'      => '网站主题',

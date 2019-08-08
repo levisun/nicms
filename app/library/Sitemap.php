@@ -2,7 +2,7 @@
 
 /**
  *
- * 访问日志
+ * 网站地图
  *
  * @package   NICMS
  * @category  app\library
@@ -42,6 +42,7 @@ class Sitemap
                 ->toArray();
 
             $sitemap_xml = [];
+            $sub_path = 'storage' . DIRECTORY_SEPARATOR . 'sitemaps' . DIRECTORY_SEPARATOR;
             foreach ($category as $vo_cate) {
                 $article = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
@@ -61,29 +62,29 @@ class Sitemap
                 $category_xml = [];
                 foreach ($article as $vo_art) {
                     $article_xml[]['url'] = [
-                        'loc'        => app('request')->scheme() . url('details/' . $vo_art['action_name'] . '/' . $vo_art['category_id'] . '/' . $vo_art['id']),
+                        'loc'        => app('request')->domain() . url('details/' . $vo_art['action_name'] . '/' . $vo_art['category_id'] . '/' . $vo_art['id']),
                         'lastmod'    => $vo_art['update_time'],
                         'changefreq' => 'weekly',
                         'priority'   => '0.8',
                     ];
 
                     $category_xml[]['url'] = [
-                        'loc'        => app('request')->scheme() . url('list/' . $vo_cate['action_name'] . '/' . $vo_cate['id']),
+                        'loc'        => app('request')->domain() . url('list/' . $vo_cate['action_name'] . '/' . $vo_cate['id']),
                         'lastmod'    => $vo_art['update_time'],
                         'changefreq' => 'daily',
                         'priority'   => '1.0',
                     ];
                 }
                 if ($article_xml) {
-                    self::save($article_xml, 'sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
-                    self::save($category_xml, 'sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
+                    self::save($article_xml, $sub_path . 'details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
+                    self::save($category_xml, $sub_path . 'list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
 
                     $sitemap_xml[]['sitemap'] = [
-                        'loc'     => app('request')->domain() . '/sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
+                        'loc'     => app('request')->domain() . '/storage/sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
                         'lastmod' => date('Y-m-d H:i:s')
                     ];
                     $sitemap_xml[]['sitemap'] = [
-                        'loc'     => app('request')->domain() . '/sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
+                        'loc'     => app('request')->domain() . '/storage/sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
                         'lastmod' => date('Y-m-d H:i:s')
                     ];
                 }
@@ -102,11 +103,16 @@ class Sitemap
     private function save(array $_data, string $_path): void
     {
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>' . PHP_EOL .
-            '<!-- generated-on="' . date('Y-m-d H:i:s') . '" -->' . PHP_EOL .
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
         $xml .= self::toXml($_data) . PHP_EOL;
-        $xml .= '</urlset>';
-        file_put_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_path, $xml);
+        $xml .= '</urlset>' . PHP_EOL;
+        $xml .= '<!-- generated-on="' . date('Y-m-d H:i:s') . '" -->';
+
+        $filename = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_path;
+        if (!is_dir(dirname($filename))) {
+            mkdir(dirname($filename), 0755, true);
+        }
+        file_put_contents($filename, $xml);
     }
 
     /**

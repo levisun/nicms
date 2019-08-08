@@ -3,7 +3,5 @@ Disallow: /install/
 Disallow: /static/
 Disallow: /storage/
 Disallow: /theme/
-Disallow: /uploads/
 Disallow: /router.php
-Allow: /sitemaps
 Sitemap: http://www.nicms.com/sitemap.xml

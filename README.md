@@ -38,6 +38,9 @@ composer update topthink/framework
 依赖
 composer require topthink/think-image
 composer require topthink/think-captcha
+
+composer require overtrue/wechat
+composer require phpmailer/phpmailer
 ~~~
 
 ## 更新日志

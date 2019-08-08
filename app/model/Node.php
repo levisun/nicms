@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `nc_node` (
 INSERT INTO `nc_node` (`id`, `pid`, `level`, `name`, `title`, `status`, `sort_order`, `remark`) VALUES
 (1, 0, 1, 'admin', '后台', 1, 0, '后台模块'),
   (2, 1, 2, 'settings', '设置', 1, 0, '设置控制器'),
-    (21, 2, 3, 'info', '系统信息', 1, 0, '系统信息方法'),
+    (21, 2, 3, 'dashboard', '系统信息', 1, 0, '系统信息方法'),
     (22, 2, 3, 'basic', '基本设置', 1, 0, '基本设置方法'),
       (221, 22, 4, 'editor', '基本设置编辑', 1, 0, '基本设置编辑操作'),
     (23, 2, 3, 'lang', '语言设置', 1, 0, '语言设置方法'),

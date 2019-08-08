@@ -71,10 +71,10 @@ class admin extends BaseController
             );
 
             if (false === $result) {
-                $this->redirect('settings/info/index');
+                $this->redirect('settings/dashboard/index');
             }
         } elseif ($this->session->has('admin_auth_key') && $_service === 'account') {
-            $this->redirect('settings/info/index');
+            $this->redirect('settings/dashboard/index');
         } elseif (!$this->session->has('admin_auth_key') && !in_array($_action, ['login', 'forget'])) {
             $this->redirect('account/user/login');
         }

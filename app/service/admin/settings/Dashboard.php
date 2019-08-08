@@ -19,7 +19,7 @@ namespace app\service\admin\settings;
 
 use app\service\BaseService;
 
-class Info extends BaseService
+class Dashboard extends BaseService
 {
     protected $authKey = 'admin_auth_key';
 
@@ -32,14 +32,27 @@ class Info extends BaseService
             $result = \think\facade\Db::query('SELECT version()');
             $db_version = $result[0]['version()'];
 
+            $gd_info = gd_info();
+            $gd  = strtr($gd_info['GD Version'], ['bundled (' => '', ' compatible)' => '']) . '(';
+            $gd .= $gd_info['GIF Read Support'] ? 'GIF' : '';
+            $gd .= $gd_info['JPEG Support'] ? ' JPEG' : '';
+            $gd .= $gd_info['PNG Support'] ? ' PNG' : '';
+            $gd .= ')';
+
             $result = [
                 'sysinfo' => [
-                    $this->lang->get('sys version')   => 'nicms' . $this->env->get('app.version'),
+                    $this->lang->get('sys version')   => 'NICMS ' . $this->config->get('app.version'),
+                    $this->lang->get('sys TP ver')    => 'ThinkPHP ' . $this->app->version(),
                     $this->lang->get('sys os')        => PHP_OS,
-                    $this->lang->get('sys env')       => 'PHP' . PHP_VERSION . ' ' . php_sapi_name(),
+                    $this->lang->get('sys sapi')      => php_sapi_name(),
+                    $this->lang->get('sys debug')     => $this->config->get('app.debug') ? 'Yes' : 'No',
+                    $this->lang->get('sys env')       => 'PHP' . PHP_VERSION . ' ' . $_SERVER['SERVER_SOFTWARE'],
                     $this->lang->get('sys db')        => 'Mysql' . $db_version,
-                    'GD'                       => '',
+                    $this->lang->get('sys GD')        => $gd,
                     $this->lang->get('sys timezone')  => $this->config->get('app.default_timezone'),
+                    $this->lang->get('sys api')       => $this->config->get('app.api_host'),
+                    $this->lang->get('sys cnd')       => $this->config->get('app.cdn_host'),
+                    $this->lang->get('sys lang')      => $this->config->get('lang.default_lang'),
                     $this->lang->get('sys copyright') => '失眠小枕头 [levisun.mail@gmail.com]',
                     $this->lang->get('sys upgrade')   => '',
                 ],
@@ -51,7 +64,7 @@ class Info extends BaseService
 
         return [
             'debug' => false,
-            'cache' => true,
+            'cache' => false,
             'msg'   => 'info data',
             'data'  => $result
         ];

@@ -137,25 +137,28 @@ class Rbac
     {
         $access = [];
 
-        $app = $this->getNode($_uid);
-        foreach ($app as $a) {
-            $a['name'] = strtolower($a['name']);
-            $logic = $this->getNode($_uid, 2, $a['id']);
+        $app_list = $this->getNode($_uid);
+        foreach ($app_list as $app_name) {
+            $app_name['name'] = strtolower($app_name['name']);
 
-            foreach ($logic as $l) {
-                $l['name'] = strtolower($l['name']);
-                $controller = $this->getNode($_uid, 3, $l['id']);
+            $logic_list = $this->getNode($_uid, 2, $app_name['id']);
+            foreach ($logic_list as $logic_name) {
+                $logic_name['name'] = strtolower($logic_name['name']);
 
-                foreach ($controller as $c) {
-                    $c['name'] = strtolower($c['name']);
-                    $action = $this->getNode($_uid, 4, $c['id']);
+                $controller_list = $this->getNode($_uid, 3, $logic_name['id']);
+                foreach ($controller_list as $controller_name) {
+                    $controller_name['name'] = strtolower($controller_name['name']);
 
-                    $access[$a['name']][$l['name']][$c['name']]['index'] = true;
-                    $access[$a['name']][$l['name']][$c['name']]['query'] = true;
-                    $access[$a['name']][$l['name']][$c['name']]['find'] = true;
+                    $access[$app_name['name']][$logic_name['name']][$controller_name['name']] = [
+                        'index' => true,
+                        'query' => true,
+                        'find' => true,
+                    ];
 
-                    foreach ($action as $act) {
-                        $access[$a['name']][$l['name']][$c['name']][$act['name']] = true;
+                    $action_list = $this->getNode($_uid, 4, $controller_name['id']);
+                    foreach ($action_list as $action_name) {
+                        $action_name['name'] = strtolower($action_name['name']);
+                        $access[$app_name['name']][$logic_name['name']][$controller_name['name']][$action_name['name']] = true;
                     }
                 }
             }
