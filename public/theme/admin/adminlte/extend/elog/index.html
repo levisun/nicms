@@ -75,6 +75,7 @@
         });
     }
     var vue = null;
+    var token = '{:token()}';
     jQuery(document).on('click', '#open', function () {
         var id = jQuery(this).attr('data');
         jQuery.pjax({
@@ -86,6 +87,7 @@
             },
             success: function (result) {
                 if (result.code == 10000) {
+                    token = result.token;
                     if (vue) {
                         vue.items = result.data;
                     } else {

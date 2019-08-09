@@ -57,6 +57,46 @@ class Cms extends BaseController
      */
     public function index()
     {
+        // http://kaijiang.zhcw.com/zhcw/html/ssq/list.html
+        $num = 1;
+        // for ($r1=1; $r1 <= 28 ; $r1++) {
+        //     for ($r2=$r1+1; $r2 <= 29 ; $r2++) {
+        //         for ($r3=$r2+1; $r3 <= 30 ; $r3++) {
+        //             for ($r4=$r3+1; $r4 <= 31 ; $r4++) {
+        //                 for ($r5=$r4+1; $r5 <= 32 ; $r5++) {
+        //                     for ($r6=$r5+1; $r6 <= 33 ; $r6++) {
+        //                         for ($b=1; $b <= 16; $b++) {
+        //                             $code = inet_pton($r1 . $r2 . $r3 . $r4 . $r5 . $r6 . $b);
+        //                             $num++;
+        //                             // echo $r1 . $r2 . $r3 . $r4 . $r5 . $r6 . $b . '<br>';
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        // echo $num;
+        // echo '<br>';
+        // echo $code;
+
+        $code = '28293031323316';
+
+        $str = 0;
+        for ($i = 0; $i < strlen($code); $i++) {
+            $str += (int) $code[$i];
+        }
+        echo $str;
+        // echo bin2hex($str);
+
+        // $d = unpack('H*', '');
+        // $d = array_map(function($value){
+        //     echo $value;
+        //     return base_convert($value, 16, 2);
+        // }, $d);
+        // print_r($d);
+        // echo array_sum($d);
+        die();
         $this->fetch('index');
     }
 

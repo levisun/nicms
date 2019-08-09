@@ -85,13 +85,19 @@
         _params = jQuery.extend(true, defaults, _params);
 
         _params.data.sign = jQuery.sign(_params.data);
-        // _params.data.token = NICMS.api.token;
+        _params.data.__token__ = jQuery('meta[name="csrf-token"]').attr('content');
 
         // 设置头部
         _params.beforeSend = function (xhr) {
             xhr.setRequestHeader('Accept', 'application/vnd.' + NICMS.api.root + '.v' + NICMS.api.version + '+json');
             xhr.setRequestHeader('Authorization', NICMS.api.authorization);
-            // xhr.setRequestHeader('X-CSRF-TOKEN', jQuery('meta[name="csrf-token"]').attr('content'));
+        }
+
+        _params.complete = function (xhr) {
+            var result = JSON.parse(xhr.responseText);
+            if ('undefined' !== typeof (result.token)) {
+                jQuery('meta[name="csrf-token"]').attr('content', result.token);
+            }
         }
 
         var xhr = jQuery.ajax(_params);

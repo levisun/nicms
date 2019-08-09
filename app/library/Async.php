@@ -295,7 +295,7 @@ abstract class Async
         $this->analysisHeader()->checkAppId()->checkSign()->checkTimestamp();
         // 表单校验
         if (false === $this->request->checkToken()) {
-            $this->error('错误请求', 40009);
+            $this->error('令牌错误', 40007);
         }
         return $this;
     }
@@ -537,6 +537,8 @@ abstract class Async
      * 40001 缺少参数
      * 40002 非法参数
      * 40006 权限不足
+     * 40007 令牌错误
+     * 40008 错误请求
      * 40009 错误请求
      * @access protected
      * @param  string  $msg  提示信息

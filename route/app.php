@@ -16,7 +16,13 @@ use think\facade\Route;
 
 $cache = boolval(Env::get('app_debug', false)) ? false : mt_rand(1440, 2880);
 
-Route::domain(['www', 'm', '*'], function () {
+Route::domain('cdn', function(){
+    Route::miss(function (){
+        return illegal_request();
+    });
+});
+
+Route::domain(['www', 'm'], function () {
     Route::miss('cms/miss');
     Route::get('404', 'cms/miss')->append(['code' => '404']);
     Route::get('/', 'cms/index')->ext('html');

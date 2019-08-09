@@ -39,6 +39,7 @@ composer update topthink/framework
 composer require topthink/think-image
 composer require topthink/think-captcha
 
+composer require overtrue/pinyin
 composer require overtrue/wechat
 composer require phpmailer/phpmailer
 ~~~

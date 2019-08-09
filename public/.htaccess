@@ -5,6 +5,8 @@
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]
+
+  RewriteRule /tag/(.*) /index\.php\?tag=$1
 </IfModule>
 
 <FilesMatch "\.(ttf|otf|eot|woff)$">

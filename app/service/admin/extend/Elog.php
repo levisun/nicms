@@ -82,8 +82,7 @@ class Elog extends BaseService
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id)) {
 
-            $file = app('config')->get('filesystem.disks.local.root') .
-                DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . $id;
+            $file = app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . $id;
             if (is_file($file)) {
                 $data = file_get_contents($file);
                 $data = str_replace($this->app->getRootPath(), 'ROOT_PATH', $data);

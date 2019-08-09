@@ -129,7 +129,10 @@ abstract class BaseController
      */
     public function miss(string $code = ''): void
     {
-        !$code and illegal_request();
+        if ('' === $code) {
+            echo illegal_request();
+            return ;
+        }
 
         $assign = [
             'url' => $this->request->url(true),
