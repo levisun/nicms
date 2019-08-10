@@ -59,19 +59,11 @@ class Tags
     {
         $path = $_config['view_path'] . $_config['view_theme'];
 
-        $config = '';
-        if (request()->isMobile() && is_file($path . 'mobile' . DIRECTORY_SEPARATOR . 'config.json')) {
-            $config = file_get_contents($path . 'mobile' . DIRECTORY_SEPARATOR . 'config.json');
-        } elseif (is_file($path . 'config.json')) {
-            $config = file_get_contents($path . 'config.json');
-        }
-
         $foot = '';
-        if ($config && $config = json_decode(strip_tags($config), true)) {
-            // JS引入
-            foreach ($config['js'] as $js) {
-                $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $config['theme_version'] . '"></script>' . PHP_EOL;
-            }
+
+        // JS引入
+        foreach ($_config['tpl_config']['js'] as $js) {
+            $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $_config['tpl_config']['theme_version'] . '"></script>' . PHP_EOL;
         }
 
         return $foot;
@@ -89,34 +81,25 @@ class Tags
      */
     public static function meta(array $_attr = [], array $_config): string
     {
-        $path = $_config['view_path'] . $_config['view_theme'];
-
-        $config = '';
-        if (request()->isMobile() && is_file($path . 'mobile' . DIRECTORY_SEPARATOR . 'config.json')) {
-            $config = file_get_contents($path . 'mobile' . DIRECTORY_SEPARATOR . 'config.json');
-        } elseif (is_file($path . 'config.json')) {
-            $config = file_get_contents($path . 'config.json');
-        }
         $head = '';
-        if ($config && $config = json_decode(strip_tags($config), true)) {
-            // 自定义meta标签
-            if (!empty($config['meta'])) {
-                foreach ($config['meta'] as $m) {
-                    $head .= '<meta ' . $m['type'] . ' ' . $m['content'] . ' />' . PHP_EOL;
-                }
-            }
-            // 自定义link标签
-            if (!empty($config['link'])) {
-                foreach ($config['link'] as $m) {
-                    $head .= '<link rel="' . $m['rel'] . '" href="' . $m['href'] . '" />' . PHP_EOL;
-                }
-            }
 
-            // CSS引入
-            if (!empty($config['css'])) {
-                foreach ($config['css'] as $css) {
-                    $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $config['theme_version'] . '" />' . PHP_EOL;
-                }
+        // 自定义meta标签
+        if (!empty($_config['tpl_config']['meta'])) {
+            foreach ($_config['tpl_config']['meta'] as $m) {
+                $head .= '<meta ' . $m['type'] . ' ' . $m['content'] . ' />' . PHP_EOL;
+            }
+        }
+        // 自定义link标签
+        if (!empty($_config['tpl_config']['link'])) {
+            foreach ($_config['tpl_config']['link'] as $m) {
+                $head .= '<link rel="' . $m['rel'] . '" href="' . $m['href'] . '" />' . PHP_EOL;
+            }
+        }
+
+        // CSS引入
+        if (!empty($_config['tpl_config']['css'])) {
+            foreach ($_config['tpl_config']['css'] as $css) {
+                $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $_config['tpl_config']['theme_version'] . '" />' . PHP_EOL;
             }
         }
 
@@ -144,13 +127,17 @@ class Tags
             '<meta http-equiv="Cache-Control" content="no-siteapp" />' . PHP_EOL .            // 禁止baidu转码
             '<meta http-equiv="Cache-Control" content="no-transform" />' . PHP_EOL .
 
+            '<meta name="csrf-authorization" content="<?php echo create_authorization();?>" />' . PHP_EOL .
             '<meta name="csrf-token" content="<?php echo token();?>" />' . PHP_EOL .
+            '<meta name="csrf-version" content="' . app('config')->get('app.version') . '" />' . PHP_EOL .
+            '<meta name="csrf-appid" content="' . $_config['tpl_config']['api_appid'] . '" />' . PHP_EOL .
+            '<meta name="csrf-appsecret" content="' . $_config['tpl_config']['api_appsecret'] . '" />' . PHP_EOL .
 
             '<meta http-equiv="x-dns-prefetch-control" content="on" />' . PHP_EOL .           // DNS缓存
-            '<link rel="dns-prefetch" href="' . app()->config->get('app.api_host') . '" />' . PHP_EOL .
-            '<link rel="dns-prefetch" href="' . app()->config->get('app.cdn_host') . '" />' . PHP_EOL .
+            '<link rel="dns-prefetch" href="' . app('config')->get('app.api_host') . '" />' . PHP_EOL .
+            '<link rel="dns-prefetch" href="' . app('config')->get('app.cdn_host') . '" />' . PHP_EOL .
 
-            '<link href="' . app()->config->get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' . PHP_EOL .
+            '<link href="' . app('config')->get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' . PHP_EOL .
 
             // 网站标题 关键词 描述
             '<title>__TITLE__</title>' . PHP_EOL .
@@ -168,11 +155,11 @@ class Tags
                 'url'    => request()->baseUrl(true),
                 'param'  => request()->param(),
                 'api'    => [
-                    'url'           => app()->config->get('app.api_host'),
+                    'url'           => app('config')->get('app.api_host'),
                     'root'          => $root,
-                    'version'       => $config['api_version'],
-                    'appid'         => $config['api_appid'],
-                    'appsecret'     => $config['api_appsecret'],
+                    'version'       => $_config['tpl_config']['api_version'],
+                    'appid'         => $_config['tpl_config']['api_appid'],
+                    'appsecret'     => $_config['tpl_config']['api_appsecret'],
                     'authorization' => '{__AUTHORIZATION__}',
                     'param'         => request()->param()
                 ],

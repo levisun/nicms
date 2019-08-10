@@ -87,7 +87,7 @@ class View
 
         'tpl_replace_string' => [
             '{__AUTHORIZATION__}' => '<?php echo create_authorization();?>',
-            '__TOKEN__'           => '<?php echo token_field();?>',
+            '{__TOKEN__}'         => '<?php echo token_field();?>',
             '__THEME__'           => 'theme/',
             '__CSS__'             => 'css/',
             '__IMG__'             => 'img/',
@@ -99,6 +99,12 @@ class View
             '__DESCRIPTION__'     => 'NICMS',
             '__BOTTOM_MSG__'      => 'NICMS',
             '__COPYRIGHT__'       => 'NICMS',
+        ],
+
+        'tpl_config' => [
+            'api_version'   => '1.0.1',
+            'api_appid'     => '1000001',
+            'api_appsecret' => '962940cfbe94a64efcd1573cf6d7a175',
         ],
     ];
 
@@ -170,6 +176,15 @@ class View
         }
 
         if ($_template = $this->parseTemplateFile($_template)) {
+            // 主题设置
+            $tpl_config = $this->config['view_theme'] . 'config.json';
+            if (is_file($this->config['view_path'] . $tpl_config)) {
+                $json = file_get_contents($this->config['view_path'] . $tpl_config);
+                if ($json && $json = json_decode(strip_tags($json), true)) {
+                    $this->config['tpl_config'] = array_merge($this->config['tpl_config'], $json);
+                }
+            }
+
             // 缓存路径
             $cache_file  = $this->config['cache_path'] . $this->config['cache_prefix'];
             $cache_file .= md5($this->config['layout_on'] . $this->config['layout_name'] . $_template);
