@@ -35,7 +35,7 @@ class ReGarbage
         if ($fp = @fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 app('log')->record('[REGARBAGE] 删除垃圾信息', 'info');
-                $runtime_path = app()->getRuntimePath() . 'storage' . DIRECTORY_SEPARATOR;
+                $runtime_path = app()->getRuntimePath();
                 $this->remove($runtime_path . 'cache', 3);
                 $this->remove($runtime_path . 'compile', 7);
                 $this->remove($runtime_path . 'log', 7);
@@ -43,7 +43,7 @@ class ReGarbage
 
                 $root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
                 $this->remove($root_path . 'sitemaps', 1);
-                $this->remove($root_path . 'storage' . DIRECTORY_SEPARATOR . 'images', 30);
+                $this->remove($root_path . 'storage', 30);
 
                 fwrite($fp, '清除垃圾数据' . date('Y-m-d H:i:s'));
                 flock($fp, LOCK_UN);

@@ -79,6 +79,7 @@ abstract class Async
      */
     protected $session;
 
+
     /**
      * HEADER 指定接收类型
      * 包含[域名 版本 返回类型]
@@ -114,7 +115,6 @@ abstract class Async
     /**
      * HEADER 授权信息
      * 包含[token sessid]
-     * f0c4b4105d740747d44ac6dcd78624f906202706.
      * @var string
      */
     protected $authorization;
@@ -135,7 +135,7 @@ abstract class Async
      * 模块名
      * @var string
      */
-    protected $module = '';
+    protected $moduleName = '';
 
     /**
      * 调试信息
@@ -166,13 +166,13 @@ abstract class Async
      * APPID
      * @var int
      */
-    protected $appid;
+    protected $appId;
 
     /**
      * APP密钥
      * @var int
      */
-    protected $appsecret;
+    protected $appSecret;
 
     /**
      * 请求时间戳
@@ -316,7 +316,7 @@ abstract class Async
 
         list($logic, $class, $action) = explode('.', $this->method, 3);
 
-        $method  = 'app\service\\' . $this->module . '\\';
+        $method  = 'app\service\\' . $this->moduleName . '\\';
         $method .= $this->openVersion ? 'v' . implode('_', $this->version) . '\\' : '';
         $method .= $logic . '\\' . ucfirst($class);
 
@@ -335,7 +335,7 @@ abstract class Async
         }
 
         // 加载语言包
-        $lang  = $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $this->module . DIRECTORY_SEPARATOR;
+        $lang  = $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $this->moduleName . DIRECTORY_SEPARATOR;
         $lang .= $this->openVersion ? 'v' . implode('_', $this->version) . DIRECTORY_SEPARATOR : '';
         $lang .= $this->lang->getLangSet() . '.php';
         $this->lang->load($lang);
@@ -397,7 +397,7 @@ abstract class Async
             }
         }
         $str = rtrim($str, '&');
-        $str .= $this->appsecret;
+        $str .= $this->appSecret;
 
         if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
             $this->debugLog['sign_str'] = $str;
@@ -417,9 +417,9 @@ abstract class Async
      */
     protected function checkAppId()
     {
-        $this->appid  = (int) $this->request->param('appid/f', 1000001);
-        $this->appid -= 1000000;
-        if (!$this->appid || $this->appid <= 0) {
+        $this->appId  = (int) $this->request->param('appid/f', 1000001);
+        $this->appId -= 1000000;
+        if (!$this->appId || $this->appId <= 0) {
             $this->log->record('[Async] auth-appid not', 'alert');
             $this->error('非法参数', 20002);
         }
@@ -427,15 +427,15 @@ abstract class Async
         $result = (new ModelApiApp)
             ->field('secret, module')
             ->where([
-                ['id', '=', $this->appid]
+                ['id', '=', $this->appId]
             ])
-            ->cache(__METHOD__ . $this->appid, null, 'SYSTEM')
+            ->cache(__METHOD__ . $this->appId, null, 'SYSTEM')
             ->find();
 
         if ($result) {
             $result = $result->toArray();
-            $this->appsecret = $result['secret'];
-            $this->module    = $result['module'];
+            $this->appSecret = $result['secret'];
+            $this->moduleName    = $result['module'];
         } else {
             $this->log->record('[Async] auth-appid error', 'alert');
             $this->error('权限不足', 20001);
@@ -572,7 +572,6 @@ abstract class Async
             'extend'  => $this->ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';' .
                 number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 2) . 'MB;' .
                 number_format(microtime(true) - $this->app->getBeginTime(), 2) . 'S;' .
-                count(get_included_files()) . 'L;' .
                 app('think\DbManager')->getQueryTimes() . 'Q;' .
                 $this->cache->getReadTimes() . 'R,' . $this->cache->getWriteTimes() . 'W;' .
                 $this->apiExpire . 's;',

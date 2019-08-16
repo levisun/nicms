@@ -85,7 +85,10 @@
         _params = jQuery.extend(true, defaults, _params);
 
         _params.data.sign = jQuery.sign(_params.data);
-        _params.data.__token__ = jQuery('meta[name="csrf-token"]').attr('content');
+
+        if ('POST' == _params.type || 'post' == _params.type) {
+            _params.data.__token__ = jQuery('meta[name="csrf-token"]').attr('content');
+        }
 
         // 设置头部
         _params.beforeSend = function (xhr) {
