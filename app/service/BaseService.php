@@ -346,17 +346,17 @@ abstract class BaseService
         // $error = $this->app->validate->rule([
         //     $_input_name => [
         //         'fileExt'  => $ext,
-        //         'fileMime' => $mime,
+        // //         // 'fileMime' => $mime,
         //         'fileSize' => $size
         //     ]
-        // ])->batch(false)->failException(false)->check($files);
-        // $this->app->validate->getError();
+        // ])->batch(false)->failException(false)->check((array) $files);
+        // halt($this->app->validate->getError());
 
         $save_path = $this->config->get('filesystem.disks.public.url') . '/';
 
         // 单文件
         if (is_string($_FILES[$_input_name]['name'])) {
-            $_dir = '/' . $files->extension() . '/' . $_dir . '/' . date('Ym');
+            $_dir = '/' . $_dir . '/' . date('Y') . $files->extension() . '/' . date('md');
 
             $save_file = $save_path . $this->app->filesystem->disk('public')->putFile($_dir, $files, 'uniqid');
 
@@ -382,7 +382,7 @@ abstract class BaseService
         if (is_array($_FILES[$_input_name]['name'])) {
             $result = [];
             foreach ($files as $file) {
-                $sub_dir = '/' . $file->extension() . '/' . $_dir . '/' . date('Ym');
+                $sub_dir = '/' . $_dir . '/' . date('Y') . $files->extension() . '/' . date('md');
 
                 $save_file = $save_path . $this->app->filesystem->disk('public')->putFile($sub_dir, $file, 'uniqid');
 

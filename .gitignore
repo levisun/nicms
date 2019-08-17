@@ -45,6 +45,10 @@ Temporary Items
 #Project
 .vscode
 *.code-workspace
+
+/public/storage/*
+/runtime/*
+/vendor/*
 .env
 /*.json
 *.lock
@@ -57,3 +61,4 @@ think
 *.gif
 *.lock
 *.zip
+composer.json.back

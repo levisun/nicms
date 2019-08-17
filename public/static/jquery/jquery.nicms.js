@@ -49,6 +49,7 @@
         _params.data = new FormData(document.getElementById(_params.file));
         _params.data.append('appid', NICMS.api.appid);
         _params.data.append('timestamp', timestamp);
+        _params.data.append('__token__', jQuery('meta[name="csrf-token"]').attr('content'));
         for (var index in data) {
             _params.data.append(index, data[index]);
         }
