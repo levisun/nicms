@@ -95,41 +95,47 @@
         </form>
     </div>
     <div class="box-footer">
-        <button type="submit" class="btn btn-primary">{:lang('save')}</button>
+        <button type="submit" class="btn btn-primary" @click="save">{:lang('save')}</button>
     </div>
 </div>
 <script>
-    jQuery.pjax({
-        url: NICMS.api.url + '/query.do',
-        type: 'GET',
+    var safe = new Vue({
+        el: '.box',
         data: {
-            method: 'settings.safe.query'
+            items: []
         },
-        success: function (result) {
-            if (result.code == 10000) {
-                new Vue({
-                    el: '.box-body',
+        methods: {
+            load() {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
                     data: {
-                        items: result.data
+                        method: 'settings.safe.query'
+                    },
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            safe.items = result.data;
+                        }
+                    }
+                });
+            },
+            save() {
+                var data = jQuery.getForm('#safe-config');
+                    data['method'] = 'settings.safe.editor';
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: data,
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            jQuery.uiToast(result.message);
+                            jQuery('input[name="__token__"]').val(result.token);
+                            // location.reload();
+                        }
                     }
                 });
             }
         }
     });
-    jQuery(document).on('click', '.btn', function () {
-        var btn = jQuery(this).button("{:lang('saveing')}");
-        var data = jQuery.getForm('#safe-config');
-        data['method'] = 'settings.safe.editor';
-        jQuery.pjax({
-            url: NICMS.api.url + '/handle.do',
-            type: 'POST',
-            data: data,
-            success: function (result) {
-                if (result.code == 10000) {
-                    jQuery.uiToast(result.message);
-                    location.reload();
-                }
-            }
-        });
-    });
+    safe.load();
 </script>

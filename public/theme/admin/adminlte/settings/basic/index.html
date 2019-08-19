@@ -36,7 +36,7 @@
                 <input type="text" name="cms_script" class="form-control" v-bind:value="items.cms_script">
             </div>
             <div class="form-group">
-                <button type="button" class="btn btn-primary" v-on:click="save()">{:lang('save')}</button>
+                <button type="button" class="btn btn-primary" @click="save()">{:lang('save')}</button>
             </div>
         </form>
     </div>
@@ -48,7 +48,7 @@
             items: []
         },
         methods: {
-            load: function () {
+            load () {
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
@@ -62,7 +62,7 @@
                     }
                 });
             },
-            save: function () {
+            save () {
                 var data = jQuery.getForm('#basic-config');
                 data['method'] = 'settings.basic.editor';
                 jQuery.pjax({

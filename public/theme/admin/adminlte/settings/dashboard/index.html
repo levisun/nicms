@@ -95,7 +95,7 @@
             items: []
         },
         methods: {
-            load: function () {
+            load () {
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
@@ -110,17 +110,4 @@
         }
     });
     info.load();
-
-    jQuery(document).on('click', '.sms', function () {
-        jQuery.pjax({
-            url: NICMS.api.url + '/sms.do',
-            type: 'POST',
-            data: {
-                phone: '18629503709'
-            },
-            success: function () {
-
-            }
-        });
-    })
 </script>
