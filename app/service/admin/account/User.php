@@ -204,7 +204,7 @@ class User extends BaseService
 
         if ($result && $result = $result->toArray()) {
             $result['last_login_time'] = date('Y-m-d H:i:s', $result['last_login_time']);
-            $result['portrait'] = portrait('', $result['username']);
+            $result['avatar'] = avatar('', $result['username']);
         }
 
         return [

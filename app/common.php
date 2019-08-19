@@ -238,7 +238,7 @@ if (!function_exists('get_img_url')) {
     }
 }
 
-if (!function_exists('portrait')) {
+if (!function_exists('avatar')) {
     /**
      * 首字符头像
      * 用户未上传头像时,根据用户名生成头像
@@ -246,13 +246,13 @@ if (!function_exists('portrait')) {
      * @param  string $_username 用户名
      * @return string
      */
-    function portrait(string $_img, string $_username): string
+    function avatar(string $_img, string $_username): string
     {
         $_img = trim($_img, '/.');
         $img_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
             str_replace('/', DIRECTORY_SEPARATOR, $_img);
         if ($_img && is_file($img_path)) {
-            app('config')->get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
+            return app('config')->get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
         }
 
         $length = unpack('L', hash('adler32', $_username, true))[1];

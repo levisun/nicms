@@ -134,6 +134,7 @@ class JWT
      */
     public function verify(string $_authorization)
     {
+        $_authorization = str_replace('&#43;', '+', $_authorization);
         if ($_authorization && preg_match('/^Bearer [A-Za-z0-9\+\/]+\.[A-Za-z0-9\+\/]+\.[A-Za-z0-9]+$/u', $_authorization)) {
             $_authorization = str_replace('Bearer ', '', $_authorization);
             list($headers, $playload, $signature) = explode('.', $_authorization, 3);

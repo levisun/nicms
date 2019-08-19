@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `nc_user` (
   `email` varchar(40) NOT NULL DEFAULT '' COMMENT '邮箱',
   `realname` varchar(50) NOT NULL DEFAULT '' COMMENT '真实姓名',
   `nickname` varchar(50) NOT NULL DEFAULT '' COMMENT '昵称',
-  `portrait` varchar(255) NOT NULL DEFAULT '' COMMENT '头像',
+  `avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '头像',
   `gender` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '性别',
   `birthday` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '生日',
   `level_id` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '等级ID',
