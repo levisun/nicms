@@ -194,10 +194,12 @@ class Siteinfo
                 ['name', '=', app('request')->controller(true) . '_beian'],
                 ['lang', '=', app('lang')->getLangSet()]
             ])
-            ->value('value', '备案号');
+            ->value('value', '');
+        $beian = $beian
+            ? '<a href="http://www.beian.miit.gov.cn" target="_blank" rel="nofollow">' . $beian . '</a>'
+            : '';
 
-        return htmlspecialchars_decode($copyright) .
-            '<a href="http://www.miitbeian.gov.cn" target="_blank" rel="nofollow">' . $beian . '</a> Powered by <a href="http://www.niphp.com" target="_blank" rel="nofollow">nicms</a> <a href="https://github.com/levisun/nicms" target="_blank" rel="nofollow">Github</a>';
+        return htmlspecialchars_decode($copyright) . $beian . ' Powered by <a href="http://www.niphp.com" target="_blank" rel="nofollow">nicms</a> <a href="https://github.com/levisun/nicms" target="_blank" rel="nofollow">Github</a>';
     }
 
     /**
