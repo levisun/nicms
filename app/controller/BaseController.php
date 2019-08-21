@@ -96,11 +96,11 @@ abstract class BaseController
     {
         $this->app      = $_app;
         $this->config   = $this->app->config;
-        $this->cookie   = $this->app->cookie;
-        $this->env      = $this->app->env;
-        $this->lang     = $this->app->lang;
+        // $this->cookie   = $this->app->cookie;
+        // $this->env      = $this->app->env;
+        // $this->lang     = $this->app->lang;
         $this->request  = $this->app->request;
-        $this->response = $this->app->response;
+        // $this->response = $this->app->response;
         $this->session  = $this->app->session;
 
         $this->app->debug($this->config->get('app.debug'));
@@ -154,7 +154,7 @@ abstract class BaseController
      */
     public function redirect(string $_route)
     {
-        $response = $this->response->create(url($_route), 'redirect', 302);
+        $response = $this->app->response->create(url($_route), 'redirect', 302);
         throw new HttpResponseException($response);
     }
 

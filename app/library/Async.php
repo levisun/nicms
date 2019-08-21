@@ -44,12 +44,6 @@ abstract class Async
     protected $config;
 
     /**
-     * Cookie实例
-     * @var \think\Cookie
-     */
-    protected $cookie;
-
-    /**
      * Lang实例
      * @var \think\Lang
      */
@@ -210,7 +204,6 @@ abstract class Async
         $this->app      = $_app;
         $this->cache    = $this->app->cache;
         $this->config   = $this->app->config;
-        $this->cookie   = $this->app->cookie;
         $this->lang     = $this->app->lang;
         $this->log      = $this->app->log;
         $this->request  = $this->app->request;
@@ -569,11 +562,11 @@ abstract class Async
             // 调试数据
             'debug'   => true === $this->apiDebug ? $this->debugLog : '',
             // 扩展数据
-            'extend'  => $this->ipinfo['ip'] . ';' . date('Y-m-d H:i:s') . ';' .
-                number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 2) . 'MB;' .
-                number_format(microtime(true) - $this->app->getBeginTime(), 2) . 'S;' .
-                app('think\DbManager')->getQueryTimes() . 'Q;' .
-                $this->cache->getReadTimes() . 'R,' . $this->cache->getWriteTimes() . 'W;' .
+            'extend'  => $this->ipinfo['ip'] . ';' . date('H:i:s') . '; ' .
+                number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 2) . 'mb; ' .
+                number_format(microtime(true) - $this->app->getBeginTime(), 2) . 's; ' .
+                app('think\DbManager')->getQueryTimes() . 'q; ' .
+                $this->cache->getReadTimes() . 'r,' . $this->cache->getWriteTimes() . 'w; ' .
                 $this->apiExpire . 's;',
         ];
 

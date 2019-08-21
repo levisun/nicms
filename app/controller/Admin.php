@@ -31,7 +31,7 @@ class admin extends BaseController
      */
     public function initialize()
     {
-        $this->view->view_theme = $this->request->controller(true) . DIRECTORY_SEPARATOR . $this->env->get('admin.theme', 'default');
+        $this->view->view_theme = $this->request->controller(true) . DIRECTORY_SEPARATOR . $this->app->env->get('admin.theme', 'default');
     }
 
     /**

@@ -135,12 +135,12 @@ abstract class BaseService
         $this->app      = $_app;
         $this->cache    = $this->app->cache;
         $this->config   = $this->app->config;
-        $this->cookie   = $this->app->cookie;
-        $this->env      = $this->app->env;
+        // $this->cookie   = $this->app->cookie;
+        // $this->env      = $this->app->env;
         $this->lang     = $this->app->lang;
-        $this->log      = $this->app->log;
+        // $this->log      = $this->app->log;
         $this->request  = $this->app->request;
-        $this->response = $this->app->response;
+        // $this->response = $this->app->response;
         $this->session  = $this->app->session;
 
         $this->app->debug($this->config->get('app.debug'));
