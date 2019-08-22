@@ -34,7 +34,7 @@ class DataMaintenance
      */
     public function autoOptimize(): bool
     {
-        $lock = app()->getRuntimePath() . 'db_op.lock';
+        $lock = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5(__DIR__ . 'db_op') . '.lock';
         clearstatcache();
         if (is_file($lock) && filemtime($lock) >= strtotime('-7 days')) {
             return false;
@@ -65,7 +65,7 @@ class DataMaintenance
      */
     public function autoBackup(int $_hour = 72): bool
     {
-        $lock = app()->getRuntimePath() . 'db_auto_back.lock';
+        $lock = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5(__DIR__ . 'db_auto_back') . '.lock';
         clearstatcache();
         if (is_file($lock) && filemtime($lock) >= strtotime('-30 minute')) {
             return false;
@@ -73,7 +73,7 @@ class DataMaintenance
 
         if ($fp = fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
-                app('log')->record('[AUTO BACKUP] 自动备份数据库', 'info');
+                // app('log')->record('[AUTO BACKUP] 自动备份数据库', 'info');
 
                 $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
                 if (!is_dir($this->savePath)) {
@@ -169,7 +169,7 @@ class DataMaintenance
      */
     public function backup(): bool
     {
-        $lock = app()->getRuntimePath() . 'db_back.lock';
+        $lock = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5(__DIR__ . 'db_back') . '.lock';
         if ($fp = fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 $this->savePath .= date('YmdHis') . DIRECTORY_SEPARATOR;
@@ -230,7 +230,7 @@ class DataMaintenance
      */
     public function optimize(): bool
     {
-        app('log')->record('[DATAMAINTENANCE OPTIMIZE] 优化表', 'info');
+        // app('log')->record('[DATAMAINTENANCE OPTIMIZE] 优化表', 'info');
         $tables = $this->queryTableName();
         foreach ($tables as $name) {
             if (false === $this->analyze($name)) {
@@ -248,7 +248,7 @@ class DataMaintenance
      */
     public function repair(): bool
     {
-        app('log')->record('[DATAMAINTENANCE REPAIR] 修复表', 'info');
+        // app('log')->record('[DATAMAINTENANCE REPAIR] 修复表', 'info');
         $config = app('think\DbManager')->getConfig();
         $config['params'][\PDO::ATTR_EMULATE_PREPARES] = true;
         app('think\DbManager')->connect($config, true);

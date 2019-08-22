@@ -47,7 +47,7 @@ class Request
         $this->request = $this->app->request;
 
         if ('api' !== $this->request->subDomain() && 1 === mt_rand(1, 999)) {
-            $this->app->log->record('[并发]', 'info');
+            // $this->app->log->record('[并发]', 'info');
             http_response_code(500);
             echo '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>500</title><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section><script>setTimeout(function(){location.href="/";}, 3000);</script>';
             exit();
@@ -77,7 +77,7 @@ class Request
         $error_rlog  = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5($this->request->ip() . date('Ymd')) . '.php.lock';
 
         if (is_file($log) || is_file($error_rlog)) {
-            $this->app->log->record('[锁定]', 'info');
+            // $this->app->log->record('[锁定]', 'info');
             http_response_code(502);
             echo '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>502</title><section><h2>502</h2><h3>Oops! Something went wrong.</h3></section>';
             exit();
@@ -109,7 +109,7 @@ class Request
                 } else {
                     $number[$time] = isset($number[$time]) ? ++$number[$time] : 1;
                     $number = [$time => end($number)];
-                    $data = '<?php /*' . $this->request->ip() . '*/ return ' . var_export($number, true) . ';';
+                    $data = '<?php /*请求数 ' . $this->request->ip() . '*/ return ' . var_export($number, true) . ';';
                     fwrite($fp, $data);
                 }
                 flock($fp, LOCK_UN);
@@ -126,7 +126,7 @@ class Request
      */
     protected function inspect(): void
     {
-        $lock  = $this->app->getRuntimePath() . md5(__DIR__ . 'inspect lock') . '_inspect.lock';
+        $lock  = $this->app->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5(__DIR__ . 'inspect lock') . '.lock';
         if (!is_file($lock)) {
             version_compare(PHP_VERSION, '7.1.0', '>=') or die('系统需要PHP7.1+版本! 当前PHP版本:' . PHP_VERSION . '.');
             version_compare(app()->version(), '6.0.0RC3', '>=') or die('系统需要ThinkPHP 6.0+版本! 当前ThinkPHP版本:' . app()->version() . '.');
@@ -136,7 +136,7 @@ class Request
             function_exists('file_put_contents') or die('空间不支持 file_put_contents 函数,系统无法写文件.');
             function_exists('fopen') or die('空间不支持 fopen 函数,系统无法读写文件.');
             get_extension_funcs('gd') or die('空间不支持 gd 模块,图片打水印和缩略生成功能无法使用.');
-            file_put_contents($lock, date('Y-m-d H:i:s'));
+            file_put_contents($lock, '环境支持');
         }
     }
 }

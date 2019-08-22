@@ -139,7 +139,7 @@ if (!function_exists('illegal_request')) {
                 } else {
                     $number[$time] = isset($number[$time]) ? ++$number[$time] : 1;
                     $number = [$time => end($number)];
-                    $data = '<?php /*' . app('request')->ip() . '::error request*/ return ' . var_export($number, true) . ';';
+                    $data = '<?php /*非法请求 ' . app('request')->ip() . '*/ return ' . var_export($number, true) . ';';
                     fwrite($fp, $data);
                 }
                 flock($fp, LOCK_UN);

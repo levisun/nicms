@@ -239,12 +239,12 @@ abstract class BaseService
     {
         foreach ($_var_name as $name) {
             if ('limit' === $name) {
-                $result = (int) $this->request->param('limit/f', 10);
+                $result = (int) $this->request->param('limit/f', 0);
                 if (!$result || $result > 30) {
                     $result = false;
                     break;
                 }
-                $result = (int) $this->request->param('page/f');
+                $result = (int) $this->request->param('page/f', 0);
                 if (!$result) {
                     $result = false;
                     break;

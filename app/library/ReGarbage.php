@@ -27,14 +27,14 @@ class ReGarbage
      */
     public function run(): void
     {
-        $lock = app()->getRuntimePath() . 'remove_garbage.lock';
+        $lock = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5(__DIR__ . 'remove_garbage') . '.lock';
         clearstatcache();
         if (is_file($lock) && filemtime($lock) >= strtotime('-1 days')) {
             return;
         }
         if ($fp = @fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
-                app('log')->record('[REGARBAGE] 删除垃圾信息', 'info');
+                // app('log')->record('[REGARBAGE] 删除垃圾信息', 'info');
                 $runtime_path = app()->getRuntimePath();
                 $this->remove($runtime_path . 'cache', 3);
                 $this->remove($runtime_path . 'compile', 7);
