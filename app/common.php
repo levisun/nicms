@@ -113,7 +113,7 @@ if (!function_exists('illegal_request')) {
         $params = !empty($params) ? json_encode($params) : '';
         $params = app('request')->url(true) . $params;
         unset($_GET, $_POST, $_FILES);
-        app('log')->record('错误访问:' . $params, 'info');
+        app('log')->record('{' . app('request')->method() . '::' . app('request')->ip() . '}' . '错误访问:' . $params, 'info');
 
         $log = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR .
             md5(app('request')->ip() . date('Ymd')) . '.php';
@@ -135,7 +135,7 @@ if (!function_exists('illegal_request')) {
                 $time = (int) date('dHi');   // 以分钟统计请求量
                 $number = !empty($number) ? (array) $number : [$time => 1];
                 if (isset($number[$time]) && $number[$time] >= 9) {
-                    file_put_contents($log . '.lock', date('Y-m-d H:i:s'));
+                    file_put_contents($log . '.lock', '锁定IP' . app('request')->ip());
                 } else {
                     $number[$time] = isset($number[$time]) ? ++$number[$time] : 1;
                     $number = [$time => end($number)];
