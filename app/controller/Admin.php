@@ -31,7 +31,9 @@ class admin extends BaseController
      */
     public function initialize()
     {
-        $this->view->view_theme = $this->request->controller(true) . DIRECTORY_SEPARATOR . $this->app->env->get('admin.theme', 'default');
+        $this->view->config([
+            'view_theme' => $this->request->controller(true) . DIRECTORY_SEPARATOR . $this->app->env->get('admin.theme', 'default')
+        ]);
     }
 
     /**
@@ -46,8 +48,7 @@ class admin extends BaseController
     {
         $this->authenticate($service, $logic, $action);
 
-        $tpl  = $service . DIRECTORY_SEPARATOR . $logic . DIRECTORY_SEPARATOR . $action;
-
+        $tpl = $service . DIRECTORY_SEPARATOR . $logic . DIRECTORY_SEPARATOR . $action;
         return $this->fetch($tpl);
     }
 

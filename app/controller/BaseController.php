@@ -106,7 +106,8 @@ abstract class BaseController
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('default_filter');
 
-        $this->view = Container::getInstance()->make('\app\library\View');
+        // $this->view = Container::getInstance()->make('\app\library\View');
+        $this->view = $this->app->view;
 
         $this->ipinfo = Ip::info($this->request->ip());
 
@@ -165,7 +166,7 @@ abstract class BaseController
      * @param  array  $_data     模板变量
      * @return void
      */
-    public function fetch(string $_template, array $_data = []): void
+    public function fetch(string $_template, array $_data = [])
     {
         $vars = [
             'debug' => [
@@ -177,6 +178,8 @@ abstract class BaseController
             ]
         ];
         $_data = array_merge($vars, $_data);
-        $this->view->fetch($_template, $_data);
+        return $this->view->filter(function($content){
+            return preg_replace('/<\!\-\-.*?\-\->/si', '', $content);
+        })->assign($_data)->fetch($_template);
     }
 }

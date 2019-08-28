@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace app\library;
 
 use think\App;
-use think\Container;
 use think\exception\HttpResponseException;
 use app\library\Ip;
 use app\library\Jwt;
@@ -201,6 +200,12 @@ abstract class Async
      */
     public function __construct(App $_app)
     {
+        $max_input_vars = (int) ini_get('max_input_vars');
+        if (count($_POST) + count($_FILES) + count($_GET) >= $max_input_vars - 5) {
+            $this->error('非法参数', 40002);
+        }
+        unset($max_input_vars);
+
         $this->app      = $_app;
         $this->cache    = $this->app->cache;
         $this->config   = $this->app->config;
@@ -212,11 +217,6 @@ abstract class Async
 
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('default_filter');
-
-        $max_input_vars = (int) ini_get('max_input_vars');
-        if (count($_POST) + count($_FILES) + count($_GET) >= $max_input_vars - 5) {
-            $this->error('非法参数', 40002);
-        }
 
         $this->referer = $this->request->server('HTTP_REFERER') && $this->request->param('method');
 
@@ -231,11 +231,13 @@ abstract class Async
      */
     protected function run(): array
     {
-        $exec = $this->analysisMethod();
+        list($class, $action) = $this->analysisMethod();
 
         // 执行类方法
-        $class = Container::getInstance()->make($exec['class']);
-        $result = call_user_func([$class, $exec['action']]);
+        $result = call_user_func([
+            $this->app->make($class),
+            $action
+        ]);
 
         if (!is_array($result) && empty($result['msg'])) {
             $this->error('返回数据缺少参数', 40001);
@@ -334,8 +336,8 @@ abstract class Async
         $this->lang->load($lang);
 
         return [
-            'class'  => $method,
-            'action' => $action
+            $method,
+            $action
         ];
     }
 
