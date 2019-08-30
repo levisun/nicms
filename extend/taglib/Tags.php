@@ -31,15 +31,15 @@ class Tags
      * @param  array  $_config  模板配置
      * @return string
      */
-    public static function foreach(array $_attr = [], string $_content, array $_config)
+    public static function foreach(array $_attr, string $_content, array $_config)
     {
         $params  = isset($_attr['name']) ? '$' . $_attr['name'] . ' as ' : '';
         if ($params) {
             $params .= isset($_attr['key']) ? '$' . $_attr['key'] . ' => ' : '$key => ';
             $params .= isset($_attr['value']) ? '$' . $_attr['value'] : '$value';
-            return '<?php foreach (' . $params . ') {' . $_content . '} ?>';
+            return '<?php foreach (' . $params . ')' . PHP_EOL . '{' . PHP_EOL . $_content . PHP_EOL . '} ?>';
         } elseif (isset($_attr['expression'])) {
-            return '<?php foreach (' . $_attr['expression'] . ') {' . $_content . '} ?>';
+            return '<?php foreach (' . $_attr['expression'] . ')' . PHP_EOL . '{' . PHP_EOL . $_content . PHP_EOL . '} ?>';
         } else {
             return '<!-- 无法解析:foreach ' . htmlspecialchars_decode($_content) . ' -->';
         }
@@ -55,15 +55,13 @@ class Tags
      * @param  array $_config 模板配置
      * @return string
      */
-    public static function foot(array $_attr = [], array $_config)
+    public static function foot(array $_attr, array $_config)
     {
-        $path = $_config['view_path'] . $_config['view_theme'];
-
         $foot = '';
 
         // JS引入
         foreach ($_config['tpl_config']['js'] as $js) {
-            $foot .= '<script type="text/javascript" src="' . $js . '?v=' . $_config['tpl_config']['theme_version'] . '"></script>' . PHP_EOL;
+            $foot .= '<script type="text/javascript" src="' . $js . '"></script>' . PHP_EOL;
         }
 
         return $foot;
@@ -79,7 +77,7 @@ class Tags
      * @param  array $_config 模板配置
      * @return string
      */
-    public static function meta(array $_attr = [], array $_config): string
+    public static function meta(array $_attr, array $_config): string
     {
         $head = '';
 
@@ -99,7 +97,7 @@ class Tags
         // CSS引入
         if (!empty($_config['tpl_config']['css'])) {
             foreach ($_config['tpl_config']['css'] as $css) {
-                $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '?v=' . $_config['tpl_config']['theme_version'] . '" />' . PHP_EOL;
+                $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '" />' . PHP_EOL;
             }
         }
 
@@ -150,7 +148,7 @@ class Tags
 
             $head .
 
-            '<script type="text/javascript">' . PHP_EOL . 'var NICMS=' . json_encode([
+            '<script type="text/javascript">var NICMS=' . json_encode([
                 'domain' => '//' . request()->subDomain() . '.' . request()->rootDomain(),
                 'url'    => request()->baseUrl(true),
                 'param'  => request()->param(),
@@ -170,7 +168,6 @@ class Tags
                     'img'    => '__IMG__',
                     'js'     => '__JS__',
                 ]
-            ]) .
-            PHP_EOL . '</script>' . PHP_EOL . '</head>';
+            ]) . '</script></head>';
     }
 }

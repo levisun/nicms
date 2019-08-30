@@ -187,43 +187,6 @@ class Template implements TemplateHandlerInterface
     }
 
     /**
-     * 模板解析入口
-     * 支持普通标签和TagLib解析 支持自定义标签库
-     * @access private
-     * @param  string $_content 要解析的模板内容
-     * @return void
-     */
-    private function parse(string &$_content)
-    {
-        // 解析布局
-        $this->parseLayout($_content);
-
-        // 检查include语法
-        $this->parseInclude($_content);
-
-        // 解析JS脚本
-        $this->paresScript($_content);
-
-        // 解析函数
-        $this->parseFunc($_content);
-
-        // 解析标签
-        $this->parseTags($_content);
-
-        // 解析变量
-        $this->parseVars($_content);
-
-        // 模板过滤输出
-        $this->paresReplace($_content);
-
-        if (false === stripos($_content, '<body')) {
-            $_content = str_replace('</head>', '</head><body>', $_content);
-        }
-        $_content .= false === stripos($_content, '</body>') ? '</body>' : '';
-        $_content .= false === stripos($_content, '</html>') ? '</html>' : '';
-    }
-
-    /**
      * 模板过滤输出
      * @access private
      * @param  string $content 要解析的模板内容
@@ -327,9 +290,7 @@ class Template implements TemplateHandlerInterface
                 if (!class_exists($tags) || !method_exists($tags, $action)) {
                     $str = '<!-- 无法解析:' . htmlspecialchars_decode($match[0]) . ' -->';
                 } else {
-                    $str = '<!-- ' . $match[1] . '::' . $match[2] . ' start -->' .
-                        call_user_func([$tags, $action], $params, $this->config) .
-                        '<!-- ' . $match[1] . '::' . $match[2] . ' end -->';
+                    $str = call_user_func([$tags, $action], $params, $this->config);
                 }
 
                 $_content = str_replace($match[0], $str, $_content);
@@ -360,9 +321,7 @@ class Template implements TemplateHandlerInterface
                 if (!class_exists($tags) || !method_exists($tags, $action)) {
                     $str = '<!-- 无法解析:' . htmlspecialchars_decode($match[0]) . ' -->';
                 } else {
-                    $str = '<!-- ' . $match[1] . '::' . $match[2] . ' start -->' .
-                        call_user_func([$tags, $action], $params, $tags_content, $this->config) .
-                        '<!-- ' . $match[1] . '::' . $match[2] . ' end -->';
+                    $str = call_user_func([$tags, $action], $params, $tags_content, $this->config);
                 }
 
                 $_content = str_replace($match[0], $str, $_content);
@@ -381,8 +340,7 @@ class Template implements TemplateHandlerInterface
     {
         $pattern = '/' . $this->config['tpl_begin'] . ':([a-zA-Z0-9_]+)\((.*?)\)' . $this->config['tpl_end'] . '/si';
 
-        $_content =
-            preg_replace_callback($pattern, function ($matches) {
+        $_content = preg_replace_callback($pattern, function ($matches) {
                 $safe_func = [
                     'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'strtolower', 'date',
                     'lang', 'url', 'current', 'end', 'sprintf', 'token_field', 'token',
@@ -403,22 +361,18 @@ class Template implements TemplateHandlerInterface
      */
     private function paresScript(string &$_content): void
     {
-        $_content =
-            preg_replace_callback('/<script( type="(.*?)")?>(.*?)<\/script>/si', function ($matches) {
+        $_content = preg_replace_callback('/<script( type="(.*?)")?>(.*?)<\/script>/si', function ($matches) {
                 $type = $matches[2] ?: 'text/javascript';
-                // $matches[3] = DataFilter::string($matches[3]);
                 $pattern = [
                     '/\/\/.*?(\n|\r)+/i',
                     '/\n|\r|\f/'
                 ];
                 // $matches[3] = preg_replace($pattern, '', $matches[3]);
-                $this->script .= '<script type="' . $type . '">' . PHP_EOL . $matches[3] . PHP_EOL . '</script>' . PHP_EOL;
+                $this->script .= '<script type="' . $type . '">' . $matches[3] . '</script>';
                 return '';
             }, $_content);
 
-        // 过滤非法信息
-        // $_content = DataFilter::string($_content);
-        $_content .= $this->script;
+        $_content .= '<!-- -->' . PHP_EOL . $this->script;
         $this->script = '';
     }
 
@@ -432,8 +386,7 @@ class Template implements TemplateHandlerInterface
     {
         $pattern = '/' . $this->config['tpl_begin'] . 'include file=["|\']+([a-zA-Z_]+)["|\']+' . $this->config['tpl_end'] . '/si';
 
-        $_content =
-            preg_replace_callback($pattern, function ($matches) {
+        $_content = preg_replace_callback($pattern, function ($matches) {
                 if ($matches[1] && $template = $this->parseTemplateFile($matches[1])) {
                     return file_get_contents($template);
                 }
@@ -468,13 +421,50 @@ class Template implements TemplateHandlerInterface
     }
 
     /**
+     * 模板解析入口
+     * 支持普通标签和TagLib解析 支持自定义标签库
+     * @access private
+     * @param  string $_content 要解析的模板内容
+     * @return void
+     */
+    private function parse(string &$_content): void
+    {
+        // 解析布局
+        $this->parseLayout($_content);
+
+        // 检查include语法
+        $this->parseInclude($_content);
+
+        // 解析JS脚本
+        $this->paresScript($_content);
+
+        // 解析函数
+        $this->parseFunc($_content);
+
+        // 解析标签
+        $this->parseTags($_content);
+
+        // 解析变量
+        $this->parseVars($_content);
+
+        // 模板过滤输出
+        $this->paresReplace($_content);
+
+        if (false === stripos($_content, '<body')) {
+            $_content = str_replace('</head>', '</head><body>', $_content);
+        }
+        $_content .= false === stripos($_content, '</body>') ? '</body>' : '';
+        $_content .= false === stripos($_content, '</html>') ? '</html>' : '';
+    }
+
+    /**
      * 编译模板文件内容
      * @access private
      * @param  string $_content 模板内容
      * @param  string $_cache_file 缓存文件名
      * @return void
      */
-    private function compiler(string &$_content, $_cache_file)
+    private function compiler(string &$_content, string $_cache_file): void
     {
         // 模板解析
         $this->parse($_content);
@@ -482,23 +472,23 @@ class Template implements TemplateHandlerInterface
         // 去除html空格与换行
         if ($this->config['strip_space']) {
             /* 去除html空格与换行 */
-            $find    = ['~>\s+<~', '~>(\s+\n|\r)~', '/( ){2,}/si'];
-            $replace = ['><', '>', ''];
+            $find    = ['~>\s+<~', '~>(\s+\n|\r)~'];
+            $replace = ['><', '>'];
             $_content = preg_replace($find, $replace, $_content);
         }
 
         // 优化生成的php代码
         $_content = preg_replace([
             /* '/\?>\s*<\?php\s(?!echo\b|\bend)/s', */
+            '/( ){2,}/s',
+            '/(\r|\n){3,}/s',
             '/\?>\s*<\?php/s',
             '/<\/script>\s*<script[a-z "\/=]*>/s'
         ], '', $_content);
         $_content = str_replace('\/', '/', $_content);
 
         // 添加安全代码及模板引用记录
-        $client = $this->app->request->isMobile() ? 'mobile' : 'pc';
-        $_content = '<?php /*' . serialize($this->includeFile) . '*/ ?>' . PHP_EOL .
-            '<!-- Client:' . $client . ' Time:' . date('Y-m-d H:i:s') . ' -->' . $_content;
+        $_content = '<?php /*' . serialize($this->includeFile) . '*/ ?>' . PHP_EOL . $_content;
 
         // 编译存储
         $dir = dirname($_cache_file);
@@ -517,7 +507,7 @@ class Template implements TemplateHandlerInterface
      * @param  string $_cache_file 文件名
      * @return bool
      */
-    private function checkCache($_cache_file)
+    private function checkCache($_cache_file): bool
     {
         if (!$this->config['tpl_cache'] || !is_file($_cache_file) || !$handle = @fopen($_cache_file, 'r')) {
             return false;

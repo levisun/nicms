@@ -44,17 +44,6 @@ composer require overtrue/wechat
 composer require phpmailer/phpmailer
 ~~~
 
-## 更新日志
-
-~~~
-1.0.1 CB10
-* 程序兼容TP框架最新版本
-* 上传文件方法兼容最新框架 验证方法未做
-* 下载文件方法兼容最新框架
-* 数据备份方法兼容最新框架
-* 修正请求缓存方法
-~~~
-
 ## 版权信息
 
 版权所有Copyright © 2013-2019 by [失眠小枕头](https://github.com/levisun/nicms)

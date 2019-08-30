@@ -33,7 +33,7 @@ return [
             // 日志保存目录
             'path'           => app()->getRuntimePath() . 'log',
             // 单文件日志写入
-            'single'         => true,
+            'single'         => false,
             // 独立日志级别
             'apart_level'    => [
                 'emergency',

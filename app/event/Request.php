@@ -129,7 +129,7 @@ class Request
         $lock  = $this->app->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5(__DIR__ . 'inspect lock') . '.lock';
         if (!is_file($lock)) {
             version_compare(PHP_VERSION, '7.1.0', '>=') or die('系统需要PHP7.1+版本! 当前PHP版本:' . PHP_VERSION . '.');
-            version_compare(app()->version(), '6.0.0RC3', '>=') or die('系统需要ThinkPHP 6.0+版本! 当前ThinkPHP版本:' . app()->version() . '.');
+            version_compare(app()->version(), '6.0.0RC4', '>=') or die('系统需要ThinkPHP 6.0+版本! 当前ThinkPHP版本:' . app()->version() . '.');
             extension_loaded('pdo') or die('请开启 pdo 模块!');
             extension_loaded('pdo_mysql') or die('请开启 pdo_mysql 模块!');
             class_exists('ZipArchive') or die('空间不支持 ZipArchive 方法,系统备份功能无法使用.');

@@ -178,8 +178,6 @@ abstract class BaseController
             ]
         ];
         $_data = array_merge($vars, $_data);
-        return $this->view->filter(function($content){
-            return preg_replace('/<\!\-\-.*?\-\->/si', '', $content);
-        })->assign($_data)->fetch($_template);
+        return $this->view->assign($_data)->fetch($_template);
     }
 }

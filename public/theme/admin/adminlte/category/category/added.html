@@ -34,7 +34,7 @@
             <div class="form-group">
                 <label>{:lang('image')}</label>
                 <input type="text" name="image" class="image form-control">
-                <input type="file" name="upload" id="upload" @click="upload" class="form-control">
+                <input type="file" name="upload" id="upload" v-on:change="upload" class="form-control">
                 <img class="image-box" style="display: none;">
             </div>
 
