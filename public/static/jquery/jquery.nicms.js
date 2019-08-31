@@ -95,6 +95,9 @@
         _params.beforeSend = function (xhr) {
             xhr.setRequestHeader('Accept', 'application/vnd.' + NICMS.api.root + '.v' + NICMS.api.version + '+json');
             xhr.setRequestHeader('Authorization', NICMS.api.authorization);
+
+            // xhr.setRequestHeader('Accept', 'application/vnd.' + NICMS.api.root + '.v' + jQuery('meta[name="csrf-appid"]').attr('content') + '+json');
+            // xhr.setRequestHeader('Authorization', jQuery('meta[name="csrf-authorization"]').attr('content'));
         }
 
         _params.complete = function (xhr) {

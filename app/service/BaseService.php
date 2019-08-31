@@ -352,13 +352,12 @@ abstract class BaseService
         // ])->batch(false)->failException(false)->check((array) $files);
         // halt($this->app->validate->getError());
 
-        $save_path = $this->config->get('filesystem.disks.public.url') . '/';
+        $save_path = $this->config->get('filesystem.disks.uploads.url') . '/';
+        $_dir = $_dir ? '/' . $_dir : '';
 
         // 单文件
         if (is_string($_FILES[$_input_name]['name'])) {
-            $_dir = '/' . $_dir . '/' . date('Y') . $files->extension() . '/' . date('md');
-
-            $save_file = $save_path . $this->app->filesystem->disk('public')->putFile($_dir, $files, 'uniqid');
+            $save_file = $save_path . $this->app->filesystem->disk('uploads')->putFile($_dir, $files, 'uniqid');
 
             $result = [
                 'extension'    => $files->extension(),
@@ -382,9 +381,7 @@ abstract class BaseService
         if (is_array($_FILES[$_input_name]['name'])) {
             $result = [];
             foreach ($files as $file) {
-                $sub_dir = '/' . $_dir . '/' . date('Y') . $files->extension() . '/' . date('md');
-
-                $save_file = $save_path . $this->app->filesystem->disk('public')->putFile($sub_dir, $file, 'uniqid');
+                $save_file = $save_path . $this->app->filesystem->disk('uploads')->putFile($_dir, $file, 'uniqid');
 
                 $result[] = [
                     'extension'    => $file->extension(),

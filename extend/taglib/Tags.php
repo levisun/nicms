@@ -128,6 +128,7 @@ class Tags
             '<meta name="csrf-authorization" content="<?php echo create_authorization();?>" />' . PHP_EOL .
             '<meta name="csrf-token" content="<?php echo token();?>" />' . PHP_EOL .
             '<meta name="csrf-version" content="' . app('config')->get('app.version') . '" />' . PHP_EOL .
+            '<meta name="csrf-root" content="' . $root . '" />' . PHP_EOL .
             '<meta name="csrf-appid" content="' . $_config['tpl_config']['api_appid'] . '" />' . PHP_EOL .
             '<meta name="csrf-appsecret" content="' . $_config['tpl_config']['api_appsecret'] . '" />' . PHP_EOL .
 
