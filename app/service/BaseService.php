@@ -307,11 +307,11 @@ abstract class BaseService
     /**
      * 上传文件
      * @access protected
-     * @param  string $_dir        子目录
-     * @param  string $_input_name 表单名 默认upload
+     * @param  string $_element 表单名 默认upload
+     * @param  string $_dir     子目录
      * @return array
      */
-    protected function uploadFile(string $_dir = '', string $_input_name = 'upload'): array
+    protected function uploadFile(string $_element = 'upload', string $_dir = 'uploads'): array
     {
         if (!$this->request->isPost() || empty($_FILES) || !$this->uid) {
             return [
@@ -341,10 +341,10 @@ abstract class BaseService
         ];
 
         @ini_set('memory_limit', '256M');
-        $files = $this->request->file($_input_name);
+        $files = $this->request->file($_element);
         // halt($files);
         // $error = $this->app->validate->rule([
-        //     $_input_name => [
+        //     $_element => [
         //         'fileExt'  => $ext,
         // //         // 'fileMime' => $mime,
         //         'fileSize' => $size
@@ -352,12 +352,13 @@ abstract class BaseService
         // ])->batch(false)->failException(false)->check((array) $files);
         // halt($this->app->validate->getError());
 
-        $save_path = $this->config->get('filesystem.disks.uploads.url') . '/';
-        $_dir = $_dir ? '/' . $_dir : '';
+        $save_path = $this->config->get('filesystem.disks.public.url') . '/';
+        $_dir = '/' . trim($_dir, '\/');
+        $_dir .= $this->uid ? '/u' . dechex(1000000 + $this->uid) . date('ym') : '/' . date('ym');
 
         // 单文件
-        if (is_string($_FILES[$_input_name]['name'])) {
-            $save_file = $save_path . $this->app->filesystem->disk('uploads')->putFile($_dir, $files, 'uniqid');
+        if (is_string($_FILES[$_element]['name'])) {
+            $save_file = $save_path . $this->app->filesystem->disk('public')->putFile($_dir, $files, 'uniqid');
 
             $result = [
                 'extension'    => $files->extension(),
@@ -378,11 +379,10 @@ abstract class BaseService
         }
 
         // 多文件
-        if (is_array($_FILES[$_input_name]['name'])) {
+        if (is_array($_FILES[$_element]['name'])) {
             $result = [];
             foreach ($files as $file) {
                 $save_file = $save_path . $this->app->filesystem->disk('uploads')->putFile($_dir, $file, 'uniqid');
-
                 $result[] = [
                     'extension'    => $file->extension(),
                     'name'         => $save_file,

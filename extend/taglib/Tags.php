@@ -61,6 +61,12 @@ class Tags
 
         // JS引入
         foreach ($_config['tpl_config']['js'] as $js) {
+            // if (false === stripos($js, 'http')) {
+            //     $foot .= '<script type="text/javascript" src="' . $js . '"></script>' . PHP_EOL;
+            //     # code...
+            // } else {
+            //     $foot .= '<script type="text/javascript">' . file_get_contents($js) . '</script>';
+            // }
             $foot .= '<script type="text/javascript" src="' . $js . '"></script>' . PHP_EOL;
         }
 
@@ -169,6 +175,6 @@ class Tags
                     'img'    => '__IMG__',
                     'js'     => '__JS__',
                 ]
-            ]) . '</script></head>';
+            ]) . '</script>' . PHP_EOL . '</head>' . PHP_EOL;
     }
 }

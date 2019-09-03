@@ -33,6 +33,7 @@ class Template implements TemplateHandlerInterface
      * @var array
      */
     private $config = [
+        'app_name'           => '',
         'view_path'          => '',                     // 模板路径
         'view_theme'         => '',                     // 模板主题
         'view_suffix'        => 'html',                 // 默认模板文件后缀
@@ -161,7 +162,7 @@ class Template implements TemplateHandlerInterface
         }
 
         // 主题设置
-        $tpl_config = $this->config['view_theme'] . 'config.json';
+        $tpl_config = $this->config['app_name'] . $this->config['view_theme'] . 'config.json';
         if (is_file($this->config['view_path'] . $tpl_config)) {
             $json = file_get_contents($this->config['view_path'] . $tpl_config);
             if ($json && $json = json_decode(strip_tags($json), true)) {
@@ -170,8 +171,13 @@ class Template implements TemplateHandlerInterface
         }
 
         // 缓存路径
-        $cache_file  = $this->config['cache_path'] . $this->config['cache_prefix'];
-        $cache_file .= md5($this->config['layout_on'] . $this->config['layout_name'] . $_template);
+        $cache_file  = $this->config['cache_path'];
+        $cache_file .= $this->config['app_name'];
+        $cache_file .= $this->config['cache_prefix']
+            ? trim($this->config['cache_prefix'], '\/') . DIRECTORY_SEPARATOR
+            : '';
+        $cache_file .= md5($this->config['view_theme'] . $this->config['layout_on'] .
+            $this->config['layout_name'] . $_template);
         $cache_file .= '.' . trim($this->config['cache_suffix'], '.');
 
         if (!$this->checkCache($cache_file)) {
@@ -194,14 +200,16 @@ class Template implements TemplateHandlerInterface
      */
     private function paresReplace(string &$_content): void
     {
-        $theme  = $this->app->config->get('app.cdn_host') . '/theme/';
-        $theme .= str_replace(DIRECTORY_SEPARATOR, '/', $this->config['view_theme']);
+        $theme  = $this->app->config->get('app.cdn_host') . '/theme/' .
+            $this->config['app_name'] . $this->config['view_theme'];
 
         // 拼装移动端模板路径
         $mobile = 'mobile' . DIRECTORY_SEPARATOR;
-        if ($this->app->request->isMobile() && is_dir($this->config['view_path'] . $this->config['view_theme'] . $mobile)) {
-            $theme .= str_replace(DIRECTORY_SEPARATOR, '/', $this->config['view_theme']);
+        if ($this->app->request->isMobile() && is_dir($this->config['view_path'] . $this->config['app_name'] . $this->config['view_theme'] . $mobile)) {
+            $theme .= $mobile;
         }
+
+        $theme = str_replace(DIRECTORY_SEPARATOR, '/', $theme);
 
         $replace = [
             '__SYS_VERSION__' => $this->app->config->get('app.version', '1.0.1'),
@@ -225,42 +233,43 @@ class Template implements TemplateHandlerInterface
      */
     private function parseVars(string &$_content): void
     {
-        $pattern = '/' . $this->config['tpl_begin'] . '\$([a-zA-Z0-9_.]+)' . $this->config['tpl_end'] . '/si';
+        $pattern = '/' . $this->config['tpl_begin'] .
+            '\$([a-zA-Z0-9_.]+)' .
+            $this->config['tpl_end'] . '/si';
 
-        $_content =
-            preg_replace_callback($pattern, function ($matches) {
-                $var_type = '';
-                $var_name = $matches[1];
-                if (false !== strpos($matches[1], '.')) {
-                    list($var_type, $var_name) = explode('.', $matches[1], 2);
-                    $var_type = strtoupper(trim($var_type));
+        $_content = preg_replace_callback($pattern, function ($matches) {
+            $var_type = '';
+            $var_name = $matches[1];
+            if (false !== strpos($matches[1], '.')) {
+                list($var_type, $var_name) = explode('.', $matches[1], 2);
+                $var_type = strtoupper(trim($var_type));
+            }
+
+            if ('CONST' === $var_type) {
+                $defined = get_defined_constants();
+                $var_name = strtoupper($var_name);
+                return isset($defined[$var_name]) ? '<?php echo ' . $var_name . '; ?>' : $var_name;
+            }
+
+            if ('GET' === $var_type) {
+                $vars = 'request()->param("' . $var_name . '")';
+            } elseif ('POST' === $var_type) {
+                $vars = 'request()->post("' . $var_name . '")';
+            } elseif ('COOKIE' === $var_type) {
+                $vars = 'request()->cookie("' . $var_name . '")';
+            } elseif (isset($var_type)) {
+                $vars = '$' . strtolower($var_type);
+                $arr = explode('.', $var_name);
+                foreach ($arr as $name) {
+                    $vars .= '[\'' . $name . '\']';
                 }
+                $vars = 'isset(' . $vars . ') ? ' . $vars . ' : \'\'';
+            } else {
+                $vars = '$' . $var_name;
+            }
 
-                if ('CONST' === $var_type) {
-                    $defined = get_defined_constants();
-                    $var_name = strtoupper($var_name);
-                    return isset($defined[$var_name]) ? '<?php echo ' . $var_name . '; ?>' : $var_name;
-                }
-
-                if ('GET' === $var_type) {
-                    $vars = 'request()->param("' . $var_name . '")';
-                } elseif ('POST' === $var_type) {
-                    $vars = 'request()->post("' . $var_name . '")';
-                } elseif ('COOKIE' === $var_type) {
-                    $vars = 'request()->cookie("' . $var_name . '")';
-                } elseif (isset($var_type)) {
-                    $vars = '$' . strtolower($var_type);
-                    $arr = explode('.', $var_name);
-                    foreach ($arr as $name) {
-                        $vars .= '[\'' . $name . '\']';
-                    }
-                    $vars = 'isset(' . $vars . ') ? ' . $vars . ' : \'\'';
-                } else {
-                    $vars = '$' . $var_name;
-                }
-
-                return '<?php echo ' . $vars . ';?>';
-            }, $_content);
+            return '<?php echo ' . $vars . ';?>';
+        }, $_content);
     }
 
     /**
@@ -273,7 +282,10 @@ class Template implements TemplateHandlerInterface
     private function parseTags(string &$_content): void
     {
         // 单标签解析
-        $pattern = '/' . $this->config['tpl_begin'] . '([a-zA-Z]+):([a-zA-Z]+)([a-zA-Z0-9 $.="\'_]+)\/' . $this->config['tpl_end'] . '/si';
+        $pattern = '/' . $this->config['tpl_begin'] .
+            '([a-zA-Z]+):([a-zA-Z]+)([a-zA-Z0-9 $.="\'_]+)\/' .
+            $this->config['tpl_end'] . '/si';
+
         if (false !== preg_match_all($pattern, $_content, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
                 $tags = '\taglib\\' . ucfirst($match[1]);
@@ -298,9 +310,9 @@ class Template implements TemplateHandlerInterface
         }
 
         // 闭合标签解析
-        $pattern = '/' .
-            $this->config['tpl_begin'] . '([a-zA-Z]+):([a-zA-Z0-9]+)([a-zA-Z0-9 $.=>"\'_]+)' . $this->config['tpl_end'] .
-            '(.*?)' .
+        $pattern = '/' . $this->config['tpl_begin'] .
+            '([a-zA-Z]+):([a-zA-Z0-9]+)([a-zA-Z0-9 $.=>"\'_]+)' .
+            $this->config['tpl_end'] . '(.*?)' .
             $this->config['tpl_begin'] . '\/([a-zA-Z]+)' . $this->config['tpl_end'] . '/si';
 
         if (false !== preg_match_all($pattern, $_content, $matches, PREG_SET_ORDER)) {
@@ -338,19 +350,21 @@ class Template implements TemplateHandlerInterface
      */
     private function parseFunc(string &$_content): void
     {
-        $pattern = '/' . $this->config['tpl_begin'] . ':([a-zA-Z0-9_]+)\((.*?)\)' . $this->config['tpl_end'] . '/si';
+        $pattern = '/' . $this->config['tpl_begin'] .
+            ':([a-zA-Z0-9_]+)\((.*?)\)' .
+            $this->config['tpl_end'] . '/si';
 
         $_content = preg_replace_callback($pattern, function ($matches) {
-                $safe_func = [
-                    'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'strtolower', 'date',
-                    'lang', 'url', 'current', 'end', 'sprintf', 'token_field', 'token',
-                ];
-                if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
-                    return '<?php echo ' . $matches[1] . '(' . $matches[2] . ');?>';
-                } else {
-                    return '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
-                }
-            }, $_content);
+            $safe_func = [
+                'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'strtolower', 'date',
+                'lang', 'url', 'current', 'end', 'sprintf', 'token_field', 'token',
+            ];
+            if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
+                return '<?php echo ' . $matches[1] . '(' . $matches[2] . ');?>';
+            } else {
+                return '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
+            }
+        }, $_content);
     }
 
     /**
@@ -361,16 +375,18 @@ class Template implements TemplateHandlerInterface
      */
     private function paresScript(string &$_content): void
     {
-        $_content = preg_replace_callback('/<script( type="(.*?)")?>(.*?)<\/script>/si', function ($matches) {
-                $type = $matches[2] ?: 'text/javascript';
-                $pattern = [
-                    '/\/\/.*?(\n|\r)+/i',
-                    '/\n|\r|\f/'
-                ];
-                // $matches[3] = preg_replace($pattern, '', $matches[3]);
-                $this->script .= '<script type="' . $type . '">' . $matches[3] . '</script>';
-                return '';
-            }, $_content);
+        $pattern = '/<script( type="(.*?)")?>(.*?)<\/script>/si';
+
+        $_content = preg_replace_callback($pattern, function ($matches) {
+            $type = $matches[2] ?: 'text/javascript';
+            $pattern = [
+                '/\/\/.*?(\n|\r)+/i',
+                '/\n|\r|\f/'
+            ];
+            // $matches[3] = preg_replace($pattern, '', $matches[3]);
+            $this->script .= '<script type="' . $type . '">' . $matches[3] . '</script>';
+            return '';
+        }, $_content);
 
         $_content .= '<!-- -->' . PHP_EOL . $this->script;
         $this->script = '';
@@ -384,15 +400,17 @@ class Template implements TemplateHandlerInterface
      */
     private function parseInclude(string &$_content): void
     {
-        $pattern = '/' . $this->config['tpl_begin'] . 'include file=["|\']+([a-zA-Z_]+)["|\']+' . $this->config['tpl_end'] . '/si';
+        $pattern = '/' . $this->config['tpl_begin'] .
+            'include file=["|\']+([a-zA-Z_]+)["|\']+' .
+            $this->config['tpl_end'] . '/si';
 
         $_content = preg_replace_callback($pattern, function ($matches) {
-                if ($matches[1] && $template = $this->parseTemplateFile($matches[1])) {
-                    return file_get_contents($template);
-                }
+            if ($matches[1] && $template = $this->parseTemplateFile($matches[1])) {
+                return file_get_contents($template);
+            }
 
-                return '<!-- 无法解析:' . $matches[1] . htmlspecialchars_decode($matches[0]) . ' -->';
-            }, $_content);
+            return '<!-- 无法解析:' . $matches[1] . htmlspecialchars_decode($matches[0]) . ' -->';
+        }, $_content);
     }
 
     /**
@@ -451,7 +469,7 @@ class Template implements TemplateHandlerInterface
         $this->paresReplace($_content);
 
         if (false === stripos($_content, '<body')) {
-            $_content = str_replace('</head>', '</head><body>', $_content);
+            $_content = str_replace('</head>', '</head>' . PHP_EOL . '<body>', $_content);
         }
         $_content .= false === stripos($_content, '</body>') ? '</body>' : '';
         $_content .= false === stripos($_content, '</html>') ? '</html>' : '';
@@ -553,16 +571,29 @@ class Template implements TemplateHandlerInterface
      */
     private function parseTemplateFile(string $_template = ''): string
     {
-        if (empty($this->config['view_base'])) {
-            $this->config['view_base'] = $this->app->getRootPath() . 'public' .
+        if (empty($this->config['view_path'])) {
+            $this->config['view_path'] = $this->app->getRootPath() . 'public' .
                 DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR;
         }
 
         $request = $this->app->request;
 
+        // 跨应用支持
+        if (false !== strpos($_template, '@')) {
+            // 跨模块调用
+            list($app, $_template) = explode('@', $_template);
+        }
+        $app = isset($app) ? $app : $request->app();
+        $this->config['app_name'] = $app ? $app . DIRECTORY_SEPARATOR : $this->config['app_name'];
+
+        // 拼装多应用
+        $this->config['app_name'] = $this->config['app_name']
+            ? trim($this->config['app_name'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
+            : '';
+
         // 拼装模板主题
-        $this->config['view_theme'] = isset($this->config['view_theme'])
-            ?  trim($this->config['view_theme'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
+        $this->config['view_theme'] = $this->config['view_theme']
+            ? trim($this->config['view_theme'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
             : '';
 
         // 拼装模板文件名
@@ -570,12 +601,12 @@ class Template implements TemplateHandlerInterface
         $_template = $_template
             ? rtrim(trim($_template, DIRECTORY_SEPARATOR), '.') . '.' . $this->config['view_suffix']
             : $request->action(true);
-        $_template = $this->config['view_theme'] . $_template;
+        $_template = $this->config['app_name'] . $this->config['view_theme'] . $_template;
 
         // 拼装移动端模板路径
         $mobile = 'mobile' . DIRECTORY_SEPARATOR;
-        if ($request->isMobile() && is_file($this->config['view_path'] . $mobile . $_template)) {
-            $_template = $mobile . $_template;
+        if ($request->isMobile() && is_file($this->config['view_path'] . $this->config['app_name'] . $this->config['view_theme'] . $mobile . $_template)) {
+            $_template = $this->config['app_name'] . $this->config['view_theme'] . $mobile . $_template;
         }
 
         // 模板不存在 抛出异常
