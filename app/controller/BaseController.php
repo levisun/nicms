@@ -96,17 +96,12 @@ abstract class BaseController
     {
         $this->app      = $_app;
         $this->config   = $this->app->config;
-        // $this->cookie   = $this->app->cookie;
-        // $this->env      = $this->app->env;
-        // $this->lang     = $this->app->lang;
         $this->request  = $this->app->request;
-        // $this->response = $this->app->response;
         $this->session  = $this->app->session;
 
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('default_filter');
 
-        // $this->view = Container::getInstance()->make('\app\library\View');
         $this->view = $this->app->view;
 
         $this->ipinfo = Ip::info($this->request->ip());

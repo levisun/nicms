@@ -25,7 +25,7 @@ return [
             // 缓存保存目录
             'path'         => '',
             // 缓存前缀
-            'prefix'       => '',
+            'prefix'       => md5(app('request')->domain()),
             // 缓存有效期 0表示永久缓存
             'expire'       => (int) Env::get('cache.expire', 28800) - mt_rand(1, 1440),
             // 关闭子目录

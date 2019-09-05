@@ -2,7 +2,7 @@
 /**
  *
  * 控制层
- * CMS
+ * Book
  *
  * @package   NICMS
  * @category  app\controller
@@ -15,18 +15,18 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
-use think\Response;
-use think\exception\HttpResponseException;
-use think\facade\Config;
-use think\facade\Env;
-use think\facade\Lang;
-use think\facade\Request;
-use app\library\Siteinfo;
-use app\library\Template;
-use app\model\Category as ModelCategory;
+use app\controller\BaseController;
+use app\library\Rbac;
 
-class Book extends Template
+class Book extends BaseController
 {
+    private $api = 'https://api.zhuishushenqi.com/';
+    private $category = 'cats/lv2';
+    private $list = 'book/by-categories?major=';
+    private $info = 'book/';
+    private $atoc = 'atoc?view=summary&book=';
+    private $details = 'http://chapter2.zhuishushenqi.com/chapter/';
+    private $search = 'book/fuzzy-search?query=';
 
     /**
      * 构造方法
@@ -36,8 +36,10 @@ class Book extends Template
      */
     public function __construct()
     {
-        $this->setTheme('book/default');
-        parent::__construct();
+        $this->view->config([
+            'app_name'   => 'book',
+            'view_theme' => $this->app->env->get('book.theme', 'default')
+        ]);
     }
 
     /**

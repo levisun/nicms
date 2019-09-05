@@ -31,7 +31,7 @@ class Download
      */
     public static function url(string $_file)
     {
-        $_file = DIRECTORY_SEPARATOR . ltrim($_file, ',.\/');
+        $_file = DIRECTORY_SEPARATOR . trim($_file, ',.\/');
         $_file = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_file);
 
         $ext = explode(',', app('config')->get('app.upload_type', 'gif,jpg,jpeg,png,zip,rar'));
@@ -57,7 +57,7 @@ class Download
     public static function file(string $_file)
     {
         if ($_file && $file_name = Base64::decrypt($_file, app('request')->ip() . date('Ymd'))) {
-            $file_name = DIRECTORY_SEPARATOR . ltrim($file_name, ',.\/');
+            $file_name = DIRECTORY_SEPARATOR . trim($file_name, ',.\/');
             $file_name = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $file_name);
 
             $ext = explode(',', app('config')->get('app.upload_type', 'gif,jpg,jpeg,png,zip,rar'));
@@ -78,7 +78,7 @@ class Download
         $log  = '[API] 下载文件:' . app('request')->param('file', 'null');
         $log .= ' 文件地址:' . $file_name . PHP_EOL;
         $log .= 'PARAM:' . json_encode(app('request')->param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
-        app('log')->record($log, 'info')->save();
+        app('log')->record($log, 'error')->save();
 
         throw new HttpResponseException($response);
     }

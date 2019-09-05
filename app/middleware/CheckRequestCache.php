@@ -50,16 +50,12 @@ class CheckRequestCache
             $response->allowCache(false);
         }
 
+        $response->header(array_merge(['X-Powered-By' => 'NICMS'], $response->getHeader()));
         if (200 == $response->getCode() && $request->isGet() && $response->isAllowCache()) {
-            $header = [
-                'Cache-control' => 'max-age=1440,must-revalidate',
-                'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
-                'Expires'       => gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT',
-                'X-Powered-By'  => 'NICMS'
-            ];
-            $header = array_merge($header, $response->getHeader());
-
-            $response->allowCache(true)->header($header);
+            $response->allowCache(true)
+                ->cacheControl('max-age=1440,must-revalidate')
+                ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
         }
 
         return $response;
