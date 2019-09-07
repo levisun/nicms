@@ -36,10 +36,6 @@ class User extends BaseService
             return $result;
         }
 
-        if ($result = $this->check_params(['limit', 'date_format'])) {
-            return $result;
-        }
-
         $query_limit = (int) $this->request->param('limit/f', 10);
 
         $result = (new ModelUser)

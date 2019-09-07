@@ -230,43 +230,6 @@ abstract class BaseService
     }
 
     /**
-     * API请求参数验证
-     * @access protected
-     * @param  array $_var_name
-     * @return bool|array
-     */
-    protected function check_params(array $_var_name)
-    {
-        foreach ($_var_name as $name) {
-            if ('limit' === $name) {
-                $result = (int) $this->request->param('limit/f', 0);
-                if (!$result || $result > 30) {
-                    $result = false;
-                    break;
-                }
-                $result = (int) $this->request->param('page/f', 0);
-                if (!$result) {
-                    $result = false;
-                    break;
-                }
-            } elseif ('date_format' === $name) {
-                $result = (string) $this->request->param('date_format', 'Y-m-d H:i:s');
-                if (!$result || !preg_match('/^[YymdHhis\-: ]+$/u', $result)) {
-                    $result = false;
-                    break;
-                }
-            }
-        }
-
-        return $result ? false : [
-            'debug' => false,
-            'cache' => false,
-            'code'  => 40002,
-            'msg'   => '非法参数',
-        ];
-    }
-
-    /**
      * 数据验证
      * @access protected
      * @param  string  $_validate

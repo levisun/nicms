@@ -35,25 +35,27 @@ class Safe extends BaseService
             return $result;
         }
 
+        $env = $this->app->env;
+
         $result = [
-            'app_debug' => $this->env->get('app_debug'),
+            'app_debug' => $env->get('app_debug'),
             'app' => [
-                'upload_type' => $this->env->get('app.upload_type'),
-                'upload_size' => $this->env->get('app.upload_size'),
-                'secretkey' => $this->env->get('app.secretkey'),
+                'upload_type' => $env->get('app.upload_type'),
+                'upload_size' => $env->get('app.upload_size'),
+                'secretkey' => $env->get('app.secretkey'),
             ],
             'cache' => [
-                'type'   => $this->env->get('cache.type'),
-                'expire' => $this->env->get('cache.expire'),
+                'type'   => $env->get('cache.type'),
+                'expire' => $env->get('cache.expire'),
             ],
             'database' => [
-                'type'     => $this->env->get('database.type'),
-                'hostname' => $this->env->get('database.hostname'),
-                'database' => $this->env->get('database.database'),
-                'username' => $this->env->get('database.username'),
-                'password' => $this->env->get('database.password'),
-                'hostport' => $this->env->get('database.hostport'),
-                'prefix'   => $this->env->get('database.prefix'),
+                'type'     => $env->get('database.type'),
+                'hostname' => $env->get('database.hostname'),
+                'database' => $env->get('database.database'),
+                'username' => $env->get('database.username'),
+                'password' => $env->get('database.password'),
+                'hostport' => $env->get('database.hostport'),
+                'prefix'   => $env->get('database.prefix'),
             ],
             'admin' => [
                 'entry'   => $this->config->get('app.entry'),
@@ -91,33 +93,35 @@ class Safe extends BaseService
             return $result;
         }
 
+        $env = $this->app->env;
+
         $receive_data['app_debug'] = $receive_data['app_debug'] ? 'true' : 'false';
         $result = 'APP_DEBUG = '  . $receive_data['app_debug'] . PHP_EOL .
             PHP_EOL . '[APP]' . PHP_EOL .
             'UPLOAD_SIZE = ' . $receive_data['app_upload_size'] . PHP_EOL .
             'UPLOAD_TYPE = ' . $receive_data['app_upload_type'] . PHP_EOL .
-            'SECRETKEY = ' . $this->env->get('app.secretkey') . PHP_EOL .
-            'DEFAULT_TIMEZONE = ' . $this->env->get('app.default_timezone') . PHP_EOL .
+            'SECRETKEY = ' . $env->get('app.secretkey') . PHP_EOL .
+            'DEFAULT_TIMEZONE = ' . $env->get('app.default_timezone') . PHP_EOL .
 
             PHP_EOL . '[DATABASE]' . PHP_EOL .
-            'TYPE = ' . $this->env->get('database.type') . PHP_EOL .
-            'HOSTNAME = ' . $this->env->get('database.hostname') . PHP_EOL .
-            'DATABASE = ' . $this->env->get('database.database') . PHP_EOL .
-            'USERNAME = ' . $this->env->get('database.username') . PHP_EOL .
-            'PASSWORD = ' . $this->env->get('database.password') . PHP_EOL .
-            'HOSTPORT = ' . $this->env->get('database.hostport') . PHP_EOL .
-            'PREFIX   = ' . $this->env->get('database.prefix') . PHP_EOL .
+            'TYPE = ' . $env->get('database.type') . PHP_EOL .
+            'HOSTNAME = ' . $env->get('database.hostname') . PHP_EOL .
+            'DATABASE = ' . $env->get('database.database') . PHP_EOL .
+            'USERNAME = ' . $env->get('database.username') . PHP_EOL .
+            'PASSWORD = ' . $env->get('database.password') . PHP_EOL .
+            'HOSTPORT = ' . $env->get('database.hostport') . PHP_EOL .
+            'PREFIX   = ' . $env->get('database.prefix') . PHP_EOL .
 
             PHP_EOL . '[CACHE]' . PHP_EOL .
-            'TYPE = ' . $this->env->get('cache.type') . PHP_EOL .
+            'TYPE = ' . $env->get('cache.type') . PHP_EOL .
             'EXPIRE = ' . $receive_data['cache_expire'] . PHP_EOL .
 
             PHP_EOL . '[ADMIN]' . PHP_EOL .
-            'ENTRY = ' . $this->env->get('admin.entry') . PHP_EOL .
-            'THEME = ' . $this->env->get('admin.theme') . PHP_EOL .
+            'ENTRY = ' . $env->get('admin.entry') . PHP_EOL .
+            'THEME = ' . $env->get('admin.theme') . PHP_EOL .
 
             PHP_EOL . '[LANG]' . PHP_EOL .
-            'DEFAULT_LANG = ' . $this->env->get('lang.default_lang');
+            'DEFAULT_LANG = ' . $env->get('lang.default_lang');
 
         file_put_contents($this->app->getRootPath() . '.env', $result);
 

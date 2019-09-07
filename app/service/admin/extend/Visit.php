@@ -36,10 +36,6 @@ class Visit extends BaseService
             return $result;
         }
 
-        if ($result = $this->check_params(['limit', 'date_format'])) {
-            return $result;
-        }
-
         $query_limit = (int) $this->request->param('limit/f', 10);
         $date_format = $this->request->param('date_format', 'Y-m-d');
 

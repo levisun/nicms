@@ -37,7 +37,7 @@ class CheckRequestCache
     public function handle(Request $request, Closure $next, Config $config)
     {
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
-            if (strtotime($ms) + 1440 > $request->server('REQUEST_TIME')) {
+            if (strtotime($ms) + 28800 > $request->server('REQUEST_TIME')) {
                 return Response::create()->code(304);   // 读取缓存
             }
         }
@@ -53,8 +53,8 @@ class CheckRequestCache
         $response->header(array_merge(['X-Powered-By' => 'NICMS'], $response->getHeader()));
         if (200 == $response->getCode() && $request->isGet() && $response->isAllowCache()) {
             $response->allowCache(true)
-                ->cacheControl('max-age=1440,must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT')
+                ->cacheControl('max-age=28800,must-revalidate')
+                ->expires(gmdate('D, d M Y H:i:s', time() + 28800) . ' GMT')
                 ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
         }
 
