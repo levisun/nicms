@@ -52,7 +52,7 @@ class Maintain
         $this->request = $this->app->request;
 
         // CMS请求
-        if ('cms' === $this->request->controller(true)) {
+        if (!in_array($this->request->controller(true), ['api', 'admin'])) {
             // 生成访问日志
             (new Accesslog)->record();
             // 生成网站地图

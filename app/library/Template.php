@@ -354,8 +354,7 @@ class Template implements TemplateHandlerInterface
 
         $_content = preg_replace_callback($pattern, function ($matches) {
             $safe_func = [
-                'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'strtolower', 'date',
-                'lang', 'url', 'current', 'end', 'sprintf', 'token_field', 'token',
+                'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'strtolower', 'date', 'lang', 'url', 'current', 'end', 'sprintf', 'token_field', 'token', 'get_img_url',
             ];
             if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
                 return '<?php echo ' . $matches[1] . '(' . $matches[2] . ');?>';

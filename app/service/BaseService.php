@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace app\service;
 
 use think\App;
+use think\Image;
 use app\library\Ip;
 use app\library\Rbac;
 use app\model\Action as ModelAction;
@@ -135,12 +136,8 @@ abstract class BaseService
         $this->app      = $_app;
         $this->cache    = $this->app->cache;
         $this->config   = $this->app->config;
-        // $this->cookie   = $this->app->cookie;
-        // $this->env      = $this->app->env;
         $this->lang     = $this->app->lang;
-        // $this->log      = $this->app->log;
         $this->request  = $this->app->request;
-        // $this->response = $this->app->response;
         $this->session  = $this->app->session;
 
         $this->app->debug($this->config->get('app.debug'));
@@ -323,6 +320,15 @@ abstract class BaseService
         if (is_string($_FILES[$_element]['name'])) {
             $save_file = $save_path . $this->app->filesystem->disk('public')->putFile($_dir, $files, 'uniqid');
 
+            if (false !== strpos($files->getMime(), 'image/')) {
+                $image = Image::open($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
+                if ($image->width() >= 800) {
+                    $image->thumb(800, 800, Image::THUMB_SCALING);
+                    $image->save($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file, null, 40);
+                }
+                unset($image);
+            }
+
             $result = [
                 'extension'    => $files->extension(),
                 'name'         => $save_file,
@@ -332,20 +338,23 @@ abstract class BaseService
                 'type'         => $files->getMime(),
                 'url'          => $this->config->get('app.cdn_host') . $save_file,
             ];
-
-            return [
-                'debug' => false,
-                'cache' => false,
-                'msg'   => 'upload success缺少验证',
-                'data'  => $result
-            ];
         }
 
         // 多文件
-        if (is_array($_FILES[$_element]['name'])) {
+        elseif (is_array($_FILES[$_element]['name'])) {
             $result = [];
             foreach ($files as $file) {
                 $save_file = $save_path . $this->app->filesystem->disk('uploads')->putFile($_dir, $file, 'uniqid');
+
+                if (false !== strpos($files->getMime(), 'image/')) {
+                    $image = Image::open($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
+                    if ($image->width() >= 800) {
+                        $image->thumb(800, 800, Image::THUMB_SCALING);
+                        $image->save($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file, null, 40);
+                    }
+                    unset($image);
+                }
+
                 $result[] = [
                     'extension'    => $file->extension(),
                     'name'         => $save_file,
@@ -356,13 +365,13 @@ abstract class BaseService
                     'url'          => $this->config->get('app.cdn_host') . $save_file,
                 ];
             }
-
-            return [
-                'debug' => false,
-                'cache' => false,
-                'msg'   => 'upload success缺少验证',
-                'data'  => $result
-            ];
         }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'upload success缺少验证',
+            'data'  => $result
+        ];
     }
 }

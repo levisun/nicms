@@ -193,7 +193,7 @@ if (!function_exists('get_img_url')) {
      * @param  string      $_water 水印文字
      * @return string
      */
-    function get_img_url(string $_img, int $_size = 300, string $_water = ''): string
+    function get_img_url(string $_img, int $_size = 300, string $_water = '', bool $_base64 = false): string
     {
         // 网络图片直接返回
         if (false !== stripos($_img, 'http')) {
@@ -218,23 +218,30 @@ if (!function_exists('get_img_url')) {
         // 缩略图
         $_size = $_size > 800 ? 800 : intval($_size / 100) * 100;
         $thumb = str_replace($ext, '_' . $_size . $ext, $_img);
-        if (is_file($path . $thumb)) {
+
+        if (!is_file($path . $thumb)) {
+            // 创建缩略图
+            @ini_set('memory_limit', '256M');
+            $image = Image::open($path . $_img);
+            // 原始尺寸大于指定缩略尺寸
+            if ($image->width() > $_size) {
+                $image->thumb($_size, $_size, Image::THUMB_SCALING);
+            }
+            // 添加水印
+            $_water = $_water ? $_water : app('request')->rootDomain();
+            $font_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'static' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf';
+            $image->text($_water, $font_path, 15, '#00000000', Image::WATER_SOUTHEAST);
+            $image->save($path . $thumb, null, 40);
+        }
+
+        if (true === $_base64) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_file($finfo, $path . $thumb);
+            finfo_close($finfo);
+            return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path . $thumb));
+        } else {
             return app('config')->get('app.cdn_host') . '/' . str_replace(DIRECTORY_SEPARATOR, '/', $thumb);
         }
-
-        // 创建缩略图
-        $image = Image::open($path . $_img);
-        // 原始尺寸大于指定缩略尺寸
-        if ($image->width() > $_size) {
-            $image->thumb($_size, $_size, Image::THUMB_SCALING);
-        }
-        // 添加水印
-        $_water = $_water ? $_water : app('request')->rootDomain();
-        $font_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'static' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf';
-        $image->text($_water, $font_path, 15, '#00000000', Image::WATER_SOUTHEAST);
-        $image->save($path . $thumb, null, 40);
-
-        return app('config')->get('app.cdn_host') . '/' . str_replace(DIRECTORY_SEPARATOR, '/', $thumb);
     }
 }
 
@@ -308,7 +315,8 @@ if (!function_exists('default_filter')) {
      */
     function default_filter($_data)
     {
-        return DataFilter::default($_data);
+        return DataFilter::
+            default($_data);
     }
 }
 

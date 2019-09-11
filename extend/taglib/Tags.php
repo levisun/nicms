@@ -131,6 +131,8 @@ class Tags
             '<meta http-equiv="Cache-Control" content="no-siteapp" />' . PHP_EOL .            // 禁止baidu转码
             '<meta http-equiv="Cache-Control" content="no-transform" />' . PHP_EOL .
 
+            '<meta http-equiv="x-dns-prefetch-control" content="on" />' . PHP_EOL .           // DNS缓存
+
             '<meta name="csrf-authorization" content="<?php echo create_authorization();?>" />' . PHP_EOL .
             '<meta name="csrf-token" content="<?php echo token();?>" />' . PHP_EOL .
             '<meta name="csrf-version" content="' . app('config')->get('app.version') . '" />' . PHP_EOL .
@@ -138,7 +140,6 @@ class Tags
             '<meta name="csrf-appid" content="' . $_config['tpl_config']['api_appid'] . '" />' . PHP_EOL .
             '<meta name="csrf-appsecret" content="' . $_config['tpl_config']['api_appsecret'] . '" />' . PHP_EOL .
 
-            '<meta http-equiv="x-dns-prefetch-control" content="on" />' . PHP_EOL .           // DNS缓存
             '<link rel="dns-prefetch" href="' . app('config')->get('app.api_host') . '" />' . PHP_EOL .
             '<link rel="dns-prefetch" href="' . app('config')->get('app.cdn_host') . '" />' . PHP_EOL .
 

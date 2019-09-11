@@ -32,6 +32,7 @@ class CheckRequestCache
      * @access public
      * @param  Request $request
      * @param  Closure $next
+     * @param  Config  $config
      * @return Response
      */
     public function handle(Request $request, Closure $next, Config $config)
@@ -41,8 +42,20 @@ class CheckRequestCache
                 return Response::create()->code(304);   // 读取缓存
             }
         }
+        // app('log')->record(count(get_included_files()), 'info');
 
         $response = $next($request);
+
+        // 压缩输出
+        if (200 == $response->getCode() && $request->isGet() && function_exists('gzencode')) {
+            $content = gzencode($response->getContent(), 1, FORCE_GZIP);
+            $response->content($content);
+            $response->header(array_merge([
+                'Content-Encoding' => 'gzip',
+                'Content-Length'   => strlen($content)
+            ], $response->getHeader()));
+            unset($content);
+        }
 
         // 调试模式关闭浏览器缓存
         // API有定义缓存,请勿开启缓存

@@ -561,6 +561,7 @@ abstract class Async
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
+            'time'    => date('y-m-d H:i:s') . '; ' . number_format(microtime(true) - $this->app->getBeginTime(), 2) . 's',
             // 表单令牌
             'token'   => $this->request->isPost() ? $this->request->buildToken('__token__', 'md5') : '',
             // 调试数据
@@ -569,9 +570,7 @@ abstract class Async
                 'method'  => $this->method,
                 'version' => implode('.', $this->version),
                 'ip'      => $this->ipinfo['ip'],
-                'date'    => date('H:i:s'),
                 'mem'     => number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 2) . 'mb',
-                'time'    => number_format(microtime(true) - $this->app->getBeginTime(), 2) . 's',
             ] : '',
         ];
 
