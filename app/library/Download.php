@@ -22,6 +22,22 @@ use app\library\Base64;
 
 class Download
 {
+    private $extension = [
+        'doc',
+        'docx',
+        'gif',
+        'gz',
+        'jpeg',
+        'mp4',
+        'pdf',
+        'png',
+        'ppt',
+        'pptx',
+        'rar',
+        'xls',
+        'xlsx',
+        'zip'
+    ];
 
     /**
      * 下载地址
@@ -29,23 +45,19 @@ class Download
      * @param  string $_file
      * @return string
      */
-    public static function url(string $_file)
+    public function url(string $_file)
     {
-        $_file = DIRECTORY_SEPARATOR . trim($_file, ',.\/');
-        $_file = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_file);
+        $_file = DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_file, ',.\/'));
 
-        $ext = explode(',', app('config')->get('app.upload_type', 'gif,jpg,jpeg,png,zip,rar'));
-        if (!in_array(pathinfo($_file, PATHINFO_EXTENSION), $ext)) {
-            return false;
+        $path = app('config')->get('filesystem.disks.public.root');
+        if (is_file($path . $_file) && in_array(pathinfo($_file, PATHINFO_EXTENSION), $this->extension)) {
+            $_file = Base64::encrypt($_file, app('request')->header('user-agent') . app('request')->ip() . date('Ymd'));
+            $_file = app('config')->get('app.api_host') . '/download.do?file=' . urlencode($_file);
+        } else {
+            $_file = '/';
         }
 
-        $path = app('config')->get('filesystem.disks.public.root') . $_file;
-        if (!is_file($path)) {
-            return  false;
-        }
-
-        return app('config')->get('app.api_host') . '/download.do?file=' .
-            urlencode(Base64::encrypt($_file, app('request')->ip() . date('Ymd')));
+        return $_file;
     }
 
     /**
@@ -54,29 +66,30 @@ class Download
      * @param
      * @return
      */
-    public static function file(string $_file)
+    public function file(string $_file)
     {
-        if ($_file && $file_name = Base64::decrypt($_file, app('request')->ip() . date('Ymd'))) {
-            $file_name = DIRECTORY_SEPARATOR . trim($file_name, ',.\/');
-            $file_name = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $file_name);
+        $_file = $_file
+            ? Base64::decrypt($_file, app('request')->header('user-agent') . app('request')->ip() . date('Ymd'))
+            : '';
 
-            $ext = explode(',', app('config')->get('app.upload_type', 'gif,jpg,jpeg,png,zip,rar'));
+        if ($_file) {
+            $_file = DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_file, ',.\/'));
 
-            $path = app('config')->get('filesystem.disks.public.root') . $file_name;
+            $_file = app('config')->get('filesystem.disks.public.root') . $_file;
 
-            if (in_array(pathinfo($path, PATHINFO_EXTENSION), $ext) && is_file($path)) {
-                $response = Response::create($path, 'file')
-                    ->name(md5(pathinfo($file_name, PATHINFO_BASENAME) . app('request')->ip() . date('Ymd')))
+            if (is_file($_file) && in_array(pathinfo($_file, PATHINFO_EXTENSION), $this->extension)) {
+                $response = Response::create($_file, 'file')
+                    ->name(md5(pathinfo($_file, PATHINFO_BASENAME) . date('Ymd')))
                     ->isContent(false)
                     ->expire(28800);
             }
+        } else {
+            $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
+            $response = Response::create($error, '', 404);
         }
 
-        $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
-        $response = $response ?: Response::create($error, '', 404);
-
         $log  = '[API] 下载文件:' . app('request')->param('file', 'null');
-        $log .= ' 文件地址:' . $file_name . PHP_EOL;
+        $log .= ' 文件地址:' . $_file . PHP_EOL;
         $log .= 'PARAM:' . json_encode(app('request')->param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
         app('log')->record($log, 'error')->save();
 

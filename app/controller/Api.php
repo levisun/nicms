@@ -18,8 +18,6 @@ declare(strict_types=1);
 namespace app\controller;
 
 use app\library\Async;
-use app\library\Download;
-use app\library\Ip;
 
 class Api extends Async
 {
@@ -93,15 +91,14 @@ class Api extends Async
                     }
                 }
 
-                $result = [
+                $this->session->set($key, [
                     'captcha' => mt_rand(100000, 999999),
                     'time'    => time() + 120,
                     'phone'   => $phone,
-                ];
-                $this->session->set($key, $result);
+                ]);
                 $this->openCache(false)->success('验证码发送成功');
             } else {
-                $this->error('错误请求', 40002);
+                $this->error('错误请求', 40009);
             }
         } else {
             $this->error('错误请求', 40009);
@@ -119,7 +116,7 @@ class Api extends Async
         if ($ip = $this->request->param('ip', false)) {
             if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
                 $this->validate();
-                $ip = Ip::info($ip);
+                $ip = \app\library\Ip::info($ip);
                 $this->openCache(true)->success('IP INFO', $ip);
             }
         } else {
@@ -136,7 +133,7 @@ class Api extends Async
     public function download(): void
     {
         if ($this->request->isGet() && $file = $this->request->param('file', false)) {
-            Download::file($file);
+            (new \app\library\Download)->file($file);
         } else {
             echo '错误请求';
             exit();
@@ -178,8 +175,6 @@ class Api extends Async
             ],
         ];
 
-        if ($user['type'] === \Wechat::MSGTYPE_EVENT) {
-
-        }
+        if ($user['type'] === \Wechat::MSGTYPE_EVENT) { }
     }
 }

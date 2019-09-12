@@ -171,7 +171,7 @@ class Template implements TemplateHandlerInterface
         }
 
         // 缓存路径
-        $cache_file  = $this->config['cache_path'] . md5($this->config['app_name']) . DIRECTORY_SEPARATOR;
+        $cache_file  = $this->config['cache_path'] . $this->config['app_name'] . DIRECTORY_SEPARATOR;
         $cache_file .= $this->config['cache_prefix']
             ? trim($this->config['cache_prefix'], '\/') . DIRECTORY_SEPARATOR
             : '';

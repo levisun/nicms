@@ -25,7 +25,7 @@ return [
             // 缓存保存目录
             'path'         => '',
             // 缓存前缀
-            'prefix'       => md5(app('request')->domain()),
+            'prefix'       => '',
             // 缓存有效期 0表示永久缓存
             'expire'       => (int) Env::get('cache.expire', 28800) - mt_rand(1, 1440),
             // 关闭子目录
@@ -34,6 +34,19 @@ return [
             'tag_prefix'   => 'tag:',
             // 序列化机制 例如 ['serialize', 'unserialize']
             'serialize'    => [],
+        ],
+        // redis缓存
+        'redis'   =>  [
+            // 驱动方式
+            'type'   => 'Redis',
+            // 服务器地址
+            'host'   => '127.0.0.1',
+            // 端口
+            'port'   => 6379,
+            // 缓存有效期 0表示永久缓存
+            'expire' => (int) Env::get('cache.expire', 28800) - mt_rand(1, 1440),
+            // 缓存前缀
+            'prefix' => '',
         ],
         // 更多的缓存连接
     ],
