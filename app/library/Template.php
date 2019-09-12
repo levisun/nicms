@@ -171,11 +171,8 @@ class Template implements TemplateHandlerInterface
         }
 
         // 缓存路径
-        $cache_file  = $this->config['cache_path'] . $this->config['app_name'] . DIRECTORY_SEPARATOR;
-        $cache_file .= $this->config['cache_prefix']
-            ? trim($this->config['cache_prefix'], '\/') . DIRECTORY_SEPARATOR
-            : '';
-        $cache_file .= md5($this->config['view_theme'] . $this->config['layout_on'] . $this->config['layout_name'] . $_template);
+        $cache_file  = $this->config['cache_path'] . trim($this->config['app_name'], '\/') . '_' . $this->config['view_theme'];
+        $cache_file .= pathinfo($_template, PATHINFO_BASENAME) . '.' . md5($this->config['layout_on'] . $this->config['layout_name'] . $_template);
         $cache_file .= '.' . trim($this->config['cache_suffix'], '.');
 
         if (!$this->checkCache($cache_file)) {
@@ -576,12 +573,12 @@ class Template implements TemplateHandlerInterface
         $request = $this->app->request;
 
         // 跨应用支持
-        if (false !== strpos($_template, '@')) {
-            // 跨模块调用
-            list($app, $_template) = explode('@', $_template);
-        }
-        $app = isset($app) ? $app : $request->app();
-        $this->config['app_name'] = $app ? $app . DIRECTORY_SEPARATOR : $this->config['app_name'];
+        // if (false !== strpos($_template, '@')) {
+        //     // 跨模块调用
+        //     list($app, $_template) = explode('@', $_template);
+        // }
+        // $app = isset($app) ? $app : $request->app();
+        // $this->config['app_name'] = $app ? $app . DIRECTORY_SEPARATOR : $this->config['app_name'];
 
         // 拼装多应用
         $this->config['app_name'] = $this->config['app_name']

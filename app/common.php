@@ -253,24 +253,18 @@ if (!function_exists('avatar')) {
      * @param  string $_username 用户名
      * @return string
      */
-    function avatar(string $_img, string $_username): string
+    function avatar(string $_img, string $_username = 'avatar'): string
     {
-        $_img = trim($_img, '/.');
-        $img_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
-            str_replace('/', DIRECTORY_SEPARATOR, $_img);
-        if ($_img && is_file($img_path)) {
+        $path = app()->getRootPath() . app('config')->get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
+        $_img = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, ltrim($_img, '/'));
+
+        if ($_img && is_file($path . $_img)) {
             return app('config')->get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
         }
 
-        $length = unpack('L', hash('adler32', $_username, true))[1];
-        $length = $length % 360 / 360;
-        $length = $length > 0 ?: $length * -1;
-        $bg = [
-            intval($length * 200),
-            intval(($length + 0.03) * 200),
-            intval(($length + 0.09) * 200),
-        ];
-        $bg = implode(',', $bg);
+        $length = mb_strlen($_username);
+        $salt = mb_strlen(app('request')->rootDomain());
+        $bg = (intval($length * $salt) % 255) . ',' . (intval($length * $salt * 3) % 255) . ',' . (intval($length * $salt * 9) % 255);
 
         return 'data:image/svg+xml;base64,' .
             base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="100" width="100"><rect fill="rgb(' . $bg . ')" x="0" y="0" width="100" height="100"></rect><text x="50" y="65" font-size="50" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="admin" alignment-baseline="central">' . mb_strtoupper(mb_substr($_username, 0, 1)) . '</text></svg>');
