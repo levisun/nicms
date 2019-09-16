@@ -126,10 +126,10 @@ abstract class Async
     protected $sign;
 
     /**
-     * 模块名
+     * 应用名
      * @var string
      */
-    protected $moduleName = '';
+    protected $appName = '';
 
     /**
      * 调试信息
@@ -312,7 +312,7 @@ abstract class Async
 
         list($logic, $class, $action) = explode('.', $this->method, 3);
 
-        $method  = 'app\service\\' . $this->moduleName . '\\';
+        $method  = '\app\service\\' . $this->appName . '\\';
         $method .= $this->openVersion ? 'v' . implode('_', $this->version) . '\\' : '';
         $method .= $logic . '\\' . ucfirst($class);
 
@@ -331,15 +331,12 @@ abstract class Async
         }
 
         // 加载语言包
-        $lang  = $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $this->moduleName . DIRECTORY_SEPARATOR;
+        $lang  = $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $this->appName . DIRECTORY_SEPARATOR;
         $lang .= $this->openVersion ? 'v' . implode('_', $this->version) . DIRECTORY_SEPARATOR : '';
         $lang .= $this->lang->getLangSet() . '.php';
         $this->lang->load($lang);
 
-        return [
-            $method,
-            $action
-        ];
+        return [$method, $action];
     }
 
     /**
@@ -414,12 +411,12 @@ abstract class Async
     protected function checkAppId()
     {
         $this->appId  = (int) $this->request->param('appid/f', 1000001);
-        $this->appId -= 1000000;
-        if (!$this->appId || $this->appId <= 0) {
+        if (!$this->appId || $this->appId < 1000001) {
             $this->log->record('[Async] auth-appid not', 'error');
             $this->error('非法参数', 20002);
         }
 
+        $this->appId -= 1000000;
         $result = (new ModelApiApp)
             ->field('secret, module')
             ->where([
@@ -431,7 +428,7 @@ abstract class Async
         if ($result) {
             $result = $result->toArray();
             $this->appSecret = $result['secret'];
-            $this->moduleName    = $result['module'];
+            $this->appName = $result['module'];
         } else {
             $this->log->record('[Async] auth-appid error', 'error');
             $this->error('权限不足', 20001);
@@ -565,7 +562,7 @@ abstract class Async
             // 表单令牌
             'token'   => $this->request->isPost() ? $this->request->buildToken('__token__', 'md5') : '',
             // 调试数据
-            'debug'  => true === $this->apiDebug ? [
+            'debug'   => true === $this->apiDebug ? [
                 'log'     => $this->debugLog,
                 'method'  => $this->method,
                 'version' => implode('.', $this->version),

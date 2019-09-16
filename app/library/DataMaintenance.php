@@ -98,13 +98,13 @@ class DataMaintenance
                     // 表结构文件不存在
                     if (!is_file($sql_file)) {
                         $sql = $this->queryTableStructure($name);
-                        file_put_contents($sql_file, $sql, FILE_APPEND);
+                        file_put_contents($sql_file, $sql);
                         $btime[$name] = time();
                     }
                     // 表结构文件存在并且写入时间过期
                     elseif (isset($btime[$name]) && $btime[$name] <= strtotime('-3 days')) {
                         $sql = $this->queryTableStructure($name);
-                        file_put_contents($sql_file, $sql, FILE_APPEND);
+                        file_put_contents($sql_file, $sql);
                         $btime[$name] = time();
                         continue;
                     }
