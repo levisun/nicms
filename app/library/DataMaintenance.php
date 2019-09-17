@@ -102,7 +102,7 @@ class DataMaintenance
                         $btime[$name] = time();
                     }
                     // 表结构文件存在并且写入时间过期
-                    elseif (isset($btime[$name]) && $btime[$name] <= strtotime('-3 days')) {
+                    elseif (isset($btime[$name]) && $btime[$name] <= strtotime('-1 days')) {
                         $sql = $this->queryTableStructure($name);
                         file_put_contents($sql_file, $sql);
                         $btime[$name] = time();
@@ -299,7 +299,9 @@ class DataMaintenance
             ->limit($_limit, 200)
             ->select();
 
-        $insert_into = 'INSERT INTO `' . $_table_name . '` (' . $_field . ') VALUES' . PHP_EOL;
+        $insert_into  = '-- ' . date('Y-m-d H:i:s') . PHP_EOL;
+        $insert_into .= 'INSERT INTO `' . $_table_name . '` (' . $_field . ') VALUES' . PHP_EOL;
+
         $insert_data = '';
         foreach ($data as $value) {
             $insert_data .= '(';
@@ -362,7 +364,8 @@ class DataMaintenance
             return false;
         }
 
-        $structure  = 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
+        $structure  = '-- ' . date('Y-m-d H:i:s') . PHP_EOL;
+        $structure .= 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
         $structure .= $tableRes[0]['Create Table'] . ';' . PHP_EOL;
 
         return preg_replace_callback('/(AUTO_INCREMENT=[0-9]+ DEFAULT)/si', function ($matches) {

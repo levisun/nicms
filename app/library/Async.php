@@ -219,7 +219,7 @@ abstract class Async
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('default_filter');
 
-        $this->referer = $this->request->server('HTTP_REFERER') && $this->request->param('method');
+        $this->referer = (bool) $this->request->server('HTTP_REFERER');
 
         $this->ipinfo = Ip::info($this->request->ip());
     }
@@ -286,13 +286,26 @@ abstract class Async
      * @param
      * @return $this
      */
-    protected function validate()
+    protected function validate($_type = 'get', $_referer = false)
     {
-        $this->analysisHeader()->checkAppId()->checkSign()->checkTimestamp();
-        // 表单校验
-        if (false === $this->request->checkToken()) {
-            $this->error('令牌错误', 40007);
+        // 检查来源
+        if ($_referer && !$this->referer) {
+            $this->error('错误请求', 40009);
         }
+
+        // 检查请求类型
+        if ('get' === $_type && !$this->request->isGet())  {
+            $this->error('错误请求', 40009);
+        } elseif ('post' === $_type && !$this->request->isPost())  {
+            $this->error('错误请求', 40009);
+        }
+
+        $this->analysisHeader()
+            ->checkAppId()
+            ->checkSign()
+            ->checkTimestamp()
+            ->checkToken();
+
         return $this;
     }
 
@@ -337,6 +350,22 @@ abstract class Async
         $this->lang->load($lang);
 
         return [$method, $action];
+    }
+
+    /**
+     * 校验令牌
+     * @access protected
+     * @param
+     * @return $this
+     */
+    protected function checkToken()
+    {
+        // 表单校验
+        if (false === $this->request->checkToken()) {
+            $this->error('令牌错误', 40007);
+        }
+
+        return $this;
     }
 
     /**
@@ -558,7 +587,7 @@ abstract class Async
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'time'    => date('y-m-d H:i:s') . '; ' . number_format(microtime(true) - $this->app->getBeginTime(), 2) . 's',
+            'time'    => date('ymd.His') . '.' . number_format(microtime(true) - $this->app->getBeginTime(), 3),
             // 表单令牌
             'token'   => $this->request->isPost() ? $this->request->buildToken('__token__', 'md5') : '',
             // 调试数据

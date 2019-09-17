@@ -30,12 +30,8 @@ class Api extends Async
      */
     public function query(): void
     {
-        if ($this->referer && $this->request->isGet()) {
-            $result = $this->validate()->run();
-            $this->success($result['msg'], $result['data'], $result['code']);
-        } else {
-            $this->error('错误请求', 40009);
-        }
+        $result = $this->validate('get', true)->run();
+        $this->success($result['msg'], $result['data'], $result['code']);
     }
 
     /**
@@ -46,12 +42,8 @@ class Api extends Async
      */
     public function handle(): void
     {
-        if ($this->referer && $this->request->isPost()) {
-            $result = $this->validate()->run();
-            $this->openCache(false)->success($result['msg'], $result['data'], $result['code']);
-        } else {
-            $this->error('错误请求', 40009);
-        }
+        $result = $this->validate('post', true)->run();
+        $this->openCache(false)->success($result['msg'], $result['data'], $result['code']);
     }
 
     /**
@@ -62,12 +54,12 @@ class Api extends Async
      */
     public function upload(): void
     {
-        if ($this->referer && $this->request->isPost() && !empty($_FILES)) {
-            $result = $this->validate()->run();
-            $this->openCache(false)->success($result['msg'], $result['data'], $result['code']);
-        } else {
+        if (empty($_FILES)) {
             $this->error('错误请求', 40009);
         }
+
+        $result = $this->validate('post', true)->run();
+        $this->openCache(false)->success($result['msg'], $result['data'], $result['code']);
     }
 
     /**
@@ -78,28 +70,25 @@ class Api extends Async
      */
     public function sms(): void
     {
-        if ($this->request->isPost() && $phone = $this->request->param('phone', false)) {
-            if (preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
-                $this->validate();
+        $phone = $this->request->param('phone', false);
+        if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
+            $this->validate('post', true);
 
-                $key = $this->cookie->has('__uid') ? $this->cookie->get('__uid') : $this->request->ip();
-                $key = md5('sms_' . $key);
+            $key = $this->cookie->has('__uid') ? $this->cookie->get('__uid') : $this->request->ip();
+            $key = md5('sms_' . $key);
 
-                if ($this->session->has($key) && $result = $this->session->get($key)) {
-                    if ($result['time'] >= time()) {
-                        $this->openCache(false)->success('请勿重复请求');
-                    }
+            if ($this->session->has($key) && $result = $this->session->get($key)) {
+                if ($result['time'] >= time()) {
+                    $this->openCache(false)->success('请勿重复请求');
                 }
-
-                $this->session->set($key, [
-                    'captcha' => mt_rand(100000, 999999),
-                    'time'    => time() + 120,
-                    'phone'   => $phone,
-                ]);
-                $this->openCache(false)->success('验证码发送成功');
-            } else {
-                $this->error('错误请求', 40009);
             }
+
+            $this->session->set($key, [
+                'captcha' => mt_rand(100000, 999999),
+                'time'    => time() + 120,
+                'phone'   => $phone,
+            ]);
+            $this->openCache(false)->success('验证码发送成功');
         } else {
             $this->error('错误请求', 40009);
         }

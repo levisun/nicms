@@ -73,24 +73,4 @@ class CheckRequestCache
 
         return $response;
     }
-
-    /**
-     * 输出压缩
-     * @access private
-     * @param  Response $response
-     * @return Response
-     */
-    private function gzip($response): Response
-    {
-        if ($this->request->isGet() && !headers_sent() && function_exists('gzencode')) {
-            $content = $response->getContent();
-            $content = gzencode($content, 2, FORCE_GZIP);
-            $response->content($content);
-            $response->header([
-                'Content-Encoding' => 'gzip',
-                'Content-Length'   => strlen($content)
-            ]);
-        }
-        return $response;
-    }
 }
