@@ -232,13 +232,8 @@ abstract class Async
      */
     protected function run(): array
     {
-        list($class, $action) = $this->analysisMethod();
-
-        // 执行类方法
-        $result = call_user_func([
-            $this->app->make($class),
-            $action
-        ]);
+        // 解析并执行类方法
+        $result = $this->analysisMethod();
 
         if (!is_array($result) && empty($result['msg'])) {
             $this->error('返回数据缺少参数', 40001);
@@ -313,9 +308,9 @@ abstract class Async
      * 初始化
      * @access protected
      * @param
-     * @return $this
+     * @return array
      */
-    protected function analysisMethod()
+    protected function analysisMethod(): array
     {
         // 校验API方法
         $this->method = $this->request->param('method');
@@ -323,23 +318,23 @@ abstract class Async
             $this->error('非法参数', 20002);
         }
 
-        list($logic, $class, $action) = explode('.', $this->method, 3);
+        list($logic, $method, $action) = explode('.', $this->method, 3);
 
-        $method  = '\app\service\\' . $this->appName . '\\';
-        $method .= $this->openVersion ? 'v' . implode('_', $this->version) . '\\' : '';
-        $method .= $logic . '\\' . ucfirst($class);
+        $class  = '\app\service\\' . $this->appName . '\\';
+        $class .= $this->openVersion ? 'v' . implode('_', $this->version) . '\\' : '';
+        $class .= $logic . '\\' . ucfirst($method);
 
         // 校验类是否存在
-        if (!class_exists($method)) {
-            $this->debugLog['method not found'] = $method;
-            $this->log->record('[Async] method not found ' . $method, 'error');
+        if (!class_exists($class)) {
+            $this->debugLog['method not found'] = $class;
+            $this->log->record('[Async] method not found ' . $class, 'error');
             $this->error('非法参数', 20002);
         }
 
         // 校验类方法是否存在
-        if (!method_exists($method, $action)) {
-            $this->debugLog['action not found'] = $method . '->' . $action . '();';
-            $this->log->record('[Async] action not found ' . $method . '->' . $action . '();', 'error');
+        if (!method_exists($class, $action)) {
+            $this->debugLog['action not found'] = $class . '->' . $action . '();';
+            $this->log->record('[Async] action not found ' . $class . '->' . $action . '();', 'error');
             $this->error('非法参数', 20002);
         }
 
@@ -349,7 +344,8 @@ abstract class Async
         $lang .= $this->lang->getLangSet() . '.php';
         $this->lang->load($lang);
 
-        return [$method, $action];
+        // 执行类方法
+        return call_user_func([$this->app->make($class), $action]);
     }
 
     /**

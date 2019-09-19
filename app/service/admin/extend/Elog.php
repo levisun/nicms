@@ -49,7 +49,7 @@ class Elog extends BaseService
             $size = number_format($size / 1024, 2) . 'KB';
 
             $file[$key] = [
-                'id'   => Base64::encrypt(basename($value)),
+                'id'   => Base64::encrypt(basename($value), date('Ymd')),
                 'name' => pathinfo($value, PATHINFO_FILENAME),
                 'date' => $date,
                 'size' => $size,
@@ -80,7 +80,7 @@ class Elog extends BaseService
         }
 
         $id = $this->request->param('id');
-        if ($id && $id = Base64::decrypt($id)) {
+        if ($id && $id = Base64::decrypt($id, date('Ymd'))) {
 
             $file = app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . $id;
             if (is_file($file)) {

@@ -68,23 +68,32 @@ class DataFilter
     /**
      * 字符过滤
      * @access public
-     * @param  mixed $_str
+     * @param  mixed $_data
      * @return mixed
      */
     public static function string($_data)
     {
-        if (is_array($_data)) {
-            foreach ($_data as $key => $value) {
-                $_data[$key] = self::string($value);
-            }
-            return $_data;
-        }
+        return self::safeFilter($_data);
+    }
+
+    /**
+     * 安全过滤
+     * @access public
+     * @param  mixed $_data
+     * @return mixed
+     */
+    private function safeFilter($_data)
+    {
         if (is_string($_data)) {
             $_data = self::safe($_data);
             $_data = self::fun($_data);
             $_data = self::enter($_data);
-            return $_data;
+        } else {
+            foreach ($_data as $key => $value) {
+                $_data[$key] = self::string($value);
+            }
         }
+        return $_data;
     }
 
     /**

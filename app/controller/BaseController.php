@@ -166,10 +166,10 @@ abstract class BaseController
         $vars = [
             'debug' => [
                 // 'files'   => count(get_included_files()),
-                'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 2) . 'S',
+                'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 3) . 'S',
                 // 'queries' => app('think\DbManager')->getQueryTimes(),
                 // 'cache'   => $this->app->cache->getReadTimes() . ' reads,' . $this->app->cache->getWriteTimes() . ' writes',
-                'mem'     => number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024 / 1024, 2) . 'MB',
+                'mem'     => number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024 / 1024, 3) . 'MB',
             ]
         ];
         $_data = array_merge($vars, $_data);

@@ -271,24 +271,6 @@ if (!function_exists('avatar')) {
     }
 }
 
-if (!function_exists('client_id')) {
-    /**
-     * 客户端唯一ID
-     * @param
-     * @return string
-     */
-    function client_id(): string
-    {
-        $client_id = mt_rand((int) date('mdHis'), time())
-            + bindec(app('request')->ip2bin(app('request')->ip()))
-            + mt_rand((int) date('mdHis'), time());
-        $client_id = date('ymdHis') . str_pad((string) $client_id, 20, (string) mt_rand(), STR_PAD_LEFT);
-        $client_id = md5(uniqid($client_id, true));
-
-        return $client_id;
-    }
-}
-
 if (!function_exists('content_filter')) {
     /**
      * 内容过滤

@@ -51,7 +51,7 @@ class Download
 
         $path = app('config')->get('filesystem.disks.public.root');
         if (is_file($path . $_file) && in_array(pathinfo($_file, PATHINFO_EXTENSION), $this->extension)) {
-            $_file = Base64::encrypt($_file, app('request')->header('user-agent') . app('request')->ip() . date('Ymd'));
+            $_file = Base64::encrypt($_file, app('request')->ip() . date('Ymd'));
             $_file = app('config')->get('app.api_host') . '/download.do?file=' . urlencode($_file);
         } else {
             $_file = '/';
@@ -69,7 +69,7 @@ class Download
     public function file(string $_file)
     {
         $_file = $_file
-            ? Base64::decrypt($_file, app('request')->header('user-agent') . app('request')->ip() . date('Ymd'))
+            ? Base64::decrypt($_file, app('request')->ip() . date('Ymd'))
             : '';
 
         if ($_file) {

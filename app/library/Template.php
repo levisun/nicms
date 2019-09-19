@@ -171,11 +171,21 @@ class Template implements TemplateHandlerInterface
         }
 
         // 缓存路径
-        $cache_file  = $this->config['cache_path'] . trim($this->config['app_name'], '\/') . '_' . $this->config['view_theme'];
-        $cache_file .= pathinfo($_template, PATHINFO_BASENAME) . '.' . md5($this->config['layout_on'] . $this->config['layout_name'] . $_template);
-        $cache_file .= '.' . trim($this->config['cache_suffix'], '.');
+        $cache_file  = $this->config['cache_path'] .
+            trim($this->config['app_name'], '\/') . DIRECTORY_SEPARATOR .
+            $this->config['view_theme'] .
+            md5(
+                $this->config['layout_on'] .
+                $this->config['layout_name'] .
+                str_replace($this->app->getRootPath() . 'public', '', $_template)
+            ) . '.' .
+            trim($this->config['cache_suffix'], '.');
 
-        if (!$this->checkCache($cache_file)) {
+        // $cache_file  = $this->config['cache_path'] . trim($this->config['app_name'], '\/') . '_' . $this->config['view_theme'];
+        // $cache_file .= pathinfo($_template, PATHINFO_BASENAME) . '.' . md5($this->config['layout_on'] . $this->config['layout_name'] . $_template);
+        // $cache_file .= '.' . trim($this->config['cache_suffix'], '.');
+
+        if (!$this->checkCache($cache_file) && filemtime($_template) >= strtotime('-1 hour')) {
             // 缓存无效 重新模板编译
             $content = file_get_contents($_template);
             $this->compiler($content, $cache_file);
@@ -572,14 +582,6 @@ class Template implements TemplateHandlerInterface
 
         $request = $this->app->request;
 
-        // 跨应用支持
-        // if (false !== strpos($_template, '@')) {
-        //     // 跨模块调用
-        //     list($app, $_template) = explode('@', $_template);
-        // }
-        // $app = isset($app) ? $app : $request->app();
-        // $this->config['app_name'] = $app ? $app . DIRECTORY_SEPARATOR : $this->config['app_name'];
-
         // 拼装多应用
         $this->config['app_name'] = $this->config['app_name']
             ? trim($this->config['app_name'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
@@ -593,7 +595,7 @@ class Template implements TemplateHandlerInterface
         // 拼装模板文件名
         // 为空默认类方法名作为模板文件名
         $_template = $_template
-            ? rtrim(trim($_template, DIRECTORY_SEPARATOR), '.') . '.' . $this->config['view_suffix']
+            ? rtrim(trim($_template, '\/'), '.') . '.' . $this->config['view_suffix']
             : $request->action(true);
         $_template = $this->config['app_name'] . $this->config['view_theme'] . $_template;
 

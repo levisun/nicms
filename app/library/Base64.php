@@ -55,21 +55,22 @@ class Base64
     }
 
     /**
-     * 密码加密
-     * 不可逆
-     * @access public
-     * @static
-     * @param  string $_str
-     * @param  string $_salt
-     * @param  string $_type
+     * 客户端唯一ID
+     * @param
      * @return string
      */
-    public static function password(string $_str, string $_salt = '', string $_type = 'md5'): string
+    public static function client_id(): string
     {
-        $_type = function_exists($_type) ? trim($_type) : 'md5';    // 返回类型
-        $_salt = hash_hmac('sha256', trim($_salt), $_type);         // 加密佐料
-        $_str = hash_hmac('sha256', trim($_str) . $_salt, $_type);  // 加密密码
-        return call_user_func($_type, $_str . $_salt . $_type);     // 返回密码
+        $client_id  = date('dYm') . '.';
+        $client_id .= bindec(app('request')->ip2bin(app('request')->ip())) . '.';
+        $client_id .= date('sHi');
+        $client_id .= number_format(microtime(true) - app()->getBeginTime(), 3) . '.';
+        $client_id .= app('request')->time(true);
+        $client_id .= number_format((memory_get_usage() - app()->getBeginMem()) / 1024 / 1024, 3);
+
+        // return $client_id;
+
+        return md5(uniqid($client_id, true));
     }
 
     /**
@@ -78,7 +79,7 @@ class Base64
      * @param  int|integer $_length
      * @return string
      */
-    public static function flag($_str = '', int $_length = 7)
+    public static function flag($_str = '', int $_length = 7): string
     {
         $_str = (string) $_str;
         $_str = trim($_str);
@@ -91,49 +92,47 @@ class Base64
      * 数据加密
      * @access public
      * @static
-     * @param  mixed  $_data      加密前的数据
-     * @param  string $_secretkey 密钥
-     * @return mixed              加密后的数据
+     * @param  mixed  $_data 加密前的数据
+     * @param  string $_salt
+     * @return mixed  加密后的数据
      */
-    public static function encrypt($_data, string $_secretkey = '')
+    public static function encrypt($_data, string $_salt = '')
     {
-        if (is_array($_data)) {
+        if (is_string($_data)) {
+            $secretkey = md5(__DIR__ . app('request')->header('user_agent') . $_salt);
+            $secretkey = hash_hmac('sha256', $secretkey, app('config')->get('app.secretkey', __DIR__));
+            $iv = substr(sha1($secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
+            $_data = base64_encode(openssl_encrypt((string) $_data, 'AES-256-CBC', $secretkey, OPENSSL_RAW_DATA, $iv));
+        } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::decrypt($value, $_secretkey);
+                $_data[$key] = self::decrypt($value);
             }
-            return $_data;
-        } elseif (is_null($_data) || is_bool($_data)) {
-            return $_data;
-        } else {
-            $_secretkey = $_secretkey ? trim($_secretkey) : __DIR__;
-            $_secretkey = hash_hmac('sha256', $_secretkey, app('config')->get('app.secretkey'));
-            $iv = substr(sha1($_secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
-            return base64_encode(openssl_encrypt((string) $_data, 'AES-256-CBC', $_secretkey, OPENSSL_RAW_DATA, $iv));
         }
+
+        return $_data;
     }
 
     /**
      * 数据解密
      * @access public
      * @static
-     * @param  mixed  $_data      加密前的数据
-     * @param  string $_secretkey 密钥
-     * @return mixed              加密后的数据
+     * @param  mixed  $_data 加密前的数据
+     * @param  string $_salt
+     * @return mixed  加密后的数据
      */
-    public static function decrypt($_data, string $_secretkey = '')
+    public static function decrypt($_data, string $_salt = '')
     {
-        if (is_array($_data)) {
+        if (is_string($_data)) {
+            $secretkey = md5(__DIR__ . app('request')->header('user_agent') . $_salt);
+            $secretkey = hash_hmac('sha256', $secretkey, app('config')->get('app.secretkey', __DIR__));
+            $iv = substr(sha1($secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
+            $_data = openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $secretkey, OPENSSL_RAW_DATA, $iv);
+        } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::decrypt($value, $_secretkey);
+                $_data[$key] = self::decrypt($value);
             }
-            return $_data;
-        } elseif (is_null($_data) || is_bool($_data)) {
-            return $_data;
-        } else {
-            $_secretkey = $_secretkey ? trim($_secretkey) : __DIR__;
-            $_secretkey = hash_hmac('sha256', $_secretkey, app('config')->get('app.secretkey'));
-            $iv = substr(sha1($_secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
-            return openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $_secretkey, OPENSSL_RAW_DATA, $iv);
         }
+
+        return $_data;
     }
 }

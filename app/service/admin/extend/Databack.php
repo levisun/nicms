@@ -49,7 +49,7 @@ class Databack extends BaseService
                 unset($file[$key]);
             } else {
                 $file[$key] = [
-                    'id'   => Base64::encrypt($value),
+                    'id'   => Base64::encrypt($value, date('Ymd')),
                     'name' => basename($value),
                     'date' => date($date_format, filectime($value)),
                     'size' => number_format(filesize($value) / 1024 / 1024, 2) . 'MB',
@@ -107,7 +107,7 @@ class Databack extends BaseService
         }
 
         $id = $this->request->param('id');
-        if ($id && $id = Base64::decrypt($id)) {
+        if ($id && $id = Base64::decrypt($id, date('Ymd'))) {
             $path = app('config')->get('filesystem.disks.local.root') .
                 DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR;
             $file = (array) glob($path . '*');
@@ -142,7 +142,7 @@ class Databack extends BaseService
         }
 
         // $id = $this->request->param('id');
-        // $id = Base64::decrypt($id);
+        // $id = Base64::decrypt($id, date('Ymd'));
 
         // (new DataMaintenance)->reduction($id);
     }

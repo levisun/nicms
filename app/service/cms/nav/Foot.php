@@ -53,7 +53,6 @@ class Foot extends BaseService
 
                 $value['child'] = $this->child($value['id'], 3);
 
-                $value['id'] = Base64::encrypt($value['id']);
                 $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
                 if ($value['access_id']) {
                     $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
@@ -101,7 +100,6 @@ class Foot extends BaseService
 
             $value['child'] = $this->child($value['id'], 3);
 
-            $value['id'] = Base64::encrypt($value['id']);
             $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
             if ($value['access_id']) {
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
