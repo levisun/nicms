@@ -123,23 +123,18 @@ abstract class BaseController
      * @param
      * @return void
      */
-    public function miss(string $code = ''): void
+    public function miss(string $code = '')
     {
         if ('' === $code) {
-            echo illegal_request();
-            return ;
+            return illegal_request();
         }
 
         $assign = [
             'url' => $this->request->url(true),
-            'param' => [
-                'get' => $_GET,
-                'post' => $_POST,
-            ]
         ];
 
         $code = $code ?: '404';
-        $this->view->fetch($code, $assign);
+        return $this->fetch($code, $assign);
     }
 
     /**

@@ -43,6 +43,7 @@ class DataMaintenance
         if ($fp = @fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 ignore_user_abort(true);
+                app('log')->record('[AUTO BACKUP] 自动优化 修复数据', 'alert');
 
                 $this->optimize();  // 优化表
                 $this->repair();    // 修复表
@@ -73,7 +74,7 @@ class DataMaintenance
 
         if ($fp = fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
-                // app('log')->record('[AUTO BACKUP] 自动备份数据库', 'info');
+                app('log')->record('[AUTO BACKUP] 自动备份数据库', 'alert');
 
                 $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
                 if (!is_dir($this->savePath)) {

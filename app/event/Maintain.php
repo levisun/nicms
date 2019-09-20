@@ -51,6 +51,9 @@ class Maintain
         $this->cache   = $this->app->cache;
         $this->request = $this->app->request;
 
+        $this->efficiency();
+        $this->requestLog();
+
         // CMS请求
         if (!in_array($this->request->controller(true), ['api', 'admin'])) {
             // 生成访问日志
@@ -58,7 +61,10 @@ class Maintain
             // 生成网站地图
             1 === mt_rand(1, 9) and (new Sitemap)->create();
         }
+    }
 
+    protected function efficiency(): void
+    {
         if ('api' !== $this->request->controller(true) && 1 === mt_rand(1, 9)) {
             // 数据库优化|修复
             (new DataMaintenance)->autoOptimize();
@@ -71,12 +77,59 @@ class Maintain
         if (true === $this->app->isDebug()) {
             // 开启调试清空请求缓存
             // $this->app->cache->clear();
-            $this->app->console->call('clear', ['route']);
-            $this->app->console->call('clear', ['schema']);
+
+            $this->app->console->call('clear', ['cache']);
+
+            $path = $this->app->getRuntimePath();
+            is_file($path . 'route.php') and $this->app->console->call('clear', ['route']);
+
+            (bool) glob($path . 'schema' . DIRECTORY_SEPARATOR . '*') and
+                $this->app->console->call('clear', ['schema']);
         } else {
             // 生成效率文件
-            $this->app->console->call('optimize:route');
-            $this->app->console->call('optimize:schema');
+            $path = $this->app->getRuntimePath();
+            is_file($path . 'route.php') or $this->app->console->call('optimize:route');
+
+            (bool) glob($path . 'schema' . DIRECTORY_SEPARATOR . '*') or
+                $this->app->console->call('optimize:schema');
         }
+    }
+
+    /**
+     * 请求日志
+     * @access protected
+     * @param
+     * @return void
+     */
+    protected function requestLog(): void
+    {
+        $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec/si';
+        if (0 !== preg_match($pattern, $this->request->url() . json_encode($this->request->param()))) {
+            $this->logRecord('非法关键词');
+        }
+
+        $time = number_format(microtime(true) - $this->app->getBeginTime(), 3);
+        if (10 <= $time) {
+            $this->logRecord('超时请求:' . $time . 's');
+        }
+
+        1 === mt_rand(1, 9) and $this->logRecord('随机记录');
+    }
+
+    /**
+     * 记录日志
+     * @access protected
+     * @param
+     * @return void
+     */
+    protected function logRecord($_str): void
+    {
+        $this->app->log->record(
+            '[' . $_str . ']' . $this->request->method(true) . ' ' . $this->request->ip() .
+                PHP_EOL . $this->request->url(true) .
+                PHP_EOL . json_encode($this->request->param()) .
+                PHP_EOL,
+            'info'
+        );
     }
 }

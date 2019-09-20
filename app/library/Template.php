@@ -43,7 +43,7 @@ class Template implements TemplateHandlerInterface
         'cache_prefix'       => '',                     // 模板缓存前缀标识，可以动态改变
         'cache_time'         => 0,                      // 模板缓存有效期 0 为永久，(以数字为值，单位:秒)
         'cache_id'           => '',                     // 模板缓存ID
-        'tpl_cache'          => false,                  // 是否开启模板编译缓存,设为false则每次都会重新编译
+        'tpl_cache'          => true,                   // 是否开启模板编译缓存,设为false则每次都会重新编译
 
         'tpl_begin'          => '{',                    // 模板引擎普通标签开始标记
         'tpl_end'            => '}',                    // 模板引擎普通标签结束标记
@@ -181,11 +181,7 @@ class Template implements TemplateHandlerInterface
             ) . '.' .
             trim($this->config['cache_suffix'], '.');
 
-        // $cache_file  = $this->config['cache_path'] . trim($this->config['app_name'], '\/') . '_' . $this->config['view_theme'];
-        // $cache_file .= pathinfo($_template, PATHINFO_BASENAME) . '.' . md5($this->config['layout_on'] . $this->config['layout_name'] . $_template);
-        // $cache_file .= '.' . trim($this->config['cache_suffix'], '.');
-
-        if (!$this->checkCache($cache_file) && filemtime($_template) >= strtotime('-1 hour')) {
+        if (!$this->checkCache($cache_file)) {
             // 缓存无效 重新模板编译
             $content = file_get_contents($_template);
             $this->compiler($content, $cache_file);
@@ -548,15 +544,11 @@ class Template implements TemplateHandlerInterface
 
         // 检查模板文件是否有更新
         foreach ($include_file as $path => $time) {
+            $path = $this->config['view_path'] . $path;
             if (is_file($path) && filemtime($path) > $time) {
                 // 模板文件如果有更新则缓存需要更新
                 return false;
             }
-        }
-
-        // 缓存文件不存在, 直接返回false
-        if (!is_file($_cache_file)) {
-            return false;
         }
 
         if (0 !== $this->config['cache_time'] && time() > filemtime($_cache_file) + $this->config['cache_time']) {

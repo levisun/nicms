@@ -113,10 +113,10 @@ if (!function_exists('illegal_request')) {
         $params = !empty($params) ? json_encode($params) : '';
         $params = app('request')->url(true) . $params;
         unset($_GET, $_POST, $_FILES);
-        app('log')->record('{' . app('request')->method() . '::' . app('request')->ip() . '}' . '错误访问:' . $params, 'info');
+        app('log')->record('{' . app('request')->method() . '::' . app('request')->ip() . '}' . '错误访问:' . $params, 'alert');
 
         $log = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR .
-            md5(app('request')->ip() . date('Ymd')) . '.php';
+            md5('illegal request' . app('request')->ip() . date('Ymd')) . '.php';
 
         if (!is_dir(dirname($log))) {
             mkdir(dirname($log), 0755, true);
@@ -147,7 +147,7 @@ if (!function_exists('illegal_request')) {
             fclose($fp);
         }
 
-        return '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
+        return '<style type="text/css">*{padding:0;margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section><script type="text/javascript">setTimeout(function() {location.href="/";}, 3000);</script>';
     }
 }
 

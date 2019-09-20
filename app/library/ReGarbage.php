@@ -34,12 +34,13 @@ class ReGarbage
         }
         if ($fp = @fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
-                // app('log')->record('[REGARBAGE] 删除垃圾信息', 'info');
+                app('log')->record('[REGARBAGE] 删除垃圾信息', 'alert');
+
                 $runtime_path = app()->getRuntimePath();
                 $this->remove($runtime_path . 'cache', 7);
                 // $this->remove($runtime_path . 'compile', 30);
                 $this->remove($runtime_path . 'log', 7);
-                $this->remove($runtime_path . 'temp', 1);
+                $this->remove($runtime_path . 'temp', 3);
 
                 $root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
                 $this->remove($root_path . 'sitemaps', 1);

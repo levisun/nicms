@@ -67,6 +67,8 @@ class Tags
             // } else {
             //     $foot .= '<script type="text/javascript">' . file_get_contents($js) . '</script>';
             // }
+
+            // async
             $foot .= '<script type="text/javascript" src="' . $js . '"></script>' . PHP_EOL;
         }
 

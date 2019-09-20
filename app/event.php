@@ -16,9 +16,11 @@ return [
     'bind'      => [],
     'listen'    => [
         'AppInit'  => [
-            \app\event\Request::class
+            \app\event\AppStart::class,
         ],
-        'HttpRun'  => [],
+        'HttpRun'  => [
+            \app\event\RequestStart::class,
+        ],
         'HttpEnd'  => [
             \app\event\Maintain::class
         ],

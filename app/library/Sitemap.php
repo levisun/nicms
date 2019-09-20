@@ -27,7 +27,7 @@ class Sitemap
         clearstatcache();
         $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemap.xml';
         if (!is_file($path) || filemtime($path) < strtotime('-24 hour')) {
-            app('log')->record('[SITEMAP] 网站地图', 'info');
+            app('log')->record('[SITEMAP] 网站地图', 'alert');
 
             $category = (new ModelCategory)
                 ->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])

@@ -74,10 +74,12 @@ class Request
     {
         $log  = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . $this->requestId . '.php.lock';
 
-        $error_rlog  = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5($this->request->ip() . date('Ymd')) . '.php.lock';
+        $error_rlog  = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR .
+            md5('illegal request' . $this->request->ip() . date('Ymd')) . '.php.lock';
 
         if (is_file($log) || is_file($error_rlog)) {
-            // $this->app->log->record('[锁定]', 'info');
+            $this->app->log->record('[锁定]', 'alert');
+
             http_response_code(502);
             echo '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>502</title><section><h2>502</h2><h3>Oops! Something went wrong.</h3></section>';
             exit();

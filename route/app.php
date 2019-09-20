@@ -16,8 +16,8 @@ use think\facade\Route;
 
 $cache = boolval(Env::get('app_debug', false)) ? false : mt_rand(1440, 2880);
 
-Route::domain('cdn', function(){
-    Route::miss(function (){
+Route::domain('cdn', function () {
+    Route::miss(function () {
         return illegal_request();
     });
 });
