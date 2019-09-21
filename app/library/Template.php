@@ -165,7 +165,7 @@ class Template implements TemplateHandlerInterface
         $tpl_config = $this->config['app_name'] . $this->config['view_theme'] . 'config.json';
         if (is_file($this->config['view_path'] . $tpl_config)) {
             $json = file_get_contents($this->config['view_path'] . $tpl_config);
-            if ($json && $json = json_decode(strip_tags($json), true)) {
+            if ($json && $json = json_decode($json, true)) {
                 $this->config['tpl_config'] = array_merge($this->config['tpl_config'], $json);
             }
         }

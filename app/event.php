@@ -22,7 +22,7 @@ return [
             \app\event\RequestStart::class,
         ],
         'HttpEnd'  => [
-            \app\event\Maintain::class
+            \app\event\RequestEnd::class,
         ],
         'LogLevel' => [],
         'LogWrite' => [],

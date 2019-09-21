@@ -27,7 +27,7 @@ class ReGarbage
      */
     public function run(): void
     {
-        $lock = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5(__DIR__ . 'remove_garbage') . '.lock';
+        $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'remove_garbage.lock';
         clearstatcache();
         if (is_file($lock) && filemtime($lock) >= strtotime('-1 days')) {
             return;

@@ -41,7 +41,7 @@ class AppStart
     {
         $this->app     = $_app;
         $this->request = $this->app->request;
-        $this->path    = $this->app->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR;
+        $this->path    = $this->app->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
 
         if (!is_dir($this->path)) {
             mkdir($this->path, 0755, true);
@@ -68,7 +68,7 @@ class AppStart
             function_exists('file_put_contents') or die('空间不支持 file_put_contents 函数,系统无法写文件.');
             function_exists('fopen') or die('空间不支持 fopen 函数,系统无法读写文件.');
             get_extension_funcs('gd') or die('空间不支持 gd 模块,图片打水印和缩略生成功能无法使用.');
-            file_put_contents($lock, '环境支持' . date('Y-m-d H:i:s'));
+            file_put_contents($lock, '环境支持');
         }
     }
 }

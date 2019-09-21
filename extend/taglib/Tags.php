@@ -61,15 +61,8 @@ class Tags
 
         // JS引入
         foreach ($_config['tpl_config']['js'] as $js) {
-            // if (false === stripos($js, 'http')) {
-            //     $foot .= '<script type="text/javascript" src="' . $js . '"></script>' . PHP_EOL;
-            //     # code...
-            // } else {
-            //     $foot .= '<script type="text/javascript">' . file_get_contents($js) . '</script>';
-            // }
-
             // async
-            $foot .= '<script type="text/javascript" src="' . $js . '"></script>' . PHP_EOL;
+            $foot .= str_replace('\'', '"', $js) . PHP_EOL;
         }
 
         return $foot;
@@ -89,23 +82,16 @@ class Tags
     {
         $head = '';
 
-        // 自定义meta标签
+        // meta标签
         if (!empty($_config['tpl_config']['meta'])) {
-            foreach ($_config['tpl_config']['meta'] as $m) {
-                $head .= '<meta ' . $m['type'] . ' ' . $m['content'] . ' />' . PHP_EOL;
+            foreach ($_config['tpl_config']['meta'] as $meta) {
+                $head .= str_replace('\'', '"', $meta) . PHP_EOL;
             }
         }
-        // 自定义link标签
+        // link标签
         if (!empty($_config['tpl_config']['link'])) {
-            foreach ($_config['tpl_config']['link'] as $m) {
-                $head .= '<link rel="' . $m['rel'] . '" href="' . $m['href'] . '" />' . PHP_EOL;
-            }
-        }
-
-        // CSS引入
-        if (!empty($_config['tpl_config']['css'])) {
-            foreach ($_config['tpl_config']['css'] as $css) {
-                $head .= '<link rel="stylesheet" type="text/css" href="' . $css . '" />' . PHP_EOL;
+            foreach ($_config['tpl_config']['link'] as $link) {
+                $head .= str_replace('\'', '"', $link). PHP_EOL;
             }
         }
 

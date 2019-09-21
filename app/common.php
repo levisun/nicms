@@ -115,12 +115,14 @@ if (!function_exists('illegal_request')) {
         unset($_GET, $_POST, $_FILES);
         app('log')->record('{' . app('request')->method() . '::' . app('request')->ip() . '}' . '错误访问:' . $params, 'alert');
 
-        $log = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR .
-            md5('illegal request' . app('request')->ip() . date('Ymd')) . '.php';
-
-        if (!is_dir(dirname($log))) {
-            mkdir(dirname($log), 0755, true);
+        $path = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
+        if (!is_dir($path)) {
+            mkdir($path, 0755, true);
         }
+
+        $client_ip = md5(app('request')->ip() . date('Ymd'));
+
+
 
         // 非法关键词
         // $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec/si';
@@ -129,13 +131,14 @@ if (!function_exists('illegal_request')) {
         // }
 
         // 非阻塞模式并发
+        $log = $path . $client_ip . '.php';
         $number = is_file($log) ? include $log : '';
         if ($fp = @fopen($log, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 $time = (int) date('dHi');   // 以分钟统计请求量
                 $number = !empty($number) ? (array) $number : [$time => 1];
                 if (isset($number[$time]) && $number[$time] >= 9) {
-                    file_put_contents($log . '.lock', '锁定IP' . app('request')->ip());
+                    file_put_contents($path . $client_ip . '.lock', '锁定IP' . app('request')->ip());
                 } else {
                     $number[$time] = isset($number[$time]) ? ++$number[$time] : 1;
                     $number = [$time => end($number)];

@@ -18,11 +18,19 @@ namespace app\library;
 
 class DataMaintenance
 {
+    private $limit = 500;
     private $savePath;
+    private $lockPath;
 
     public function __construct()
     {
         $this->savePath = app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR;
+        $this->lockPath = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
+
+        if (!is_dir($this->lockPath)) {
+            mkdir($this->lockPath, 0755, true);
+        }
+        @ini_set('memory_limit', '256M');
         set_time_limit(28800);
     }
 
@@ -34,7 +42,8 @@ class DataMaintenance
      */
     public function autoOptimize(): bool
     {
-        $lock = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5(__DIR__ . 'db_op') . '.lock';
+        $lock = $this->lockPath . 'db_optimize_repair.lock';
+
         clearstatcache();
         if (is_file($lock) && filemtime($lock) >= strtotime('-7 days')) {
             return false;
@@ -61,12 +70,13 @@ class DataMaintenance
     /**
      * 自动备份
      * @access public
-     * @param  int $_hour 相隔几小时更新备份
+     * @param
      * @return bool
      */
-    public function autoBackup(int $_hour = 72): bool
+    public function autoBackup(): bool
     {
-        $lock = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5(__DIR__ . 'db_auto_back') . '.lock';
+        $lock = $this->lockPath . 'db_auto_back.lock';
+
         clearstatcache();
         if (is_file($lock) && filemtime($lock) >= strtotime('-30 minute')) {
             return false;
@@ -89,64 +99,70 @@ class DataMaintenance
                 }
 
                 ignore_user_abort(true);
-                $zip = new \ZipArchive;
                 $table_name = $this->queryTableName();
-                // shuffle($table_name);
+                shuffle($table_name);
 
                 foreach ($table_name as $name) {
                     $sql_file = $this->savePath . $name . '.sql';
 
                     // 表结构文件不存在
                     if (!is_file($sql_file)) {
+                        $btime[$name] = time();
                         $sql = $this->queryTableStructure($name);
                         file_put_contents($sql_file, $sql);
-                        $btime[$name] = time();
+                        $this->fileZip($sql_file);
+                        @unlink($sql_file);
                     }
                     // 表结构文件存在并且写入时间过期
                     elseif (isset($btime[$name]) && $btime[$name] <= strtotime('-1 days')) {
+                        $btime[$name] = time();
                         $sql = $this->queryTableStructure($name);
                         file_put_contents($sql_file, $sql);
-                        $btime[$name] = time();
+                        $this->fileZip($sql_file);
+                        @unlink($sql_file);
                         continue;
                     }
 
-                    $total = $this->queryTableInsertTotal($name);
-                    $field = $this->queryTableInsertField($name);
+                    if ($total = $this->queryTableInsertTotal($name)) {
+                        $field = $this->queryTableInsertField($name);
 
-                    $num = 1;
-                    for ($i = 0; $i < $total; $i++) {
-                        $hour = '-' . mt_rand($_hour, $_hour + 3) . ' hour';
-                        $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
+                        $num = 1;
+                        for ($i = 0; $i < $total; $i++) {
+                            $sql_file = $this->savePath . $name . '_' . sprintf('%07d', $num) . '.sql';
 
-                        // 表数据文件不存在
-                        if (!isset($btime[$name . $num])) {
-                            $sql = $this->queryTableInsertData($name, $field, $i);
-                            file_put_contents($sql_file, $sql, FILE_APPEND);
-                            $btime[$name . $num] = false;
-                        }
-
-                        // 表数据文件已过期删除,重新写入
-                        elseif (isset($btime[$name . $num]) && false === $btime[$name . $num]) {
-                            $sql = $this->queryTableInsertData($name, $field, $i);
-                            file_put_contents($sql_file, $sql, FILE_APPEND);
-                        }
-
-                        // 删除表数据过期文件
-                        elseif (isset($btime[$name . $num]) && $btime[$name . $num] <= strtotime($hour)) {
-                            is_file($sql_file) and unlink($sql_file);
-                            $btime[$name . $num] = false;
-                            break 2;
-                        }
-
-                        if (0 === ($i + 1) % 200) {
-                            if (!isset($btime[$name . $num]) || false === $btime[$name . $num]) {
-                                $btime[$name . $num] = time();
+                            // 表数据文件不存在
+                            if (!isset($btime[$name . $num])) {
+                                $sql = $this->queryTableInsertData($name, $field, $i);
+                                file_put_contents($sql_file, $sql, FILE_APPEND);
+                                $btime[$name . $num] = false;
                             }
-                            ++$num;
+
+                            // 表数据文件已过期删除,重新写入
+                            elseif (isset($btime[$name . $num]) && false === $btime[$name . $num]) {
+                                $sql = $this->queryTableInsertData($name, $field, $i);
+                                file_put_contents($sql_file, $sql, FILE_APPEND);
+                            }
+
+                            // 删除表数据过期文件
+                            elseif (isset($btime[$name . $num]) && $btime[$name . $num] <= strtotime('-1 days')) {
+                                $btime[$name . $num] = false;
+                                break;
+                            }
+
+                            if (0 === ($i + 1) % $this->limit) {
+                                if (!isset($btime[$name . $num]) || false === $btime[$name . $num]) {
+                                    $btime[$name . $num] = time();
+                                    $this->fileZip($sql_file);
+                                    @unlink($sql_file);
+                                }
+                                ++$num;
+                            }
                         }
-                    }
-                    if (!isset($btime[$name . $num]) || false === $btime[$name . $num]) {
-                        $btime[$name . $num] = time();
+                        if (!isset($btime[$name . $num]) || false === $btime[$name . $num]) {
+                            $btime[$name . $num] = time();
+                            $this->fileZip($sql_file);
+                            @unlink($sql_file);
+                        }
                     }
                 }
 
@@ -170,7 +186,8 @@ class DataMaintenance
      */
     public function backup(): bool
     {
-        $lock = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5(__DIR__ . 'db_back') . '.lock';
+        $lock = $this->lockPath . 'db_back.lock';
+
         if ($fp = fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 $this->savePath .= date('YmdHis') . DIRECTORY_SEPARATOR;
@@ -190,11 +207,12 @@ class DataMaintenance
                     }
 
                     // 写入表数据文件
-                    $total = $this->queryTableInsertTotal($name);
-                    $field = $this->queryTableInsertField($name);
-                    for ($limit = 0; $limit < $total; $limit++) {
-                        $sql = $this->queryTableInsertData($name, $field, $limit);
-                        file_put_contents($sql_file, $sql, FILE_APPEND);
+                    if ($total = $this->queryTableInsertTotal($name)) {
+                        $field = $this->queryTableInsertField($name);
+                        for ($limit = 0; $limit < $total; $limit++) {
+                            $sql = $this->queryTableInsertData($name, $field, $limit);
+                            file_put_contents($sql_file, $sql, FILE_APPEND);
+                        }
                     }
                 }
 
@@ -250,13 +268,13 @@ class DataMaintenance
     public function repair(): bool
     {
         // app('log')->record('[DATAMAINTENANCE REPAIR] 修复表', 'info');
-        $config = app('think\DbManager')->getConfig();
-        $config['params'][\PDO::ATTR_EMULATE_PREPARES] = true;
-        app('think\DbManager')->connect($config, true);
+        // $config = app('think\DbManager')->getConfig();
+        // $config['params'][\PDO::ATTR_EMULATE_PREPARES] = true;
+        // app('think\DbManager')->connect($config, true);
         $tables = $this->queryTableName();
         foreach ($tables as $name) {
             if (false === $this->check($name)) {
-                app('think\DbManager')->query('REPAIR TABLE `' . $name . '`');
+                // app('think\DbManager')->query('REPAIR TABLE `' . $name . '`');
             }
         }
         return true;
@@ -294,10 +312,10 @@ class DataMaintenance
      */
     private function queryTableInsertData(string $_table_name, string $_field, int $_limit): string
     {
-        $_limit = $_limit * 200;
+        $_limit = $_limit * $this->limit;
         $data = app('think\DbManager')->table($_table_name)
             ->field($_field)
-            ->limit($_limit, 200)
+            ->limit($_limit, $this->limit)
             ->select();
 
         $insert_into  = '-- ' . date('Y-m-d H:i:s') . PHP_EOL;
@@ -330,12 +348,17 @@ class DataMaintenance
      */
     private function queryTableInsertField(string $_table_name): string
     {
-        $result = app('think\DbManager')->query('SHOW COLUMNS FROM `' . $_table_name . '`');
-        $field = '';
-        foreach ($result as $value) {
-            $field .= '`' . $value['Field'] . '`,';
+        $cache_key = md5(__METHOD__ . $_table_name);
+        if (!app('cache')->has($cache_key) || !$field = app('cache')->get($cache_key)) {
+            $result = app('think\DbManager')->query('SHOW COLUMNS FROM `' . $_table_name . '`');
+            $field = '';
+            foreach ($result as $value) {
+                $field .= '`' . $value['Field'] . '`,';
+            }
+            $field = trim($field, ',');
+
+            app('cache')->tag('SYSTEM')->set($cache_key, $field);
         }
-        $field = trim($field, ',');
 
         return $field;
     }
@@ -349,7 +372,7 @@ class DataMaintenance
     private function queryTableInsertTotal(string $_table_name): int
     {
         $total = app('think\DbManager')->table($_table_name)->count();
-        return $total ? (int) ceil($total / 200) : 0;
+        return $total ? (int) ceil($total / $this->limit) : 0;
     }
 
     /**
@@ -360,18 +383,25 @@ class DataMaintenance
      */
     private function queryTableStructure(string $_table_name)
     {
-        $tableRes = app('think\DbManager')->query('SHOW CREATE TABLE `' . $_table_name . '`');
-        if (empty($tableRes[0]['Create Table'])) {
-            return false;
+        $cache_key = md5(__METHOD__ . $_table_name);
+        if (!app('cache')->has($cache_key) || !$structure = app('cache')->get($cache_key)) {
+            $tableRes = app('think\DbManager')->query('SHOW CREATE TABLE `' . $_table_name . '`');
+            if (empty($tableRes[0]['Create Table'])) {
+                return false;
+            }
+
+            $structure  = '-- ' . date('Y-m-d H:i:s') . PHP_EOL;
+            $structure .= 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
+            $structure .= $tableRes[0]['Create Table'] . ';' . PHP_EOL;
+
+            $structure = preg_replace_callback('/(AUTO_INCREMENT=[0-9]+ DEFAULT)/si', function () {
+                return 'DEFAULT';
+            }, $structure);
+
+            app('cache')->tag('SYSTEM')->set($cache_key, $structure);
         }
 
-        $structure  = '-- ' . date('Y-m-d H:i:s') . PHP_EOL;
-        $structure .= 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
-        $structure .= $tableRes[0]['Create Table'] . ';' . PHP_EOL;
-
-        return preg_replace_callback('/(AUTO_INCREMENT=[0-9]+ DEFAULT)/si', function ($matches) {
-            return 'DEFAULT';
-        }, $structure);
+        return $structure;
     }
 
     /**
@@ -382,13 +412,38 @@ class DataMaintenance
      */
     private function queryTableName(): array
     {
-        $result = app('think\DbManager')->query('SHOW TABLES FROM ' . app('env')->get('database.database'));
+        $cache_key = md5(__METHOD__);
+        if (!app('cache')->has($cache_key) || !$tables = app('cache')->get($cache_key)) {
+            $result = app('think\DbManager')->query('SHOW TABLES FROM ' . app('env')->get('database.database'));
 
-        $tables = array();
-        foreach ($result as $value) {
-            $value = current($value);
-            $tables[str_replace(app('env')->get('database.prefix'), '', $value)] = $value;
+            $tables = array();
+            foreach ($result as $value) {
+                $value = current($value);
+                $tables[str_replace(app('env')->get('database.prefix'), '', $value)] = $value;
+            }
+
+            app('cache')->tag('SYSTEM')->set($cache_key, $tables);
         }
+
         return $tables;
+    }
+
+    /**
+     * 文件压缩
+     * @access private
+     * @param  string $_file
+     * @return array
+     */
+    private function fileZip($_file): void
+    {
+        if (is_file($_file)) {
+            $zip_name = pathinfo($_file, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR .
+                pathinfo($_file, PATHINFO_FILENAME) . '.zip';
+            $zip = new \ZipArchive;
+            if (true === $zip->open($zip_name, \ZipArchive::CREATE | \ZipArchive::OVERWRITE)) {
+                $zip->addFile($_file, pathinfo($_file, PATHINFO_BASENAME));
+                $zip->close();
+            }
+        }
     }
 }
