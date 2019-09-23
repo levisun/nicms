@@ -15,13 +15,14 @@
 /*
 DROP TABLE IF EXISTS `nc_visit`;
 CREATE TABLE IF NOT EXISTS `nc_visit` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `date` int(11) NOT NULL DEFAULT '0' COMMENT '日期',
   `ip` varchar(15) NOT NULL DEFAULT '' COMMENT '访问IP',
   `ip_attr` varchar(100) NOT NULL DEFAULT '' COMMENT '访问IP地区',
   `user_agent` varchar(255) NOT NULL DEFAULT '' COMMENT '访问agent',
   `count` int(11) UNSIGNED NOT NULL DEFAULT '1' COMMENT '统计数量',
-  KEY `date` (`date`) USING BTREE,
-  KEY `ip` (`ip`) USING BTREE
+  PRIMARY KEY (`id`),
+  KEY `date` (`date`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='访问表';
  */
 
@@ -34,12 +35,12 @@ class Visit extends Model
     protected $name = 'visit';
     protected $autoWriteTimestamp = false;
     protected $updateTime = false;
-    // protected $pk = 'id';
+    protected $pk = 'id';
     protected $type = [
         'count' => 'integer',
     ];
     protected $field = [
-        // 'id',
+        'id',
         'date',
         'ip',
         'ip_attr',

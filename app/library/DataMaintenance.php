@@ -78,7 +78,7 @@ class DataMaintenance
         $lock = $this->lockPath . 'db_auto_back.lock';
 
         clearstatcache();
-        if (is_file($lock) && filemtime($lock) >= strtotime('-30 minute')) {
+        if (is_file($lock) && filemtime($lock) >= strtotime('-15 minute')) {
             return false;
         }
 
@@ -106,7 +106,7 @@ class DataMaintenance
                     $sql_file = $this->savePath . $name . '.sql';
 
                     // 表结构文件不存在
-                    if (!is_file($sql_file)) {
+                    if (!isset($btime[$name])) {
                         $btime[$name] = time();
                         $sql = $this->queryTableStructure($name);
                         file_put_contents($sql_file, $sql);
@@ -146,7 +146,7 @@ class DataMaintenance
                             // 删除表数据过期文件
                             elseif (isset($btime[$name . $num]) && $btime[$name . $num] <= strtotime('-1 days')) {
                                 $btime[$name . $num] = false;
-                                break;
+                                break 2;
                             }
 
                             if (0 === ($i + 1) % $this->limit) {
