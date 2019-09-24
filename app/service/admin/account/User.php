@@ -203,7 +203,7 @@ class User extends BaseService
             ->find();
 
         if ($result && $result = $result->toArray()) {
-            $result['last_login_time'] = date('Y-m-d H:i:s', $result['last_login_time']);
+            $result['last_login_time'] = date('Y-m-d H:i:s', (int) $result['last_login_time']);
             $result['avatar'] = avatar('', $result['username']);
         }
 

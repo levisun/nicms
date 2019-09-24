@@ -21,6 +21,16 @@ use app\library\Async;
 
 class Api extends Async
 {
+/**
+     * 控制器中间件
+     * @var array
+     */
+    protected $middleware = [
+        // 全局请求缓存
+        \app\middleware\CheckRequestCache::class,
+        // 多语言加载
+        // \think\middleware\LoadLangPack::class,
+    ];
 
     /**
      * 查询接口

@@ -44,6 +44,7 @@ return [
             'params'          => [
                 \PDO::ATTR_PERSISTENT               => false,                           // 长链接
                 \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,                            // 查询缓存
+                \PDO::ATTR_EMULATE_PREPARES         => true,
             ],
             // 数据库编码默认采用utf8
             'charset'         => Env::get('database.charset', 'utf8'),

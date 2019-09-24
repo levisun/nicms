@@ -37,16 +37,32 @@ class Cms extends BaseController
         $this->authenticate();
 
         $result = Siteinfo::query();
-        $this->view->view_theme = $this->request->controller(true) . DIRECTORY_SEPARATOR . $result['theme'];
-        $this->view->setReplace([
-            '__NAME__'        => $result['name'],
-            '__TITLE__'       => $result['title'],
-            '__KEYWORDS__'    => $result['keywords'],
-            '__DESCRIPTION__' => $result['description'],
-            '__FOOTER_MSG__'  => $result['footer'],
-            '__COPYRIGHT__'   => $result['copyright'],
-            '__SCRIPT__'      => $result['script'],
+        $this->view->config([
+            'app_name'   => 'admin',
+            'view_theme' => $result['theme'],
+            'tpl_replace_string' => [
+                '__NAME__'        => $result['name'],
+                '__TITLE__'       => $result['title'],
+                '__KEYWORDS__'    => $result['keywords'],
+                '__DESCRIPTION__' => $result['description'],
+                '__FOOTER_MSG__'  => $result['footer'],
+                '__COPYRIGHT__'   => $result['copyright'],
+                '__SCRIPT__'      => $result['script'],
+            ]
         ]);
+
+
+
+        // $this->view->view_theme = $this->request->controller(true) . DIRECTORY_SEPARATOR . $result['theme'];
+        // $this->view->setReplace([
+        //     '__NAME__'        => $result['name'],
+        //     '__TITLE__'       => $result['title'],
+        //     '__KEYWORDS__'    => $result['keywords'],
+        //     '__DESCRIPTION__' => $result['description'],
+        //     '__FOOTER_MSG__'  => $result['footer'],
+        //     '__COPYRIGHT__'   => $result['copyright'],
+        //     '__SCRIPT__'      => $result['script'],
+        // ]);
     }
 
     /**
@@ -57,6 +73,8 @@ class Cms extends BaseController
      */
     public function index()
     {
+        (new \app\library\Data)->optimize();
+        die();
         $this->fetch('index');
     }
 

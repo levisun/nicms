@@ -141,11 +141,11 @@ class Rbac
         foreach ($app_list as $app_name) {
             $app_name['name'] = strtolower($app_name['name']);
 
-            $logic_list = $this->getNode($_uid, 2, $app_name['id']);
+            $logic_list = $this->getNode($_uid, 2, (int) $app_name['id']);
             foreach ($logic_list as $logic_name) {
                 $logic_name['name'] = strtolower($logic_name['name']);
 
-                $controller_list = $this->getNode($_uid, 3, $logic_name['id']);
+                $controller_list = $this->getNode($_uid, 3, (int) $logic_name['id']);
                 foreach ($controller_list as $controller_name) {
                     $controller_name['name'] = strtolower($controller_name['name']);
 
@@ -155,7 +155,7 @@ class Rbac
                         'find' => true,
                     ];
 
-                    $action_list = $this->getNode($_uid, 4, $controller_name['id']);
+                    $action_list = $this->getNode($_uid, 4, (int) $controller_name['id']);
                     foreach ($action_list as $action_name) {
                         $action_name['name'] = strtolower($action_name['name']);
                         $access[$app_name['name']][$logic_name['name']][$controller_name['name']][$action_name['name']] = true;

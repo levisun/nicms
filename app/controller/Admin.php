@@ -31,10 +31,6 @@ class admin extends BaseController
      */
     public function initialize()
     {
-        (new \app\library\Data)->backup();
-        die();
-
-
         $this->view->config([
             'app_name'   => 'admin',
             'view_theme' => $this->app->env->get('admin.theme', 'default')

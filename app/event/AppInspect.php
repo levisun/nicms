@@ -2,7 +2,7 @@
 
 /**
  *
- * 应用开始
+ * 应用环境支持检查
  *
  * @package   NICMS
  * @category  app\middleware
@@ -18,47 +18,14 @@ namespace app\event;
 
 use think\App;
 
-class AppStart
+class AppInspect
 {
-    /**
-     * 应用实例
-     * @var \think\App
-     */
-    protected $app;
-
-    /**
-     * request实例
-     * @var \think\Request
-     */
-    protected $request;
-
-    /**
-     * ??
-     */
-    protected $path = '';
 
     public function handle(App $_app)
     {
-        $this->app     = $_app;
-        $this->request = $this->app->request;
-        $this->path    = $this->app->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
-
-        if (!is_dir($this->path)) {
-            mkdir($this->path, 0755, true);
-        }
-
-        $this->inspect();
-    }
-
-    /**
-     * 检查空间环境支持
-     * @access protected
-     * @param
-     * @return void
-     */
-    protected function inspect(): void
-    {
-        $lock = $this->path . 'inspect.lock';
+        $path = $_app->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
+        is_dir($path) or mkdir($path, 0755, true);
+        $lock = $path . 'inspect.lock';
         if (!is_file($lock) || filemtime($lock) >= strtotime('-30 days')) {
             version_compare(PHP_VERSION, '7.1.0', '>=') or die('系统需要PHP7.1+版本! 当前PHP版本:' . PHP_VERSION . '.');
             version_compare(app()->version(), '6.0.0RC4', '>=') or die('系统需要ThinkPHP 6.0+版本! 当前ThinkPHP版本:' . app()->version() . '.');

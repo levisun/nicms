@@ -51,9 +51,9 @@ class RequestEnd
 
         if ('api' !== $this->request->controller(true)) {
             // 数据库优化|修复
-            (new DataMaintenance)->autoOptimize();
+            (new \app\library\Data)->optimize();
             // 数据库备份
-            (new DataMaintenance)->autoBackup();
+            (new \app\library\Data)->autoBackup();
             // 垃圾信息维护
             (new ReGarbage)->run();
         }

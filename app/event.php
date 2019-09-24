@@ -16,15 +16,18 @@ return [
     'bind'      => [],
     'listen'    => [
         'AppInit'  => [
-            \app\event\AppStart::class,
+            // 应用环境支持检查
+            \app\event\AppInspect::class,
+            // 检查请求,频繁或非法请求将被锁定
+            \app\event\CheckRequest::class,
         ],
         'HttpRun'  => [
-            \app\event\RequestStart::class,
         ],
         'HttpEnd'  => [
-            \app\event\RequestEnd::class,
+            \app\event\RecordRequest::class,
+            \app\event\AppMaintain::class,
         ],
-        'LogLevel' => [],
+        'RouteLoaded' => [],
         'LogWrite' => [],
     ],
     'subscribe' => [],
