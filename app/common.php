@@ -100,60 +100,6 @@ if (!function_exists('emoji_clear')) {
     }
 }
 
-if (!function_exists('illegal_request')) {
-    /**
-     * 非法请求
-     * @param
-     * @return void
-     */
-    function illegal_request(): string
-    {
-        // 组装请求参数
-        $params = array_merge($_GET, $_POST, $_FILES);
-        $params = !empty($params) ? json_encode($params) : '';
-        $params = app('request')->url(true) . $params;
-        unset($_GET, $_POST, $_FILES);
-        app('log')->record('{' . app('request')->method() . '::' . app('request')->ip() . '}' . '错误访问:' . $params, 'alert');
-
-        $path = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
-        if (!is_dir($path)) {
-            mkdir($path, 0755, true);
-        }
-
-        $client_ip = md5(app('request')->ip() . date('Ymd'));
-
-
-
-        // 非法关键词
-        // $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec/si';
-        // if (false !== preg_match_all($pattern, $params, $matches) && 0 !== count($matches[0])) {
-        //     file_put_contents($log . '.lock', date('Y-m-d H:i:s'));
-        // }
-
-        // 非阻塞模式并发
-        $log = $path . $client_ip . '.php';
-        $number = is_file($log) ? include $log : '';
-        if ($fp = @fopen($log, 'w+')) {
-            if (flock($fp, LOCK_EX | LOCK_NB)) {
-                $time = (int) date('dHi');   // 以分钟统计请求量
-                $number = !empty($number) ? (array) $number : [$time => 1];
-                if (isset($number[$time]) && $number[$time] >= 9) {
-                    file_put_contents($path . $client_ip . '.lock', '锁定IP' . app('request')->ip());
-                } else {
-                    $number[$time] = isset($number[$time]) ? ++$number[$time] : 1;
-                    $number = [$time => end($number)];
-                    $data = '<?php /*非法请求 ' . app('request')->ip() . '*/ return ' . var_export($number, true) . ';';
-                    fwrite($fp, $data);
-                }
-                flock($fp, LOCK_UN);
-            }
-            fclose($fp);
-        }
-
-        return '<style type="text/css">*{padding:0;margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section><script type="text/javascript">setTimeout(function() {location.href="/";}, 3000);</script>';
-    }
-}
-
 if (!function_exists('remove_img')) {
     /**
      * 删除图片
@@ -294,8 +240,7 @@ if (!function_exists('default_filter')) {
      */
     function default_filter($_data)
     {
-        return DataFilter::
-            default($_data);
+        return DataFilter::default($_data);
     }
 }
 

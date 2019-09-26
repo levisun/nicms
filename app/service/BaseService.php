@@ -318,7 +318,9 @@ abstract class BaseService
 
         $save_path = $this->config->get('filesystem.disks.public.url') . '/';
         $_dir = '/' . trim($_dir, '\/');
-        $_dir .= $this->uid ? '/u' . dechex(1000000 + $this->uid) . date('ym') : '/' . date('ym');
+        $_dir .= $this->uid
+            ? '/u' . dechex($this->uid + date('Ym'))
+            : '/t' . dechex(date('Ym'));
 
         // 单文件
         if (is_string($_FILES[$_element]['name'])) {

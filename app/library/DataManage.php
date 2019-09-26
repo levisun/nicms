@@ -144,7 +144,7 @@ class DataManage
                         $pk = $this->DB->table($name)->getPk();
                         for ($i = 1; $i <= $total; $i++) {
                             $num = $name . '_' . sprintf('%07d', $i);
-                            if (!isset($btime[$num]) || strtotime($btime[$num]) <= strtotime('-1 days')) {
+                            if (!isset($btime[$num]) || strtotime($btime[$num]) <= strtotime('-3 days')) {
                                 $btime[$num] = date('Y-m-d H:i:s');
                                 $sql_file = $this->savePath . $num . '.sql';
                                 $this->DB->table($name)

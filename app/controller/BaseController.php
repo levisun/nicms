@@ -128,12 +128,8 @@ abstract class BaseController
      * @param
      * @return void
      */
-    public function miss(string $code = '')
+    public function miss(string $code = '404')
     {
-        if ('' === $code) {
-            return illegal_request();
-        }
-
         $assign = [
             'url' => $this->request->url(true),
         ];

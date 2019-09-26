@@ -16,8 +16,11 @@ declare(strict_types=1);
 
 namespace app\library;
 
+use think\App;
+
 class Canvas
 {
+
     private $storagePath = '';
     private $CDNHost = '';
 
@@ -46,33 +49,26 @@ class Canvas
         return $this->textBase64(mb_strtoupper(mb_substr($_username, 0, 1)), $rgb);
     }
 
-    private function hasImgFile(string $_file)
+    public function imgBase64(string $_file): string
     {
-        // 网络图片直接返回
         if (false !== stripos($_file, 'http')) {
-            return $_file;
+            # code...
         } elseif ($_file && is_file($this->storagePath . $_file)) {
-            return $this->CDNHost . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
-        } else {
-            return false;
-        }
-    }
-
-    private function imgBase64(string $_file): string
-    {
-        if (false !== $this->hasImgFile($_file)) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mime = finfo_file($finfo, $this->storagePath . $_file);
             finfo_close($finfo);
             $_file = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($this->storagePath . $_file));
+        } else {
+            $_file = $this->textBase64(app('request')->rootDomain(), '221,221,221', 50);
         }
 
         return $_file;
     }
 
-    private function textBase64(string $_text, string $_rgb = '221,221,221'): string
+    public function textBase64(string $_text, string $_rgb = '221,221,221', int $_font_size = 250): string
     {
+        $y = 200 + ceil($_font_size / 3.5);
         return 'data:image/svg+xml;base64,' .
-            base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="100" width="100"><rect fill="rgb(' . $_rgb . ')" x="0" y="0" width="100" height="100"></rect><text x="50" y="65" font-size="50" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="admin" alignment-baseline="central">' . $_text . '</text></svg>');
+            base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="400" width="400"><rect fill="rgb(' . $_rgb . ')" x="0" y="0" width="400" height="400"></rect><text x="200" y="' . $y . '" font-size="' . $_font_size . '" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="admin" alignment-baseline="central">' . $_text . '</text></svg>');
     }
 }

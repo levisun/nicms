@@ -68,7 +68,7 @@ class Cms extends BaseController
      */
     public function index()
     {
-        echo '<img src="' . (new \app\library\Canvas)->avatar('levisun') . '" />';
+        echo dechex(1 + '201909');
         die();
         $this->fetch('index');
     }

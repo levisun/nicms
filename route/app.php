@@ -14,16 +14,17 @@
 use think\facade\Env;
 use think\facade\Route;
 
-$cache = boolval(Env::get('app_debug', false)) ? false : mt_rand(1440, 2880);
+// $cache = boolval(Env::get('app_debug', false)) ? false : mt_rand(1440, 2880);
+define('MISS_HTML', '<style type="text/css">*{padding:0;margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>');
 
 Route::domain('cdn', function () {
     Route::miss(function () {
-        return illegal_request();
+        event('app\event\RecordRequest');
+        return MISS_HTML;
     });
 });
 
 Route::domain(['www', 'm'], function () {
-    Route::miss('cms/miss');
     Route::get('404', 'cms/miss')->append(['code' => '404']);
     Route::get('500', 'cms/miss')->append(['code' => '500']);
     Route::get('502', 'cms/miss')->append(['code' => '502']);
@@ -32,7 +33,11 @@ Route::domain(['www', 'm'], function () {
     Route::get('list/:name/:cid$', 'cms/lists')->ext('html');
     Route::get('details/:name/:cid/:id$', 'cms/details')->ext('html');
     Route::get('search', 'cms/search')->ext('html');
-})->bind('cms')->cache($cache)->pattern([
+    Route::miss(function () {
+        event('app\event\RecordRequest');
+        return MISS_HTML;
+    });
+})->bind('cms')->pattern([
     'name' => '[a-z]+',
     'cid'  => '\d+',
     'id'   => '\d+',
@@ -62,6 +67,7 @@ Route::domain('api', function () {
     Route::rule('download$', 'api/download')->ext('do');
     Route::rule('wechat$', 'api/wechat')->ext('do');
     Route::miss(function () {
-        return illegal_request();
+        event('app\event\RecordRequest');
+        return MISS_HTML;
     });
 })->bind('api')->middleware('\app\middleware\AllowCrossDomain');

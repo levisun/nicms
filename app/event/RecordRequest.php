@@ -52,7 +52,9 @@ class RecordRequest
 
 
 
-        $request_params = $_app->request->param() ? json_encode($_app->request->param()) : '';
+        $request_params = $_app->request->param()
+            ? json_encode($_app->request->except(['username', 'password', 'sign']))
+            : '';
         $request_url = $_app->request->url(true);
         $request_method = $_app->request->method(true) . ' ' . $_app->request->ip();
 
@@ -84,12 +86,14 @@ class RecordRequest
 
 
 
-        1 === mt_rand(1, 9) and $_app->log->record(
-            '[请求记录]' . $request_method .
-                PHP_EOL . $request_url .
-                PHP_EOL . $request_params .
-                PHP_EOL,
-            'info'
-        );
+        if (in_array($_app->request->method(true), ['POST'])) {
+            $_app->log->record(
+                '[请求记录]' . $request_method .
+                    PHP_EOL . $request_url .
+                    PHP_EOL . $request_params .
+                    PHP_EOL,
+                'info'
+            );
+        }
     }
 }
