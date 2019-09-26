@@ -25,6 +25,14 @@ use app\model\Category as ModelCategory;
 
 class Cms extends BaseController
 {
+    /**
+     * 控制器中间件
+     * @var array
+     */
+    protected $middleware = [
+        // 全局请求缓存
+        \app\middleware\CheckRequestCache::class,
+    ];
 
     /**
      * 构造方法
@@ -50,19 +58,6 @@ class Cms extends BaseController
                 '__SCRIPT__'      => $result['script'],
             ]
         ]);
-
-
-
-        // $this->view->view_theme = $this->request->controller(true) . DIRECTORY_SEPARATOR . $result['theme'];
-        // $this->view->setReplace([
-        //     '__NAME__'        => $result['name'],
-        //     '__TITLE__'       => $result['title'],
-        //     '__KEYWORDS__'    => $result['keywords'],
-        //     '__DESCRIPTION__' => $result['description'],
-        //     '__FOOTER_MSG__'  => $result['footer'],
-        //     '__COPYRIGHT__'   => $result['copyright'],
-        //     '__SCRIPT__'      => $result['script'],
-        // ]);
     }
 
     /**
@@ -73,7 +68,7 @@ class Cms extends BaseController
      */
     public function index()
     {
-        (new \app\library\Data)->optimize();
+        echo '<img src="' . (new \app\library\Canvas)->avatar('levisun') . '" />';
         die();
         $this->fetch('index');
     }

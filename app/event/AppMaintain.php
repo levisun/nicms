@@ -19,7 +19,7 @@ declare(strict_types=1);
 namespace app\event;
 
 use think\App;
-use app\library\Data;
+use app\library\DataManage;
 use app\library\ReGarbage;
 
 class AppMaintain
@@ -31,15 +31,16 @@ class AppMaintain
         $path = $_app->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
         $lock = $path . 'remove_garbage.lock';
+
         clearstatcache();
         if (!is_file($lock) || filemtime($lock) <= strtotime('-1 days')) {
             if ($fp = @fopen($lock, 'w+')) {
                 if (flock($fp, LOCK_EX | LOCK_NB)) {
                     $_app->log->record('[REGARBAGE] 删除垃圾信息', 'alert');
 
-                    $garbage = new ReGarbage;
-
                     $path = $_app->getRuntimePath();
+
+                    $garbage = new ReGarbage;
 
                     // 清除过期缓存文件
                     $garbage->remove($path . 'cache', 7);
@@ -63,6 +64,7 @@ class AppMaintain
         }
 
 
+
         $path = $_app->getRuntimePath();
         if (true === $_app->isDebug()) {
             // 删除路由映射缓存
@@ -78,9 +80,11 @@ class AppMaintain
                 $_app->console->call('optimize:schema');
         }
 
+
+
         // 数据库优化|修复
-        1 === mt_rand(1, 9) and (new Data)->optimize();
+        'api' !== $_app->request->controller(true) and (new DataManage)->optimize();
         // 数据库备份
-        1 === mt_rand(1, 9) and (new Data)->autoBackup();
+        'api' !== $_app->request->controller(true) and (new DataManage)->autoBackup();
     }
 }

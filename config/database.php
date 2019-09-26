@@ -49,7 +49,7 @@ return [
             // 数据库编码默认采用utf8
             'charset'         => Env::get('database.charset', 'utf8'),
             // 数据库表前缀
-            'prefix'          => Env::get('database.prefix', ''),
+            'prefix'          => Env::get('database.prefix', 'nc_'),
             // 数据库调试模式
             'debug'           => (bool) Env::get('database.debug', false),
             // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
@@ -61,7 +61,7 @@ return [
             // 指定从服务器序号
             'slave_no'        => '',
             // 是否严格检查字段是否存在
-            'fields_strict'   => true,
+            'fields_strict'   => false,
             // 是否需要断线重连
             'break_reconnect' => false,
             // 字段缓存路径

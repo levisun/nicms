@@ -21,8 +21,8 @@ use app\model\Node as ModelNode;
 class Rbac
 {
     private $config = [
-        'auth_founder'     => 1,                                             // 超级管理员ID
-        'auth_type'        => 1,                                             // 实时验证方式
+        'auth_founder'     => 1,        // 超级管理员ID
+        'auth_type'        => 1,        // 实时验证方式
         'not_auth_app'     => [],
         'not_auth_service' => [],
         'not_auth_logic'   => [],
@@ -185,8 +185,8 @@ class Rbac
                     ['level', '=', $_level],
                     ['pid', '=', $_pid],
                 ])
-                ->select()
-                ->toArray();
+                ->cache(__METHOD__ . 'auth_founder' . $_uid . $_level . $_pid)
+                ->select();
         } else {
             $result = (new ModelNode)
                 ->view('node', ['id', 'name'])
@@ -198,10 +198,10 @@ class Rbac
                     ['node.level', '=', $_level],
                     ['node.pid', '=', $_pid],
                 ])
+                ->cache(__METHOD__ . $_uid . $_level . $_pid, 300)
                 ->select();
-            $result = $result ? $result->toArray() : [];
         }
 
-        return $result;
+        return $result ? $result->toArray() : [];
     }
 }

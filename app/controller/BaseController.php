@@ -21,9 +21,10 @@ declare(strict_types=1);
 namespace app\controller;
 
 use think\App;
-use think\Container;
 use think\exception\HttpResponseException;
+use app\library\Accesslog;
 use app\library\Ip;
+use app\library\Sitemap;
 
 abstract class BaseController
 {
@@ -32,8 +33,6 @@ abstract class BaseController
      * @var array
      */
     protected $middleware = [
-        // 全局请求缓存
-        \app\middleware\CheckRequestCache::class,
         // Session初始化
         \think\middleware\SessionInit::class,
         // 页面Trace调试
@@ -102,16 +101,18 @@ abstract class BaseController
         $this->config   = $this->app->config;
         $this->request  = $this->app->request;
         $this->session  = $this->app->session;
+        $this->view     = $this->app->view;
 
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('default_filter');
 
-        $this->view = $this->app->view;
-
-        $this->ipinfo = Ip::info($this->request->ip());
-
         @ini_set('memory_limit', '8M');
         set_time_limit(60);
+
+        // 生成访问日志
+        // (new Accesslog)->record();
+        // 生成网站地图
+        // 1 === mt_rand(1, 9) and (new Sitemap)->create();
 
         // 控制器初始化
         $this->initialize();

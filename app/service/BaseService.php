@@ -140,18 +140,22 @@ abstract class BaseService
         $this->request  = $this->app->request;
         $this->session  = $this->app->session;
 
+        // 是否开启调试模式
         $this->app->debug($this->config->get('app.debug'));
+        // 设置请求默认过滤方法
         $this->request->filter('default_filter');
 
+        // 设置会话信息(用户ID,用户组)
         if ($this->session->has($this->authKey) && $this->session->has($this->authKey . '_role')) {
             $this->uid = $this->session->get($this->authKey);
             $this->urole = $this->session->get($this->authKey . '_role');
         }
 
-        $this->ipinfo = Ip::info($this->request->ip());
-
         @ini_set('memory_limit', '16M');
-        set_time_limit(60);
+        set_time_limit(30);
+
+        // 请求IP信息
+        $this->ipinfo = Ip::info($this->request->ip());
 
         $this->initialize();
     }

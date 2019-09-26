@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace app\service\admin\extend;
 
-use app\library\DataMaintenance;
+use app\library\DataManage;
 use app\library\Base64;
 use app\service\BaseService;
 
@@ -81,7 +81,7 @@ class Databack extends BaseService
         }
 
         try {
-            (new DataMaintenance)->backup();
+            (new DataManage)->backup();
             $msg = 'databack success';
         } catch (Exception $e) {
             $msg = 'databack error';
@@ -127,23 +127,5 @@ class Databack extends BaseService
             'cache' => false,
             'msg'   => $msg,
         ];
-    }
-
-    /**
-     * 还原
-     * @access public
-     * @param
-     * @return array
-     */
-    public function reduction()
-    {
-        if ($result = $this->authenticate(__METHOD__, 'databack backup reduction')) {
-            return $result;
-        }
-
-        // $id = $this->request->param('id');
-        // $id = Base64::decrypt($id, date('Ymd'));
-
-        // (new DataMaintenance)->reduction($id);
     }
 }

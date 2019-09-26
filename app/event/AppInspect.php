@@ -25,6 +25,7 @@ class AppInspect
     {
         $path = $_app->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
+
         $lock = $path . 'inspect.lock';
         if (!is_file($lock) || filemtime($lock) >= strtotime('-30 days')) {
             version_compare(PHP_VERSION, '7.1.0', '>=') or die('系统需要PHP7.1+版本! 当前PHP版本:' . PHP_VERSION . '.');

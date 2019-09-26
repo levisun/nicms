@@ -18,10 +18,10 @@ return [
         'AppInit'  => [
             // 应用环境支持检查
             \app\event\AppInspect::class,
-            // 检查请求,频繁或非法请求将被锁定
-            \app\event\CheckRequest::class,
         ],
         'HttpRun'  => [
+            // 检查请求,频繁或非法请求将被锁定
+            \app\event\CheckRequest::class,
         ],
         'HttpEnd'  => [
             \app\event\RecordRequest::class,

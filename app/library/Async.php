@@ -241,7 +241,6 @@ abstract class Async
 
         // 调试模式设置 返回数据没有指定默认关闭
         $this->openDebug(isset($result['debug']) ? $result['debug'] : false);
-
         // 缓存设置 返回数据没有指定默认开启
         $this->openCache(isset($result['cache']) ? $result['cache'] : true);
 
@@ -287,13 +286,14 @@ abstract class Async
         if ($_referer && !$this->referer) {
             $this->error('错误请求', 40009);
         }
-
         // 检查请求类型
         if ('get' === $_type && !$this->request->isGet())  {
             $this->error('错误请求', 40009);
         } elseif ('post' === $_type && !$this->request->isPost())  {
             $this->error('错误请求', 40009);
         }
+
+
 
         $this->analysisHeader()
             ->checkAppId()
@@ -318,6 +318,8 @@ abstract class Async
             $this->error('非法参数', 20002);
         }
 
+
+
         list($logic, $method, $action) = explode('.', $this->method, 3);
 
         $class  = '\app\service\\' . $this->appName . '\\';
@@ -330,7 +332,6 @@ abstract class Async
             $this->log->record('[Async] method not found ' . $class, 'error');
             $this->error('非法参数', 20002);
         }
-
         // 校验类方法是否存在
         if (!method_exists($class, $action)) {
             $this->debugLog['action not found'] = $class . '->' . $action . '();';
@@ -338,11 +339,15 @@ abstract class Async
             $this->error('非法参数', 20002);
         }
 
+
+
         // 加载语言包
         $lang  = $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $this->appName . DIRECTORY_SEPARATOR;
         $lang .= $this->openVersion ? 'v' . implode('_', $this->version) . DIRECTORY_SEPARATOR : '';
         $lang .= $this->lang->getLangSet() . '.php';
         $this->lang->load($lang);
+
+
 
         // 执行类方法
         return call_user_func([$this->app->make($class), $action]);
@@ -404,6 +409,8 @@ abstract class Async
             $this->error('非法参数', 20002);
         }
 
+
+
         $params = $this->request->param('', '', 'trim');
         ksort($params);
 
@@ -416,6 +423,8 @@ abstract class Async
         }
         $str = rtrim($str, '&');
         $str .= $this->appSecret;
+
+
 
         if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
             $this->debugLog['sign_str'] = $str;
@@ -440,6 +449,8 @@ abstract class Async
             $this->log->record('[Async] auth-appid not', 'error');
             $this->error('非法参数', 20002);
         }
+
+
 
         $this->appId -= 1000000;
         $result = (new ModelApiApp)
@@ -478,10 +489,14 @@ abstract class Async
             $this->error('权限不足', 20001);
         }
 
+
+
         // Session初始化
         // 规定sessionID
         $this->session->setId($this->authorization['jti']);
         $this->request->withSession($this->session);
+
+
 
         // 解析版本号与返回数据类型
         $this->accept = $this->request->header('accept');
@@ -491,6 +506,8 @@ abstract class Async
             $this->log->record('[Async] header-accept error', 'error');
             $this->error('非法参数', 20002);
         }
+
+
 
         // 过滤多余信息
         // application/vnd.nicms.v1.0.1+json
@@ -505,6 +522,8 @@ abstract class Async
         }
         unset($doamin, $root);
 
+
+
         // 取得版本与数据类型
         list($version, $this->format) = explode('+', $accept, 2);
         if (!$version || false === preg_match('/^[v0-9.]+$/u', $version)) {
@@ -512,7 +531,6 @@ abstract class Async
             $this->log->record('[Async] header-accept version error', 'error');
             $this->error('非法参数', 20002);
         }
-
         // 去掉"v"
         $version = substr($version, 1);
         list($major, $minor, $revision) = explode('.', $version, 3);
@@ -523,14 +541,14 @@ abstract class Async
         ];
         unset($version, $major, $minor);
 
+
+
         // 校验返回数据类型
         if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
             $this->debugLog['format'] = $this->format;
             $this->log->record('[Async] header-accept format error', 'error');
             $this->error('非法参数', 20002);
         }
-
-        unset($accept);
 
         return $this;
     }
@@ -595,11 +613,15 @@ abstract class Async
                 'mem'     => number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 2) . 'mb',
             ] : '',
         ];
-
         $result = array_filter($result);
-        $this->log->save();
-        $response = $this->response->create($result, $this->format)->allowCache(false);
 
+
+
+        $this->log->save();
+
+
+
+        $response = $this->response->create($result, $this->format)->allowCache(false);
         $response->header(array_merge(['X-Powered-By' => 'NIAPI'], $response->getHeader()));
         if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
             $response->allowCache(true)

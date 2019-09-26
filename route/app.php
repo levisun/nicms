@@ -25,6 +25,8 @@ Route::domain('cdn', function () {
 Route::domain(['www', 'm'], function () {
     Route::miss('cms/miss');
     Route::get('404', 'cms/miss')->append(['code' => '404']);
+    Route::get('500', 'cms/miss')->append(['code' => '500']);
+    Route::get('502', 'cms/miss')->append(['code' => '502']);
     Route::get('/', 'cms/index')->ext('html');
     Route::get('index', 'cms/index')->ext('html');
     Route::get('list/:name/:cid$', 'cms/lists')->ext('html');
@@ -39,10 +41,12 @@ Route::domain(['www', 'm'], function () {
 Route::domain(Env::get('admin.entry'), function () {
     Route::miss('admin/miss');
     Route::get('404', 'admin/miss')->append(['code' => '404']);
+    Route::get('500', 'admin/miss')->append(['code' => '500']);
+    Route::get('502', 'admin/miss')->append(['code' => '502']);
     Route::get('/', 'admin/index')->ext('html');
     Route::get(':service/:logic/:action$', 'admin/index')->ext('html');
     Route::get(':service/:logic/:action/:id$', 'admin/index')->ext('html');
-})->bind('admin')->cache($cache)->pattern([
+})->bind('admin')->pattern([
     'service' => '[a-z]+',
     'logic'   => '[a-z]+',
     'action'  => '[a-z]+',
@@ -60,4 +64,4 @@ Route::domain('api', function () {
     Route::miss(function () {
         return illegal_request();
     });
-})->bind('api')->middleware('app\middleware\AllowCrossDomain');
+})->bind('api')->middleware('\app\middleware\AllowCrossDomain');

@@ -26,9 +26,12 @@ class RecordRequest
     {
         $path = $_app->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
+
         $client_ip = md5($_app->request->ip() . date('Ymd'));
+
         $log  = $path . $client_ip . '.php';
         $number = is_file($log) ? include $log : '';
+
         // 非阻塞模式并发
         if ($fp = @fopen($log, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
@@ -47,32 +50,44 @@ class RecordRequest
             fclose($fp);
         }
 
+
+
+        $request_params = $_app->request->param() ? json_encode($_app->request->param()) : '';
+        $request_url = $_app->request->url(true);
+        $request_method = $_app->request->method(true) . ' ' . $_app->request->ip();
+
+
+
         $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec/si';
-        if (0 !== preg_match($pattern, $_app->request->url() . json_encode($_app->request->param()))) {
+        if (0 !== preg_match($pattern, $request_url . $request_params)) {
             $_app->log->record(
-                '[非法关键词]' . $_app->request->method(true) . ' ' . $_app->request->ip() .
-                    PHP_EOL . $_app->request->url(true) .
-                    PHP_EOL . json_encode($_app->request->param()) .
+                '[非法关键词]' . $request_method .
+                    PHP_EOL . $request_url .
+                    PHP_EOL . $request_params .
                     PHP_EOL,
                 'info'
             );
         }
+
+
 
         $time = number_format(microtime(true) - $_app->getBeginTime(), 3);
         if (10 <= $time) {
             $_app->log->record(
-                '[超时请求:' . $time . 's]' . $_app->request->method(true) . ' ' . $_app->request->ip() .
-                    PHP_EOL . $_app->request->url(true) .
-                    PHP_EOL . json_encode($_app->request->param()) .
+                '[超时请求:' . $time . 's]' . $request_method .
+                    PHP_EOL . $request_url .
+                    PHP_EOL . $request_params .
                     PHP_EOL,
                 'info'
             );
         }
 
+
+
         1 === mt_rand(1, 9) and $_app->log->record(
-            '[请求记录]' . $_app->request->method(true) . ' ' . $_app->request->ip() .
-                PHP_EOL . $_app->request->url(true) .
-                PHP_EOL . json_encode($_app->request->param()) .
+            '[请求记录]' . $request_method .
+                PHP_EOL . $request_url .
+                PHP_EOL . $request_params .
                 PHP_EOL,
             'info'
         );

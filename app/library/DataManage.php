@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace app\library;
 
-class Data
+class DataManage
 {
     private $DB = null;
     private $cache = null;
@@ -97,7 +97,7 @@ class Data
     {
         $lock = $this->lockPath . 'db_auto_back.lock';
         clearstatcache();
-        if (is_file($lock) && filemtime($lock) >= strtotime('-10 minute')) {
+        if (is_file($lock) && filemtime($lock) >= strtotime('-5 minute')) {
             return false;
         }
 
@@ -135,13 +135,16 @@ class Data
                             @unlink($sql_file);
                         }
                     }
+
+
+
                     if ($total = $this->DB->table($name)->count()) {
                         $total = $total ? (int) ceil($total / 100000) : 0;
                         $field = $this->queryTableInsertField($name);
                         $pk = $this->DB->table($name)->getPk();
                         for ($i = 1; $i <= $total; $i++) {
                             $num = $name . '_' . sprintf('%07d', $i);
-                            if (!isset($btime[$num]) || strtotime($btime[$num]) <= strtotime('-3 days')) {
+                            if (!isset($btime[$num]) || strtotime($btime[$num]) <= strtotime('-1 days')) {
                                 $btime[$num] = date('Y-m-d H:i:s');
                                 $sql_file = $this->savePath . $num . '.sql';
                                 $this->DB->table($name)
@@ -150,23 +153,8 @@ class Data
                                         [$pk, '<=', $i * 100000]
                                     ])
                                     ->chunk(100, function ($result) use ($name, $field, $sql_file) {
-                                        $sql  = '-- ' . date('Y-m-d H:i:s') . PHP_EOL;
-                                        $sql .= 'INSERT INTO `' . $name . '` (' . $field . ') VALUES' . PHP_EOL;
                                         $result = $result->toArray();
-                                        foreach ($result as $value) {
-                                            $sql .= '(';
-                                            foreach ($value as $vo) {
-                                                if (is_integer($vo)) {
-                                                    $sql .= $vo . ',';
-                                                } elseif (is_null($vo) || $vo == 'null' || $vo == 'NULL') {
-                                                    $sql .= 'NULL,';
-                                                } else {
-                                                    $sql .= '\'' . addslashes($vo) . '\',';
-                                                }
-                                            }
-                                            $sql = trim($sql, ',') . '),' . PHP_EOL;
-                                        }
-                                        $sql = trim($sql, ',' . PHP_EOL) . ';' . PHP_EOL;
+                                        $sql = $this->getTableInsertData($name, $field, $result);
                                         file_put_contents($sql_file, $sql, FILE_APPEND);
                                     });
 
@@ -185,7 +173,11 @@ class Data
                     }
                 }
 
+
+
                 file_put_contents($this->savePath . 'backup_time.json', json_encode($btime));
+
+
 
                 fwrite($fp, '自动备份数据库' . date('Y-m-d H:i:s'));
                 flock($fp, LOCK_UN);
@@ -226,23 +218,8 @@ class Data
                     if ($field = $this->queryTableInsertField($name)) {
                         $this->DB->table($name)
                             ->chunk(100, function ($result) use ($name, $field, $sql_file) {
-                                $sql  = '-- ' . date('Y-m-d H:i:s') . PHP_EOL;
-                                $sql .= 'INSERT INTO `' . $name . '` (' . $field . ') VALUES' . PHP_EOL;
                                 $result = $result->toArray();
-                                foreach ($result as $value) {
-                                    $sql .= '(';
-                                    foreach ($value as $vo) {
-                                        if (is_integer($vo)) {
-                                            $sql .= $vo . ',';
-                                        } elseif (is_null($vo) || $vo == 'null' || $vo == 'NULL') {
-                                            $sql .= 'NULL,';
-                                        } else {
-                                            $sql .= '\'' . addslashes($vo) . '\',';
-                                        }
-                                    }
-                                    $sql = trim($sql, ',') . '),' . PHP_EOL;
-                                }
-                                $sql = trim($sql, ',' . PHP_EOL) . ';' . PHP_EOL;
+                                $sql = $this->getTableInsertData($name, $field, $result);
                                 file_put_contents($sql_file, $sql, FILE_APPEND);
                             });
                     }
@@ -271,6 +248,33 @@ class Data
         }
 
         return true;
+    }
+
+    /**
+     * 表数据SQL
+     * @access private
+     * @param
+     * @return string
+     */
+    private function getTableInsertData(string $_table_name, string $_table_field, array $_data): string
+    {
+        $sql  = '-- ' . date('Y-m-d H:i:s') . PHP_EOL;
+        $sql .= 'INSERT INTO `' . $_table_name . '` (' . $_table_field . ') VALUES' . PHP_EOL;
+
+        foreach ($_data as $value) {
+            $sql .= '(';
+            foreach ($value as $vo) {
+                if (is_integer($vo)) {
+                    $sql .= $vo . ',';
+                } elseif (is_null($vo) || $vo == 'null' || $vo == 'NULL') {
+                    $sql .= 'NULL,';
+                } else {
+                    $sql .= '\'' . addslashes($vo) . '\',';
+                }
+            }
+            $sql = trim($sql, ',') . '),' . PHP_EOL;
+        }
+        return trim($sql, ',' . PHP_EOL) . ';' . PHP_EOL;
     }
 
     /**
