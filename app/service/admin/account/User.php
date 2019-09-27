@@ -170,7 +170,7 @@ class User extends BaseService
                     ];
                 }
             }
-            $this->cache->set('auth' . $this->uid, $result);
+            $this->cache->tag('AUTH')->set('auth' . $this->uid, $result);
         }
 
         return [
@@ -200,6 +200,7 @@ class User extends BaseService
             ->where([
                 ['admin.id', '=', $this->uid]
             ])
+            ->cache('profile' . $this->uid)
             ->find();
 
         if ($result && $result = $result->toArray()) {

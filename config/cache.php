@@ -14,6 +14,9 @@
 
 use think\facade\Env;
 
+$prefix = str_replace(['/', '\\', '.'], '_', app('request')->host());
+$expire = (int) Env::get('cache.expire', 28800) - mt_rand(1, 1440);
+
 return [
     // 默认缓存驱动
     'default' => Env::get('cache.driver', 'file'),
@@ -25,9 +28,9 @@ return [
             // 缓存保存目录
             'path'         => '',
             // 缓存前缀
-            'prefix'       => '',
+            'prefix'       => $prefix,
             // 缓存有效期 0表示永久缓存
-            'expire'       => (int) Env::get('cache.expire', 28800) - mt_rand(1, 1440),
+            'expire'       => $expire,
             // 关闭子目录
             'cache_subdir' => false,
             // 缓存标签前缀
@@ -44,9 +47,9 @@ return [
             // 端口
             'port'   => 6379,
             // 缓存有效期 0表示永久缓存
-            'expire' => (int) Env::get('cache.expire', 28800) - mt_rand(1, 1440),
+            'expire' => $expire,
             // 缓存前缀
-            'prefix' => '',
+            'prefix' => $prefix,
         ],
         // 更多的缓存连接
     ],

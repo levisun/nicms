@@ -57,14 +57,16 @@ class RecordRequest
             : '';
         $request_url = $_app->request->url(true);
         $request_method = $_app->request->method(true) . ' ' . $_app->request->ip();
+        $time_memory =
+            number_format(microtime(true) - $_app->getBeginTime(), 3) . 's ' .
+            number_format((memory_get_usage() - $_app->getBeginMem()) / 1024 / 1024, 3) . 'mb ';
 
 
 
         $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec/si';
         if (0 !== preg_match($pattern, $request_url . $request_params)) {
             $_app->log->record(
-                '[非法关键词]' . $request_method .
-                    PHP_EOL . $request_url .
+                '{非法关键词 ' . $time_memory . $request_method . ' ' . $request_url . '}' .
                     PHP_EOL . $request_params .
                     PHP_EOL,
                 'info'
@@ -73,27 +75,11 @@ class RecordRequest
 
 
 
-        $time = number_format(microtime(true) - $_app->getBeginTime(), 3);
-        if (10 <= $time) {
-            $_app->log->record(
-                '[超时请求:' . $time . 's]' . $request_method .
-                    PHP_EOL . $request_url .
-                    PHP_EOL . $request_params .
-                    PHP_EOL,
-                'info'
-            );
-        }
-
-
-
-        if (in_array($_app->request->method(true), ['POST'])) {
-            $_app->log->record(
-                '[请求记录]' . $request_method .
-                    PHP_EOL . $request_url .
-                    PHP_EOL . $request_params .
-                    PHP_EOL,
-                'info'
-            );
-        }
+        1 === mt_rand(1, 9) and $_app->log->record(
+            '{' . $time_memory . $request_method . ' ' . $request_url . '}' .
+                PHP_EOL . $request_params .
+                PHP_EOL,
+            'info'
+        );
     }
 }

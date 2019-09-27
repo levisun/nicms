@@ -16,30 +16,23 @@ declare (strict_types = 1);
 namespace app\controller;
 
 use app\controller\BaseController;
-use app\library\Rbac;
 
 class Book extends BaseController
 {
-    private $api = 'https://api.zhuishushenqi.com/';
-    private $category = 'cats/lv2';
-    private $list = 'book/by-categories?major=';
-    private $info = 'book/';
-    private $atoc = 'atoc?view=summary&book=';
-    private $details = 'http://chapter2.zhuishushenqi.com/chapter/';
-    private $search = 'book/fuzzy-search?query=';
 
     /**
-     * 构造方法
+     * 初始化
      * @access public
-     * @param  App  $app  应用对象
+     * @param
      * @return void
      */
-    public function __construct()
+    public function initialize()
     {
         $this->view->config([
             'app_name'   => 'book',
             'view_theme' => $this->app->env->get('book.theme', 'default')
         ]);
+        ini_set('memory_limit', '16M');
     }
 
     /**
@@ -50,7 +43,9 @@ class Book extends BaseController
      */
     public function index()
     {
-        $this->fetch('index');
+        $result = (new \Books)->book();
+        print_r($result);
+        // $this->fetch('index');
     }
 
     /**
@@ -60,9 +55,11 @@ class Book extends BaseController
      * @param  int    $cid  栏目ID
      * @return mixed        HTML文档
      */
-    public function lists(string $name = 'article', int $cid = 0)
+    public function catalog()
     {
-        $this->fetch('list_' . $name);
+        $result = (new \Books)->catalog();
+        print_r($result);
+        // $this->fetch('list_' . $name);
     }
 
     /**
@@ -73,9 +70,11 @@ class Book extends BaseController
      * @param  int    $id   文章ID
      * @return mixed        HTML文档
      */
-    public function details(string $name = 'article', int $cid = 0, int $id = 0)
+    public function details()
     {
-        $this->fetch('details_' . $name);
+        $result = (new \Books)->details();
+        print_r($result);
+        // $this->fetch('details_' . $name);
     }
 
     public function api()

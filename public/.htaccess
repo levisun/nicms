@@ -5,12 +5,20 @@
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]
+</IfModule>
 
-  RewriteRule /tag/(.*) /index\.php\?tag=$1
+<IfModule mod_deflate.c>
+	AddOutputFilter DEFLATE html htm xml php jpg png js css
 </IfModule>
 
 <FilesMatch "\.(ttf|otf|eot|woff)$">
   <IfModule mod_headers.c>
     Header set Access-Control-Allow-Origin "http://www.nicms.com"
+  </IfModule>
+</FilesMatch>
+
+<FilesMatch "\.(flv|gif|jpg|jpeg|png|ico|swf|css|txt|pdf)$">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "max-age=36000"
   </IfModule>
 </FilesMatch>

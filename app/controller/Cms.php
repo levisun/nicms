@@ -35,7 +35,7 @@ class Cms extends BaseController
     ];
 
     /**
-     * 构造方法
+     * 初始化
      * @access public
      * @param
      * @return void
@@ -68,7 +68,7 @@ class Cms extends BaseController
      */
     public function index()
     {
-        echo dechex(1 + '201909');
+        echo dechex((int) (1 . date('ym')));
         die();
         $this->fetch('index');
     }

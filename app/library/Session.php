@@ -68,10 +68,11 @@ class Session implements SessionHandlerInterface
         }
 
         $result = (new ModelSession)
+            ->field(['data', 'update_time'])
             ->where($map)
-            ->value('data', '');
+            ->find();
 
-        if ($result) {
+        if (null !== $result && $result['update_time'] <= strtotime('-10 minute')) {
             (new ModelSession)
                 ->where($map)
                 ->update([
@@ -79,7 +80,7 @@ class Session implements SessionHandlerInterface
                 ]);
         }
 
-        return $result;
+        return null !== $result ? $result['data'] : '';
     }
 
     /**
@@ -103,7 +104,7 @@ class Session implements SessionHandlerInterface
             'update_time' => time()
         ];
 
-        if (!empty($has)) {
+        if (null !== $has) {
             (new ModelSession)
                 ->where([
                     ['session_id', '=', $this->config['prefix'] . $sessID],

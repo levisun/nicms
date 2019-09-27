@@ -97,7 +97,7 @@ class DataManage
     {
         $lock = $this->lockPath . 'db_auto_back.lock';
         clearstatcache();
-        if (is_file($lock) && filemtime($lock) >= strtotime('-5 minute')) {
+        if (is_file($lock) && filemtime($lock) >= strtotime('-10 minute')) {
             return false;
         }
 
@@ -105,9 +105,7 @@ class DataManage
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 app('log')->record('[AUTO BACKUP] 自动备份数据库', 'alert');
                 $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
-                if (!is_dir($this->savePath)) {
-                    mkdir($this->savePath, 0755, true);
-                }
+                is_dir($this->savePath) or mkdir($this->savePath, 0755, true);
 
                 // 备份记录文件
                 if (is_file($this->savePath . 'backup_time.json')) {

@@ -319,7 +319,7 @@ abstract class BaseService
         $save_path = $this->config->get('filesystem.disks.public.url') . '/';
         $_dir = '/' . trim($_dir, '\/');
         $_dir .= $this->uid
-            ? '/u' . dechex($this->uid + date('Ym'))
+            ? '/u' . dechex((int) ($this->uid . date('ym')))
             : '/t' . dechex(date('Ym'));
 
         // 单文件

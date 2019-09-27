@@ -42,17 +42,6 @@ class CheckRequestCache
 
         $response = $next($request);
 
-        // 压缩输出
-        // if (200 == $response->getCode() && $request->isGet() && function_exists('gzencode')) {
-        //     $content = gzencode($response->getContent(), 1, FORCE_GZIP);
-        //     $response->content($content);
-        //     $response->header(array_merge([
-        //         'Content-Encoding' => 'gzip',
-        //         'Content-Length'   => strlen($content)
-        //     ], $response->getHeader()));
-        //     unset($content);
-        // }
-
         // 调试模式关闭浏览器缓存
         // API有定义缓存,请勿开启缓存
         if (true === $config->get('app.debug')) {

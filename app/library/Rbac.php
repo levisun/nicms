@@ -185,7 +185,7 @@ class Rbac
                     ['level', '=', $_level],
                     ['pid', '=', $_pid],
                 ])
-                ->cache(__METHOD__ . 'auth_founder' . $_uid . $_level . $_pid)
+                ->cache(__METHOD__ . 'auth_founder' . $_uid . $_level . $_pid, null, 'AUTH')
                 ->select();
         } else {
             $result = (new ModelNode)
@@ -198,7 +198,7 @@ class Rbac
                     ['node.level', '=', $_level],
                     ['node.pid', '=', $_pid],
                 ])
-                ->cache(__METHOD__ . $_uid . $_level . $_pid, 300)
+                ->cache(__METHOD__ . $_uid . $_level . $_pid, 600, 'AUTH')
                 ->select();
         }
 
