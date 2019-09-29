@@ -101,9 +101,11 @@
         }
 
         _params.complete = function (xhr) {
-            var result = JSON.parse(xhr.responseText);
-            if ('undefined' !== typeof (result.token)) {
-                jQuery('meta[name="csrf-token"]').attr('content', result.token);
+            if ('undefined' !== typeof (xhr.responseText)) {
+                var result = JSON.parse(xhr.responseText);
+                if ('undefined' !== typeof (result.token)) {
+                    jQuery('meta[name="csrf-token"]').attr('content', result.token);
+                }
             }
         }
 

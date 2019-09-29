@@ -57,9 +57,20 @@ class RecordRequest
             : '';
         $request_url = $_app->request->url(true);
         $request_method = $_app->request->method(true) . ' ' . $_app->request->ip();
-        $time_memory =
-            number_format(microtime(true) - $_app->getBeginTime(), 3) . 's ' .
+        $run_time = number_format(microtime(true) - $_app->getBeginTime(), 3);
+        $time_memory = $run_time . 's ' .
             number_format((memory_get_usage() - $_app->getBeginMem()) / 1024 / 1024, 3) . 'mb ';
+
+
+
+        if (3 <= $run_time) {
+            $_app->log->record(
+                '{' . $time_memory . $request_method . ' ' . $request_url . '}' .
+                    PHP_EOL . $request_params .
+                    PHP_EOL,
+                'info'
+            );
+        }
 
 
 
@@ -75,11 +86,11 @@ class RecordRequest
 
 
 
-        1 === mt_rand(1, 9) and $_app->log->record(
-            '{' . $time_memory . $request_method . ' ' . $request_url . '}' .
-                PHP_EOL . $request_params .
-                PHP_EOL,
-            'info'
-        );
+        // 1 === mt_rand(1, 9) and $_app->log->record(
+        //     '{' . $time_memory . $request_method . ' ' . $request_url . '}' .
+        //         PHP_EOL . $request_params .
+        //         PHP_EOL,
+        //     'info'
+        // );
     }
 }

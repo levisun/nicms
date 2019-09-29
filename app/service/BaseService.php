@@ -141,7 +141,7 @@ abstract class BaseService
         $this->session  = $this->app->session;
 
         // 是否开启调试模式
-        $this->app->debug($this->config->get('app.debug'));
+        // $this->app->debug($this->config->get('app.debug'));
         // 设置请求默认过滤方法
         $this->request->filter('default_filter');
 

@@ -21,6 +21,7 @@ use think\exception\HttpResponseException;
 use app\library\Ip;
 use app\library\Jwt;
 use app\model\ApiApp as ModelApiApp;
+use app\model\Session as ModelSession;
 
 abstract class Async
 {
@@ -276,6 +277,7 @@ abstract class Async
 
     /**
      * 验证
+     * 40011 错误请求
      * @access protected
      * @param
      * @return $this
@@ -284,16 +286,14 @@ abstract class Async
     {
         // 检查来源
         if ($_referer && !$this->referer) {
-            $this->error('错误请求', 40009);
+            $this->error('错误请求', 40011);
         }
         // 检查请求类型
-        if ('get' === $_type && !$this->request->isGet())  {
-            $this->error('错误请求', 40009);
-        } elseif ('post' === $_type && !$this->request->isPost())  {
-            $this->error('错误请求', 40009);
+        if ('get' === $_type && !$this->request->isGet()) {
+            $this->error('错误请求', 40012);
+        } elseif ('post' === $_type && !$this->request->isPost()) {
+            $this->error('错误请求', 40012);
         }
-
-
 
         $this->analysisHeader()
             ->checkAppId()
@@ -493,8 +493,20 @@ abstract class Async
 
         // Session初始化
         // 规定sessionID
-        $this->session->setId($this->authorization['jti']);
-        $this->request->withSession($this->session);
+        $session_id = (new ModelSession)
+            ->where([
+                ['session_id', '=', $this->authorization['jti']]
+            ])
+            ->cache(__METHOD__ . $this->authorization['jti'], null, 'SYSTEM')
+            ->value('session_id');
+        if ($session_id) {
+            $this->session->setId($this->authorization['jti']);
+            $this->request->withSession($this->session);
+        } else {
+            $this->log->record('[Async] header-authorization params error', 'error');
+            $this->error('权限不足', 20001);
+        }
+        unset($session_id);
 
 
 
@@ -512,7 +524,6 @@ abstract class Async
         // 过滤多余信息
         // application/vnd.nicms.v1.0.1+json
         $accept = str_replace('application/vnd.', '', $this->accept);
-
         // 校验域名合法性
         list($domain, $accept) = explode('.', $accept, 2);
         list($root) = explode('.', $this->request->rootDomain(), 2);
@@ -592,7 +603,7 @@ abstract class Async
      * @access protected
      * @param  string $msg    提示信息
      * @param  array  $data   要返回的数据
-     * @param  string $code   错误码
+     * @param  string $code   返回码
      * @return Response
      */
     protected function result(string $_msg, array $_data = [], int $_code = 10000)

@@ -30,14 +30,10 @@ class DataManage
         $this->cache = app('cache');
 
         $this->savePath = app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR;
-        if (!is_dir($this->savePath)) {
-            mkdir($this->savePath, 0755, true);
-        }
+        is_dir($this->savePath) or mkdir($this->savePath, 0755, true);
 
         $this->lockPath = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
-        if (!is_dir($this->lockPath)) {
-            mkdir($this->lockPath, 0755, true);
-        }
+        is_dir($this->lockPath) or mkdir($this->lockPath, 0755, true);
 
         @ini_set('memory_limit', '64M');
         set_time_limit(28800);
@@ -60,7 +56,6 @@ class DataManage
         if ($fp = @fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 ignore_user_abort(true);
-                app('log')->record('[AUTO BACKUP] 自动优化 修复数据', 'alert');
 
                 $tables = $this->queryTableName();
                 foreach ($tables as $name) {
@@ -68,12 +63,14 @@ class DataManage
                     $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
                     if (false === $result) {
                         $this->DB->query('OPTIMIZE TABLE `' . $name . '`');
+                        app('log')->record('[AUTO BACKUP] 优化表' . $name, 'alert');
                     }
 
                     $result = $this->DB->query('CHECK TABLE `' . $name . '`');
                     $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
                     if (false === $result) {
                         $this->DB->query('REPAIR TABLE `' . $name . '`');
+                        app('log')->record('[AUTO BACKUP] 修复表' . $name, 'alert');
                     }
                 }
 
@@ -103,7 +100,6 @@ class DataManage
 
         if ($fp = fopen($lock, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
-                app('log')->record('[AUTO BACKUP] 自动备份数据库', 'alert');
                 $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
                 is_dir($this->savePath) or mkdir($this->savePath, 0755, true);
 
@@ -165,6 +161,7 @@ class DataManage
                                     @unlink($sql_file);
                                 }
 
+                                app('log')->record('[AUTO BACKUP] 自动备份数据库' . $name, 'alert');
                                 break;
                             }
                         }

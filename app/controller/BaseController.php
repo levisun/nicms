@@ -103,7 +103,7 @@ abstract class BaseController
         $this->session  = $this->app->session;
         $this->view     = $this->app->view;
 
-        $this->app->debug($this->config->get('app.debug'));
+        // $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('default_filter');
 
         @ini_set('memory_limit', '8M');

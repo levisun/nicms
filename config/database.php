@@ -42,8 +42,9 @@ return [
             'hostport'        => Env::get('database.hostport', '3306'),
             // 数据库连接参数
             'params'          => [
-                \PDO::ATTR_PERSISTENT               => false,                           // 长链接
-                \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,                            // 查询缓存
+                \PDO::ATTR_PERSISTENT               => false,       // 长链接
+                \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,        // 查询缓存
+                \PDO::ATTR_TIMEOUT                  => 10,          // 链接超时
                 \PDO::ATTR_EMULATE_PREPARES         => true,
             ],
             // 数据库编码默认采用utf8

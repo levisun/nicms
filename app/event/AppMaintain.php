@@ -33,7 +33,7 @@ class AppMaintain
         $lock = $path . 'remove_garbage.lock';
 
         clearstatcache();
-        if (!is_file($lock) || filemtime($lock) <= strtotime('-1 days')) {
+        if (!is_file($lock) || filemtime($lock) <= strtotime('-1 hour')) {
             if ($fp = @fopen($lock, 'w+')) {
                 if (flock($fp, LOCK_EX | LOCK_NB)) {
                     $_app->log->record('[REGARBAGE] 删除垃圾信息', 'alert');
@@ -48,7 +48,7 @@ class AppMaintain
                     // 清除过期日志文件
                     $garbage->remove($path . 'log', 7);
                     // 清除过期临时文件
-                    $garbage->remove($path . 'temp', 3);
+                    $garbage->remove($path . 'temp', 1);
 
                     $path = $_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
                     // 清除过期网站地图文件

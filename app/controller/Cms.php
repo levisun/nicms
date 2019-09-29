@@ -68,8 +68,8 @@ class Cms extends BaseController
      */
     public function index()
     {
-        echo dechex((int) (1 . date('ym')));
-        die();
+        echo '<img src="//api.nicms.com/verify.do">';
+        return ;
         $this->fetch('index');
     }
 

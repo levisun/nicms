@@ -20,40 +20,6 @@ class ReGarbage
 {
 
     /**
-     * 删除运行垃圾文件
-     * @access public
-     * @param
-     * @return bool
-     */
-    public function run(): void
-    {
-        $lock = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR . 'remove_garbage.lock';
-        clearstatcache();
-        if (is_file($lock) && filemtime($lock) >= strtotime('-1 days')) {
-            return;
-        }
-        if ($fp = @fopen($lock, 'w+')) {
-            if (flock($fp, LOCK_EX | LOCK_NB)) {
-                app('log')->record('[REGARBAGE] 删除垃圾信息', 'alert');
-
-                $runtime_path = app()->getRuntimePath();
-                $this->remove($runtime_path . 'cache', 7);
-                // $this->remove($runtime_path . 'compile', 30);
-                $this->remove($runtime_path . 'log', 7);
-                $this->remove($runtime_path . 'temp', 3);
-
-                $root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
-                $this->remove($root_path . 'sitemaps', 1);
-                $this->remove($root_path . 'storage', 30);
-
-                fwrite($fp, '清除垃圾数据' . date('Y-m-d H:i:s'));
-                flock($fp, LOCK_UN);
-            }
-            fclose($fp);
-        }
-    }
-
-    /**
      * 清理目录中的垃圾信息
      * @access public
      * @param  string $_dir

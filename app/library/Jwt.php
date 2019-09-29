@@ -29,13 +29,11 @@ class JWT
     private $playload = [];
 
     public function __construct()
+    { }
+
+    public function __get(string $_name)
     {
-        $this->setheaders('alg', 'sha256')
-            ->issuedBy(app('request')->rootDomain())
-            ->issuedAt((int) app('request')->time())
-            ->expiresAt((int) app('request')->time() + 1440)
-            ->identifiedBy(app('session')->getId(false))
-            ->audience($this->playload['iat'] . app('request')->baseUrl());
+        return isset($this->playload[$_name]) ? $this->playload[$_name] : null;
     }
 
     /**
@@ -105,11 +103,11 @@ class JWT
      * @param  string $_audience
      * @return mixed
      */
-    public function audience(string $_audience, $_aud = false)
+    public function audience(string $_audience)
     {
         $_audience .= app('request')->ip() . app('request')->rootDomain() . app('request')->server('HTTP_USER_AGENT');
         $this->playload['aud'] = hash_hmac('sha256', Base64::encrypt($_audience), date('Ymd'));
-        return (true === $_aud) ? $this->playload['aud'] : $this;
+        return $this;
     }
 
     /**
@@ -146,8 +144,8 @@ class JWT
                 $playload['jti'] = $playload['jti'] ? Base64::decrypt($playload['jti']) : null;
 
                 // 接受者验证
-                $audience = $this->audience($playload['iat'] . parse_url(app('request')->server('HTTP_REFERER'), PHP_URL_PATH), true);
-                if (!hash_equals($audience, $playload['aud'])) {
+                $this->audience($playload['iat'] . parse_url(app('request')->server('HTTP_REFERER'), PHP_URL_PATH));
+                if (!hash_equals($this->aud, $playload['aud'])) {
                     return false;
                 }
 

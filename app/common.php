@@ -240,7 +240,8 @@ if (!function_exists('default_filter')) {
      */
     function default_filter($_data)
     {
-        return DataFilter::default($_data);
+        return DataFilter::
+        default($_data);
     }
 }
 
@@ -252,7 +253,14 @@ if (!function_exists('create_authorization')) {
      */
     function create_authorization(): string
     {
-        return (new Jwt)->getToken();
+        return (new Jwt)
+            ->setheaders('alg', 'sha256')
+            ->issuedBy(app('request')->rootDomain())
+            ->issuedAt(app('request')->time())
+            ->expiresAt(app('request')->time() + 1440)
+            ->identifiedBy(app('session')->getId(false))
+            ->audience(app('request')->time() . app('request')->baseUrl())
+            ->getToken();
     }
 }
 
