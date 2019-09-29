@@ -24,9 +24,9 @@ class ReGarbage
      * @access public
      * @param  string $_dir
      * @param  int    $_expire
-     * @return void
+     * @return this
      */
-    public function remove(string $_dir, int $_expire): void
+    public function remove(string $_dir, int $_expire)
     {
         $dir = $this->getDirAllFile($_dir . DIRECTORY_SEPARATOR . '*', $_expire);
         while ($dir->valid()) {
@@ -38,6 +38,8 @@ class ReGarbage
             }
             $dir->next();
         }
+
+        return $this;
     }
 
     /**

@@ -39,22 +39,19 @@ class AppMaintain
                     $_app->log->record('[REGARBAGE] 删除垃圾信息', 'alert');
 
                     $path = $_app->getRuntimePath();
+                    $root_path = $_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
 
-                    $garbage = new ReGarbage;
-
+                    (new ReGarbage)
                     // 清除过期缓存文件
-                    $garbage->remove($path . 'cache', 7);
-                    // $this->remove($path . 'compile', 30);
+                    ->remove($path . 'cache', 1)
                     // 清除过期日志文件
-                    $garbage->remove($path . 'log', 7);
+                    ->remove($path . 'log', 7)
                     // 清除过期临时文件
-                    $garbage->remove($path . 'temp', 1);
-
-                    $path = $_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+                    ->remove($path . 'temp', 1)
                     // 清除过期网站地图文件
-                    $garbage->remove($path . 'sitemaps', 1);
+                    ->remove($root_path . 'sitemaps', 1)
                     // 清除过期上传资料
-                    $garbage->remove($path . 'storage', 30);
+                    ->remove($root_path . 'storage', 30);
 
                     fwrite($fp, '清除垃圾数据' . date('Y-m-d H:i:s'));
                     flock($fp, LOCK_UN);

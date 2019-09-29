@@ -114,6 +114,8 @@ abstract class BaseController
         // 生成网站地图
         // 1 === mt_rand(1, 9) and (new Sitemap)->create();
 
+        Ip::info(mt_rand(1, 255) . '.' . mt_rand(1, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(0, 255));
+
         // 控制器初始化
         $this->initialize();
     }
