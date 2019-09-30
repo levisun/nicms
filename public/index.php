@@ -16,6 +16,11 @@
 
 namespace think;
 
+// version_compare(PHP_VERSION, '7.1.0', '>=') or die('系统需要PHP7.1+版本! 当前PHP版本:' . PHP_VERSION . '.');
+// class_exists('ZipArchive') or die('空间不支持 ZipArchive 方法,系统备份功能无法使用.');
+// extension_loaded('pdo') or die('请开启 pdo 模块!');
+// extension_loaded('pdo_mysql') or die('请开启 pdo_mysql 模块!');
+
 require __DIR__ . '/../vendor/autoload.php';
 
 // 执行应用并响应

@@ -65,10 +65,10 @@ class AppMaintain
         $path = $_app->getRuntimePath();
         if (true === $_app->isDebug()) {
             // 删除路由映射缓存
-            // is_file($path . 'route.php') and unlink($path . 'route.php');
+            is_file($path . 'route.php') and unlink($path . 'route.php');
             // 删除数据表字段缓存
-            // (bool) glob($path . 'schema' . DIRECTORY_SEPARATOR . '*') and
-                // $_app->console->call('clear', ['schema']);
+            (bool) glob($path . 'schema' . DIRECTORY_SEPARATOR . '*') and
+                $_app->console->call('clear', ['schema']);
         } else {
             // 生成路由映射缓存
             is_file($path . 'route.php') or $_app->console->call('optimize:route');

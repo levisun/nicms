@@ -26,6 +26,8 @@ class CheckRequestCache
 
     /**
      * 设置当前地址的请求缓存
+     * 缓存为浏览器
+     * 安全原因不写文件缓存,文件缓存无法根据客户记录
      * @access public
      * @param  Request $request
      * @param  Closure $next
@@ -42,7 +44,7 @@ class CheckRequestCache
 
         $response = $next($request);
 
-        // 调试模式关闭浏览器缓存
+        // 调试模式关闭缓存
         // API有定义缓存,请勿开启缓存
         if (true === $config->get('app.debug')) {
             $response->allowCache(false);

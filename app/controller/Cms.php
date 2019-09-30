@@ -34,12 +34,12 @@ class Cms extends BaseController
      */
     public function initialize()
     {
-        $this->app->event->listen('HttpEnd', function () {
-            // 生成访问日志
-            (new Accesslog)->record();
-            // 生成网站地图
-            1 === mt_rand(1, 9) and (new Sitemap)->create();
-        });
+        // $this->app->event->listen('HttpEnd', function () {
+        //     // 生成访问日志
+        //     (new Accesslog)->record();
+        //     // 生成网站地图
+        //     1 === mt_rand(1, 9) and (new Sitemap)->create();
+        // });
 
         $this->authenticate();
 
@@ -67,8 +67,6 @@ class Cms extends BaseController
      */
     public function index()
     {
-        echo '<img src="//api.nicms.com/verify.do">';
-        return ;
         $this->fetch('index');
     }
 

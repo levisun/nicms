@@ -52,7 +52,7 @@ class Node extends BaseService
                 'editor' => url('user/node/editor/' . $value['id']),
                 'remove' => url('user/node/remove/' . $value['id']),
             ];
-            $value['child'] = $this->child($value['id']);
+            $value['child'] = $this->child((int) $value['id']);
             $result[$key] = $value;
         }
 
@@ -91,7 +91,7 @@ class Node extends BaseService
                 'editor' => url('user/node/editor/' . $value['id']),
                 'remove' => url('user/node/remove/' . $value['id']),
             ];
-            $value['child'] = $this->child($value['id']);
+            $value['child'] = $this->child((int) $value['id']);
             $result[$key] = $value;
         }
 

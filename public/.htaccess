@@ -11,12 +11,6 @@
 	AddOutputFilter DEFLATE html htm xml php jpg png js css
 </IfModule>
 
-<FilesMatch "\.(ttf|otf|eot|woff)$">
-  <IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin "http://www.nicms.com"
-  </IfModule>
-</FilesMatch>
-
 <FilesMatch "\.(flv|gif|jpg|jpeg|png|ico|swf|css|txt|pdf)$">
   <IfModule mod_headers.c>
     Header set Cache-Control "max-age=36000"
