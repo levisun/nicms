@@ -35,6 +35,8 @@ abstract class BaseController
     protected $middleware = [
         // Session初始化
         \think\middleware\SessionInit::class,
+        // 全局请求缓存
+        \app\middleware\CheckRequestCache::class,
         // 页面Trace调试
         \think\middleware\TraceDebug::class,
         // 多语言加载
@@ -58,24 +60,6 @@ abstract class BaseController
      * @var \think\Config
      */
     protected $config;
-
-    /**
-     * Cookie实例
-     * @var \think\Cookie
-     */
-    protected $cookie;
-
-    /**
-     * Env实例
-     * @var \think\Env
-     */
-    protected $env;
-
-    /**
-     * Lang实例
-     * @var \think\Lang
-     */
-    protected $lang;
 
     /**
      * request实例
@@ -103,18 +87,20 @@ abstract class BaseController
         $this->session  = $this->app->session;
         $this->view     = $this->app->view;
 
-        // $this->app->debug($this->config->get('app.debug'));
+        $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('default_filter');
+
+        // 检查请求,频繁或非法请求将被锁定
+        $this->app->event->listen('HttpRun', \app\event\CheckRequest::class);
+        // 记录请求
+        $this->app->event->listen('HttpEnd', \app\event\RecordRequest::class);
+        // 应用性能维护
+        $this->app->event->listen('HttpEnd', \app\event\AppMaintain::class);
 
         @ini_set('memory_limit', '8M');
         set_time_limit(60);
 
-        // 生成访问日志
-        // (new Accesslog)->record();
-        // 生成网站地图
-        // 1 === mt_rand(1, 9) and (new Sitemap)->create();
-
-        Ip::info(mt_rand(1, 255) . '.' . mt_rand(1, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(0, 255));
+        Ip::info($this->request->ip());
 
         // 控制器初始化
         $this->initialize();

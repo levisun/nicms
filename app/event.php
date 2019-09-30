@@ -16,14 +16,8 @@ return [
     'bind'      => [],
     'listen'    => [
         'AppInit'  => [],
-        'HttpRun'  => [
-            // 检查请求,频繁或非法请求将被锁定
-            \app\event\CheckRequest::class,
-        ],
-        'HttpEnd'  => [
-            \app\event\RecordRequest::class,
-            \app\event\AppMaintain::class,
-        ],
+        'HttpRun'  => [],
+        'HttpEnd'  => [],
         'RouteLoaded' => [],
         'LogWrite' => [],
     ],

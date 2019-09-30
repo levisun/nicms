@@ -50,40 +50,16 @@ abstract class BaseService
     protected $config;
 
     /**
-     * Cookie实例
-     * @var \think\Cookie
-     */
-    protected $cookie;
-
-    /**
-     * Env实例
-     * @var \think\Env
-     */
-    protected $env;
-
-    /**
      * Lang实例
      * @var \think\Lang
      */
     protected $lang;
 
     /**
-     * Log实例
-     * @var \think\Log
-     */
-    protected $log;
-
-    /**
      * Request实例
      * @var \think\Request
      */
     protected $request;
-
-    /**
-     * Response实例
-     * @var \think\Response
-     */
-    protected $response;
 
     /**
      * Session实例
@@ -140,8 +116,8 @@ abstract class BaseService
         $this->request  = $this->app->request;
         $this->session  = $this->app->session;
 
-        // 是否开启调试模式
-        // $this->app->debug($this->config->get('app.debug'));
+        // 关闭调试模式
+        $this->app->debug(false);
         // 设置请求默认过滤方法
         $this->request->filter('default_filter');
 

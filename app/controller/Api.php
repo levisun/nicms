@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace app\controller;
 
-use app\library\Async;
+use app\service\AsyncService;
 
-class Api extends Async
+class Api extends AsyncService
 {
     /**
      * 控制器中间件

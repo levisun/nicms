@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace app\library;
+namespace app\service;
 
 use think\App;
 use think\exception\HttpResponseException;
@@ -23,7 +23,7 @@ use app\library\Jwt;
 use app\model\ApiApp as ModelApiApp;
 use app\model\Session as ModelSession;
 
-abstract class Async
+abstract class AsyncService
 {
     /**
      * 应用实例
@@ -217,8 +217,18 @@ abstract class Async
         $this->response = $this->app->response;
         $this->session  = $this->app->session;
 
-        $this->app->debug($this->config->get('app.debug'));
+        // 关闭调试模式
+        $this->app->debug(false);
+        // 设置请求默认过滤方法
         $this->request->filter('default_filter');
+
+        // 检查请求,频繁或非法请求将被锁定
+        $this->app->event->listen('HttpRun', \app\event\CheckRequest::class);
+        // 记录请求
+        $this->app->event->listen('HttpEnd', \app\event\RecordRequest::class);
+
+        @ini_set('memory_limit', '16M');
+        set_time_limit(30);
 
         $this->referer = (bool) $this->request->server('HTTP_REFERER');
 
@@ -444,7 +454,7 @@ abstract class Async
      */
     protected function checkAppId()
     {
-        $this->appId  = (int) $this->request->param('appid/f', 1000001);
+        $this->appId = $this->request->param('appid/f', 1000001);
         if (!$this->appId || $this->appId < 1000001) {
             $this->log->record('[Async] auth-appid not', 'error');
             $this->error('非法参数', 20002);
@@ -576,6 +586,7 @@ abstract class Async
     {
         $this->result($_msg, $_data, $_code);
     }
+
     /**
      * 操作失败返回的数据
      * 10000 成功
@@ -608,11 +619,13 @@ abstract class Async
      */
     protected function result(string $_msg, array $_data = [], int $_code = 10000)
     {
+        $time = number_format(microtime(true) - $this->app->getBeginTime(), 3);
+        $memory = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 4);
         $result = [
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'time'    => date('ymd.His') . '.' . number_format(microtime(true) - $this->app->getBeginTime(), 3),
+            'time'    => date('ymd.Hi.s') . ',' . $time . ',' . $memory . ',' . $this->ipinfo['ip'],
             // 表单令牌
             'token'   => $this->request->isPost() ? $this->request->buildToken('__token__', 'md5') : '',
             // 调试数据
@@ -620,8 +633,6 @@ abstract class Async
                 'log'     => $this->debugLog,
                 'method'  => $this->method,
                 'version' => implode('.', $this->version),
-                'ip'      => $this->ipinfo['ip'],
-                'mem'     => number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 2) . 'mb',
             ] : '',
         ];
         $result = array_filter($result);

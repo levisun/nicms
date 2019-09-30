@@ -25,14 +25,6 @@ use app\model\Category as ModelCategory;
 
 class Cms extends BaseController
 {
-    /**
-     * 控制器中间件
-     * @var array
-     */
-    protected $middleware = [
-        // 全局请求缓存
-        \app\middleware\CheckRequestCache::class,
-    ];
 
     /**
      * 初始化
@@ -42,6 +34,13 @@ class Cms extends BaseController
      */
     public function initialize()
     {
+        $this->app->event->listen('HttpEnd', function () {
+            // 生成访问日志
+            (new Accesslog)->record();
+            // 生成网站地图
+            1 === mt_rand(1, 9) and (new Sitemap)->create();
+        });
+
         $this->authenticate();
 
         $result = Siteinfo::query();

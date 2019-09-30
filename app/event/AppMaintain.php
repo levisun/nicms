@@ -65,10 +65,10 @@ class AppMaintain
         $path = $_app->getRuntimePath();
         if (true === $_app->isDebug()) {
             // 删除路由映射缓存
-            is_file($path . 'route.php') and unlink($path . 'route.php');
+            // is_file($path . 'route.php') and unlink($path . 'route.php');
             // 删除数据表字段缓存
-            (bool) glob($path . 'schema' . DIRECTORY_SEPARATOR . '*') and
-                $_app->console->call('clear', ['schema']);
+            // (bool) glob($path . 'schema' . DIRECTORY_SEPARATOR . '*') and
+                // $_app->console->call('clear', ['schema']);
         } else {
             // 生成路由映射缓存
             is_file($path . 'route.php') or $_app->console->call('optimize:route');
@@ -78,10 +78,9 @@ class AppMaintain
         }
 
 
-
         // 数据库优化|修复
-        'api' !== $_app->request->controller(true) and (new DataManage)->optimize();
+        (new DataManage)->optimize();
         // 数据库备份
-        'api' !== $_app->request->controller(true) and (new DataManage)->autoBackup();
+        (new DataManage)->autoBackup();
     }
 }

@@ -58,7 +58,7 @@ class Category extends BaseService
                 'editor' => url('category/category/editor/' . $value['id']),
                 'remove' => url('category/category/remove/' . $value['id']),
             ];
-            $value['child'] = $this->child($value['id']);
+            $value['child'] = $this->child((int) $value['id']);
             $result[$key] = $value;
         }
 
@@ -100,7 +100,7 @@ class Category extends BaseService
                 'editor' => url('category/category/editor/' . $value['id']),
                 'remove' => url('category/category/remove/' . $value['id']),
             ];
-            $value['child'] = $this->child($value['id']);
+            $value['child'] = $this->child((int) $value['id']);
             $result[$key] = $value;
         }
 

@@ -161,7 +161,7 @@ class DataManage
                                     @unlink($sql_file);
                                 }
 
-                                app('log')->record('[AUTO BACKUP] 自动备份数据库' . $name, 'alert');
+                                app('log')->record('[AUTO BACKUP] 自动备份数据库' . $num, 'alert');
                                 break;
                             }
                         }

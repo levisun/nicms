@@ -14,8 +14,6 @@
 use think\facade\Route;
 
 // $cache = boolval(Env::get('app_debug', false)) ? false : mt_rand(1440, 2880);
-define('MISS_HTML', '<style type="text/css">*{padding:0;margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>');
-
 
 // Route::domain('book', function () {
 //     Route::get('/', 'book/index')->ext('html');
@@ -36,7 +34,7 @@ Route::domain(['www', 'm'], function () {
     Route::get('502', 'cms/miss')->append(['code' => '502'])->ext('html');
     Route::miss(function () {
         event('app\event\RecordRequest');
-        return MISS_HTML;
+        return '<style type="text/css">*{padding:0;margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
     });
 })->bind('cms')->pattern([
     'name' => '[a-z]+',
@@ -56,7 +54,10 @@ Route::domain(\think\facade\Env::get('admin.entry'), function () {
     Route::get('404', 'admin/miss')->append(['code' => '404'])->ext('html');
     Route::get('500', 'admin/miss')->append(['code' => '500'])->ext('html');
     Route::get('502', 'admin/miss')->append(['code' => '502'])->ext('html');
-    Route::miss('admin/miss');
+    Route::miss(function () {
+        event('app\event\RecordRequest');
+        return '<style type="text/css">*{padding:0;margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
+    });
 })->bind('admin')->pattern([
     'service' => '[a-z]+',
     'logic'   => '[a-z]+',
@@ -84,7 +85,7 @@ Route::domain('api', function () {
     })->ext('do');
     Route::miss(function () {
         event('app\event\RecordRequest');
-        return MISS_HTML;
+        return '<style type="text/css">*{padding:0;margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
     });
 })->bind('api')->middleware('\app\middleware\AllowCrossDomain');
 
@@ -96,6 +97,6 @@ Route::domain('api', function () {
 Route::domain('cdn', function () {
     Route::miss(function () {
         event('app\event\RecordRequest');
-        return MISS_HTML;
+        return '<style type="text/css">*{padding:0;margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
     });
 });

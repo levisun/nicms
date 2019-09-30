@@ -50,7 +50,7 @@ class Visit extends BaseService
         $list['render'] = $result->render();
 
         foreach ($list['data'] as $key => $value) {
-            $value['date'] = date($date_format, $value['date']);
+            $value['date'] = date($date_format, (int) $value['date']);
             $list['data'][$key] = $value;
         }
 
