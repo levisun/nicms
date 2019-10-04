@@ -20,15 +20,13 @@ namespace think;
 // class_exists('ZipArchive') or die('空间不支持 ZipArchive 方法,系统备份功能无法使用.');
 // extension_loaded('pdo') or die('请开启 pdo 模块!');
 // extension_loaded('pdo_mysql') or die('请开启 pdo_mysql 模块!');
-$sub_domain = explode('.', $_SERVER['HTTP_HOST'], 2);
-$sub_domain = $sub_domain[0];
 
 require __DIR__ . '/../vendor/autoload.php';
 
 // 执行应用并响应
 $http = (new App())->http;
 
-$response = $http->name($sub_domain)->run();
+$response = $http->run();
 
 $response->send();
 

@@ -47,23 +47,7 @@ Route::domain(['www', 'm'], function () {
 /**
  * admin后台
  */
-Route::domain(\think\facade\Env::get('admin.entry'), function () {
-    Route::get('/', 'admin/index')->ext('html');
-    Route::get(':service/:logic/:action$', 'admin/index')->ext('html');
-    Route::get(':service/:logic/:action/:id$', 'admin/index')->ext('html');
-    Route::get('404', 'admin/miss')->append(['code' => '404'])->ext('html');
-    Route::get('500', 'admin/miss')->append(['code' => '500'])->ext('html');
-    Route::get('502', 'admin/miss')->append(['code' => '502'])->ext('html');
-    Route::miss(function () {
-        event('app\event\RecordRequest');
-        return '<style type="text/css">*{padding:0;margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
-    });
-})->bind('admin')->pattern([
-    'service' => '[a-z]+',
-    'logic'   => '[a-z]+',
-    'action'  => '[a-z]+',
-    'id'      => '\d+',
-]);
+
 
 
 
@@ -72,22 +56,7 @@ Route::domain(\think\facade\Env::get('admin.entry'), function () {
  * query|ip|download|wechat get请求
  * handle|sms|upload post请求
  */
-Route::domain('api', function () {
-    Route::rule('query$', 'api/query')->ext('do');
-    Route::rule('handle$', 'api/handle')->ext('do');
-    Route::rule('upload$', 'api/upload')->ext('do');
-    Route::rule('sms$', 'api/sms')->ext('do');
-    Route::rule('ip$', 'api/ip')->ext('do');
-    Route::rule('download$', 'api/download')->ext('do');
-    Route::rule('wechat$', 'api/wechat')->ext('do');
-    Route::rule('verify$', function () {
-        return \think\captcha\facade\Captcha::create();
-    })->ext('do');
-    Route::miss(function () {
-        event('app\event\RecordRequest');
-        return '<style type="text/css">*{padding:0;margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
-    });
-})->bind('api')->middleware('\app\middleware\AllowCrossDomain');
+
 
 
 
