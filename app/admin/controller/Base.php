@@ -22,9 +22,9 @@ namespace app\admin\controller;
 
 use think\App;
 use think\exception\HttpResponseException;
-use app\library\Accesslog;
-use app\library\Ip;
-use app\library\Sitemap;
+use app\common\library\Accesslog;
+use app\common\library\Ip;
+use app\common\library\Sitemap;
 
 abstract class Base
 {
@@ -36,7 +36,7 @@ abstract class Base
         // Session初始化
         \think\middleware\SessionInit::class,
         // 全局请求缓存
-        \app\middleware\CheckRequestCache::class,
+        // \app\middleware\CheckRequestCache::class,
         // 页面Trace调试
         \think\middleware\TraceDebug::class,
         // 多语言加载
@@ -91,11 +91,11 @@ abstract class Base
         $this->request->filter('default_filter');
 
         // 检查请求,频繁或非法请求将被锁定
-        $this->app->event->listen('HttpRun', \app\event\CheckRequest::class);
+        // $this->app->event->listen('HttpRun', \app\event\CheckRequest::class);
         // 记录请求
-        $this->app->event->listen('HttpEnd', \app\event\RecordRequest::class);
+        // $this->app->event->listen('HttpEnd', \app\event\RecordRequest::class);
         // 应用性能维护
-        $this->app->event->listen('HttpEnd', \app\event\AppMaintain::class);
+        // $this->app->event->listen('HttpEnd', \app\event\AppMaintain::class);
 
         @ini_set('memory_limit', '8M');
         set_time_limit(60);

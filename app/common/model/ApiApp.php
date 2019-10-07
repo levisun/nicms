@@ -6,7 +6,7 @@
  * Api应用表
  *
  * @package   NICMS
- * @category  app\model
+ * @category  app\common\model
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -32,7 +32,7 @@ INSERT INTO `nc_api_app` (`id`, `name`, `secret`, `module`, `status`, `remark`, 
 (2, '网站', '962940cfbe94a64efcd1573cf6d7a175', 'cms', 1, '', 1505898660, 1505898660);
  */
 
-namespace app\model;
+namespace app\common\model;
 
 use think\Model;
 

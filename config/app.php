@@ -43,9 +43,11 @@ return [
     // 是否启用事件
     'with_event'       => true,
     // 自动多应用模式
-    'auto_multi_app'   => false,
+    'auto_multi_app'   => true,
     // 应用映射（自动多应用模式有效）
-    'app_map'          => [],
+    'app_map'          => [
+        'admin' => 'admin'
+    ],
     // 域名绑定（自动多应用模式有效）
     'domain_bind'      => [
         'admin' => 'admin',

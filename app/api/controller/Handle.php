@@ -27,7 +27,7 @@ class Handle extends Async
      */
     protected $middleware = [
         // 全局请求缓存
-        \app\api\middleware\CheckRequestCache::class,
+        // \app\api\middleware\CheckRequestCache::class,
     ];
 
     public function index()

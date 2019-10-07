@@ -13,8 +13,8 @@
  */
 
 use think\Image;
-use app\library\DataFilter;
-use app\library\Jwt;
+use app\common\library\DataFilter;
+use app\common\library\Jwt;
 
 /**
  * 是否微信请求

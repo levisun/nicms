@@ -6,7 +6,7 @@
  * 会员等级表
  *
  * @package   NICMS
- * @category  app\model
+ * @category  app\common\model
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -33,7 +33,7 @@ INSERT INTO `nc_level` (`id`, `name`, `credit`, `status`, `remark`) VALUES
 (6, '普通会员', 0, 1, '');
  */
 
-namespace app\model;
+namespace app\common\model;
 
 use think\Model;
 

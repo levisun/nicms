@@ -18,10 +18,10 @@ namespace app\api\controller;
 
 use think\App;
 use think\exception\HttpResponseException;
-use app\library\Ip;
-use app\library\Jwt;
-use app\model\ApiApp as ModelApiApp;
-use app\model\Session as ModelSession;
+use app\common\library\Ip;
+use app\common\library\Jwt;
+use app\common\model\ApiApp as ModelApiApp;
+use app\common\model\Session as ModelSession;
 
 abstract class Async
 {
@@ -333,6 +333,7 @@ abstract class Async
         list($logic, $method, $action) = explode('.', $this->method, 3);
 
         $class  = '\app\service\\' . $this->appName . '\\';
+        $class  = '\app\\' . $this->appName . '\logic\\';
         $class .= $this->openVersion ? 'v' . implode('_', $this->version) . '\\' : '';
         $class .= $logic . '\\' . ucfirst($method);
 

@@ -6,7 +6,7 @@
  * 附加字段表
  *
  * @package   NICMS
- * @category  app\model
+ * @category  app\common\model
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `nc_fields` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='自定义字段表';
  */
 
-namespace app\model;
+namespace app\common\model;
 
 use think\Model;
 

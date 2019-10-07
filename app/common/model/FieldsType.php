@@ -6,7 +6,7 @@
  * 附加字段类型表
  *
  * @package   NICMS
- * @category  app\model
+ * @category  app\common\model
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -36,7 +36,7 @@ INSERT INTO `nc_fields_type` (`id`, `name`, `remark`, `regex`) VALUES
 (11, 'date', '日期', '/^\d{4}(\-|\/|\.)\d{1,2}\1\d{1,2}$/');
  */
 
-namespace app\model;
+namespace app\common\model;
 
 use think\Model;
 

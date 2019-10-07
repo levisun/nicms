@@ -16,7 +16,7 @@ use think\facade\Env;
 
 return [
     // 模板引擎类型使用Think
-    'type'         => '\app\library\Template',
+    'type'         => '\app\common\library\Template',
     // 模板路径
     'view_path'    => app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR,
     'cache_path'   => app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR,

@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\admin\controller;
 
 use app\admin\controller\Base;
-use app\library\Rbac;
+use app\common\library\Rbac;
 
 class Index extends Base
 {

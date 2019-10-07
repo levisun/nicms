@@ -6,7 +6,7 @@
  * 文章模型表
  *
  * @package   NICMS
- * @category  app\model
+ * @category  app\common\model
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -33,7 +33,7 @@ INSERT INTO `nc_model` (`id`, `name`, `table_name`, `remark`, `status`) VALUES
 (8, 'external', 'external', '外部模型', 1);
  */
 
-namespace app\model;
+namespace app\common\model;
 
 use think\Model;
 
