@@ -2,7 +2,8 @@
 
 /**
  *
- * API接口层
+ * 业务层
+ * logic
  * 基础方法
  *
  * @method BaseService authenticate(__METHOD__, ?操作日志) 权限验证
@@ -29,7 +30,7 @@ use app\common\library\Rbac;
 use app\common\model\Action as ModelAction;
 use app\common\model\ActionLog as ModelActionLog;
 
-abstract class Base
+abstract class BaseLogic
 {
     /**
      * 应用实例
@@ -154,9 +155,13 @@ abstract class Base
      */
     protected function authenticate(string $_method, string $_write_log = '')
     {
-        $_method = str_replace('app\service\\', '', strtolower($_method));
-        list($_method, $action) = explode('::', $_method, 2);
-        list($app, $service, $logic) = explode('\\', $_method, 3);
+        $pattern = '/app\\\([a-zA-Z]+)\\\logic\\\([a-zA-Z]+)\\\([a-zA-Z]+)::([a-zA-Z]+)/si';
+        $_method = preg_replace_callback($pattern, function ($matches) {
+            return is_array($matches)
+                ? strtolower($matches[1] . '.' . $matches[2] . '.' . $matches[3] . '.' . $matches[4])
+                : '';
+        }, $_method);
+        list($app, $service, $logic, $action) = explode('.', $_method, 4);
 
         $result = (new Rbac)->authenticate($this->uid, $app, $service, $logic, $action, $this->notAuth);
         // 验证成功,记录操作日志
@@ -202,7 +207,7 @@ abstract class Base
             'debug' => false,
             'cache' => false,
             'code'  => 40006,
-            'msg'   => '请求错误'
+            'msg'   => '请求错误' . $_method
         ];
     }
 

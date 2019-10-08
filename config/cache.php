@@ -28,7 +28,7 @@ return [
             // 缓存保存目录
             'path'         => '',
             // 缓存前缀
-            'prefix'       => $prefix,
+            'prefix'       => '',
             // 缓存有效期 0表示永久缓存
             'expire'       => $expire,
             // 关闭子目录
@@ -49,7 +49,7 @@ return [
             // 缓存有效期 0表示永久缓存
             'expire' => $expire,
             // 缓存前缀
-            'prefix' => $prefix,
+            'prefix' => '',
         ],
         // 更多的缓存连接
     ],

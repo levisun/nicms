@@ -19,7 +19,7 @@ namespace app\api\controller;
 
 use app\api\controller\Async;
 
-class Handle extends Async
+class Upload extends Async
 {
     /**
      * 控制器中间件
@@ -32,6 +32,10 @@ class Handle extends Async
 
     public function index()
     {
+        if (empty($_FILES)) {
+            $this->error('错误请求', 40009);
+        }
+
         $result = $this->validate('post', true)->run();
         $this->openCache(false)->success($result['msg'], $result['data'], $result['code']);
     }

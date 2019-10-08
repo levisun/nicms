@@ -19,7 +19,7 @@ namespace app\api\controller;
 
 use app\api\controller\Async;
 
-class Handle extends Async
+class Download extends Async
 {
     /**
      * 控制器中间件
@@ -32,7 +32,11 @@ class Handle extends Async
 
     public function index()
     {
-        $result = $this->validate('post', true)->run();
-        $this->openCache(false)->success($result['msg'], $result['data'], $result['code']);
+        if ($this->request->isGet() && $file = $this->request->param('file', false)) {
+            (new \app\library\Download)->file($file);
+        } else {
+            echo '错误请求';
+            exit();
+        }
     }
 }

@@ -27,7 +27,7 @@ class Query extends Async
      */
     protected $middleware = [
         // 全局请求缓存
-        \app\api\middleware\CheckRequestCache::class,
+        \app\common\middleware\CheckRequestCache::class,
     ];
 
     public function index()

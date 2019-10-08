@@ -222,11 +222,6 @@ abstract class Async
         // 设置请求默认过滤方法
         $this->request->filter('default_filter');
 
-        // 检查请求,频繁或非法请求将被锁定
-        $this->app->event->listen('HttpRun', \app\event\CheckRequest::class);
-        // 记录请求
-        $this->app->event->listen('HttpEnd', \app\event\RecordRequest::class);
-
         @ini_set('memory_limit', '16M');
         set_time_limit(30);
 
@@ -332,7 +327,6 @@ abstract class Async
 
         list($logic, $method, $action) = explode('.', $this->method, 3);
 
-        $class  = '\app\service\\' . $this->appName . '\\';
         $class  = '\app\\' . $this->appName . '\logic\\';
         $class .= $this->openVersion ? 'v' . implode('_', $this->version) . '\\' : '';
         $class .= $logic . '\\' . ucfirst($method);

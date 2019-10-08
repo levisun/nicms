@@ -6,7 +6,7 @@
  * 安全设置
  *
  * @package   NICMS
- * @category  app\service\admin\settings
+ * @category  app\admin\logic\settings
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -15,11 +15,11 @@
 
 declare(strict_types=1);
 
-namespace app\service\admin\settings;
+namespace app\admin\logic\settings;
 
-use app\service\BaseService;
+use app\common\controller\BaseLogic;
 
-class Safe extends BaseService
+class Safe extends BaseLogic
 {
     protected $authKey = 'admin_auth_key';
 

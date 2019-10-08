@@ -19,7 +19,7 @@ namespace app\api\controller;
 
 use app\api\controller\Async;
 
-class Handle extends Async
+class Ip extends Async
 {
     /**
      * 控制器中间件
@@ -27,12 +27,19 @@ class Handle extends Async
      */
     protected $middleware = [
         // 全局请求缓存
-        // \app\common\middleware\CheckRequestCache::class,
+        \app\common\middleware\CheckRequestCache::class,
     ];
 
     public function index()
     {
-        $result = $this->validate('post', true)->run();
-        $this->openCache(false)->success($result['msg'], $result['data'], $result['code']);
+        if ($ip = $this->request->param('ip', false)) {
+            if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
+                $this->validate();
+                $ip = \app\library\Ip::info($ip);
+                $this->openCache(true)->success('IP INFO', $ip);
+            }
+        } else {
+            $this->error('错误请求', 40001);
+        }
     }
 }

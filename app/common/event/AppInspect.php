@@ -5,7 +5,7 @@
  * 应用环境支持检查
  *
  * @package   NICMS
- * @category  app\middleware
+ * @category  app\common\event
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace app\event;
+namespace app\common\event;
 
 use think\App;
 

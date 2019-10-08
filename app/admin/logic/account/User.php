@@ -17,13 +17,13 @@ declare(strict_types=1);
 
 namespace app\admin\logic\account;
 
-use app\library\Base64;
-use app\library\Rbac;
-use app\library\Session as LibSession;
-use app\common\controller\Base;
-use app\model\Admin as ModelAdmin;
+use app\common\library\Base64;
+use app\common\library\Rbac;
+use app\common\library\Session as LibSession;
+use app\common\controller\BaseLogic;
+use app\common\model\Admin as ModelAdmin;
 
-class User extends Base
+class User extends BaseLogic
 {
     protected $authKey = 'admin_auth_key';
 
