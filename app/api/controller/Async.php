@@ -347,12 +347,17 @@ abstract class Async
 
 
         // 加载语言包
-        $lang  = $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $this->appName . DIRECTORY_SEPARATOR;
+        $common_lang  = $this->app->getBasePath() . 'common' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
+        $common_lang .= $this->lang->getLangSet() . '.php';
+
+        $lang  = $this->app->getBasePath() . $this->appName . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
         $lang .= $this->openVersion ? 'v' . implode('_', $this->version) . DIRECTORY_SEPARATOR : '';
         $lang .= $this->lang->getLangSet() . '.php';
-        $this->lang->load($lang);
 
-
+        $this->lang->load([
+            $common_lang,
+            $lang
+        ]);
 
         // 执行类方法
         return call_user_func([$this->app->make($class), $action]);

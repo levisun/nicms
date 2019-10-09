@@ -13,7 +13,7 @@
 
 use think\facade\Route;
 
-Route::domain(\think\facade\Env::get('admin.entry'), function () {
+Route::group(function () {
     Route::get('/', 'Index/index')->ext('html');
     Route::get(':service/:logic/:action$', 'Index/index')->ext('html');
     Route::get(':service/:logic/:action/:id$', 'Index/index')->ext('html');

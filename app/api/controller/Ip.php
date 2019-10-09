@@ -35,7 +35,7 @@ class Ip extends Async
         if ($ip = $this->request->param('ip', false)) {
             if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
                 $this->validate();
-                $ip = \app\library\Ip::info($ip);
+                $ip = \app\common\library\Ip::info($ip);
                 $this->openCache(true)->success('IP INFO', $ip);
             }
         } else {

@@ -33,7 +33,7 @@ class Download extends Async
     public function index()
     {
         if ($this->request->isGet() && $file = $this->request->param('file', false)) {
-            (new \app\library\Download)->file($file);
+            (new \app\common\library\Download)->file($file);
         } else {
             echo '错误请求';
             exit();
