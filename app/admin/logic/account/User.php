@@ -45,6 +45,16 @@ class User extends BaseLogic
             ];
         }
 
+        $receive_data = [
+            'username' => $this->request->param('username'),
+            'password' => $this->request->param('password'),
+        ];
+
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+
+
         $user = (new ModelAdmin)
             ->view('admin', ['id', 'username', 'password', 'salt', 'flag'])
             ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')

@@ -34,12 +34,12 @@ class Rbac
      * @access public
      * @param  int    $_uid     用户ID
      * @param  string $_app     应用名
-     * @param  string $_service 业务层名
-     * @param  string $_logic   控制器名
+     * @param  string $_logic   业务层名
+     * @param  string $_method  控制器名
      * @param  string $_action  方法名
      * @return boolean
      */
-    public function authenticate($_uid, string $_app, string $_service, string $_logic, string $_action, array $_config = []): bool
+    public function authenticate($_uid, string $_app, string $_logic, string $_method, string $_action, array $_config = []): bool
     {
         if (!empty($_config)) {
             $this->config = array_merge($this->config, $_config);
@@ -49,7 +49,7 @@ class Rbac
 
 
         // 登录并请求方法需要审核
-        if ($_uid && $this->checkAccess($_app, $_service, $_logic, $_action)) {
+        if ($_uid && $this->checkAccess($_app, $_logic, $_method, $_action)) {
             // 实时检验权限
             if ($this->config['auth_type'] == 1) {
                 $__authenticate_list = $this->accessDecision($_uid);
@@ -66,7 +66,7 @@ class Rbac
                 }
             }
 
-            return isset($__authenticate_list[$_app][$_service][$_logic][$_action]);
+            return isset($__authenticate_list[$_app][$_logic][$_method][$_action]);
         } else {
             return $_uid ? true : false;
         }

@@ -161,12 +161,12 @@ abstract class BaseLogic
                 ? strtolower($matches[1] . '.' . $matches[2] . '.' . $matches[3] . '.' . $matches[4])
                 : '';
         }, $_method);
-        list($app, $service, $logic, $action) = explode('.', $_method, 4);
+        list($app, $logic, $method, $action) = explode('.', $_method, 4);
 
-        $result = (new Rbac)->authenticate($this->uid, $app, $service, $logic, $action, $this->notAuth);
+        $result = (new Rbac)->authenticate($this->uid, $app, $logic, $method, $action, $this->notAuth);
         // 验证成功,记录操作日志
         if ($result && $_write_log) {
-            $map = $app . '_' . $service . '_' . $logic . '_' . $action;
+            $map = $app . '_' . $logic . '_' . $method . '_' . $action;
 
             // 查询操作方法
             $has = (new ModelAction)
@@ -207,7 +207,7 @@ abstract class BaseLogic
             'debug' => false,
             'cache' => false,
             'code'  => 40006,
-            'msg'   => '请求错误' . $_method
+            'msg'   => '请求错误'
         ];
     }
 
@@ -220,20 +220,41 @@ abstract class BaseLogic
      */
     protected function validate(string $_validate, array $_data = [])
     {
-        $_validate = str_replace('app\service\\', '', strtolower($_validate));
-        list($_validate) = explode('::', $_validate, 2);
+        $pattern = '/app\\\([a-zA-Z]+)\\\logic\\\([a-zA-Z]+)\\\([a-zA-Z]+)::([a-zA-Z]+)/si';
+        $_validate = preg_replace_callback($pattern, function ($matches) {
+            return is_array($matches)
+                ? strtolower($matches[1] . '.' . $matches[2] . '.' . $matches[3] . '.' . $matches[4])
+                : '';
+        }, $_validate);
+        list($app, $logic, $method) = explode('.', $_validate, 4);
+
+        $class = '\app\\' . $app . '\validate\\' . $logic . '\\' . ucfirst($method);
+        // 校验类是否存在
+        if (!class_exists($class)) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40006,
+                'msg'   => '请求错误'
+            ];
+        }
+
+        $v = new $class;
+
+        // $_validate = str_replace('app\service\\', '', strtolower($_validate));
+        // list($_validate) = explode('::', $_validate, 2);
 
         // 支持场景
-        if (false !== strpos($_validate, '.')) {
-            list($_validate, $scene) = explode('.', $_validate);
-        }
+        // if (false !== strpos($_validate, '.')) {
+        //     list($_validate, $scene) = explode('.', $_validate);
+        // }
 
-        $class = $this->app->parseClass('validate', $_validate);
-        $v     = new $class;
+        // $class = $this->app->parseClass('validate', $_validate);
+        // $v     = new $class;
 
-        if (!empty($scene)) {
-            $v->scene($scene);
-        }
+        // if (!empty($scene)) {
+        //     $v->scene($scene);
+        // }
 
         $_data = !empty($_data) ? $_data : $this->request->param();
 

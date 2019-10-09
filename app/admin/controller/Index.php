@@ -45,11 +45,11 @@ class Index extends Base
      * @param  string $action
      * @return
      */
-    public function index(string $service = 'account', string $logic = 'user', string $action = 'login')
+    public function index(string $logic = 'account', string $method = 'user', string $action = 'login')
     {
-        $this->authenticate($service, $logic, $action);
+        $this->authenticate($logic, $method, $action);
 
-        $tpl = $service . DIRECTORY_SEPARATOR . $logic . DIRECTORY_SEPARATOR . $action;
+        $tpl = $logic . DIRECTORY_SEPARATOR . $method . DIRECTORY_SEPARATOR . $action;
         return $this->fetch($tpl);
     }
 
