@@ -38,7 +38,7 @@ class CheckRequest
 
 
 
-        $path = $_app->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR;
+        $path = $_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
 
         $lock  = $path . md5($_app->request->ip() . date('Ymd')) . '.lock';

@@ -24,7 +24,7 @@ class RecordRequest
 
     public function handle(App $_app)
     {
-        $path = $_app->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR;
+        $path = $_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
 
         $client_ip = md5($_app->request->ip() . date('Ymd'));

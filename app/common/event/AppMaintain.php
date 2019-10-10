@@ -28,7 +28,7 @@ class AppMaintain
     public function handle(App $_app)
     {
         // 垃圾信息维护
-        $path = $_app->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
+        $path = $_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'lock' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
         $lock = $path . 'remove_garbage.lock';
 

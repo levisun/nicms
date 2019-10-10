@@ -29,10 +29,10 @@ class DataManage
         $this->DB = app('think\DbManager');
         $this->cache = app('cache');
 
-        $this->savePath = app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR;
+        $this->savePath = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR;
         is_dir($this->savePath) or mkdir($this->savePath, 0755, true);
 
-        $this->lockPath = app()->getRuntimePath() . 'lock' . DIRECTORY_SEPARATOR;
+        $this->lockPath = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'lock' . DIRECTORY_SEPARATOR;
         is_dir($this->lockPath) or mkdir($this->lockPath, 0755, true);
 
         @ini_set('memory_limit', '64M');

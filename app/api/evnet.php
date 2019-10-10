@@ -17,7 +17,7 @@ return [
     'listen'    => [
         'AppInit'  => [],
         'HttpRun'  => [
-            \app\common\event\CheckRequest::class
+            \app\common\event\CheckRequest::class,
         ],
         'HttpEnd'  => [
             \app\common\event\RecordRequest::class,
