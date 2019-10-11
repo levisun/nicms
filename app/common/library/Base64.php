@@ -66,9 +66,7 @@ class Base64
         $client_id .= date('sHi');
         $client_id .= number_format(microtime(true) - app()->getBeginTime(), 3) . '.';
         $client_id .= app('request')->time(true);
-        $client_id .= number_format((memory_get_usage() - app()->getBeginMem()) / 1024 / 1024, 3);
-
-        // return $client_id;
+        $client_id .= number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3);
 
         return md5(uniqid($client_id, true));
     }

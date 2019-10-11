@@ -21,6 +21,7 @@ return [
         ],
         'HttpEnd'  => [
             \app\common\event\RecordRequest::class,
+            \app\api\event\AppMaintain::class,
         ],
         'RouteLoaded' => [],
         'LogWrite' => [],

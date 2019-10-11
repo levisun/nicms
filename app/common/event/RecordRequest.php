@@ -92,5 +92,17 @@ class RecordRequest
         //         PHP_EOL,
         //     'info'
         // );
+
+
+
+        $path = $_app->getRuntimePath();
+        if (false === $_app->config->get('app.debug')) {
+            is_file($path . 'route.php') or $_app->console->call('optimize:route', [$_app->http->getName()]);
+        } else {
+            is_file($path . 'route.php') and unlink($path . 'route.php');
+        }
+
+        // (bool) glob($path . 'schema' . DIRECTORY_SEPARATOR . '*')
+        // $_app->console->call('optimize:schema', [$_app->http->getName()]);
     }
 }

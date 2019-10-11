@@ -18,7 +18,7 @@ use think\Validate;
 class User extends Validate
 {
     protected $rule = [
-        'username' => ['require', 'length:6,20', 'token'],
+        'username' => ['require', 'length:6,20'],
         'password' => ['require', 'max:30'],
         // 'captcha'  => ['require', 'length:6', 'captcha'],
     ];

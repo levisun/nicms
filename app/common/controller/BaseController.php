@@ -9,7 +9,7 @@
  *     $this->validate(验证器, ?数据) 验证方法
  *
  * @package   NICMS
- * @category  app\controller
+ * @category  app\common\controller
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -18,16 +18,14 @@
 
 declare(strict_types=1);
 
-namespace app\admin\controller;
+namespace app\common\controller;
 
 use think\App;
 use think\exception\HttpResponseException;
-use app\common\library\Accesslog;
 use app\common\library\Base64;
 use app\common\library\Ip;
-use app\common\library\Sitemap;
 
-abstract class Base
+abstract class BaseController
 {
 
     /**
@@ -133,10 +131,7 @@ abstract class Base
     {
         $vars = [
             'debug' => [
-                // 'files'   => count(get_included_files()),
                 'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 3) . 'S',
-                // 'queries' => app('think\DbManager')->getQueryTimes(),
-                // 'cache'   => $this->app->cache->getReadTimes() . ' reads,' . $this->app->cache->getWriteTimes() . ' writes',
                 'mem'     => number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024 / 1024, 3) . 'MB',
             ]
         ];

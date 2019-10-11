@@ -64,7 +64,7 @@ class Dashboard extends BaseLogic
 
         return [
             'debug' => false,
-            'cache' => false,
+            'cache' => true,
             'msg'   => 'info data',
             'data'  => $result
         ];

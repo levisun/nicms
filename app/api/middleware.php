@@ -13,5 +13,6 @@
  */
 
 return [
+    // 跨域
     \app\api\middleware\AllowCrossDomain::class
 ];

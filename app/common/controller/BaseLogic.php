@@ -128,8 +128,8 @@ abstract class BaseLogic
             $this->urole = $this->session->get($this->authKey . '_role');
         }
 
-        @ini_set('memory_limit', '16M');
-        set_time_limit(30);
+        @ini_set('memory_limit', '8M');
+        set_time_limit(5);
 
         // 请求IP信息
         $this->ipinfo = Ip::info($this->request->ip());
@@ -307,6 +307,7 @@ abstract class BaseLogic
         ];
 
         @ini_set('memory_limit', '256M');
+        set_time_limit(600);
         $files = $this->request->file($_element);
         // halt($files);
         // $error = $this->app->validate->rule([

@@ -222,8 +222,8 @@ abstract class Async
         // 设置请求默认过滤方法
         $this->request->filter('default_filter');
 
-        @ini_set('memory_limit', '16M');
-        set_time_limit(30);
+        @ini_set('memory_limit', '8M');
+        set_time_limit(5);
 
         $this->referer = (bool) $this->request->server('HTTP_REFERER');
 
@@ -620,12 +620,13 @@ abstract class Async
     protected function result(string $_msg, array $_data = [], int $_code = 10000)
     {
         $time = number_format(microtime(true) - $this->app->getBeginTime(), 3);
-        $memory = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 4);
+        $memory = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3);
         $result = [
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'time'    => date('ymd.Hi.s') . ',' . $time . ',' . $memory . ',' . $this->ipinfo['ip'],
+            'time'    => $time . ',' . $memory . ',' .
+                $this->app->db->getQueryTimes() . '.' . $this->app->cache->getReadTimes(),
             // 表单令牌
             'token'   => $this->request->isPost() ? $this->request->buildToken('__token__', 'md5') : '',
             // 调试数据

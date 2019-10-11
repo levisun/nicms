@@ -7,7 +7,7 @@
  * 数据库维护
  *
  * @package   NICMS
- * @category  app\common\event
+ * @category  app\api\event
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -16,10 +16,9 @@
 
 declare(strict_types=1);
 
-namespace app\common\event;
+namespace app\api\event;
 
 use think\App;
-use app\common\library\DataManage;
 use app\common\library\ReGarbage;
 
 class AppMaintain
@@ -42,11 +41,7 @@ class AppMaintain
                     // 清除过期缓存文件
                     ->remove($_app->getRuntimePath() . 'cache', 1)
                     // 清除过期临时文件
-                    ->remove($_app->getRootPath() . 'temp', 1)
-                    // 清除过期网站地图文件
-                    ->remove($_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 1)
-                    // 清除过期上传资料
-                    ->remove($_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage', 30);
+                    ->remove($_app->getRootPath() . 'temp', 1);
 
                     fwrite($fp, '清除垃圾数据' . date('Y-m-d H:i:s'));
                     flock($fp, LOCK_UN);
@@ -54,12 +49,5 @@ class AppMaintain
                 fclose($fp);
             }
         }
-
-
-
-        // 数据库优化|修复
-        (new DataManage)->optimize();
-        // 数据库备份
-        (new DataManage)->autoBackup();
     }
 }
