@@ -25,7 +25,6 @@ namespace app\common\controller;
 
 use think\App;
 use think\Image;
-use app\common\library\Ip;
 use app\common\library\Rbac;
 use app\common\model\Action as ModelAction;
 use app\common\model\ActionLog as ModelActionLog;
@@ -97,12 +96,6 @@ abstract class BaseLogic
     ];
 
     /**
-     * IP信息
-     * @var array
-     */
-    protected $ipinfo = [];
-
-    /**
      * 构造方法
      * @access public
      * @param  App  $app  应用对象
@@ -130,9 +123,6 @@ abstract class BaseLogic
 
         @ini_set('memory_limit', '8M');
         set_time_limit(5);
-
-        // 请求IP信息
-        $this->ipinfo = Ip::info($this->request->ip());
 
         $this->initialize();
     }

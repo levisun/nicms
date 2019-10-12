@@ -19,6 +19,7 @@ namespace app\admin\logic\account;
 
 use app\common\controller\BaseLogic;
 use app\common\library\Base64;
+use app\common\library\Ipinfo;
 use app\common\library\Rbac;
 use app\common\library\Session as LibSession;
 use app\common\model\Admin as ModelAdmin;
@@ -81,6 +82,8 @@ class User extends BaseLogic
             ];
         }
 
+        $info = Ipinfo::get($this->request->ip());
+
         // 更新登录信息
         (new ModelAdmin)
             ->where([
@@ -89,8 +92,8 @@ class User extends BaseLogic
             ->data([
                 'flag'               => $this->session->getId(false),
                 'last_login_time'    => time(),
-                'last_login_ip'      => $this->ipinfo['ip'],
-                'last_login_ip_attr' => $this->ipinfo['province_id'] ? $this->ipinfo['province'] . $this->ipinfo['city'] . $this->ipinfo['area'] : ''
+                'last_login_ip'      => $info['ip'],
+                'last_login_ip_attr' => $info['province_id'] ? $info['province'] . $info['city'] . $info['area'] : ''
             ])
             ->update();
 

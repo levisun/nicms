@@ -21,7 +21,7 @@ namespace app\api\event;
 use think\App;
 use app\common\library\ReGarbage;
 
-class AppMaintain
+class ApiMaintain
 {
 
     public function handle(App $_app)

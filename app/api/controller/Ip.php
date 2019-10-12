@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\api\controller;
 
 use app\api\controller\Async;
+use app\common\library\Ipinfo;
 
 class Ip extends Async
 {
@@ -34,8 +35,8 @@ class Ip extends Async
     {
         if ($ip = $this->request->param('ip', false)) {
             if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
-                $this->validate();
-                $ip = \app\common\library\Ip::info($ip);
+                // $this->validate();
+                $ip = Ipinfo::get($ip);
                 $this->openCache(true)->success('IP INFO', $ip);
             }
         } else {

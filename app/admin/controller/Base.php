@@ -23,7 +23,6 @@ namespace app\admin\controller;
 use think\App;
 use think\exception\HttpResponseException;
 use app\common\library\Base64;
-use app\common\library\Ip;
 
 abstract class Base
 {
@@ -81,8 +80,6 @@ abstract class Base
 
         @ini_set('memory_limit', '8M');
         set_time_limit(30);
-
-        Ip::info($this->request->ip());
 
         // 控制器初始化
         $this->initialize();

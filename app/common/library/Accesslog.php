@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
-use app\common\library\Ip;
+use app\common\library\Ipinfo;
 use app\common\model\Searchengine as ModelSearchengine;
 use app\common\model\Visit as ModelVisit;
 
@@ -34,7 +34,7 @@ class Accesslog
     public function record(): void
     {
         $this->userAgent = app('request')->server('HTTP_USER_AGENT');
-        $this->ip = Ip::info(app('request')->ip());
+        $this->ip = Ipinfo::get(app('request')->ip());
 
         // 蜘蛛
         $spider = $this->isSpider();

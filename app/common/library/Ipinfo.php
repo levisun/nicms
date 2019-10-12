@@ -17,10 +17,10 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use app\common\library\DataFilter;
-use app\common\model\IpInfo;
-use app\common\model\Region;
+use app\common\model\IpInfo as ModelIpinfo;
+use app\common\model\Region as ModelRegion;
 
-class Ip
+class Ipinfo
 {
 
     /**
@@ -29,7 +29,7 @@ class Ip
      * @param  string 请求IP地址
      * @return array
      */
-    public static function info(string $_ip = ''): array
+    public static function get(string $_ip = ''): array
     {
         $_ip = $_ip ?: app('request')->ip();
 
@@ -122,14 +122,14 @@ class Ip
      */
     private static function query($_ip): array
     {
-        $result = (new IpInfo)
-            ->view('ipinfo i', ['id', 'ip', 'isp', 'update_time'])
-            ->view('region country', ['id' => 'country_id', 'name' => 'country'], 'country.id=i.country_id')
-            ->view('region region', ['id' => 'region_id', 'name' => 'region'], 'region.id=i.province_id')
-            ->view('region city', ['id' => 'city_id', 'name' => 'city'], 'city.id=i.city_id')
-            ->view('region area', ['id' => 'area_id', 'name' => 'area'], 'area.id=i.area_id', 'LEFT')
+        $result = (new ModelIpinfo)
+            ->view('ipinfo', ['id', 'ip', 'isp', 'update_time'])
+            ->view('region country', ['id' => 'country_id', 'name' => 'country'], 'country.id=ipinfo.country_id')
+            ->view('region region', ['id' => 'region_id', 'name' => 'region'], 'region.id=ipinfo.province_id')
+            ->view('region city', ['id' => 'city_id', 'name' => 'city'], 'city.id=ipinfo.city_id')
+            ->view('region area', ['id' => 'area_id', 'name' => 'area'], 'area.id=ipinfo.area_id', 'LEFT')
             ->where([
-                ['i.ip', '=', bindec(app('request')->ip2bin($_ip))]
+                ['ipinfo.ip', '=', bindec(app('request')->ip2bin($_ip))]
             ])
             ->find();
 
@@ -147,7 +147,7 @@ class Ip
     {
         $_name = DataFilter::default($_name);
 
-        $result = (new Region)
+        $result = (new ModelRegion)
             ->where([
                 ['pid', '=', $_pid],
                 ['name', 'LIKE', $_name . '%']
@@ -168,8 +168,10 @@ class Ip
     {
         $result = self::get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
         // $result = self::get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
+
         $result = $result ? json_decode($result, true) : null;
-        if (!is_array($result) || empty($result) || $result['code'] == 0) {
+
+        if (!is_array($result) || empty($result)) {
             return false;
         }
 
@@ -184,14 +186,14 @@ class Ip
         $city     = self::queryRegion($result['city'], $province);
         $area     = !empty($result['area']) ? self::queryRegion($result['area'], $city) : 0;
 
-        $has = (new IpInfo)
+        $has = (new ModelIpinfo)
             ->where([
                 ['ip', '=', bindec(app('request')->ip2bin($_ip))]
             ])
             ->value('id');
 
         if (!$has) {
-            (new IpInfo)
+            (new ModelIpinfo)
                 ->create([
                     'ip'          => bindec(app('request')->ip2bin($_ip)),
                     'country_id'  => $country,
@@ -234,14 +236,14 @@ class Ip
         $city     = self::queryRegion($result['city'], $province);
         $area     = !empty($result['area']) ? self::queryRegion($result['area'], $city) : 0;
 
-        $has = (new IpInfo)
+        $has = (new ModelIpinfo)
             ->where([
                 ['ip', '=', bindec(app('request')->ip2bin($_ip))]
             ])
             ->value('id');
 
         if ($has) {
-            (new IpInfo)
+            (new ModelIpinfo)
                 ->where([
                     ['ip', '=', bindec(app('request')->ip2bin($_ip))],
                 ])

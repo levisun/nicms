@@ -18,7 +18,6 @@ namespace app\api\controller;
 
 use think\App;
 use think\exception\HttpResponseException;
-use app\common\library\Ip;
 use app\common\library\Jwt;
 use app\common\model\ApiApp as ModelApiApp;
 use app\common\model\Session as ModelSession;
@@ -188,13 +187,6 @@ abstract class Async
     protected $referer = false;
 
     /**
-     * IP信息
-     * @var array
-     */
-    protected $ipinfo = [];
-
-
-    /**
      * 构造方法
      * @access public
      * @param
@@ -226,8 +218,6 @@ abstract class Async
         set_time_limit(5);
 
         $this->referer = (bool) $this->request->server('HTTP_REFERER');
-
-        $this->ipinfo = Ip::info($this->request->ip());
     }
 
     /**

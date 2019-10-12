@@ -21,6 +21,7 @@ namespace app\common\event;
 use think\App;
 use app\common\library\DataManage;
 use app\common\library\ReGarbage;
+use app\common\library\Ipinfo;
 
 class AppMaintain
 {
@@ -61,5 +62,7 @@ class AppMaintain
         (new DataManage)->optimize();
         // 数据库备份
         (new DataManage)->autoBackup();
+
+        Ipinfo::get(mt_rand(1, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(1, 255));
     }
 }
