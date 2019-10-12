@@ -6,7 +6,7 @@
  * 数据库备份
  *
  * @package   NICMS
- * @category  app\service\admin\extend
+ * @category  app\admin\logic\extend
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -15,13 +15,13 @@
 
 declare(strict_types=1);
 
-namespace app\service\admin\extend;
+namespace app\admin\logic\extend;
 
-use app\library\DataManage;
-use app\library\Base64;
-use app\service\BaseService;
+use app\common\library\DataManage;
+use app\common\library\Base64;
+use app\common\controller\BaseLogic;
 
-class Databack extends BaseService
+class Databack extends BaseLogic
 {
     protected $authKey = 'admin_auth_key';
 
@@ -37,7 +37,7 @@ class Databack extends BaseService
             return $result;
         }
 
-        $path = app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR;
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR;
 
         $file = (array) glob($path . '*');
         rsort($file);
@@ -109,7 +109,7 @@ class Databack extends BaseService
         $msg = 'remove error';
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id, date('Ymd'))) {
-            $path = app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . $id;
+            $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR . $id;
             if (is_file($path)) {
                 unlink($path);
                 $msg = 'remove success';

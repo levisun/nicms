@@ -371,8 +371,8 @@ abstract class Async
      */
     protected function checkToken()
     {
-        // 表单校验
-        if (false === $this->request->checkToken()) {
+        // POST请求 表单令牌校验
+        if ($this->request->isPost() && false === $this->request->checkToken()) {
             $this->error('令牌错误', 40007);
         }
 
@@ -621,14 +621,14 @@ abstract class Async
     {
         $time = number_format(microtime(true) - $this->app->getBeginTime(), 3);
         $memory = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3);
+
         $result = [
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'time'    => $time . ',' . $memory . ',' .
-                $this->app->db->getQueryTimes() . '.' . $this->app->cache->getReadTimes(),
+            'time'    => $time . ',' . $memory . ',' . $this->app->db->getQueryTimes() . ',' . $this->app->cache->getReadTimes(),
             // 表单令牌
-            'token'   => $this->request->isPost() ? $this->request->buildToken('__token__', 'md5') : '',
+            'token'   => $this->request->isPost() && 10000 === $_code ? $this->request->buildToken('__token__', 'md5') : '',
             // 调试数据
             'debug'   => true === $this->apiDebug ? [
                 'log'     => $this->debugLog,
@@ -640,7 +640,7 @@ abstract class Async
 
 
 
-        $this->log->save();
+        // $this->log->save();
 
 
 

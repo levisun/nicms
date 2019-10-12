@@ -6,7 +6,7 @@
  * 操作日志
  *
  * @package   NICMS
- * @category  app\service\admin\extend
+ * @category  app\admin\logic\extend
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -15,12 +15,12 @@
 
 declare(strict_types=1);
 
-namespace app\service\admin\extend;
+namespace app\admin\logic\extend;
 
-use app\service\BaseService;
-use app\model\ActionLog as ModelActionLog;
+use app\common\controller\BaseLogic;
+use app\common\model\ActionLog as ModelActionLog;
 
-class Log extends BaseService
+class Log extends BaseLogic
 {
     protected $authKey = 'admin_auth_key';
 

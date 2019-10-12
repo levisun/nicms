@@ -6,7 +6,7 @@
  * 网站栏目
  *
  * @package   NICMS
- * @category  app\service\admin\user
+ * @category  app\admin\logic\user
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -15,12 +15,12 @@
 
 declare(strict_types=1);
 
-namespace app\service\admin\user;
+namespace app\admin\logic\user;
 
-use app\service\BaseService;
-use app\model\User as ModelUser;
+use app\common\controller\BaseLogic;
+use app\common\model\User as ModelUser;
 
-class User extends BaseService
+class User extends BaseLogic
 {
     protected $authKey = 'admin_auth_key';
 
