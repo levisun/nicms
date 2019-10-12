@@ -17,11 +17,11 @@ declare(strict_types=1);
 
 namespace app\cms\logic\nav;
 
-use app\library\Base64;
-use app\service\BaseService;
-use app\model\Category as ModelCategory;
+use app\common\controller\BaseController;
+use app\common\library\Base64;
+use app\common\model\Category as ModelCategory;
 
-class Foot extends BaseService
+class Foot extends BaseController
 {
 
     /**

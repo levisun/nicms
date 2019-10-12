@@ -63,7 +63,7 @@ class RecordRequest
 
 
 
-        if (1 <= $run_time) {
+        if (2 <= $run_time) {
             $_app->log->record(
                 '{长请求 ' . $time_memory . $request_method . ' ' . $request_url . '}' .
                     PHP_EOL . $request_params .

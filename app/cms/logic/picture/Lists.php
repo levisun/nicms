@@ -18,9 +18,9 @@ declare(strict_types=1);
 namespace app\cms\logic\picture;
 
 use think\facade\Lang;
-use app\service\cms\ArticleBase;
+use app\cms\logic\BaseArticle;
 
-class Lists extends ArticleBase
+class Lists extends BaseArticle
 {
 
     /**

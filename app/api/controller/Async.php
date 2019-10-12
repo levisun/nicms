@@ -291,13 +291,13 @@ abstract class Async
     {
         // 检查来源
         if ($_referer && !$this->referer) {
-            $this->error('错误请求', 40011);
+            $this->error('错误请求', 30001);
         }
         // 检查请求类型
         if ('get' === $_type && !$this->request->isGet()) {
-            $this->error('错误请求', 40012);
+            $this->error('错误请求', 30002);
         } elseif ('post' === $_type && !$this->request->isPost()) {
-            $this->error('错误请求', 40012);
+            $this->error('错误请求', 30003);
         }
 
         $this->analysisHeader()
@@ -320,7 +320,7 @@ abstract class Async
         // 校验API方法
         $this->method = $this->request->param('method');
         if (!$this->method || false === preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $this->method)) {
-            $this->error('非法参数', 20002);
+            $this->error('非法参数', 20014);
         }
 
 
@@ -335,13 +335,13 @@ abstract class Async
         if (!class_exists($class)) {
             $this->debugLog['method not found'] = $class;
             $this->log->record('[Async] method not found ' . $class, 'error');
-            $this->error('非法参数', 20002);
+            $this->error('非法参数', 20015);
         }
         // 校验类方法是否存在
         if (!method_exists($class, $action)) {
             $this->debugLog['action not found'] = $class . '->' . $action . '();';
             $this->log->record('[Async] action not found ' . $class . '->' . $action . '();', 'error');
-            $this->error('非法参数', 20002);
+            $this->error('非法参数', 20016);
         }
 
 
@@ -590,15 +590,10 @@ abstract class Async
     /**
      * 操作失败返回的数据
      * 10000 成功
-     * 20000 服务不可用
-     * 20001 授权权限不足
-     * 20002 非法参数
+     * 200xx 权限|授权|参数等错误
+     * 3000x 请求类型等错误
      * 40001 缺少参数
      * 40002 非法参数
-     * 40006 权限不足
-     * 40007 令牌错误
-     * 40008 错误请求
-     * 40009 错误请求
      * @access protected
      * @param  string  $msg  提示信息
      * @param  integer $code 错误码，默认为40001

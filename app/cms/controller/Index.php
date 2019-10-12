@@ -59,4 +59,64 @@ class Index extends BaseController
     {
         return $this->fetch('index');
     }
+
+    /**
+     * 列表页
+     * @access public
+     * @param  string $name 分层名
+     * @param  int    $cid  栏目ID
+     * @return void
+     */
+    public function lists(string $name)
+    {
+        $this->fetch('list_' . $name);
+    }
+
+    /**
+     * 操作验证权限
+     * @access private
+     * @param
+     * @return void
+     */
+    protected function authenticate(): void
+    {
+        $cid = $this->request->param('cid/f', null);
+        if (null !== $cid && 0 >= $cid) {
+            $this->redirect('404');
+        }
+
+
+
+        // if (null !== $cid && 0 >= $cid) {
+        //     $this->redirect('404');
+        // }
+
+        // if (null !== $cid) {
+        //     $count = (new ModelCategory)
+        //         ->where([
+        //             ['is_show', '=', 1],
+        //             ['lang', '=', $this->lang->getLangSet()]
+        //         ])
+        //         ->cache('verification category' . $this->lang->getLangSet())
+        //         ->count();
+        //     if ($cid < 1 || $cid > $count) {
+        //         $this->redirect('404');
+        //     }
+        // }
+
+        // $id = $this->request->param('id/f', null);
+        // if (null !== $id) {
+        //     $count = (new ModelArticle)
+        //         ->where([
+        //             ['is_pass', '=', '1'],
+        //             ['show_time', '<=', time()],
+        //             ['lang', '=', $this->lang->getLangSet()]
+        //         ])
+        //         ->cache('verification article' . $this->lang->getLangSet())
+        //         ->count();
+        //     if ($cid < 1 || $id > $count) {
+        //         $this->redirect('404');
+        //     }
+        // }
+    }
 }
