@@ -129,13 +129,6 @@ abstract class BaseController
      */
     public function fetch(string $_template, array $_data = [])
     {
-        $vars = [
-            'debug' => [
-                'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 3) . 'S',
-                'mem'     => number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024 / 1024, 3) . 'MB',
-            ]
-        ];
-        $_data = array_merge($vars, $_data);
         return $this->view->assign($_data)->fetch($_template);
     }
 }

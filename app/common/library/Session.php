@@ -23,6 +23,7 @@ class Session implements SessionHandlerInterface
         'expire' => 0,
         'prefix' => '',
     ];
+    private $model = null;
 
     /**
      * 构造方法
@@ -33,6 +34,7 @@ class Session implements SessionHandlerInterface
     public function __construct($config = [])
     {
         $this->config = array_merge($this->config, $config);
+        $this->model = new ModelSession;
     }
 
     /**
@@ -44,8 +46,7 @@ class Session implements SessionHandlerInterface
     public function gc(): void
     {
         $maxlifetime = (int) $this->config['gc_maxlifetime'];
-        (new ModelSession)
-            ->where([
+        $this->model->where([
                 ['update_time', '<=', time() - $maxlifetime]
             ])
             ->delete();
@@ -67,14 +68,14 @@ class Session implements SessionHandlerInterface
             $map[] = ['update_time', '>=', time() - $this->config['expire']];
         }
 
-        $result = (new ModelSession)
-            ->field(['data', 'update_time'])
+        $result = $this->model->field(['data', 'update_time'])
             ->where($map)
+            ->cache($sessID)
             ->find();
 
         if (null !== $result && $result['update_time'] <= strtotime('-10 minute')) {
-            (new ModelSession)
-                ->where($map)
+            $this->model->where($map)
+                ->cache($sessID)
                 ->update([
                     'update_time' => time()
                 ]);
@@ -92,8 +93,7 @@ class Session implements SessionHandlerInterface
      */
     public function write(string $sessID, string $data): bool
     {
-        $has = (new ModelSession)
-            ->where([
+        $has = $this->model->where([
                 ['session_id', '=', $this->config['prefix'] . $sessID]
             ])
             ->find();
@@ -105,16 +105,16 @@ class Session implements SessionHandlerInterface
         ];
 
         if (null !== $has) {
-            (new ModelSession)
-                ->where([
+            $this->model->where([
                     ['session_id', '=', $this->config['prefix'] . $sessID],
                 ])
+                ->cache($sessID)
                 ->update($data);
         } else {
-            (new ModelSession)->create($data);
+            $this->model->create($data);
         }
 
-        return !!(new ModelSession)->getNumRows();
+        return !!$this->model->getNumRows();
     }
 
     /**
@@ -125,11 +125,11 @@ class Session implements SessionHandlerInterface
      */
     public function delete(string $sessID): bool
     {
-        (new ModelSession)
-            ->where([
+        $this->model->where([
                 ['session_id', '=', $this->config['prefix'] . $sessID]
             ])
+            ->cache($sessID)
             ->delete();
-        return !!(new ModelSession)->getNumRows();
+        return $this->model->getNumRows();
     }
 }

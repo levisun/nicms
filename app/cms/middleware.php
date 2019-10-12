@@ -13,12 +13,12 @@
  */
 
 return [
+    // 全局请求缓存
+    \app\common\middleware\CheckRequestCache::class,
     // Session初始化
     \think\middleware\SessionInit::class,
-    // 全局请求缓存
-    // \app\common\middleware\CheckRequestCache::class,
     // 页面Trace调试
-    // \think\middleware\TraceDebug::class,
+    \think\middleware\TraceDebug::class,
     // 多语言加载
     \think\middleware\LoadLangPack::class,
 ];

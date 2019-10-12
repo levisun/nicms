@@ -22,7 +22,7 @@ class Rbac
 {
     private $config = [
         'auth_founder'     => 1,        // 超级管理员ID
-        'auth_type'        => 1,        // 实时验证方式
+        'auth_type'        => 2,        // 实时验证方式
         'not_auth_app'     => [],
         'not_auth_service' => [],
         'not_auth_logic'   => [],
@@ -70,25 +70,6 @@ class Rbac
         } else {
             return $_uid ? true : false;
         }
-    }
-
-    /**
-     * 获得用户权限
-     * @param  int   $_uid
-     * @return array
-     */
-    public function getAuth($_uid): array
-    {
-        $_uid = (int) $_uid;
-        if ($this->config['auth_type'] == 1) {
-            $result = $this->accessDecision($_uid);
-        } elseif (session('?__authenticate_list')) {
-            $result = session('?__authenticate_list');
-        } else {
-            $result = $this->accessDecision($_uid);
-            session('__authenticate_list', $result);
-        }
-        return $result;
     }
 
     /**
@@ -185,7 +166,6 @@ class Rbac
                     ['level', '=', $_level],
                     ['pid', '=', $_pid],
                 ])
-                ->cache(__METHOD__ . 'auth_founder' . $_uid . $_level . $_pid, null, 'AUTH')
                 ->select();
         } else {
             $result = (new ModelNode)
@@ -198,7 +178,6 @@ class Rbac
                     ['node.level', '=', $_level],
                     ['node.pid', '=', $_pid],
                 ])
-                ->cache(__METHOD__ . $_uid . $_level . $_pid, 600, 'AUTH')
                 ->select();
         }
 

@@ -17,8 +17,8 @@ declare(strict_types=1);
 
 namespace app\admin\logic\extend;
 
-use app\common\library\Base64;
 use app\common\controller\BaseLogic;
+use app\common\library\Base64;
 
 class Elog extends BaseLogic
 {

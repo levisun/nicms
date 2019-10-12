@@ -6,23 +6,18 @@
     "api_appid": "1000002",
     "api_appsecret": "962940cfbe94a64efcd1573cf6d7a175",
     "theme_version": "1.0.1",
-    "css": [
-        "__STATIC__layui/css/layui.css",
-        "__CSS__style.css"
+    "link": [
+        "<link rel='dns-prefetch' href='https://cdn.bootcss.com' />",
+        "<link rel='stylesheet' href='__STATIC__layui/css/layui.css'>",
+        "<link rel='stylesheet' href='__CSS__style.css'>"
     ],
     "js": [
-        "__STATIC__vue.min.js",
-        "__STATIC__md5.min.js",
-        "__STATIC__layui/layui.js",
-        "__JS__core.js"
+        "<script src='https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js' integrity='sha256-chlNFSVx3TdcQ2Xlw7SvnbLAavAQLO0Y/LBiWX04viY=' crossorigin='anonymous'></script>",
+        "<script src='https://cdn.jsdelivr.net/npm/blueimp-md5@2.12.0/js/md5.min.js'></script>",
+        "<script src='__STATIC__layui/layui.js'></script>",
+        "<script src='__JS__core.js'></script>"
     ],
     "hook": [
 
-    ],
-    "meta": [
-        {
-            "type": "rel=\"dns-prefetch\"",
-            "content": "href=\"https://cdn.bootcss.com\""
-        }
     ]
 }

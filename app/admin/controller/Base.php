@@ -22,10 +22,8 @@ namespace app\admin\controller;
 
 use think\App;
 use think\exception\HttpResponseException;
-use app\common\library\Accesslog;
 use app\common\library\Base64;
 use app\common\library\Ip;
-use app\common\library\Sitemap;
 
 abstract class Base
 {

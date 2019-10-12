@@ -5,7 +5,7 @@
  * 留言列表
  *
  * @package   NICMS
- * @category  app\service\cms\message
+ * @category  app\cms\logic\message
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -13,7 +13,7 @@
  */
 declare (strict_types = 1);
 
-namespace app\service\cms\message;
+namespace app\cms\logic\message;
 
 use think\facade\Config;
 use think\facade\Lang;

@@ -14,7 +14,6 @@
 
 use think\facade\Env;
 
-$prefix = str_replace(['/', '\\', '.'], '_', app('request')->host());
 $expire = (int) Env::get('cache.expire', 28800) - mt_rand(1, 1440);
 
 return [
@@ -48,8 +47,6 @@ return [
             'port'   => 6379,
             // 缓存有效期 0表示永久缓存
             'expire' => $expire,
-            // 缓存前缀
-            'prefix' => '',
         ],
         // 更多的缓存连接
     ],

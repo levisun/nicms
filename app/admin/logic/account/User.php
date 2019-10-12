@@ -17,10 +17,10 @@ declare(strict_types=1);
 
 namespace app\admin\logic\account;
 
+use app\common\controller\BaseLogic;
 use app\common\library\Base64;
 use app\common\library\Rbac;
 use app\common\library\Session as LibSession;
-use app\common\controller\BaseLogic;
 use app\common\model\Admin as ModelAdmin;
 
 class User extends BaseLogic
@@ -210,12 +210,13 @@ class User extends BaseLogic
             ->where([
                 ['admin.id', '=', $this->uid]
             ])
-            ->cache('profile' . $this->uid)
+            ->cache('profile' . $this->uid, null, 'admin_profile')
             ->find();
 
         if ($result && $result = $result->toArray()) {
             $result['last_login_time'] = date('Y-m-d H:i:s', (int) $result['last_login_time']);
             $result['avatar'] = avatar('', $result['username']);
+            unset($result['id'], $result['role_id']);
         }
 
         return [
@@ -236,7 +237,7 @@ class User extends BaseLogic
 
         // 验证备份状态
         $status = true;
-        $file = (array) glob($this->app->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR . '*');
+        $file = (array) glob($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR . '*');
         if (count($file) >= 2) {
             foreach ($file as $value) {
                 if (filectime($value) >= strtotime('-7 days')) {

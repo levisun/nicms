@@ -373,7 +373,7 @@ abstract class Async
     {
         // POST请求 表单令牌校验
         if ($this->request->isPost() && false === $this->request->checkToken()) {
-            $this->error('令牌错误', 40007);
+            $this->error('令牌错误', 20013);
         }
 
         return $this;
@@ -389,7 +389,7 @@ abstract class Async
     {
         $this->timestamp = (int) $this->request->param('timestamp/f', $this->request->time());
         if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
-            $this->error('请求超时', 20000);
+            $this->error('请求超时', 20012);
         }
 
         return $this;
@@ -408,7 +408,7 @@ abstract class Async
         if (!$this->signType || !function_exists($this->signType)) {
             $this->debugLog['sign_type'] = $this->signType;
             $this->log->record('[Async] params-sign_type error', 'error');
-            $this->error('非法参数', 20002);
+            $this->error('非法参数', 20009);
         }
 
         // 校验签名合法性
@@ -416,7 +416,7 @@ abstract class Async
         if (!$this->sign || false === preg_match('/^[A-Za-z0-9]+$/u', $this->sign)) {
             $this->debugLog['sign'] = $this->sign;
             $this->log->record('[Async] params-sign error', 'error');
-            $this->error('非法参数', 20002);
+            $this->error('非法参数', 20010);
         }
 
 
@@ -440,7 +440,7 @@ abstract class Async
             $this->debugLog['sign_str'] = $str;
             $this->debugLog['sign'] = call_user_func($this->signType, $str);
             $this->log->record('[Async] params-sign error', 'error');
-            $this->error('授权权限不足', 20001);
+            $this->error('授权权限不足', 20011);
         }
 
         return $this;
@@ -457,7 +457,7 @@ abstract class Async
         $this->appId = $this->request->param('appid/f', 1000001);
         if (!$this->appId || $this->appId < 1000001) {
             $this->log->record('[Async] auth-appid not', 'error');
-            $this->error('非法参数', 20002);
+            $this->error('非法参数', 20007);
         }
 
 
@@ -477,7 +477,7 @@ abstract class Async
             $this->appName = $result['module'];
         } else {
             $this->log->record('[Async] auth-appid error', 'error');
-            $this->error('权限不足', 20001);
+            $this->error('权限不足', 20008);
         }
 
         return $this;
@@ -514,7 +514,7 @@ abstract class Async
             $this->request->withSession($this->session);
         } else {
             $this->log->record('[Async] header-authorization params error', 'error');
-            $this->error('权限不足', 20001);
+            $this->error('权限不足', 20002);
         }
         unset($session_id);
 
@@ -526,7 +526,7 @@ abstract class Async
         if (!$this->accept || false === preg_match($pattern, $this->accept)) {
             $this->debugLog['accept'] = $this->accept;
             $this->log->record('[Async] header-accept error', 'error');
-            $this->error('非法参数', 20002);
+            $this->error('非法参数', 20003);
         }
 
 
@@ -539,7 +539,7 @@ abstract class Async
         list($root) = explode('.', $this->request->rootDomain(), 2);
         if (!hash_equals($domain, $root)) {
             $this->log->record('[Async] header-accept domain error', 'error');
-            $this->error('权限不足', 20001);
+            $this->error('权限不足', 20004);
         }
         unset($doamin, $root);
 
@@ -550,7 +550,7 @@ abstract class Async
         if (!$version || false === preg_match('/^[v0-9.]+$/u', $version)) {
             $this->debugLog['version'] = $version;
             $this->log->record('[Async] header-accept version error', 'error');
-            $this->error('非法参数', 20002);
+            $this->error('非法参数', 20005);
         }
         // 去掉"v"
         $version = substr($version, 1);
@@ -568,7 +568,7 @@ abstract class Async
         if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
             $this->debugLog['format'] = $this->format;
             $this->log->record('[Async] header-accept format error', 'error');
-            $this->error('非法参数', 20002);
+            $this->error('非法参数', 20006);
         }
 
         return $this;

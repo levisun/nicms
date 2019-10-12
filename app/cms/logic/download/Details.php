@@ -6,7 +6,7 @@
  * 文章内容
  *
  * @package   NICMS
- * @category  app\service\cms\download
+ * @category  app\cms\logic\download
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-namespace app\service\cms\download;
+namespace app\cms\logic\download;
 
 use think\facade\Lang;
 use app\service\cms\ArticleBase;

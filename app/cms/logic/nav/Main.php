@@ -6,7 +6,7 @@
  * 主导航
  *
  * @package   NICMS
- * @category  app\service\cms\nav
+ * @category  app\cms\logic\nav
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -15,13 +15,13 @@
 
 declare(strict_types=1);
 
-namespace app\service\cms\nav;
+namespace app\cms\logic\nav;
 
-use app\library\Base64;
-use app\service\BaseService;
-use app\model\Category as ModelCategory;
+use app\common\controller\BaseController;
+use app\common\library\Base64;
+use app\common\model\Category as ModelCategory;
 
-class Main extends BaseService
+class Main extends BaseController
 {
 
     /**

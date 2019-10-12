@@ -63,9 +63,9 @@ class RecordRequest
 
 
 
-        if (3 <= $run_time) {
+        if (1 <= $run_time) {
             $_app->log->record(
-                '{' . $time_memory . $request_method . ' ' . $request_url . '}' .
+                '{长请求 ' . $time_memory . $request_method . ' ' . $request_url . '}' .
                     PHP_EOL . $request_params .
                     PHP_EOL,
                 'info'
@@ -86,12 +86,12 @@ class RecordRequest
 
 
 
-        // 1 === mt_rand(1, 9) and $_app->log->record(
-        //     '{' . $time_memory . $request_method . ' ' . $request_url . '}' .
-        //         PHP_EOL . $request_params .
-        //         PHP_EOL,
-        //     'info'
-        // );
+        1 === mt_rand(1, 19) and $_app->log->record(
+            '{' . $time_memory . $request_method . ' ' . $request_url . '}' .
+                PHP_EOL . $request_params .
+                PHP_EOL,
+            'info'
+        );
 
 
 

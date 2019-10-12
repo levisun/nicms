@@ -6,7 +6,7 @@
  * 文章基础类
  *
  * @package   NICMS
- * @category  app\service\cms
+ * @category  app\cms\logic
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -15,16 +15,16 @@
 
 declare(strict_types=1);
 
-namespace app\service\cms;
+namespace app\cms\logic;
 
-use app\library\Base64;
-use app\service\BaseService;
-use app\library\DataFilter;
-use app\model\Article as ModelArticle;
-use app\model\ArticleExtend as ArticleExtend;
-use app\model\ArticleTags as ModelArticleTags;
+use app\common\controller\BaseController;
+use app\common\library\Base64;
+use app\common\library\DataFilter;
+use app\common\model\Article as ModelArticle;
+use app\common\model\ArticleExtend as ArticleExtend;
+use app\common\model\ArticleTags as ModelArticleTags;
 
-class ArticleBase extends BaseService
+class BaseArticle extends BaseController
 {
 
     /**

@@ -6,7 +6,7 @@
  * admin
  *
  * @package   NICMS
- * @category  app\controller
+ * @category  app\admin\controller
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
