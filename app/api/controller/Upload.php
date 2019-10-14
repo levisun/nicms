@@ -17,18 +17,10 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\api\controller\Async;
+use app\common\controller\AsyncController;
 
-class Upload extends Async
+class Upload extends AsyncController
 {
-    /**
-     * 控制器中间件
-     * @var array
-     */
-    protected $middleware = [
-        // 全局请求缓存
-        // \app\common\middleware\CheckRequestCache::class,
-    ];
 
     public function index()
     {
@@ -36,7 +28,7 @@ class Upload extends Async
             $this->error('错误请求', 40009);
         }
 
-        $result = $this->validate('post', true)->run();
+        $result = $this->validate('POST')->run();
         $this->openCache(false)->success($result['msg'], $result['data'], $result['code']);
     }
 }

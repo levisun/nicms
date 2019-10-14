@@ -36,6 +36,9 @@ composer create-project topthink/think nicms 6.0.*-dev
 composer update topthink/framework
 
 依赖
+composer require topthink/think-orm
+composer require topthink/think-multi-app
+composer require topthink/think-trace
 composer require topthink/think-image
 composer require topthink/think-captcha
 
@@ -43,6 +46,16 @@ composer require overtrue/pinyin
 composer require overtrue/wechat
 composer require phpmailer/phpmailer
 ~~~
+
+## composer 命令
+
+> `outdated` 检测已安装的包是否有新版本
+
+> `update` 更新包
+
+> `require` 安装包
+
+> `remove` 移除包
 
 ## 版权信息
 

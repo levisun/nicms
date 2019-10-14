@@ -17,18 +17,10 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\api\controller\Async;
+use app\common\controller\AsyncController;
 
-class Wechat extends Async
+class Wechat extends AsyncController
 {
-    /**
-     * 控制器中间件
-     * @var array
-     */
-    protected $middleware = [
-        // 全局请求缓存
-        \app\common\middleware\CheckRequestCache::class,
-    ];
 
     public function index()
     {

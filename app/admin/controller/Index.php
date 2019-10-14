@@ -17,10 +17,10 @@ declare(strict_types=1);
 
 namespace app\admin\controller;
 
-use app\admin\controller\Base;
+use app\common\controller\BaseController;
 use app\common\library\Rbac;
 
-class Index extends Base
+class Index extends BaseController
 {
 
     /**

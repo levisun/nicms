@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace app\common\middleware;
 
 use Closure;
-use think\Config;
+use think\facade\Config;
 use think\Request;
 use think\Response;
 
@@ -31,10 +31,9 @@ class CheckRequestCache
      * @access public
      * @param  Request $request
      * @param  Closure $next
-     * @param  Config  $config
      * @return Response
      */
-    public function handle(Request $request, Closure $next, Config $config)
+    public function handle(Request $request, Closure $next)
     {
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
             if (strtotime($ms) + 1440 > $request->server('REQUEST_TIME')) {
@@ -46,7 +45,7 @@ class CheckRequestCache
 
         // 调试模式关闭缓存
         // API有定义缓存,请勿开启缓存
-        if (true === $config->get('app.debug')) {
+        if (true === Config::get('app.debug')) {
             $response->allowCache(false);
         }
 

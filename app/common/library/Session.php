@@ -45,10 +45,10 @@ class Session implements SessionHandlerInterface
      */
     public function gc(): void
     {
-        $maxlifetime = (int) $this->config['gc_maxlifetime'];
+        $maxlifetime = (int) $this->config['expire'];
         $this->model->where([
-                ['update_time', '<=', time() - $maxlifetime]
-            ])
+            ['update_time', '<=', time() - $maxlifetime]
+        ])
             ->delete();
     }
 
@@ -70,12 +70,10 @@ class Session implements SessionHandlerInterface
 
         $result = $this->model->field(['data', 'update_time'])
             ->where($map)
-            ->cache($sessID)
             ->find();
 
         if (null !== $result && $result['update_time'] <= strtotime('-10 minute')) {
             $this->model->where($map)
-                ->cache($sessID)
                 ->update([
                     'update_time' => time()
                 ]);
@@ -94,9 +92,9 @@ class Session implements SessionHandlerInterface
     public function write(string $sessID, string $data): bool
     {
         $has = $this->model->where([
-                ['session_id', '=', $this->config['prefix'] . $sessID]
-            ])
-            ->find();
+            ['session_id', '=', $this->config['prefix'] . $sessID]
+        ])
+            ->value('session_id');
 
         $data = [
             'session_id'  => $this->config['prefix'] . $sessID,
@@ -106,9 +104,8 @@ class Session implements SessionHandlerInterface
 
         if (null !== $has) {
             $this->model->where([
-                    ['session_id', '=', $this->config['prefix'] . $sessID],
-                ])
-                ->cache($sessID)
+                ['session_id', '=', $this->config['prefix'] . $sessID],
+            ])
                 ->update($data);
         } else {
             $this->model->create($data);
@@ -126,9 +123,8 @@ class Session implements SessionHandlerInterface
     public function delete(string $sessID): bool
     {
         $this->model->where([
-                ['session_id', '=', $this->config['prefix'] . $sessID]
-            ])
-            ->cache($sessID)
+            ['session_id', '=', $this->config['prefix'] . $sessID]
+        ])
             ->delete();
         return $this->model->getNumRows();
     }

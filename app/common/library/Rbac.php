@@ -73,6 +73,25 @@ class Rbac
     }
 
     /**
+     * 获得用户权限
+     * @param  int   $_uid
+     * @return array
+     */
+    public function getAuth($_uid): array
+    {
+        $_uid = (int) $_uid;
+        if ($this->config['auth_type'] == 1) {
+            $result = $this->accessDecision($_uid);
+        } elseif (session('?__authenticate_list')) {
+            $result = session('__authenticate_list');
+        } else {
+            $result = $this->accessDecision($_uid);
+            session('__authenticate_list', $result);
+        }
+        return $result;
+    }
+
+    /**
      * 检查当前操作是否需要认证
      * @access private
      * @param  string $_app        应用名

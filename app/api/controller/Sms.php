@@ -17,26 +17,18 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\api\controller\Async;
+use app\common\controller\AsyncController;
 
-class Sms extends Async
+class Sms extends AsyncController
 {
-    /**
-     * 控制器中间件
-     * @var array
-     */
-    protected $middleware = [
-        // 全局请求缓存
-        // \app\common\middleware\CheckRequestCache::class,
-    ];
 
     public function index()
     {
         $phone = $this->request->param('phone', false);
         if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
-            $this->validate('post', true);
+            $this->validate('POST');
 
-            $key = $this->cookie->has('__uid') ? $this->cookie->get('__uid') : $this->request->ip();
+            $key = $this->session->has('client_id') ? $this->session->get('client_id') : $this->request->ip();
             $key = md5('sms_' . $key);
 
             if ($this->session->has($key) && $result = $this->session->get($key)) {
@@ -53,6 +45,18 @@ class Sms extends Async
             $this->openCache(false)->success('验证码发送成功');
         } else {
             $this->error('错误请求', 40009);
+        }
+    }
+
+    public function check()
+    {
+        $key = $this->session->has('client_id') ? $this->session->get('client_id') : $this->request->ip();
+        $key = md5('sms_' . $key);
+
+        if (!$this->session->has($key) || !$result = $this->session->get($key)) {
+            if ($result['time'] >= time()) {
+                $this->error('错误请求', 40009);
+            }
         }
     }
 }

@@ -17,6 +17,7 @@ use think\facade\Route;
 
 Route::group(function () {
     Route::rule('query$', 'Query/index')->ext('do');
+    Route::rule('client$', 'Query/client')->ext('do');
     Route::rule('handle$', 'Handle/index')->ext('do');
     Route::rule('upload$', 'Upload/index')->ext('do');
     Route::rule('sms$', 'Sms/index')->ext('do');

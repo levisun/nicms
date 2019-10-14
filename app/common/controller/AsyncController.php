@@ -5,7 +5,7 @@
  * 异步请求实现
  *
  * @package   NICMS
- * @category  app\library
+ * @category  app\common\controller
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace app\api\controller;
+namespace app\common\controller;
 
 use think\App;
 use think\exception\HttpResponseException;
@@ -22,7 +22,7 @@ use app\common\library\Jwt;
 use app\common\model\ApiApp as ModelApiApp;
 use app\common\model\Session as ModelSession;
 
-abstract class Async
+abstract class AsyncController
 {
     /**
      * 应用实例
@@ -181,12 +181,6 @@ abstract class Async
     protected $method;
 
     /**
-     * 请求
-     * @var bool
-     */
-    protected $referer = false;
-
-    /**
      * 构造方法
      * @access public
      * @param
@@ -216,8 +210,6 @@ abstract class Async
 
         @ini_set('memory_limit', '8M');
         set_time_limit(5);
-
-        $this->referer = (bool) $this->request->server('HTTP_REFERER');
     }
 
     /**
@@ -277,21 +269,26 @@ abstract class Async
      * @param
      * @return $this
      */
-    protected function validate($_type = 'get', $_referer = false)
+    protected function validate(string $_type = 'GET', $_referer = true)
     {
         // 检查来源
-        if ($_referer && !$this->referer) {
+        if ($_referer && !$this->request->server('HTTP_REFERER')) {
             $this->error('错误请求', 30001);
         }
+
         // 检查请求类型
-        if ('get' === $_type && !$this->request->isGet()) {
+        if ($_type !== $this->request->method()) {
             $this->error('错误请求', 30002);
-        } elseif ('post' === $_type && !$this->request->isPost()) {
-            $this->error('错误请求', 30003);
         }
 
-        $this->analysisHeader()
-            ->checkAppId()
+        $this->analysisHeader();
+
+        // 检查客户端ID
+        if (!$this->session->has('client_id')) {
+            $this->error('非法参数', 30003);
+        }
+
+        $this->checkAppId()
             ->checkSign()
             ->checkTimestamp()
             ->checkToken();
@@ -363,7 +360,7 @@ abstract class Async
     {
         // POST请求 表单令牌校验
         if ($this->request->isPost() && false === $this->request->checkToken()) {
-            $this->error('令牌错误', 20013);
+            // $this->error('非法参数', 20013);
         }
 
         return $this;
@@ -379,7 +376,7 @@ abstract class Async
     {
         $this->timestamp = (int) $this->request->param('timestamp/f', $this->request->time());
         if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
-            $this->error('请求超时', 20012);
+            $this->error('非法参数', 20012);
         }
 
         return $this;
@@ -430,7 +427,7 @@ abstract class Async
             $this->debugLog['sign_str'] = $str;
             $this->debugLog['sign'] = call_user_func($this->signType, $str);
             $this->log->record('[Async] params-sign error', 'error');
-            $this->error('授权权限不足', 20011);
+            $this->error('非法参数', 20011);
         }
 
         return $this;
@@ -467,7 +464,7 @@ abstract class Async
             $this->appName = $result['module'];
         } else {
             $this->log->record('[Async] auth-appid error', 'error');
-            $this->error('权限不足', 20008);
+            $this->error('非法参数', 20008);
         }
 
         return $this;
@@ -486,7 +483,7 @@ abstract class Async
 
         if (false === $this->authorization || empty($this->authorization['jti'])) {
             $this->log->record('[Async] header-authorization params error', 'error');
-            $this->error('权限不足', 20001);
+            $this->error('非法参数', 20001);
         }
 
 
@@ -501,10 +498,11 @@ abstract class Async
             ->value('session_id');
         if ($session_id) {
             $this->session->setId($this->authorization['jti']);
+            $this->session->init();
             $this->request->withSession($this->session);
         } else {
             $this->log->record('[Async] header-authorization params error', 'error');
-            $this->error('权限不足', 20002);
+            $this->error('非法参数', 20002);
         }
         unset($session_id);
 
@@ -529,7 +527,7 @@ abstract class Async
         list($root) = explode('.', $this->request->rootDomain(), 2);
         if (!hash_equals($domain, $root)) {
             $this->log->record('[Async] header-accept domain error', 'error');
-            $this->error('权限不足', 20004);
+            $this->error('非法参数', 20004);
         }
         unset($doamin, $root);
 
@@ -611,9 +609,14 @@ abstract class Async
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'time'    => $time . ',' . $memory . ',' . $this->app->db->getQueryTimes() . ',' . $this->app->cache->getReadTimes(),
+            'time'    => $time . ',' . $memory . ',' .
+                count(get_included_files()) . ',' .
+                $this->app->db->getQueryTimes() . ',' .
+                $this->app->cache->getReadTimes(),
             // 表单令牌
-            'token'   => $this->request->isPost() && 10000 === $_code ? $this->request->buildToken('__token__', 'md5') : '',
+            'token'   => $this->request->isPost() && 10000 === $_code
+                ? $this->request->buildToken('__token__', 'md5')
+                : '',
             // 调试数据
             'debug'   => true === $this->apiDebug ? [
                 'log'     => $this->debugLog,
@@ -623,12 +626,6 @@ abstract class Async
         ];
         $result = array_filter($result);
 
-
-
-        // $this->log->save();
-
-
-
         $response = $this->response->create($result, $this->format)->allowCache(false);
         $response->header(array_merge(['X-Powered-By' => 'NIAPI'], $response->getHeader()));
         if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
@@ -637,6 +634,10 @@ abstract class Async
                 ->expires(gmdate('D, d M Y H:i:s', time() + $this->apiExpire) . ' GMT')
                 ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
         }
+
+        $this->log->save();
+        $this->session->save();
+
         throw new HttpResponseException($response);
     }
 }

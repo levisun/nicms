@@ -17,22 +17,25 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\api\controller\Async;
+use app\common\controller\AsyncController;
+use app\common\library\Base64;
 
-class Query extends Async
+class Query extends AsyncController
 {
-    /**
-     * 控制器中间件
-     * @var array
-     */
-    protected $middleware = [
-        // 全局请求缓存
-        \app\common\middleware\CheckRequestCache::class,
-    ];
 
     public function index()
     {
-        $result = $this->validate('get', true)->run();
+        $result = $this->validate('GET')->run();
         return $this->success($result['msg'], $result['data'], $result['code']);
+    }
+
+    public function client()
+    {
+        $this->validate('GET');
+        // if (!$this->session->has('client_id')) {
+        //     $this->session->set('client_id', Base64::client_id());
+        // }
+
+        // return $this->success('client_id', $this->session->get('client_id'));
     }
 }

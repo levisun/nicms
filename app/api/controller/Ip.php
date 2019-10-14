@@ -17,27 +17,17 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\api\controller\Async;
+use app\common\controller\AsyncController;
 use app\common\library\Ipinfo;
 
-class Ip extends Async
+class Ip extends AsyncController
 {
-    /**
-     * 控制器中间件
-     * @var array
-     */
-    protected $middleware = [
-        // 全局请求缓存
-        \app\common\middleware\CheckRequestCache::class,
-    ];
-
     public function index()
     {
         if ($ip = $this->request->param('ip', false)) {
             if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
                 // $this->validate();
-                $ip = Ipinfo::get($ip);
-                $this->openCache(true)->success('IP INFO', $ip);
+                $this->openCache(true)->success('IP INFO', Ipinfo::get($ip));
             }
         } else {
             $this->error('错误请求', 40001);

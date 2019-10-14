@@ -17,26 +17,18 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\api\controller\Async;
+use app\common\controller\AsyncController;
+use app\common\library\Download as Down;
 
-class Download extends Async
+class Download extends AsyncController
 {
-    /**
-     * 控制器中间件
-     * @var array
-     */
-    protected $middleware = [
-        // 全局请求缓存
-        // \app\common\middleware\CheckRequestCache::class,
-    ];
 
     public function index()
     {
         if ($this->request->isGet() && $file = $this->request->param('file', false)) {
-            (new \app\common\library\Download)->file($file);
+            (new Down)->file($file);
         } else {
-            echo '错误请求';
-            exit();
+            $this->error('错误请求', 40001);
         }
     }
 }
