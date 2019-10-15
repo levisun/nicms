@@ -224,27 +224,12 @@ abstract class BaseLogic
             return [
                 'debug' => false,
                 'cache' => false,
-                'code'  => 40006,
+                'code'  => 40011,
                 'msg'   => '请求错误'
             ];
         }
 
         $v = new $class;
-
-        // $_validate = str_replace('app\service\\', '', strtolower($_validate));
-        // list($_validate) = explode('::', $_validate, 2);
-
-        // 支持场景
-        // if (false !== strpos($_validate, '.')) {
-        //     list($_validate, $scene) = explode('.', $_validate);
-        // }
-
-        // $class = $this->app->parseClass('validate', $_validate);
-        // $v     = new $class;
-
-        // if (!empty($scene)) {
-        //     $v->scene($scene);
-        // }
 
         $_data = !empty($_data) ? $_data : $this->request->param();
 
@@ -252,7 +237,7 @@ abstract class BaseLogic
             return [
                 'debug' => false,
                 'cache' => false,
-                'code'  => 40006,
+                'code'  => 40012,
                 'msg'   => $v->getError()
             ];
         } else {

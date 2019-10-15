@@ -224,7 +224,7 @@ abstract class AsyncController
         $result = $this->analysisMethod();
 
         if (!is_array($result) && empty($result['msg'])) {
-            $this->error('返回数据缺少参数', 40001);
+            $this->error('返回数据格式错误', 40001);
         }
 
         // 调试模式设置 返回数据没有指定默认关闭
@@ -360,7 +360,7 @@ abstract class AsyncController
     {
         // POST请求 表单令牌校验
         if ($this->request->isPost() && false === $this->request->checkToken()) {
-            // $this->error('非法参数', 20013);
+            $this->error('非法参数', 20013);
         }
 
         return $this;
@@ -490,13 +490,7 @@ abstract class AsyncController
 
         // Session初始化
         // 规定sessionID
-        $session_id = (new ModelSession)
-            ->where([
-                ['session_id', '=', $this->authorization['jti']]
-            ])
-            ->cache(__METHOD__ . $this->authorization['jti'], null, 'SYSTEM')
-            ->value('session_id');
-        if ($session_id) {
+        if (is_file($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . 'sess_' . $this->authorization['jti'])) {
             $this->session->setId($this->authorization['jti']);
             $this->session->init();
             $this->request->withSession($this->session);
@@ -504,7 +498,6 @@ abstract class AsyncController
             $this->log->record('[Async] header-authorization params error', 'error');
             $this->error('非法参数', 20002);
         }
-        unset($session_id);
 
 
 
@@ -602,27 +595,25 @@ abstract class AsyncController
      */
     protected function result(string $_msg, array $_data = [], int $_code = 10000)
     {
-        $time = number_format(microtime(true) - $this->app->getBeginTime(), 3);
-        $memory = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3);
-
         $result = [
             'code'    => $_code,
             'data'    => $_data,
-            'message' => $_msg,
-            'time'    => $time . ',' . $memory . ',' .
-                count(get_included_files()) . ',' .
-                $this->app->db->getQueryTimes() . ',' .
-                $this->app->cache->getReadTimes(),
+            'message' => true === $this->apiDebug ? $_msg : (10000 === $_code ? 'success' : 'error'),
             // 表单令牌
-            'token'   => $this->request->isPost() && 10000 === $_code
+            'token'   => $this->request->isPost()
                 ? $this->request->buildToken('__token__', 'md5')
                 : '',
             // 调试数据
             'debug'   => true === $this->apiDebug ? [
+                'time'    => number_format(microtime(true) - $this->app->getBeginTime(), 3),
+                'memory'  => number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3),
+                'query'   => $this->app->db->getQueryTimes(),
+                'cache'   => $this->app->cache->getReadTimes(),
+                'file'    => count(get_included_files()),
                 'log'     => $this->debugLog,
                 'method'  => $this->method,
                 'version' => implode('.', $this->version),
-            ] : '',
+            ] : [],
         ];
         $result = array_filter($result);
 

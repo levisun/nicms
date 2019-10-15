@@ -23,19 +23,21 @@ return [
     'stores'  => [
         'file' => [
             // 驱动方式
-            'type'         => 'File',
+            'type'          => 'File',
             // 缓存保存目录
-            'path'         => '',
+            'path'          => '',
             // 缓存前缀
-            'prefix'       => '',
+            'prefix'        => '',
             // 缓存有效期 0表示永久缓存
-            'expire'       => $expire,
+            'expire'        => $expire,
             // 关闭子目录
-            'cache_subdir' => false,
+            'cache_subdir'  => false,
+            // 启用数据压缩
+            'data_compress' => true,
             // 缓存标签前缀
-            'tag_prefix'   => 'tag:',
+            'tag_prefix'    => 'tag: ',
             // 序列化机制 例如 ['serialize', 'unserialize']
-            'serialize'    => [],
+            'serialize'     => [],
         ],
         // redis缓存
         'redis'   =>  [

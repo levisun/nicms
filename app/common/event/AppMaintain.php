@@ -63,6 +63,6 @@ class AppMaintain
         // 数据库备份
         (new DataManage)->autoBackup();
 
-        Ipinfo::get(mt_rand(1, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(1, 255));
+        // Ipinfo::get(mt_rand(1, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(1, 255));
     }
 }

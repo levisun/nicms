@@ -18,8 +18,7 @@ namespace app\common\library;
 
 use think\App;
 use think\contract\TemplateHandlerInterface;
-use think\template\exception\TemplateNotFoundException;
-//
+
 class Template implements TemplateHandlerInterface
 {
     /**
@@ -27,6 +26,12 @@ class Template implements TemplateHandlerInterface
      * @var \think\App
      */
     private $app;
+
+    /**
+     * 应用名
+     * @var string
+     */
+    private $appName;
 
     /**
      * 模板配置参数
@@ -93,6 +98,7 @@ class Template implements TemplateHandlerInterface
     {
         $this->app    = $app;
         $this->config = array_merge($this->config, $_config);
+        $this->appName = app('http')->getName() . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -162,7 +168,7 @@ class Template implements TemplateHandlerInterface
         }
 
         // 主题设置
-        $tpl_config = $this->config['app_name'] . $this->config['view_theme'] . 'config.json';
+        $tpl_config = $this->appName . $this->config['view_theme'] . 'config.json';
         if (is_file($this->config['view_path'] . $tpl_config)) {
             $json = file_get_contents($this->config['view_path'] . $tpl_config);
             if ($json && $json = json_decode($json, true)) {
@@ -175,8 +181,8 @@ class Template implements TemplateHandlerInterface
             $this->config['view_theme'] .
             md5(
                 $this->config['layout_on'] .
-                $this->config['layout_name'] .
-                str_replace($this->app->getRootPath() . 'public', '', $_template)
+                    $this->config['layout_name'] .
+                    str_replace($this->app->getRootPath() . 'public', '', $_template)
             ) . '.' .
             trim($this->config['cache_suffix'], '.');
 
@@ -201,11 +207,11 @@ class Template implements TemplateHandlerInterface
     private function paresReplace(string &$_content): void
     {
         $theme  = $this->app->config->get('app.cdn_host') . '/theme/' .
-            $this->config['app_name'] . $this->config['view_theme'];
+            $this->appName . $this->config['view_theme'];
 
         // 拼装移动端模板路径
         $mobile = 'mobile' . DIRECTORY_SEPARATOR;
-        if ($this->app->request->isMobile() && is_dir($this->config['view_path'] . $this->config['app_name'] . $this->config['view_theme'] . $mobile)) {
+        if ($this->app->request->isMobile() && is_dir($this->config['view_path'] . $this->appName . $this->config['view_theme'] . $mobile)) {
             $theme .= $mobile;
         }
 
@@ -509,9 +515,8 @@ class Template implements TemplateHandlerInterface
 
         // 编译存储
         $dir = dirname($_cache_file);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
-        }
+        is_dir($dir) or mkdir($dir, 0755, true);
+
         file_put_contents($_cache_file, $_content);
 
         $this->includeFile = [];
@@ -573,11 +578,6 @@ class Template implements TemplateHandlerInterface
 
         $request = $this->app->request;
 
-        // 拼装多应用
-        $this->config['app_name'] = $this->config['app_name']
-            ? trim($this->config['app_name'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
-            : '';
-
         // 拼装模板主题
         $this->config['view_theme'] = $this->config['view_theme']
             ? trim($this->config['view_theme'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
@@ -588,17 +588,17 @@ class Template implements TemplateHandlerInterface
         $_template = $_template
             ? rtrim(trim($_template, '\/'), '.') . '.' . $this->config['view_suffix']
             : $request->action(true);
-        $_template = $this->config['app_name'] . $this->config['view_theme'] . $_template;
+        $_template = $this->appName . $this->config['view_theme'] . $_template;
 
         // 拼装移动端模板路径
         $mobile = 'mobile' . DIRECTORY_SEPARATOR;
-        if ($request->isMobile() && is_file($this->config['view_path'] . $this->config['app_name'] . $this->config['view_theme'] . $mobile . $_template)) {
-            $_template = $this->config['app_name'] . $this->config['view_theme'] . $mobile . $_template;
+        if ($request->isMobile() && is_file($this->config['view_path'] . $this->appName . $this->config['view_theme'] . $mobile . $_template)) {
+            $_template = $this->appName . $this->config['view_theme'] . $mobile . $_template;
         }
 
         // 模板不存在 抛出异常
         if (!is_file($this->config['view_path'] . $_template)) {
-            throw new TemplateNotFoundException('template not exists:' . $_template, $_template);
+            die('template not exists:' . $_template);
         }
 
         // 记录模板文件的更新时间
