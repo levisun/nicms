@@ -220,31 +220,6 @@ if (!function_exists('avatar')) {
     }
 }
 
-if (!function_exists('content_filter')) {
-    /**
-     * 内容过滤
-     * @param  mixed $_data
-     * @return mixed
-     */
-    function content_filter($_data)
-    {
-        return DataFilter::content($_data);
-    }
-}
-
-if (!function_exists('default_filter')) {
-    /**
-     * 默认过滤
-     * @param  mixed $_data
-     * @return mixed
-     */
-    function default_filter($_data)
-    {
-        return DataFilter::
-        default($_data);
-    }
-}
-
 if (!function_exists('create_authorization')) {
     /**
      * API授权字符串

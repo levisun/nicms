@@ -130,7 +130,7 @@ class User extends BaseLogic
             return $result;
         }
 
-        $this->cache->delete('auth' . $this->uid);
+        $this->cache->delete('AUTH' . $this->uid);
         $this->session->delete($this->authKey);
         $this->session->delete($this->authKey . '_role');
 
@@ -167,7 +167,7 @@ class User extends BaseLogic
             return $result;
         }
 
-        if (!$this->cache->has('auth' . $this->uid) || !$result = $this->cache->get('auth' . $this->uid)) {
+        if (!$this->cache->has('AUTH' . $this->uid) || !$result = $this->cache->get('AUTH' . $this->uid)) {
             $result = (new Rbac)->getAuth($this->uid);
             $result = $result['admin'];
             foreach ($result as $key => $value) {
@@ -183,7 +183,7 @@ class User extends BaseLogic
                     ];
                 }
             }
-            $this->cache->tag('AUTH')->set('auth' . $this->uid, $result);
+            $this->cache->set('AUTH' . $this->uid, $result);
         }
 
         return [
@@ -213,7 +213,7 @@ class User extends BaseLogic
             ->where([
                 ['admin.id', '=', $this->uid]
             ])
-            ->cache('profile' . $this->uid, null, 'admin_profile')
+            ->cache('PROFILE' . $this->uid, 60)
             ->find();
 
         if ($result && $result = $result->toArray()) {

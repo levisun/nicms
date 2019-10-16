@@ -61,7 +61,7 @@ class Tags
 
         // JS引入
         foreach ($_config['tpl_config']['js'] as $js) {
-            // async
+            // defer
             $foot .= str_replace('\'', '"', $js) . PHP_EOL;
         }
 

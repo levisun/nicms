@@ -14,7 +14,7 @@
 
 use think\facade\Env;
 
-$expire = (int) Env::get('cache.expire', 28800) - mt_rand(1, 1440);
+$expire = (int) Env::get('cache.expire', 28800) - mt_rand(0, 1440);
 
 return [
     // 默认缓存驱动

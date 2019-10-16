@@ -206,7 +206,7 @@ abstract class AsyncController
         // 关闭调试模式
         $this->app->debug(false);
         // 设置请求默认过滤方法
-        $this->request->filter('default_filter');
+        $this->request->filter('\app\common\library\DataFilter::default');
 
         @ini_set('memory_limit', '8M');
         set_time_limit(5);
@@ -455,7 +455,7 @@ abstract class AsyncController
             ->where([
                 ['id', '=', $this->appId]
             ])
-            ->cache(__METHOD__ . $this->appId, null, 'SYSTEM')
+            ->cache('APPID' . $this->appId)
             ->find();
 
         if ($result) {
@@ -598,7 +598,7 @@ abstract class AsyncController
         $result = [
             'code'    => $_code,
             'data'    => $_data,
-            'message' => true === $this->apiDebug ? $_msg : (10000 === $_code ? 'success' : 'error'),
+            'message' => true === $this->apiDebug ? $_msg : (10000 === $_code ? 'success' : $_msg),
             // 表单令牌
             'token'   => $this->request->isPost()
                 ? $this->request->buildToken('__token__', 'md5')

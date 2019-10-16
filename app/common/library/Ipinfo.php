@@ -186,16 +186,18 @@ class Ipinfo
         $city     = self::queryRegion($result['city'], $province);
         $area     = !empty($result['area']) ? self::queryRegion($result['area'], $city) : 0;
 
+        $binip = bindec(app('request')->ip2bin($_ip));
+
         $has = (new ModelIpinfo)
             ->where([
-                ['ip', '=', bindec(app('request')->ip2bin($_ip))]
+                ['ip', '=', $binip]
             ])
             ->value('id');
 
         if (!$has) {
             (new ModelIpinfo)
                 ->create([
-                    'ip'          => bindec(app('request')->ip2bin($_ip)),
+                    'ip'          => $binip,
                     'country_id'  => $country,
                     'province_id' => $province,
                     'city_id'     => $city,

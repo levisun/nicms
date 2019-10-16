@@ -22,7 +22,7 @@ class Rbac
 {
     private $config = [
         'auth_founder'     => 1,        // 超级管理员ID
-        'auth_type'        => 2,        // 实时验证方式
+        'auth_type'        => false,    // 实时验证方式
         'not_auth_app'     => [],
         'not_auth_service' => [],
         'not_auth_logic'   => [],
@@ -51,7 +51,7 @@ class Rbac
         // 登录并请求方法需要审核
         if ($_uid && $this->checkAccess($_app, $_logic, $_method, $_action)) {
             // 实时检验权限
-            if ($this->config['auth_type'] == 1) {
+            if (true === $this->config['auth_type']) {
                 $__authenticate_list = $this->accessDecision($_uid);
             }
 
@@ -80,7 +80,7 @@ class Rbac
     public function getAuth($_uid): array
     {
         $_uid = (int) $_uid;
-        if ($this->config['auth_type'] == 1) {
+        if (true === $this->config['auth_type']) {
             $result = $this->accessDecision($_uid);
         } elseif (session('?__authenticate_list')) {
             $result = session('__authenticate_list');
@@ -185,6 +185,7 @@ class Rbac
                     ['level', '=', $_level],
                     ['pid', '=', $_pid],
                 ])
+                ->cache('NODE' . $_uid . $_level . $_pid)
                 ->select();
         } else {
             $result = (new ModelNode)
@@ -197,6 +198,7 @@ class Rbac
                     ['node.level', '=', $_level],
                     ['node.pid', '=', $_pid],
                 ])
+                ->cache('NODE' . $_uid . $_level . $_pid)
                 ->select();
         }
 

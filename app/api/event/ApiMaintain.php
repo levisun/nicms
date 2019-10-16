@@ -41,7 +41,9 @@ class ApiMaintain
                     // 清除过期缓存文件
                     ->remove($_app->getRuntimePath() . 'cache', 1)
                     // 清除过期临时文件
-                    ->remove($_app->getRootPath() . 'temp', 1);
+                    ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1)
+                    // 清除过期SESSION
+                    ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session', 1);
 
                     fwrite($fp, '清除垃圾数据' . date('Y-m-d H:i:s'));
                     flock($fp, LOCK_UN);

@@ -19,7 +19,6 @@ namespace app\common\library;
 class DataManage
 {
     private $DB = null;
-    private $cache = null;
 
     private $savePath;
     private $lockPath;
@@ -27,7 +26,6 @@ class DataManage
     public function __construct()
     {
         $this->DB = app('think\DbManager');
-        $this->cache = app('cache');
 
         $this->savePath = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR;
         is_dir($this->savePath) or mkdir($this->savePath, 0755, true);
@@ -280,17 +278,12 @@ class DataManage
      */
     private function queryTableInsertField(string $_table_name): string
     {
-        $cache_key = md5(__METHOD__ . $_table_name);
-        if (!$this->cache->has($cache_key) || !$field = $this->cache->get($cache_key)) {
-            $result = $this->DB->query('SHOW COLUMNS FROM `' . $_table_name . '`');
-            $field = '';
-            foreach ($result as $value) {
-                $field .= '`' . $value['Field'] . '`,';
-            }
-            $field = trim($field, ',');
-
-            $this->cache->tag('SYSTEM')->set($cache_key, $field);
+        $result = $this->DB->query('SHOW COLUMNS FROM `' . $_table_name . '`');
+        $field = '';
+        foreach ($result as $value) {
+            $field .= '`' . $value['Field'] . '`,';
         }
+        $field = trim($field, ',');
 
         return $field;
     }
@@ -303,23 +296,18 @@ class DataManage
      */
     private function queryTableStructure(string $_table_name)
     {
-        $cache_key = md5(__METHOD__ . $_table_name);
-        if (!$this->cache->has($cache_key) || !$structure = $this->cache->get($cache_key)) {
-            $tableRes = $this->DB->query('SHOW CREATE TABLE `' . $_table_name . '`');
-            if (empty($tableRes[0]['Create Table'])) {
-                return false;
-            }
-
-            $structure  = '-- ' . date('Y-m-d H:i:s') . PHP_EOL;
-            $structure .= 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
-            $structure .= $tableRes[0]['Create Table'] . ';' . PHP_EOL;
-
-            $structure = preg_replace_callback('/(AUTO_INCREMENT=[0-9]+ DEFAULT)/si', function () {
-                return 'DEFAULT';
-            }, $structure);
-
-            $this->cache->tag('SYSTEM')->set($cache_key, $structure);
+        $tableRes = $this->DB->query('SHOW CREATE TABLE `' . $_table_name . '`');
+        if (empty($tableRes[0]['Create Table'])) {
+            return false;
         }
+
+        $structure  = '-- ' . date('Y-m-d H:i:s') . PHP_EOL;
+        $structure .= 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
+        $structure .= $tableRes[0]['Create Table'] . ';' . PHP_EOL;
+
+        $structure = preg_replace_callback('/(AUTO_INCREMENT=[0-9]+ DEFAULT)/si', function () {
+            return 'DEFAULT';
+        }, $structure);
 
         return $structure;
     }
@@ -332,17 +320,12 @@ class DataManage
      */
     private function queryTableName(): array
     {
-        $cache_key = md5(__METHOD__);
-        if (!$this->cache->has($cache_key) || !$tables = $this->cache->get($cache_key)) {
-            $result = $this->DB->query('SHOW TABLES FROM ' . app('env')->get('database.database'));
+        $result = $this->DB->query('SHOW TABLES FROM ' . app('env')->get('database.database'));
 
-            $tables = array();
-            foreach ($result as $value) {
-                $value = current($value);
-                $tables[str_replace(app('env')->get('database.prefix'), '', $value)] = $value;
-            }
-
-            $this->cache->tag('SYSTEM')->set($cache_key, $tables);
+        $tables = array();
+        foreach ($result as $value) {
+            $value = current($value);
+            $tables[str_replace(app('env')->get('database.prefix'), '', $value)] = $value;
         }
 
         return $tables;

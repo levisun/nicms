@@ -43,7 +43,9 @@ class AppMaintain
                     // 清除过期缓存文件
                     ->remove($_app->getRuntimePath() . 'cache', 1)
                     // 清除过期临时文件
-                    ->remove($_app->getRootPath() . 'temp', 1)
+                    ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1)
+                    // 清除过期SESSION
+                    ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session', 1)
                     // 清除过期网站地图文件
                     ->remove($_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 1)
                     // 清除过期上传资料
@@ -62,7 +64,5 @@ class AppMaintain
         (new DataManage)->optimize();
         // 数据库备份
         (new DataManage)->autoBackup();
-
-        // Ipinfo::get(mt_rand(1, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(1, 255));
     }
 }

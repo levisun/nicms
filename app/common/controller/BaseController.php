@@ -72,7 +72,7 @@ abstract class BaseController
         $this->view     = $this->app->view;
 
         $this->app->debug($this->config->get('app.debug'));
-        $this->request->filter('default_filter');
+        $this->request->filter('\app\common\library\DataFilter::default');
 
         if (!$this->session->has('client_id')) {
             $this->session->set('client_id', Base64::client_id());

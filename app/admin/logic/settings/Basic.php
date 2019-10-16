@@ -77,7 +77,7 @@ class Basic extends BaseLogic
             'cms_keywords'    => $this->request->param('cms_keywords'),
             'cms_description' => $this->request->param('cms_description'),
             'cms_footer'      => $this->request->param('cms_footer'),
-            'cms_copyright'   => $this->request->param('cms_copyright', '', 'content_filter'),
+            'cms_copyright'   => $this->request->param('cms_copyright', '', '\app\common\library\DataFilter::content'),
             'cms_beian'       => $this->request->param('cms_beian'),
             'script'          => $this->request->param('script', '', 'trim,htmlspecialchars'),
         ];

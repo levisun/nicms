@@ -113,7 +113,7 @@ abstract class BaseLogic
         // 关闭调试模式
         $this->app->debug(false);
         // 设置请求默认过滤方法
-        $this->request->filter('default_filter');
+        $this->request->filter('\app\common\library\DataFilter::default');
 
         // 设置会话信息(用户ID,用户组)
         if ($this->session->has($this->authKey) && $this->session->has($this->authKey . '_role')) {
@@ -297,7 +297,7 @@ abstract class BaseLogic
         $save_path = $this->config->get('filesystem.disks.public.url') . '/';
         $_dir = '/' . trim($_dir, '\/');
         $_dir .= $this->uid
-            ? '/u' . dechex((int) ($this->uid . date('ym')))
+            ? '/u' . dechex((int) ($this->uid . date('Ym')))
             : '/t' . dechex(date('Ym'));
 
         // 单文件
