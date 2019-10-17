@@ -33,7 +33,7 @@ class Ipinfo
     {
         $_ip = $_ip ?: app('request')->ip();
 
-        if ($_ip && false !== filter_var($_ip, FILTER_VALIDATE_IP) && true === self::validate($_ip)) {
+        if ($_ip && false !== filter_var($_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && true === self::validate($_ip)) {
             $cache_key = md5(__METHOD__ . $_ip);
             if (!app('cache')->has($cache_key)) {
                 // 查询IP地址库
