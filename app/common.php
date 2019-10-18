@@ -13,9 +13,10 @@
  */
 
 use think\Image;
-use app\common\library\DataFilter;
-use app\common\library\Jwt;
-
+use app\common\library\Base64;
+use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Signer\Key;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
 /**
  * 是否微信请求
  * @param
@@ -99,6 +100,29 @@ if (!function_exists('emoji_clear')) {
         }, $_str);
     }
 }
+
+if (!function_exists('format_size')) {
+    /**
+     * 格式化文件大小
+     * @param  int $_file_size
+     * @return string
+     */
+    function format_size(int $_file_size): string
+    {
+        if ($_file_size >= 1073741824) {
+            $_file_size = round($_file_size / 1073741824 * 100) / 100 . ' GB';
+        } elseif ($_file_size >= 1048576) {
+            $_file_size = round($_file_size / 1048576 * 100) / 100 . ' MB';
+        } elseif ($_file_size >= 1024) {
+            $_file_size = round($_file_size / 1024 * 100) / 100 . ' KB';
+        } else {
+            $_file_size = $_file_size . ' 字节';
+        }
+
+        return $_file_size;
+    }
+}
+
 
 if (!function_exists('remove_img')) {
     /**
@@ -228,14 +252,27 @@ if (!function_exists('create_authorization')) {
      */
     function create_authorization(): string
     {
-        return (new Jwt)
-            ->setheaders('alg', 'sha256')
-            ->issuedBy(app('request')->rootDomain())
-            ->issuedAt(app('request')->time())
-            ->expiresAt(app('request')->time() + 1440)
-            ->identifiedBy(app('session')->getId(false))
-            ->audience(app('request')->time() . app('request')->baseUrl())
-            ->getToken();
+        $time   = app('request')->time();
+        $domain = app('request')->rootDomain();
+        $jti    = Base64::encrypt(app('session')->getId(false));
+        $uid    = app('session')->get('client_token');
+
+        $key  = app('request')->ip();
+        $key .= $key . app('request')->rootDomain();
+        $key .= $key . app('request')->server('HTTP_USER_AGENT');
+        $key = md5(Base64::encrypt($key));
+
+        $token = (new Builder)
+            ->issuedBy(app('request')->domain())    // Configures the issuer (iss claim)
+            ->permittedFor($domain)                 // Configures the audience (aud claim)
+            ->identifiedBy($jti, false)             // Configures the id (jti claim), replicating as a header item
+            ->issuedAt($time)                       // Configures the time that the token was issue (iat claim)
+            ->canOnlyBeUsedAfter($time + 60)        // Configures the time that the token can be used (nbf claim)
+            ->expiresAt($time + 1440)               // Configures the expiration time of the token (exp claim)
+            ->withClaim('uid', $uid)                // Configures a new claim, called "uid"
+            ->getToken(new Sha256, new Key($key));  // Retrieves the generated token
+
+        return 'Bearer ' . (string) $token;
     }
 }
 

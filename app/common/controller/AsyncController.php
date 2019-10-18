@@ -18,9 +18,10 @@ namespace app\common\controller;
 
 use think\App;
 use think\exception\HttpResponseException;
-use app\common\library\Jwt;
+use app\common\library\Base64;
 use app\common\model\ApiApp as ModelApiApp;
-use app\common\model\Session as ModelSession;
+use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
 
 abstract class AsyncController
 {
@@ -283,8 +284,9 @@ abstract class AsyncController
 
         $this->analysisHeader();
 
-        // 检查客户端ID
-        if (!$this->session->has('client_id')) {
+        // 检查客户端token
+        // token由\app\common\controller\BaseController::class签发
+        if (!$this->session->has('client_token')) {
             $this->error('非法参数', 30003);
         }
 
@@ -479,9 +481,16 @@ abstract class AsyncController
     private function analysisHeader()
     {
         $this->authorization = $this->request->header('authorization');
-        $this->authorization = $this->authorization ? (new Jwt)->verify($this->authorization) : false;
+        $this->authorization = str_replace('&#43;', '+', $this->authorization);
+        $this->authorization = str_replace('Bearer ', '', $this->authorization);
+        $token = (new Parser)->parse($this->authorization);
 
-        if (false === $this->authorization || empty($this->authorization['jti'])) {
+        $key  = app('request')->ip();
+        $key .= $key . app('request')->rootDomain();
+        $key .= $key . app('request')->server('HTTP_USER_AGENT');
+        $key = md5(Base64::encrypt($key));
+
+        if (false === $token->verify(new Sha256, $key)) {
             $this->log->record('[Async] header-authorization params error', 'error');
             $this->error('非法参数', 20001);
         }
@@ -490,8 +499,9 @@ abstract class AsyncController
 
         // Session初始化
         // 规定sessionID
-        if (is_file($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . 'sess_' . $this->authorization['jti'])) {
-            $this->session->setId($this->authorization['jti']);
+        $jti = Base64::decrypt($token->getClaim('jti'));
+        if (is_file($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . 'sess_' . $jti)) {
+            $this->session->setId($jti);
             $this->session->init();
             $this->request->withSession($this->session);
         } else {

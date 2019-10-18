@@ -87,6 +87,7 @@ class JWT
 
     /**
      * 身份标识
+     * SESSION ID
      * @access public
      * @param  string $_id
      * @return JWT

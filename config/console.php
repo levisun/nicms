@@ -17,5 +17,6 @@ return [
     'user'     => null,
     // 指令定义
     'commands' => [
+        'install' => \app\command\Install::class,
     ],
 ];

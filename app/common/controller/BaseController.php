@@ -74,8 +74,8 @@ abstract class BaseController
         $this->app->debug($this->config->get('app.debug'));
         $this->request->filter('\app\common\library\DataFilter::default');
 
-        if (!$this->session->has('client_id')) {
-            $this->session->set('client_id', Base64::client_id());
+        if (!$this->session->has('client_token')) {
+            $this->session->set('client_token', Base64::client_id());
         }
 
         @ini_set('memory_limit', '8M');

@@ -41,6 +41,7 @@ composer require topthink/think-multi-app
 composer require topthink/think-trace
 composer require topthink/think-image
 composer require topthink/think-captcha
+composer require lcobucci/jwt
 
 composer require overtrue/pinyin
 composer require overtrue/wechat

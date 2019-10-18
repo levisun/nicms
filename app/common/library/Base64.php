@@ -61,14 +61,15 @@ class Base64
      */
     public static function client_id(): string
     {
-        $client_id  = date('dYm') . '.';
-        $client_id .= bindec(app('request')->ip2bin(app('request')->ip())) . '.';
-        $client_id .= date('sHi');
-        $client_id .= number_format(microtime(true) - app()->getBeginTime(), 3) . '.';
-        $client_id .= app('request')->time(true);
-        $client_id .= number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3);
+        $token  = app('request')->server('HTTP_USER_AGENT');
+        $token .= date('dYm');
+        $token .= bindec(app('request')->ip2bin(app('request')->ip()));
+        $token .= date('sHi');
+        $token .= number_format(microtime(true) - app()->getBeginTime(), 3);
+        $token .= app('request')->time(true);
+        $token .= number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3);
 
-        return md5(uniqid($client_id, true));
+        return md5(uniqid($token, true));
     }
 
     /**
