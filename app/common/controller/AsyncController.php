@@ -308,7 +308,7 @@ abstract class AsyncController
     {
         // 校验API方法
         $this->method = $this->request->param('method');
-        if (!$this->method || false === preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $this->method)) {
+        if (!$this->method || !preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $this->method)) {
             $this->error('非法参数', 20014);
         }
 
@@ -402,7 +402,7 @@ abstract class AsyncController
 
         // 校验签名合法性
         $this->sign = $this->request->param('sign');
-        if (!$this->sign || false === preg_match('/^[A-Za-z0-9]+$/u', $this->sign)) {
+        if (!$this->sign || !preg_match('/^[A-Za-z0-9]+$/u', $this->sign)) {
             $this->debugLog['sign'] = $this->sign;
             $this->log->record('[Async] params-sign error', 'error');
             $this->error('非法参数', 20010);
@@ -514,7 +514,7 @@ abstract class AsyncController
         // 解析版本号与返回数据类型
         $this->accept = $this->request->header('accept');
         $pattern = '/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]+\+[A-Za-z]{3,5}+$/u';
-        if (!$this->accept || false === preg_match($pattern, $this->accept)) {
+        if (!$this->accept || !preg_match($pattern, $this->accept)) {
             $this->debugLog['accept'] = $this->accept;
             $this->log->record('[Async] header-accept error', 'error');
             $this->error('非法参数', 20003);
@@ -538,7 +538,7 @@ abstract class AsyncController
 
         // 取得版本与数据类型
         list($version, $this->format) = explode('+', $accept, 2);
-        if (!$version || false === preg_match('/^[v0-9.]+$/u', $version)) {
+        if (!$version || !preg_match('/^[v0-9.]+$/u', $version)) {
             $this->debugLog['version'] = $version;
             $this->log->record('[Async] header-accept version error', 'error');
             $this->error('非法参数', 20005);

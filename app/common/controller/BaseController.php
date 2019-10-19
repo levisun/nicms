@@ -69,6 +69,7 @@ abstract class BaseController
         $this->config   = $this->app->config;
         $this->request  = $this->app->request;
         $this->session  = $this->app->session;
+        $this->cookie   = $this->app->cookie;
         $this->view     = $this->app->view;
 
         $this->app->debug($this->config->get('app.debug'));
@@ -76,6 +77,9 @@ abstract class BaseController
 
         if (!$this->session->has('client_token')) {
             $this->session->set('client_token', Base64::client_id());
+        }
+        if (!$this->cookie->has('PHPSESSID') || $this->cookie->get('PHPSESSID') != $this->session->get('client_token')) {
+            $this->cookie->set('PHPSESSID', $this->session->get('client_token'));
         }
 
         @ini_set('memory_limit', '8M');

@@ -38,61 +38,54 @@ class Download
         'xlsx',
         'zip'
     ];
+    private $salt = '';
+
+    public function __construct()
+    {
+        $this->salt = md5(app('request')->ip() . date('Ymd'));
+    }
 
     /**
      * 下载地址
      * @access public
-     * @param  string $_file
+     * @param  string $_filename
      * @return string
      */
-    public function url(string $_file)
+    public function url(string $_filename): string
     {
-        $_file = DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_file, ',.\/'));
-
-        $path = app('config')->get('filesystem.disks.public.root');
-        if (is_file($path . $_file) && in_array(pathinfo($_file, PATHINFO_EXTENSION), $this->extension)) {
-            $_file = Base64::encrypt($_file, app('request')->ip() . date('Ymd'));
-            $_file = app('config')->get('app.api_host') . '/download.do?file=' . urlencode($_file);
-        } else {
-            $_file = '/';
-        }
-
-        return $_file;
+        $_filename = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_filename, ',.\/'));
+        $_filename = Base64::encrypt($_filename, $this->salt);
+        return app('config')->get('app.api_host') . '/download.do?file=' . urlencode($_filename);
     }
 
     /**
      * 文件下载
      * @access public
      * @param
-     * @return
+     * @return void
      */
-    public function file(string $_file)
+    public function file(string $_filename)
     {
-        $_file = $_file
-            ? Base64::decrypt($_file, app('request')->ip() . date('Ymd'))
-            : '';
-
-        if ($_file) {
-            $_file = DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_file, ',.\/'));
-
-            $_file = app('config')->get('filesystem.disks.public.root') . $_file;
-
-            if (is_file($_file) && in_array(pathinfo($_file, PATHINFO_EXTENSION), $this->extension)) {
-                $response = Response::create($_file, 'file')
-                    ->name(md5(pathinfo($_file, PATHINFO_BASENAME) . date('Ymd')))
+        $_filename = $_filename ? Base64::decrypt(urldecode($_filename), $this->salt) : '';
+        if ($_filename && !!preg_match('/^[a-zA-Z0-9_\/\\\]+\.[a-zA-Z]{2,4}$/u', $_filename)) {
+            $_filename = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_filename, ',.\/'));
+            $path = app('config')->get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
+            if (is_file($path . $_filename) && in_array(pathinfo($path . $_filename, PATHINFO_EXTENSION), $this->extension)) {
+                $response = Response::create($path . $_filename, 'file')
+                    ->name(md5(pathinfo($_filename, PATHINFO_BASENAME) . date('Ymd')))
                     ->isContent(false)
                     ->expire(28800);
+                throw new HttpResponseException($response);
             }
-        } else {
-            $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
-            $response = Response::create($error, '', 404);
         }
 
         $log  = '[API] 下载文件:' . app('request')->param('file', 'null');
-        $log .= ' 文件地址:' . $_file . PHP_EOL;
+        $log .= ' 文件地址:' . $_filename . PHP_EOL;
         $log .= 'PARAM:' . json_encode(app('request')->param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
         app('log')->record($log, 'error')->save();
 
+        $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
+        $response = Response::create($error, '', 404);
         throw new HttpResponseException($response);
     }
 }
