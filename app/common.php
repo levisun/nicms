@@ -263,14 +263,14 @@ if (!function_exists('create_authorization')) {
         $key = md5(Base64::encrypt($key));
 
         $token = (new Builder)
-            ->issuedBy(app('request')->domain())    // Configures the issuer (iss claim)
-            ->permittedFor($domain)                 // Configures the audience (aud claim)
-            ->identifiedBy($jti, false)             // Configures the id (jti claim), replicating as a header item
-            ->issuedAt($time)                       // Configures the time that the token was issue (iat claim)
-            ->canOnlyBeUsedAfter($time + 60)        // Configures the time that the token can be used (nbf claim)
-            ->expiresAt($time + 1440)               // Configures the expiration time of the token (exp claim)
-            ->withClaim('uid', $uid)                // Configures a new claim, called "uid"
-            ->getToken(new Sha256, new Key($key));  // Retrieves the generated token
+            ->issuedBy(app('request')->rootDomain())    // Configures the issuer (iss claim)
+            ->permittedFor(app('request')->domain())    // Configures the audience (aud claim)
+            ->identifiedBy($jti, false)                 // Configures the id (jti claim), replicating as a header item
+            ->issuedAt($time)                           // Configures the time that the token was issue (iat claim)
+            ->canOnlyBeUsedAfter($time + 60)            // Configures the time that the token can be used (nbf claim)
+            ->expiresAt($time + 3600)                   // Configures the expiration time of the token (exp claim)
+            ->withClaim('uid', $uid)                    // Configures a new claim, called "uid"
+            ->getToken(new Sha256, new Key($key));      // Retrieves the generated token
 
         return 'Bearer ' . (string) $token;
     }

@@ -31,7 +31,7 @@ class Query extends AsyncController
 
     public function client()
     {
-        $this->validate('GET');
+        // $this->validate('POST');
         // if (!$this->session->has('client_id')) {
         //     $this->session->set('client_id', Base64::client_id());
         // }

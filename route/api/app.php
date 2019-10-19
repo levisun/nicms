@@ -23,6 +23,7 @@ Route::group(function () {
     Route::rule('sms$', 'Sms/index')->ext('do');
     Route::rule('ip$', 'Ip/index')->ext('do');
     Route::rule('download$', 'Download/index')->ext('do');
+    Route::rule('download/url$', 'Download/url')->ext('do');
     Route::rule('wechat$', 'Wechat/index')->ext('do');
     Route::rule('verify$', function () {
         return \think\captcha\facade\Captcha::create();
