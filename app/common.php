@@ -253,7 +253,6 @@ if (!function_exists('create_authorization')) {
     function create_authorization(): string
     {
         $time   = app('request')->time();
-        $domain = app('request')->rootDomain();
         $jti    = Base64::encrypt(app('session')->getId(false));
         $uid    = app('session')->get('client_token');
 
@@ -264,7 +263,7 @@ if (!function_exists('create_authorization')) {
 
         $token = (new Builder)
             ->issuedBy(app('request')->rootDomain())    // Configures the issuer (iss claim)
-            ->permittedFor(app('request')->domain())    // Configures the audience (aud claim)
+            ->permittedFor(app('request')->url(true))   // Configures the audience (aud claim)
             ->identifiedBy($jti, false)                 // Configures the id (jti claim), replicating as a header item
             ->issuedAt($time)                           // Configures the time that the token was issue (iat claim)
             ->canOnlyBeUsedAfter($time + 60)            // Configures the time that the token can be used (nbf claim)

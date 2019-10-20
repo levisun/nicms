@@ -21,6 +21,7 @@ use think\exception\HttpResponseException;
 use app\common\library\Base64;
 use app\common\model\ApiApp as ModelApiApp;
 use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\ValidationData;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 
 abstract class AsyncController
@@ -270,30 +271,24 @@ abstract class AsyncController
      * @param
      * @return $this
      */
-    protected function validate(string $_type = 'GET', $_referer = true)
+    protected function validate(string $_type = 'GET')
     {
-        // 检查来源
-        if ($_referer && !$this->request->server('HTTP_REFERER')) {
+        // 检查请求类型
+        if ($_type !== $this->request->method()) {
             $this->error('错误请求', 30001);
         }
 
-        // 检查请求类型
-        if ($_type !== $this->request->method()) {
-            $this->error('错误请求', 30002);
-        }
-
         $this->analysisHeader();
+        $this->checkAppId();
+        $this->checkSign();
+        $this->checkTimestamp();
+        $this->checkToken();
 
         // 检查客户端token
         // token由\app\common\controller\BaseController::class签发
         if (!$this->session->has('client_token')) {
-            $this->error('非法参数', 30003);
+            $this->error('非法参数', 30002);
         }
-
-        $this->checkAppId()
-            ->checkSign()
-            ->checkTimestamp()
-            ->checkToken();
 
         return $this;
     }
@@ -309,7 +304,7 @@ abstract class AsyncController
         // 校验API方法
         $this->method = $this->request->param('method');
         if (!$this->method || !preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $this->method)) {
-            $this->error('非法参数', 20014);
+            $this->error('非法参数{20014}', 20014);
         }
 
 
@@ -324,13 +319,13 @@ abstract class AsyncController
         if (!class_exists($class)) {
             $this->debugLog['method not found'] = $class;
             $this->log->record('[Async] method not found ' . $class, 'error');
-            $this->error('非法参数', 20015);
+            $this->error('非法参数{20015}', 20015);
         }
         // 校验类方法是否存在
         if (!method_exists($class, $action)) {
             $this->debugLog['action not found'] = $class . '->' . $action . '();';
             $this->log->record('[Async] action not found ' . $class . '->' . $action . '();', 'error');
-            $this->error('非法参数', 20016);
+            $this->error('非法参数{20016}', 20016);
         }
 
 
@@ -358,14 +353,12 @@ abstract class AsyncController
      * @param
      * @return $this
      */
-    protected function checkToken()
+    protected function checkToken(): void
     {
         // POST请求 表单令牌校验
         if ($this->request->isPost() && false === $this->request->checkToken()) {
-            $this->error('非法参数', 20013);
+            $this->error('非法参数{20013}', 20013);
         }
-
-        return $this;
     }
 
     /**
@@ -374,14 +367,12 @@ abstract class AsyncController
      * @param
      * @return $this
      */
-    protected function checkTimestamp()
+    protected function checkTimestamp(): void
     {
         $this->timestamp = (int) $this->request->param('timestamp/f', $this->request->time());
         if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
-            $this->error('非法参数', 20012);
+            $this->error('非法参数{20012}', 20012);
         }
-
-        return $this;
     }
 
     /**
@@ -390,14 +381,14 @@ abstract class AsyncController
      * @param
      * @return $this
      */
-    protected function checkSign()
+    protected function checkSign(): void
     {
         // 校验签名类型
         $this->signType = $this->request->param('sign_type', 'md5');
         if (!$this->signType || !function_exists($this->signType)) {
             $this->debugLog['sign_type'] = $this->signType;
             $this->log->record('[Async] params-sign_type error', 'error');
-            $this->error('非法参数', 20009);
+            $this->error('非法参数{20009}', 20009);
         }
 
         // 校验签名合法性
@@ -405,7 +396,7 @@ abstract class AsyncController
         if (!$this->sign || !preg_match('/^[A-Za-z0-9]+$/u', $this->sign)) {
             $this->debugLog['sign'] = $this->sign;
             $this->log->record('[Async] params-sign error', 'error');
-            $this->error('非法参数', 20010);
+            $this->error('非法参数{20010}', 20010);
         }
 
 
@@ -429,10 +420,8 @@ abstract class AsyncController
             $this->debugLog['sign_str'] = $str;
             $this->debugLog['sign'] = call_user_func($this->signType, $str);
             $this->log->record('[Async] params-sign error', 'error');
-            $this->error('非法参数', 20011);
+            $this->error('非法参数{20011}', 20011);
         }
-
-        return $this;
     }
 
     /**
@@ -441,12 +430,12 @@ abstract class AsyncController
      * @param
      * @return $this
      */
-    protected function checkAppId()
+    protected function checkAppId(): void
     {
         $this->appId = $this->request->param('appid/f', 1000001);
         if (!$this->appId || $this->appId < 1000001) {
             $this->log->record('[Async] auth-appid not', 'error');
-            $this->error('非法参数', 20007);
+            $this->error('非法参数{20007}', 20007);
         }
 
 
@@ -466,10 +455,8 @@ abstract class AsyncController
             $this->appName = $result['module'];
         } else {
             $this->log->record('[Async] auth-appid error', 'error');
-            $this->error('非法参数', 20008);
+            $this->error('非法参数{20008}', 20008);
         }
-
-        return $this;
     }
 
     /**
@@ -478,7 +465,7 @@ abstract class AsyncController
      * @param
      * @return $this
      */
-    private function analysisHeader()
+    private function analysisHeader(): void
     {
         $this->authorization = $this->request->header('authorization');
         $this->authorization = str_replace('&#43;', '+', $this->authorization);
@@ -490,9 +477,15 @@ abstract class AsyncController
         $key .= $key . app('request')->server('HTTP_USER_AGENT');
         $key = md5(Base64::encrypt($key));
 
-        if (false === $token->verify(new Sha256, $key)) {
+        $data = new ValidationData;
+        $data->setIssuer(app('request')->rootDomain());
+        $data->setAudience(rtrim($this->request->server('HTTP_REFERER'), '/'));
+        $data->setId($token->getClaim('jti'));
+        $data->setCurrentTime(time() + 60);
+
+        if (false === $token->validate($data) || false === $token->verify(new Sha256, $key)) {
             $this->log->record('[Async] header-authorization params error', 'error');
-            $this->error('非法参数', 20001);
+            $this->error('非法参数{20001}', 20001);
         }
 
 
@@ -500,13 +493,13 @@ abstract class AsyncController
         // Session初始化
         // 规定sessionID
         $jti = Base64::decrypt($token->getClaim('jti'));
-        if (is_file($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . 'sess_' . $jti)) {
+        if ($jti && is_file($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . 'sess_' . $jti)) {
             $this->session->setId($jti);
             $this->session->init();
             $this->request->withSession($this->session);
         } else {
             $this->log->record('[Async] header-authorization params error', 'error');
-            $this->error('非法参数', 20002);
+            $this->error('非法参数{20002}', 20002);
         }
 
 
@@ -517,7 +510,7 @@ abstract class AsyncController
         if (!$this->accept || !preg_match($pattern, $this->accept)) {
             $this->debugLog['accept'] = $this->accept;
             $this->log->record('[Async] header-accept error', 'error');
-            $this->error('非法参数', 20003);
+            $this->error('非法参数{20003}', 20003);
         }
 
 
@@ -530,7 +523,7 @@ abstract class AsyncController
         list($root) = explode('.', $this->request->rootDomain(), 2);
         if (!hash_equals($domain, $root)) {
             $this->log->record('[Async] header-accept domain error', 'error');
-            $this->error('非法参数', 20004);
+            $this->error('非法参数{20004}', 20004);
         }
         unset($doamin, $root);
 
@@ -541,7 +534,7 @@ abstract class AsyncController
         if (!$version || !preg_match('/^[v0-9.]+$/u', $version)) {
             $this->debugLog['version'] = $version;
             $this->log->record('[Async] header-accept version error', 'error');
-            $this->error('非法参数', 20005);
+            $this->error('非法参数{20005}', 20005);
         }
         // 去掉"v"
         $version = substr($version, 1);
@@ -551,7 +544,7 @@ abstract class AsyncController
             'minor'    => $minor,
             'revision' => $revision,
         ];
-        unset($version, $major, $minor);
+        unset($version, $major, $minor, $revision);
 
 
 
@@ -559,10 +552,8 @@ abstract class AsyncController
         if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
             $this->debugLog['format'] = $this->format;
             $this->log->record('[Async] header-accept format error', 'error');
-            $this->error('非法参数', 20006);
+            $this->error('非法参数{20006}', 20006);
         }
-
-        return $this;
     }
 
     /**
@@ -610,7 +601,7 @@ abstract class AsyncController
             'data'    => $_data,
             'message' => true === $this->apiDebug ? $_msg : (10000 === $_code ? 'success' : $_msg),
             // 表单令牌
-            'token'   => $this->request->isPost()
+            'token'   => $this->request->isPost() && $_code === 10000
                 ? $this->request->buildToken('__token__', 'md5')
                 : '',
             // 调试数据
@@ -637,7 +628,7 @@ abstract class AsyncController
         }
 
         $this->log->save();
-        $this->session->save();
+        $_code === 10000 and $this->session->save();
 
         throw new HttpResponseException($response);
     }

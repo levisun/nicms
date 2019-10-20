@@ -42,6 +42,7 @@ class Article
         ];
 
         if ($key = Request::param('key', null)) {
+            $key = mb_substr($key, 0, 5);
             $map[] = ['article.title', 'like', $key];
         } else {
             return [

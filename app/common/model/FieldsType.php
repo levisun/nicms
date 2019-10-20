@@ -15,12 +15,12 @@
 /*
 DROP TABLE IF EXISTS `nc_fields_type`;
 CREATE TABLE IF NOT EXISTS `nc_fields_type` (
-  `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '类型名',
-  `regex` varchar(100) NOT NULL DEFAULT '' COMMENT '验证方式',
-  `remark` varchar(100) NOT NULL DEFAULT '' COMMENT '描述',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
+    `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` varchar(20) NOT NULL DEFAULT '' COMMENT '类型名',
+    `regex` varchar(100) NOT NULL DEFAULT '' COMMENT '验证方式',
+    `remark` varchar(100) NOT NULL DEFAULT '' COMMENT '描述',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='自定义字段表';
 INSERT INTO `nc_fields_type` (`id`, `name`, `remark`, `regex`) VALUES
 (1, 'text', '文本', 'require'),

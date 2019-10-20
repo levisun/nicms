@@ -121,6 +121,12 @@ abstract class BaseLogic
             $this->urole = $this->session->get($this->authKey . '_role');
         }
 
+        \think\Facade\Db::listen(function ($sql, $time, $master) {
+            if (0.1 <= $time && false === strpos($sql, 'CONNECT:')) {
+                \think\Facade\Log::record('[RunTime:' . $time . 's] ' . $sql . ($master ? ' master' : ' slave'), 'alert');
+            }
+        });
+
         @ini_set('memory_limit', '8M');
         set_time_limit(5);
 

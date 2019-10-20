@@ -64,7 +64,7 @@ class Download
      * @param
      * @return void
      */
-    public function file(string $_filename)
+    public function file(string $_filename): void
     {
         $_filename = $_filename ? Base64::decrypt(urldecode($_filename), $this->salt) : '';
         if ($_filename && !!preg_match('/^[a-zA-Z0-9_\/\\\]+\.[a-zA-Z]{2,4}$/u', $_filename)) {

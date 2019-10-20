@@ -31,15 +31,4 @@ class Download extends AsyncController
             $this->error('错误请求', 40001);
         }
     }
-
-    public function url()
-    {
-        if ($this->request->isPost() && $file = $this->request->param('file', false)) {
-            $this->validate('POST');
-            $result = (new Down)->url($file);
-            $this->openCache(false)->success('success', ['url' => $result]);
-        } else {
-            $this->error('错误请求', 40001);
-        }
-    }
 }

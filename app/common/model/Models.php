@@ -15,12 +15,12 @@
 /*
 DROP TABLE IF EXISTS `nc_model`;
 CREATE TABLE IF NOT EXISTS `nc_model` (
-  `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '模型名',
-  `table_name` varchar(20) NOT NULL DEFAULT '' COMMENT '表名',
-  `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT '状态',
-  `remark` varchar(50) NOT NULL DEFAULT '' COMMENT '备注',
-  PRIMARY KEY (`id`)
+    `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` varchar(20) NOT NULL DEFAULT '' COMMENT '模型名',
+    `table_name` varchar(20) NOT NULL DEFAULT '' COMMENT '表名',
+    `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT '状态',
+    `remark` varchar(50) NOT NULL DEFAULT '' COMMENT '备注',
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型表';
 INSERT INTO `nc_model` (`id`, `name`, `table_name`, `remark`, `status`) VALUES
 (1, 'article', 'article', '文章模型', 1),
