@@ -43,6 +43,8 @@ composer require topthink/think-image
 composer require topthink/think-captcha
 composer require lcobucci/jwt
 
+composer require lizhichao/word
+
 composer require overtrue/pinyin
 composer require overtrue/wechat
 composer require phpmailer/phpmailer

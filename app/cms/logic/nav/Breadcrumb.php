@@ -17,11 +17,11 @@ declare(strict_types=1);
 
 namespace app\cms\logic\nav;
 
-use app\common\controller\BaseController;
+use app\common\controller\BaseLogic;
 use app\common\library\Base64;
 use app\common\model\Category as ModelCategory;
 
-class Breadcrumb extends BaseController
+class Breadcrumb extends BaseLogic
 {
     private $bread = [];
 
@@ -58,7 +58,7 @@ class Breadcrumb extends BaseController
      * @param
      * @return array
      */
-    private function parentCate($_pid)
+    private function parentCate(int $_pid)
     {
         $result = (new ModelCategory)->view('category', ['id', 'name', 'pid', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')

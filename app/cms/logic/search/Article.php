@@ -42,7 +42,7 @@ class Article
         ];
 
         if ($key = Request::param('key', null)) {
-            $key = mb_substr($key, 0, 5);
+            $key = mb_substr($key, 0, 5, 'utf-8');
             $map[] = ['article.title', 'like', $key];
         } else {
             return [

@@ -147,15 +147,11 @@ class Tags
             '<script type="text/javascript">var NICMS=' . json_encode([
                 'domain' => '//' . request()->subDomain() . '.' . request()->rootDomain(),
                 'url'    => request()->baseUrl(true),
-                'param'  => request()->param(),
+                // 'param'  => request()->param(),
                 'api'    => [
-                    'url'           => app('config')->get('app.api_host'),
-                    'root'          => $root,
-                    'version'       => $_config['tpl_config']['api_version'],
-                    'appid'         => $_config['tpl_config']['api_appid'],
-                    'appsecret'     => $_config['tpl_config']['api_appsecret'],
-                    'authorization' => '{__AUTHORIZATION__}',
-                    'param'         => request()->param()
+                    'url'   => app('config')->get('app.api_host'),
+                    'appid' => $_config['tpl_config']['api_appid'],
+                    'param' => request()->param()
                 ],
                 'cdn' => [
                     'static' => '__STATIC__',

@@ -17,14 +17,14 @@ declare(strict_types=1);
 
 namespace app\cms\logic;
 
-use app\common\controller\BaseController;
+use app\common\controller\BaseLogic;
 use app\common\library\Base64;
 use app\common\library\DataFilter;
 use app\common\model\Article as ModelArticle;
 use app\common\model\ArticleExtend as ArticleExtend;
 use app\common\model\ArticleTags as ModelArticleTags;
 
-class BaseArticle extends BaseController
+class BaseArticle extends BaseLogic
 {
 
     /**

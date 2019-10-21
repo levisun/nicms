@@ -479,11 +479,11 @@ abstract class AsyncController
 
         $data = new ValidationData;
         $data->setIssuer(app('request')->rootDomain());
-        $data->setAudience(rtrim($this->request->server('HTTP_REFERER'), '/'));
+        $data->setAudience(parse_url($this->request->server('HTTP_REFERER'), PHP_URL_HOST));
         $data->setId($token->getClaim('jti'));
         $data->setCurrentTime(time() + 60);
 
-        if (false === $token->validate($data) || false === $token->verify(new Sha256, $key)) {
+        if (false === $token->verify(new Sha256, $key) || false === $token->validate($data)) {
             $this->log->record('[Async] header-authorization params error', 'error');
             $this->error('非法参数{20001}', 20001);
         }
@@ -506,7 +506,7 @@ abstract class AsyncController
 
         // 解析版本号与返回数据类型
         $this->accept = $this->request->header('accept');
-        $pattern = '/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]+\+[A-Za-z]{3,5}+$/u';
+        $pattern = '/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[a-zA-Z0-9]+\+[A-Za-z]{3,5}+$/u';
         if (!$this->accept || !preg_match($pattern, $this->accept)) {
             $this->debugLog['accept'] = $this->accept;
             $this->log->record('[Async] header-accept error', 'error');
@@ -531,7 +531,7 @@ abstract class AsyncController
 
         // 取得版本与数据类型
         list($version, $this->format) = explode('+', $accept, 2);
-        if (!$version || !preg_match('/^[v0-9.]+$/u', $version)) {
+        if (!$version || !preg_match('/^[a-zA-Z0-9.]+$/u', $version)) {
             $this->debugLog['version'] = $version;
             $this->log->record('[Async] header-accept version error', 'error');
             $this->error('非法参数{20005}', 20005);

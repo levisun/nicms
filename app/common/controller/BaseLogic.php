@@ -290,20 +290,18 @@ abstract class BaseLogic
         @ini_set('memory_limit', '256M');
         set_time_limit(600);
         $files = $this->request->file($_element);
-        // halt($files);
-        // $error = $this->app->validate->rule([
-        //     $_element => [
-        //         'fileExt'  => $ext,
-        // //         // 'fileMime' => $mime,
-        //         'fileSize' => $size
-        //     ]
-        // ])->batch(false)->failException(false)->check((array) $files);
-        // halt($this->app->validate->getError());
+        $error = $this->app->validate->rule([
+            $_element => [
+                'fileExt'  => $ext,
+                'fileSize' => $size
+            ]
+        ])->batch(false)->failException(false)->check([$_element => $files]);
+        halt($this->app->validate->getError());
 
         $save_path = $this->config->get('filesystem.disks.public.url') . '/';
         $_dir = '/' . trim($_dir, '\/');
         $_dir .= $this->uid
-            ? '/u' . dechex((int) ($this->uid . date('Ym')))
+            ? '/u' . dechex((float) $this->uid) . dechex(date('ym'))
             : '/t' . dechex(date('Ym'));
 
         // 单文件

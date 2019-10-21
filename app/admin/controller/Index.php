@@ -47,6 +47,9 @@ class Index extends BaseController
      */
     public function index(string $logic = 'account', string $method = 'user', string $action = 'login')
     {
+        $arr = parse_url(app('request')->url(true), PHP_URL_HOST);
+        print_r($arr);
+        die();
         $this->authenticate($logic, $method, $action);
 
         $tpl = $logic . DIRECTORY_SEPARATOR . $method . DIRECTORY_SEPARATOR . $action;

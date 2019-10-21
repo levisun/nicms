@@ -1,4 +1,4 @@
-layui.define('jquery', function(exports){
+layui.define('jquery', function (exports) {
     var jQuery = layui.jquery;
     var obj = {
 
@@ -85,11 +85,11 @@ layui.define('jquery', function(exports){
 
             // 设置头部
             _params.beforeSend = function (xhr) {
-                xhr.setRequestHeader('Accept', 'application/vnd.' + NICMS.api.root + '.v' + NICMS.api.version + '+json');
-                xhr.setRequestHeader('Authorization', NICMS.api.authorization);
+                // xhr.setRequestHeader('Accept', 'application/vnd.' + NICMS.api.root + '.v' + NICMS.api.version + '+json');
+                // xhr.setRequestHeader('Authorization', NICMS.api.authorization);
 
-                // xhr.setRequestHeader('Accept', 'application/vnd.' + NICMS.api.root + '.v' + jQuery('meta[name="csrf-appid"]').attr('content') + '+json');
-                // xhr.setRequestHeader('Authorization', jQuery('meta[name="csrf-authorization"]').attr('content'));
+                xhr.setRequestHeader('Accept', 'application/vnd.' + jQuery('meta[name="csrf-root"]').attr('content') + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
+                xhr.setRequestHeader('Authorization', jQuery('meta[name="csrf-authorization"]').attr('content'));
             }
 
             _params.complete = function (xhr) {
@@ -148,7 +148,7 @@ layui.define('jquery', function(exports){
                 }
             }
             sign = sign.substr(0, sign.length - 1);
-            sign += NICMS.api.appsecret;
+            sign += jQuery('meta[name="csrf-appsecret"]').attr('content');
             sign = md5(sign);
 
             return sign;

@@ -17,11 +17,11 @@ declare(strict_types=1);
 
 namespace app\cms\logic\nav;
 
-use app\common\controller\BaseController;
+use app\common\controller\BaseLogic;
 use app\common\library\Base64;
 use app\common\model\Category as ModelCategory;
 
-class Main extends BaseController
+class Main extends BaseLogic
 {
 
     /**
@@ -54,7 +54,7 @@ class Main extends BaseController
                 if ($value['access_id']) {
                     $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
                 }
-                $value['child'] = $this->child($value['id'], 2);
+                $value['child'] = $this->child((int) $value['id'], 2);
                 unset($value['action_name']);
 
                 $result[$key] = $value;
@@ -99,12 +99,12 @@ class Main extends BaseController
             if ($value['access_id']) {
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
             }
-            $value['child'] = $this->child($value['id'], 2);
+            $value['child'] = $this->child((int) $value['id'], 2);
             unset($value['action_name']);
 
             $result[$key] = $value;
         }
 
-        return $result ? $result : false;
+        return $result ? $result : [];
     }
 }
