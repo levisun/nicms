@@ -29,12 +29,6 @@ return [
     'route_rule_merge'      => false,
     // 路由是否完全匹配
     'route_complete_match'  => true,
-    // 是否开启路由缓存
-    'route_check_cache'     => false,
-    // 路由缓存连接参数
-    'route_cache_option'    => [],
-    // 路由缓存Key
-    'route_check_cache_key' => '',
     // 访问控制器层名称
     'controller_layer'      => 'controller',
     // 空控制器名
@@ -43,8 +37,6 @@ return [
     'controller_suffix'     => false,
     // 默认的路由变量规则
     'default_route_pattern' => '[\w\.]+',
-    // 是否自动转换URL中的控制器和操作名
-    'url_convert'           => true,
     // 是否开启请求缓存 true自动缓存 支持设置请求缓存规则
     'request_cache'         => false,
     // 请求缓存有效期

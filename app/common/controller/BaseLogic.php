@@ -268,6 +268,55 @@ abstract class BaseLogic
             ];
         }
 
+        @ini_set('memory_limit', '256M');
+        set_time_limit(600);
+        $files = $this->request->file($_element);
+
+        // 校验上传文件
+        if ($error = $this->validateFile($_element, $files)) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40031,
+                'msg'   => $error,
+            ];
+        }
+
+        $_dir = '/' . trim($_dir, '\/');
+        $_dir .= $this->uid
+            ? '/u' . dechex((float) $this->uid) . dechex(date('ym'))
+            : '/t' . dechex(date('Ym'));
+
+        // 单文件
+        if (is_string($_FILES[$_element]['name'])) {
+            $result = $this->saveFile($_dir, $files);
+        }
+
+        // 多文件
+        elseif (is_array($_FILES[$_element]['name'])) {
+            $result = [];
+            foreach ($files as $file) {
+                $result[] = $this->saveFile($_dir, $file);
+            }
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'upload success',
+            'data'  => $result
+        ];
+    }
+
+    /**
+     * 校验上传文件
+     * @access protected
+     * @param  string      $_element input元素名
+     * @param  \think\File $_files   文件
+     * @return bool|string
+     */
+    private function validateFile(string $_element, \think\File &$_files)
+    {
         $size = (int) $this->config->get('app.upload_size', 1) * 1048576;
         $ext = $this->config->get('app.upload_type', 'doc,docx,gif,gz,jpeg,mp4,pdf,png,ppt,pptx,rar,xls,xlsx,zip');
         $mime = [
@@ -287,79 +336,45 @@ abstract class BaseLogic
             'zip'  => 'application/zip'
         ];
 
-        @ini_set('memory_limit', '256M');
-        set_time_limit(600);
-        $files = $this->request->file($_element);
         $error = $this->app->validate->rule([
             $_element => [
                 'fileExt'  => $ext,
                 'fileSize' => $size
             ]
-        ])->batch(false)->failException(false)->check([$_element => $files]);
-        halt($this->app->validate->getError());
+        ])->batch(false)->failException(false)->check([$_element => $_files]);
 
+        return $error ? false : $this->app->validate->getError();
+    }
+
+    /**
+     * 保存上传文件
+     * @access protected
+     * @param  string      $_dir   子目录
+     * @param  \think\File $_files 文件
+     * @return array
+     */
+    private function saveFile(string $_dir, \think\File &$_files): array
+    {
         $save_path = $this->config->get('filesystem.disks.public.url') . '/';
-        $_dir = '/' . trim($_dir, '\/');
-        $_dir .= $this->uid
-            ? '/u' . dechex((float) $this->uid) . dechex(date('ym'))
-            : '/t' . dechex(date('Ym'));
+        $save_file = $save_path . $this->app->filesystem->disk('public')->putFile($_dir, $_files, 'uniqid');
 
-        // 单文件
-        if (is_string($_FILES[$_element]['name'])) {
-            $save_file = $save_path . $this->app->filesystem->disk('public')->putFile($_dir, $files, 'uniqid');
-
-            if (false !== strpos($files->getMime(), 'image/')) {
-                $image = Image::open($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
-                if ($image->width() >= 800) {
-                    $image->thumb(800, 800, Image::THUMB_SCALING);
-                    $image->save($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file, null, 40);
-                }
-                unset($image);
+        if (false !== strpos($_files->getMime(), 'image/')) {
+            $image = Image::open($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
+            if ($image->width() >= 800) {
+                $image->thumb(800, 800, Image::THUMB_SCALING);
+                $image->save($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file, null, 40);
             }
-
-            $result = [
-                'extension'    => $files->extension(),
-                'name'         => $save_file,
-                'old_name'     => $files->getOriginalName(),
-                'original_url' => $save_file,
-                'size'         => $files->getSize(),
-                'type'         => $files->getMime(),
-                'url'          => $this->config->get('app.cdn_host') . $save_file,
-            ];
-        }
-
-        // 多文件
-        elseif (is_array($_FILES[$_element]['name'])) {
-            $result = [];
-            foreach ($files as $file) {
-                $save_file = $save_path . $this->app->filesystem->disk('uploads')->putFile($_dir, $file, 'uniqid');
-
-                if (false !== strpos($files->getMime(), 'image/')) {
-                    $image = Image::open($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
-                    if ($image->width() >= 800) {
-                        $image->thumb(800, 800, Image::THUMB_SCALING);
-                        $image->save($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file, null, 40);
-                    }
-                    unset($image);
-                }
-
-                $result[] = [
-                    'extension'    => $file->extension(),
-                    'name'         => $save_file,
-                    'old_name'     => $file->getOriginalName(),
-                    'original_url' => $save_file,
-                    'size'         => $file->getSize(),
-                    'type'         => $file->getMime(),
-                    'url'          => $this->config->get('app.cdn_host') . $save_file,
-                ];
-            }
+            unset($image);
         }
 
         return [
-            'debug' => false,
-            'cache' => false,
-            'msg'   => 'upload success缺少验证',
-            'data'  => $result
+            'extension'    => $_files->extension(),
+            'name'         => $save_file,
+            'old_name'     => $_files->getOriginalName(),
+            'original_url' => $save_file,
+            'size'         => $_files->getSize(),
+            'type'         => $_files->getMime(),
+            'url'          => $this->config->get('app.cdn_host') . $save_file,
         ];
     }
 }

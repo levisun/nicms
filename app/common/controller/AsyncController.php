@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\controller;
 
 use think\App;
+use think\Response;
 use think\exception\HttpResponseException;
 use app\common\library\Base64;
 use app\common\model\ApiApp as ModelApiApp;
@@ -202,7 +203,7 @@ abstract class AsyncController
         $this->lang     = $this->app->lang;
         $this->log      = $this->app->log;
         $this->request  = $this->app->request;
-        $this->response = $this->app->response;
+        // $this->response = $this->app->response;
         $this->session  = $this->app->session;
 
         // 关闭调试模式
@@ -618,7 +619,7 @@ abstract class AsyncController
         ];
         $result = array_filter($result);
 
-        $response = $this->response->create($result, $this->format)->allowCache(false);
+        $response = Response::create($result, $this->format)->allowCache(false);
         $response->header(array_merge(['X-Powered-By' => 'NIAPI'], $response->getHeader()));
         if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
             $response->allowCache(true)

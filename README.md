@@ -32,7 +32,7 @@ nicms1.x 未完成项目,正在拼命中...
 
 ~~~
 ThinkPHP6
-composer create-project topthink/think nicms 6.0.*-dev
+composer create-project topthink/think nicms
 composer update topthink/framework
 
 依赖
