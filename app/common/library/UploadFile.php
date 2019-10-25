@@ -25,15 +25,6 @@ class UploadFile
 {
 
     /**
-     * 构造方法
-     * @access public
-     * @param
-     * @return void
-     */
-    public function __construct()
-    { }
-
-    /**
      * 校验上传文件
      * @access public
      * @static
@@ -115,7 +106,8 @@ class UploadFile
 
     public static function remove(int $_uid, string $_sql): void
     {
-        $path = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR;
+        trace($_uid . $_sql, 'alert');
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
         $temp_file_name = $path . md5('upload_file_log' . $_uid) . '.php';
         $data = is_file($temp_file_name) ? include $temp_file_name : '';
 
@@ -128,14 +120,22 @@ class UploadFile
                     }
                 }
 
-                $upload_path = app()->getRootPath() . 'storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
-
+                $upload_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
                 foreach ($data as $key => $value) {
+                    $value = str_replace('/', DIRECTORY_SEPARATOR, trim($value, '/'));
                     if (is_file($upload_path . $value)) {
                         unlink($upload_path . $value);
                     }
-                    // TODO 删除缩略图
 
+                    // 删除缩略图
+                    $ext = '.' . pathinfo($value, PATHINFO_EXTENSION);
+                    for ($i = 1; $i < 9; $i++) {
+                        $size = $i * 100;
+                        $thumb = str_replace($ext, '_' . $size . $ext, $value);
+                        if (is_file($upload_path . $thumb)) {
+                            unlink($upload_path . $thumb);
+                        }
+                    }
 
                     unset($data[$key]);
                 }
@@ -158,7 +158,7 @@ class UploadFile
      */
     private static function write(int $_uid, string $_file): void
     {
-        $path = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR;
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
 
         $temp_file_name = $path . md5('upload_file_log' . $_uid) . '.php';
@@ -168,7 +168,7 @@ class UploadFile
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 $data = !empty($data) ? (array) $data : [];
                 $data[] = $_file;
-                $data = '<?php /*' . $_uid . '*/ return ' . var_export($data, true) . ';';
+                $data = '<?php /*uid:' . $_uid . '*/ return ' . var_export($data, true) . ';';
                 fwrite($fp, $data);
                 flock($fp, LOCK_UN);
             }
