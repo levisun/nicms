@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace app\common\controller;
 
 use think\App;
+use think\Response;
 use think\exception\HttpResponseException;
 use app\common\library\Base64;
 
@@ -117,7 +118,7 @@ abstract class BaseController
      */
     public function redirect(string $_route)
     {
-        $response = $this->app->response->create(url($_route), 'redirect', 302);
+        $response = Response::create(url($_route), 'redirect', 302);
         throw new HttpResponseException($response);
     }
 

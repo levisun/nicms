@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use think\facade\Log;
 use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;
 
@@ -27,7 +28,7 @@ class Sitemap
         clearstatcache();
         $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemap.xml';
         if (!is_file($path) || filemtime($path) < strtotime('-24 hour')) {
-            app('log')->record('[SITEMAP] 网站地图', 'alert');
+            Log::record('[SITEMAP] 网站地图', 'alert');
 
             $category = (new ModelCategory)
                 ->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])

@@ -180,9 +180,10 @@ class Template implements TemplateHandlerInterface
         $cache_file  = $this->config['cache_path'] .
             $this->config['view_theme'] .
             md5(
-                $this->config['layout_on'] .
+                $this->config['strip_space'] .
+                    $this->config['layout_on'] .
                     $this->config['layout_name'] .
-                    str_replace($this->app->getRootPath() . 'public', '', $_template)
+                    $_template
             ) . '.' .
             trim($this->config['cache_suffix'], '.');
 
@@ -497,16 +498,14 @@ class Template implements TemplateHandlerInterface
         // 去除html空格与换行
         if ($this->config['strip_space']) {
             /* 去除html空格与换行 */
-            $find    = ['~>\s+<~', '~>(\s+\n|\r)~'];
-            $replace = ['><', '>'];
+            $find    = ['/( ){2,}/s', '/(\r|\n){3,}/s', '~>\s+<~', '~>(\s+\n|\r)~'];
+            $replace = ['', '', '><', '>'];
             $_content = preg_replace($find, $replace, $_content);
         }
 
         // 优化生成的php代码
         $_content = preg_replace([
             /* '/\?>\s*<\?php\s(?!echo\b|\bend)/s', */
-            '/( ){2,}/s',
-            '/(\r|\n){3,}/s',
             '/\?>\s*<\?php/s',
             '/<\/script>\s*<script[a-z "\/=]*>/s'
         ], '', $_content);

@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use think\facade\Config;
+use think\facade\Log;
 use think\Response;
 use think\exception\HttpResponseException;
 use app\common\library\Base64;
@@ -42,7 +44,7 @@ class Download
 
     public function __construct()
     {
-        $this->salt = md5(app('request')->ip() . date('Ymd'));
+        $this->salt = md5(request()->ip() . date('Ymd'));
     }
 
     /**
@@ -55,7 +57,7 @@ class Download
     {
         $_filename = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_filename, ',.\/'));
         $_filename = Base64::encrypt($_filename, $this->salt);
-        return app('config')->get('app.api_host') . '/download.do?file=' . urlencode($_filename);
+        return Config::get('app.api_host') . '/download.do?file=' . urlencode($_filename);
     }
 
     /**
@@ -69,7 +71,7 @@ class Download
         $_filename = $_filename ? Base64::decrypt(urldecode($_filename), $this->salt) : '';
         if ($_filename && !!preg_match('/^[a-zA-Z0-9_\/\\\]+\.[a-zA-Z]{2,4}$/u', $_filename)) {
             $_filename = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_filename, ',.\/'));
-            $path = app('config')->get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
+            $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
             if (is_file($path . $_filename) && in_array(pathinfo($path . $_filename, PATHINFO_EXTENSION), $this->extension)) {
                 $response = Response::create($path . $_filename, 'file')
                     ->name(md5(pathinfo($_filename, PATHINFO_BASENAME) . date('Ymd')))
@@ -79,10 +81,9 @@ class Download
             }
         }
 
-        $log  = '[API] 下载文件:' . app('request')->param('file', 'null');
-        $log .= ' 文件地址:' . $_filename . PHP_EOL;
-        $log .= 'PARAM:' . json_encode(app('request')->param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
-        app('log')->record($log, 'error')->save();
+        $log  = '[API] 下载文件:' . request()->param('file', 'null');
+        $log .= 'PARAM:' . json_encode(request()->param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
+        Log::record($log, 'error')->save();
 
         $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>404</h2><h3>Oops! Page not found.</h3></section>';
         $response = Response::create($error, '', 404);

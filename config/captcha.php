@@ -32,8 +32,10 @@ return [
     'imageW'   => 0,
 
     // 添加额外的验证码设置
-    // verify => [
-    //     'length'=>4,
-    //    ...
-    //],
+    'verify_zh' => [
+        'useZh' => true,
+    ],
+    'verify_math' => [
+        'math' => true,
+    ]
 ];

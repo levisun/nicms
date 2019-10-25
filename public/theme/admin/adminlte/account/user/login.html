@@ -16,6 +16,9 @@
                     <input type="password" name="password" class="form-control" placeholder="{:lang('password')}">
                     <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                 </div>
+                <div class="form-group has-feedback">
+                    <img id="verify">
+                </div>
                 <div class="row">
                     <div class="col-xs-4">
                         <button type="button" class="btn btn-primary btn-block btn-flat" v-on:click="login">{:lang('sign
@@ -27,9 +30,12 @@
     </div>
 
     <script>
-        new Vue({
+        var login = new Vue({
             el: '.login-box-body',
             methods: {
+                verify: function () {
+                    jQuery('#verify').attr('src', NICMS.api.url + '/verify.png?timestamp=' + jQuery.timestamp());
+                },
                 login: function () {
                     var data = jQuery.getForm('#login-form');
                     data['method'] = 'account.user.login';
@@ -45,5 +51,6 @@
                 }
             }
         });
+        login.verify();
     </script>
     {tags:foot /}

@@ -13,6 +13,9 @@
  */
 
 use think\Image;
+use think\facade\Config;
+use think\facade\Route;
+use think\facade\Session;
 use app\common\library\Base64;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
@@ -137,7 +140,7 @@ if (!function_exists('remove_img')) {
             return true;
         }
 
-        $path = app()->getRootPath() . app('config')->get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
+        $path = app()->getRootPath() . Config::get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
         $_img = str_replace('/', DIRECTORY_SEPARATOR, ltrim($_img, '/'));
         $ext = '.' . pathinfo($_img, PATHINFO_EXTENSION);
         $_img = str_replace($ext, '_skl' . $ext, $_img);
@@ -173,7 +176,7 @@ if (!function_exists('get_img_url')) {
             return $_img;
         }
 
-        $path = app()->getRootPath() . app('config')->get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
+        $path = app()->getRootPath() . Config::get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
         $_img = str_replace('/', DIRECTORY_SEPARATOR, ltrim($_img, '/'));
         $ext = '.' . pathinfo($_img, PATHINFO_EXTENSION);
 
@@ -213,7 +216,7 @@ if (!function_exists('get_img_url')) {
             finfo_close($finfo);
             return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path . $thumb));
         } else {
-            return app('config')->get('app.cdn_host') . '/' . str_replace(DIRECTORY_SEPARATOR, '/', $thumb);
+            return Config::get('app.cdn_host') . '/' . str_replace(DIRECTORY_SEPARATOR, '/', $thumb);
         }
     }
 }
@@ -228,11 +231,11 @@ if (!function_exists('avatar')) {
      */
     function avatar(string $_img, string $_username = 'avatar'): string
     {
-        $path = app()->getRootPath() . app('config')->get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
+        $path = app()->getRootPath() . Config::get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
         $_img = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, ltrim($_img, '/'));
 
         if ($_img && is_file($path . $_img)) {
-            return app('config')->get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
+            return Config::get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
         }
 
         $length = mb_strlen($_username);
@@ -252,9 +255,9 @@ if (!function_exists('create_authorization')) {
      */
     function create_authorization(): string
     {
-        $time   = app('request')->time();
-        $jti    = Base64::encrypt(app('session')->getId(false));
-        $uid    = app('session')->get('client_token');
+        $time = app('request')->time();
+        $jti  = Base64::encrypt(Session::getId(false));
+        $uid  = Session::has('client_token') ? Session::get('client_token') : md5(app('request')->ip());
 
         $key  = app('request')->ip();
         $key .= $key . app('request')->rootDomain();
@@ -293,6 +296,6 @@ if (!function_exists('url')) {
         //     $ext  = pathinfo(parse_url($referer, PHP_URL_PATH), PATHINFO_EXTENSION);
         // }
 
-        return (string) app('route')->buildUrl('/' . $_url, $_vars)->suffix(true)->domain(false);
+        return (string) Route::buildUrl('/' . $_url, $_vars)->suffix(true)->domain(false);
     }
 }

@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use think\facade\Config;
+
 class Base64
 {
 
@@ -82,7 +84,7 @@ class Base64
     {
         $_str = (string) $_str;
         $_str = trim($_str);
-        $_str = hash_hmac('sha1', $_str, app('config')->get('app.secretkey'));
+        $_str = hash_hmac('sha1', $_str, Config::get('app.secretkey'));
         $_length = $_length > 40 ? 40 : $_length;
         return substr($_str, 0, $_length);
     }
@@ -99,7 +101,7 @@ class Base64
     {
         if (is_string($_data)) {
             $secretkey = md5(__DIR__ . app('request')->header('user_agent') . $_salt);
-            $secretkey = hash_hmac('sha256', $secretkey, app('config')->get('app.secretkey', __DIR__));
+            $secretkey = hash_hmac('sha256', $secretkey, Config::get('app.secretkey', __DIR__));
             $iv = substr(sha1($secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
             $_data = base64_encode(openssl_encrypt((string) $_data, 'AES-256-CBC', $secretkey, OPENSSL_RAW_DATA, $iv));
         } elseif (is_array($_data)) {
@@ -123,7 +125,7 @@ class Base64
     {
         if (is_string($_data)) {
             $secretkey = md5(__DIR__ . app('request')->header('user_agent') . $_salt);
-            $secretkey = hash_hmac('sha256', $secretkey, app('config')->get('app.secretkey', __DIR__));
+            $secretkey = hash_hmac('sha256', $secretkey, Config::get('app.secretkey', __DIR__));
             $iv = substr(sha1($secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
             $_data = openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $secretkey, OPENSSL_RAW_DATA, $iv);
         } elseif (is_array($_data)) {

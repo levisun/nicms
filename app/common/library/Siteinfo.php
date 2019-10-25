@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use think\facade\Cache;
+use think\facade\Lang;
 use app\common\model\Config as ModelConfig;
 use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;
@@ -25,8 +27,8 @@ class Siteinfo
 
     public static function query()
     {
-        $cache_key = md5(app('request')->controller(true) . app('lang')->getLangSet());
-        if (!app('cache')->has($cache_key) || !$common = app('cache')->get($cache_key)) {
+        $cache_key = md5(app('request')->controller(true) . Lang::getLangSet());
+        if (!Cache::has($cache_key) || !$common = Cache::get($cache_key)) {
             $common = [
                 'theme'     => self::theme(),
                 'script'    => self::script(),
@@ -34,7 +36,7 @@ class Siteinfo
                 'copyright' => self::copyright(),
                 'name'      => self::name(),
             ];
-            app('cache')->tag('SYSTEM')->set($cache_key, $common);
+            Cache::tag('SYSTEM')->set($cache_key, $common);
         }
 
         $result = [
@@ -74,7 +76,7 @@ class Siteinfo
             $result = (new ModelConfig)
                 ->where([
                     ['name', '=', app('request')->controller(true) . '_description'],
-                    ['lang', '=', app('lang')->getLangSet()]
+                    ['lang', '=', Lang::getLangSet()]
                 ])
                 ->value('value', '');
         }
@@ -110,7 +112,7 @@ class Siteinfo
             $result = (new ModelConfig)
                 ->where([
                     ['name', '=', app('request')->controller(true) . '_keywords'],
-                    ['lang', '=', app('lang')->getLangSet()]
+                    ['lang', '=', Lang::getLangSet()]
                 ])
                 ->value('value', '');
         }
@@ -146,7 +148,7 @@ class Siteinfo
             $result = (new ModelConfig)
                 ->where([
                     ['name', '=', app('request')->controller(true) . '_sitename'],
-                    ['lang', '=', app('lang')->getLangSet()]
+                    ['lang', '=', Lang::getLangSet()]
                 ])
                 ->value('value', 'NICMS');
         }
@@ -166,7 +168,7 @@ class Siteinfo
         $result = (new ModelConfig)
             ->where([
                 ['name', '=', app('request')->controller(true) . '_sitename'],
-                ['lang', '=', app('lang')->getLangSet()]
+                ['lang', '=', Lang::getLangSet()]
             ])
             ->value('value', 'NICMS');
 
@@ -185,14 +187,14 @@ class Siteinfo
         $copyright = (new ModelConfig)
             ->where([
                 ['name', '=', app('request')->controller(true) . '_copyright'],
-                ['lang', '=', app('lang')->getLangSet()]
+                ['lang', '=', Lang::getLangSet()]
             ])
             ->value('value', '');
 
         $beian = (new ModelConfig)
             ->where([
                 ['name', '=', app('request')->controller(true) . '_beian'],
-                ['lang', '=', app('lang')->getLangSet()]
+                ['lang', '=', Lang::getLangSet()]
             ])
             ->value('value', '');
         $beian = $beian
@@ -214,7 +216,7 @@ class Siteinfo
         $result = (new ModelConfig)
             ->where([
                 ['name', '=', app('request')->controller(true) . '_footer'],
-                ['lang', '=', app('lang')->getLangSet()]
+                ['lang', '=', Lang::getLangSet()]
             ])
             ->value('value', 'footer');
 
@@ -233,7 +235,7 @@ class Siteinfo
         $result = (new ModelConfig)
             ->where([
                 ['name', '=', app('request')->controller(true) . '_script'],
-                ['lang', '=', app('lang')->getLangSet()]
+                ['lang', '=', Lang::getLangSet()]
             ])
             ->value('value', '');
 
@@ -252,7 +254,7 @@ class Siteinfo
         $result = (new ModelConfig)
             ->where([
                 ['name', '=', app('request')->controller(true) . '_theme'],
-                ['lang', '=', app('lang')->getLangSet()]
+                ['lang', '=', Lang::getLangSet()]
             ])
             ->value('value', 'default');
 

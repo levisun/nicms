@@ -18,14 +18,19 @@ declare(strict_types=1);
 namespace app\api\controller;
 
 use app\common\controller\AsyncController;
-use app\common\library\Base64;
+use think\captcha\facade\Captcha;
 
-class Query extends AsyncController
+class Verify extends AsyncController
 {
 
     public function index()
     {
-        $result = $this->validate('GET')->run();
-        return $this->success($result['msg'], $result['data'], $result['code']);
+        // $this->validate('GET');
+        if ($this->request->server('HTTP_REFERER')) {
+            $config = mt_rand(0, 1) ? 'verify_zh' : 'verify_math';
+            return Captcha::create($config, true);
+        } else {
+            $this->error('错误请求', 40009);
+        }
     }
 }

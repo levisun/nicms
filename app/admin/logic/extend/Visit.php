@@ -36,7 +36,7 @@ class Visit extends BaseLogic
             return $result;
         }
 
-        $query_limit = (int) $this->request->param('limit/f', 10);
+        $query_limit = $this->request->param('limit/d', 10);
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
         $result = (new ModelVisit)

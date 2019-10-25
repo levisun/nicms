@@ -133,10 +133,10 @@ class Node extends BaseLogic
             'name'       => $this->request->param('name'),
             'title'      => $this->request->param('title'),
             'remark'     => $this->request->param('remark'),
-            'pid'        => (int) $this->request->param('pid/f'),
-            'level'      => (int) $this->request->param('level/f'),
-            'status'     => (int) $this->request->param('status/f'),
-            'sort_order' => (int) $this->request->param('sort_order/f'),
+            'pid'        => $this->request->param('pid/d'),
+            'level'      => $this->request->param('level/d'),
+            'status'     => $this->request->param('status/d'),
+            'sort_order' => $this->request->param('sort_order/d'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -163,7 +163,7 @@ class Node extends BaseLogic
             return $result;
         }
 
-        if ($id = (int) $this->request->param('id/f')) {
+        if ($id = $this->request->param('id/d')) {
             $result = (new ModelNode)
                 ->where([
                     ['id', '=', $id],
@@ -186,7 +186,7 @@ class Node extends BaseLogic
             }
         } else {
             $result = [];
-            if ($pid = (int) $this->request->param('pid/f', '0')) {
+            if ($pid = $this->request->param('pid/d', 0)) {
                 $result['pid'] = $pid;
                 $result['parent'] = (new ModelNode)
                     ->where([
@@ -222,7 +222,7 @@ class Node extends BaseLogic
             return $result;
         }
 
-        if (!$id = (int) $this->request->param('id/f')) {
+        if (!$id = $this->request->param('id/d')) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -235,11 +235,11 @@ class Node extends BaseLogic
             'name'       => $this->request->param('name'),
             'title'      => $this->request->param('title'),
             'remark'     => $this->request->param('remark'),
-            'id'         => (int) $this->request->param('id/f'),
-            'pid'        => (int) $this->request->param('pid/f'),
-            'level'      => (int) $this->request->param('level/f'),
-            'status'     => (int) $this->request->param('status/f'),
-            'sort_order' => (int) $this->request->param('sort_order/f'),
+            'id'         => $this->request->param('id/d'),
+            'pid'        => $this->request->param('pid/d'),
+            'level'      => $this->request->param('level/d'),
+            'status'     => $this->request->param('status/d'),
+            'sort_order' => $this->request->param('sort_order/d'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -271,7 +271,7 @@ class Node extends BaseLogic
             return $result;
         }
 
-        if (!$id = (int) $this->request->param('id/f')) {
+        if (!$id = $this->request->param('id/d')) {
             return [
                 'debug' => false,
                 'cache' => false,

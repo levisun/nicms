@@ -36,7 +36,7 @@ class Type extends BaseLogic
             return $result;
         }
 
-        $query_limit = (int) $this->request->param('limit/f', 10);
+        $query_limit = $this->request->param('limit/d', 10);
 
         $result = (new ModelType)
             ->view('type', ['id', 'name', 'remark'])
@@ -88,7 +88,7 @@ class Type extends BaseLogic
         $receive_data = [
             'name'        => $this->request->param('name'),
             'remark'      => $this->request->param('remark'),
-            'category_id' => (int) $this->request->param('category_id/f'),
+            'category_id' => $this->request->param('category_id/d'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -115,7 +115,7 @@ class Type extends BaseLogic
             return $result;
         }
 
-        if ($id = (int) $this->request->param('id/f')) {
+        if ($id = $this->request->param('id/d')) {
             $result = (new ModelType)
                 ->where([
                     ['id', '=', $id],
@@ -144,7 +144,7 @@ class Type extends BaseLogic
             return $result;
         }
 
-        if (!$id = (int) $this->request->param('id/f')) {
+        if (!$id = $this->request->param('id/d')) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -156,7 +156,7 @@ class Type extends BaseLogic
         $receive_data = [
             'name'        => $this->request->param('name'),
             'remark'      => $this->request->param('remark'),
-            'category_id' => (int) $this->request->param('category_id/f'),
+            'category_id' => $this->request->param('category_id/d'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -188,7 +188,7 @@ class Type extends BaseLogic
             return $result;
         }
 
-        if (!$id = (int) $this->request->param('id/f')) {
+        if (!$id = $this->request->param('id/d')) {
             return [
                 'debug' => false,
                 'cache' => false,

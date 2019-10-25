@@ -36,7 +36,7 @@ class User extends BaseLogic
             return $result;
         }
 
-        $query_limit = (int) $this->request->param('limit/f', 10);
+        $query_limit = $this->request->param('limit/d', 10);
 
         $result = (new ModelUser)
             ->view('user', ['id', 'username', 'realname', 'nickname', 'email', 'phone', 'status', 'phone', 'phone'])
@@ -84,7 +84,7 @@ class User extends BaseLogic
             return $result;
         }
 
-        if ($id = (int) $this->request->param('id/f')) {
+        if ($id = $this->request->param('id/d')) {
             $result = (new ModelUser)
                 ->where([
                     ['id', '=', $id],

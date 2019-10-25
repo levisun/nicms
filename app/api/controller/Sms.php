@@ -28,7 +28,9 @@ class Sms extends AsyncController
         if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
             $this->validate('POST');
 
-            $key = $this->session->has('client_id') ? $this->session->get('client_id') : $this->request->ip();
+            $key = $this->session->has('client_token')
+                ? $this->session->get('client_token')
+                : $this->request->ip();
             $key = md5('sms_' . $key);
 
             if ($this->session->has($key) && $result = $this->session->get($key)) {
@@ -38,9 +40,9 @@ class Sms extends AsyncController
             }
 
             $this->session->set($key, [
-                'captcha' => mt_rand(100000, 999999),
-                'time'    => time() + 120,
-                'phone'   => $phone,
+                'verify' => mt_rand(100000, 999999),
+                'time'   => time() + 120,
+                'phone'  => $phone,
             ]);
             $this->openCache(false)->success('验证码发送成功');
         } else {
@@ -50,13 +52,26 @@ class Sms extends AsyncController
 
     public function check()
     {
-        $key = $this->session->has('client_id') ? $this->session->get('client_id') : $this->request->ip();
-        $key = md5('sms_' . $key);
+        $phone = $this->request->param('phone', false);
+        $verify = $this->request->param('verify/d', false);
+        if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone) && $verify) {
+            $this->validate('POST');
 
-        if (!$this->session->has($key) || !$result = $this->session->get($key)) {
-            if ($result['time'] >= time()) {
-                $this->error('错误请求', 40009);
+            $key = $this->session->has('client_token')
+                ? $this->session->get('client_token')
+                : $this->request->ip();
+            $key = md5('sms_' . $key);
+
+            if ($this->session->has($key) && $result = $this->session->get($key)) {
+                if ($result['time'] >= time() && $result['verify'] == $verify && $result['phone'] == $phone) {
+                    $this->session->delete($key);
+                    $this->openCache(false)->success('验证码验证成功');
+                }
             }
+
+            $this->openCache(false)->success('验证码错误');
+        } else {
+            $this->error('错误请求', 40009);
         }
     }
 }

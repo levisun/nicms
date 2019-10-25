@@ -123,15 +123,15 @@ class Tags
 
             '<meta name="csrf-authorization" content="<?php echo create_authorization();?>" />' . PHP_EOL .
             '<meta name="csrf-token" content="<?php echo token();?>" />' . PHP_EOL .
-            '<meta name="csrf-version" content="' . app('config')->get('app.version') . '" />' . PHP_EOL .
+            '<meta name="csrf-version" content="' . config('app.version') . '" />' . PHP_EOL .
             '<meta name="csrf-root" content="' . $root . '" />' . PHP_EOL .
             '<meta name="csrf-appid" content="' . $_config['tpl_config']['api_appid'] . '" />' . PHP_EOL .
             '<meta name="csrf-appsecret" content="' . $_config['tpl_config']['api_appsecret'] . '" />' . PHP_EOL .
 
-            '<link rel="dns-prefetch" href="' . app('config')->get('app.api_host') . '" />' . PHP_EOL .
-            '<link rel="dns-prefetch" href="' . app('config')->get('app.cdn_host') . '" />' . PHP_EOL .
+            '<link rel="dns-prefetch" href="' . config('app.api_host') . '" />' . PHP_EOL .
+            '<link rel="dns-prefetch" href="' . config('app.cdn_host') . '" />' . PHP_EOL .
 
-            '<link href="' . app('config')->get('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' . PHP_EOL .
+            '<link href="' . config('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' . PHP_EOL .
 
             // 网站标题 关键词 描述
             '<title>__TITLE__</title>' . PHP_EOL .
@@ -149,7 +149,7 @@ class Tags
                 'url'    => request()->baseUrl(true),
                 // 'param'  => request()->param(),
                 'api'    => [
-                    'url'   => app('config')->get('app.api_host'),
+                    'url'   => config('app.api_host'),
                     'appid' => $_config['tpl_config']['api_appid'],
                     'param' => request()->param()
                 ],

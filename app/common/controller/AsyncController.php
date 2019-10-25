@@ -206,13 +206,14 @@ abstract class AsyncController
         // $this->response = $this->app->response;
         $this->session  = $this->app->session;
 
-        // 关闭调试模式
+        // API中请勿开启调试模式
         $this->app->debug(false);
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\DataFilter::default');
 
+        // 设置最小
         @ini_set('memory_limit', '8M');
-        set_time_limit(5);
+        set_time_limit(10);
     }
 
     /**
@@ -226,7 +227,7 @@ abstract class AsyncController
         // 解析并执行类方法
         $result = $this->analysisMethod();
 
-        if (!is_array($result) && empty($result['msg'])) {
+        if (!is_array($result) && array_key_exists('msg', $result)) {
             $this->error('返回数据格式错误', 40001);
         }
 
@@ -370,7 +371,7 @@ abstract class AsyncController
      */
     protected function checkTimestamp(): void
     {
-        $this->timestamp = (int) $this->request->param('timestamp/f', $this->request->time());
+        $this->timestamp = $this->request->param('timestamp/d', $this->request->time());
         if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
             $this->error('非法参数{20012}', 20012);
         }
@@ -471,22 +472,27 @@ abstract class AsyncController
         $this->authorization = $this->request->header('authorization');
         $this->authorization = str_replace('&#43;', '+', $this->authorization);
         $this->authorization = str_replace('Bearer ', '', $this->authorization);
+        if (!$this->authorization) {
+            $this->log->record('[Async] header-authorization params error', 'error');
+            $this->error('非法参数{20001-1}', 20001);
+        }
+
         $token = (new Parser)->parse($this->authorization);
 
-        $key  = app('request')->ip();
-        $key .= $key . app('request')->rootDomain();
-        $key .= $key . app('request')->server('HTTP_USER_AGENT');
+        $key  = $this->request->ip();
+        $key .= $key . $this->request->rootDomain();
+        $key .= $key . $this->request->server('HTTP_USER_AGENT');
         $key = md5(Base64::encrypt($key));
 
         $data = new ValidationData;
-        $data->setIssuer(app('request')->rootDomain());
+        $data->setIssuer($this->request->rootDomain());
         $data->setAudience(parse_url($this->request->server('HTTP_REFERER'), PHP_URL_HOST));
         $data->setId($token->getClaim('jti'));
         $data->setCurrentTime(time() + 60);
 
         if (false === $token->verify(new Sha256, $key) || false === $token->validate($data)) {
             $this->log->record('[Async] header-authorization params error', 'error');
-            $this->error('非法参数{20001}', 20001);
+            $this->error('非法参数{20001-2}', 20001);
         }
 
 

@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\App;
+use think\facade\Config;
 
 class Canvas
 {
@@ -26,9 +27,9 @@ class Canvas
 
     public function __construct()
     {
-        $this->storagePath = app()->getRootPath() . app('config')->get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
+        $this->storagePath = app()->getRootPath() . Config::get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
 
-        $this->CDNHost = app('config')->get('app.cdn_host');
+        $this->CDNHost = Config::get('app.cdn_host');
     }
 
     /**

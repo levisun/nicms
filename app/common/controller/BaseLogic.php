@@ -273,7 +273,7 @@ abstract class BaseLogic
         $files = $this->request->file($_element);
 
         // 校验上传文件
-        if ($error = $this->validateFile($_element, $files)) {
+        if ($error = $this->validateUploadFile($_element, $files)) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -289,14 +289,14 @@ abstract class BaseLogic
 
         // 单文件
         if (is_string($_FILES[$_element]['name'])) {
-            $result = $this->saveFile($_dir, $files);
+            $result = $this->saveUploadFile($_dir, $files);
         }
 
         // 多文件
         elseif (is_array($_FILES[$_element]['name'])) {
             $result = [];
             foreach ($files as $file) {
-                $result[] = $this->saveFile($_dir, $file);
+                $result[] = $this->saveUploadFile($_dir, $file);
             }
         }
 
@@ -315,7 +315,7 @@ abstract class BaseLogic
      * @param  \think\File $_files   文件
      * @return bool|string
      */
-    private function validateFile(string $_element, \think\File &$_files)
+    private function validateUploadFile(string $_element, \think\File &$_files)
     {
         $size = (int) $this->config->get('app.upload_size', 1) * 1048576;
         $ext = $this->config->get('app.upload_type', 'doc,docx,gif,gz,jpeg,mp4,pdf,png,ppt,pptx,rar,xls,xlsx,zip');
@@ -339,6 +339,7 @@ abstract class BaseLogic
         $error = $this->app->validate->rule([
             $_element => [
                 'fileExt'  => $ext,
+                // 'fileMime' => $mime,
                 'fileSize' => $size
             ]
         ])->batch(false)->failException(false)->check([$_element => $_files]);
@@ -353,7 +354,7 @@ abstract class BaseLogic
      * @param  \think\File $_files 文件
      * @return array
      */
-    private function saveFile(string $_dir, \think\File &$_files): array
+    private function saveUploadFile(string $_dir, \think\File &$_files): array
     {
         $save_path = $this->config->get('filesystem.disks.public.url') . '/';
         $save_file = $save_path . $this->app->filesystem->disk('public')->putFile($_dir, $_files, 'uniqid');

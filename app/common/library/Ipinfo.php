@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use think\facade\Cache;
 use app\common\library\DataFilter;
 use app\common\model\IpInfo as ModelIpinfo;
 use app\common\model\Region as ModelRegion;
@@ -31,11 +32,9 @@ class Ipinfo
      */
     public static function get(string $_ip = ''): array
     {
-        $_ip = $_ip ?: app('request')->ip();
-
-        if ($_ip && false !== filter_var($_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && true === self::validate($_ip)) {
+        if ($_ip && false !== filter_var($_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && self::validate($_ip)) {
             $cache_key = md5(__METHOD__ . $_ip);
-            if (!app('cache')->has($cache_key)) {
+            if (!Cache::has($cache_key)) {
                 // 查询IP地址库
                 $region = self::query($_ip);
 
@@ -51,9 +50,9 @@ class Ipinfo
                 unset($region['id'], $region['update_time']);
                 $region['ip'] = $_ip;
 
-                app('cache')->tag('SYSTEM')->set($cache_key, $region);
+                Cache::tag('SYSTEM')->set($cache_key, $region);
             } else {
-                $region = app('cache')->get($cache_key);
+                $region = Cache::get($cache_key);
             }
 
             return $region;

@@ -16,6 +16,9 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use think\facade\Env;
+use think\facade\Log;
+
 class DataManage
 {
     private $DB = null;
@@ -61,14 +64,14 @@ class DataManage
                     $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
                     if (false === $result) {
                         $this->DB->query('OPTIMIZE TABLE `' . $name . '`');
-                        app('log')->record('[AUTO BACKUP] 优化表' . $name, 'alert');
+                        Log::record('[AUTO BACKUP] 优化表' . $name, 'alert');
                     }
 
                     $result = $this->DB->query('CHECK TABLE `' . $name . '`');
                     $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
                     if (false === $result) {
                         $this->DB->query('REPAIR TABLE `' . $name . '`');
-                        app('log')->record('[AUTO BACKUP] 修复表' . $name, 'alert');
+                        Log::record('[AUTO BACKUP] 修复表' . $name, 'alert');
                     }
                 }
 
@@ -159,7 +162,7 @@ class DataManage
                                     @unlink($sql_file);
                                 }
 
-                                app('log')->record('[AUTO BACKUP] 自动备份数据库' . $num, 'alert');
+                                Log::record('[AUTO BACKUP] 自动备份数据库' . $num, 'alert');
                                 break;
                             }
                         }
@@ -320,12 +323,12 @@ class DataManage
      */
     private function queryTableName(): array
     {
-        $result = $this->DB->query('SHOW TABLES FROM ' . app('env')->get('database.database'));
+        $result = $this->DB->query('SHOW TABLES FROM ' . Env::get('database.database'));
 
         $tables = array();
         foreach ($result as $value) {
             $value = current($value);
-            $tables[str_replace(app('env')->get('database.prefix'), '', $value)] = $value;
+            $tables[str_replace(Env::get('database.prefix'), '', $value)] = $value;
         }
 
         return $tables;

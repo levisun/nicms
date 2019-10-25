@@ -33,7 +33,7 @@ class Breadcrumb extends BaseLogic
      */
     public function query(): array
     {
-        if ($cid = (int) $this->request->param('cid/f')) {
+        if ($cid = $this->request->param('cid/d')) {
             $cache_key = md5(__METHOD__ . $cid);
             if (!$this->cache->has($cache_key)) {
                 $this->parentCate($cid);

@@ -53,8 +53,8 @@ class Article
             ];
         }
 
-        $query_limit = (int) Request::param('limit/f', 20);
-        $query_page = (int) Request::param('page/f', 1);
+        $query_limit = Request::param('limit/d', 20);
+        $query_page = Request::param('page/d', 1);
 
         $cache_key = md5(count($map) . $key . $query_limit . $query_page);
         $cache_key .= Request::isMobile() ? 'mobile' : '';

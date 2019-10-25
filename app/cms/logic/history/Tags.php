@@ -35,7 +35,7 @@ class Tags extends BaseService
      */
     public function record()
     {
-        if ($id = (int) $this->request->param('id/f', 0)) {
+        if ($id = $this->request->param('id/d', 0)) {
             $tags = (new ModelArticleTags)
                 ->view('article_tags', ['tags_id'])
                 ->view('tags', ['name'], 'tags.id=article_tags.tags_id')

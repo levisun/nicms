@@ -26,12 +26,12 @@ class Ip extends AsyncController
     {
         if ($ip = $this->request->param('ip', false)) {
             if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
-                // $this->validate();
                 $this->openCache(true)->success('IP INFO', Ipinfo::get($ip));
             } else {
                 $this->error('错误请求', 40001);
             }
         } else {
+            $ip = $this->request->ip();
             $ip = '125.' . mt_rand(1, 255) . '.' . mt_rand(1, 255) . '.' . mt_rand(1, 255);
 
             $this->openCache(false)->success('IP INFO', Ipinfo::get($ip));

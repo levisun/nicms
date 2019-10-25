@@ -29,8 +29,8 @@ return [
     // 上传文件类型(扩展名)
     'upload_type'      => Env::get('app.upload_type', 'gif,jpg,png,zip,rar'),
 
-    'api_host'         => '//api.' . app('request')->rootDomain(),
-    'cdn_host'         => '//cdn.' . app('request')->rootDomain(),
+    'api_host'         => '//api.' . request()->rootDomain(),
+    'cdn_host'         => '//cdn.' . request()->rootDomain(),
 
 
 

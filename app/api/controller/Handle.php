@@ -24,10 +24,6 @@ class Handle extends AsyncController
 
     public function index()
     {
-        if (empty($_POST)) {
-            $this->error('错误请求', 40009);
-        }
-
         $result = $this->validate('POST')->run();
         $this->openCache(false)->success($result['msg'], $result['data'], $result['code']);
     }
