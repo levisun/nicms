@@ -47,9 +47,7 @@ class AppMaintain
                     // 清除过期SESSION
                     ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session', 1)
                     // 清除过期网站地图文件
-                    ->remove($_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 1)
-                    // 清除过期上传资料
-                    ->remove($_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage', 30);
+                    ->remove($_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 1);
 
                     fwrite($fp, '清除垃圾数据' . date('Y-m-d H:i:s'));
                     flock($fp, LOCK_UN);

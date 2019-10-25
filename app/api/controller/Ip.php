@@ -24,17 +24,14 @@ class Ip extends AsyncController
 {
     public function index()
     {
-        if ($ip = $this->request->param('ip', false)) {
-            if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
-                $this->openCache(true)->success('IP INFO', Ipinfo::get($ip));
-            } else {
-                $this->error('错误请求', 40001);
-            }
-        } else {
-            $ip = $this->request->ip();
-            $ip = '125.' . mt_rand(1, 255) . '.' . mt_rand(1, 255) . '.' . mt_rand(1, 255);
+        $ip = $this->request->param('ip', false) ? : $this->request->ip();
 
-            $this->openCache(false)->success('IP INFO', Ipinfo::get($ip));
+        // $ip = '125.' . mt_rand(1, 255) . '.' . mt_rand(1, 255) . '.' . mt_rand(1, 255);
+
+        if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
+            $this->openCache(true)->success('IP INFO', Ipinfo::get($ip));
+        } else {
+            $this->error('错误请求', 40001);
         }
     }
 }

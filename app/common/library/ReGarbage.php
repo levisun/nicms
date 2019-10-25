@@ -33,7 +33,7 @@ class ReGarbage
             $filename = $dir->current();
             if (is_dir($filename)) {
                 // @rmdir($filename);
-            } elseif (is_file($filename) && false === strpos($filename, '_skl')) {
+            } elseif (is_file($filename)) {
                 @unlink($filename);
             }
             $dir->next();

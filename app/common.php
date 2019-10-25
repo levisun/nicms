@@ -180,16 +180,10 @@ if (!function_exists('get_img_url')) {
         $_img = str_replace('/', DIRECTORY_SEPARATOR, ltrim($_img, '/'));
         $ext = '.' . pathinfo($_img, PATHINFO_EXTENSION);
 
-        // 修正原始图片名
-        $new_img = str_replace($ext, '_skl' . $ext, $_img);
-        if (!is_file($path . $new_img) && is_file($path . $_img)) {
-            rename($path . $_img, $path . $new_img);
-        }
-        if (!is_file($path . $new_img)) {
+        if (!is_file($path . $_img)) {
             return 'data:image/svg+xml;base64,' .
                 base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="800" width="800"><rect fill="rgb(221,221,221)" x="0" y="0" width="800" height="800"></rect><text x="400" y="400" font-size="50" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="admin" alignment-baseline="central">' . app('request')->rootDomain() . '</text></svg>');
         }
-        $_img = $new_img;
 
         // 缩略图
         $_size = $_size > 800 ? 800 : intval($_size / 100) * 100;
@@ -288,14 +282,6 @@ if (!function_exists('url')) {
      */
     function url(string $_url = '', array $_vars = []): string
     {
-        // static $host = false;
-        // static $ext  = true;
-
-        // if (false === $host && true === $ext && $referer = app('request')->server('HTTP_REFERER', false)) {
-        //     $host = parse_url($referer, PHP_URL_HOST);
-        //     $ext  = pathinfo(parse_url($referer, PHP_URL_PATH), PATHINFO_EXTENSION);
-        // }
-
         return (string) Route::buildUrl('/' . $_url, $_vars)->suffix(true)->domain(false);
     }
 }

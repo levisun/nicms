@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace app\common\controller;
 
 use think\App;
-use think\Image;
 use app\common\library\Rbac;
+use app\common\library\UploadFile;
 use app\common\model\Action as ModelAction;
 use app\common\model\ActionLog as ModelActionLog;
 
@@ -117,8 +117,8 @@ abstract class BaseLogic
 
         // 设置会话信息(用户ID,用户组)
         if ($this->session->has($this->authKey) && $this->session->has($this->authKey . '_role')) {
-            $this->uid = $this->session->get($this->authKey);
-            $this->urole = $this->session->get($this->authKey . '_role');
+            $this->uid = (int) $this->session->get($this->authKey);
+            $this->urole = (int) $this->session->get($this->authKey . '_role');
         }
 
         \think\Facade\Db::listen(function ($sql, $time, $master) {
@@ -258,7 +258,7 @@ abstract class BaseLogic
      * @param  string $_dir     子目录
      * @return array
      */
-    protected function uploadFile(string $_element = 'upload', string $_dir = 'uploads'): array
+    protected function uploadFile(string $_element = 'upload'): array
     {
         if (!$this->request->isPost() || empty($_FILES) || !$this->uid) {
             return [
@@ -273,7 +273,7 @@ abstract class BaseLogic
         $files = $this->request->file($_element);
 
         // 校验上传文件
-        if ($error = $this->validateUploadFile($_element, $files)) {
+        if ($error = UploadFile::validate($_element, $files)) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -282,21 +282,16 @@ abstract class BaseLogic
             ];
         }
 
-        $_dir = '/' . trim($_dir, '\/');
-        $_dir .= $this->uid
-            ? '/u' . dechex((float) $this->uid) . dechex(date('ym'))
-            : '/t' . dechex(date('Ym'));
-
         // 单文件
         if (is_string($_FILES[$_element]['name'])) {
-            $result = $this->saveUploadFile($_dir, $files);
+            $result = UploadFile::save($this->uid, $files);
         }
 
         // 多文件
         elseif (is_array($_FILES[$_element]['name'])) {
             $result = [];
             foreach ($files as $file) {
-                $result[] = $this->saveUploadFile($_dir, $file);
+                $result[] = UploadFile::save($this->uid, $file);
             }
         }
 
@@ -305,77 +300,6 @@ abstract class BaseLogic
             'cache' => false,
             'msg'   => 'upload success',
             'data'  => $result
-        ];
-    }
-
-    /**
-     * 校验上传文件
-     * @access protected
-     * @param  string      $_element input元素名
-     * @param  \think\File $_files   文件
-     * @return bool|string
-     */
-    private function validateUploadFile(string $_element, \think\File &$_files)
-    {
-        $size = (int) $this->config->get('app.upload_size', 1) * 1048576;
-        $ext = $this->config->get('app.upload_type', 'doc,docx,gif,gz,jpeg,mp4,pdf,png,ppt,pptx,rar,xls,xlsx,zip');
-        $mime = [
-            'doc'  => 'application/msword',
-            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'gif'  => 'image/gif',
-            'gz'   => 'application/x-gzip',
-            'jpeg' => 'image/jpeg',
-            'mp4'  => 'video/mp4',
-            'pdf'  => 'application/pdf',
-            'png'  => 'image/png',
-            'ppt'  => 'application/vnd.ms-powerpoint',
-            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            'rar'  => 'application/octet-stream',
-            'xls'  => 'application/vnd.ms-excel',
-            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'zip'  => 'application/zip'
-        ];
-
-        $error = $this->app->validate->rule([
-            $_element => [
-                'fileExt'  => $ext,
-                // 'fileMime' => $mime,
-                'fileSize' => $size
-            ]
-        ])->batch(false)->failException(false)->check([$_element => $_files]);
-
-        return $error ? false : $this->app->validate->getError();
-    }
-
-    /**
-     * 保存上传文件
-     * @access protected
-     * @param  string      $_dir   子目录
-     * @param  \think\File $_files 文件
-     * @return array
-     */
-    private function saveUploadFile(string $_dir, \think\File &$_files): array
-    {
-        $save_path = $this->config->get('filesystem.disks.public.url') . '/';
-        $save_file = $save_path . $this->app->filesystem->disk('public')->putFile($_dir, $_files, 'uniqid');
-
-        if (false !== strpos($_files->getMime(), 'image/')) {
-            $image = Image::open($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
-            if ($image->width() >= 800) {
-                $image->thumb(800, 800, Image::THUMB_SCALING);
-                $image->save($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file, null, 40);
-            }
-            unset($image);
-        }
-
-        return [
-            'extension'    => $_files->extension(),
-            'name'         => $save_file,
-            'old_name'     => $_files->getOriginalName(),
-            'original_url' => $save_file,
-            'size'         => $_files->getSize(),
-            'type'         => $_files->getMime(),
-            'url'          => $this->config->get('app.cdn_host') . $save_file,
         ];
     }
 }
