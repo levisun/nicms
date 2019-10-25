@@ -113,6 +113,41 @@ class UploadFile
         ];
     }
 
+    public static function remove(int $_uid, string $_sql): void
+    {
+        $path = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR;
+        $temp_file_name = $path . md5('upload_file_log' . $_uid) . '.php';
+        $data = is_file($temp_file_name) ? include $temp_file_name : '';
+
+        if ($fp = @fopen($temp_file_name, 'w+')) {
+            if (flock($fp, LOCK_EX | LOCK_NB)) {
+                $data = !empty($data) ? (array) $data : [];
+                foreach ($data as $key => $value) {
+                    if (false !== strpos($value, $_sql)) {
+                        unset($data[$key]);
+                    }
+                }
+
+                $upload_path = app()->getRootPath() . 'storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
+
+                foreach ($data as $key => $value) {
+                    if (is_file($upload_path . $value)) {
+                        unlink($upload_path . $value);
+                    }
+                    // TODO 删除缩略图
+
+
+                    unset($data[$key]);
+                }
+
+                $data = '<?php /*' . $_uid . '*/ return ' . var_export($data, true) . ';';
+                fwrite($fp, $data);
+                flock($fp, LOCK_UN);
+            }
+            fclose($fp);
+        }
+    }
+
     /**
      * 记录上传文件
      * @access private
@@ -123,12 +158,10 @@ class UploadFile
      */
     private static function write(int $_uid, string $_file): void
     {
-        $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
-            'storage' . DIRECTORY_SEPARATOR .
-            'temp' . DIRECTORY_SEPARATOR;
+        $path = app()->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
 
-        $temp_file_name = $path . md5((string) $_uid) . '.php';
+        $temp_file_name = $path . md5('upload_file_log' . $_uid) . '.php';
         $data = is_file($temp_file_name) ? include $temp_file_name : '';
 
         if ($fp = @fopen($temp_file_name, 'w+')) {
