@@ -16,9 +16,6 @@
 
 namespace think;
 
-// $sub_domain = explode('.', $_SERVER['HTTP_HOST'], 2);
-// $sub_domain = $sub_domain[0];
-
 require __DIR__ . '/../vendor/autoload.php';
 
 // 执行应用并响应

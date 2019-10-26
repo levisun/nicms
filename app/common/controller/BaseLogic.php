@@ -121,6 +121,16 @@ abstract class BaseLogic
             $this->urole = (int) $this->session->get($this->authKey . '_role');
         }
 
+        // 加载语言包
+        $common_lang  = $this->app->getBasePath() . 'common' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
+        $common_lang .= $this->lang->getLangSet() . '.php';
+        $lang  = $this->app->getBasePath() . app('http')->getName() . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
+        $lang .= $this->lang->getLangSet() . '.php';
+        $this->lang->load([
+            $common_lang,
+            $lang
+        ]);
+
         // \think\Facade\Db::listen(function ($sql, $time, $master) {
         //     // if (0.1 <= $time && false === strpos($sql, 'CONNECT:')) {
         //         \think\Facade\Log::record('[RunTime:' . $time . 's] ' . $sql . ($master ? ' master' : ' slave'), 'alert');

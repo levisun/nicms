@@ -19,6 +19,7 @@ namespace app\common\controller;
 use think\App;
 use think\Response;
 use think\exception\HttpResponseException;
+use app\common\library\Rbac;
 use app\common\library\Base64;
 use app\common\model\ApiApp as ModelApiApp;
 use Lcobucci\JWT\Parser;
@@ -129,10 +130,33 @@ abstract class AsyncController
     protected $sign;
 
     /**
+     * APPID
+     * @var int
+     */
+    protected $appId;
+
+    /**
+     * APP密钥
+     * @var string
+     */
+    protected $appSecret;
+
+    /**
      * 应用名
      * @var string
      */
     protected $appName = '';
+
+    /**
+     * 应用方法
+     * @var array
+     */
+    protected $appMethod = [
+        'logic'  => null,
+        'method' => null,
+        'action' => null,
+        'class'  => null
+    ];
 
     /**
      * 调试信息
@@ -158,19 +182,6 @@ abstract class AsyncController
      */
     protected $apiExpire = 1440;
 
-
-    /**
-     * APPID
-     * @var int
-     */
-    protected $appId;
-
-    /**
-     * APP密钥
-     * @var int
-     */
-    protected $appSecret;
-
     /**
      * 请求时间戳
      * @var int
@@ -179,14 +190,13 @@ abstract class AsyncController
 
     /**
      * API方法
-     * @var int
+     * @var string
      */
     protected $method;
 
     /**
      * 构造方法
      * @access public
-     * @param
      * @return void
      */
     public function __construct(App $_app)
@@ -219,13 +229,15 @@ abstract class AsyncController
     /**
      * 运行
      * @access protected
-     * @param
      * @return array
      */
     protected function run(): array
     {
-        // 解析并执行类方法
-        $result = $this->analysisMethod();
+        // 执行类方法
+        $result = call_user_func([
+            $this->app->make($this->appMethod['class']),
+            $this->appMethod['action']
+        ]);
 
         if (!is_array($result) && array_key_exists('msg', $result)) {
             $this->error('返回数据格式错误', 40001);
@@ -245,7 +257,6 @@ abstract class AsyncController
     /**
      * 开启调试
      * @access protected
-     * @param
      * @return $this
      */
     protected function openDebug(bool $_debug)
@@ -257,7 +268,6 @@ abstract class AsyncController
     /**
      * 设置缓存
      * @access protected
-     * @param
      * @return $this
      */
     protected function openCache(bool $_cache)
@@ -270,7 +280,6 @@ abstract class AsyncController
      * 验证
      * 40011 错误请求
      * @access protected
-     * @param
      * @return $this
      */
     protected function validate(string $_type = 'GET')
@@ -280,11 +289,18 @@ abstract class AsyncController
             $this->error('错误请求', 30001);
         }
 
+        // 解析header数据
         $this->analysisHeader();
+        // 校验APP ID
         $this->checkAppId();
+        // 校验签名
         $this->checkSign();
+        // 校验时间戳
         $this->checkTimestamp();
-        $this->checkToken();
+        // 校验表单令牌
+        $this->checkFromToken();
+        // 解析method参数
+        $this->analysisMethod();
 
         // 检查客户端token
         // token由\app\common\controller\BaseController::class签发
@@ -296,20 +312,17 @@ abstract class AsyncController
     }
 
     /**
-     * 初始化
+     * 解析method参数
      * @access protected
-     * @param
-     * @return array
+     * @return void
      */
-    protected function analysisMethod(): array
+    protected function analysisMethod(): void
     {
         // 校验API方法
         $this->method = $this->request->param('method');
         if (!$this->method || !preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $this->method)) {
             $this->error('非法参数{20014}', 20014);
         }
-
-
 
         list($logic, $method, $action) = explode('.', $this->method, 3);
 
@@ -330,32 +343,20 @@ abstract class AsyncController
             $this->error('非法参数{20016}', 20016);
         }
 
-
-
-        // 加载语言包
-        $common_lang  = $this->app->getBasePath() . 'common' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
-        $common_lang .= $this->lang->getLangSet() . '.php';
-
-        $lang  = $this->app->getBasePath() . $this->appName . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
-        $lang .= $this->openVersion ? 'v' . implode('_', $this->version) . DIRECTORY_SEPARATOR : '';
-        $lang .= $this->lang->getLangSet() . '.php';
-
-        $this->lang->load([
-            $common_lang,
-            $lang
-        ]);
-
-        // 执行类方法
-        return call_user_func([$this->app->make($class), $action]);
+        $this->appMethod = [
+            'logic'  => $logic,
+            'method' => $method,
+            'action' => $action,
+            'class'  => $class,
+        ];
     }
 
     /**
-     * 校验令牌
+     * 校验表单令牌
      * @access protected
-     * @param
-     * @return $this
+     * @return void
      */
-    protected function checkToken(): void
+    protected function checkFromToken(): void
     {
         // POST请求 表单令牌校验
         if ($this->request->isPost() && false === $this->request->checkToken()) {
@@ -366,8 +367,7 @@ abstract class AsyncController
     /**
      * 校验请求时间
      * @access protected
-     * @param
-     * @return $this
+     * @return void
      */
     protected function checkTimestamp(): void
     {
@@ -380,8 +380,7 @@ abstract class AsyncController
     /**
      * 校验签名类型与签名合法性
      * @access protected
-     * @param
-     * @return $this
+     * @return void
      */
     protected function checkSign(): void
     {
@@ -429,8 +428,7 @@ abstract class AsyncController
     /**
      * 校验APPID
      * @access protected
-     * @param
-     * @return $this
+     * @return void
      */
     protected function checkAppId(): void
     {
@@ -463,9 +461,11 @@ abstract class AsyncController
 
     /**
      * 解析header信息
+     * JWT校验
+     * Session初始化
+     * version与format解析
      * @access private
-     * @param
-     * @return $this
+     * @return void
      */
     private function analysisHeader(): void
     {
