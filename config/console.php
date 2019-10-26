@@ -18,5 +18,6 @@ return [
     // 指令定义
     'commands' => [
         'install' => \app\command\Install::class,
+        'test' => \app\command\Test::class,
     ],
 ];

@@ -61,18 +61,6 @@ class Index extends BaseController
     }
 
     /**
-     * 列表页
-     * @access public
-     * @param  string $name 分层名
-     * @param  int    $cid  栏目ID
-     * @return void
-     */
-    public function lists(string $name)
-    {
-        $this->fetch('list_' . $name);
-    }
-
-    /**
      * 操作验证权限
      * @access private
      * @param

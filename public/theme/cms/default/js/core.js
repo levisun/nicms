@@ -29,14 +29,14 @@ layui.use(['jquery', 'laypage', 'nicms'], function(){
         }
     });
 
-    if (NICMS.param.cid) {
+    if (NICMS.api.param.cid) {
         // 侧导航
         nc.pjax({
             url: NICMS.api.url + '/query.do',
             method: 'get',
             data: {
                 method: 'nav.sidebar.query',
-                cid: NICMS.param.cid
+                cid: NICMS.api.param.cid
             },
             success: function(result) {
                 if (result.code == '10000') {
@@ -56,7 +56,7 @@ layui.use(['jquery', 'laypage', 'nicms'], function(){
             method: 'get',
             data: {
                 method: 'nav.breadcrumb.query',
-                cid: NICMS.param.cid
+                cid: NICMS.api.param.cid
             },
             success: function(result) {
                 if (result.code == '10000') {

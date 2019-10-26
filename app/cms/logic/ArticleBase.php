@@ -24,7 +24,7 @@ use app\common\model\Article as ModelArticle;
 use app\common\model\ArticleExtend as ArticleExtend;
 use app\common\model\ArticleTags as ModelArticleTags;
 
-class BaseArticle extends BaseLogic
+class ArticleBase extends BaseLogic
 {
 
     /**
@@ -59,7 +59,11 @@ class BaseArticle extends BaseLogic
             $query_page = $this->request->param('page/d', 1);
             $date_format = $this->request->param('date_format', 'Y-m-d');
 
-            $cache_key = md5(__METHOD__ . date('Ymd') . $category_id . $com . $top . $hot . $type_id . $query_limit . $query_page . $date_format);
+            $cache_key = __METHOD__ . date('Ymd') . $category_id .
+                $com . $top . $hot . $type_id .
+                $query_limit . $query_page . $date_format;
+            $cache_key = md5($cache_key);
+
             if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
@@ -115,7 +119,7 @@ class BaseArticle extends BaseLogic
                         $list['data'][$key] = $value;
                     }
 
-                    $this->cache->tag('CMS LIST ' . $category_id)->set($cache_key, $list);
+                    $this->cache->tag('CMS_LIST' . $category_id)->set($cache_key, $list);
                 }
             }
         }
@@ -138,7 +142,7 @@ class BaseArticle extends BaseLogic
                 ['article.show_time', '<=', time()],
                 ['article.lang', '=', $this->lang->getLangSet()]
             ];
-            $cache_key = md5('CMS DETAILS ' . $id);
+            $cache_key = md5(__METHOD__ . $id);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
@@ -177,8 +181,8 @@ class BaseArticle extends BaseLogic
                     $result['cat_url'] = url('list/' . $result['model_name'] . '/' . $result['category_id']);
 
                     // 上一篇 下一篇
-                    $result['next'] = $this->next($result['id']);
-                    $result['prev'] = $this->prev($result['id']);
+                    $result['next'] = $this->next((int) $result['id']);
+                    $result['prev'] = $this->prev((int) $result['id']);
 
                     // 附加字段数据
                     $fields = (new ArticleExtend)
@@ -203,7 +207,7 @@ class BaseArticle extends BaseLogic
                         ->select()
                         ->toArray();
 
-                    $this->cache->set($cache_key, $result);
+                    $this->cache->tag('CMS_DETAILS' . $id)->set($cache_key, $result);
                 }
             }
         }

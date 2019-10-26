@@ -51,8 +51,6 @@ class Details extends BaseController
      * 详情页
      * @access public
      * @param  string $name 分层名
-     * @param  int    $cid  栏目ID
-     * @param  int    $id   文章ID
      * @return void
      */
     public function index(string $name)

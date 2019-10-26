@@ -56,7 +56,7 @@ class Sidebar extends BaseLogic
                     }
                     unset($result['action_name']);
 
-                    $result['child'] = $this->child($result['id']);
+                    $result['child'] = $this->child((int) $result['id']);
                 }
 
                 $this->cache->tag('CMS NAV')->set($cache_key, $result);
@@ -99,7 +99,7 @@ class Sidebar extends BaseLogic
             if ($value['access_id']) {
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
             }
-            $value['child'] = $this->child($value['id']);
+            $value['child'] = $this->child((int) $value['id']);
 
             unset($value['action_name']);
 

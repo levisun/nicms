@@ -51,7 +51,7 @@ class Foot extends BaseLogic
                 $value['image'] = get_img_url($value['image']);
                 $value['flag'] = Base64::flag($value['id'], 7);
 
-                $value['child'] = $this->child($value['id'], 3);
+                $value['child'] = $this->child((int) $value['id'], 3);
 
                 $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
                 if ($value['access_id']) {
@@ -98,7 +98,7 @@ class Foot extends BaseLogic
             $value['image'] = get_img_url($value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
 
-            $value['child'] = $this->child($value['id'], 3);
+            $value['child'] = $this->child((int) $value['id'], 3);
 
             $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
             if ($value['access_id']) {

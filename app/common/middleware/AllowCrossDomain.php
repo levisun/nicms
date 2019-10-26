@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace app\api\middleware;
+namespace app\common\middleware;
 
 use Closure;
 use think\Config;

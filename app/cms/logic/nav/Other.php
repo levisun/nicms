@@ -54,7 +54,7 @@ class Other extends BaseLogic
                 if ($value['access_id']) {
                     $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
                 }
-                $value['child'] = $this->child($value['id'], 4);
+                $value['child'] = $this->child((int) $value['id'], 4);
                 unset($value['action_name']);
 
                 $result[$key] = $value;
@@ -99,7 +99,7 @@ class Other extends BaseLogic
             if ($value['access_id']) {
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
             }
-            $value['child'] = $this->child($value['id'], 4);
+            $value['child'] = $this->child((int) $value['id'], 4);
             unset($value['action_name']);
 
 

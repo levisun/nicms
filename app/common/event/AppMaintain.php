@@ -19,9 +19,7 @@ declare(strict_types=1);
 namespace app\common\event;
 
 use think\App;
-use app\common\library\DataManage;
 use app\common\library\ReGarbage;
-use app\common\library\Ipinfo;
 
 class AppMaintain
 {
@@ -41,13 +39,13 @@ class AppMaintain
 
                     (new ReGarbage)
                     // 清除过期缓存文件
-                    ->remove($_app->getRuntimePath() . 'cache', 1)
+                    ->remove($_app->getRuntimePath() . 'cache', 3)
                     // 清除过期临时文件
-                    ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1)
+                    ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 3)
                     // 清除过期SESSION
-                    ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session', 1)
+                    ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session', 3)
                     // 清除过期网站地图文件
-                    ->remove($_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 1);
+                    ->remove($_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 3);
 
                     fwrite($fp, '清除垃圾数据' . date('Y-m-d H:i:s'));
                     flock($fp, LOCK_UN);
@@ -55,12 +53,5 @@ class AppMaintain
                 fclose($fp);
             }
         }
-
-
-
-        // 数据库优化|修复
-        (new DataManage)->optimize();
-        // 数据库备份
-        (new DataManage)->autoBackup();
     }
 }

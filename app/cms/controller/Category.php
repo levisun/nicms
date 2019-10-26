@@ -20,7 +20,7 @@ namespace app\cms\controller;
 use app\common\controller\BaseController;
 use app\common\library\Siteinfo;
 
-class Search extends BaseController
+class Category extends BaseController
 {
 
     /**
@@ -48,13 +48,13 @@ class Search extends BaseController
     }
 
     /**
-     * 详情页
+     * 列表页
      * @access public
      * @param  string $name 分层名
      * @return void
      */
-    public function index()
+    public function index(string $name)
     {
-        return $this->fetch('search');
+        return $this->fetch('list_' . $name);
     }
 }

@@ -19,6 +19,7 @@ namespace app\common\library;
 use think\Image;
 use think\facade\Config;
 use think\facade\Filesystem;
+use think\facade\Log;
 use think\Validate;
 
 class UploadFile
@@ -133,6 +134,7 @@ class UploadFile
                         $size = $i * 100;
                         $thumb = str_replace($ext, '_' . $size . $ext, $value);
                         if (is_file($upload_path . $thumb)) {
+                            Log::record('[删除上传垃圾] ' . $thumb, 'alert');
                             unlink($upload_path . $thumb);
                         }
                     }
