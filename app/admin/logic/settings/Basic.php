@@ -27,7 +27,6 @@ class Basic extends BaseLogic
     /**
      * 查询
      * @access public
-     * @param
      * @return array
      */
     public function query(): array
@@ -63,7 +62,6 @@ class Basic extends BaseLogic
     /**
      * 编辑
      * @access public
-     * @param
      * @return array
      */
     public function editor(): array

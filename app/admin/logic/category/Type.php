@@ -27,7 +27,6 @@ class Type extends BaseLogic
     /**
      * 查询
      * @access public
-     * @param
      * @return array
      */
     public function query(): array
@@ -76,7 +75,6 @@ class Type extends BaseLogic
     /**
      * 添加
      * @access public
-     * @param
      * @return array
      */
     public function added(): array
@@ -106,7 +104,6 @@ class Type extends BaseLogic
     /**
      * 查询
      * @access public
-     * @param
      * @return array
      */
     public function find(): array
@@ -135,7 +132,6 @@ class Type extends BaseLogic
     /**
      * 编辑
      * @access public
-     * @param
      * @return array
      */
     public function editor(): array
@@ -179,7 +175,6 @@ class Type extends BaseLogic
     /**
      * 删除
      * @access public
-     * @param
      * @return array
      */
     public function remove(): array

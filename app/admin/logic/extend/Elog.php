@@ -27,7 +27,6 @@ class Elog extends BaseLogic
     /**
      * 查询
      * @access public
-     * @param
      * @return array
      */
     public function query(): array
@@ -70,7 +69,6 @@ class Elog extends BaseLogic
     /**
      * 查看
      * @access public
-     * @param
      * @return array
      */
     public function find(): array

@@ -63,7 +63,7 @@ class Download
     /**
      * 文件下载
      * @access public
-     * @param
+     * @param  string $_filename
      * @return void
      */
     public function file(string $_filename): void

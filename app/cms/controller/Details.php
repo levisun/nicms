@@ -26,7 +26,6 @@ class Details extends BaseController
     /**
      * 初始化
      * @access public
-     * @param
      * @return void
      */
     public function initialize()

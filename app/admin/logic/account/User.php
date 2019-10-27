@@ -31,7 +31,6 @@ class User extends BaseLogic
     /**
      * 登录
      * @access public
-     * @param
      * @return array
      */
     public function login()
@@ -121,7 +120,6 @@ class User extends BaseLogic
     /**
      * 用户注销
      * @access public
-     * @param
      * @return array
      */
     public function logout(): array
@@ -144,7 +142,6 @@ class User extends BaseLogic
     /**
      * 找回密码
      * @access public
-     * @param
      * @return array
      */
     public function forget(): array
@@ -158,7 +155,6 @@ class User extends BaseLogic
     /**
      * 权限
      * @access public
-     * @param
      * @return array
      */
     public function auth(): array
@@ -197,7 +193,6 @@ class User extends BaseLogic
     /**
      * 用户信息
      * @access public
-     * @param
      * @return array
      */
     public function profile(): array

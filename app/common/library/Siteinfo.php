@@ -52,7 +52,6 @@ class Siteinfo
      * 网站描述
      * @access private
      * @static
-     * @param
      * @return string
      */
     private static function description(): string
@@ -88,7 +87,6 @@ class Siteinfo
      * 网站关键词
      * @access private
      * @static
-     * @param
      * @return string
      */
     private static function keywords(): string
@@ -124,7 +122,6 @@ class Siteinfo
      * 网站标题
      * @access private
      * @static
-     * @param
      * @return string
      */
     private static function title(): string
@@ -160,7 +157,6 @@ class Siteinfo
      * 网站名称
      * @access private
      * @static
-     * @param
      * @return string
      */
     private static function name(): string
@@ -179,7 +175,6 @@ class Siteinfo
      * 网站版权
      * @access private
      * @static
-     * @param
      * @return string
      */
     private static function copyright(): string
@@ -208,7 +203,6 @@ class Siteinfo
      * 网站底部
      * @access private
      * @static
-     * @param
      * @return string
      */
     private static function footer(): string
@@ -227,7 +221,6 @@ class Siteinfo
      * JS脚本
      * @access private
      * @static
-     * @param
      * @return string
      */
     private static function script(): string
@@ -246,7 +239,6 @@ class Siteinfo
      * 主题
      * @access private
      * @static
-     * @param
      * @return string
      */
     private static function theme(): string

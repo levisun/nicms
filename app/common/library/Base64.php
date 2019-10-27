@@ -58,7 +58,8 @@ class Base64
 
     /**
      * 客户端唯一ID
-     * @param
+     * @access public
+     * @static
      * @return string
      */
     public static function client_id(): string
@@ -76,6 +77,8 @@ class Base64
 
     /**
      * 生成旗标
+     * @access public
+     * @static
      * @param  string      $_str
      * @param  int|integer $_length
      * @return string

@@ -74,6 +74,7 @@ class Rbac
 
     /**
      * 获得用户权限
+     * @access public
      * @param  int   $_uid
      * @return array
      */

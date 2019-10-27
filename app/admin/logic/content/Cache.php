@@ -26,7 +26,6 @@ class Cache extends BaseLogic
     /**
      * 清除数据缓存
      * @access public
-     * @param
      * @return array
      */
     public function reCache(): array
@@ -49,7 +48,6 @@ class Cache extends BaseLogic
     /**
      * 清除模板编译
      * @access public
-     * @param
      * @return array
      */
     public function reCompile(): array

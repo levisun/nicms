@@ -25,7 +25,6 @@ class Details extends BaseArticle
     /**
      * 查询内容
      * @access public
-     * @param
      * @return array
      */
     public function query(): array

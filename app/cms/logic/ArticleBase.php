@@ -30,7 +30,6 @@ class ArticleBase extends BaseLogic
     /**
      * 查询列表
      * @access protected
-     * @param
      * @return array
      */
     protected function ArticleList()
@@ -130,7 +129,6 @@ class ArticleBase extends BaseLogic
     /**
      * 查询内容
      * @access protected
-     * @param
      * @return array
      */
     protected function ArticleDetails(): array
@@ -218,7 +216,6 @@ class ArticleBase extends BaseLogic
     /**
      * 更新浏览量
      * @access public
-     * @param
      * @return array
      */
     public function hits(): array

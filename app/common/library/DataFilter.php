@@ -22,6 +22,7 @@ class DataFilter
     /**
      * 默认过滤
      * @access public
+     * @static
      * @param  mixed $_data
      * @return mixed
      */
@@ -45,6 +46,7 @@ class DataFilter
     /**
      * 内容过滤
      * @access public
+     * @static
      * @param  mixed $_str
      * @return mixed
      */
@@ -68,6 +70,7 @@ class DataFilter
     /**
      * 字符过滤
      * @access public
+     * @static
      * @param  mixed $_data
      * @return mixed
      */
@@ -79,6 +82,7 @@ class DataFilter
     /**
      * 安全过滤
      * @access public
+     * @static
      * @param  mixed $_data
      * @return mixed
      */
@@ -99,6 +103,7 @@ class DataFilter
     /**
      * 过滤回车
      * @access private
+     * @static
      * @param  string $_str
      * @return string
      */
@@ -126,6 +131,7 @@ class DataFilter
     /**
      * 过滤PHP危害函数方法
      * @access private
+     * @static
      * @param  string $_str
      * @return string
      */
@@ -163,6 +169,7 @@ class DataFilter
      * XSS跨站脚本攻击
      * XXE XML 实体扩展攻击
      * @access private
+     * @static
      * @param  string $_str
      * @return string
      */

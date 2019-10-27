@@ -26,7 +26,6 @@ class Safe extends BaseLogic
     /**
      * 查询
      * @access public
-     * @param
      * @return array
      */
     public function query(): array
@@ -74,7 +73,6 @@ class Safe extends BaseLogic
     /**
      * 编辑
      * @access public
-     * @param
      * @return array
      */
     public function editor(): array

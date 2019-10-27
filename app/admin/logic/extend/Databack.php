@@ -28,7 +28,6 @@ class Databack extends BaseLogic
     /**
      * 查询
      * @access public
-     * @param
      * @return array
      */
     public function query(): array
@@ -71,7 +70,6 @@ class Databack extends BaseLogic
     /**
      * 备份数据库
      * @access public
-     * @param
      * @return array
      */
     public function backup(): array
@@ -97,7 +95,6 @@ class Databack extends BaseLogic
     /**
      * 删除
      * @access public
-     * @param
      * @return array
      */
     public function remove(): array

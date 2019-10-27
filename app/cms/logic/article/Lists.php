@@ -25,7 +25,6 @@ class Lists extends ArticleBase
     /**
      * 查询列表
      * @access public
-     * @param
      * @return array
      */
     public function query(): array

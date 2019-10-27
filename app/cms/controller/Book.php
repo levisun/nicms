@@ -23,7 +23,6 @@ class Book extends BaseController
     /**
      * 初始化
      * @access public
-     * @param
      * @return void
      */
     public function initialize()
@@ -38,7 +37,6 @@ class Book extends BaseController
     /**
      * CMS
      * @access public
-     * @param
      * @return mixed HTML文档
      */
     public function index()

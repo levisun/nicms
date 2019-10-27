@@ -76,7 +76,7 @@ class Ipinfo
     /**
      * 验证IP
      * @access private
-     *
+     * @static
      * @param  string  $_ip
      * @return array
      */
@@ -115,7 +115,7 @@ class Ipinfo
     /**
      * 查询IP地址库
      * @access private
-     *
+     * @static
      * @param
      * @return array
      */
@@ -138,7 +138,7 @@ class Ipinfo
     /**
      * 查询地址ID
      * @access private
-     *
+     * @static
      * @param  string  $_name
      * @return int
      */
@@ -159,7 +159,7 @@ class Ipinfo
     /**
      * 写入IP地址库
      * @access private
-     *
+     * @static
      * @param
      * @return array|false
      */
@@ -213,7 +213,7 @@ class Ipinfo
     /**
      * 更新IP地址库
      * @access private
-     *
+     * @static
      * @param
      * @return bool
      */

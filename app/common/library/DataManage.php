@@ -43,7 +43,6 @@ class DataManage
     /**
      * 优化表
      * @access public
-     * @param
      * @return bool
      */
     public function optimize(): bool
@@ -88,7 +87,6 @@ class DataManage
     /**
      * 自动备份
      * @access public
-     * @param
      * @return bool
      */
     public function autoBackup(): bool
@@ -187,7 +185,6 @@ class DataManage
     /**
      * 备份
      * @access public
-     * @param
      * @return bool
      */
     public function backup(): bool
@@ -249,7 +246,6 @@ class DataManage
     /**
      * 表数据SQL
      * @access private
-     * @param
      * @return string
      */
     private function getTableInsertData(string $_table_name, string $_table_field, array $_data): string
@@ -276,7 +272,6 @@ class DataManage
     /**
      * 查询表字段
      * @access private
-     * @param
      * @return string
      */
     private function queryTableInsertField(string $_table_name): string
@@ -294,7 +289,6 @@ class DataManage
     /**
      * 查询表结构
      * @access private
-     * @param
      * @return bool|string
      */
     private function queryTableStructure(string $_table_name)
@@ -318,7 +312,6 @@ class DataManage
     /**
      * 查询数据库表名
      * @access private
-     * @param
      * @return array
      */
     private function queryTableName(): array
