@@ -30,9 +30,7 @@ class Cache extends BaseLogic
      */
     public function reCache(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin content cache reomve')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin content cache reomve');
 
         $this->app->console->call('clear', ['cache']);
         $this->app->console->call('clear', ['schema']);
@@ -52,9 +50,7 @@ class Cache extends BaseLogic
      */
     public function reCompile(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin content compile reomve')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin content compile reomve');
 
         $this->app->console->call('clear', ['compile']);
 

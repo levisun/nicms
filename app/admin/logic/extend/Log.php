@@ -31,10 +31,6 @@ class Log extends BaseLogic
      */
     public function query(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         $query_limit = $this->request->param('limit/d', 10);
 
         $result = (new ModelActionLog)

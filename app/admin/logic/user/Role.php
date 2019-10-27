@@ -31,10 +31,6 @@ class Role extends BaseLogic
      */
     public function query(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         $query_limit = $this->request->param('limit/d', 10);
 
         $result = (new ModelRole)
@@ -77,9 +73,7 @@ class Role extends BaseLogic
      */
     public function added(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin role added')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin role added');
     }
 
     /**
@@ -89,9 +83,7 @@ class Role extends BaseLogic
      */
     public function find(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
+
     }
 
     /**
@@ -101,9 +93,7 @@ class Role extends BaseLogic
      */
     public function editor(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin role editor')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin role editor');
     }
 
     /**
@@ -113,8 +103,6 @@ class Role extends BaseLogic
      */
     public function remove(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin role remove')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin role remove');
     }
 }

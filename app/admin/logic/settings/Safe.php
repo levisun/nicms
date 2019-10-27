@@ -30,10 +30,6 @@ class Safe extends BaseLogic
      */
     public function query(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         $env = $this->app->env;
 
         $result = [
@@ -77,9 +73,7 @@ class Safe extends BaseLogic
      */
     public function editor(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin safe editor')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin safe editor');
 
         $receive_data = [
             'app_upload_size'   => $this->request->param('app.upload_size'),

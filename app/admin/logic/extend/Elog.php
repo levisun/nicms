@@ -31,10 +31,6 @@ class Elog extends BaseLogic
      */
     public function query(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         $path = app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR;
         $file = (array) glob($path . '*');
         rsort($file);
@@ -73,9 +69,7 @@ class Elog extends BaseLogic
      */
     public function find(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'see error log')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'see error log');
 
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id, date('Ymd'))) {

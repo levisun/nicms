@@ -31,10 +31,6 @@ class Basic extends BaseLogic
      */
     public function query(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         $result = (new ModelConfig)
             ->field(['name', 'value'])
             ->where([
@@ -66,9 +62,7 @@ class Basic extends BaseLogic
      */
     public function editor(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin basic editor')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin basic editor');
 
         $receive_data = [
             'cms_sitename'    => $this->request->param('cms_sitename'),

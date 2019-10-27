@@ -31,10 +31,6 @@ class Node extends BaseLogic
      */
     public function query(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         $result = (new ModelNode)
             ->where([
                 ['pid', '=', 0],
@@ -123,9 +119,7 @@ class Node extends BaseLogic
      */
     public function added(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin node added')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin node added');
 
         $receive_data = [
             'name'       => $this->request->param('name'),
@@ -156,10 +150,6 @@ class Node extends BaseLogic
      */
     public function find(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         if ($id = $this->request->param('id/d')) {
             $result = (new ModelNode)
                 ->where([
@@ -214,9 +204,7 @@ class Node extends BaseLogic
      */
     public function editor(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin node editor')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin node editor');
 
         if (!$id = $this->request->param('id/d')) {
             return [
@@ -262,9 +250,7 @@ class Node extends BaseLogic
      */
     public function remove(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin node remove')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin node remove');
 
         if (!$id = $this->request->param('id/d')) {
             return [

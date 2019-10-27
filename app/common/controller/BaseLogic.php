@@ -128,9 +128,6 @@ abstract class BaseLogic
         //     UploadFile::remove($this->uid, $sql);
         // });
 
-        @ini_set('memory_limit', '8M');
-        set_time_limit(5);
-
         $this->initialize();
     }
 
@@ -149,62 +146,42 @@ abstract class BaseLogic
      * @param  string  $_write_log
      * @return bool|array
      */
-    protected function authenticate(string $_method, string $_write_log = '')
+    protected function actionLog(string $_method, string $_write_log = '')
     {
-        $pattern = '/app\\\([a-zA-Z]+)\\\logic\\\([a-zA-Z]+)\\\([a-zA-Z]+)::([a-zA-Z]+)/si';
-        $_method = preg_replace_callback($pattern, function ($matches) {
-            return is_array($matches)
-                ? strtolower($matches[1] . '.' . $matches[2] . '.' . $matches[3] . '.' . $matches[4])
-                : '';
-        }, $_method);
-        list($app, $logic, $method, $action) = explode('.', $_method, 4);
+        $_method = str_replace(['app\\', 'logic\\', '\\', '::'], ['', '', '_', '_'], $_method);
+        // 查询操作方法
+        $has = (new ModelAction)
+            ->where([
+                ['name', '=', $_method]
+            ])
+            ->find();
 
-        $result = (new Rbac)->authenticate($this->uid, $app, $logic, $method, $action, $this->notAuth);
-        // 验证成功,记录操作日志
-        if ($result && $_write_log) {
-            $map = $app . '_' . $logic . '_' . $method . '_' . $action;
-
-            // 查询操作方法
-            $has = (new ModelAction)
-                ->where([
-                    ['name', '=', $map]
-                ])
-                ->find();
-
-            // 创建新操作方法
-            if (is_null($has)) {
-                $res = (new ModelAction)
-                    ->create([
-                        'name'  => $map,
-                        'title' => $_write_log,
-                    ]);
-                $has['id'] = $res->id;
-            }
-
-            // 写入操作日志
-            (new ModelActionLog)
+        // 创建新操作方法
+        if (is_null($has)) {
+            $res = (new ModelAction)
                 ->create([
-                    'action_id' => $has['id'],
-                    'user_id'   => $this->uid,
-                    'action_ip' => $this->request->ip(),
-                    'module'    => 'admin',
-                    'remark'    => $_write_log,
+                    'name'  => $_method,
+                    'title' => $_write_log,
                 ]);
-
-            // 删除过期日志
-            (new ModelActionLog)
-                ->where([
-                    ['create_time', '<=', strtotime('-180 days')]
-                ])
-                ->delete();
+            $has['id'] = $res->id;
         }
 
-        return $result ? false : [
-            'debug' => false,
-            'cache' => false,
-            'code'  => 40006,
-            'msg'   => '请求错误'
-        ];
+        // 写入操作日志
+        (new ModelActionLog)
+            ->create([
+                'action_id' => $has['id'],
+                'user_id'   => $this->uid,
+                'action_ip' => $this->request->ip(),
+                'module'    => 'admin',
+                'remark'    => $_write_log,
+            ]);
+
+        // 删除过期日志
+        (new ModelActionLog)
+            ->where([
+                ['create_time', '<=', strtotime('-90 days')]
+            ])
+            ->delete();
     }
 
     /**

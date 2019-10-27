@@ -31,10 +31,6 @@ class Model extends BaseLogic
      */
     public function query(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         $result = (new ModelModel)
             ->order('id ASC')
             ->select()

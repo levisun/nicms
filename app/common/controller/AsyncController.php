@@ -213,10 +213,6 @@ abstract class AsyncController
      */
     protected $notAuth = [
         'not_auth_action' => [
-            'login',
-            'logout',
-            'forget',
-
             'auth',
             'profile',
             'notice'
@@ -267,10 +263,7 @@ abstract class AsyncController
         $common_lang .= $this->lang->getLangSet() . '.php';
         $lang  = $this->app->getBasePath() . $this->appName . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
         $lang .= $this->lang->getLangSet() . '.php';
-        $this->lang->load([
-            $common_lang,
-            $lang
-        ]);
+        $this->lang->load([$common_lang, $lang]);
 
         // 执行类方法
         $result = call_user_func([
@@ -325,7 +318,7 @@ abstract class AsyncController
     {
         // 解析header数据
         $this->analysisHeader();
-        // 校验APP ID
+        // 校验APPID
         $this->checkAppId();
         // 校验签名
         $this->checkSign();
@@ -335,7 +328,6 @@ abstract class AsyncController
         $this->checkFromToken();
         // 解析method参数
         $this->analysisMethod();
-
         // 权限认证
         $this->checkAuth();
 
@@ -356,20 +348,24 @@ abstract class AsyncController
      */
     protected function checkAuth(): void
     {
+        // 需要鉴权应用
+        if (!in_array($this->appName, ['admin', 'my'])) {
+            return;
+        }
+
+        // 不需要鉴权方法
+        // 登录 登出 找回密码
+        if (in_array($this->appMethod['action'], ['login', 'logout', 'forget'])) {
+            return;
+        }
+
         // 设置会话信息(用户ID,用户组)
         if ($this->session->has($this->appAuthKey) && $this->session->has($this->appAuthKey . '_role')) {
             $this->uid = (int) $this->session->get($this->appAuthKey);
             $this->urole = (int) $this->session->get($this->appAuthKey . '_role');
         }
 
-        if (!in_array($this->appName, ['admin', 'my'])) {
-            return;
-        }
-
-        if (in_array($this->appMethod['action'], $this->notAuth['not_auth_action'])) {
-            return;
-        }
-
+        // 验证权限
         $result = (new Rbac)->authenticate(
             $this->uid,
             $this->appName,

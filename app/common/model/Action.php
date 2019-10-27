@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS `nc_action`;
 CREATE TABLE IF NOT EXISTS `nc_action` (
     `id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
     `name` varchar(50) NOT NULL DEFAULT '' COMMENT '行为唯一标识',
-    `title` varchar(80) NOT NULL DEFAULT '' COMMENT '行为说明',
+    `title` varchar(100) NOT NULL DEFAULT '' COMMENT '行为说明',
     `remark` varchar(140) NOT NULL DEFAULT '' COMMENT '描述',
     PRIMARY KEY (`id`),
     UNIQUE KEY `name` (`name`) USING BTREE

@@ -32,10 +32,6 @@ class Databack extends BaseLogic
      */
     public function query(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR;
 
         $file = (array) glob($path . '*');
@@ -74,9 +70,7 @@ class Databack extends BaseLogic
      */
     public function backup(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'databack backup')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'databack backup');
 
         try {
             (new DataManage)->backup();
@@ -99,9 +93,7 @@ class Databack extends BaseLogic
      */
     public function remove(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'databack backup remove')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'databack backup remove');
 
         $msg = 'remove error';
         $id = $this->request->param('id');

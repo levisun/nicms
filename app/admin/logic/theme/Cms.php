@@ -30,10 +30,6 @@ class Cms extends BaseLogic
      */
     public function query()
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         $file = (array) glob($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . 'cms' . DIRECTORY_SEPARATOR . '*');
         rsort($file);
         foreach ($file as $key => $value) {
@@ -69,8 +65,6 @@ class Cms extends BaseLogic
 
     public function editor()
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin theme cms editor')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin theme cms editor');
     }
 }

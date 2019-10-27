@@ -34,10 +34,6 @@ class Category extends BaseLogic
      */
     public function query(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         $result = (new ModelCategory)
             ->view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
@@ -132,9 +128,7 @@ class Category extends BaseLogic
      */
     public function added(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin category added')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin category added');
 
         $pid = $pid = $this->request->param('pid/d', 0);
 
@@ -179,10 +173,6 @@ class Category extends BaseLogic
      */
     public function find(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         if ($id = $this->request->param('id/d')) {
             $result = (new ModelCategory)
                 ->view('category')
@@ -261,9 +251,7 @@ class Category extends BaseLogic
      */
     public function editor(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin category editor')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin category editor');
 
         if (!$id = $this->request->param('id/d')) {
             return [
@@ -327,9 +315,7 @@ class Category extends BaseLogic
      */
     public function remove(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin category remove')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin category remove');
 
         if (!$id = $this->request->param('id/d')) {
             return [
@@ -373,9 +359,7 @@ class Category extends BaseLogic
      */
     public function upload(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin category upload image')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin category upload image');
 
         return $this->uploadFile();
     }

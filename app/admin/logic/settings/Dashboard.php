@@ -25,9 +25,6 @@ class Dashboard extends BaseLogic
 
     public function query()
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
         if (!$this->cache->has(__METHOD__) || !$result = $this->cache->get(__METHOD__)) {
             $result = \think\facade\Db::query('SELECT version()');
             $db_version = $result[0]['version()'];

@@ -108,7 +108,7 @@ class User extends BaseLogic
 
         $this->uid = $user['id'];
         $this->urole = $user['role_id'];
-        $this->authenticate(__METHOD__, 'admin user login');
+        $this->actionLog(__METHOD__, 'admin user login');
 
         return [
             'debug' => false,
@@ -124,9 +124,7 @@ class User extends BaseLogic
      */
     public function logout(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin user logout')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin user logout');
 
         $this->cache->delete('AUTH' . $this->uid);
         $this->session->delete($this->authKey);
@@ -144,11 +142,9 @@ class User extends BaseLogic
      * @access public
      * @return array
      */
-    public function forget(): array
+    public function forget()
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin user forget')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin user forget');
         # code...
     }
 
@@ -159,10 +155,6 @@ class User extends BaseLogic
      */
     public function auth(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         if (!$this->cache->has('AUTH' . $this->uid) || !$result = $this->cache->get('AUTH' . $this->uid)) {
             $result = (new Rbac)->getAuth($this->uid);
             $result = $result['admin'];
@@ -197,10 +189,6 @@ class User extends BaseLogic
      */
     public function profile(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         $result = (new ModelAdmin)
             ->view('admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
             ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
@@ -225,12 +213,8 @@ class User extends BaseLogic
         ];
     }
 
-    public function notice()
+    public function notice(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         $result = [];
 
         // 验证备份状态

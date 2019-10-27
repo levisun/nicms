@@ -31,10 +31,6 @@ class User extends BaseLogic
      */
     public function query(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         $query_limit = $this->request->param('limit/d', 10);
 
         $result = (new ModelUser)
@@ -78,10 +74,6 @@ class User extends BaseLogic
      */
     public function find(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         if ($id = $this->request->param('id/d')) {
             $result = (new ModelUser)
                 ->where([

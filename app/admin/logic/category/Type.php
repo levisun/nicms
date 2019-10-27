@@ -31,10 +31,6 @@ class Type extends BaseLogic
      */
     public function query(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         $query_limit = $this->request->param('limit/d', 10);
 
         $result = (new ModelType)
@@ -79,9 +75,7 @@ class Type extends BaseLogic
      */
     public function added(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin type added')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin type added');
 
         $receive_data = [
             'name'        => $this->request->param('name'),
@@ -108,10 +102,6 @@ class Type extends BaseLogic
      */
     public function find(): array
     {
-        if ($result = $this->authenticate(__METHOD__)) {
-            return $result;
-        }
-
         if ($id = $this->request->param('id/d')) {
             $result = (new ModelType)
                 ->where([
@@ -136,9 +126,7 @@ class Type extends BaseLogic
      */
     public function editor(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin type editor')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin type editor');
 
         if (!$id = $this->request->param('id/d')) {
             return [
@@ -179,9 +167,7 @@ class Type extends BaseLogic
      */
     public function remove(): array
     {
-        if ($result = $this->authenticate(__METHOD__, 'admin category remove')) {
-            return $result;
-        }
+        $this->actionLog(__METHOD__, 'admin category remove');
 
         if (!$id = $this->request->param('id/d')) {
             return [
