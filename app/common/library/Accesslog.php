@@ -28,7 +28,6 @@ class Accesslog
     /**
      * 记录访问
      * @access public
-     * @param
      * @return void
      */
     public function record(): void
@@ -122,7 +121,6 @@ class Accesslog
     /**
      * 判断搜索引擎蜘蛛
      * @access public
-     * @param
      * @return mixed
      */
     public function isSpider()

@@ -26,7 +26,7 @@ class Sms extends AsyncController
     {
         $phone = $this->request->param('phone', false);
         if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
-            $this->validate('POST');
+            $this->validate();
 
             $key = $this->session->has('client_token')
                 ? $this->session->get('client_token')
@@ -55,7 +55,7 @@ class Sms extends AsyncController
         $phone = $this->request->param('phone', false);
         $verify = $this->request->param('verify/d', false);
         if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone) && $verify) {
-            $this->validate('POST');
+            $this->validate();
 
             $key = $this->session->has('client_token')
                 ? $this->session->get('client_token')

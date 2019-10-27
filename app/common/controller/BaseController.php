@@ -104,7 +104,6 @@ abstract class BaseController
     /**
      * miss
      * @access public
-     * @param
      * @return void
      */
     public function miss(string $code = '404')

@@ -25,7 +25,7 @@ class Query extends AsyncController
 
     public function index()
     {
-        $result = $this->validate('GET')->run();
+        $result = $this->validate()->run();
         return $this->success($result['msg'], $result['data'], $result['code']);
     }
 }

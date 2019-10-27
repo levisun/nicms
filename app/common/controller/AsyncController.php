@@ -195,6 +195,35 @@ abstract class AsyncController
     protected $method;
 
     /**
+     * 权限认证KEY
+     * @var string
+     */
+    protected $appAuthKey = 'user_auth_key';
+
+    /**
+     * uid
+     * @var int
+     */
+    protected $uid = 0;
+    protected $urole = 0;
+
+    /**
+     * 不用验证
+     * @var array
+     */
+    protected $notAuth = [
+        'not_auth_action' => [
+            'login',
+            'logout',
+            'forget',
+
+            'auth',
+            'profile',
+            'notice'
+        ]
+    ];
+
+    /**
      * 构造方法
      * @access public
      * @return void
@@ -233,6 +262,16 @@ abstract class AsyncController
      */
     protected function run(): array
     {
+        // 加载语言包
+        $common_lang  = $this->app->getBasePath() . 'common' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
+        $common_lang .= $this->lang->getLangSet() . '.php';
+        $lang  = $this->app->getBasePath() . $this->appName . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
+        $lang .= $this->lang->getLangSet() . '.php';
+        $this->lang->load([
+            $common_lang,
+            $lang
+        ]);
+
         // 执行类方法
         $result = call_user_func([
             $this->app->make($this->appMethod['class']),
@@ -282,13 +321,8 @@ abstract class AsyncController
      * @access protected
      * @return $this
      */
-    protected function validate(string $_type = 'GET')
+    protected function validate()
     {
-        // 检查请求类型
-        if ($_type !== $this->request->method()) {
-            $this->error('错误请求', 30001);
-        }
-
         // 解析header数据
         $this->analysisHeader();
         // 校验APP ID
@@ -302,6 +336,10 @@ abstract class AsyncController
         // 解析method参数
         $this->analysisMethod();
 
+        // 权限认证
+        $this->checkAuth();
+
+
         // 检查客户端token
         // token由\app\common\controller\BaseController::class签发
         if (!$this->session->has('client_token')) {
@@ -309,6 +347,40 @@ abstract class AsyncController
         }
 
         return $this;
+    }
+
+    /**
+     * 权限认证
+     * @access protected
+     * @return void
+     */
+    protected function checkAuth(): void
+    {
+        // 设置会话信息(用户ID,用户组)
+        if ($this->session->has($this->appAuthKey) && $this->session->has($this->appAuthKey . '_role')) {
+            $this->uid = (int) $this->session->get($this->appAuthKey);
+            $this->urole = (int) $this->session->get($this->appAuthKey . '_role');
+        }
+
+        if (!in_array($this->appName, ['admin', 'my'])) {
+            return;
+        }
+
+        if (in_array($this->appMethod['action'], $this->notAuth['not_auth_action'])) {
+            return;
+        }
+
+        $result = (new Rbac)->authenticate(
+            $this->uid,
+            $this->appName,
+            $this->appMethod['logic'],
+            $this->appMethod['method'],
+            $this->appMethod['action'],
+            $this->notAuth
+        );
+        if (false === $result) {
+            $this->error('非法参数', 30001);
+        }
     }
 
     /**
@@ -442,7 +514,7 @@ abstract class AsyncController
 
         $this->appId -= 1000000;
         $result = (new ModelApiApp)
-            ->field('secret, module')
+            ->field('name, secret, authkey')
             ->where([
                 ['id', '=', $this->appId]
             ])
@@ -451,8 +523,9 @@ abstract class AsyncController
 
         if ($result) {
             $result = $result->toArray();
+            $this->appName = $result['name'];
             $this->appSecret = $result['secret'];
-            $this->appName = $result['module'];
+            $this->appAuthKey = $result['authkey'];
         } else {
             $this->log->record('[Async] auth-appid error', 'error');
             $this->error('非法参数{20008}', 20008);
