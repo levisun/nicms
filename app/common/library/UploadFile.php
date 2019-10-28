@@ -109,6 +109,7 @@ class UploadFile
     {
         trace($_uid . $_sql, 'alert');
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
+
         $temp_file_name = $path . md5('upload_file_log' . $_uid) . '.php';
         $data = is_file($temp_file_name) ? include $temp_file_name : '';
 

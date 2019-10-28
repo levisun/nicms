@@ -394,8 +394,7 @@ class Template implements TemplateHandlerInterface
             return '';
         }, $_content);
 
-        $this->script .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.do?timestamp=' . time() . '" defer="defer"></script>';
-
+        // $_content = \app\common\library\DataFilter::string($_content);
         $_content .= '<!-- -->' . PHP_EOL . $this->script;
         $this->script = '';
     }

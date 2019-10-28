@@ -29,6 +29,6 @@ class Upload extends AsyncController
         }
 
         $result = $this->validate()->run();
-        $this->openCache(false)->success($result['msg'], $result['data'], $result['code']);
+        $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
     }
 }

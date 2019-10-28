@@ -28,19 +28,17 @@ class DataFilter
      */
     public static function default($_data)
     {
-        if (is_array($_data)) {
-            foreach ($_data as $key => $value) {
-                $_data[$key] = self::default($value);
-            }
-            return $_data;
-        }
         if (is_string($_data)) {
             $_data = self::safe($_data);
             $_data = self::fun($_data);
             $_data = self::enter($_data);
             $_data = strip_tags($_data);
-            return $_data;
+        } elseif (is_array($_data)) {
+            foreach ($_data as $key => $value) {
+                $_data[$key] = self::default($value);
+            }
         }
+        return $_data;
     }
 
     /**
@@ -52,19 +50,17 @@ class DataFilter
      */
     public static function content($_data)
     {
-        if (is_array($_data)) {
-            foreach ($_data as $key => $value) {
-                $_data[$key] = self::content($value);
-            }
-            return $_data;
-        }
         if (is_string($_data)) {
             $_data = self::safe($_data);
             $_data = self::fun($_data);
             $_data = self::enter($_data);
             $_data = htmlspecialchars($_data);
-            return $_data;
+        } elseif (is_array($_data)) {
+            foreach ($_data as $key => $value) {
+                $_data[$key] = self::content($value);
+            }
         }
+        return $_data;
     }
 
     /**
@@ -76,23 +72,10 @@ class DataFilter
      */
     public static function string($_data)
     {
-        return self::safeFilter($_data);
-    }
-
-    /**
-     * 安全过滤
-     * @access public
-     * @static
-     * @param  mixed $_data
-     * @return mixed
-     */
-    private function safeFilter($_data)
-    {
         if (is_string($_data)) {
             $_data = self::safe($_data);
             $_data = self::fun($_data);
-            $_data = self::enter($_data);
-        } else {
+        } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::string($value);
             }

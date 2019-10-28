@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace app\cms\logic\article;
 
-use app\cms\logic\BaseArticle;
+use app\cms\logic\ArticleBase;
 
-class Details extends BaseArticle
+class Details extends ArticleBase
 {
 
     /**

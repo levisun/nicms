@@ -25,7 +25,6 @@ class Verify extends AsyncController
 
     public function index()
     {
-        // $this->validate('GET');
         if ($this->request->server('HTTP_REFERER')) {
             $config = mt_rand(0, 1) ? 'verify_zh' : 'verify_math';
             return Captcha::create($config, true);

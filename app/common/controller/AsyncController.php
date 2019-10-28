@@ -276,9 +276,9 @@ abstract class AsyncController
         }
 
         // 调试模式设置 返回数据没有指定默认关闭
-        $this->openDebug(isset($result['debug']) ? $result['debug'] : false);
+        $this->debug(isset($result['debug']) ? $result['debug'] : false);
         // 缓存设置 返回数据没有指定默认开启
-        $this->openCache(isset($result['cache']) ? $result['cache'] : true);
+        $this->cache(isset($result['cache']) ? $result['cache'] : true);
 
         $result['data'] = isset($result['data']) ? $result['data'] : [];
         $result['code'] = isset($result['code']) ? $result['code'] : 10000;
@@ -291,7 +291,7 @@ abstract class AsyncController
      * @access protected
      * @return $this
      */
-    protected function openDebug(bool $_debug)
+    protected function debug(bool $_debug)
     {
         $this->apiDebug = $_debug;
         return $this;
@@ -302,7 +302,7 @@ abstract class AsyncController
      * @access protected
      * @return $this
      */
-    protected function openCache(bool $_cache)
+    protected function cache(bool $_cache)
     {
         $this->apiCache = (true === $this->apiDebug) ? false : $_cache;
         return $this;
@@ -330,7 +330,6 @@ abstract class AsyncController
         $this->analysisMethod();
         // 权限认证
         $this->checkAuth();
-
 
         // 检查客户端token
         // token由\app\common\controller\BaseController::class签发

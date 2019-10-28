@@ -35,7 +35,7 @@ class Sms extends AsyncController
 
             if ($this->session->has($key) && $result = $this->session->get($key)) {
                 if ($result['time'] >= time()) {
-                    $this->openCache(false)->success('请勿重复请求');
+                    $this->cache(false)->success('请勿重复请求');
                 }
             }
 
@@ -44,7 +44,7 @@ class Sms extends AsyncController
                 'time'   => time() + 120,
                 'phone'  => $phone,
             ]);
-            $this->openCache(false)->success('验证码发送成功');
+            $this->cache(false)->success('验证码发送成功');
         } else {
             $this->error('错误请求', 40009);
         }
@@ -65,11 +65,11 @@ class Sms extends AsyncController
             if ($this->session->has($key) && $result = $this->session->get($key)) {
                 if ($result['time'] >= time() && $result['verify'] == $verify && $result['phone'] == $phone) {
                     $this->session->delete($key);
-                    $this->openCache(false)->success('验证码验证成功');
+                    $this->cache(false)->success('验证码验证成功');
                 }
             }
 
-            $this->openCache(false)->success('验证码错误');
+            $this->cache(false)->success('验证码错误');
         } else {
             $this->error('错误请求', 40009);
         }

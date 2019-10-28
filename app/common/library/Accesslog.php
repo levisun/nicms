@@ -20,7 +20,7 @@ use app\common\library\Ipinfo;
 use app\common\model\Searchengine as ModelSearchengine;
 use app\common\model\Visit as ModelVisit;
 
-class Accesslog
+class AccessLog
 {
     private $userAgent;
     private $ip;

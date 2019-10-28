@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace app\api\controller;
 
 use app\common\controller\AsyncController;
-use app\common\library\Base64;
 
 class Query extends AsyncController
 {

@@ -219,7 +219,8 @@ class DataManage
                 }
 
                 $zip = new \ZipArchive;
-                $path = app()->getRuntimePath() . 'backup' . DIRECTORY_SEPARATOR .
+                $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
+                    'backup' . DIRECTORY_SEPARATOR .
                     pathinfo($this->savePath, PATHINFO_BASENAME) . '.zip';
                 if (true === $zip->open($path, \ZipArchive::CREATE)) {
                     $dir = (array) glob($this->savePath . '*');
