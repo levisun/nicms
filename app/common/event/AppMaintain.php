@@ -20,6 +20,7 @@ namespace app\common\event;
 
 use think\App;
 use app\common\library\ReGarbage;
+use app\common\library\UploadFile;
 
 class AppMaintain
 {
@@ -37,13 +38,15 @@ class AppMaintain
                 if (flock($fp, LOCK_EX | LOCK_NB)) {
                     $_app->log->record('[REGARBAGE] 删除垃圾信息', 'alert');
 
+                    (new UploadFile)->ReGarbage();
+
                     (new ReGarbage)
                     // 清除过期缓存文件
                     ->remove($_app->getRuntimePath() . 'cache', 3)
                     // 清除过期临时文件
                     ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 3)
                     // 清除过期SESSION
-                    ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session', 3)
+                    // ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session', 3)
                     // 清除过期网站地图文件
                     ->remove($_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 3);
 

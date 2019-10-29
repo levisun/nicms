@@ -247,6 +247,9 @@ class DataManage
     /**
      * 表数据SQL
      * @access private
+     * @param  string $_table_name  表名
+     * @param  string $_table_field 表字段
+     * @param  array  $_data        表数据
      * @return string
      */
     private function getTableInsertData(string $_table_name, string $_table_field, array $_data): string
@@ -273,6 +276,7 @@ class DataManage
     /**
      * 查询表字段
      * @access private
+     * @param  string $_table_name 表名
      * @return string
      */
     private function queryTableInsertField(string $_table_name): string
@@ -290,6 +294,7 @@ class DataManage
     /**
      * 查询表结构
      * @access private
+     * @param  string $_table_name 表名
      * @return bool|string
      */
     private function queryTableStructure(string $_table_name)

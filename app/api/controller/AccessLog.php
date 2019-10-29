@@ -42,66 +42,66 @@ class AccessLog extends AsyncController
 
     public function index()
     {
-        if ($this->request->server('HTTP_REFERER')) {
-            $this->userAgent = strtolower($this->request->server('HTTP_USER_AGENT'));
+        $this->validate();
 
-            if ($spider = $this->isSpider()) {
-                $searchengine = new ModelSearchengine;
-                $has = $searchengine
+        $this->userAgent = strtolower($this->request->server('HTTP_USER_AGENT'));
+
+        if ($spider = $this->isSpider()) {
+            $searchengine = new ModelSearchengine;
+            $has = $searchengine
+                ->where([
+                    ['name', '=', $spider],
+                    ['user_agent', '=', $this->userAgent],
+                    ['date', '=', strtotime(date('Y-m-d'))]
+                ])
+                ->cache(__METHOD__ . $spider . $this->userAgent)
+                ->value('name');
+
+            if ($has) {
+                $searchengine
                     ->where([
                         ['name', '=', $spider],
                         ['user_agent', '=', $this->userAgent],
                         ['date', '=', strtotime(date('Y-m-d'))]
                     ])
-                    ->cache(__METHOD__ . $spider . $this->userAgent)
-                    ->value('name');
-
-                if ($has) {
-                    $searchengine
-                        ->where([
-                            ['name', '=', $spider],
-                            ['user_agent', '=', $this->userAgent],
-                            ['date', '=', strtotime(date('Y-m-d'))]
-                        ])
-                        ->inc('count', 1, 60)
-                        ->update();
-                } else {
-                    $searchengine
-                        ->create([
-                            'name'       => $spider,
-                            'user_agent' => $this->userAgent,
-                            'date'       => strtotime(date('Y-m-d'))
-                        ]);
-                }
+                    ->inc('count', 1, 60)
+                    ->update();
             } else {
-                $ip = Ipinfo::get($this->request->ip());
-                $visit = new ModelVisit;
-                $has = $visit
+                $searchengine
+                    ->create([
+                        'name'       => $spider,
+                        'user_agent' => $this->userAgent,
+                        'date'       => strtotime(date('Y-m-d'))
+                    ]);
+            }
+        } else {
+            $ip = (new Ipinfo)->get($this->request->ip());
+            $visit = new ModelVisit;
+            $has = $visit
+                ->where([
+                    ['ip', '=', $ip['ip']],
+                    ['user_agent', '=', $this->userAgent],
+                    ['date', '=', strtotime(date('Y-m-d'))]
+                ])
+                // ->cache(__METHOD__ . $ip['ip'] . $this->userAgent)
+                ->value('ip');
+            if ($has) {
+                $visit
                     ->where([
                         ['ip', '=', $ip['ip']],
                         ['user_agent', '=', $this->userAgent],
                         ['date', '=', strtotime(date('Y-m-d'))]
                     ])
-                    // ->cache(__METHOD__ . $ip['ip'] . $this->userAgent)
-                    ->value('ip');
-                if ($has) {
-                    $visit
-                        ->where([
-                            ['ip', '=', $ip['ip']],
-                            ['user_agent', '=', $this->userAgent],
-                            ['date', '=', strtotime(date('Y-m-d'))]
-                        ])
-                        ->inc('count', 1, 60)
-                        ->update();
-                } else {
-                    $visit
-                        ->create([
-                            'ip'         => $ip['ip'],
-                            'ip_attr'    => $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'],
-                            'user_agent' => $this->userAgent,
-                            'date'       => strtotime(date('Y-m-d'))
-                        ]);
-                }
+                    ->inc('count', 1, 60)
+                    ->update();
+            } else {
+                $visit
+                    ->create([
+                        'ip'         => $ip['ip'],
+                        'ip_attr'    => $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'],
+                        'user_agent' => $this->userAgent,
+                        'date'       => strtotime(date('Y-m-d'))
+                    ]);
             }
         }
 

@@ -36,7 +36,7 @@ class Breadcrumb extends BaseLogic
         if ($cid = $this->request->param('cid/d')) {
             $cache_key = md5(__METHOD__ . $cid);
             if (!$this->cache->has($cache_key)) {
-                $this->parentCate($cid);
+                $this->parentCate((int) $cid);
                 $this->cache->tag('CMS NAV')->set($cache_key, $this->bread,);
             } else {
                 $this->bread = $this->cache->get($cache_key);
@@ -83,7 +83,7 @@ class Breadcrumb extends BaseLogic
 
             $this->bread[] = $result;
             if ($result['pid']) {
-                $this->parentCate($result['pid']);
+                $this->parentCate((int) $result['pid']);
             }
         }
     }

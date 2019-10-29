@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace app\common\controller;
 
 use think\App;
-use app\common\library\Rbac;
 use app\common\library\UploadFile;
 use app\common\model\Action as ModelAction;
 use app\common\model\ActionLog as ModelActionLog;
@@ -249,8 +248,10 @@ abstract class BaseLogic
         set_time_limit(600);
         $files = $this->request->file($_element);
 
+        $upload = new UploadFile;
+
         // 校验上传文件
-        if ($error = UploadFile::validate($_element, $files)) {
+        if ($error = $upload->validate($_element, $files)) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -261,14 +262,14 @@ abstract class BaseLogic
 
         // 单文件
         if (is_string($_FILES[$_element]['name'])) {
-            $result = UploadFile::save($this->uid, $files);
+            $result = $upload->save($this->uid, $files);
         }
 
         // 多文件
         elseif (is_array($_FILES[$_element]['name'])) {
             $result = [];
             foreach ($files as $file) {
-                $result[] = UploadFile::save($this->uid, $file);
+                $result[] = $upload->save($this->uid, $file);
             }
         }
 

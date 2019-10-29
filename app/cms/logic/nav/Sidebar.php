@@ -35,7 +35,7 @@ class Sidebar extends BaseLogic
         if ($cid = $this->request->param('cid/d')) {
             $cache_key = md5(__METHOD__ . $cid);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
-                $id = $this->parent($cid);
+                $id = $this->parent((int) $cid);
                 $result = (new ModelCategory)
                     ->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
                     ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
@@ -123,6 +123,6 @@ class Sidebar extends BaseLogic
             ])
             ->value('pid');
 
-        return $result ? $this->parent($result) : $_id;
+        return $result ? $this->parent((int) $result) : $_id;
     }
 }

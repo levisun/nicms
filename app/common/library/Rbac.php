@@ -35,11 +35,11 @@ class Rbac
      * @param  int    $_uid     用户ID
      * @param  string $_app     应用名
      * @param  string $_logic   业务层名
-     * @param  string $_method  控制器名
-     * @param  string $_action  方法名
+     * @param  string $_action  控制器名
+     * @param  string $_method  方法名
      * @return boolean
      */
-    public function authenticate($_uid, string $_app, string $_logic, string $_method, string $_action, array $_config = []): bool
+    public function authenticate($_uid, string $_app, string $_logic, string $_action, string $_method, array $_config = []): bool
     {
         if (!empty($_config)) {
             $this->config = array_merge($this->config, $_config);
@@ -49,7 +49,7 @@ class Rbac
 
 
         // 登录并请求方法需要审核
-        if ($_uid && $this->checkAccess($_app, $_logic, $_method, $_action)) {
+        if ($_uid && $this->checkAccess($_app, $_logic, $_action, $_method)) {
             // 实时检验权限
             if (true === $this->config['auth_type']) {
                 $__authenticate_list = $this->accessDecision($_uid);
@@ -66,7 +66,7 @@ class Rbac
                 }
             }
 
-            return isset($__authenticate_list[$_app][$_logic][$_method][$_action]);
+            return isset($__authenticate_list[$_app][$_logic][$_action][$_method]);
         } else {
             return $_uid ? true : false;
         }
@@ -98,10 +98,10 @@ class Rbac
      * @param  string $_app        应用名
      * @param  string $_service      业务层名
      * @param  string $_logic 控制器名
-     * @param  string $_action     方法名
+     * @param  string $_method     方法名
      * @return boolean
      */
-    private  function checkAccess(string $_app, string $_service, string $_logic, string $_action): bool
+    private  function checkAccess(string $_app, string $_service, string $_logic, string $_method): bool
     {
         if (!empty($this->config['not_auth_app'])) {
             $this->config['not_auth_app'] = array_map('strtolower', $this->config['not_auth_app']);
@@ -120,7 +120,7 @@ class Rbac
             }
         } elseif (!empty($this->config['not_auth_action'])) {
             $this->config['not_auth_action'] = array_map('strtolower', $this->config['not_auth_action']);
-            if (in_array($_action, $this->config['not_auth_action'])) {
+            if (in_array($_method, $this->config['not_auth_action'])) {
                 return false;
             }
         }

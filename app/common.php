@@ -264,7 +264,7 @@ if (!function_exists('create_authorization')) {
             ->identifiedBy($jti, false)                             // Configures the id (jti claim), replicating as a header item
             ->issuedAt($time)                                       // Configures the time that the token was issue (iat claim)
             ->canOnlyBeUsedAfter($time + 60)                        // Configures the time that the token can be used (nbf claim)
-            ->expiresAt($time + 3600)                               // Configures the expiration time of the token (exp claim)
+            ->expiresAt($time + 28800)                              // Configures the expiration time of the token (exp claim)
             ->withClaim('uid', $uid)                                // Configures a new claim, called "uid"
             ->getToken(new Sha256, new Key($key));                  // Retrieves the generated token
 

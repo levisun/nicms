@@ -21,7 +21,7 @@ CREATE TABLE `nc_article_content` (
     `origin` varchar(200) NOT NULL DEFAULT '' COMMENT '来源',
     `content` longtext COMMENT '内容详情',
     PRIMARY KEY (`id`),
-    KEY `article_id` (`article_id`) USING BTREE
+    UNIQUE KEY `article_id` (`article_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章内容表';
  */
 

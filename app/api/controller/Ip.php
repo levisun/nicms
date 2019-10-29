@@ -29,7 +29,7 @@ class Ip extends AsyncController
         // $ip = '125.' . mt_rand(1, 255) . '.' . mt_rand(1, 255) . '.' . mt_rand(1, 255);
 
         if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
-            $this->cache(true)->success('IP INFO', Ipinfo::get($ip));
+            $this->cache(true)->success('IP INFO', (new Ipinfo)->get($ip));
         } else {
             $this->error('错误请求', 40001);
         }

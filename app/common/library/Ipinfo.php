@@ -30,19 +30,19 @@ class Ipinfo
      * @param  string 请求IP地址
      * @return array
      */
-    public static function get(string $_ip = ''): array
+    public function get(string $_ip = ''): array
     {
-        if ($_ip && false !== filter_var($_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && self::validate($_ip)) {
+        if ($_ip && false !== filter_var($_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && $this->validate($_ip)) {
             $cache_key = md5(__METHOD__ . $_ip);
             if (!Cache::has($cache_key)) {
                 // 查询IP地址库
-                $region = self::query($_ip);
+                $region = $this->query($_ip);
 
                 // 存在更新信息
                 if (!empty($region) && $region['update_time'] <= strtotime('-30 days')) {
-                    self::update($_ip);
+                    $this->update($_ip);
                 } else {
-                    if ($result = self::added($_ip)) {
+                    if ($result = $this->added($_ip)) {
                         $region = $result;
                     }
                 }
@@ -76,11 +76,10 @@ class Ipinfo
     /**
      * 验证IP
      * @access private
-     * @static
      * @param  string  $_ip
      * @return array
      */
-    private static function validate(string $_ip): bool
+    private function validate(string $_ip): bool
     {
         $_ip = explode('.', $_ip);
         if (count($_ip) == 4) {
@@ -165,8 +164,8 @@ class Ipinfo
      */
     private static function added($_ip)
     {
-        $result = self::get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
-        // $result = self::get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
+        $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
+        // $result = $this->get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
 
         $result = $result ? json_decode($result, true) : null;
 
@@ -176,14 +175,14 @@ class Ipinfo
 
         $result = $result['data'];
         $isp     = !empty($result['isp']) ? DataFilter::default($result['isp']) : '';
-        $country = self::queryRegion($result['country'], 0);
+        $country = $this->queryRegion($result['country'], 0);
         if (!$country) {
             return false;
         }
 
-        $province = self::queryRegion($result['region'], $country);
-        $city     = self::queryRegion($result['city'], $province);
-        $area     = !empty($result['area']) ? self::queryRegion($result['area'], $city) : 0;
+        $province = $this->queryRegion($result['region'], $country);
+        $city     = $this->queryRegion($result['city'], $province);
+        $area     = !empty($result['area']) ? $this->queryRegion($result['area'], $city) : 0;
 
         $binip = bindec(app('request')->ip2bin($_ip));
 
@@ -207,7 +206,7 @@ class Ipinfo
                 ]);
         }
 
-        return self::query($_ip);
+        return $this->query($_ip);
     }
 
     /**
@@ -219,8 +218,8 @@ class Ipinfo
      */
     private static function update($_ip)
     {
-        $result = self::get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
-        // $result = self::get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
+        $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
+        // $result = $this->get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
         $result = $result ? json_decode($result, true) : null;
         if (!is_array($result) || empty($result) || $result['code'] == 0) {
             return false;
@@ -228,14 +227,14 @@ class Ipinfo
 
         $result = $result['data'];
         $isp     = !empty($result['isp']) ? DataFilter::default($result['isp']) : '';
-        $country = self::queryRegion($result['country'], 0);
+        $country = $this->queryRegion($result['country'], 0);
         if (!$country) {
             return false;
         }
 
-        $province = self::queryRegion($result['region'], $country);
-        $city     = self::queryRegion($result['city'], $province);
-        $area     = !empty($result['area']) ? self::queryRegion($result['area'], $city) : 0;
+        $province = $this->queryRegion($result['region'], $country);
+        $city     = $this->queryRegion($result['city'], $province);
+        $area     = !empty($result['area']) ? $this->queryRegion($result['area'], $city) : 0;
 
         $has = (new ModelIpinfo)
             ->where([
@@ -258,7 +257,7 @@ class Ipinfo
                 ]);
         }
 
-        return self::query($_ip);
+        return $this->query($_ip);
     }
 
     private static function get_curl($_url): string

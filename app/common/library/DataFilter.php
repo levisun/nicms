@@ -23,7 +23,7 @@ class DataFilter
      * 默认过滤
      * @access public
      * @static
-     * @param  mixed $_data
+     * @param  string|array $_data
      * @return mixed
      */
     public static function default($_data)
@@ -45,7 +45,7 @@ class DataFilter
      * 内容过滤
      * @access public
      * @static
-     * @param  mixed $_str
+     * @param  string|array $_data
      * @return mixed
      */
     public static function content($_data)
@@ -67,7 +67,7 @@ class DataFilter
      * 字符过滤
      * @access public
      * @static
-     * @param  mixed $_data
+     * @param  string|array $_data
      * @return mixed
      */
     public static function string($_data)

@@ -33,7 +33,7 @@ class AccessLog
     public function record(): void
     {
         $this->userAgent = app('request')->server('HTTP_USER_AGENT');
-        $this->ip = Ipinfo::get(app('request')->ip());
+        $this->ip = (new Ipinfo)->get(app('request')->ip());
 
         // 蜘蛛
         $spider = $this->isSpider();

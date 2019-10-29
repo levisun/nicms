@@ -28,12 +28,11 @@ class UploadFile
     /**
      * 校验上传文件
      * @access public
-     * @static
      * @param  string      $_element input元素名
      * @param  \think\File $_files   文件
      * @return bool|string
      */
-    public static function validate(string $_element, \think\File &$_files)
+    public function validate(string $_element, \think\File &$_files)
     {
         $size = (int) Config::get('app.upload_size', 1) * 1048576;
         $ext = Config::get('app.upload_type', 'doc,docx,gif,gz,jpeg,mp4,pdf,png,ppt,pptx,rar,xls,xlsx,zip');
@@ -69,12 +68,11 @@ class UploadFile
     /**
      * 保存上传文件
      * @access public
-     * @static
      * @param  int         $_uid   用户ID
      * @param  \think\File $_files 文件
      * @return array
      */
-    public static function save(int $_uid, \think\File &$_files): array
+    public function save(int $_uid, \think\File &$_files): array
     {
         $_dir = $_uid
             ? '/u' . dechex($_uid) . '/' . dechex(date('Ym'))
@@ -92,7 +90,7 @@ class UploadFile
             unset($image);
         }
 
-        self::write($_uid, $save_file);
+        $this->write($_uid, $save_file);
 
         return [
             'extension'    => $_files->extension(),
@@ -105,10 +103,12 @@ class UploadFile
         ];
     }
 
-    public static function remove(int $_uid, string $_sql): void
+    public function remove(int $_uid, string $_sql): void
     {
         trace($_uid . $_sql, 'alert');
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
+            'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
+
 
         $temp_file_name = $path . md5('upload_file_log' . $_uid) . '.php';
         $data = is_file($temp_file_name) ? include $temp_file_name : '';
@@ -152,16 +152,67 @@ class UploadFile
     }
 
     /**
+     * 删除上传垃圾文件
+     * @access public
+     * @return void
+     */
+    public function ReGarbage()
+    {
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
+            'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
+
+        $upload_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+
+        $day = strtotime('-1 days');
+        $dir = (array) glob($path);
+        foreach ($dir as $files) {
+            if (is_file($files) && filemtime($files) <= $day) {
+                $data = include $files;
+                $data = !empty($data) ? (array) $data : [];
+                if ($fp = @fopen($files, 'w+')) {
+                    if (flock($fp, LOCK_EX | LOCK_NB)) {
+                        foreach ($data as $key => $value) {
+                            $value = str_replace('/', DIRECTORY_SEPARATOR, trim($value, '/'));
+                            if (is_file($upload_path . $value)) {
+                                Log::record('[删除上传垃圾] ' . $value, 'alert');
+                                unlink($upload_path . $value);
+                            }
+
+                            // 删除缩略图
+                            $ext = '.' . pathinfo($value, PATHINFO_EXTENSION);
+                            for ($i = 1; $i < 9; $i++) {
+                                $size = $i * 100;
+                                $thumb = str_replace($ext, '_' . $size . $ext, $value);
+                                if (is_file($upload_path . $thumb)) {
+                                    Log::record('[删除上传垃圾] ' . $thumb, 'alert');
+                                    unlink($upload_path . $thumb);
+                                }
+                            }
+                        }
+
+                        $data = '<?php /*' . $_uid . '*/ return ' . var_export($data, true) . ';';
+                        fwrite($fp, $data);
+                        flock($fp, LOCK_UN);
+                    }
+                    fclose($fp);
+                }
+
+                unlink($files);
+            }
+        }
+    }
+
+    /**
      * 记录上传文件
      * @access private
-     * @static
      * @param  int    $_uid
      * @param  string $_file 文件
      * @return void
      */
-    private static function write(int $_uid, string $_file): void
+    private function write(int $_uid, string $_file): void
     {
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
+            'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
 
         $temp_file_name = $path . md5('upload_file_log' . $_uid) . '.php';

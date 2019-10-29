@@ -18,6 +18,8 @@ namespace app\common\library;
 
 use think\App;
 use think\contract\TemplateHandlerInterface;
+use think\exception\HttpResponseException;
+use think\Response;
 
 class Template implements TemplateHandlerInterface
 {
@@ -598,7 +600,9 @@ class Template implements TemplateHandlerInterface
 
         // 模板不存在 抛出异常
         if (!is_file($this->config['view_path'] . $_template)) {
-            die('template not exists:' . $_template);
+            $error = 'template not exists:' . $_template;
+            $response = Response::create($error, 'html', 404);
+            throw new HttpResponseException($response);
         }
 
         // 记录模板文件的更新时间

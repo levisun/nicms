@@ -268,7 +268,7 @@ abstract class AsyncController
         // 执行类方法
         $result = call_user_func([
             $this->app->make($this->appMethod['class']),
-            $this->appMethod['action']
+            $this->appMethod['method']
         ]);
 
         if (!is_array($result) && array_key_exists('msg', $result)) {
@@ -369,8 +369,8 @@ abstract class AsyncController
             $this->uid,
             $this->appName,
             $this->appMethod['logic'],
-            $this->appMethod['method'],
             $this->appMethod['action'],
+            $this->appMethod['method'],
             $this->notAuth
         );
         if (false === $result) {
@@ -391,11 +391,11 @@ abstract class AsyncController
             $this->error('非法参数{20014}', 20014);
         }
 
-        list($logic, $method, $action) = explode('.', $this->method, 3);
+        list($logic, $action, $method) = explode('.', $this->method, 3);
 
         $class  = '\app\\' . $this->appName . '\logic\\';
         $class .= $this->openVersion ? 'v' . implode('_', $this->version) . '\\' : '';
-        $class .= $logic . '\\' . ucfirst($method);
+        $class .= $logic . '\\' . ucfirst($action);
 
         // 校验类是否存在
         if (!class_exists($class)) {
@@ -404,16 +404,16 @@ abstract class AsyncController
             $this->error('非法参数{20015}', 20015);
         }
         // 校验类方法是否存在
-        if (!method_exists($class, $action)) {
-            $this->debugLog['action not found'] = $class . '->' . $action . '();';
-            $this->log->record('[Async] action not found ' . $class . '->' . $action . '();', 'error');
+        if (!method_exists($class, $method)) {
+            $this->debugLog['action not found'] = $class . '->' . $method . '();';
+            $this->log->record('[Async] action not found ' . $class . '->' . $method . '();', 'error');
             $this->error('非法参数{20016}', 20016);
         }
 
         $this->appMethod = [
             'logic'  => $logic,
-            'method' => $method,
             'action' => $action,
+            'method' => $method,
             'class'  => $class,
         ];
     }

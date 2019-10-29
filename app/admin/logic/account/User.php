@@ -81,7 +81,7 @@ class User extends BaseLogic
             ];
         }
 
-        $info = Ipinfo::get($this->request->ip());
+        $info = (new Ipinfo)->get($this->request->ip());
 
         // 更新登录信息
         (new ModelAdmin)

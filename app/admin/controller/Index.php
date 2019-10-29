@@ -45,31 +45,31 @@ class Index extends BaseController
      * @param  string $action
      * @return
      */
-    public function index(string $logic = 'account', string $method = 'user', string $action = 'login')
+    public function index(string $logic = 'account', string $action = 'user', string $method = 'login')
     {
-        $this->authenticate($logic, $method, $action);
+        $this->authenticate($logic, $action, $method);
 
-        $tpl = $logic . DIRECTORY_SEPARATOR . $method . DIRECTORY_SEPARATOR . $action;
+        $tpl = $logic . DIRECTORY_SEPARATOR . $action . DIRECTORY_SEPARATOR . $method;
         return $this->fetch($tpl);
     }
 
     /**
      * 操作验证权限
      * @access private
-     * @param  string $_service 业务层
-     * @param  string $_logic   控制器
-     * @param  string $_action  方法
+     * @param  string $_logic   业务层
+     * @param  string $_action  控制器
+     * @param  string $_method  方法
      * @return void
      */
-    protected function authenticate(string $_service, string $_logic, string $_action): void
+    protected function authenticate(string $_logic, string $_action, string $_method): void
     {
         if ($this->session->has('admin_auth_key')) {
             $result = (new Rbac)->authenticate(
                 $this->session->get('admin_auth_key'),
                 'admin',
-                $_service,
                 $_logic,
-                $_action
+                $_action,
+                $_method
             );
 
             if (false === $result) {
