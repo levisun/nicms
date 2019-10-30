@@ -17,10 +17,10 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\common\controller\AsyncController;
+use app\common\controller\Async;
 use think\captcha\facade\Captcha;
 
-class Verify extends AsyncController
+class Verify extends Async
 {
 
     public function index()

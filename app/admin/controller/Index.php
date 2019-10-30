@@ -31,6 +31,7 @@ class Index extends BaseController
      */
     public function initialize()
     {
+        $this->app->debug(true);
         $this->view->config([
             'app_name'   => 'admin',
             'view_theme' => $this->app->env->get('admin.theme', 'default')
@@ -75,9 +76,9 @@ class Index extends BaseController
             if (false === $result) {
                 $this->redirect('settings/dashboard/index');
             }
-        } elseif ($this->session->has('admin_auth_key') && $_service === 'account') {
+        } elseif ($this->session->has('admin_auth_key') && $_logic === 'account') {
             $this->redirect('settings/dashboard/index');
-        } elseif (!$this->session->has('admin_auth_key') && !in_array($_action, ['login', 'forget'])) {
+        } elseif (!$this->session->has('admin_auth_key') && !in_array($_method, ['login', 'forget'])) {
             $this->redirect('account/user/login');
         }
     }

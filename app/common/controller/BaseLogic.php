@@ -122,7 +122,7 @@ abstract class BaseLogic
 
         // \think\Facade\Db::listen(function ($sql, $time, $master) {
         //     // if (0.1 <= $time && false === strpos($sql, 'CONNECT:')) {
-        //         \think\Facade\Log::record('[RunTime:' . $time . 's] ' . $sql . ($master ? ' master' : ' slave'), 'alert');
+                // \think\Facade\Log::record('[RunTime:' . $time . 's] ' . $sql . ($master ? ' master' : ' slave'), 'alert');
         //     // }
         //     UploadFile::remove($this->uid, $sql);
         // });

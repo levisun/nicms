@@ -16,7 +16,7 @@ use think\facade\Route;
 Route::group(function () {
     Route::get('/', 'Index/index')->ext('html');
     Route::get(':logic/:action/:method$', 'Index/index')->ext('html');
-    Route::get(':logic/:action//:method:id$', 'Index/index')->ext('html');
+    Route::get(':logic/:action/:method/:id$', 'Index/index')->ext('html');
 
 
     Route::get('404', 'Index/miss')->append(['code' => '404'])->ext('html');

@@ -26,7 +26,7 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\ValidationData;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 
-abstract class AsyncController
+abstract class Async
 {
     /**
      * 应用实例
@@ -354,7 +354,7 @@ abstract class AsyncController
 
         // 不需要鉴权方法
         // 登录 登出 找回密码
-        if (in_array($this->appMethod['action'], ['login', 'logout', 'forget'])) {
+        if (in_array($this->appMethod['method'], ['login', 'logout', 'forget'])) {
             return;
         }
 
@@ -696,14 +696,16 @@ abstract class AsyncController
         $response = Response::create($result, $this->format)->allowCache(false);
         $response->header(array_merge(['X-Powered-By' => 'NIAPI'], $response->getHeader()));
         if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
+            $time = time() + $this->apiExpire;
             $response->allowCache(true)
                 ->cacheControl('max-age=' . $this->apiExpire . ',must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', time() + $this->apiExpire) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT');
+                ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT');
+                // ->eTag('');
         }
 
         $this->log->save();
-        $_code === 10000 and $this->session->save();
+        10000 === $_code and $this->session->save();
 
         throw new HttpResponseException($response);
     }

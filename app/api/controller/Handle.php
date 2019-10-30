@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\common\controller\AsyncController;
+use app\common\controller\Async;
 
-class Handle extends AsyncController
+class Handle extends Async
 {
 
     public function index()

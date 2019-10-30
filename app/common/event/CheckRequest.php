@@ -26,6 +26,7 @@ class CheckRequest
     {
         $path = $_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
+        $_app->log->record('[锁定]', 'alert')->save();
 
         $lock  = $path . md5($_app->request->ip() . date('Ymd')) . '.lock';
         if (is_file($lock)) {

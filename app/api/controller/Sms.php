@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\common\controller\AsyncController;
+use app\common\controller\Async;
 
-class Sms extends AsyncController
+class Sms extends Async
 {
 
     public function index()

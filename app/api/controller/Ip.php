@@ -17,10 +17,10 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\common\controller\AsyncController;
+use app\common\controller\Async;
 use app\common\library\Ipinfo;
 
-class Ip extends AsyncController
+class Ip extends Async
 {
     public function index()
     {

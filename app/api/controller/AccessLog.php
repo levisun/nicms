@@ -17,12 +17,12 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\common\controller\AsyncController;
+use app\common\controller\Async;
 use app\common\library\Ipinfo;
 use app\common\model\Searchengine as ModelSearchengine;
 use app\common\model\Visit as ModelVisit;
 
-class AccessLog extends AsyncController
+class AccessLog extends Async
 {
     private $searchengine = [
         'GOOGLE'         => 'googlebot',

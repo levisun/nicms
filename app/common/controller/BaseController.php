@@ -73,7 +73,7 @@ abstract class BaseController
         $this->cookie   = $this->app->cookie;
         $this->view     = $this->app->view;
 
-        $this->app->debug($this->config->get('app.debug'));
+        $this->app->debug(false);
         $this->request->filter('\app\common\library\DataFilter::default');
 
         if (!$this->session->has('client_token')) {

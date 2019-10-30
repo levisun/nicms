@@ -86,6 +86,9 @@ class UploadFile
             if ($image->width() >= 800) {
                 $image->thumb(800, 800, Image::THUMB_SCALING);
                 $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file, null, 40);
+            } else {
+                $save_file = str_replace('.' . $_files->extension(), '.webp', $save_file);
+                $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file, null, 40);
             }
             unset($image);
         }
