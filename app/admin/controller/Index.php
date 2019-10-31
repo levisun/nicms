@@ -32,6 +32,7 @@ class Index extends BaseController
     public function initialize()
     {
         $this->app->debug(true);
+
         $this->view->config([
             'app_name'   => 'admin',
             'view_theme' => $this->app->env->get('admin.theme', 'default')

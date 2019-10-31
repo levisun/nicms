@@ -83,14 +83,17 @@ class UploadFile
 
         if (false !== strpos($_files->getMime(), 'image/')) {
             $image = Image::open(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
+            // 图片最大尺寸
             if ($image->width() >= 800) {
                 $image->thumb(800, 800, Image::THUMB_SCALING);
-                $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file, null, 40);
-            } else {
-                $save_file = str_replace('.' . $_files->extension(), '.webp', $save_file);
-                $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file, null, 40);
             }
+            // 转换图片格式
+            $webp_file = str_replace('.' . $_files->extension(), '.webp', $save_file);
+            $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $webp_file, 'webp');
             unset($image);
+            unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
+            $save_file = $webp_file;
+            unset($webp_file);
         }
 
         $this->write($_uid, $save_file);
@@ -162,7 +165,7 @@ class UploadFile
     public function ReGarbage()
     {
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
-            'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
+            'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*';
 
         $upload_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
 
@@ -193,14 +196,13 @@ class UploadFile
                             }
                         }
 
-                        $data = '<?php /*' . $_uid . '*/ return ' . var_export($data, true) . ';';
+                        $data = '<?php /* remove */ return ' . var_export($data, true) . ';';
+
                         fwrite($fp, $data);
                         flock($fp, LOCK_UN);
                     }
                     fclose($fp);
                 }
-
-                unlink($files);
             }
         }
     }
@@ -218,7 +220,7 @@ class UploadFile
             'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
 
-        $temp_file_name = $path . md5('upload_file_log' . $_uid) . '.php';
+        $temp_file_name = $path . md5('upload_file_log' . date('Ymd') . $_uid) . '.php';
         $data = is_file($temp_file_name) ? include $temp_file_name : '';
 
         if ($fp = @fopen($temp_file_name, 'w+')) {

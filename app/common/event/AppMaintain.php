@@ -38,6 +38,7 @@ class AppMaintain
                 if (flock($fp, LOCK_EX | LOCK_NB)) {
                     $_app->log->record('[REGARBAGE] 删除垃圾信息', 'alert');
 
+                    // 清除上传垃圾文件
                     (new UploadFile)->ReGarbage();
 
                     (new ReGarbage)

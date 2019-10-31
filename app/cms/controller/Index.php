@@ -30,7 +30,6 @@ class Index extends BaseController
      */
     public function initialize()
     {
-        $this->app->debug(true);
         $result = Siteinfo::query();
         $this->view->config([
             'app_name'   => 'cms',

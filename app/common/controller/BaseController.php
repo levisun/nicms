@@ -74,6 +74,8 @@ abstract class BaseController
         $this->view     = $this->app->view;
 
         $this->app->debug(false);
+        $this->app->debug((bool) $this->app->env->get('app_debug', false));
+
         $this->request->filter('\app\common\library\DataFilter::default');
 
         if (!$this->session->has('client_token')) {
