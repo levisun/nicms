@@ -65,9 +65,7 @@ class RecordRequest
 
         if (2 <= $run_time) {
             $_app->log->record(
-                '{长请求 ' . $time_memory . $request_method . ' ' . $request_url . '}' .
-                    PHP_EOL . $request_params .
-                    PHP_EOL,
+                '{长请求 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params,
                 'info'
             );
         }
@@ -77,21 +75,10 @@ class RecordRequest
         $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec/si';
         if (0 !== preg_match($pattern, $request_url . $request_params)) {
             $_app->log->record(
-                '{非法关键词 ' . $time_memory . $request_method . ' ' . $request_url . '}' .
-                    PHP_EOL . $request_params .
-                    PHP_EOL,
+                '{非法关键词 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params,
                 'info'
             );
         }
-
-
-
-        1 === mt_rand(1, 19) and $_app->log->record(
-            '{' . $time_memory . $request_method . ' ' . $request_url . '}' .
-                PHP_EOL . $request_params .
-                PHP_EOL,
-            'info'
-        );
 
 
 

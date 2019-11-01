@@ -56,6 +56,8 @@ class Index extends BaseController
      */
     public function index()
     {
+        return (new \app\common\library\Download)->url('/storage/uploads/u1/314b7/5dbb9cee847f0.png');
+
         return $this->fetch('index');
     }
 

@@ -91,7 +91,9 @@ class UploadFile
             $webp_file = str_replace('.' . $_files->extension(), '.webp', $save_file);
             $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $webp_file, 'webp');
             unset($image);
-            unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
+            if ('webp' !== $_files->extension()) {
+                unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
+            }
             $save_file = $webp_file;
             unset($webp_file);
         }
