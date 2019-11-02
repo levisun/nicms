@@ -58,7 +58,6 @@ class Download
     {
         $_filename = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_filename, ',.\/'));
         $_filename = str_replace(['storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR], '', $_filename);
-        halt($_filename);
         $_filename = Base64::encrypt($_filename, $this->salt);
         return Config::get('app.api_host') . '/download.do?file=' . urlencode($_filename);
     }
@@ -76,7 +75,8 @@ class Download
         if ($_filename && !!preg_match('/^[a-zA-Z0-9_\/\\\]+\.[a-zA-Z]{2,4}$/u', $_filename)) {
             $_filename = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_filename, ',.\/'));
 
-            $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
+            $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR .
+                'uploads' . DIRECTORY_SEPARATOR;
             $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
 
             if (is_file($path . $_filename) && in_array(pathinfo($path . $_filename, PATHINFO_EXTENSION), $this->extension)) {
