@@ -16,7 +16,7 @@
 
 namespace think;
 
-version_compare(PHP_VERSION, '7.3.0', '>=') or die('系统需要PHP7.3+版本! 当前PHP版本:' . PHP_VERSION);
+// version_compare(PHP_VERSION, '7.3.0', '>=') or die('系统需要PHP7.3+版本! 当前PHP版本:' . PHP_VERSION);
 
 require __DIR__ . '/../vendor/autoload.php';
 

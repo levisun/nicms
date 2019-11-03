@@ -75,8 +75,8 @@ class UploadFile
     public function save(int $_uid, \think\File &$_files): array
     {
         $_dir = $_uid
-            ? '/u' . dechex($_uid) . '/' . dechex(date('Ym'))
-            : '/t' . dechex(date('Ym'));
+            ? '/u' . dechex($_uid) . dechex(date('ym'))
+            : '/t' . dechex(date('ym'));
 
         $save_path = Config::get('filesystem.disks.public.url') . '/';
         $save_file = $save_path . Filesystem::disk('public')->putFile('uploads' . $_dir, $_files, 'uniqid');

@@ -45,7 +45,9 @@ class Download
 
     public function __construct()
     {
-        $this->salt = md5(request()->ip() . date('Ymd'));
+        $this->salt = md5(app('request')->server('HTTP_USER_AGENT') . app('request')->ip() . date('Ymd'));
+
+        $id = dechex(microtime(true));
     }
 
     /**
@@ -57,7 +59,7 @@ class Download
     public function url(string $_filename): string
     {
         $_filename = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_filename, ',.\/'));
-        $_filename = str_replace(['storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR], '', $_filename);
+        $_filename = str_replace(['storage' . DIRECTORY_SEPARATOR, 'uploads' . DIRECTORY_SEPARATOR], '', $_filename);
         $_filename = Base64::encrypt($_filename, $this->salt);
         return Config::get('app.api_host') . '/download.do?file=' . urlencode($_filename);
     }

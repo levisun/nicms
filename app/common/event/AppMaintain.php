@@ -42,14 +42,21 @@ class AppMaintain
                     (new UploadFile)->ReGarbage();
 
                     (new ReGarbage)
-                    // 清除过期缓存文件
-                    ->remove($_app->getRuntimePath() . 'cache', 3)
-                    // 清除过期临时文件
-                    ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 3)
-                    // 清除过期SESSION
-                    // ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session', 3)
-                    // 清除过期网站地图文件
-                    ->remove($_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 3);
+                        // 清除过期缓存文件
+                        ->remove($_app->getRuntimePath() . 'cache', 3)
+                        // 清除过期临时文件
+                        ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 3)
+                        // 清除过期SESSION
+                        // ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session', 3)
+                        // 清除过期网站地图文件
+                        ->remove($_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 3);
+
+                    $path = $_app->getRuntimePath();
+                    if (false === $_app->isDebug()) {
+                        is_file($path . 'route.php') or $_app->console->call('optimize:route', [$_app->http->getName()]);
+                    } else {
+                        is_file($path . 'route.php') and unlink($path . 'route.php');
+                    }
 
                     fwrite($fp, '清除垃圾数据' . date('Y-m-d H:i:s'));
                     flock($fp, LOCK_UN);

@@ -705,7 +705,10 @@ abstract class Async
         }
 
         $this->log->save();
-        10000 === $_code and $this->session->save();
+
+        if ($this->session) {
+            $this->session->save();
+        }
 
         throw new HttpResponseException($response);
     }

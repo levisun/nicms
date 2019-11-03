@@ -56,56 +56,8 @@ class Index extends BaseController
      */
     public function index()
     {
-        return (new \app\common\library\Download)->url('/storage/uploads/u1/314b7/5dbb9cee847f0.png');
+        return (new \app\common\library\Download)->url('/storage/uploads/u1314b7/5dbee73d0d8d7.webp');
 
         return $this->fetch('index');
-    }
-
-    /**
-     * 操作验证权限
-     * @access private
-     * @param
-     * @return void
-     */
-    protected function authenticate(): void
-    {
-        $cid = $this->request->param('cid/f', null);
-        if (null !== $cid && 0 >= $cid) {
-            $this->redirect('404');
-        }
-
-
-
-        // if (null !== $cid && 0 >= $cid) {
-        //     $this->redirect('404');
-        // }
-
-        // if (null !== $cid) {
-        //     $count = (new ModelCategory)
-        //         ->where([
-        //             ['is_show', '=', 1],
-        //             ['lang', '=', $this->lang->getLangSet()]
-        //         ])
-        //         ->cache('verification category' . $this->lang->getLangSet())
-        //         ->count();
-        //     if ($cid < 1 || $cid > $count) {
-        //         $this->redirect('404');
-        //     }
-        // }
-
-        // $id = $this->request->param('id/f', null);
-        // if (null !== $id) {
-        //     $count = (new ModelArticle)
-        //         ->where([
-        //             ['is_pass', '=', '1'],
-        //             ['show_time', '<=', time()],
-        //             ['lang', '=', $this->lang->getLangSet()]
-        //         ])
-        //         ->cache('verification article' . $this->lang->getLangSet())
-        //         ->count();
-        //     if ($cid < 1 || $id > $count) {
-        //         $this->redirect('404');
-        //     }
-        // }
     }
 }
