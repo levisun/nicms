@@ -46,10 +46,11 @@ class AppMaintain
                         ->remove($_app->getRuntimePath() . 'cache', 3)
                         // 清除过期临时文件
                         ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 3)
-                        // 清除过期SESSION
-                        // ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session', 3)
                         // 清除过期网站地图文件
                         ->remove($_app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'sitemaps', 3);
+
+                        // 清除过期SESSION
+                        // ->remove($_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session', 3);
 
                     $path = $_app->getRuntimePath();
                     if (false === $_app->isDebug()) {

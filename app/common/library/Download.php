@@ -45,9 +45,7 @@ class Download
 
     public function __construct()
     {
-        $this->salt = md5(app('request')->server('HTTP_USER_AGENT') . app('request')->ip() . date('Ymd'));
-
-        $id = dechex(microtime(true));
+        $this->salt = md5(date('Ymd'));
     }
 
     /**
@@ -56,7 +54,7 @@ class Download
      * @param  string $_filename
      * @return string
      */
-    public function url(string $_filename): string
+    public function getUrl(string $_filename): string
     {
         $_filename = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_filename, ',.\/'));
         $_filename = str_replace(['storage' . DIRECTORY_SEPARATOR, 'uploads' . DIRECTORY_SEPARATOR], '', $_filename);
@@ -94,8 +92,8 @@ class Download
         $log .= 'PARAM:' . json_encode(request()->param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
         Log::record($log, 'error')->save();
 
-        $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>4041</h2><h3>Oops! Page not found.</h3></section>';
-        $response = Response::create($error, 'html', 404);
-        throw new HttpResponseException($response);
+        // $error = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>404</title><section><h2>4041</h2><h3>Oops! Page not found.</h3></section>';
+        // $response = Response::create($error, 'html', 404);
+        // throw new HttpResponseException($response);
     }
 }

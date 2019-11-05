@@ -54,6 +54,6 @@ class Category extends BaseController
      */
     public function index(string $name)
     {
-        return $this->fetch('list_' . $name);
+        return $this->fetch($name . '_list');
     }
 }

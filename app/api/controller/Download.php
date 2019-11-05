@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\api\controller;
 
 use app\common\controller\Async;
-use app\common\library\Download as Down;
+use app\common\library\Download as DownloadFile;
 
 class Download extends Async
 {
@@ -26,9 +26,9 @@ class Download extends Async
     public function index()
     {
         if ($this->request->isGet() && $file = $this->request->param('file', false)) {
-            (new Down)->file($file);
-        } else {
-            $this->error('错误请求', 40001);
+            (new DownloadFile)->file($file);
         }
+
+        return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 }

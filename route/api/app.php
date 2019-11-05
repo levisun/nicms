@@ -36,8 +36,10 @@ Route::group(function () {
     // 上传文件接口
     Route::post('upload$', 'Upload/index')->ext('do');
 
-    // 图片验证码接口
-    Route::get('verify$', 'Verify/index')->ext('png');
+    // 验证码接口
+    Route::get('verify/image$', 'Verify/image')->ext('png');
+    Route::get('verify/sms$', 'Verify/sms')->ext('do');
+    Route::get('verify/sms/check$', 'Verify/smsCheck')->ext('do');
 
     // 微信接口
     Route::get('wechat$', 'Wechat/index')->ext('do');

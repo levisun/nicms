@@ -49,15 +49,11 @@ class Index extends BaseController
     /**
      * 主页
      * @access public
-     * @param  string $service
-     * @param  string $logic
-     * @param  string $action
      * @return
      */
     public function index()
     {
-        return (new \app\common\library\Download)->url('/storage/uploads/u1314b7/5dbee73d0d8d7.webp');
-
+        return (new \app\common\library\Download)->getUrl('/storage/uploads/u1777/5dc137788ee55.webp');
         return $this->fetch('index');
     }
 }

@@ -42,8 +42,16 @@ class AccessLog extends Async
 
     public function index()
     {
-        $this->validate();
+        // $this->validate();
+        if ($this->request->server('HTTP_REFERER')) {
+            $this->record();
+        } else {
+            return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
+        }
+    }
 
+    private function record()
+    {
         $this->userAgent = strtolower($this->request->server('HTTP_USER_AGENT'));
 
         if ($spider = $this->isSpider()) {

@@ -54,6 +54,6 @@ class Details extends BaseController
      */
     public function index(string $name)
     {
-        return $this->fetch('details_' . $name);
+        return $this->fetch($name . '_details');
     }
 }

@@ -6,10 +6,9 @@
  * logic
  * 基础方法
  *
- * @method BaseService authenticate(__METHOD__, ?操作日志) 权限验证
- * @method BaseService check_params(array $_var_name) 审核请求变量
- * @method BaseService validate(验证器, ?数据) 验证方法
- * @method BaseService ploadFile(子目录, ?表单名) 文件上传方法
+ * @method BaseLogic actionLog(__METHOD__, ?操作日志) 操作日志
+ * @method BaseLogic validate(验证器, ?数据) 验证方法
+ * @method BaseLogic uploadFile(子目录, ?表单名) 文件上传方法
  *
  * @package   NICMS
  * @category  app\common\controller

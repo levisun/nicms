@@ -74,7 +74,7 @@ class DataFilter
     {
         if (is_string($_data)) {
             $_data = self::safe($_data);
-            $_data = self::fun($_data);
+            // $_data = self::fun($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::string($value);
@@ -174,7 +174,7 @@ class DataFilter
             '/<html.*?>(.*?)<\/html.*?>/si',                '/<(\/?html.*?)>/si',
             '/<title.*?>(.*?)<\/title.*?>/si',              '/<(\/?title.*?)>/si',
             /* '/<head.*?>(.*?)<\/head.*?>/si',
-            '/<body.*?>(.*?)<\/body.*?>/si', */
+            '/<body.*?>(.*?)<\/body.*?>/si',                '/<(\/?body.*?)>/si', */
             '/<style.*?>(.*?)<\/style.*?>/si',              '/<(\/?style.*?)>/si',
             '/<iframe.*?>(.*?)<\/iframe.*?>/si',            '/<(\/?iframe.*?)>/si',
             '/<frame.*?>(.*?)<\/frame.*?>/si',              '/<(\/?frame.*?)>/si',

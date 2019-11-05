@@ -2,11 +2,7 @@
 
 /**
  *
- * API接口层
- * 基础方法
- *     $this->authenticate(__METHOD__, ?操作日志) 权限验证
- *     $this->upload() 上传方法
- *     $this->validate(验证器, ?数据) 验证方法
+ * 控制层基类
  *
  * @package   NICMS
  * @category  app\common\controller

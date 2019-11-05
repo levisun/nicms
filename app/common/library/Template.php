@@ -386,17 +386,18 @@ class Template implements TemplateHandlerInterface
         $pattern = '/<script( type="(.*?)")?>(.*?)<\/script>/si';
 
         $_content = preg_replace_callback($pattern, function ($matches) {
-            $type = $matches[2] ?: 'text/javascript';
             $pattern = [
                 '/\/\/.*?(\n|\r)+/i',
                 '/\n|\r|\f/'
             ];
             // $matches[3] = preg_replace($pattern, '', $matches[3]);
+
+            $type = $matches[2] ?: 'text/javascript';
             $this->script .= '<script type="' . $type . '">' . $matches[3] . '</script>';
             return '';
         }, $_content);
 
-        // $_content = \app\common\library\DataFilter::string($_content);
+        $_content = \app\common\library\DataFilter::string($_content);
         $_content .= '<!-- -->' . PHP_EOL . $this->script;
         $this->script = '';
     }

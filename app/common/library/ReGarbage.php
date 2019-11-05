@@ -28,49 +28,32 @@ class ReGarbage
      */
     public function remove(string $_dir, int $_expire)
     {
-        $dir = $this->getDirAllFile($_dir . DIRECTORY_SEPARATOR . '*', $_expire);
-        while ($dir->valid()) {
-            $filename = $dir->current();
-            if (is_dir($filename)) {
-                // @rmdir($filename);
-            } elseif (is_file($filename)) {
-                @unlink($filename);
-            }
-            $dir->next();
-        }
+        $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_dir, ',.\/'));
+        $_dir .= DIRECTORY_SEPARATOR;
+
+        $day = strtotime('-' . $_expire . ' days');
+        $this->clear($_dir, $day);
 
         return $this;
     }
 
     /**
-     * 获得目录中的所有文件与目录
+     * 删除文件
      * @access private
-     * @param  array $_path
-     * @param  int   $_expire
-     * @return
+     * @param  string $_dir
+     * @param  int    $_time
+     * @return void
      */
-    private function getDirAllFile(string $_path, int $_expire)
+    private function clear(string $_dir, int $_time): void
     {
-        $day = strtotime('-' . $_expire . ' days');
-        $dir = (array) glob($_path);
-        foreach ($dir as $files) {
-            if (is_file($files) && filemtime($files) <= $day) {
-                yield $files;
-            } elseif (is_dir($files . DIRECTORY_SEPARATOR)) {
-                $sub = $this->getDirAllFile($files . DIRECTORY_SEPARATOR . '*', $_expire);
-                if (!$sub->valid()) {
-                    yield $files;
-                }
+        $files = is_dir($_dir) ? scandir($_dir) : [];
 
-                while ($sub->valid()) {
-                    $filename = $sub->current();
-                    if (is_file($filename) && filemtime($filename) <= $day) {
-                        yield $filename;
-                    } elseif (is_dir($filename . DIRECTORY_SEPARATOR)) {
-                        yield $filename;
-                    }
-                    $sub->next();
-                }
+        foreach ($files as $file) {
+            if ('.' != $file && '..' != $file && is_dir($_dir . $file)) {
+                $this->clear($_dir . $file . DIRECTORY_SEPARATOR, $_time);
+                @rmdir($_dir . $file);
+            } elseif (is_file($_dir . $file) && filemtime($_dir . $file) <= $_time) {
+                @unlink($_dir . $file);
             }
         }
     }
