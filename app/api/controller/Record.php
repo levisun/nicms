@@ -18,17 +18,17 @@ declare(strict_types=1);
 namespace app\api\controller;
 
 use app\common\controller\Async;
+use app\common\library\AccessLog;
 
-class Handle extends Async
+class Record extends Async
 {
 
     public function index()
     {
-        if (empty($_POST)) {
-            $this->error('错误请求', 40009);
+        if ($this->request->server('HTTP_REFERER')) {
+            (new AccessLog)->record();
+        } else {
+            return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
         }
-
-        $result = $this->validate()->run();
-        $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
     }
 }

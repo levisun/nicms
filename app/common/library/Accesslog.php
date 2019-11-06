@@ -22,8 +22,20 @@ use app\common\model\Visit as ModelVisit;
 
 class AccessLog
 {
-    private $userAgent;
-    private $ip;
+    private $searchengine = [
+        'GOOGLE'         => 'googlebot',
+        'GOOGLE ADSENSE' => 'mediapartners-google',
+        'BAIDU'          => 'baiduspider',
+        'MSN'            => 'msnbot',
+        'YODAO'          => 'yodaobot',
+        'YAHOO'          => 'yahoo! slurp;',
+        'Yahoo China'    => 'yahoo! slurp china;',
+        'IASK'           => 'iaskspider',
+        'SOGOU'          => 'sogou web spider',
+        'SOGOU'          => 'sogou push spider',
+        'YISOU'          => 'yisouspider',
+    ];
+    private $userAgent = '';
 
     /**
      * 记录访问
@@ -32,12 +44,9 @@ class AccessLog
      */
     public function record(): void
     {
-        $this->userAgent = app('request')->server('HTTP_USER_AGENT');
-        $this->ip = (new Ipinfo)->get(app('request')->ip());
+        $this->userAgent = strtolower($this->request->server('HTTP_USER_AGENT'));
 
-        // 蜘蛛
-        $spider = $this->isSpider();
-        if (is_string($spider)) {
+        if ($spider = $this->isSpider()) {
             $searchengine = new ModelSearchengine;
             $has = $searchengine
                 ->where([
@@ -45,7 +54,7 @@ class AccessLog
                     ['user_agent', '=', $this->userAgent],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])
-                ->cache(__METHOD__ . sha1($spider . $this->userAgent))
+                ->cache(__METHOD__ . $spider . $this->userAgent)
                 ->value('name');
 
             if ($has) {
@@ -65,24 +74,21 @@ class AccessLog
                         'date'       => strtotime(date('Y-m-d'))
                     ]);
             }
-        }
-
-        // 访问
-        if (false === $spider) {
+        } else {
+            $ip = (new Ipinfo)->get($this->request->ip());
             $visit = new ModelVisit;
             $has = $visit
                 ->where([
-                    ['ip', '=', $this->ip['ip']],
+                    ['ip', '=', $ip['ip']],
                     ['user_agent', '=', $this->userAgent],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])
-                ->cache(__METHOD__ . sha1($this->ip['ip'] . $this->userAgent))
+                // ->cache(__METHOD__ . $ip['ip'] . $this->userAgent)
                 ->value('ip');
-
             if ($has) {
                 $visit
                     ->where([
-                        ['ip', '=', $this->ip['ip']],
+                        ['ip', '=', $ip['ip']],
                         ['user_agent', '=', $this->userAgent],
                         ['date', '=', strtotime(date('Y-m-d'))]
                     ])
@@ -91,15 +97,14 @@ class AccessLog
             } else {
                 $visit
                     ->create([
-                        'ip'         => $this->ip['ip'],
-                        'ip_attr'    => $this->ip['country'] .  $this->ip['region'] . $this->ip['city'] .  $this->ip['area'],
+                        'ip'         => $ip['ip'],
+                        'ip_attr'    => $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'],
                         'user_agent' => $this->userAgent,
                         'date'       => strtotime(date('Y-m-d'))
                     ]);
             }
         }
 
-        // 删除过期信息
         if (1 === mt_rand(1, 9)) {
             (new ModelSearchengine)
                 ->where([
@@ -125,24 +130,8 @@ class AccessLog
      */
     public function isSpider()
     {
-        $searchengine = [
-            'GOOGLE'         => 'googlebot',
-            'GOOGLE ADSENSE' => 'mediapartners-google',
-            'BAIDU'          => 'baiduspider',
-            'MSN'            => 'msnbot',
-            'YODAO'          => 'yodaobot',
-            'YAHOO'          => 'yahoo! slurp;',
-            'Yahoo China'    => 'yahoo! slurp china;',
-            'IASK'           => 'iaskspider',
-            'SOGOU'          => 'sogou web spider',
-            'SOGOU'          => 'sogou push spider',
-            'YISOU'          => 'yisouspider',
-        ];
-        $this->userAgent = $this->userAgent ?: app('request')->server('HTTP_USER_AGENT');
-
-        $user_agent = strtolower($this->userAgent);
-        foreach ($searchengine as $key => $value) {
-            if (preg_match('/(' . $value . ')/si', $user_agent)) {
+        foreach ($this->searchengine as $key => $value) {
+            if (preg_match('/(' . $value . ')/si', $this->userAgent)) {
                 return $key;
             }
         }

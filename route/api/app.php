@@ -14,9 +14,6 @@
 use think\facade\Route;
 
 Route::group(function () {
-    // 访问日志
-    Route::get('accesslog$', 'AccessLog/index')->ext('do');
-
     // 下载接口
     Route::get('download$', 'Download/index')->ext('do');
 
@@ -28,6 +25,9 @@ Route::group(function () {
 
     // 请求接口
     Route::get('query$', 'Query/index')->ext('do');
+
+    // 访问日志
+    Route::get('record$', 'Record/index')->ext('do');
 
     // 上传文件接口
     Route::post('upload$', 'Upload/index')->ext('do');
