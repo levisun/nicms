@@ -72,11 +72,14 @@ abstract class BaseController
         $this->app->debug(false);
         $this->app->debug((bool) $this->app->env->get('app_debug', false));
 
+        // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\DataFilter::default');
 
+        // 生成客户端令牌
         if (!$this->session->has('client_token')) {
             $this->session->set('client_token', Base64::client_id());
         }
+        // 生成客户端cookie令牌
         if (!$this->cookie->has('PHPSESSID') || $this->cookie->get('PHPSESSID') != $this->session->get('client_token')) {
             $this->cookie->set('PHPSESSID', $this->session->get('client_token'));
         }

@@ -24,91 +24,15 @@ use think\Validate;
 
 class UploadFile
 {
+    private $element = '';
+    private $files = null;
+    private $uid = 0;
 
-    /**
-     * 校验上传文件
-     * @access public
-     * @param  string      $_element input元素名
-     * @param  \think\File $_files   文件
-     * @return bool|string
-     */
-    public function validate(string $_element, \think\File &$_files)
+    public function __construct(int $_uid = 0, string $_element = '')
     {
-        $size = (int) Config::get('app.upload_size', 1) * 1048576;
-        $ext = Config::get('app.upload_type', 'doc,docx,gif,gz,jpeg,mp4,pdf,png,ppt,pptx,rar,xls,xlsx,zip');
-        $mime = [
-            'doc'  => 'application/msword',
-            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'gif'  => 'image/gif',
-            'gz'   => 'application/x-gzip',
-            'jpeg' => 'image/jpeg',
-            'mp4'  => 'video/mp4',
-            'pdf'  => 'application/pdf',
-            'png'  => 'image/png',
-            'ppt'  => 'application/vnd.ms-powerpoint',
-            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            'rar'  => 'application/octet-stream',
-            'xls'  => 'application/vnd.ms-excel',
-            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'zip'  => 'application/zip'
-        ];
-
-        $validate = new Validate;
-        $error = $validate->rule([
-            $_element => [
-                'fileExt'  => $ext,
-                // 'fileMime' => $mime,
-                'fileSize' => $size
-            ]
-        ])->batch(false)->failException(false)->check([$_element => $_files]);
-
-        return $error ? false : $validate->getError();
-    }
-
-    /**
-     * 保存上传文件
-     * @access public
-     * @param  int         $_uid   用户ID
-     * @param  \think\File $_files 文件
-     * @return array
-     */
-    public function save(int $_uid, \think\File &$_files): array
-    {
-        $_dir = $_uid
-            ? '/u' . dechex($_uid) . dechex(date('ym'))
-            : '/t' . dechex(date('ym'));
-
-        $save_path = Config::get('filesystem.disks.public.url') . '/';
-        $save_file = $save_path . Filesystem::disk('public')->putFile('uploads' . $_dir, $_files, 'uniqid');
-
-        if (false !== strpos($_files->getMime(), 'image/')) {
-            $image = Image::open(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
-            // 图片最大尺寸
-            if ($image->width() >= 800) {
-                $image->thumb(800, 800, Image::THUMB_SCALING);
-            }
-            // 转换图片格式
-            $webp_file = str_replace('.' . $_files->extension(), '.webp', $save_file);
-            $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $webp_file, 'webp');
-            unset($image);
-            if ('webp' !== $_files->extension()) {
-                unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
-            }
-            $save_file = $webp_file;
-            unset($webp_file);
-        }
-
-        $this->write($_uid, $save_file);
-
-        return [
-            'extension'    => $_files->extension(),
-            'name'         => pathinfo($save_file, PATHINFO_BASENAME),
-            'old_name'     => $_files->getOriginalName(),
-            'original_url' => $save_file,
-            'size'         => $_files->getSize(),
-            'type'         => $_files->getMime(),
-            'url'          => Config::get('app.cdn_host') . $save_file,
-        ];
+        $this->element = $_element;
+        $this->files = $_element ? app('request')->file($_element) : null;
+        $this->uid = $_uid;
     }
 
     public function remove(int $_uid, string $_sql): void
@@ -207,6 +131,110 @@ class UploadFile
                 }
             }
         }
+    }
+
+    public function result()
+    {
+        // 校验上传文件
+        if (!$result = $this->validate()) {
+            // 单文件
+            if (is_string($_FILES[$this->element]['name'])) {
+                $result = $this->save($this->files);
+            }
+
+            // 多文件
+            elseif (is_array($_FILES[$this->element]['name'])) {
+                $result = [];
+                foreach ($this->files as $file) {
+                    $result[] = $this->save($file);
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * 校验上传文件
+     * @access private
+     * @return bool|string
+     */
+    private function validate()
+    {
+        $size = (int) Config::get('app.upload_size', 1) * 1048576;
+        $ext = Config::get('app.upload_type', 'doc,docx,gif,gz,jpeg,mp4,pdf,png,ppt,pptx,rar,xls,xlsx,zip');
+        $mime = [
+            'doc'  => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'gif'  => 'image/gif',
+            'gz'   => 'application/x-gzip',
+            'jpeg' => 'image/jpeg',
+            'mp4'  => 'video/mp4',
+            'pdf'  => 'application/pdf',
+            'png'  => 'image/png',
+            'ppt'  => 'application/vnd.ms-powerpoint',
+            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'rar'  => 'application/octet-stream',
+            'xls'  => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'zip'  => 'application/zip'
+        ];
+
+        $validate = new Validate;
+        $error = $validate->rule([
+            $this->element => [
+                'fileExt'  => $ext,
+                // 'fileMime' => $mime,
+                'fileSize' => $size
+            ]
+        ])->batch(false)->failException(false)->check([$this->element => $this->files]);
+
+        return $error ? false : $validate->getError();
+    }
+
+    /**
+     * 保存上传文件
+     * @access private
+     * @param  \think\File $_files 文件
+     * @return array
+     */
+    private function save(\think\File &$_files): array
+    {
+        $_dir = $this->uid
+            ? '/u' . dechex($this->uid) . dechex(date('ym'))
+            : '/t' . dechex(date('ym'));
+
+        $save_path = Config::get('filesystem.disks.public.url') . '/';
+        $save_file = $save_path . Filesystem::disk('public')->putFile('uploads' . $_dir, $_files, 'uniqid');
+
+        if (false !== strpos($_files->getMime(), 'image/')) {
+            $image = Image::open(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
+            // 图片最大尺寸
+            if ($image->width() >= 800) {
+                $image->thumb(800, 800, Image::THUMB_SCALING);
+            }
+            // 转换图片格式
+            $webp_file = str_replace('.' . $_files->extension(), '.webp', $save_file);
+            $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $webp_file, 'webp');
+            unset($image);
+            if ('webp' !== $_files->extension()) {
+                unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
+            }
+            $save_file = $webp_file;
+            unset($webp_file);
+        }
+
+        $this->write($this->uid, $save_file);
+
+        return [
+            'extension'    => $_files->extension(),
+            'name'         => pathinfo($save_file, PATHINFO_BASENAME),
+            'old_name'     => $_files->getOriginalName(),
+            'original_url' => $save_file,
+            'size'         => $_files->getSize(),
+            'type'         => $_files->getMime(),
+            'url'          => Config::get('app.cdn_host') . $save_file,
+        ];
     }
 
     /**

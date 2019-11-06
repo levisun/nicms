@@ -108,7 +108,7 @@ abstract class BaseLogic
         $this->request  = $this->app->request;
         $this->session  = $this->app->session;
 
-        // 关闭调试模式
+        // 请勿开启调试模式
         $this->app->debug(false);
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\DataFilter::default');
@@ -243,40 +243,20 @@ abstract class BaseLogic
             ];
         }
 
+        // 请勿更改参数
         @ini_set('memory_limit', '256M');
         set_time_limit(600);
-        $files = $this->request->file($_element);
 
-        $upload = new UploadFile;
-
-        // 校验上传文件
-        if ($error = $upload->validate($_element, $files)) {
-            return [
-                'debug' => false,
-                'cache' => false,
-                'code'  => 40031,
-                'msg'   => $error,
-            ];
-        }
-
-        // 单文件
-        if (is_string($_FILES[$_element]['name'])) {
-            $result = $upload->save($this->uid, $files);
-        }
-
-        // 多文件
-        elseif (is_array($_FILES[$_element]['name'])) {
-            $result = [];
-            foreach ($files as $file) {
-                $result[] = $upload->save($this->uid, $file);
-            }
-        }
+        $upload = new UploadFile($this->uid, $_element);
+        $result = $upload->result();
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'upload success',
-            'data'  => $result
+            'code'  => is_string($result) ? 40031 : 10000,
+            'msg'   => is_string($result) ? $result : 'upload success',
+            'data'  => is_string($result) ? [] : $result
+
         ];
     }
 }
