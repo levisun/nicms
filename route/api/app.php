@@ -29,17 +29,13 @@ Route::group(function () {
     // 请求接口
     Route::get('query$', 'Query/index')->ext('do');
 
-    // 短信验证码接口
-    Route::post('sms$', 'Sms/index')->ext('do');
-    Route::post('sms/check$', 'Sms/check')->ext('do');
-
     // 上传文件接口
     Route::post('upload$', 'Upload/index')->ext('do');
 
     // 验证码接口
-    Route::get('verify/image$', 'Verify/image')->ext('png');
-    Route::get('verify/sms$', 'Verify/sms')->ext('do');
-    Route::get('verify/sms/check$', 'Verify/smsCheck')->ext('do');
+    Route::get('verify/image$', 'Verify/image')->ext('do');
+    Route::post('verify/sms$', 'Verify/sms')->ext('do');
+    Route::post('verify/sms/check$', 'Verify/smsCheck')->ext('do');
 
     // 微信接口
     Route::get('wechat$', 'Wechat/index')->ext('do');

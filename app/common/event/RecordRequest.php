@@ -17,17 +17,15 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
-use think\App;
-
 class RecordRequest
 {
 
-    public function handle(App $_app)
+    public function handle()
     {
-        $path = $_app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
 
-        $client_ip = md5($_app->request->ip() . date('Ymd'));
+        $client_ip = md5(app('request')->ip() . date('Ymd'));
 
         $log  = $path . $client_ip . '.php';
         $number = is_file($log) ? include $log : '';
@@ -42,7 +40,7 @@ class RecordRequest
                 } else {
                     $number[$time] = isset($number[$time]) ? ++$number[$time] : 1;
                     $number = [$time => end($number)];
-                    $data = '<?php /*请求数 ' . $_app->request->ip() . '*/ return ' . var_export($number, true) . ';';
+                    $data = '<?php /*请求数 ' . app('request')->ip() . '*/ return ' . var_export($number, true) . ';';
                     fwrite($fp, $data);
                 }
                 flock($fp, LOCK_UN);
@@ -52,19 +50,19 @@ class RecordRequest
 
 
 
-        $request_params = $_app->request->param()
-            ? json_encode($_app->request->except(['username', 'password', 'sign']))
+        $request_params = app('request')->param()
+            ? json_encode(app('request')->except(['username', 'password', 'sign']))
             : '';
-        $request_url = $_app->request->url(true);
-        $request_method = $_app->request->method(true) . ' ' . $_app->request->ip();
-        $run_time = number_format(microtime(true) - $_app->getBeginTime(), 3);
+        $request_url = app('request')->url(true);
+        $request_method = app('request')->method(true) . ' ' . app('request')->ip();
+        $run_time = number_format(microtime(true) - app()->getBeginTime(), 3);
         $time_memory = $run_time . 's ' .
-            number_format((memory_get_usage() - $_app->getBeginMem()) / 1024 / 1024, 3) . 'mb ';
+            number_format((memory_get_usage() - app()->getBeginMem()) / 1024 / 1024, 3) . 'mb ';
 
 
 
         if (2 <= $run_time) {
-            $_app->log->record(
+            app('log')->record(
                 '{长请求 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params,
                 'info'
             );
@@ -74,13 +72,13 @@ class RecordRequest
 
         $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec/si';
         if (0 !== preg_match($pattern, $request_url . $request_params)) {
-            $_app->log->record(
+            app('log')->record(
                 '{非法关键词 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params,
                 'info'
             );
         }
 
         // (bool) glob($path . 'schema' . DIRECTORY_SEPARATOR . '*')
-        // $_app->console->call('optimize:schema', [$_app->http->getName()]);
+        // app()->console->call('optimize:schema', [app()->http->getName()]);
     }
 }

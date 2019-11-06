@@ -25,21 +25,8 @@ use app\common\library\Base64;
 class Download
 {
     private $extension = [
-        'doc',
-        'docx',
-        'gif',
-        'gz',
-        'jpeg',
-        'mp4',
-        'pdf',
-        'png',
-        'ppt',
-        'pptx',
-        'rar',
-        'xls',
-        'xlsx',
+        'doc', 'docx', 'gif', 'gz', 'jpeg', 'mp4', 'pdf', 'png', 'ppt', 'pptx', 'rar', 'xls', 'xlsx', 'zip',
         'webp',
-        'zip'
     ];
     private $salt = '';
 

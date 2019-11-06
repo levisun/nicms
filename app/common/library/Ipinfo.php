@@ -32,6 +32,20 @@ class Ipinfo
      */
     public function get(string $_ip = ''): array
     {
+        $region = [
+            'ip'          => $_ip,
+            'country'     => '',
+            'province'    => '',
+            'city'        => '',
+            'area'        => '',
+            'country_id'  => '',
+            'province_id' => '',
+            'city_id'     => '',
+            'area_id'     => '',
+            'region'      => '',
+            'isp'         => '',
+        ];
+
         if ($_ip && false !== filter_var($_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && $this->validate($_ip)) {
             $cache_key = md5(__METHOD__ . $_ip);
             if (!Cache::has($cache_key)) {
@@ -54,30 +68,16 @@ class Ipinfo
             } else {
                 $region = Cache::get($cache_key);
             }
-
-            return $region;
-        } else {
-            return [
-                'ip'          => $_ip,
-                'country'     => '',
-                'province'    => '',
-                'city'        => '',
-                'area'        => '',
-                'country_id'  => '',
-                'province_id' => '',
-                'city_id'     => '',
-                'area_id'     => '',
-                'region'      => '',
-                'isp'         => '',
-            ];
         }
+
+        return $region;
     }
 
     /**
      * 验证IP
      * @access private
      * @param  string  $_ip
-     * @return array
+     * @return bool
      */
     private function validate(string $_ip): bool
     {
@@ -114,11 +114,10 @@ class Ipinfo
     /**
      * 查询IP地址库
      * @access private
-     * @static
-     * @param
+     * @param  string  $_ip
      * @return array
      */
-    private static function query($_ip): array
+    private function query(string $_ip): array
     {
         $result = (new ModelIpinfo)
             ->view('ipinfo', ['id', 'ip', 'isp', 'update_time'])
@@ -137,11 +136,11 @@ class Ipinfo
     /**
      * 查询地址ID
      * @access private
-     * @static
      * @param  string  $_name
+     * @param  int     $_pid
      * @return int
      */
-    private static function queryRegion($_name, $_pid): int
+    private function queryRegion(string $_name, int $_pid): int
     {
         $_name = DataFilter::default($_name);
 
@@ -158,11 +157,9 @@ class Ipinfo
     /**
      * 写入IP地址库
      * @access private
-     * @static
-     * @param
      * @return array|false
      */
-    private static function added($_ip)
+    private function added($_ip)
     {
         $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
         // $result = $this->get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
@@ -212,11 +209,9 @@ class Ipinfo
     /**
      * 更新IP地址库
      * @access private
-     * @static
-     * @param
      * @return bool
      */
-    private static function update($_ip)
+    private function update($_ip)
     {
         $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
         // $result = $this->get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
@@ -260,7 +255,7 @@ class Ipinfo
         return $this->query($_ip);
     }
 
-    private static function get_curl($_url): string
+    private function get_curl($_url): string
     {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $_url);

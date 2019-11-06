@@ -34,7 +34,7 @@
             el: '.login-box-body',
             methods: {
                 verify: function () {
-                    jQuery('#verify').attr('src', NICMS.api.url + '/verify.png?timestamp=' + jQuery.timestamp());
+                    jQuery('#verify').attr('src', NICMS.api.url + '/verify/image.do?timestamp=' + jQuery.timestamp());
                 },
                 login: function () {
                     var data = jQuery.getForm('#login-form');
