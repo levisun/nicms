@@ -24,11 +24,11 @@ class ReGarbage
      * @access public
      * @param  string $_dir
      * @param  int    $_expire
-     * @return this
+     * @return $this
      */
     public function remove(string $_dir, int $_expire)
     {
-        $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_dir, ',.\/'));
+        $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_dir, " \/,._-\t\n\r\0\x0B"));
         $_dir .= DIRECTORY_SEPARATOR;
 
         $day = strtotime('-' . $_expire . ' days');

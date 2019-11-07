@@ -589,7 +589,7 @@ class Template implements TemplateHandlerInterface
         // 拼装模板文件名
         // 为空默认类方法名作为模板文件名
         $_template = $_template
-            ? rtrim(trim($_template, '\/'), '.') . '.' . $this->config['view_suffix']
+            ? rtrim(trim($_template, " \/,._-\t\n\r\0\x0B"), '.') . '.' . $this->config['view_suffix']
             : $request->action(true);
         $_template = $this->appName . $this->config['view_theme'] . $_template;
 

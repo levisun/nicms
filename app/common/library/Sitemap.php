@@ -141,6 +141,6 @@ class Sitemap
             }
         }
 
-        return trim($xml, PHP_EOL);
+        return trim($xml);
     }
 }

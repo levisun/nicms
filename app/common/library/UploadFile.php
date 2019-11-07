@@ -56,7 +56,7 @@ class UploadFile
 
                 $upload_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
                 foreach ($data as $key => $value) {
-                    $value = str_replace('/', DIRECTORY_SEPARATOR, trim($value, '/'));
+                    $value = str_replace('/', DIRECTORY_SEPARATOR, trim($value, " \/,._-\t\n\r\0\x0B"));
                     if (is_file($upload_path . $value)) {
                         unlink($upload_path . $value);
                     }
@@ -104,7 +104,7 @@ class UploadFile
                 if ($fp = @fopen($files, 'w+')) {
                     if (flock($fp, LOCK_EX | LOCK_NB)) {
                         foreach ($data as $key => $value) {
-                            $value = str_replace('/', DIRECTORY_SEPARATOR, trim($value, '/'));
+                            $value = str_replace('/', DIRECTORY_SEPARATOR, trim($value, " \/,._-\t\n\r\0\x0B"));
                             if (is_file($upload_path . $value)) {
                                 Log::record('[删除上传垃圾] ' . $value, 'alert');
                                 unlink($upload_path . $value);
@@ -177,7 +177,8 @@ class UploadFile
             'rar'  => 'application/octet-stream',
             'xls'  => 'application/vnd.ms-excel',
             'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'zip'  => 'application/zip'
+            'zip'  => 'application/zip',
+            '7z'   => 'application/x-7z-compressed'
         ];
 
         $validate = new Validate;

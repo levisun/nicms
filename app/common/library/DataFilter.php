@@ -31,7 +31,7 @@ class DataFilter
     public static function default($_data)
     {
         if (is_string($_data)) {
-            $_data = trim($_data, " ,._-\t\n\r\0\x0B");
+            $_data = trim($_data, " \/,._-\t\n\r\0\x0B");
             $_data = (new Emoji)->clear($_data);
             $_data = self::safe($_data);
             $_data = self::fun($_data);
@@ -55,7 +55,7 @@ class DataFilter
     public static function content($_data)
     {
         if (is_string($_data)) {
-            $_data = trim($_data, " ,._-\t\n\r\0\x0B");
+            $_data = trim($_data, " \/,._-\t\n\r\0\x0B");
             $_data = (new Emoji)->encode($_data);
             $_data = self::safe($_data);
             $_data = self::fun($_data);
@@ -99,7 +99,7 @@ class DataFilter
     public static function string($_data)
     {
         if (is_string($_data)) {
-            $_data = trim($_data, " ,._-\t\n\r\0\x0B");
+            $_data = trim($_data, " \/,._-\t\n\r\0\x0B");
             $_data = (new Emoji)->clear($_data);
             $_data = self::safe($_data);
             // $_data = self::fun($_data);

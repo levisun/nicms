@@ -53,7 +53,7 @@ class Index extends BaseController
      */
     public function index()
     {
-        // return (new \app\common\library\Download)->getUrl('/storage/uploads/u1777/5dc137788ee55.webp');
+        return (new \app\common\library\Download)->getUrl(' ../../storage/uploads/u1777/5dc3afbb45f5a.webp');
         return $this->fetch('index');
     }
 }
