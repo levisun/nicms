@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Config;
-use think\facade\Log;
 use think\Response;
 use think\exception\HttpResponseException;
 use app\common\library\Base64;

@@ -19,6 +19,7 @@ namespace app\cms\logic;
 
 use app\common\controller\BaseLogic;
 use app\common\library\Base64;
+use app\common\library\Canvas;
 use app\common\library\DataFilter;
 use app\common\model\Article as ModelArticle;
 use app\common\model\ArticleExtend as ArticleExtend;
@@ -86,8 +87,8 @@ class ArticleBase extends BaseLogic
                         $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
                         $value['update_time'] = date($date_format, strtotime($value['update_time']));
 
-                        $value['thumb_original'] = get_img_url($value['thumb'], 0);
-                        $value['thumb'] = get_img_url($value['thumb'], 300);
+                        $value['thumb_original'] = (new Canvas)->image($value['thumb'], 0);
+                        $value['thumb'] = (new Canvas)->image($value['thumb'], 300);
 
                         $value['cat_url'] = url('list/' . $value['model_name'] . '/' . $value['category_id']);
                         $value['url'] = url('details/' . $value['model_name'] . '/' . $value['category_id'] . '/' . $value['id']);
@@ -158,7 +159,7 @@ class ArticleBase extends BaseLogic
                     $date_format = $this->request->param('date_format', 'Y-m-d');
                     $result['update_time'] = date($date_format, strtotime($result['update_time']));
 
-                    $result['thumb'] = get_img_url($result['thumb'], 300);
+                    $result['thumb'] = (new Canvas)->image($result['thumb'], 300);
 
                     $result['content'] = htmlspecialchars_decode($result['content']);
                     $result['content'] = DataFilter::string($result['content']);
@@ -171,8 +172,8 @@ class ArticleBase extends BaseLogic
 
                     $result['content'] =
                         preg_replace_callback('/(src=["|\'])(.*?)(["|\'])/si', function ($matches) {
-                            $thumb = get_img_url($matches[2], 300);
-                            return 'src="' . $thumb . '" original="' . get_img_url($matches[2], 0) . '"';
+                            $thumb = (new Canvas)->image($matches[2], 300);
+                            return 'src="' . $thumb . '" original="' . (new Canvas)->image($matches[2], 0) . '"';
                         }, $result['content']);
 
                     $result['url'] = url('details/' . $result['model_name'] . '/' . $result['category_id'] . '/' . $result['id']);

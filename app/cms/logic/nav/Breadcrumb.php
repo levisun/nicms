@@ -19,6 +19,7 @@ namespace app\cms\logic\nav;
 
 use app\common\controller\BaseLogic;
 use app\common\library\Base64;
+use app\common\library\Canvas;
 use app\common\model\Category as ModelCategory;
 
 class Breadcrumb extends BaseLogic
@@ -72,7 +73,7 @@ class Breadcrumb extends BaseLogic
             ->toArray();
 
         if ($result) {
-            $result['image'] = get_img_url($result['image']);
+            $result['image'] = (new Canvas)->image($result['image']);
             $result['flag'] = Base64::flag($result['id'], 7);
 
             $result['url'] = url('list/' . $result['action_name'] . '/' . $result['id']);

@@ -21,5 +21,4 @@ return [
     'view_path'    => app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR,
     'cache_path'   => app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR,
     'tpl_cache'    => (bool) !Env::get('app_debug', false),
-    'strip_space'  => (bool) !Env::get('app_debug', false),
 ];

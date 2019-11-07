@@ -19,6 +19,7 @@ namespace app\cms\logic\nav;
 
 use app\common\controller\BaseLogic;
 use app\common\library\Base64;
+use app\common\library\Canvas;
 use app\common\model\Category as ModelCategory;
 
 class Main extends BaseLogic
@@ -48,7 +49,7 @@ class Main extends BaseLogic
                 ->toArray();
 
             foreach ($result as $key => $value) {
-                $value['image'] = get_img_url($value['image']);
+                $value['image'] = (new Canvas)->image($value['image']);
                 $value['flag'] = Base64::flag($value['id'], 7);
                 $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
                 if ($value['access_id']) {
@@ -93,7 +94,7 @@ class Main extends BaseLogic
             ->toArray();
 
         foreach ($result as $key => $value) {
-            $value['image'] = get_img_url($value['image']);
+            $value['image'] = (new Canvas)->image($value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
             if ($value['access_id']) {
