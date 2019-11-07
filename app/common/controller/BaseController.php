@@ -69,9 +69,9 @@ abstract class BaseController
         $this->cookie   = $this->app->cookie;
         $this->view     = $this->app->view;
 
-        $this->app->debug(false);
+        // 调试模式,请到.env进行设置
+        // api和logic层默认关闭
         $this->app->debug((bool) $this->app->env->get('app_debug', false));
-
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\DataFilter::default');
 

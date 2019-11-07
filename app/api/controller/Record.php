@@ -27,8 +27,9 @@ class Record extends Async
     {
         if ($this->request->server('HTTP_REFERER')) {
             (new AccessLog)->record();
-        } else {
-            return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
+            return;
         }
+
+        return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 }

@@ -24,11 +24,18 @@ class Handle extends Async
 
     public function index()
     {
-        if (empty($_POST)) {
-            $this->error('错误请求', 40009);
+        if ($this->request->server('HTTP_REFERER')) {
+            if (empty($_POST)) {
+                $this->error('错误请求', 40009);
+            }
+
+            $this->validate()->run()->cache(false)->response(
+                $this->result['msg'],
+                $this->result['data'],
+                $this->result['code']
+            );
         }
 
-        $result = $this->validate()->run();
-        $this->cache(false)->success($result['msg'], $result['data'], $result['code']);
+        return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 }

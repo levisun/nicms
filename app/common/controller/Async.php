@@ -201,11 +201,22 @@ abstract class Async
     protected $appAuthKey = 'user_auth_key';
 
     /**
-     * uid
+     * 用户ID
      * @var int
      */
     protected $uid = 0;
+
+    /**
+     * 用户组ID
+     * @var int
+     */
     protected $urole = 0;
+
+    /**
+     * logic层返回数据
+     * @var array
+     */
+    protected $result = [];
 
     /**
      * 不用验证
@@ -253,36 +264,33 @@ abstract class Async
     /**
      * 运行
      * @access protected
-     * @return array
+     * @return $this
      */
-    protected function run(): array
+    protected function run()
     {
-        // 加载语言包
-        $common_lang  = $this->app->getBasePath() . 'common' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
-        $common_lang .= $this->lang->getLangSet() . '.php';
-        $lang  = $this->app->getBasePath() . $this->appName . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
-        $lang .= $this->lang->getLangSet() . '.php';
-        $this->lang->load([$common_lang, $lang]);
+        $this->loadLang();
 
         // 执行类方法
-        $result = call_user_func([
+        $this->result = call_user_func([
             $this->app->make($this->appMethod['class']),
             $this->appMethod['method']
         ]);
 
-        if (!is_array($result) && array_key_exists('msg', $result)) {
+        if (!is_array($this->result) && array_key_exists('msg', $this->result)) {
             $this->error('返回数据格式错误', 40001);
         }
 
-        // 调试模式设置 返回数据没有指定默认关闭
-        $this->debug(isset($result['debug']) ? $result['debug'] : false);
-        // 缓存设置 返回数据没有指定默认开启
-        $this->cache(isset($result['cache']) ? $result['cache'] : true);
+        // 调试模式设置
+        // 返回数据没有指定默认关闭
+        $this->debug(isset($this->result['debug']) ? $this->result['debug'] : false);
+        // 缓存设置
+        // 返回数据没有指定默认开启
+        $this->cache(isset($this->result['cache']) ? $this->result['cache'] : true);
 
-        $result['data'] = isset($result['data']) ? $result['data'] : [];
-        $result['code'] = isset($result['code']) ? $result['code'] : 10000;
+        $this->result['data'] = isset($this->result['data']) ? $this->result['data'] : [];
+        $this->result['code'] = isset($this->result['code']) ? $this->result['code'] : 10000;
 
-        return $result;
+        return $this;
     }
 
     /**
@@ -308,8 +316,22 @@ abstract class Async
     }
 
     /**
-     * 验证
-     * 40011 错误请求
+     * 加载语言包
+     * @access protected
+     * @return void
+     */
+    protected function loadLang(): void
+    {
+        // 加载语言包
+        $common_lang  = $this->app->getBasePath() . 'common' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
+        $common_lang .= $this->lang->getLangSet() . '.php';
+        $lang  = $this->app->getBasePath() . $this->appName . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
+        $lang .= $this->lang->getLangSet() . '.php';
+        $this->lang->load([$common_lang, $lang]);
+    }
+
+    /**
+     * 请求合法验证
      * @access protected
      * @return $this
      */
@@ -635,12 +657,12 @@ abstract class Async
      * @access protected
      * @param  string  $msg  提示信息
      * @param  array   $data 要返回的数据
-     * @param  integer $code 错误码，默认为SUCCESS
+     * @param  integer $code 错误码，默认为10000
      * @return void
      */
     protected function success(string $_msg, array $_data = [], int $_code = 10000): void
     {
-        $this->result($_msg, $_data, $_code);
+        $this->response($_msg, $_data, $_code);
     }
 
     /**
@@ -657,7 +679,7 @@ abstract class Async
      */
     protected function error(string $_msg, int $_code = 40001): void
     {
-        $this->result($_msg, [], $_code);
+        $this->response($_msg, [], $_code);
     }
 
     /**
@@ -666,9 +688,9 @@ abstract class Async
      * @param  string $msg    提示信息
      * @param  array  $data   要返回的数据
      * @param  string $code   返回码
-     * @return Response
+     * @return void
      */
-    protected function result(string $_msg, array $_data = [], int $_code = 10000)
+    protected function response(string $_msg, array $_data = [], int $_code = 10000): void
     {
         $result = [
             'code'    => $_code,

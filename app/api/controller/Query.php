@@ -24,7 +24,14 @@ class Query extends Async
 
     public function index()
     {
-        $result = $this->validate()->run();
-        return $this->success($result['msg'], $result['data'], $result['code']);
+        if ($this->request->server('HTTP_REFERER')) {
+            $this->validate()->run()->response(
+                $this->result['msg'],
+                $this->result['data'],
+                $this->result['code']
+            );
+        }
+
+        return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 }

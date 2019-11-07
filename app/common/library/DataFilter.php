@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use app\common\library\Emoji;
+
 class DataFilter
 {
 
@@ -24,11 +26,13 @@ class DataFilter
      * @access public
      * @static
      * @param  string|array $_data
-     * @return mixed
+     * @return string|array
      */
     public static function default($_data)
     {
         if (is_string($_data)) {
+            $_data = trim($_data, " ,._-\t\n\r\0\x0B");
+            $_data = (new Emoji)->clear($_data);
             $_data = self::safe($_data);
             $_data = self::fun($_data);
             $_data = self::enter($_data);
@@ -46,11 +50,13 @@ class DataFilter
      * @access public
      * @static
      * @param  string|array $_data
-     * @return mixed
+     * @return string|array
      */
     public static function content($_data)
     {
         if (is_string($_data)) {
+            $_data = trim($_data, " ,._-\t\n\r\0\x0B");
+            $_data = (new Emoji)->encode($_data);
             $_data = self::safe($_data);
             $_data = self::fun($_data);
             $_data = self::enter($_data);
@@ -64,15 +70,37 @@ class DataFilter
     }
 
     /**
+     * 还原内容
+     * @access public
+     * @static
+     * @param  string|array $_data
+     * @return string|array
+     */
+    public static function contentDecode($_data)
+    {
+        if (is_string($_data)) {
+            $_data = htmlspecialchars_decode($_data);
+            $_data = (new Emoji)->decode($_data);
+        } elseif (is_array($_data)) {
+            foreach ($_data as $key => $value) {
+                $_data[$key] = self::contentDecode($value);
+            }
+        }
+        return $_data;
+    }
+
+    /**
      * 字符过滤
      * @access public
      * @static
      * @param  string|array $_data
-     * @return mixed
+     * @return string|array
      */
     public static function string($_data)
     {
         if (is_string($_data)) {
+            $_data = trim($_data, " ,._-\t\n\r\0\x0B");
+            $_data = (new Emoji)->clear($_data);
             $_data = self::safe($_data);
             // $_data = self::fun($_data);
         } elseif (is_array($_data)) {

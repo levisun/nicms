@@ -20,15 +20,7 @@ use app\common\library\Base64;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
-/**
- * 是否微信请求
- * @param
- * @return boolean
- */
-function isWechat(): bool
-{
-    return strpos(app('request')->server('HTTP_USER_AGENT'), 'MicroMessenger') !== false ? true : false;
-}
+
 
 if (!function_exists('client_mac')) {
     /**
@@ -61,71 +53,6 @@ if (!function_exists('client_mac')) {
         }
     }
 }
-
-if (!function_exists('emoji_encode')) {
-    /**
-     * Emoji原形转换为String
-     * @param  string $_str
-     * @return string
-     */
-    function emoji_encode($_str): string
-    {
-        return json_decode(preg_replace_callback('/(\\\u[ed][0-9a-f]{3})/si', function ($matches) {
-            return '[EMOJI:' . base64_encode($matches[0]) . ']';
-        }, json_encode($_str)));
-    }
-}
-
-if (!function_exists('emoji_decode')) {
-    /**
-     * Emoji字符串转换为原形
-     * @param  string $_str
-     * @return string
-     */
-    function emoji_decode($_str)
-    {
-        return json_decode(preg_replace_callback('/(\[EMOJI:[A-Za-z0-9]{8}\])/', function ($matches) {
-            return base64_decode(str_replace(['[EMOJI:', ']'], '', $matches[0]));
-        }, json_encode($_str)));
-    }
-}
-
-if (!function_exists('emoji_clear')) {
-    /**
-     * Emoji字符串清清理
-     * @param  string $_str
-     * @return string
-     */
-    function emoji_clear($_str): string
-    {
-        return preg_replace_callback('/./u', function (array $matches) {
-            return strlen($matches[0]) >= 4 ? '' : $matches[0];
-        }, $_str);
-    }
-}
-
-if (!function_exists('format_size')) {
-    /**
-     * 格式化文件大小
-     * @param  int $_file_size
-     * @return string
-     */
-    function format_size(int $_file_size): string
-    {
-        if ($_file_size >= 1073741824) {
-            $_file_size = round($_file_size / 1073741824 * 100) / 100 . ' GB';
-        } elseif ($_file_size >= 1048576) {
-            $_file_size = round($_file_size / 1048576 * 100) / 100 . ' MB';
-        } elseif ($_file_size >= 1024) {
-            $_file_size = round($_file_size / 1024 * 100) / 100 . ' KB';
-        } else {
-            $_file_size = $_file_size . ' 字节';
-        }
-
-        return $_file_size;
-    }
-}
-
 
 if (!function_exists('remove_img')) {
     /**
@@ -238,6 +165,40 @@ if (!function_exists('avatar')) {
 
         return 'data:image/svg+xml;base64,' .
             base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="100" width="100"><rect fill="rgb(' . $bg . ')" x="0" y="0" width="100" height="100"></rect><text x="50" y="65" font-size="50" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="admin" alignment-baseline="central">' . mb_strtoupper(mb_substr($_username, 0, 1)) . '</text></svg>');
+    }
+}
+
+if (!function_exists('format_size')) {
+    /**
+     * 格式化文件大小
+     * @param  int $_file_size
+     * @return string
+     */
+    function format_size(int $_file_size): string
+    {
+        if ($_file_size >= 1073741824) {
+            $_file_size = round($_file_size / 1073741824 * 100) / 100 . ' GB';
+        } elseif ($_file_size >= 1048576) {
+            $_file_size = round($_file_size / 1048576 * 100) / 100 . ' MB';
+        } elseif ($_file_size >= 1024) {
+            $_file_size = round($_file_size / 1024 * 100) / 100 . ' KB';
+        } else {
+            $_file_size = $_file_size . ' bit';
+        }
+
+        return $_file_size;
+    }
+}
+
+if (!function_exists('is_wechat')) {
+    /**
+     * 是否微信请求
+     * @param
+     * @return boolean
+     */
+    function is_wechat(): bool
+    {
+        return false !== strpos(app('request')->server('HTTP_USER_AGENT'), 'MicroMessenger') ? true : false;
     }
 }
 

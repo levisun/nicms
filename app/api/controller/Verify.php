@@ -35,31 +35,35 @@ class Verify extends Async
 
     public function sms()
     {
-        $phone = $this->request->param('phone', false);
-        if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
+        if ($this->request->server('HTTP_REFERER')) {
+            $phone = $this->request->param('phone', false);
+            if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
 
-            $this->validate();
+                $this->validate();
 
-            $key = $this->session->has('client_token')
-                ? $this->session->get('client_token')
-                : $this->request->ip();
-            $key = md5('sms_' . $key);
+                $key = $this->session->has('client_token')
+                    ? $this->session->get('client_token')
+                    : $this->request->ip();
+                $key = md5('sms_' . $key);
 
-            if ($this->session->has($key) && $result = $this->session->get($key)) {
-                if ($result['time'] >= time()) {
-                    $this->cache(false)->success('请勿重复请求');
+                if ($this->session->has($key) && $result = $this->session->get($key)) {
+                    if ($result['time'] >= time()) {
+                        $this->cache(false)->success('请勿重复请求');
+                    }
                 }
-            }
 
-            $this->session->set($key, [
-                'verify' => mt_rand(100000, 999999),
-                'time'   => time() + 120,
-                'phone'  => $phone,
-            ]);
-            $this->cache(false)->success('验证码发送成功');
-        } else {
-            $this->error('手机号错误', 40009);
+                $this->session->set($key, [
+                    'verify' => mt_rand(100000, 999999),
+                    'time'   => time() + 120,
+                    'phone'  => $phone,
+                ]);
+                $this->cache(false)->success('验证码发送成功');
+            } else {
+                $this->error('手机号错误', 40009);
+            }
         }
+
+        return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 
     public function smsCheck()
