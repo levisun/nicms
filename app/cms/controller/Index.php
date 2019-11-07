@@ -30,7 +30,7 @@ class Index extends BaseController
      */
     public function initialize()
     {
-        $result = Siteinfo::query();
+        $result = (new Siteinfo)->query();
         $this->view->config([
             'app_name'   => 'cms',
             'view_theme' => $result['theme'],
@@ -53,7 +53,7 @@ class Index extends BaseController
      */
     public function index()
     {
-        return (new \app\common\library\Download)->getUrl('/storage/uploads/u1777/5dc137788ee55.webp');
+        // return (new \app\common\library\Download)->getUrl('/storage/uploads/u1777/5dc137788ee55.webp');
         return $this->fetch('index');
     }
 }

@@ -201,7 +201,7 @@ class UploadFile
     private function save(\think\File &$_files): array
     {
         $_dir = $this->uid
-            ? '/u' . dechex($this->uid) . dechex(date('ym'))
+            ? '/u' . dechex(date('ym')) . dechex($this->uid)
             : '/t' . dechex(date('ym'));
 
         $save_path = Config::get('filesystem.disks.public.url') . '/';

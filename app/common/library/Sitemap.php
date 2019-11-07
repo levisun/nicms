@@ -43,7 +43,7 @@ class Sitemap
                 ->toArray();
 
             $sitemap_xml = [];
-            $sub_path = 'storage' . DIRECTORY_SEPARATOR . 'sitemaps' . DIRECTORY_SEPARATOR;
+            $sub_path = 'sitemaps' . DIRECTORY_SEPARATOR;
             foreach ($category as $vo_cate) {
                 $article = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
@@ -81,11 +81,11 @@ class Sitemap
                     self::save($category_xml, $sub_path . 'list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
 
                     $sitemap_xml[]['sitemap'] = [
-                        'loc'     => app('request')->domain() . '/storage/sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
+                        'loc'     => app('request')->domain() . '/sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
                         'lastmod' => date('Y-m-d H:i:s')
                     ];
                     $sitemap_xml[]['sitemap'] = [
-                        'loc'     => app('request')->domain() . '/storage/sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
+                        'loc'     => app('request')->domain() . '/sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
                         'lastmod' => date('Y-m-d H:i:s')
                     ];
                 }

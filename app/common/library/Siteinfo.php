@@ -25,25 +25,34 @@ use app\common\model\Category as ModelCategory;
 class Siteinfo
 {
 
-    public static function query()
+    public function query()
     {
-        $cache_key = md5(app('request')->controller(true) . Lang::getLangSet());
+        $cache_key = app('http')->getName() . Lang::getLangSet();
+        $cache_key = md5($cache_key);
         if (!Cache::has($cache_key) || !$common = Cache::get($cache_key)) {
             $common = [
-                'theme'     => self::theme(),
-                'script'    => self::script(),
-                'footer'    => self::footer(),
-                'copyright' => self::copyright(),
-                'name'      => self::name(),
+                'theme'     => $this->theme(),
+                'script'    => $this->script(),
+                'footer'    => $this->footer(),
+                'copyright' => $this->copyright(),
+                'name'      => $this->name(),
             ];
+
             Cache::tag('SYSTEM')->set($cache_key, $common);
         }
 
-        $result = [
-            'title'       => self::title(),
-            'keywords'    => self::keywords(),
-            'description' => self::description(),
-        ];
+        $cache_key .= app('request')->param('id/f', null) . app('request')->param('cid/f', null);
+        $cache_key = md5($cache_key);
+        if (!Cache::has($cache_key) || !$result = Cache::get($cache_key)) {
+            $result = [
+                'title'       => $this->title(),
+                'keywords'    => $this->keywords(),
+                'description' => $this->description(),
+            ];
+
+            Cache::tag('SYSTEM')->set($cache_key, $result);
+        }
+
 
         return array_merge($common, $result);
     }
@@ -51,10 +60,9 @@ class Siteinfo
     /**
      * 网站描述
      * @access private
-     * @static
      * @return string
      */
-    private static function description(): string
+    private function description(): string
     {
         // 文章描述
         if ($id = app('request')->param('id/f', null)) {
@@ -74,7 +82,7 @@ class Siteinfo
         } else {
             $result = (new ModelConfig)
                 ->where([
-                    ['name', '=', app('request')->controller(true) . '_description'],
+                    ['name', '=', app('http')->getName() . '_description'],
                     ['lang', '=', Lang::getLangSet()]
                 ])
                 ->value('value', '');
@@ -86,10 +94,9 @@ class Siteinfo
     /**
      * 网站关键词
      * @access private
-     * @static
      * @return string
      */
-    private static function keywords(): string
+    private function keywords(): string
     {
         // 文章关键词
         if ($id = app('request')->param('id/f', null)) {
@@ -109,7 +116,7 @@ class Siteinfo
         } else {
             $result = (new ModelConfig)
                 ->where([
-                    ['name', '=', app('request')->controller(true) . '_keywords'],
+                    ['name', '=', app('http')->getName() . '_keywords'],
                     ['lang', '=', Lang::getLangSet()]
                 ])
                 ->value('value', '');
@@ -121,10 +128,9 @@ class Siteinfo
     /**
      * 网站标题
      * @access private
-     * @static
      * @return string
      */
-    private static function title(): string
+    private function title(): string
     {
         // 文章名
         if ($id = app('request')->param('id/f', null)) {
@@ -144,7 +150,7 @@ class Siteinfo
         } else {
             $result = (new ModelConfig)
                 ->where([
-                    ['name', '=', app('request')->controller(true) . '_sitename'],
+                    ['name', '=', app('http')->getName() . '_sitename'],
                     ['lang', '=', Lang::getLangSet()]
                 ])
                 ->value('value', 'NICMS');
@@ -156,14 +162,13 @@ class Siteinfo
     /**
      * 网站名称
      * @access private
-     * @static
      * @return string
      */
-    private static function name(): string
+    private function name(): string
     {
         $result = (new ModelConfig)
             ->where([
-                ['name', '=', app('request')->controller(true) . '_sitename'],
+                ['name', '=', app('http')->getName() . '_sitename'],
                 ['lang', '=', Lang::getLangSet()]
             ])
             ->value('value', 'NICMS');
@@ -174,21 +179,20 @@ class Siteinfo
     /**
      * 网站版权
      * @access private
-     * @static
      * @return string
      */
-    private static function copyright(): string
+    private function copyright(): string
     {
         $copyright = (new ModelConfig)
             ->where([
-                ['name', '=', app('request')->controller(true) . '_copyright'],
+                ['name', '=', app('http')->getName() . '_copyright'],
                 ['lang', '=', Lang::getLangSet()]
             ])
             ->value('value', '');
 
         $beian = (new ModelConfig)
             ->where([
-                ['name', '=', app('request')->controller(true) . '_beian'],
+                ['name', '=', app('http')->getName() . '_beian'],
                 ['lang', '=', Lang::getLangSet()]
             ])
             ->value('value', '');
@@ -202,14 +206,13 @@ class Siteinfo
     /**
      * 网站底部
      * @access private
-     * @static
      * @return string
      */
-    private static function footer(): string
+    private function footer(): string
     {
         $result = (new ModelConfig)
             ->where([
-                ['name', '=', app('request')->controller(true) . '_footer'],
+                ['name', '=', app('http')->getName() . '_footer'],
                 ['lang', '=', Lang::getLangSet()]
             ])
             ->value('value', 'footer');
@@ -220,14 +223,13 @@ class Siteinfo
     /**
      * JS脚本
      * @access private
-     * @static
      * @return string
      */
-    private static function script(): string
+    private function script(): string
     {
         $result = (new ModelConfig)
             ->where([
-                ['name', '=', app('request')->controller(true) . '_script'],
+                ['name', '=', app('http')->getName() . '_script'],
                 ['lang', '=', Lang::getLangSet()]
             ])
             ->value('value', '');
@@ -238,14 +240,13 @@ class Siteinfo
     /**
      * 主题
      * @access private
-     * @static
      * @return string
      */
-    private static function theme(): string
+    private function theme(): string
     {
         $result = (new ModelConfig)
             ->where([
-                ['name', '=', app('request')->controller(true) . '_theme'],
+                ['name', '=', app('http')->getName() . '_theme'],
                 ['lang', '=', Lang::getLangSet()]
             ])
             ->value('value', 'default');

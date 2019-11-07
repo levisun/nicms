@@ -30,7 +30,7 @@ class Details extends BaseController
      */
     public function initialize()
     {
-        $result = Siteinfo::query();
+        $result = (new Siteinfo)->query();
         $this->view->config([
             'app_name'   => 'cms',
             'view_theme' => $result['theme'],
