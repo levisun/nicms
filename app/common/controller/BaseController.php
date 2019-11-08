@@ -69,6 +69,11 @@ abstract class BaseController
         $this->cookie   = $this->app->cookie;
         $this->view     = $this->app->view;
 
+        // 加载语言包
+        $lang  = $this->app->getBasePath() . 'common' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
+        $lang .= $this->app->lang->getLangSet() . '.php';
+        $this->app->lang->load($lang);
+
         // 调试模式,请到.env进行设置
         // api和logic层默认关闭
         $this->app->debug((bool) $this->app->env->get('app_debug', false));
@@ -90,7 +95,7 @@ abstract class BaseController
         if (1 === mt_rand(1, 999)) {
             $this->app->log->record('[并发]', 'alert')->save();
             http_response_code(500);
-            echo '<style type="text/css">*{padding:0; margin:0;}body{background:#fff; font-family:"Century Gothic","Microsoft yahei"; color:#333;font-size:18px;}section{text-align:center;margin-top: 50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>500</title><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section><script>setTimeout(function(){location.href="/";}, 3000);</script>';
+            echo '<style type="text/css">*{padding:0; margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>500</title><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section><script>setTimeout(function(){location.href="/";}, 3000);</script>';
             exit();
         }
 
@@ -126,6 +131,7 @@ abstract class BaseController
     public function redirect(string $_route)
     {
         $response = Response::create(url($_route), 'redirect', 302);
+        // $response->with('back', '');
         throw new HttpResponseException($response);
     }
 

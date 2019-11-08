@@ -722,7 +722,7 @@ abstract class Async
                 ->cacheControl('max-age=' . $this->apiExpire . ',must-revalidate')
                 ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
                 ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT')
-                ->eTag('NIAPI');
+                ->eTag(md5($this->method));
         }
 
         $this->log->save();

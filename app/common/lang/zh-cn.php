@@ -38,4 +38,13 @@ return [
     'yes'          => '是',
     'no'           => '否',
     'added'        => '添加',
+
+    'title' => '标题',
+    'keywords' => '关键词',
+    'description' => '描述',
+    'image' => '图片',
+    'databack' => '数据备份',
+    'level' => '等级',
+    'status' => '状态',
+    'table' => '表',
 ];
