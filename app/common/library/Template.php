@@ -392,13 +392,14 @@ class Template implements TemplateHandlerInterface
             ];
             // $matches[3] = preg_replace($pattern, '', $matches[3]);
 
-            $type = $matches[2] ?: 'text/javascript';
-            $this->script .= '<script type="' . $type . '">' . $matches[3] . '</script>';
+            $this->script .= $matches[3];
+            // $type = $matches[2] ?: 'text/javascript';
+            // $this->script .= '<script type="' . $type . '">' . $matches[3] . '</script>';
             return '';
         }, $_content);
 
         $_content = \app\common\library\DataFilter::string($_content);
-        $_content .= '<!-- -->' . PHP_EOL . $this->script;
+        $_content .= '<!-- --><script type="text/javascript">' . $this->script . '</script>';
         $this->script = '';
     }
 

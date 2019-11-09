@@ -25,7 +25,7 @@ class Verify extends Async
 
     public function image()
     {
-        if ($this->request->server('HTTP_REFERER')) {
+        if ($this->isReferer(false)) {
             $config = mt_rand(0, 1) ? 'verify_zh' : 'verify_math';
             return Captcha::create($config, true);
         }
@@ -35,11 +35,9 @@ class Verify extends Async
 
     public function sms()
     {
-        if ($this->request->server('HTTP_REFERER')) {
+        if ($this->isReferer(false)) {
             $phone = $this->request->param('phone', false);
             if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
-
-                $this->validate();
 
                 $key = $this->session->has('client_token')
                     ? $this->session->get('client_token')
@@ -71,8 +69,6 @@ class Verify extends Async
         $phone = $this->request->param('phone', false);
         $verify = $this->request->param('verify/d', false);
         if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone) && $verify) {
-
-            $this->validate();
 
             $key = $this->session->has('client_token')
                 ? $this->session->get('client_token')

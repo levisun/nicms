@@ -268,6 +268,11 @@ abstract class Async
      */
     protected function run()
     {
+        // 解析method参数
+        $this->analysisMethod();
+        // 验证method权限
+        $this->analysisAuth();
+        // 加载语言包
         $this->loadLang();
 
         // 执行类方法
@@ -331,42 +336,55 @@ abstract class Async
     }
 
     /**
+     * 验证请求来源
+     * @access protected
+     * @param  bool $_strict 严格
+     * @return bool
+     */
+    protected function isReferer(bool $_strict = true): bool
+    {
+        if (!$this->request->server('HTTP_REFERER')) {
+            return false;
+        }
+
+        if (true === $_strict) {
+            // 检查客户端token
+            // token由\app\common\controller\BaseController::class签发
+            if (!$this->session->has('client_token')) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * 请求合法验证
      * @access protected
      * @return $this
      */
-    protected function validate()
+    protected function analysis()
     {
         // 解析header数据
         $this->analysisHeader();
-        // 校验APPID
-        $this->checkAppId();
-        // 校验签名
-        $this->checkSign();
-        // 校验时间戳
-        $this->checkTimestamp();
-        // 校验表单令牌
-        $this->checkFromToken();
-        // 解析method参数
-        $this->analysisMethod();
-        // 权限认证
-        $this->checkAuth();
-
-        // 检查客户端token
-        // token由\app\common\controller\BaseController::class签发
-        if (!$this->session->has('client_token')) {
-            $this->error('非法参数', 30002);
-        }
+        // 验证APPID
+        $this->analysisAppId();
+        // 验证签名
+        $this->analysisSign();
+        // 验证时间戳
+        $this->analysisTimestamp();
+        // 验证表单令牌
+        $this->analysisFromToken();
 
         return $this;
     }
 
     /**
-     * 权限认证
-     * @access protected
+     * 验证权限
+     * @access private
      * @return void
      */
-    protected function checkAuth(): void
+    private function analysisAuth(): void
     {
         // 需要鉴权应用
         if (!in_array($this->appName, ['admin', 'my'])) {
@@ -401,10 +419,10 @@ abstract class Async
 
     /**
      * 解析method参数
-     * @access protected
+     * @access private
      * @return void
      */
-    protected function analysisMethod(): void
+    private function analysisMethod(): void
     {
         // 校验API方法
         $this->method = $this->request->param('method');
@@ -440,24 +458,24 @@ abstract class Async
     }
 
     /**
-     * 校验表单令牌
-     * @access protected
+     * 验证表单令牌
+     * @access private
      * @return void
      */
-    protected function checkFromToken(): void
+    private function analysisFromToken(): void
     {
-        // POST请求 表单令牌校验
+        // POST请求 表单令牌验证
         if ($this->request->isPost() && false === $this->request->checkToken()) {
             $this->error('非法参数{20013}', 20013);
         }
     }
 
     /**
-     * 校验请求时间
-     * @access protected
+     * 验证请求时间
+     * @access private
      * @return void
      */
-    protected function checkTimestamp(): void
+    private function analysisTimestamp(): void
     {
         $this->timestamp = $this->request->param('timestamp/d', $this->request->time());
         if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
@@ -466,11 +484,11 @@ abstract class Async
     }
 
     /**
-     * 校验签名类型与签名合法性
-     * @access protected
+     * 验证签名类型与签名合法性
+     * @access private
      * @return void
      */
-    protected function checkSign(): void
+    private function analysisSign(): void
     {
         // 校验签名类型
         $this->signType = $this->request->param('sign_type', 'md5');
@@ -514,11 +532,11 @@ abstract class Async
     }
 
     /**
-     * 校验APPID
-     * @access protected
+     * 验证APPID
+     * @access private
      * @return void
      */
-    protected function checkAppId(): void
+    private function analysisAppId(): void
     {
         $this->appId = $this->request->param('appid/f', 1000001);
         if (!$this->appId || $this->appId < 1000001) {

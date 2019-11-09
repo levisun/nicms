@@ -27,17 +27,17 @@ class Books
     {
         $receive_data = [
             // 性别
-            'gender' => request()->param('gender', 'male'),
+            'gender' => app('request')->param('gender', 'male'),
             // 按照不同的类型获取分类下的书籍(hot, new, reputation, over)
-            'type'   => request()->param('type', 'reputation'),
+            'type'   => app('request')->param('type', 'reputation'),
             // 父分类
-            'major'  => request()->param('major', '玄幻'),
+            'major'  => app('request')->param('major', '玄幻'),
             // 子分类
-            'minor'  => request()->param('minor', '东方玄幻'),
+            'minor'  => app('request')->param('minor', '东方玄幻'),
             // 起始位置
-            'start'  => request()->param('start', 0),
+            'start'  => app('request')->param('start', 0),
             //每页数量
-            'limit'  => request()->param('limit', 20),
+            'limit'  => app('request')->param('limit', 20),
         ];
 
         $result = $this->http($this->api . '/book/by-categories?' . http_build_query($receive_data));
@@ -52,7 +52,7 @@ class Books
      */
     public function catalog()
     {
-        $result = $this->http($this->api . '/atoc?view=summary&book=' . request()->param('id', '5c6babcdc7d89e30c28fc666'));
+        $result = $this->http($this->api . '/atoc?view=summary&book=' . app('request')->param('id', '5c6babcdc7d89e30c28fc666'));
         $id = isset($result[1]['_id']) ? $result[1]['_id'] : 0;
 
         $result = $this->http($this->api . '/toc/' . $id . '?view=chapters');
@@ -74,7 +74,7 @@ class Books
 
     public function details()
     {
-        $link = request()->param('link');
+        $link = app('request')->param('link');
         $result = $this->http('http://chapter2.zhuishushenqi.com/chapter/' . urlencode($link));
         return $result;
         return $result['ok'] ? [
@@ -91,11 +91,11 @@ class Books
     public function search()
     {
         $receive_data = [
-            'query' => request()->param('query', '重生'),
+            'query' => app('request')->param('query', '重生'),
             // 起始位置
-            'start' => request()->param('start', 0),
+            'start' => app('request')->param('start', 0),
             //每页数量
-            'limit' => request()->param('limit', 20),
+            'limit' => app('request')->param('limit', 20),
         ];
 
         $result = $this->http($this->api . '/book/fuzzy-search?query=' . http_build_query($receive_data));

@@ -24,12 +24,12 @@ class Handle extends Async
 
     public function index()
     {
-        if ($this->request->server('HTTP_REFERER')) {
+        if ($this->analysis()->isReferer()) {
             if (empty($_POST)) {
                 $this->error('错误请求', 40009);
             }
 
-            $this->validate()->run()->cache(false)->response(
+            $this->run()->cache(false)->response(
                 $this->result['msg'],
                 $this->result['data'],
                 $this->result['code']

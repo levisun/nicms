@@ -39,6 +39,18 @@ return [
     'no'           => '否',
     'added'        => '添加',
 
+    'article'  => '文章',
+    'picture'  => '图片',
+    'download' => '下载',
+    'page'     => '单页',
+    'feedback' => '反馈',
+    'message'  => '留言',
+    'link'     => '友情链接',
+    'external' => '外部',
+
+    'channel' => '频道',
+    'select' => '请点击选择',
+
     'title' => '标题',
     'keywords' => '关键词',
     'description' => '描述',

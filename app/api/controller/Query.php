@@ -24,8 +24,8 @@ class Query extends Async
 
     public function index()
     {
-        if ($this->request->server('HTTP_REFERER')) {
-            $this->validate()->run()->response(
+        if ($this->analysis()->isReferer()) {
+            $this->run()->response(
                 $this->result['msg'],
                 $this->result['data'],
                 $this->result['code']

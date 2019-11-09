@@ -24,7 +24,7 @@ class Ip extends Async
 {
     public function index()
     {
-        if ($this->request->server('HTTP_REFERER')) {
+        if ($this->isReferer(false)) {
             $ip = $this->request->param('ip', false) ?: $this->request->ip();
             if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
                 $this->cache(true)->success('IP INFO', (new Ipinfo)->get($ip));

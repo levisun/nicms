@@ -31,7 +31,7 @@ class Tags
      * @param  array  $_config  模板配置
      * @return string
      */
-    public static function foreach(array $_attr, string $_content, array $_config)
+    public static function foreach(array $_attr, string $_content, array $_config): string
     {
         $params  = isset($_attr['name']) ? '$' . $_attr['name'] . ' as ' : '';
         if ($params) {
@@ -55,7 +55,7 @@ class Tags
      * @param  array $_config 模板配置
      * @return string
      */
-    public static function foot(array $_attr, array $_config)
+    public static function foot(array $_attr, array $_config): string
     {
         $foot = '';
 
@@ -98,49 +98,49 @@ class Tags
         list($root) = explode('.', request()->rootDomain(), 2);
 
         return
-            '<!DOCTYPE html>' . PHP_EOL .
-            '<html lang="<?php echo request()->cookie("__lang");?>">' . PHP_EOL .
-            '<head>' . PHP_EOL .
-            '<meta charset="utf-8" />' . PHP_EOL .
-            '<meta name="fragment" content="!" />' . PHP_EOL .                                // 支持蜘蛛ajax
-            '<meta name="robots" content="all" />' . PHP_EOL .                                // 蜘蛛抓取
-            '<meta name="revisit-after" content="1 days" />' . PHP_EOL .                      // 蜘蛛重访
-            '<meta name="renderer" content="webkit" />' . PHP_EOL .                           // 强制使用webkit渲染
-            '<meta name="force-rendering" content="webkit" />' . PHP_EOL .
-            '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' . PHP_EOL .
+            '<!DOCTYPE html>' .
+            '<html lang="<?php echo request()->cookie("__lang");?>">' .
+            '<head>' .
+            '<meta charset="utf-8" />' .
+            '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
+            '<meta name="robots" content="all" />' .                                // 蜘蛛抓取
+            '<meta name="revisit-after" content="1 days" />' .                      // 蜘蛛重访
+            '<meta name="renderer" content="webkit" />' .                           // 强制使用webkit渲染
+            '<meta name="force-rendering" content="webkit" />' .
+            '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' .
 
-            '<meta name="generator" content="nicms" />' . PHP_EOL .
-            '<meta name="author" content="levisun.mail@gmail.com" />' . PHP_EOL .
-            '<meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" />' . PHP_EOL .
+            '<meta name="generator" content="nicms" />' .
+            '<meta name="author" content="levisun.mail@gmail.com" />' .
+            '<meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" />' .
 
-            '<meta http-equiv="Window-target" content="_blank">' . PHP_EOL .
-            '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' . PHP_EOL .
+            '<meta http-equiv="Window-target" content="_blank">' .
+            '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' .
 
-            '<meta http-equiv="Cache-Control" content="no-siteapp" />' . PHP_EOL .            // 禁止baidu转码
-            '<meta http-equiv="Cache-Control" content="no-transform" />' . PHP_EOL .
+            '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
+            '<meta http-equiv="Cache-Control" content="no-transform" />' .
 
-            '<meta http-equiv="x-dns-prefetch-control" content="on" />' . PHP_EOL .           // DNS缓存
+            '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
 
-            '<meta name="csrf-authorization" content="<?php echo create_authorization();?>" />' . PHP_EOL .
-            '<meta name="csrf-token" content="<?php echo token();?>" />' . PHP_EOL .
-            '<meta name="csrf-version" content="' . config('app.version') . '" />' . PHP_EOL .
-            '<meta name="csrf-root" content="' . $root . '" />' . PHP_EOL .
-            '<meta name="csrf-appid" content="' . $_config['tpl_config']['api_appid'] . '" />' . PHP_EOL .
-            '<meta name="csrf-appsecret" content="' . $_config['tpl_config']['api_appsecret'] . '" />' . PHP_EOL .
+            '<meta name="csrf-authorization" content="<?php echo create_authorization();?>" />' .
+            '<meta name="csrf-token" content="<?php echo token();?>" />' .
+            '<meta name="csrf-version" content="' . config('app.version') . '" />' .
+            '<meta name="csrf-root" content="' . $root . '" />' .
+            '<meta name="csrf-appid" content="' . $_config['tpl_config']['api_appid'] . '" />' .
+            '<meta name="csrf-appsecret" content="' . $_config['tpl_config']['api_appsecret'] . '" />' .
 
-            '<link rel="dns-prefetch" href="' . config('app.api_host') . '" />' . PHP_EOL .
-            '<link rel="dns-prefetch" href="' . config('app.cdn_host') . '" />' . PHP_EOL .
+            '<link rel="dns-prefetch" href="' . config('app.api_host') . '" />' .
+            '<link rel="dns-prefetch" href="' . config('app.cdn_host') . '" />' .
 
-            '<link href="' . config('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' . PHP_EOL .
+            '<link href="' . config('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' .
 
             // 网站标题 关键词 描述
-            '<title>__TITLE__</title>' . PHP_EOL .
-            '<meta name="keywords" content="__KEYWORDS__" />' . PHP_EOL .
-            '<meta name="description" content="__DESCRIPTION__" />' . PHP_EOL .
-            '<meta property="og:title" content="__NAME__">' . PHP_EOL .
-            '<meta property="og:type" content="website">' . PHP_EOL .
-            '<meta property="og:url" content="' . request()->url(true) . '">' . PHP_EOL .
-            '<meta property="og:image" content="">' . PHP_EOL .
+            '<title>__TITLE__</title>' .
+            '<meta name="keywords" content="__KEYWORDS__" />' .
+            '<meta name="description" content="__DESCRIPTION__" />' .
+            '<meta property="og:title" content="__NAME__">' .
+            '<meta property="og:type" content="website">' .
+            '<meta property="og:url" content="' . request()->url(true) . '">' .
+            '<meta property="og:image" content="">' .
 
             $head .
 

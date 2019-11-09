@@ -25,7 +25,7 @@ class Record extends Async
 
     public function index()
     {
-        if ($this->request->server('HTTP_REFERER')) {
+        if ($this->isReferer(false)) {
             (new AccessLog)->record();
             return;
         }

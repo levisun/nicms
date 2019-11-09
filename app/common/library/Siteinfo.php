@@ -24,10 +24,18 @@ use app\common\model\Category as ModelCategory;
 
 class Siteinfo
 {
+    private $appName = '';
+    private $langSet = '';
+
+    public function __construct()
+    {
+        $this->appName = app('http')->getName();
+        $this->langSet = Lang::getLangSet();
+    }
 
     public function query()
     {
-        $cache_key = app('http')->getName() . Lang::getLangSet();
+        $cache_key = $this->appName . $this->langSet;
         $cache_key = md5($cache_key);
         if (!Cache::has($cache_key) || !$common = Cache::get($cache_key)) {
             $common = [
@@ -82,8 +90,8 @@ class Siteinfo
         } else {
             $result = (new ModelConfig)
                 ->where([
-                    ['name', '=', app('http')->getName() . '_description'],
-                    ['lang', '=', Lang::getLangSet()]
+                    ['name', '=', $this->appName . '_description'],
+                    ['lang', '=', $this->langSet]
                 ])
                 ->value('value', '');
         }
@@ -116,8 +124,8 @@ class Siteinfo
         } else {
             $result = (new ModelConfig)
                 ->where([
-                    ['name', '=', app('http')->getName() . '_keywords'],
-                    ['lang', '=', Lang::getLangSet()]
+                    ['name', '=', $this->appName . '_keywords'],
+                    ['lang', '=', $this->langSet]
                 ])
                 ->value('value', '');
         }
@@ -150,8 +158,8 @@ class Siteinfo
         } else {
             $result = (new ModelConfig)
                 ->where([
-                    ['name', '=', app('http')->getName() . '_sitename'],
-                    ['lang', '=', Lang::getLangSet()]
+                    ['name', '=', $this->appName . '_sitename'],
+                    ['lang', '=', $this->langSet]
                 ])
                 ->value('value', 'NICMS');
         }
@@ -168,8 +176,8 @@ class Siteinfo
     {
         $result = (new ModelConfig)
             ->where([
-                ['name', '=', app('http')->getName() . '_sitename'],
-                ['lang', '=', Lang::getLangSet()]
+                ['name', '=', $this->appName . '_sitename'],
+                ['lang', '=', $this->langSet]
             ])
             ->value('value', 'NICMS');
 
@@ -185,22 +193,22 @@ class Siteinfo
     {
         $copyright = (new ModelConfig)
             ->where([
-                ['name', '=', app('http')->getName() . '_copyright'],
-                ['lang', '=', Lang::getLangSet()]
+                ['name', '=', $this->appName . '_copyright'],
+                ['lang', '=', $this->langSet]
             ])
             ->value('value', '');
 
         $beian = (new ModelConfig)
             ->where([
-                ['name', '=', app('http')->getName() . '_beian'],
-                ['lang', '=', Lang::getLangSet()]
+                ['name', '=', $this->appName . '_beian'],
+                ['lang', '=', $this->langSet]
             ])
             ->value('value', '');
         $beian = $beian
             ? '<a href="http://www.beian.miit.gov.cn" target="_blank" rel="nofollow">' . $beian . '</a>'
             : '';
 
-        return htmlspecialchars_decode($copyright) . $beian . ' Powered by <a href="http://www.niphp.com" target="_blank" rel="nofollow">nicms</a> <a href="https://github.com/levisun/nicms" target="_blank" rel="nofollow">Github</a>';
+        return htmlspecialchars_decode($copyright) . $beian . ' Powered by <a href="http://www.niphp.com" target="_blank" rel="nofollow">nicms</a>';
     }
 
     /**
@@ -212,8 +220,8 @@ class Siteinfo
     {
         $result = (new ModelConfig)
             ->where([
-                ['name', '=', app('http')->getName() . '_footer'],
-                ['lang', '=', Lang::getLangSet()]
+                ['name', '=', $this->appName . '_footer'],
+                ['lang', '=', $this->langSet]
             ])
             ->value('value', 'footer');
 
@@ -229,8 +237,8 @@ class Siteinfo
     {
         $result = (new ModelConfig)
             ->where([
-                ['name', '=', app('http')->getName() . '_script'],
-                ['lang', '=', Lang::getLangSet()]
+                ['name', '=', $this->appName . '_script'],
+                ['lang', '=', $this->langSet]
             ])
             ->value('value', '');
 
@@ -246,8 +254,8 @@ class Siteinfo
     {
         $result = (new ModelConfig)
             ->where([
-                ['name', '=', app('http')->getName() . '_theme'],
-                ['lang', '=', Lang::getLangSet()]
+                ['name', '=', $this->appName . '_theme'],
+                ['lang', '=', $this->langSet]
             ])
             ->value('value', 'default');
 
