@@ -98,9 +98,9 @@ class Template implements TemplateHandlerInterface
      */
     public function __construct(App $app, array $_config = [])
     {
-        $this->app    = $app;
-        $this->config = array_merge($this->config, $_config);
-        $this->appName = app('http')->getName() . DIRECTORY_SEPARATOR;
+        $this->app     = $app;
+        $this->config  = array_merge($this->config, $_config);
+        $this->appName = app('http')->getName();
     }
 
     /**
@@ -170,7 +170,7 @@ class Template implements TemplateHandlerInterface
         }
 
         // 主题设置
-        $tpl_config = $this->appName . $this->config['view_theme'] . 'config.json';
+        $tpl_config = $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] . 'config.json';
         if (is_file($this->config['view_path'] . $tpl_config)) {
             $json = file_get_contents($this->config['view_path'] . $tpl_config);
             if ($json && $json = json_decode($json, true)) {
@@ -210,11 +210,11 @@ class Template implements TemplateHandlerInterface
     private function paresReplace(string &$_content): void
     {
         $theme  = $this->app->config->get('app.cdn_host') . '/theme/' .
-            $this->appName . $this->config['view_theme'];
+            $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'];
 
         // 拼装移动端模板路径
         $mobile = 'mobile' . DIRECTORY_SEPARATOR;
-        if ($this->app->request->isMobile() && is_dir($this->config['view_path'] . $this->appName . $this->config['view_theme'] . $mobile)) {
+        if ($this->app->request->isMobile() && is_dir($this->config['view_path'] . $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] . $mobile)) {
             $theme .= $mobile;
         }
 
@@ -400,6 +400,9 @@ class Template implements TemplateHandlerInterface
 
         $_content = \app\common\library\DataFilter::string($_content);
         $_content .= '<!-- --><script type="text/javascript">' . $this->script . '</script>';
+        if ('admin' !== $this->appName) {
+            $_content .= '<!-- 访问统计 ' . $this->appName . ' --><script src="' . $this->app->config->get('app.api_host') . '/record.do" defer ></script>';
+        }
         $this->script = '';
     }
 
@@ -592,12 +595,12 @@ class Template implements TemplateHandlerInterface
         $_template = $_template
             ? rtrim(trim($_template, " \/,._-\t\n\r\0\x0B"), '.') . '.' . $this->config['view_suffix']
             : $request->action(true);
-        $_template = $this->appName . $this->config['view_theme'] . $_template;
+        $_template = $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] . $_template;
 
         // 拼装移动端模板路径
         $mobile = 'mobile' . DIRECTORY_SEPARATOR;
-        if ($request->isMobile() && is_file($this->config['view_path'] . $this->appName . $this->config['view_theme'] . $mobile . $_template)) {
-            $_template = $this->appName . $this->config['view_theme'] . $mobile . $_template;
+        if ($request->isMobile() && is_file($this->config['view_path'] . $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] . $mobile . $_template)) {
+            $_template = $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] . $mobile . $_template;
         }
 
         // 模板不存在 抛出异常

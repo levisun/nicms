@@ -44,7 +44,7 @@ class AccessLog
      */
     public function record(): void
     {
-        $this->userAgent = strtolower($this->request->server('HTTP_USER_AGENT'));
+        $this->userAgent = strtolower(app('request')->server('HTTP_USER_AGENT'));
 
         if ($spider = $this->isSpider()) {
             $searchengine = new ModelSearchengine;
@@ -75,7 +75,7 @@ class AccessLog
                     ]);
             }
         } else {
-            $ip = (new Ipinfo)->get($this->request->ip());
+            $ip = (new Ipinfo)->get(app('request')->ip());
             $visit = new ModelVisit;
             $has = $visit
                 ->where([

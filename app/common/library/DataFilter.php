@@ -118,7 +118,7 @@ class DataFilter
      * @param  string $_str
      * @return string
      */
-    private static function enter(string $_str): string
+    private static function enter(string &$_str): string
     {
         $pattern = [
             '/( ){2,}/si'           => '',
@@ -146,7 +146,7 @@ class DataFilter
      * @param  string $_str
      * @return string
      */
-    private static function fun(string $_str): string
+    private static function fun(string &$_str): string
     {
         $pattern = [
             '/(base64_decode)/si'        => 'ba&#115;e64_decode',
@@ -184,7 +184,7 @@ class DataFilter
      * @param  string $_str
      * @return string
      */
-    private static function safe(string $_str): string
+    private static function safe(string &$_str): string
     {
         libxml_disable_entity_loader(true);
 
