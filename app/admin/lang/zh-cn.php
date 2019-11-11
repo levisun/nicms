@@ -5,7 +5,7 @@
  * 语言包
  *
  * @package   NICMS
- * @category  app\logic\admin
+ * @category  app\admin
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -28,6 +28,9 @@ return [
     'auth category' => '栏目管理',
     'auth type'     => '类别管理',
     'auth model'    => '模型管理',
+
+    'auth content'  => '内容管理',
+    'auth cache'    => '缓存',
 
     'auth user'     => '用户',
     'auth role'     => '管理员组',

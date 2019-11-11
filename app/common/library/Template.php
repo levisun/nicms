@@ -395,15 +395,19 @@ class Template implements TemplateHandlerInterface
             $this->script .= $matches[3];
             // $type = $matches[2] ?: 'text/javascript';
             // $this->script .= '<script type="' . $type . '">' . $matches[3] . '</script>';
-            return '';
+            return;
         }, $_content);
 
         $_content = \app\common\library\DataFilter::string($_content);
-        $_content .= '<!-- --><script type="text/javascript">' . $this->script . '</script>';
-        if ('admin' !== $this->appName) {
-            $_content .= '<!-- 访问统计 ' . $this->appName . ' --><script src="' . $this->app->config->get('app.api_host') . '/record.do" defer ></script>';
+
+        if ($this->script) {
+            $_content .= '<!-- --><script type="text/javascript">' . $this->script . '</script>';
         }
         $this->script = '';
+
+        if ('admin' !== $this->appName) {
+            $_content .= '<!-- 访问统计 --><script src="' . $this->app->config->get('app.api_host') . '/record.do" defer ></script>';
+        }
     }
 
     /**
