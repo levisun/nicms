@@ -555,8 +555,7 @@ abstract class Async
             ->cache('APPID' . $this->appId)
             ->find();
 
-        if ($result) {
-            $result = $result->toArray();
+        if (null !== $result && $result = $result->toArray()) {
             $this->appName = $result['name'];
             $this->appSecret = $result['secret'];
             $this->appAuthKey = $result['authkey'];
@@ -740,7 +739,7 @@ abstract class Async
                 ->cacheControl('max-age=' . $this->apiExpire . ',must-revalidate')
                 ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
                 ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT')
-                ->eTag(md5($this->method));
+                ->eTag(md5($this->method ?:$this->request->ip()));
         }
 
         $this->log->save();

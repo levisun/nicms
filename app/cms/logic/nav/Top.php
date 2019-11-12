@@ -49,18 +49,19 @@ class Top extends BaseLogic
                 ->toArray();
 
             foreach ($result as $key => $value) {
+                $value['id'] = (int) $value['id'];
+                $value['child'] = $this->child($value['id'], 1);
                 $value['image'] = (new Canvas)->image($value['image']);
                 $value['flag'] = Base64::flag($value['id'], 7);
                 $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
                 if ($value['access_id']) {
                     $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
                 }
-                $value['child'] = $this->child((int) $value['id'], 1);
                 unset($value['action_name']);
 
                 $result[$key] = $value;
             }
-            $this->cache->tag('CMS NAV')->set($cache_key, $result);
+            $this->cache->tag('cms')->set($cache_key, $result);
         }
 
         return [
@@ -94,13 +95,14 @@ class Top extends BaseLogic
             ->toArray();
 
         foreach ($result as $key => $value) {
+            $value['id'] = (int) $value['id'];
+            $value['child'] = $this->child($value['id'], 1);
             $value['image'] = (new Canvas)->image($value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
             if ($value['access_id']) {
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
             }
-            $value['child'] = $this->child((int) $value['id'], 1);
             unset($value['action_name']);
 
             $result[$key] = $value;

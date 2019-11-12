@@ -29,7 +29,7 @@ class Details extends ArticleBase
      */
     public function query(): array
     {
-        if ($result = $this->ArticleDetails()) { }
+        $result = $this->ArticleDetails();
 
         return [
             'debug' => false,

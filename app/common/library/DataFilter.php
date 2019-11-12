@@ -80,7 +80,10 @@ class DataFilter
     {
         if (is_string($_data)) {
             $_data = htmlspecialchars_decode($_data);
+            $_data = trim($_data, " \/,._-\t\n\r\0\x0B");
             $_data = (new Emoji)->decode($_data);
+            $_data = self::safe($_data);
+            // $_data = self::fun($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::contentDecode($value);

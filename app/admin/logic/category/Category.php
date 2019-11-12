@@ -183,7 +183,7 @@ class Category extends BaseLogic
                 ])
                 ->find();
 
-            if ($result && $result = $result->toArray()) {
+            if (null !== $result && $result = $result->toArray()) {
                 $result['parent'] = (new ModelCategory)
                     ->where([
                         ['id', '=', $result['pid']]
@@ -333,7 +333,7 @@ class Category extends BaseLogic
             ])
             ->find();
 
-        if ($result && $result = $result->toArray()) {
+        if (null !== $result && $result = $result->toArray()) {
             remove_img($result['image']);
 
             (new ModelCategory)

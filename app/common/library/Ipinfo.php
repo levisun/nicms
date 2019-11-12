@@ -119,7 +119,7 @@ class Ipinfo
      */
     private function query(string $_ip): array
     {
-        $result = (new ModelIpinfo)
+        return (new ModelIpinfo)
             ->view('ipinfo', ['id', 'ip', 'isp', 'update_time'])
             ->view('region country', ['id' => 'country_id', 'name' => 'country'], 'country.id=ipinfo.country_id')
             ->view('region region', ['id' => 'region_id', 'name' => 'region'], 'region.id=ipinfo.province_id')
@@ -128,9 +128,7 @@ class Ipinfo
             ->where([
                 ['ipinfo.ip', '=', bindec(app('request')->ip2bin($_ip))]
             ])
-            ->find();
-
-        return $result ? $result->toArray() : [];
+            ->findOrEmpty();
     }
 
     /**

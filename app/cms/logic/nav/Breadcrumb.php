@@ -38,7 +38,7 @@ class Breadcrumb extends BaseLogic
             $cache_key = md5(__METHOD__ . $cid);
             if (!$this->cache->has($cache_key)) {
                 $this->parentCate((int) $cid);
-                $this->cache->tag('CMS NAV')->set($cache_key, $this->bread,);
+                $this->cache->tag('cms')->set($cache_key, $this->bread,);
             } else {
                 $this->bread = $this->cache->get($cache_key);
             }
@@ -69,13 +69,12 @@ class Breadcrumb extends BaseLogic
                 ['category.id', '=', $_pid],
                 ['category.lang', '=', $this->lang->getLangSet()]
             ])
-            ->find()
-            ->toArray();
+            ->find();
 
-        if ($result) {
+        if (null !== $result && $result = $result->toArray()) {
+            $result['id'] = (int) $result['id'];
             $result['image'] = (new Canvas)->image($result['image']);
             $result['flag'] = Base64::flag($result['id'], 7);
-
             $result['url'] = url('list/' . $result['action_name'] . '/' . $result['id']);
             if ($result['access_id']) {
                 $result['url'] = url('channel/' . $result['action_name'] . '/' . $result['id']);

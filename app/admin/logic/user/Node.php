@@ -157,7 +157,7 @@ class Node extends BaseLogic
                 ])
                 ->find();
 
-            if ($result && $result = $result->toArray()) {
+            if (null !== $result && $result = $result->toArray()) {
                 $result['parent'] = (new ModelNode)
                     ->where([
                         ['id', '=', $result['pid']]

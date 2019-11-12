@@ -79,14 +79,14 @@ class User extends BaseLogic
                 ->where([
                     ['id', '=', $id],
                 ])
-                ->find();
+                ->findOrEmpty();
         }
 
         return [
             'debug' => false,
             'cache' => false,
             'msg'   => 'user data',
-            'data'  => $result ?: []
+            'data'  => $result
         ];
     }
 }

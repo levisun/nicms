@@ -64,7 +64,7 @@ class User extends BaseLogic
                 ['admin.username', '=', $this->request->param('username')]
             ])
             ->find();
-        if (!$user || false === Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {
+        if (null === $user || false === Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {
             // 记录登录错误次数
             $login_lock = $this->session->has('login_lock') ? $this->session->get('login_lock') : 0;
             ++$login_lock;
@@ -200,7 +200,7 @@ class User extends BaseLogic
             ->cache('PROFILE' . $this->uid, 60)
             ->find();
 
-        if ($result && $result = $result->toArray()) {
+        if (null !== $result && $result = $result->toArray()) {
             $result['last_login_time'] = date('Y-m-d H:i:s', (int) $result['last_login_time']);
             $result['avatar'] = (new Canvas)->avatar('', $result['username']);
             unset($result['id'], $result['role_id']);

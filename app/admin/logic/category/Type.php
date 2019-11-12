@@ -107,8 +107,7 @@ class Type extends BaseLogic
                 ->where([
                     ['id', '=', $id],
                 ])
-                ->find();
-            $result = $result ? $result->toArray() : [];
+                ->findOrEmpty();
         }
 
         return [

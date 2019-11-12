@@ -48,7 +48,9 @@ class Sidebar extends BaseLogic
                     ])
                     ->find();
 
-                if ($result && $result = $result->toArray()) {
+                if (null !== $result && $result = $result->toArray()) {
+                    $result['id'] = (int) $result['id'];
+                    $result['child'] = $this->child($result['id']);
                     $result['image'] = (new Canvas)->image($result['image']);
                     $result['flag'] = Base64::flag($result['id'], 7);
                     $result['url'] = url('list/' . $result['action_name'] . '/' . $result['id']);
@@ -56,11 +58,9 @@ class Sidebar extends BaseLogic
                         $result['url'] = url('channel/' . $result['action_name'] . '/' . $result['id']);
                     }
                     unset($result['action_name']);
-
-                    $result['child'] = $this->child((int) $result['id']);
                 }
 
-                $this->cache->tag('CMS NAV')->set($cache_key, $result);
+                $this->cache->tag('cms')->set($cache_key, $result);
             }
         }
 
@@ -68,7 +68,7 @@ class Sidebar extends BaseLogic
             'debug' => false,
             'cache' => true,
             'msg'   => 'sidebar',
-            'data'  => isset($result) ? $result : []
+            'data'  => $result ? $result : []
         ];
     }
 
@@ -78,7 +78,7 @@ class Sidebar extends BaseLogic
      * @param  int    $_id      ID
      * @return array
      */
-    private function child(int $_id)
+    private function child(int $_id): array
     {
         $result = (new ModelCategory)
             ->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
@@ -94,20 +94,21 @@ class Sidebar extends BaseLogic
             ->toArray();
 
         foreach ($result as $key => $value) {
+            $value['id'] = (int) $value['id'];
+            $value['child'] = $this->child($value['id']);
             $value['image'] = (new Canvas)->image($value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
             if ($value['access_id']) {
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
             }
-            $value['child'] = $this->child((int) $value['id']);
 
             unset($value['action_name']);
 
             $result[$key] = $value;
         }
 
-        return $result ? $result : false;
+        return $result ? $result : [];
     }
 
     /**
@@ -122,7 +123,7 @@ class Sidebar extends BaseLogic
             ->where([
                 ['id', '=', $_id],
             ])
-            ->value('pid');
+            ->value('pid', 0);
 
         return $result ? $this->parent((int) $result) : $_id;
     }

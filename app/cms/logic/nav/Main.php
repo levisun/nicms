@@ -49,18 +49,19 @@ class Main extends BaseLogic
                 ->toArray();
 
             foreach ($result as $key => $value) {
+                $value['id'] = (int) $value['id'];
+                $value['child'] = $this->child($value['id'], 2);
                 $value['image'] = (new Canvas)->image($value['image']);
                 $value['flag'] = Base64::flag($value['id'], 7);
                 $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
                 if ($value['access_id']) {
                     $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
                 }
-                $value['child'] = $this->child((int) $value['id'], 2);
                 unset($value['action_name']);
 
                 $result[$key] = $value;
             }
-            $this->cache->tag('CMS NAV')->set($cache_key, $result);
+            $this->cache->tag('cms')->set($cache_key, $result);
         }
 
         return [
@@ -78,7 +79,7 @@ class Main extends BaseLogic
      * @param  int    $_type_id 类型
      * @return array
      */
-    private function child(int $_pid, int $_type_id)
+    private function child(int $_pid, int $_type_id): array
     {
         $result = (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
@@ -94,13 +95,14 @@ class Main extends BaseLogic
             ->toArray();
 
         foreach ($result as $key => $value) {
+            $value['id'] = (int) $value['id'];
+            $value['child'] = $this->child($value['id'], 2);
             $value['image'] = (new Canvas)->image($value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
             if ($value['access_id']) {
                 $value['url'] = url('channel/' . $value['action_name'] . '/' . $value['id']);
             }
-            $value['child'] = $this->child((int) $value['id'], 2);
             unset($value['action_name']);
 
             $result[$key] = $value;

@@ -31,7 +31,7 @@ class ArticleBase extends BaseLogic
     /**
      * 查询列表
      * @access protected
-     * @return array
+     * @return array|false
      */
     protected function ArticleList()
     {
@@ -75,7 +75,7 @@ class ArticleBase extends BaseLogic
                     ->where($map)
                     ->order('article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.id DESC')
                     ->paginate([
-                        'list_rows'=> $query_limit,
+                        'list_rows' => $query_limit,
                         'path' => 'javascript:paging([PAGE]);',
                     ]);
 
@@ -119,7 +119,7 @@ class ArticleBase extends BaseLogic
                         $list['data'][$key] = $value;
                     }
 
-                    $this->cache->tag('CMS_LIST' . $category_id)->set($cache_key, $list);
+                    $this->cache->tag('cms')->set($cache_key, $list);
                 }
             }
         }
@@ -130,9 +130,9 @@ class ArticleBase extends BaseLogic
     /**
      * 查询内容
      * @access protected
-     * @return array
+     * @return array|false
      */
-    protected function ArticleDetails(): array
+    protected function ArticleDetails()
     {
         if ($id = $this->request->param('id/d')) {
             $map = [
@@ -151,24 +151,20 @@ class ArticleBase extends BaseLogic
                     ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                     ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
                     ->where($map)
-                    ->find()
-                    ->toArray();
+                    ->find();
 
-                if ($result) {
+                if (null !== $result && $result = $result->toArray()) {
                     $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
                     $date_format = $this->request->param('date_format', 'Y-m-d');
                     $result['update_time'] = date($date_format, strtotime($result['update_time']));
-
                     $result['thumb'] = (new Canvas)->image($result['thumb'], 300);
-
-                    $result['content'] = htmlspecialchars_decode($result['content']);
-                    $result['content'] = DataFilter::string($result['content']);
-                    $result['content'] = preg_replace_callback([
-                        '/(style=["|\'])(.*?)(["|\'])/si',
-                        '/<\/?h[1-4]{1}(.*?)>/si'
-                    ], function () {
-                        return '';
-                    }, $result['content']);
+                    $result['content'] = DataFilter::contentDecode($result['content']);
+                    // $result['content'] = preg_replace_callback([
+                    //     '/(style=["|\'])(.*?)(["|\'])/si',
+                    //     '/<\/?h[1-4]{1}(.*?)>/si'
+                    // ], function () {
+                    //     return '';
+                    // }, $result['content']);
 
                     $result['content'] =
                         preg_replace_callback('/(src=["|\'])(.*?)(["|\'])/si', function ($matches) {
@@ -190,8 +186,8 @@ class ArticleBase extends BaseLogic
                         ->where([
                             ['extend.article_id', '=', $result['id']],
                         ])
-                        ->select()
-                        ->toArray();
+                        ->select();
+                    $fields = $fields ? $fields->toArray() : [];
                     foreach ($fields as $val) {
                         $result[$val['fields_name']] = $val['data'];
                     }
@@ -203,15 +199,15 @@ class ArticleBase extends BaseLogic
                         ->where([
                             ['article_tags.article_id', '=', $result['id']],
                         ])
-                        ->select()
-                        ->toArray();
+                        ->select();
+                    $result['tags'] = $result['tags'] ? $result['tags']->toArray() : [];
 
-                    $this->cache->tag('CMS_DETAILS' . $id)->set($cache_key, $result);
+                    $this->cache->tag('cms')->set($cache_key, $result);
                 }
             }
         }
 
-        return !empty($result) ? $result : false;
+        return $result ? $result : false;
     }
 
     /**
@@ -236,7 +232,7 @@ class ArticleBase extends BaseLogic
 
             $result = (new ModelArticle)
                 ->where($map)
-                ->value('hits');
+                ->value('hits', 0);
         }
 
         return [
@@ -276,7 +272,7 @@ class ArticleBase extends BaseLogic
             ])
             ->find();
 
-        if ($result) {
+        if (null !== $result && $result = $result->toArray()) {
             $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
             $result['url'] = url('details/' . $result['model_name'] . '/' . $result['category_id'] . '/' . $result['id']);
             $result['cat_url'] = url('list/' . $result['model_name'] . '/' . $result['category_id']);
@@ -313,7 +309,7 @@ class ArticleBase extends BaseLogic
             ])
             ->find();
 
-        if ($result) {
+        if (null !== $result && $result = $result->toArray()) {
             $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
             $result['url'] = url('details/' . $result['model_name'] . '/' . $result['category_id'] . '/' . $result['id']);
             $result['cat_url'] = url('list/' . $result['model_name'] . '/' . $result['category_id']);
