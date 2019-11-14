@@ -134,7 +134,7 @@ abstract class BaseController
     public function redirect(string $_route)
     {
         $response = Response::create(url($_route), 'redirect', 302);
-        // $response->with('back', '');
+        $response->with('return_url', urlencode($this->request->url()));
         throw new HttpResponseException($response);
     }
 

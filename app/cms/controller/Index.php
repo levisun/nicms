@@ -53,6 +53,11 @@ class Index extends BaseController
      */
     public function index()
     {
+        // $no = str_replace('.', '', microtime(true));
+        // $no = str_pad($no, 14, '0', STR_PAD_RIGHT);
+        // $no = date('YmdHis') . $no . mt_rand(1111, 9999);
+        // return $no;
+
         // return (new \app\common\library\Download)->getUrl(' ../../storage/uploads/u1777/5dc3afbb45f5a.webp');
         return $this->fetch('index');
     }

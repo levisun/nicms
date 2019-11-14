@@ -24,11 +24,13 @@ class Ip extends Async
 {
     public function index()
     {
-        $ip = $this->request->param('ip', false) ?: $this->request->ip();
-        if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
-            $this->cache(true)->success('IP INFO', (new Ipinfo)->get($ip));
-        } else {
-            $this->error('错误请求', 40001);
+        if ($this->isReferer(false)) {
+            $ip = $this->request->param('ip', false) ?: $this->request->ip();
+            if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
+                $this->cache(true)->success('IP INFO', (new Ipinfo)->get($ip));
+            } else {
+                $this->error('错误请求', 40001);
+            }
         }
 
         return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');

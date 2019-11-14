@@ -237,12 +237,6 @@ abstract class Async
      */
     public function __construct(App $_app)
     {
-        $max_input_vars = (int) ini_get('max_input_vars');
-        if (count($_POST) + count($_FILES) + count($_GET) >= $max_input_vars - 5) {
-            $this->error('非法参数', 40002);
-        }
-        unset($max_input_vars);
-
         $this->app      = $_app;
         $this->cache    = $this->app->cache;
         $this->config   = $this->app->config;
@@ -343,9 +337,19 @@ abstract class Async
      */
     protected function isReferer(bool $_strict = true): bool
     {
-        if (!$this->request->server('HTTP_REFERER')) {
+        // 验证请求来源
+        $refere = $this->request->server('HTTP_REFERER');
+        if (!$refere || false === stripos($refere, $this->request->rootDomain())) {
             return false;
         }
+        unset($refere);
+
+        // 验证请求参数
+        $max_input_vars = (int) ini_get('max_input_vars');
+        if (count($_POST) + count($_FILES) + count($_GET) >= $max_input_vars - 5) {
+            return false;
+        }
+        unset($max_input_vars);
 
         if (true === $_strict) {
             // 检查客户端token
@@ -713,14 +717,15 @@ abstract class Async
             'code'    => $_code,
             'data'    => $_data,
             'message' => true === $this->apiDebug ? $_msg : (10000 === $_code ? 'success' : $_msg),
+            'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 3) . 's,' .
+                         number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . 'mb',
+
             // 表单令牌
             'token'   => $this->request->isPost() && $_code === 10000
                 ? $this->request->buildToken('__token__', 'md5')
                 : '',
             // 调试数据
             'debug'   => true === $this->apiDebug ? [
-                'time'    => number_format(microtime(true) - $this->app->getBeginTime(), 3),
-                'memory'  => number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3),
                 'query'   => $this->app->db->getQueryTimes(),
                 'cache'   => $this->app->cache->getReadTimes(),
                 'file'    => count(get_included_files()),

@@ -25,7 +25,10 @@ class Record extends Async
 
     public function index()
     {
-        (new AccessLog)->record();
+        if ($this->isReferer(false)) {
+            (new AccessLog)->record();
+            return;
+        }
 
         return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }

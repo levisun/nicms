@@ -95,7 +95,7 @@ class UploadFile
 
         $upload_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
 
-        $day = strtotime('-1 days');
+        $day = strtotime('-12 hour');
         $dir = (array) glob($path);
         foreach ($dir as $files) {
             if (is_file($files) && filemtime($files) <= $day) {

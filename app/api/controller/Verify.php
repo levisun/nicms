@@ -38,11 +38,7 @@ class Verify extends Async
         if ($this->isReferer(false)) {
             $phone = $this->request->param('phone', false);
             if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
-
-                $key = $this->session->has('client_token')
-                    ? $this->session->get('client_token')
-                    : $this->request->ip();
-                $key = md5('sms_' . $key);
+                $key = md5('sms_' . $this->request->ip());
 
                 if ($this->session->has($key) && $result = $this->session->get($key)) {
                     if ($result['time'] >= time()) {
@@ -69,11 +65,7 @@ class Verify extends Async
         $phone = $this->request->param('phone', false);
         $verify = $this->request->param('verify/d', false);
         if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone) && $verify) {
-
-            $key = $this->session->has('client_token')
-                ? $this->session->get('client_token')
-                : $this->request->ip();
-            $key = md5('sms_' . $key);
+            $key = md5('sms_' . $this->request->ip());
 
             if ($this->session->has($key) && $result = $this->session->get($key)) {
                 if ($result['time'] >= time() && $result['verify'] == $verify && $result['phone'] == $phone) {

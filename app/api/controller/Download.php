@@ -25,8 +25,10 @@ class Download extends Async
 
     public function index()
     {
-        if ($this->request->isGet() && $file = $this->request->param('file', false)) {
-            (new DownloadFile)->file($file);
+        if ($this->isReferer(false)) {
+            if ($this->request->isGet() && $file = $this->request->param('file', false)) {
+                (new DownloadFile)->file($file);
+            }
         }
 
         return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
