@@ -1,19 +1,73 @@
-{:NOT_LAYOUT}
+{__NOLAYOUT__}
+{tags:meta /}
 
-{tag:script}
-var data = {
-    method: 'account.user.login',
-    username: 'levisun',
-    password: 'Horadric'
-};
-jQuery.pjax({
-    url: NICMS.api.url + '/handle/admin.do',
-    type: 'POST',
-    data: data,
-    success: function(result){
-        jQuery.uiToast(result.message);
-        location.reload();
-    }
-});
+<body class="hold-transition login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            <a href="/"><b>Admin</b>NI</a>
+        </div>
+        <div class="login-box-body">
+            <form action="" method="post" id="login-form">
+                <div class="form-group has-feedback">
+                    <input type="text" name="username" class="form-control" placeholder="{:lang('username')}">
+                    <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    <input type="password" name="password" class="form-control" placeholder="{:lang('password')}">
+                    <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    <input type="text" id="verify" class="form-control" placeholder="{:lang('verify')}">
+                    <img id="img-verify">
+                </div>
+                <div class="row">
+                    <div class="col-xs-4">
+                        <button type="button" class="btn btn-primary btn-block btn-flat" v-on:click="login">{:lang('sign
+                            in')}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
-{/tag}
+
+    <script>
+        var login = new Vue({
+            el: '.login-box-body',
+            methods: {
+                verify: function () {
+                    jQuery('#img-verify').attr('src', '/verify.png?timestamp=' + jQuery.timestamp());
+                },
+                login: function () {
+                    var data = jQuery.getForm('#login-form');
+                    data['method'] = 'account.user.login';
+
+                    jQuery.pjax({
+                        url: NICMS.api.url + '/verify/check/img.do',
+                        type: 'POST',
+                        data: {
+                            verify: jQuery('#verify').val()
+                        },
+                        success: function (result) {
+                            if (10000 == result.code) {
+                                jQuery.pjax({
+                                    url: NICMS.api.url + '/handle.do',
+                                    type: 'POST',
+                                    data: data,
+                                    success: function (result) {
+                                        jQuery.uiToast(result.message);
+                                        // location.reload();
+                                    }
+                                });
+                            } else {
+                                login.verify();
+                                jQuery.uiToast(result.message);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+        login.verify();
+    </script>
+    {tags:foot /}

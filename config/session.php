@@ -26,5 +26,5 @@ return [
     // 前缀
     'prefix'         => '',
 
-    'data_compress'  => true,
+    'data_compress'  => false,
 ];

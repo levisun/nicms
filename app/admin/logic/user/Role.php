@@ -34,6 +34,9 @@ class Role extends BaseLogic
         $query_limit = $this->request->param('limit/d', 10);
 
         $result = (new ModelRole)
+            ->where([
+                ['id', '<>', 1]
+            ])
             ->order('id DESC')
             ->paginate([
                 'list_rows' => $query_limit,

@@ -108,8 +108,6 @@ abstract class BaseLogic
         $this->request  = $this->app->request;
         $this->session  = $this->app->session;
 
-        // 请勿开启调试模式
-        $this->app->debug(false);
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\DataFilter::default');
 

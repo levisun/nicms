@@ -23,6 +23,11 @@ Route::group(function () {
     // IP信息接口
     Route::get('ip$', 'Ip/index')->ext('do');
 
+    // 支付
+    Route::get('pay/:type$', 'Pay/index')->ext('do');
+    Route::get('pay/respond/:type$', 'Pay/respond')->ext('do');
+    Route::get('pay/notify/:type$', 'Pay/notify')->ext('do');
+
     // 请求接口
     Route::get('query$', 'Query/index')->ext('do');
 
@@ -33,9 +38,8 @@ Route::group(function () {
     Route::post('upload$', 'Upload/index')->ext('do');
 
     // 验证码接口
-    Route::get('verify/image$', 'Verify/image')->ext('do');
-    Route::post('verify/sms$', 'Verify/sms')->ext('do');
-    Route::post('verify/sms/check$', 'Verify/smsCheck')->ext('do');
+    Route::post('verify/:type$', 'Verify/index')->ext('do');
+    Route::post('verify/check/:type$', 'Verify/check')->ext('do');
 
     // 微信接口
     Route::get('wechat$', 'Wechat/index')->ext('do');

@@ -18,22 +18,32 @@ declare(strict_types=1);
 namespace app\api\controller;
 
 use app\common\controller\Async;
-use app\common\library\Ipinfo;
 
-class Ip extends Async
+class Pay extends Async
 {
 
-    public function index()
+    public function index(string $type)
     {
-        if ($this->isReferer(false)) {
-            $ip = $this->request->param('ip', false) ?: $this->request->ip();
-            if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
-                $this->cache(true)->success('IP INFO', (new Ipinfo)->get($ip));
-            } else {
-                $this->error('错误请求', 40009);
+        if ($this->analysis()->isReferer()) {
+            if ('wechat' === $type) {
+                # code...
+            }
+
+            elseif ('ali' === $type) {
+                # code...
             }
         }
 
         return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
+    }
+
+    public function respond(string $type)
+    {
+        return 'respond' . $type;
+    }
+
+    public function notify(string $type)
+    {
+        return 'notify' . $type;
     }
 }

@@ -23,19 +23,14 @@ use think\captcha\facade\Captcha;
 class Verify extends Async
 {
 
-    public function image()
+    public function index(string $type)
     {
-        if ($this->isReferer(false)) {
-            $config = mt_rand(0, 1) ? 'verify_zh' : 'verify_math';
-            return Captcha::create($config, true);
+        if ('img' === $type && $this->isReferer(false)) {
+            return '/verify.png?timestamp=' . time();
         }
 
-        return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
-    }
-
-    public function sms()
-    {
-        if ($this->isReferer(false)) {
+        // sms
+        elseif ('sms' === $type && $this->analysis()->isReferer()) {
             $phone = $this->request->param('phone', false);
             if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
                 $key = md5('sms_' . $this->request->ip());
@@ -60,21 +55,33 @@ class Verify extends Async
         return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 
-    public function smsCheck()
+    public function check(string $type)
     {
-        $phone = $this->request->param('phone', false);
-        $verify = $this->request->param('verify/d', false);
-        if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone) && $verify) {
-            $key = md5('sms_' . $this->request->ip());
+        if ('img' === $type && $this->analysis()->isReferer()) {
+            $verify = $this->request->param('verify');
+            if (Captcha::check($verify)) {
+                $this->cache(false)->success('验证码验证成功');
+            } else {
+                $this->cache(false)->error('验证码错误', 40009);
+            }
+        }
 
-            if ($this->session->has($key) && $result = $this->session->get($key)) {
-                if ($result['time'] >= time() && $result['verify'] == $verify && $result['phone'] == $phone) {
-                    $this->session->delete($key);
-                    $this->cache(false)->success('验证码验证成功');
+        // sms
+        elseif ('sms' === $type && $this->analysis()->isReferer()) {
+            $phone = $this->request->param('phone', false);
+            $verify = $this->request->param('verify/d', false);
+            if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone) && $verify) {
+                $key = md5('sms_' . $this->request->ip());
+
+                if ($this->session->has($key) && $result = $this->session->get($key)) {
+                    if ($result['time'] >= time() && $result['verify'] == $verify && $result['phone'] == $phone) {
+                        $this->session->delete($key);
+                        $this->cache(false)->success('验证码验证成功');
+                    }
                 }
             }
         }
 
-        $this->cache(false)->success('验证码错误');
+        // return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 }

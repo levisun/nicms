@@ -266,6 +266,8 @@ abstract class Async
         $this->analysisMethod();
         // 验证method权限
         $this->analysisAuth();
+        // 验证表单令牌
+        $this->analysisFromToken();
         // 加载语言包
         $this->loadLang();
 
@@ -288,6 +290,11 @@ abstract class Async
 
         $this->result['data'] = isset($this->result['data']) ? $this->result['data'] : [];
         $this->result['code'] = isset($this->result['code']) ? $this->result['code'] : 10000;
+
+        // 表单令牌
+        $this->result['token'] = $this->request->isPost()
+            ? $this->request->buildToken('__token__', 'md5')
+            : '';
 
         return $this;
     }
@@ -377,8 +384,6 @@ abstract class Async
         $this->analysisSign();
         // 验证时间戳
         $this->analysisTimestamp();
-        // 验证表单令牌
-        $this->analysisFromToken();
 
         return $this;
     }
@@ -718,17 +723,13 @@ abstract class Async
             'data'    => $_data,
             'message' => true === $this->apiDebug ? $_msg : (10000 === $_code ? 'success' : $_msg),
             'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 3) . 's,' .
-                         number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . 'mb',
+                number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . 'mb,' .
+                count(get_included_files()),
 
-            // 表单令牌
-            'token'   => $this->request->isPost() && $_code === 10000
-                ? $this->request->buildToken('__token__', 'md5')
-                : '',
             // 调试数据
-            'debug'   => true === $this->apiDebug ? [
+            'debug' => true === $this->apiDebug ? [
                 'query'   => $this->app->db->getQueryTimes(),
                 'cache'   => $this->app->cache->getReadTimes(),
-                'file'    => count(get_included_files()),
                 'log'     => $this->debugLog,
                 'method'  => $this->method,
                 'version' => implode('.', $this->version),
@@ -744,7 +745,7 @@ abstract class Async
                 ->cacheControl('max-age=' . $this->apiExpire . ',must-revalidate')
                 ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
                 ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT')
-                ->eTag(md5($this->method ?:$this->request->ip()));
+                ->eTag(md5($this->method ?: $this->request->ip()));
         }
 
         $this->log->save();

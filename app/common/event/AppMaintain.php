@@ -29,7 +29,7 @@ class AppMaintain
         // 垃圾信息维护
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'lock' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
-        $lock = $path . 'remove_garbage.lock';
+        $lock = $path . app()->http->getName() . '_remove_garbage.lock';
 
         clearstatcache();
         if (!is_file($lock) || filemtime($lock) <= strtotime('-1 hour')) {
@@ -38,7 +38,7 @@ class AppMaintain
                     app('log')->record('[REGARBAGE] 删除垃圾信息', 'alert');
 
                     // 清除上传垃圾文件
-                    (new UploadFile)->ReGarbage();
+                    // (new UploadFile)->ReGarbage();
 
                     (new ReGarbage)
                         // 清除过期缓存文件

@@ -78,6 +78,7 @@ class User extends BaseLogic
             return [
                 'debug' => false,
                 'cache' => false,
+                'code'  => 40009,
                 'msg'   => 'login error'
             ];
         }

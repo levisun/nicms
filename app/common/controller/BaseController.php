@@ -20,6 +20,7 @@ use think\App;
 use think\Response;
 use think\exception\HttpResponseException;
 use app\common\library\Base64;
+use think\captcha\facade\Captcha;
 
 abstract class BaseController
 {
@@ -88,7 +89,7 @@ abstract class BaseController
             $this->session->set('client_token', Base64::client_id());
         }
         // 生成客户端cookie令牌
-        if (!$this->cookie->has('PHPSESSID') || $this->cookie->get('PHPSESSID') != $this->session->get('client_token')) {
+        if (!$this->cookie->has('PHPSESSID')) {
             $this->cookie->set('PHPSESSID', $this->session->get('client_token'));
         }
 
@@ -148,5 +149,12 @@ abstract class BaseController
     public function fetch(string $_template, array $_data = [])
     {
         return $this->view->assign($_data)->fetch($_template);
+    }
+
+    public function verify()
+    {
+        $config = mt_rand(0, 1) ? 'verify_zh' : 'verify_math';
+        $config = 'verify_math';
+        return Captcha::create($config, true);
     }
 }

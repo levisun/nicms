@@ -11,9 +11,9 @@
 	AddOutputFilter DEFLATE html htm xml php jpg png js css
 </IfModule>
 
-<FilesMatch "\.(flv|gif|jpg|jpeg|png|ico|swf|css|txt|pdf)$">
+<FilesMatch "\.(gif|jpg|jpeg|png|webp|ico|css|txt|pdf|flv|swf)$">
   <IfModule mod_headers.c>
-    Header set Cache-Control "max-age=36000"
+    Header set Cache-Control "max-age=31536000"
   </IfModule>
 </FilesMatch>
 
