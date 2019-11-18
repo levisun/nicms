@@ -184,6 +184,11 @@ class PayWechat
         $this->params['device_info'] = 'WEB';
 
         $result = $this->unifiedOrder();
+        if ($result['return_code'] === 'FAIL') {
+            return $result['return_msg'];
+        } elseif ($result['result_code'] === 'FAIL') {
+            return $result['err_code_des'];
+        }
 
         // 新请求参数
         $params = [
@@ -200,7 +205,7 @@ class PayWechat
         return [
             'js_api_parameters' => $js_api_parameters,
             'notify_url' => $this->params['notify_url'],
-            'js' => '<script type="text/javascript">function jsApiCall(){WeixinJSBridge.invoke("getBrandWCPayRequest",' . $js_api_parameters . ',function(res){if (res.err_msg == "get_brand_wcpay_request:ok") {window.location.replace("' . $respond_url . '?out_trade_no=' . $this->params['out_trade_no'] . '");} else if (res.err_msg == "get_brand_wcpay_request:cancel") {}});}function callpay(){if (typeof WeixinJSBridge == "undefined"){if( document.addEventListener ){document.addEventListener("WeixinJSBridgeReady", jsApiCall, false);}else if (document.attachEvent){document.attachEvent("WeixinJSBridgeReady", jsApiCall);document.attachEvent("onWeixinJSBridgeReady", jsApiCall);}}else{jsApiCall();}}</script>',
+            'js' => 'function jsApiCall(){WeixinJSBridge.invoke("getBrandWCPayRequest",' . $js_api_parameters . ',function(res){if (res.err_msg == "get_brand_wcpay_request:ok") {window.location.replace("' . $respond_url . '?out_trade_no=' . $this->params['out_trade_no'] . '");} else if (res.err_msg == "get_brand_wcpay_request:cancel") {}});}function callpay(){if (typeof WeixinJSBridge == "undefined"){if( document.addEventListener ){document.addEventListener("WeixinJSBridgeReady", jsApiCall, false);}else if (document.attachEvent){document.attachEvent("WeixinJSBridgeReady", jsApiCall);document.attachEvent("onWeixinJSBridgeReady", jsApiCall);}}else{jsApiCall();}}',
         ];
     }
 

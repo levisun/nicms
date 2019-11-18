@@ -48,4 +48,43 @@ return [
     'too much junk information' => '垃圾信息过多，请及时清理',
 
     'app debug' => '调试模式',
+
+
+    'system info'   => '系统信息',
+    'sys version'   => '系统版本',
+    'sys TP ver'    => '框架版本',
+    'sys os'        => '操作系统',
+    'sys sapi'      => '解译引擎',
+    'sys debug'     => '调试模式',
+    'sys env'       => 'PHP',
+    'sys db'        => '数据库',
+    'sys GD'        => 'gd',
+    'sys timezone'  => '时区',
+    'sys api'       => 'API地址',
+    'sys cdn'       => 'CDN地址',
+    'sys lang'      => '语言',
+    'sys copyright' => '版权',
+    'sys upgrade'   => 'up',
+
+    'website name'        => '网站名称',
+    'website keywords'    => '关键词',
+    'website description' => '描述',
+    'website footer'      => '底部信息',
+    'website copyright'   => '版权信息',
+    'website beian'       => '备案信息',
+    'website script'      => '执行脚本',
+
+    'app upload max'    => '上传文件大小',
+    'app upload type'   => '上传文件类型',
+    'database hostname' => '数据库地址',
+    'database database' => '数据库名称',
+    'database username' => '数据库用户名',
+    'database password' => '数据库密码',
+    'database hostport' => '数据库端口',
+    'database prefix'   => '数据库前缀',
+    'cache type'        => '缓存类型',
+    'cache expire'      => '缓存时间',
+    'app authkey'       => '密钥',
+    'admin entry'       => '系统入口',
+    'admin theme'       => '系统模板'
 ];

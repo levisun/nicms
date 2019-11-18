@@ -25,12 +25,7 @@ class Verify extends Async
 
     public function index(string $type)
     {
-        if ('img' === $type && $this->isReferer(false)) {
-            return '/verify.png?timestamp=' . time();
-        }
-
-        // sms
-        elseif ('sms' === $type && $this->analysis()->isReferer()) {
+        if ('sms' === $type && $this->analysis()->isReferer()) {
             $phone = $this->request->param('phone', false);
             if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
                 $key = md5('sms_' . $this->request->ip());
@@ -82,6 +77,6 @@ class Verify extends Async
             }
         }
 
-        // return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
+        return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 }

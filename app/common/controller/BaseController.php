@@ -151,10 +151,14 @@ abstract class BaseController
         return $this->view->assign($_data)->fetch($_template);
     }
 
+    /**
+     * 验证码
+     * @access public
+     * @return mixed
+     */
     public function verify()
     {
         $config = mt_rand(0, 1) ? 'verify_zh' : 'verify_math';
-        $config = 'verify_math';
         return Captcha::create($config, true);
     }
 }
