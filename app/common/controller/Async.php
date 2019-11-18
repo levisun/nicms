@@ -256,6 +256,16 @@ abstract class Async
     }
 
     /**
+     * 404页面
+     * @access protected
+     * @return string
+     */
+    protected function _404(): string
+    {
+        return file_get_contents($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
+    }
+
+    /**
      * 运行
      * @access protected
      * @return $this
@@ -290,11 +300,6 @@ abstract class Async
 
         $this->result['data'] = isset($this->result['data']) ? $this->result['data'] : [];
         $this->result['code'] = isset($this->result['code']) ? $this->result['code'] : 10000;
-
-        // 表单令牌
-        $this->result['token'] = $this->request->isPost()
-            ? $this->request->buildToken('__token__', 'md5')
-            : '';
 
         return $this;
     }
@@ -725,6 +730,11 @@ abstract class Async
             'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 3) . 's,' .
                 number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . 'mb,' .
                 count(get_included_files()),
+
+            // 表单令牌
+            'token' => $this->request->isPost()
+                ? $this->request->buildToken('__token__', 'md5')
+                : '',
 
             // 调试数据
             'debug' => true === $this->apiDebug ? [

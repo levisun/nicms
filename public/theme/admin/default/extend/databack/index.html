@@ -1,0 +1,88 @@
+<div class="box">
+    <div class="box-header">
+        <a @click="databack" class="btn btn-default">
+            <i class="fa fa-save"></i> {:lang('databack')}
+        </a>
+    </div>
+    <div class="box-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>{:lang('backname')}</th>
+                    <th>{:lang('date')}</th>
+                    <th>{:lang('size')}</th>
+                    <th>{:lang('operation')}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template v-for="vo in items.list">
+                    <tr>
+                        <td v-text="vo.name"></td>
+                        <td v-text="vo.date"></td>
+                        <td v-text="vo.size"></td>
+                        <td>
+                            <a @click="remove(vo.id)"><i class="fa fa-trash"></i>{:lang('remove')}</a>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+    <div class="box-footer clearfix"></div>
+</div>
+
+<script>
+    let databack = new Vue({
+        el: '.box',
+        data: {
+            items: [],
+
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: {
+                        method: 'extend.databack.query'
+                    },
+                    success: function (result) {
+                        if (result.code === 10000) {
+                            databack.items = result.data;
+                        }
+                    }
+                });
+            },
+            databack: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: {
+                        method: 'extend.databack.backup'
+                    },
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            databack.load();
+                        }
+                    }
+                });
+            },
+            remove: function (_id) {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: {
+                        method: 'extend.databack.remove',
+                        id: _id
+                    },
+                    success: function () {
+                        if (result.code == 10000) {
+                            databack.load();
+                        }
+                    }
+                });
+            }
+        }
+    });
+    databack.load();
+</script>

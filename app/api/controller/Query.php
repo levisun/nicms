@@ -32,6 +32,6 @@ class Query extends Async
             );
         }
 
-        return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
+        return $this->_404();
     }
 }

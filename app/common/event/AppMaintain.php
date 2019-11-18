@@ -38,7 +38,7 @@ class AppMaintain
                     app('log')->record('[REGARBAGE] 删除垃圾信息', 'alert');
 
                     // 清除上传垃圾文件
-                    // (new UploadFile)->ReGarbage();
+                    (new UploadFile)->ReGarbage();
 
                     (new ReGarbage)
                         // 清除过期缓存文件

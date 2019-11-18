@@ -20,7 +20,7 @@ use think\Validate;
 class Safe extends Validate
 {
     protected $rule = [
-        'app_upload_size'   => ['require', 'max:10'],
+        'app_upload_size'   => ['require', 'number'],
         'app_upload_type'   => ['require', 'max:100'],
         // 'database_hostname' => ['require', 'max:100'],
         // 'database_database' => ['require', 'max:100'],
@@ -28,8 +28,8 @@ class Safe extends Validate
         // 'database_password' => ['require', 'max:100'],
         // 'database_hostport' => ['require', 'max:100'],
         // 'database_prefix'   => ['require', 'max:100'],
-        'cache_expire'      => ['require', 'max:100'],
-        'app_debug'       => ['require', 'max:100'],
+        'cache_expire'      => ['require', 'number'],
+        'app_debug'       => ['require', 'number'],
         // 'admin_entry'       => ['require', 'max:100'],
     ];
 

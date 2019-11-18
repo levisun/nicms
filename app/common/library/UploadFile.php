@@ -90,45 +90,53 @@ class UploadFile
      */
     public function ReGarbage()
     {
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
-            'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*';
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'lock' . DIRECTORY_SEPARATOR;
+        is_dir($path) or mkdir($path, 0755, true);
+        $lock = $path . 'remove_upload_garbage.lock';
 
-        $upload_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+        clearstatcache();
+        if (!is_file($lock) || filemtime($lock) <= strtotime('-12 hour')) {
+            if ($fp = @fopen($lock, 'w+')) {
+                if (flock($fp, LOCK_EX | LOCK_NB)) {
+                    Log::record('[REGARBAGE] 删除上传垃圾文件', 'alert');
 
-        $day = strtotime('-12 hour');
-        $dir = (array) glob($path);
-        foreach ($dir as $files) {
-            if (is_file($files) && filemtime($files) <= $day) {
-                $data = include $files;
-                $data = !empty($data) ? (array) $data : [];
-                if ($fp = @fopen($files, 'w+')) {
-                    if (flock($fp, LOCK_EX | LOCK_NB)) {
-                        foreach ($data as $key => $value) {
-                            $value = str_replace('/', DIRECTORY_SEPARATOR, trim($value, " \/,._-\t\n\r\0\x0B"));
-                            if (is_file($upload_path . $value)) {
-                                Log::record('[删除上传垃圾] ' . $value, 'alert');
-                                unlink($upload_path . $value);
-                            }
+                    $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
+                        'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*';
+                    $dir = (array) glob($path);
 
-                            // 删除缩略图
-                            $ext = '.' . pathinfo($value, PATHINFO_EXTENSION);
-                            for ($i = 1; $i < 9; $i++) {
-                                $size = $i * 100;
-                                $thumb = str_replace($ext, '_' . $size . $ext, $value);
-                                if (is_file($upload_path . $thumb)) {
-                                    Log::record('[删除上传垃圾] ' . $thumb, 'alert');
-                                    unlink($upload_path . $thumb);
+                    $upload_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+                    $day = strtotime('-1 days');
+                    foreach ($dir as $files) {
+                        if (is_file($files) && filemtime($files) <= $day) {
+                            $data = include $files;
+                            $data = !empty($data) ? (array) $data : [];
+                            foreach ($data as $key => $value) {
+                                $value = str_replace('/', DIRECTORY_SEPARATOR, trim($value, " \/,._-\t\n\r\0\x0B"));
+                                if (is_file($upload_path . $value)) {
+                                    Log::record('[删除上传垃圾] ' . $value, 'alert');
+                                    @unlink($upload_path . $value);
+                                }
+
+                                // 删除缩略图
+                                $ext = '.' . pathinfo($value, PATHINFO_EXTENSION);
+                                for ($i = 1; $i < 9; $i++) {
+                                    $size = $i * 100;
+                                    $thumb = str_replace($ext, '_' . $size . $ext, $value);
+                                    if (is_file($upload_path . $thumb)) {
+                                        Log::record('[删除上传垃圾] ' . $thumb, 'alert');
+                                        @unlink($upload_path . $thumb);
+                                    }
                                 }
                             }
+
+                            @unlink($files);
                         }
-
-                        $data = '<?php /* remove */ return ' . var_export($data, true) . ';';
-
-                        fwrite($fp, $data);
-                        flock($fp, LOCK_UN);
                     }
-                    fclose($fp);
+
+                    fwrite($fp, '删除上传垃圾文件' . date('Y-m-d H:i:s'));
+                    flock($fp, LOCK_UN);
                 }
+                fclose($fp);
             }
         }
     }

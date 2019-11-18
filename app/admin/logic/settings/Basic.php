@@ -71,7 +71,7 @@ class Basic extends BaseLogic
             'cms_footer'      => $this->request->param('cms_footer'),
             'cms_copyright'   => $this->request->param('cms_copyright', '', '\app\common\library\DataFilter::content'),
             'cms_beian'       => $this->request->param('cms_beian'),
-            'script'          => $this->request->param('script', '', 'trim,htmlspecialchars'),
+            'cms_script'      => $this->request->param('cms_script', '', 'trim,htmlspecialchars'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;

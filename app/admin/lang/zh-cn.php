@@ -86,5 +86,11 @@ return [
     'cache expire'      => '缓存时间',
     'app authkey'       => '密钥',
     'admin entry'       => '系统入口',
-    'admin theme'       => '系统模板'
+    'admin theme'       => '系统模板',
+
+
+    'run user' => '执行用户',
+    'run action' => '执行方法',
+    'backname' => '备份文件名',
+
 ];

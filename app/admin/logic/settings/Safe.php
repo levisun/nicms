@@ -76,9 +76,9 @@ class Safe extends BaseLogic
         $this->actionLog(__METHOD__, 'admin safe editor');
 
         $receive_data = [
-            'app_upload_size'   => $this->request->param('app.upload_size'),
+            'app_upload_size'   => $this->request->param('app.upload_size/d', 1),
             'app_upload_type'   => $this->request->param('app.upload_type'),
-            'cache_expire'      => $this->request->param('cache.expire'),
+            'cache_expire'      => $this->request->param('cache.expire/d', 28800),
             'app_debug'       => $this->request->param('app_debug'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
