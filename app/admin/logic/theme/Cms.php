@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\theme;
 
 use app\common\controller\BaseLogic;
+use app\common\library\Base64;
 
 class Cms extends BaseLogic
 {
@@ -38,6 +39,7 @@ class Cms extends BaseLogic
                 $config = json_decode($config, true);
             } else {
                 $config = [
+                    'img'           => '',
                     'theme'         => '未知',
                     'theme_version' => '未知',
                     'api_version'   => '未知',
@@ -45,7 +47,8 @@ class Cms extends BaseLogic
             }
 
             $file[$key] = [
-                'id'          => basename($value),
+                'id'          => Base64::encrypt(basename($value), date('Ymd')),
+                'img'         => $config['img'],
                 'name'        => $config['theme'],
                 'version'     => $config['theme_version'],
                 'api_version' => $config['api_version'],

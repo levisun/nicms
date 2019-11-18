@@ -1,0 +1,38 @@
+<script>
+    var cms = new Vue({
+        el: '.box',
+        data: {
+            items: []
+        },
+        methods: {
+            load() {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: {
+                        method: 'theme.cms.query'
+                    },
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            cms.items = result.data;
+                        }
+                    }
+                });
+            },
+            save() {
+                var data = jQuery.getForm('#basic-config');
+                data['method'] = 'settings.basic.editor';
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: data,
+                    success: function (result) {
+                        jQuery.uiToast(result.message);
+                        jQuery('input[name="__token__"]').val(result.token);
+                    }
+                });
+            }
+        }
+    });
+    cms.load();
+</script>
