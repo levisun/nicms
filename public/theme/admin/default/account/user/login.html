@@ -54,9 +54,13 @@
                                     url: NICMS.api.url + '/handle.do',
                                     type: 'POST',
                                     data: data,
-                                    success: function (result) {
-                                        jQuery.uiToast(result.message);
-                                        location.reload();
+                                    success: function (res) {
+                                        if (10000 == res) {
+                                            location.reload();
+                                        } else {
+                                            login.verify();
+                                        }
+                                        jQuery.uiToast(res.message);
                                     }
                                 });
                             } else {

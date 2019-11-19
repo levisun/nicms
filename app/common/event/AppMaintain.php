@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace app\common\event;
 
 use app\common\library\ReGarbage;
+use app\common\library\Sitemap;
 use app\common\library\UploadFile;
 
 class AppMaintain
@@ -32,34 +33,38 @@ class AppMaintain
         $lock = $path . app()->http->getName() . '_remove_garbage.lock';
 
         clearstatcache();
-        if (!is_file($lock) || filemtime($lock) <= strtotime('-1 hour')) {
+        if (!is_file($lock) || filemtime($lock) <= strtotime('-3 hour')) {
             if ($fp = @fopen($lock, 'w+')) {
                 if (flock($fp, LOCK_EX | LOCK_NB)) {
-                    app('log')->record('[REGARBAGE] 删除垃圾信息', 'alert');
+                    app('log')->record('[REGARBAGE] 应用维护', 'alert');
+
+                    // 生成网站地图
+                    (new Sitemap)->create();
 
                     // 清除上传垃圾文件
                     (new UploadFile)->ReGarbage();
 
-                    (new ReGarbage)
-                        // 清除过期缓存文件
-                        ->remove(app()->getRuntimePath() . 'cache', 1)
-                        // 清除过期临时文件
-                        ->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 2)
-                        // 清除过期网站地图文件
-                        ->remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage'. DIRECTORY_SEPARATOR . 'sitemaps', 3);
+                    // 清除过期缓存文件
+                    (new ReGarbage)->remove(app()->getRuntimePath() . 'cache', 1);
 
-                    $path = app()->getRuntimePath();
-                    if (false === app()->isDebug()) {
-                        is_file($path . 'route.php') or app()->console->call('optimize:route', [app()->http->getName()]);
-                    } else {
-                        is_file($path . 'route.php') and unlink($path . 'route.php');
-                    }
+                    // 清除过期临时文件
+                    (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 2);
 
-                    fwrite($fp, '清除垃圾数据' . date('Y-m-d H:i:s'));
+                    fwrite($fp, '应用维护' . date('Y-m-d H:i:s'));
                     flock($fp, LOCK_UN);
                 }
                 fclose($fp);
             }
+        }
+    }
+
+    public function test()
+    {
+        $path = app()->getRuntimePath();
+        if (false === app()->isDebug()) {
+            is_file($path . 'route.php') or app()->console->call('optimize:route', [app()->http->getName()]);
+        } else {
+            is_file($path . 'route.php') and unlink($path . 'route.php');
         }
     }
 }

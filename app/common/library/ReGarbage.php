@@ -33,8 +33,6 @@ class ReGarbage
 
         $day = strtotime('-' . $_expire . ' days');
         $this->clear($_dir, $day);
-
-        return $this;
     }
 
     /**

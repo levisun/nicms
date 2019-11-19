@@ -22,7 +22,6 @@ use app\common\library\Base64;
 use app\common\library\Canvas;
 use app\common\library\Ipinfo;
 use app\common\library\Rbac;
-use app\common\library\Session as LibSession;
 use app\common\model\Admin as ModelAdmin;
 
 class User extends BaseLogic
@@ -100,7 +99,7 @@ class User extends BaseLogic
 
         // 唯一登录
         if ($user['flag'] && $user['flag'] !== $this->session->getId(false)) {
-            (new LibSession)->delete($user['flag']);
+            $this->session->delete($user['flag']);
         }
 
         // 登录令牌

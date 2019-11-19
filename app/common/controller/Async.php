@@ -183,6 +183,12 @@ abstract class Async
     protected $apiExpire = 1440;
 
     /**
+     * 返回表单令牌
+     * @var bool
+     */
+    protected $apiFromToken = false;
+
+    /**
      * 请求时间戳
      * @var int
      */
@@ -272,12 +278,12 @@ abstract class Async
      */
     protected function run()
     {
+        // 验证表单令牌
+        $this->analysisFromToken();
         // 解析method参数
         $this->analysisMethod();
         // 验证method权限
         $this->analysisAuth();
-        // 验证表单令牌
-        $this->analysisFromToken();
         // 加载语言包
         $this->loadLang();
 
@@ -479,8 +485,11 @@ abstract class Async
     private function analysisFromToken(): void
     {
         // POST请求 表单令牌验证
-        if ($this->request->isPost() && false === $this->request->checkToken()) {
-            $this->error('非法参数{20013}', 20013);
+        if ($this->request->isPost()) {
+            $this->apiFromToken = true;
+            if (false === $this->request->checkToken()) {
+                $this->error('非法参数{20013}', 20013);
+            }
         }
     }
 
@@ -732,7 +741,7 @@ abstract class Async
                 count(get_included_files()),
 
             // 表单令牌
-            'token' => $this->request->isPost()
+            'token' => $this->apiFromToken
                 ? $this->request->buildToken('__token__', 'md5')
                 : '',
 

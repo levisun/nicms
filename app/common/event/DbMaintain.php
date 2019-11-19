@@ -19,7 +19,6 @@ declare(strict_types=1);
 namespace app\common\event;
 
 use app\common\library\DataManage;
-use app\common\library\Sitemap;
 
 class DbMaintain
 {
@@ -30,7 +29,5 @@ class DbMaintain
         (new DataManage)->optimize();
         // 数据库备份
         (new DataManage)->autoBackup();
-
-        (new Sitemap)->create();
     }
 }
