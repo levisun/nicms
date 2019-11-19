@@ -3,7 +3,7 @@
 /**
  *
  * 控制层
- * Api
+ * 文件上传API
  *
  * @package   NICMS
  * @category  app\api\controller
@@ -36,6 +36,6 @@ class Upload extends Async
             );
         }
 
-        return $this->_404();
+        return file_get_contents($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 }

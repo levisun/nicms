@@ -38,13 +38,13 @@ class Dashboard extends BaseLogic
 
             $result = [
                 'sysinfo' => [
-                    $this->lang->get('sys version')   => 'NICMS ' . $this->config->get('app.version'),
-                    $this->lang->get('sys TP ver')    => 'ThinkPHP ' . $this->app->version(),
+                    $this->lang->get('sys version')   => 'NICMS ' . $this->config->get('app.version') .
+                        '[TP' . $this->app->version() . ']',
                     $this->lang->get('sys os')        => PHP_OS,
                     $this->lang->get('sys sapi')      => php_sapi_name(),
                     $this->lang->get('sys debug')     => $this->config->get('app.debug') ? 'Yes' : 'No',
-                    $this->lang->get('sys env')       => 'PHP' . PHP_VERSION . ' ' . $_SERVER['SERVER_SOFTWARE'],
-                    $this->lang->get('sys db')        => 'Mysql' . $db_version,
+                    $this->lang->get('sys env')       => 'PHP' . PHP_VERSION,
+                    $this->lang->get('sys db')        => 'Mysql ' . $db_version,
                     $this->lang->get('sys GD')        => $gd,
                     $this->lang->get('sys timezone')  => $this->config->get('app.default_timezone'),
                     $this->lang->get('sys api')       => $this->config->get('app.api_host'),

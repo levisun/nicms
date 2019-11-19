@@ -3,7 +3,7 @@
 /**
  *
  * 控制层
- * Api
+ * 访问记录API
  *
  * @package   NICMS
  * @category  app\api\controller
@@ -30,6 +30,6 @@ class Record extends Async
             return;
         }
 
-        return $this->_404();
+        return file_get_contents($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 }

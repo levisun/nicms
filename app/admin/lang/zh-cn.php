@@ -52,11 +52,10 @@ return [
 
     'system info'   => '系统信息',
     'sys version'   => '系统版本',
-    'sys TP ver'    => '框架版本',
     'sys os'        => '操作系统',
-    'sys sapi'      => '解译引擎',
+    'sys sapi'      => '运行模式',
     'sys debug'     => '调试模式',
-    'sys env'       => 'PHP',
+    'sys env'       => '运行环境',
     'sys db'        => '数据库',
     'sys GD'        => 'gd',
     'sys timezone'  => '时区',

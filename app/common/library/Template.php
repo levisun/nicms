@@ -242,9 +242,7 @@ class Template implements TemplateHandlerInterface
      */
     private function parseVars(string &$_content): void
     {
-        $pattern = '/' . $this->config['tpl_begin'] .
-            '\$([a-zA-Z0-9_.]+)' .
-            $this->config['tpl_end'] . '/si';
+        $pattern = '/' . $this->config['tpl_begin'] . '\$([a-zA-Z0-9_.]+)' . $this->config['tpl_end'] . '/si';
 
         $_content = preg_replace_callback($pattern, function ($matches) {
             $var_type = '';
@@ -254,30 +252,75 @@ class Template implements TemplateHandlerInterface
                 $var_type = strtoupper(trim($var_type));
             }
 
+            // 常量
             if ('CONST' === $var_type) {
                 $defined = get_defined_constants();
                 $var_name = strtoupper($var_name);
-                return isset($defined[$var_name]) ? '<?php echo ' . $var_name . '; ?>' : $var_name;
+                $vars = isset($defined[$var_name]) ? $var_name : '$' . $var_name;
             }
 
-            if ('GET' === $var_type) {
-                $vars = 'request()->param("' . $var_name . '")';
-            } elseif ('POST' === $var_type) {
-                $vars = 'request()->post("' . $var_name . '")';
-            } elseif ('COOKIE' === $var_type) {
-                $vars = 'request()->cookie("' . $var_name . '")';
-            } elseif (isset($var_type)) {
+            // GET
+            elseif ('GET' === $var_type) {
+                $vars = 'input("' . $var_name . '")';
+            }
+
+            // POST
+            elseif ('POST' === $var_type) {
+                $vars = 'input("post.' . $var_name . '")';
+            }
+
+            // COOKIE
+            elseif ('COOKIE' === $var_type) {
+                $vars = 'input("cookie.' . $var_name . '")';
+            }
+
+            // SESSION
+            elseif ('SESSION' === $var_type) {
+                $vars = '未定义';
+            }
+
+            // SERVER
+            elseif ('SERVER' === $var_type) {
+                $vars = '未定义';
+            }
+
+            // ENV
+            elseif ('ENV' === $var_type) {
+                $vars = '未定义';
+            }
+
+            elseif ('' !== $var_type) {
                 $vars = '$' . strtolower($var_type);
                 $arr = explode('.', $var_name);
                 foreach ($arr as $name) {
                     $vars .= '[\'' . $name . '\']';
                 }
-                $vars = 'isset(' . $vars . ') ? ' . $vars . ' : \'\'';
-            } else {
+            }
+
+            else {
                 $vars = '$' . $var_name;
             }
 
-            return '<?php echo ' . $vars . ';?>';
+
+
+            // if ('GET' === $var_type) {
+            //     $vars = 'request()->param("' . $var_name . '")';
+            // } elseif ('POST' === $var_type) {
+            //     $vars = 'request()->post("' . $var_name . '")';
+            // } elseif ('COOKIE' === $var_type) {
+            //     $vars = 'request()->cookie("' . $var_name . '")';
+            // } elseif (isset($var_type)) {
+            //     $vars = '$' . strtolower($var_type);
+            //     $arr = explode('.', $var_name);
+            //     foreach ($arr as $name) {
+            //         $vars .= '[\'' . $name . '\']';
+            //     }
+            //     $vars = 'isset(' . $vars . ') ? ' . $vars . ' : \'\'';
+            // } else {
+            //     $vars = '$' . $var_name;
+            // }
+
+            return '<?php echo htmlspecialchars(' . $vars . ');?>';
         }, $_content);
     }
 

@@ -3,7 +3,7 @@
 /**
  *
  * 控制层
- * Api
+ * 下载API
  *
  * @package   NICMS
  * @category  app\api\controller
@@ -31,6 +31,6 @@ class Download extends Async
             }
         }
 
-        return $this->_404();
+        return file_get_contents($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 }

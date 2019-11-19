@@ -3,7 +3,7 @@
 /**
  *
  * 控制层
- * Api
+ * IP信息API
  *
  * @package   NICMS
  * @category  app\api\controller
@@ -34,6 +34,6 @@ class Ip extends Async
             }
         }
 
-        return $this->_404();
+        return file_get_contents($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 }

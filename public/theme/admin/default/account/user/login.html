@@ -55,7 +55,7 @@
                                     type: 'POST',
                                     data: data,
                                     success: function (res) {
-                                        if (10000 == res) {
+                                        if (10000 == res.code) {
                                             location.reload();
                                         } else {
                                             login.verify();

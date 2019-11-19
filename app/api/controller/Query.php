@@ -3,7 +3,7 @@
 /**
  *
  * 控制层
- * Api
+ * 查询API
  *
  * @package   NICMS
  * @category  app\api\controller
@@ -32,6 +32,6 @@ class Query extends Async
             );
         }
 
-        return $this->_404();
+        return file_get_contents($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 }

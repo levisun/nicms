@@ -262,16 +262,6 @@ abstract class Async
     }
 
     /**
-     * 404页面
-     * @access protected
-     * @return string
-     */
-    protected function _404(): string
-    {
-        return file_get_contents($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
-    }
-
-    /**
      * 运行
      * @access protected
      * @return $this
@@ -279,20 +269,21 @@ abstract class Async
     protected function run()
     {
         // 验证表单令牌
-        $this->analysisFromToken();
+        $this->checkFromToken();
         // 解析method参数
         $this->analysisMethod();
         // 验证method权限
-        $this->analysisAuth();
+        $this->checkAuth();
         // 加载语言包
         $this->loadLang();
 
-        // 执行类方法
+        // 执行METHOD
         $this->result = call_user_func([
             $this->app->make($this->appMethod['class']),
             $this->appMethod['method']
         ]);
 
+        // 校验返回数据
         if (!is_array($this->result) && array_key_exists('msg', $this->result)) {
             $this->error('返回数据格式错误', 40001);
         }
@@ -390,11 +381,11 @@ abstract class Async
         // 解析header数据
         $this->analysisHeader();
         // 验证APPID
-        $this->analysisAppId();
+        $this->checkAppId();
         // 验证签名
-        $this->analysisSign();
+        $this->checkSign();
         // 验证时间戳
-        $this->analysisTimestamp();
+        $this->checkTimestamp();
 
         return $this;
     }
@@ -404,36 +395,34 @@ abstract class Async
      * @access private
      * @return void
      */
-    private function analysisAuth(): void
+    private function checkAuth(): void
     {
         // 需要鉴权应用
-        if (!in_array($this->appName, ['admin', 'my'])) {
-            return;
-        }
+        if (in_array($this->appName, ['admin', 'my'])) {
+            // 不需要鉴权方法
+            // 登录 登出 找回密码
+            if (in_array($this->appMethod['method'], ['login', 'logout', 'forget'])) {
+                return;
+            }
 
-        // 不需要鉴权方法
-        // 登录 登出 找回密码
-        if (in_array($this->appMethod['method'], ['login', 'logout', 'forget'])) {
-            return;
-        }
+            // 设置会话信息(用户ID,用户组)
+            if ($this->session->has($this->appAuthKey) && $this->session->has($this->appAuthKey . '_role')) {
+                $this->uid = (int) $this->session->get($this->appAuthKey);
+                $this->urole = (int) $this->session->get($this->appAuthKey . '_role');
+            }
 
-        // 设置会话信息(用户ID,用户组)
-        if ($this->session->has($this->appAuthKey) && $this->session->has($this->appAuthKey . '_role')) {
-            $this->uid = (int) $this->session->get($this->appAuthKey);
-            $this->urole = (int) $this->session->get($this->appAuthKey . '_role');
-        }
-
-        // 验证权限
-        $result = (new Rbac)->authenticate(
-            $this->uid,
-            $this->appName,
-            $this->appMethod['logic'],
-            $this->appMethod['action'],
-            $this->appMethod['method'],
-            $this->notAuth
-        );
-        if (false === $result) {
-            $this->error('非法参数', 30001);
+            // 验证权限
+            $result = (new Rbac)->authenticate(
+                $this->uid,
+                $this->appName,
+                $this->appMethod['logic'],
+                $this->appMethod['action'],
+                $this->appMethod['method'],
+                $this->notAuth
+            );
+            if (false === $result) {
+                $this->error('非法参数', 30001);
+            }
         }
     }
 
@@ -482,7 +471,7 @@ abstract class Async
      * @access private
      * @return void
      */
-    private function analysisFromToken(): void
+    private function checkFromToken(): void
     {
         // POST请求 表单令牌验证
         if ($this->request->isPost()) {
@@ -498,7 +487,7 @@ abstract class Async
      * @access private
      * @return void
      */
-    private function analysisTimestamp(): void
+    private function checkTimestamp(): void
     {
         $this->timestamp = $this->request->param('timestamp/d', $this->request->time());
         if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
@@ -511,7 +500,7 @@ abstract class Async
      * @access private
      * @return void
      */
-    private function analysisSign(): void
+    private function checkSign(): void
     {
         // 校验签名类型
         $this->signType = $this->request->param('sign_type', 'md5');
@@ -559,7 +548,7 @@ abstract class Async
      * @access private
      * @return void
      */
-    private function analysisAppId(): void
+    private function checkAppId(): void
     {
         $this->appId = $this->request->param('appid/f', 1000001);
         if (!$this->appId || $this->appId < 1000001) {

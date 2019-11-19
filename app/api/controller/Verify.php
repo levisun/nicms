@@ -3,7 +3,7 @@
 /**
  *
  * 控制层
- * Api
+ * 验证码API
  *
  * @package   NICMS
  * @category  app\api\controller
@@ -47,7 +47,7 @@ class Verify extends Async
             }
         }
 
-        return $this->_404();
+        return file_get_contents($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 
     public function check(string $type)
@@ -77,6 +77,6 @@ class Verify extends Async
             }
         }
 
-        return $this->_404();
+        return file_get_contents($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 }
