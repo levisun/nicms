@@ -22,40 +22,56 @@ use app\common\controller\Async;
 class Pay extends Async
 {
 
-    public function index(string $type)
+    public function index(string $method)
     {
         if ($this->analysis()->isReferer()) {
             // 支付宝支付
-            if ('ali' === $type) {
+            if ('ali' === $method) {
                 # code...
             }
 
-            // 微信公众号支付
-            elseif ('wechatjs' === $type) {
-                # code...
+            // 微信支付
+            elseif ('wechat' === $method) {
+                $type = $this->request->param('type', 'h5');
+                // 公众号支付
+                if ('js' === $type) {
+                    # code...
+                }
+                // H5支付
+                elseif ('h5' === $type) {
+                    # code...
+                }
+                // 二维码支付
+                elseif ('qrcode' === $type) {
+                    # code...
+                }
             }
 
-            // 微信H5支付
-            elseif ('wechath5' === $type) {
-                # code
-            }
-
-            // 微信二维码支付
-            elseif ('wechatqrcode' === $type) {
-                # code...
-            }
+            // call_user_func();
         }
 
         return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
     }
 
-    public function respond(string $type)
+    public function respond(string $method)
     {
-        return 'respond' . $type;
+        return 'respond:' . $method;
     }
 
-    public function notify(string $type)
+    public function notify(string $method)
     {
-        return 'notify' . $type;
+        return 'notify:' . $method;
+    }
+
+    /**
+     * 订单号
+     * @access private
+     * @return string
+     */
+    private function orderNo(): string
+    {
+        return date('YmdHis') .
+            str_pad(str_replace('.', '', microtime(true)), 14, '0', STR_PAD_RIGHT) .
+            mt_rand(1111, 9999);
     }
 }

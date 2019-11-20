@@ -24,9 +24,9 @@ Route::group(function () {
     Route::get('ip$', 'Ip/index')->ext('do');
 
     // 支付
-    Route::get('pay/:type$', 'Pay/index')->ext('do');
-    Route::get('pay/respond/:type$', 'Pay/respond')->ext('do');
-    Route::get('pay/notify/:type$', 'Pay/notify')->ext('do');
+    Route::get('pay/:method$', 'Pay/index')->ext('do');
+    Route::get('pay/respond/:method$', 'Pay/respond')->ext('do');
+    Route::get('pay/notify/:method$', 'Pay/notify')->ext('do');
 
     // 请求接口
     Route::get('query$', 'Query/index')->ext('do');

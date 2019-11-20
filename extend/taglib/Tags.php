@@ -99,7 +99,7 @@ class Tags
 
         return
             '<!DOCTYPE html>' .
-            '<html lang="<?php echo request()->cookie("__lang");?>">' .
+            '<html lang="<?php echo app("lang")->getLangSet();?>">' .
             '<head>' .
             '<meta charset="utf-8" />' .
             '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
@@ -160,6 +160,6 @@ class Tags
                     'img'    => '__IMG__',
                     'js'     => '__JS__',
                 ]
-            ]) . '</script>' . PHP_EOL . '</head>' . PHP_EOL;
+            ]) . '</script></head>';
     }
 }

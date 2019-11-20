@@ -87,6 +87,13 @@ return [
     'admin entry'       => '系统入口',
     'admin theme'       => '系统模板',
 
+    'node app type'        => '应用',
+    'node controller type' => '分组',
+    'node action type'     => '节点名',
+    'node method type'     => '方法',
+    'node name'  => '节点名',
+    'node title' => '名称',
+
 
     'run user' => '执行用户',
     'run action' => '执行方法',

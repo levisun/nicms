@@ -117,7 +117,7 @@ abstract class BaseLogic
             $this->urole = (int) $this->session->get($this->authKey . '_role');
         }
 
-        // \think\Facade\Db::event('before_select', function ($query) {
+        // \think\Facade\Db::event('before_select', function () {
         //     trace('123');
         // });
 

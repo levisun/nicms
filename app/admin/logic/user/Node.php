@@ -150,6 +150,7 @@ class Node extends BaseLogic
      */
     public function find(): array
     {
+        $result = [];
         if ($id = $this->request->param('id/d')) {
             $result = (new ModelNode)
                 ->where([
@@ -163,16 +164,8 @@ class Node extends BaseLogic
                         ['id', '=', $result['pid']]
                     ])
                     ->value('name as parent');
-
-                $result['level_list'] = [
-                    ['id' => '1', 'name' => $this->lang->get('node app  type')],
-                    ['id' => '2', 'name' => $this->lang->get('node controller type')],
-                    ['id' => '3', 'name' => $this->lang->get('node action type')],
-                    ['id' => '4', 'name' => $this->lang->get('node method type')],
-                ];
             }
         } else {
-            $result = [];
             if ($pid = $this->request->param('pid/d', 0)) {
                 $result['pid'] = $pid;
                 $result['parent'] = (new ModelNode)
@@ -181,13 +174,14 @@ class Node extends BaseLogic
                     ])
                     ->value('name as parent');
             }
-            $result['level_list'] = [
-                ['id' => '1', 'name' => $this->lang->get('node app  type')],
-                ['id' => '2', 'name' => $this->lang->get('node controller type')],
-                ['id' => '3', 'name' => $this->lang->get('node action type')],
-                ['id' => '4', 'name' => $this->lang->get('node method type')],
-            ];
         }
+
+        $result['level_list'] = [
+            ['id' => '1', 'name' => $this->lang->get('node app type')],
+            ['id' => '2', 'name' => $this->lang->get('node controller type')],
+            ['id' => '3', 'name' => $this->lang->get('node action type')],
+            ['id' => '4', 'name' => $this->lang->get('node method type')],
+        ];
 
         return [
             'debug' => false,
