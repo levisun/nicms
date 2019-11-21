@@ -19,6 +19,8 @@ nicms1.x 未完成项目,正在拼命中...
 
 > 基于[CKEditor](https://ckeditor.com) 开发
 
+> 基于[wangEditor](http://www.wangeditor.com) 开发
+
 > 基于[Bootstrap](http://getbootstrap.com) 开发，自适应手机、平板、PC
 
 > 基于[jQuery](http://jquery.com)

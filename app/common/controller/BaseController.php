@@ -73,9 +73,6 @@ abstract class BaseController
         // 加载语言包
         $lang  = $this->app->getBasePath() . 'common' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
         $lang .= $this->app->lang->getLangSet() . '.php';
-
-        // $base_lang  = $this->app->getBasePath() . $this->app->http->getName() . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
-        // $base_lang .= $this->app->lang->getLangSet() . '.php';
         $this->app->lang->load($lang);
 
         // 调试模式,请到.env进行设置
@@ -84,12 +81,9 @@ abstract class BaseController
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\DataFilter::default');
 
-        // 生成客户端令牌
-        if (!$this->session->has('client_token')) {
-            $this->session->set('client_token', Base64::client_id());
-        }
         // 生成客户端cookie令牌
         if (!$this->cookie->has('PHPSESSID')) {
+            $this->session->set('client_token', Base64::client_id());
             $this->cookie->set('PHPSESSID', $this->session->get('client_token'));
         }
 

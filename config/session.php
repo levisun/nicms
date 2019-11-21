@@ -14,7 +14,8 @@
 
 return [
     // session name
-    'name'           => '__' . substr(sha1(__DIR__), 7, 3) . 'i',
+    // USER_AGENT生成
+    'name'           => strtoupper(substr(sha1(__DIR__ . app('request')->server('HTTP_USER_AGENT')), 7, 7)),
     // SESSION_ID的提交变量,解决flash上传跨域
     'var_session_id' => '',
     // 驱动方式 支持file cache
@@ -25,6 +26,6 @@ return [
     'expire'         => 28800,
     // 前缀
     'prefix'         => '',
-
-    'data_compress'  => false,
+    // 数据压缩
+    'data_compress'  => true,
 ];

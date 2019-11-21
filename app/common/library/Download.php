@@ -74,9 +74,5 @@ class Download
                 throw new HttpResponseException($response);
             }
         }
-
-        // $log  = '[API] 下载文件:' . request()->param('file', 'null');
-        // $log .= 'PARAM:' . json_encode(request()->param('', '', 'trim'), JSON_UNESCAPED_UNICODE);
-        // Log::record($log, 'error')->save();
     }
 }
