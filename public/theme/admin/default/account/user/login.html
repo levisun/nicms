@@ -56,7 +56,11 @@
                                     data: data,
                                     success: function (res) {
                                         if (10000 == res.code) {
-                                            location.reload();
+                                            if ('undefined' == typeof(res.return_url)) {
+                                                location.reload();
+                                            } else {
+                                                window.location.href = res.return_url;
+                                            }
                                         } else {
                                             login.verify();
                                         }

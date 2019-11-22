@@ -729,6 +729,11 @@ abstract class Async
                 number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . 'mb,' .
                 count(get_included_files()),
 
+            // 返回地址
+            'return_url' => $this->apiFromToken
+                ? $this->session->pull('return_url')
+                : '',
+
             // 表单令牌
             'token' => $this->apiFromToken
                 ? $this->request->buildToken('__token__', 'md5')

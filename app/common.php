@@ -86,6 +86,23 @@ if (!function_exists('remove_img')) {
     }
 }
 
+if (!function_exists('miss')) {
+    /**
+     * miss
+     * @param  int $_code
+     * @return string
+     */
+    function miss(int $_code): string
+    {
+        $file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.html';
+        if (is_file($file)) {
+            return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.html');
+        } else {
+            return '<style type="text/css">*{padding:0; margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>500</title><section><h2>404</h2><h3>Oops! Page not found./h3></section><script>setTimeout(function(){location.href="/";}, 3000);</script>';
+        }
+    }
+}
+
 if (!function_exists('format_size')) {
     /**
      * 格式化文件大小

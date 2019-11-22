@@ -128,8 +128,11 @@ abstract class BaseController
      */
     public function redirect(string $_route)
     {
+        // 记录当前地址
+        $this->session->set('return_url', $this->request->url());
+
+        // 302
         $response = Response::create(url($_route), 'redirect', 302);
-        $response->with('return_url', urlencode($this->request->url()));
         throw new HttpResponseException($response);
     }
 

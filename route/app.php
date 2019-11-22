@@ -18,6 +18,6 @@ use think\facade\Route;
  */
 Route::domain('cdn', function () {
     Route::miss(function () {
-        return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
+        return miss(404);
     });
 });

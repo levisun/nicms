@@ -50,7 +50,7 @@ class Pay extends Async
             // call_user_func();
         }
 
-        return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
+        return miss(404);
     }
 
     public function respond(string $method)

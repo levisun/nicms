@@ -31,6 +31,6 @@ class Download extends Async
             }
         }
 
-        return file_get_contents($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
+        return miss(404);
     }
 }

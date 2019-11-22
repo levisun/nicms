@@ -33,7 +33,7 @@ Route::group(function () {
     Route::get('502', 'cms/miss')->append(['code' => '502'])->ext('html');
     Route::miss(function () {
         // event('app\event\RecordRequest');
-        return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '404.html');
+        return miss(404);
     });
 })->pattern([
     'name' => '[a-z]+',
