@@ -106,11 +106,23 @@ abstract class BaseController
     { }
 
     /**
-     * miss
+     * 验证码
      * @access public
+     * @return mixed
+     */
+    public function verify()
+    {
+        $config = mt_rand(0, 1) ? 'verify_zh' : 'verify_math';
+        $config = 'verify_math';
+        return Captcha::create($config, true);
+    }
+
+    /**
+     * miss
+     * @access protected
      * @return void
      */
-    public function miss(string $code = '404')
+    protected function miss(string $code = '404')
     {
         $assign = [
             'url' => $this->request->url(true),
@@ -122,11 +134,11 @@ abstract class BaseController
 
     /**
      * 302重指向
-     * @access public
+     * @access protected
      * @param  string $_route 路由
      * @return void
      */
-    public function redirect(string $_route)
+    protected function redirect(string $_route): void
     {
         // 记录当前地址
         $this->session->set('return_url', $this->request->url());
@@ -138,25 +150,13 @@ abstract class BaseController
 
     /**
      * 渲染模板文件
-     * @access public
+     * @access protected
      * @param  string $_template 模板文件
      * @param  array  $_data     模板变量
-     * @return void
+     * @return string
      */
-    public function fetch(string $_template, array $_data = [])
+    protected function fetch(string $_template, array $_data = []): string
     {
         return $this->view->assign($_data)->fetch($_template);
-    }
-
-    /**
-     * 验证码
-     * @access public
-     * @return mixed
-     */
-    public function verify()
-    {
-        $config = mt_rand(0, 1) ? 'verify_zh' : 'verify_math';
-        $config = 'verify_math';
-        return Captcha::create($config, true);
     }
 }

@@ -65,9 +65,9 @@ class Base64
     public static function client_id(): string
     {
         $token  = app('request')->server('HTTP_USER_AGENT');
-        $token .= date('dYm');
+        $token .= date('Ymd');
         $token .= bindec(app('request')->ip2bin(app('request')->ip()));
-        $token .= date('sHi');
+        $token .= date('His');
         $token .= number_format(microtime(true) - app()->getBeginTime(), 3);
         $token .= app('request')->time(true);
         $token .= number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3);

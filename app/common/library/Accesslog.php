@@ -83,7 +83,7 @@ class AccessLog
                     ['user_agent', '=', $this->userAgent],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])
-                // ->cache(__METHOD__ . $ip['ip'] . $this->userAgent)
+                ->cache(__METHOD__ . $ip['ip'] . $this->userAgent)
                 ->value('ip');
             if ($has) {
                 $visit

@@ -31,7 +31,7 @@ class Download
 
     public function __construct()
     {
-        $this->salt = md5(date('Ymd'));
+        $this->salt = md5(date('Ymd') . app('request')->server('HTTP_USER_AGENT'));
     }
 
     /**
@@ -68,7 +68,7 @@ class Download
             $ext = pathinfo($path . $_filename, PATHINFO_EXTENSION);
             if (is_file($path . $_filename) && in_array($ext, $this->extension)) {
                 $response = Response::create($path . $_filename, 'file')
-                    ->name(md5($_filename . date('Ymd')))
+                    ->name(md5($_filename . $this->salt))
                     ->isContent(false)
                     ->expire(28800);
                 throw new HttpResponseException($response);

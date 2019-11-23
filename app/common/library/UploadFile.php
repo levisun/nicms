@@ -170,13 +170,14 @@ class UploadFile
     private function validate()
     {
         $size = (int) Config::get('app.upload_size', 1) * 1048576;
-        $ext = Config::get('app.upload_type', 'doc,docx,gif,gz,jpeg,mp4,pdf,png,ppt,pptx,rar,xls,xlsx,zip');
+        $ext = Config::get('app.upload_type', 'doc,docx,gif,gz,jpeg,mp3,mp4,pdf,png,ppt,pptx,rar,xls,xlsx,zip');
         $mime = [
             'doc'  => 'application/msword',
             'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'gif'  => 'image/gif',
             'gz'   => 'application/x-gzip',
             'jpeg' => 'image/jpeg',
+            'mp3'  => 'audio/mpeg',
             'mp4'  => 'video/mp4',
             'pdf'  => 'application/pdf',
             'png'  => 'image/png',

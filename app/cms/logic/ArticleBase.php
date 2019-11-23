@@ -39,7 +39,7 @@ class ArticleBase extends BaseLogic
             $map = [
                 ['article.category_id', '=', $category_id],
                 ['article.is_pass', '=', '1'],
-                ['article.show_time', '<=', time()],
+                ['article.show_time', '<', time()],
                 ['article.lang', '=', $this->lang->getLangSet()]
             ];
 
@@ -73,7 +73,7 @@ class ArticleBase extends BaseLogic
                     ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                     ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
                     ->where($map)
-                    ->order('article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.id DESC')
+                    ->order('article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.show_time DESC')
                     ->paginate([
                         'list_rows' => $query_limit,
                         'path' => 'javascript:paging([PAGE]);',
@@ -138,7 +138,7 @@ class ArticleBase extends BaseLogic
             $map = [
                 ['article.id', '=', $id],
                 ['article.is_pass', '=', '1'],
-                ['article.show_time', '<=', time()],
+                ['article.show_time', '<', time()],
                 ['article.lang', '=', $this->lang->getLangSet()]
             ];
             $cache_key = md5(__METHOD__ . $id);
@@ -221,7 +221,7 @@ class ArticleBase extends BaseLogic
             $map = [
                 ['id', '=', $id],
                 ['is_pass', '=', '1'],
-                ['show_time', '<=', time()],
+                ['show_time', '<', time()],
                 ['lang', '=', $this->lang->getLangSet()]
             ];
 
@@ -255,7 +255,7 @@ class ArticleBase extends BaseLogic
         $next_id = (new ModelArticle)
             ->where([
                 ['is_pass', '=', 1],
-                ['show_time', '<=', time()],
+                ['show_time', '<', time()],
                 ['id', '>', $_id]
             ])
             ->order('is_top, is_hot, is_com, sort_order DESC, id DESC')
@@ -267,7 +267,7 @@ class ArticleBase extends BaseLogic
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
             ->where([
                 ['article.is_pass', '=', 1],
-                ['article.show_time', '<=', time()],
+                ['article.show_time', '<', time()],
                 ['article.id', '=', $next_id]
             ])
             ->find();
@@ -292,7 +292,7 @@ class ArticleBase extends BaseLogic
         $prev_id = (new ModelArticle)
             ->where([
                 ['is_pass', '=', 1],
-                ['show_time', '<=', time()],
+                ['show_time', '<', time()],
                 ['id', '<', $_id]
             ])
             ->order('is_top, is_hot, is_com, sort_order DESC, id DESC')
@@ -304,7 +304,7 @@ class ArticleBase extends BaseLogic
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
             ->where([
                 ['article.is_pass', '=', 1],
-                ['article.show_time', '<=', time()],
+                ['article.show_time', '<', time()],
                 ['article.id', '=', $prev_id]
             ])
             ->find();
