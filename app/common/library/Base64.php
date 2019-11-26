@@ -47,13 +47,13 @@ class Base64
      * 创建密码
      * @access public
      * @static
-     * @param  string $_str
+     * @param  string $_password
      * @param  string $_salt
      * @return string
      */
-    public static function createPassword(string $_str, string $_salt = ''): string
+    public static function createPassword(string $_password, string $_salt = ''): string
     {
-        return password_hash($_str . $_salt, PASSWORD_BCRYPT, ['cost' => 11]);
+        return password_hash($_password . $_salt, PASSWORD_BCRYPT, ['cost' => 11]);
     }
 
     /**
@@ -90,6 +90,16 @@ class Base64
         $_str = hash_hmac('sha1', $_str, Config::get('app.secretkey'));
         $_length = $_length > 40 ? 40 : $_length;
         return substr($_str, 0, $_length);
+    }
+
+    public static function hexToId(string $_hex): int
+    {
+        return hexdec($_hex);
+    }
+
+    public static function idToHex(int $_id): string
+    {
+        return dechex($_id);
     }
 
     /**

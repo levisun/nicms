@@ -56,12 +56,12 @@ class Install extends Command
     private function testing(Output $output): bool
     {
         $result = true;
-        if (!version_compare(PHP_VERSION, '7.1.0', '>=')) {
-            $output->writeln('<info>系统需要PHP7.1+版本! 当前PHP版本:' . PHP_VERSION . '</info>');
+        if (!version_compare(PHP_VERSION, '7.3.0', '>=')) {
+            $output->writeln('<info>系统需要PHP7.3+版本! 当前PHP版本:' . PHP_VERSION . '</info>');
             $result = false;
         }
 
-        if (!version_compare(app()->version(), '6.0.0RC5', '>=')) {
+        if (!version_compare(app()->version(), '6.0.0', '>=')) {
             $output->writeln('<info>系统需要ThinkPHP 6.0+版本! 当前ThinkPHP版本:' . app()->version() . '</info>');
             $result = false;
         }

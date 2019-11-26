@@ -27,25 +27,30 @@ class UploadFile
     private $element = '';
     private $files = null;
     private $uid = 0;
+    private $uploadLogFile = '';
 
     public function __construct(int $_uid = 0, string $_element = '')
     {
         $this->element = $_element;
         $this->files = $_element ? app('request')->file($_element) : null;
         $this->uid = $_uid;
+
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
+            'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
+        is_dir($path) or mkdir($path, 0755, true);
+
+        $this->uploadLogFile = $path . md5('upload_file_log' . date('Ymd') . $_uid) . '.php';
+
+        clearstatcache();
+
     }
 
     public function remove(int $_uid, string $_sql): void
     {
         trace($_uid . $_sql, 'alert');
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
-            'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
+        $data = is_file($this->uploadLogFile) ? include $this->uploadLogFile : '';
 
-
-        $temp_file_name = $path . md5('upload_file_log' . $_uid) . '.php';
-        $data = is_file($temp_file_name) ? include $temp_file_name : '';
-
-        if ($fp = @fopen($temp_file_name, 'w+')) {
+        if ($fp = @fopen($this->uploadLogFile, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 $data = !empty($data) ? (array) $data : [];
                 foreach ($data as $key => $value) {
@@ -94,7 +99,6 @@ class UploadFile
         is_dir($path) or mkdir($path, 0755, true);
         $lock = $path . 'remove_upload_garbage.lock';
 
-        clearstatcache();
         if (!is_file($lock) || filemtime($lock) <= strtotime('-12 hour')) {
             if ($fp = @fopen($lock, 'w+')) {
                 if (flock($fp, LOCK_EX | LOCK_NB)) {
@@ -256,14 +260,9 @@ class UploadFile
      */
     private function write(int $_uid, string $_file): void
     {
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
-            'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
-        is_dir($path) or mkdir($path, 0755, true);
+        $data = is_file($this->uploadLogFile) ? include $this->uploadLogFile : '';
 
-        $temp_file_name = $path . md5('upload_file_log' . date('Ymd') . $_uid) . '.php';
-        $data = is_file($temp_file_name) ? include $temp_file_name : '';
-
-        if ($fp = @fopen($temp_file_name, 'w+')) {
+        if ($fp = @fopen($this->uploadLogFile, 'w+')) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 $data = !empty($data) ? (array) $data : [];
                 $data[] = $_file;

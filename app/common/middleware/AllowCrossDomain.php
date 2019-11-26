@@ -56,7 +56,7 @@ class AllowCrossDomain
         if (!isset($header['Access-Control-Allow-Origin'])) {
             $origin = $request->header('origin');
 
-            if ($origin && strpos($this->cookieDomain, $origin)) {
+            if ($origin && strpos($request->rootDomain(), $origin)) {
                 $header['Access-Control-Allow-Origin'] = $origin;
             } else {
                 $header['Access-Control-Allow-Origin'] = '*';

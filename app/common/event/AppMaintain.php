@@ -48,7 +48,7 @@ class AppMaintain
                     (new ReGarbage)->remove(app()->getRuntimePath() . 'cache', 1);
 
                     // 清除过期临时文件
-                    (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 2);
+                    (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1);
 
                     fwrite($fp, '应用维护' . date('Y-m-d H:i:s'));
                     flock($fp, LOCK_UN);
