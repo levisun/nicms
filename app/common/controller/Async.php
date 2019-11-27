@@ -526,9 +526,18 @@ abstract class Async
         $str = '';
         $c_f = ['appid', 'sign_type', 'timestamp', 'method'];
         foreach ($params as $key => $value) {
-            if (is_string($value) && !is_null($value) && in_array($key, $c_f)) {
+            if (in_array($key, ['sign', 'sign_type'])) {
+                continue;
+            }
+            if (is_array($value)) {
+                $str .= $key . '[]=' . $value . '&';
+            } else {
                 $str .= $key . '=' . $value . '&';
             }
+
+            // if (is_string($value) && !is_null($value) && in_array($key, $c_f)) {
+            //     $str .= $key . '=' . $value . '&';
+            // }
         }
         $str = rtrim($str, '&');
         $str .= $this->appSecret;
@@ -538,7 +547,7 @@ abstract class Async
         if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
             $this->debugLog['sign_str'] = $str;
             $this->debugLog['sign'] = call_user_func($this->signType, $str);
-            $this->log->record('[Async] params-sign error', 'error');
+            $this->log->record('[Async] params-sign error:' . $str, 'error');
             $this->error('非法参数{20011}', 20011);
         }
     }

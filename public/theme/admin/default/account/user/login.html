@@ -17,7 +17,7 @@
                     <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                 </div>
                 <div class="form-group has-feedback">
-                    <input type="text" id="verify" class="form-control" placeholder="{:lang('verify')}">
+                    <input type="text" id="verify" name="captcha" class="form-control" placeholder="{:lang('verify')}">
                     <img id="img-verify">
                 </div>
                 <div class="row">
@@ -39,40 +39,41 @@
                     jQuery('#img-verify').attr('src', '/verify.png?timestamp=' + jQuery.timestamp());
                 },
                 login: function () {
-                    var data = jQuery.getForm('#login-form');
-                    data['method'] = 'account.user.login';
-
+                    var data = jQuery('#login-form').serializeArray();
+                    data.push({ name: 'method', value: 'account.user.login' });
                     jQuery.pjax({
-                        url: NICMS.api.url + '/verify/check/img.do',
+                        url: NICMS.api.url + '/handle.do',
                         type: 'POST',
-                        data: {
-                            verify: jQuery('#verify').val()
-                        },
-                        success: function (result) {
-                            if (10000 == result.code) {
-                                jQuery.pjax({
-                                    url: NICMS.api.url + '/handle.do',
-                                    type: 'POST',
-                                    data: data,
-                                    success: function (res) {
-                                        if (10000 == res.code) {
-                                            if ('undefined' == typeof(res.return_url)) {
-                                                location.reload();
-                                            } else {
-                                                window.location.href = res.return_url;
-                                            }
-                                        } else {
-                                            login.verify();
-                                        }
-                                        jQuery.uiToast(res.message);
-                                    }
-                                });
+                        data: data,
+                        success: function (res) {
+                            if (10000 == res.code) {
+                                if ('undefined' == typeof (res.return_url)) {
+                                    location.reload();
+                                } else {
+                                    window.location.href = res.return_url;
+                                }
                             } else {
                                 login.verify();
-                                jQuery.uiToast(result.message);
                             }
+                            jQuery.uiToast(res.message);
                         }
                     });
+
+                    // jQuery.pjax({
+                    //     url: NICMS.api.url + '/verify/check/img.do',
+                    //     type: 'POST',
+                    //     data: {
+                    //         verify: jQuery('#verify').val()
+                    //     },
+                    //     success: function (result) {
+                    //         if (10000 == result.code) {
+
+                    //         } else {
+                    //             login.verify();
+                    //             jQuery.uiToast(result.message);
+                    //         }
+                    //     }
+                    // });
                 }
             }
         });

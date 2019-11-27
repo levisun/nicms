@@ -51,10 +51,10 @@
                     push: true,
                     replace: true,
                     requestUrl: NICMS.url + '?page=' + _p,
-                    data: {
-                        method: 'extend.log.query',
-                        page: _p,
-                    },
+                    data: [
+                        { name: 'method', value: 'extend.log.query' },
+                        { name: 'page', value: _p }
+                    ],
                     success: function (result) {
                         if (result.code == 10000) {
                             log.items = result.data;

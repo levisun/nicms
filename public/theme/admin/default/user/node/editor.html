@@ -67,10 +67,10 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
-                    data: {
-                        method: 'user.node.find',
-                        id: NICMS.api.param.id
-                    },
+                    data: [
+                        { name: 'method', value: 'user.node.find' },
+                        { name: 'id', value: NICMS.api.param.id }
+                    ],
                     success: function (result) {
                         if (result.code == 10000) {
                             node.items = result.data;
@@ -79,8 +79,8 @@
                 });
             },
             editor: function () {
-                var data = jQuery.getForm('#node');
-                data['method'] = 'user.node.editor';
+                var data = jQuery('#node').serializeArray();
+                data.push({ name: 'method', value: 'user.node.editor' });
                 data['id'] = NICMS.api.param.id;
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',

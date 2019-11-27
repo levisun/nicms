@@ -18,16 +18,22 @@
     };
 
     jQuery.getForm = function (_element) {
-        var array = jQuery(_element).serializeArray();
-        var form_data = {};
-        for (var index in array) {
-            var name = array[index]['name'];
-            var value = array[index]['value'];
-            if (name) {
-                form_data[name] = value;
-            }
-        }
-        return form_data;
+        return jQuery(_element).serializeArray();
+        // var form_data = {};
+        // jQuery.each(array, function (i, field) {
+        //     // form_data.push({field.name field.value});
+        //     // form_data[field.name] = field.value;
+        // });
+
+
+        // for (var index in array) {
+        //     var name = array[index]['name'];
+        //     var value = array[index]['value'];
+        //     if (name) {
+        //         form_data[name] = value;
+        //     }
+        // }
+        // return form_data;
     };
 
     jQuery.uiToast = function (_tips, _time = 1.5) {
@@ -77,25 +83,21 @@
             requestUrl: window.location.href,   // 重写地址
             type: 'GET',
             contentType: 'application/x-www-form-urlencoded',
-            data: {
-                appid: NICMS.api.appid,
-                // timestamp: jQuery.timestamp()
-            }
+            data: []
         };
 
         _params = jQuery.extend(true, defaults, _params);
 
-        _params.data.sign = jQuery.sign(_params.data);
+        _params.data.push({ name: 'appid', value: NICMS.api.appid });
 
         if ('POST' == _params.type || 'post' == _params.type) {
-            _params.data.__token__ = jQuery('meta[name="csrf-token"]').attr('content');
+            _params.data.push({ name: '__token__', value: jQuery('meta[name="csrf-token"]').attr('content') });
         }
+
+        _params.data.push({ name: 'sign', value: jQuery.sign(_params.data) });
 
         // 设置头部
         _params.beforeSend = function (xhr) {
-            // xhr.setRequestHeader('Accept', 'application/vnd.' + NICMS.api.root + '.v' + NICMS.api.version + '+json');
-            // xhr.setRequestHeader('Authorization', NICMS.api.authorization);
-
             xhr.setRequestHeader('Accept', 'application/vnd.' + jQuery('meta[name="csrf-root"]').attr('content') + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
             xhr.setRequestHeader('Authorization', jQuery('meta[name="csrf-authorization"]').attr('content'));
         }
@@ -138,25 +140,31 @@
      * 签名
      */
     jQuery.sign = function (_params) {
-        // 先用Object内置类的keys方法获取要排序对象的属性名，再利用Array原型上的sort方法对获取的属性名进行排序，newkey是一个数组
-        var newkey = Object.keys(_params).sort();
-
-        // 创建一个新的对象，用于存放排好序的键值对
-        var newObj = {};
-        for (var i = 0; i < newkey.length; i++) {
-            // 遍历newkey数组
-            newObj[newkey[i]] = _params[newkey[i]];
-            // 向新创建的对象中按照排好的顺序依次增加键值对
-        }
-
-        var sign = '';
-        for (var index in newObj) {
-            if (index == 'appid' || index == 'sign_type' || index == 'timestamp' || index == 'method') {
-                sign += index + '=' + newObj[index] + '&';
+        var compare = function (obj1, obj2) {
+            var val1 = obj1.name;
+            var val2 = obj2.name;
+            if (val1 < val2) {
+                return -1;
+            } else if (val1 > val2) {
+                return 1;
+            } else {
+                return 0;
             }
         }
+
+        _params = _params.sort(compare);
+
+
+        var sign = '';
+        jQuery.each(_params, function (i, field) {
+            sign += field.name + '=' + field.value + '&';
+            // if (field.name == 'appid' || field.name == 'sign_type' || field.name == 'timestamp' || field.name == 'method') {
+            //     sign += field.name + '=' + field.value + '&';
+            // }
+        });
         sign = sign.substr(0, sign.length - 1);
         sign += jQuery('meta[name="csrf-appsecret"]').attr('content');
+        console.log(sign);
         sign = md5(sign);
 
         return sign;

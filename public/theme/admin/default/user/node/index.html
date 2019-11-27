@@ -134,9 +134,9 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
-                    data: {
-                        method: 'user.node.query',
-                    },
+                    data: [
+                        { name: 'method', value: 'user.node.query' }
+                    ],
                     success: function (result) {
                         if (result.code == 10000) {
                             node.items = result.data.list;
@@ -151,10 +151,10 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',
-                    data: {
-                        method: 'user.node.remove',
-                        id: id,
-                    },
+                    data: [
+                        { name: 'method', value: 'user.node.remove' },
+                        { name: 'id', value: id }
+                    ],
                     success: function (result) {
                         if (result.code == 10000) {
                             location.reload();

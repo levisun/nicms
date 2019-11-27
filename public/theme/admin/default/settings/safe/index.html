@@ -109,9 +109,9 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
-                    data: {
-                        method: 'settings.safe.query'
-                    },
+                    data: [
+                        { name: 'method', value: 'settings.safe.query' }
+                    ],
                     success: function (result) {
                         if (10000 == result.code) {
                             safe.items = result.data;
@@ -120,8 +120,8 @@
                 });
             },
             save() {
-                var data = jQuery.getForm('#safe-config');
-                    data['method'] = 'settings.safe.editor';
+                var data = jQuery('#safe-config').serializeArray();
+                data.push({ name: 'method', value: 'settings.safe.editor' });
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',

@@ -184,9 +184,9 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
-                    data: {
-                        method: 'account.user.profile'
-                    },
+                    data: [
+                        { name: 'method', value: 'account.user.profile' }
+                    ],
                     success: function (result) {
                         if (result.code == 10000 && result.data) {
                             header.user_profile = result.data;
@@ -198,9 +198,9 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
-                    data: {
-                        method: 'account.user.notice'
-                    },
+                    data: [
+                        { name: 'method', value: 'account.user.notice' }
+                    ],
                     success: function (result) {
                         if (result.code == 10000 && result.data) {
                             header.user_notice = result.data;
@@ -212,9 +212,9 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
-                    data: {
-                        method: 'account.user.logout'
-                    },
+                    data: [
+                        { name: 'method', value: 'account.user.logout' }
+                    ],
                     success: function (result) {
                         if (result.code == 10000) {
                             location.reload();
@@ -226,9 +226,9 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',
-                    data: {
-                        method: 'content.cache.recache'
-                    },
+                    data: [
+                        { name: 'method', value: 'content.cache.recache' }
+                    ],
                     success: function (result) {
                         if (result.code == 10000) {
                         }
@@ -237,9 +237,9 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',
-                    data: {
-                        method: 'content.cache.recompile'
-                    },
+                    data: [
+                        { name: 'method', value: 'content.cache.recompile' }
+                    ],
                     success: function (result) {
                         if (result.code == 10000) {
                         }

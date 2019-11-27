@@ -56,10 +56,10 @@
                     push: true,
                     replace: true,
                     requestUrl: NICMS.url + '?page=' + _p,
-                    data: {
-                        method: 'user.role.query',
-                        page: _p,
-                    },
+                    data: [
+                        { name: 'method', value: 'user.role.query' },
+                        { name: 'page', value: _p }
+                    ],
                     success: function (result) {
                         if (result.code == 10000) {
                             role.items = result.data;

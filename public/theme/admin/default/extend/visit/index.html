@@ -47,10 +47,10 @@
                     push: true,
                     replace: true,
                     requestUrl: NICMS.url + '?page=' + _p,
-                    data: {
-                        method: 'extend.visit.query',
-                        page: _p,
-                    },
+                    data: [
+                        { name: 'method', value: 'extend.visit.query' },
+                        { name: 'page', value: _p }
+                    ],
                     success: function (result) {
                         if (result.code == 10000) {
                             visit.items = result.data;

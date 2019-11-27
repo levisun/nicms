@@ -60,9 +60,9 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
-                    data: {
-                        method: 'extend.elog.query'
-                    },
+                    data: [
+                        { name: 'method', value: 'extend.elog.query' }
+                    ],
                     success: function (result) {
                         if (result.code == 10000) {
                             elog.items = result.data;
@@ -74,10 +74,10 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',
-                    data: {
-                        method: 'extend.elog.find',
-                        id: _id
-                    },
+                    data: [
+                        { name: 'method', value: 'extend.elog.find' },
+                        { name: 'id', value: _id }
+                    ],
                     success: function (result) {
                         if (result.code == 10000) {
                             elog.error_log = result.data;

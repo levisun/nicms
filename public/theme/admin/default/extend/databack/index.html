@@ -43,9 +43,9 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
-                    data: {
-                        method: 'extend.databack.query'
-                    },
+                    data: [
+                        { name: 'method', value: 'extend.databack.query' }
+                    ],
                     success: function (result) {
                         if (result.code === 10000) {
                             databack.items = result.data;
@@ -57,9 +57,9 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',
-                    data: {
-                        method: 'extend.databack.backup'
-                    },
+                    data: [
+                        { name: 'method', value: 'extend.databack.backup' }
+                    ],
                     success: function (result) {
                         if (result.code == 10000) {
                             databack.load();
@@ -71,10 +71,10 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',
-                    data: {
-                        method: 'extend.databack.remove',
-                        id: _id
-                    },
+                    data: [
+                        { name: 'method', value: 'extend.databack.remove' },
+                        { name: 'id', value: _id }
+                    ],
                     success: function () {
                         if (result.code == 10000) {
                             databack.load();

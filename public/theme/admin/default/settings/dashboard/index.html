@@ -93,13 +93,13 @@
             items: []
         },
         methods: {
-            load () {
+            load() {
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
-                    data: {
-                        method: 'settings.dashboard.query'
-                    },
+                    data: [
+                        { name: 'method', value: 'settings.dashboard.query' }
+                    ],
                     success: function (result) {
                         info.items = result.data;
                     }

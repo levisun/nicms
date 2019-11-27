@@ -23,9 +23,9 @@ use think\captcha\facade\Captcha;
 class Verify extends Async
 {
 
-    public function index(string $type)
+    public function sms()
     {
-        if ('sms' === $type && $this->analysis()->isReferer()) {
+        if ($this->analysis()->isReferer()) {
             $phone = $this->request->param('phone', false);
             if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
                 $key = md5('sms_' . $this->request->ip());
@@ -50,19 +50,10 @@ class Verify extends Async
         return miss(404);
     }
 
-    public function check(string $type)
+    public function check()
     {
-        if ('img' === $type && $this->analysis()->isReferer()) {
-            $verify = $this->request->param('verify');
-            if (Captcha::check($verify)) {
-                $this->cache(false)->success('验证码验证成功');
-            } else {
-                $this->cache(false)->error('验证码错误', 40009);
-            }
-        }
-
         // sms
-        elseif ('sms' === $type && $this->analysis()->isReferer()) {
+        if ($this->analysis()->isReferer()) {
             $phone = $this->request->param('phone', false);
             $verify = $this->request->param('verify/d', false);
             if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone) && $verify) {

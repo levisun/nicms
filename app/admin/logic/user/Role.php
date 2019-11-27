@@ -74,9 +74,26 @@ class Role extends BaseLogic
      * @access public
      * @return array
      */
-    public function added(): array
+    public function added()
     {
         $this->actionLog(__METHOD__, 'admin role added');
+
+        $receive_data = [
+            'name'       => $this->request->param('name'),
+            'remark'     => $this->request->param('remark'),
+            'status'     => $this->request->param('status/d'),
+        ];
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+
+        // (new ModelRole)->create($receive_data);
+
+        // return [
+        //     'debug' => false,
+        //     'cache' => false,
+        //     'msg'   => 'node added success',
+        // ];
     }
 
     /**
@@ -84,7 +101,7 @@ class Role extends BaseLogic
      * @access public
      * @return array
      */
-    public function find(): array
+    public function find()
     {
 
     }
@@ -94,7 +111,7 @@ class Role extends BaseLogic
      * @access public
      * @return array
      */
-    public function editor(): array
+    public function editor()
     {
         $this->actionLog(__METHOD__, 'admin role editor');
     }
@@ -104,7 +121,7 @@ class Role extends BaseLogic
      * @access public
      * @return array
      */
-    public function remove(): array
+    public function remove()
     {
         $this->actionLog(__METHOD__, 'admin role remove');
     }

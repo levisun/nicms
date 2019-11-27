@@ -189,7 +189,7 @@ class Template implements TemplateHandlerInterface
             ) . '.' .
             trim($this->config['cache_suffix'], '.');
 
-        if (!$this->checkCache($cache_file)) {
+        if (false === $this->checkCache($cache_file)) {
             // 缓存无效 重新模板编译
             $content = file_get_contents($_template);
             $this->compiler($content, $cache_file);
@@ -287,17 +287,13 @@ class Template implements TemplateHandlerInterface
             // ENV
             elseif ('ENV' === $var_type) {
                 $vars = '未定义';
-            }
-
-            elseif ('' !== $var_type) {
+            } elseif ('' !== $var_type) {
                 $vars = '$' . strtolower($var_type);
                 $arr = explode('.', $var_name);
                 foreach ($arr as $name) {
                     $vars .= '[\'' . $name . '\']';
                 }
-            }
-
-            else {
+            } else {
                 $vars = '$' . $var_name;
             }
 
@@ -565,7 +561,7 @@ class Template implements TemplateHandlerInterface
         $_content = str_replace('\/', '/', $_content);
 
         // 添加安全代码及模板引用记录
-        $_content = '<?php /*' . serialize($this->includeFile) . '*/ ?>' . PHP_EOL . $_content;
+        $_content = '<?php /*' . json_encode($this->includeFile) . '*/ ?>' . PHP_EOL . $_content;
 
         // 编译存储
         $dir = dirname($_cache_file);
@@ -644,10 +640,23 @@ class Template implements TemplateHandlerInterface
             : $request->action(true);
         $_template = $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] . $_template;
 
-        // 拼装移动端模板路径
-        $mobile = 'mobile' . DIRECTORY_SEPARATOR;
-        if ($request->isMobile() && is_file($this->config['view_path'] . $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] . $mobile . $_template)) {
-            $_template = $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] . $mobile . $_template;
+        // 拼装移动端或微信端模板路径
+        if ($request->isMobile()) {
+            $view_path = $this->config['view_path'] . $this->appName . DIRECTORY_SEPARATOR .
+                $this->config['view_theme'];
+
+            // 微信端模板
+            if (is_wechat() && is_file($view_path . 'wechat' . DIRECTORY_SEPARATOR . $_template)) {
+                $_template = $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] .
+                    'wechat' . DIRECTORY_SEPARATOR . $_template;
+            }
+
+            // 移动端模板
+            elseif (is_file($view_path . 'mobile' . DIRECTORY_SEPARATOR . $_template)) {
+                $_template = $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] .
+                    'mobile' . DIRECTORY_SEPARATOR . $_template;
+            }
+            unset($view_path);
         }
 
         // 模板不存在 抛出异常

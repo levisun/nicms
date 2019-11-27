@@ -33,7 +33,8 @@
 
             <div class="form-group">
                 <label>{:lang('website script')}</label>
-                <textarea name="cms_script" class="form-control" cols="30" rows="10" v-bind:value="items.cms_script"></textarea>
+                <textarea name="cms_script" class="form-control" cols="30" rows="10"
+                    v-bind:value="items.cms_script"></textarea>
             </div>
             <div class="form-group">
                 <button type="button" class="btn btn-primary" @click="save">{:lang('save')}</button>
@@ -48,13 +49,13 @@
             items: []
         },
         methods: {
-            load () {
+            load() {
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
-                    data: {
-                        method: 'settings.basic.query'
-                    },
+                    data: [
+                        { name: 'method', value: 'settings.basic.query' }
+                    ],
                     success: function (result) {
                         if (result.code == 10000) {
                             basic.items = result.data;
@@ -62,9 +63,9 @@
                     }
                 });
             },
-            save () {
-                var data = jQuery.getForm('#basic-config');
-                data['method'] = 'settings.basic.editor';
+            save() {
+                var data = jQuery('#basic-config').serializeArray();
+                data.push({ name: 'method', value: 'settings.basic.editor' });
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',
