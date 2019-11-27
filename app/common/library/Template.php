@@ -407,7 +407,7 @@ class Template implements TemplateHandlerInterface
                 'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'strtolower', 'date', 'lang', 'url', 'current', 'end', 'sprintf', 'token_field', 'token', 'get_img_url',
             ];
             if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
-                return '<?php echo ' . $matches[1] . '(' . $matches[2] . ');?>';
+                return '<?php echo htmlspecialchars(' . $matches[1] . '(' . $matches[2] . '));?>';
             } else {
                 return '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
             }

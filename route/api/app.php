@@ -38,8 +38,8 @@ Route::group(function () {
     Route::post('upload$', 'Upload/index')->ext('do');
 
     // 验证码接口
-    Route::post('verify/:type$', 'Verify/index')->ext('do');
-    Route::post('verify/check/:type$', 'Verify/check')->ext('do');
+    Route::post('verify/sms$', 'Verify/sms')->ext('do');
+    // Route::post('verify/check/:type$', 'Verify/check')->ext('do');
 
     // 微信接口
     Route::get('wechat$', 'Wechat/index')->ext('do');

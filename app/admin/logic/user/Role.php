@@ -89,11 +89,11 @@ class Role extends BaseLogic
 
         // (new ModelRole)->create($receive_data);
 
-        // return [
-        //     'debug' => false,
-        //     'cache' => false,
-        //     'msg'   => 'node added success',
-        // ];
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'node added success',
+        ];
     }
 
     /**

@@ -12,10 +12,16 @@
  * @since     2019
  */
 
-return [
+ return [
     // session name
     // USER_AGENT生成
-    'name'           => strtoupper(substr(sha1(__DIR__ . app('request')->server('HTTP_USER_AGENT')), 7, 7)),
+    'name'           => strtoupper(
+        substr(
+            sha1(__DIR__ . app('request')->rootDomain() . app('request')->server('HTTP_USER_AGENT')),
+            7,
+            7
+        )
+    ),
     // SESSION_ID的提交变量,解决flash上传跨域
     'var_session_id' => '',
     // 驱动方式 支持file cache

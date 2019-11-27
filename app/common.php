@@ -13,6 +13,7 @@
  */
 
 use think\facade\Config;
+use think\facade\Cookie;
 use think\facade\Route;
 use think\facade\Session;
 use app\common\library\Base64;
@@ -89,6 +90,29 @@ if (!function_exists('format_size')) {
         }
 
         return $_file_size;
+    }
+}
+
+if (!function_exists('cookie')) {
+    /**
+     * Cookie管理
+     * @param string $name   cookie名称
+     * @param mixed  $value  cookie值
+     * @param mixed  $option 参数
+     * @return mixed
+     */
+    function cookie(string $name, $value = '', $option = null)
+    {
+        if (is_null($value)) {
+            // 删除
+            Cookie::delete($name);
+        } elseif ('' === $value) {
+            // 获取
+            return 0 === strpos($name, '?') ? Cookie::has(substr($name, 1)) : Base64::decrypt(Cookie::get($name));
+        } else {
+            // 设置
+            return Cookie::set($name, Base64::encrypt($value), $option);
+        }
     }
 }
 

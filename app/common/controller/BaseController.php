@@ -82,9 +82,10 @@ abstract class BaseController
         $this->request->filter('\app\common\library\DataFilter::default');
 
         // 生成客户端cookie令牌
-        if (!$this->cookie->has('PHPSESSID')) {
+        if (!$this->session->has('client_token')) {
             $this->session->set('client_token', Base64::client_id());
             $this->cookie->set('PHPSESSID', $this->session->get('client_token'));
+            $this->cookie->set('client_ip', $this->request->ip());
         }
 
         @ini_set('memory_limit', '8M');
