@@ -22,13 +22,13 @@
                 <label>{:lang('node')}</label>
                 <template v-for="vo in node">
                     <div>
-                        <input type="checkbox" name="role[]" v-bind:value="vo.id" v-bind:id="'node-'+vo.name"
+                        <input type="checkbox" name="node[]" v-bind:value="vo.id" v-bind:id="'node-'+vo.name"
                             v-on:click="select(vo.name)">
                         <label v-bind:for="'node-'+vo.name" v-text="vo.title" v-on:click="select(vo.name)"></label>
 
                         <template v-for="v in vo.child">
                             <span>
-                                <input type="checkbox" name="role[]" v-bind:value="v.id" v-bind:id="v.name"
+                                <input type="checkbox" name="node[]" v-bind:value="v.id" v-bind:id="v.name"
                                     v-bind:class="'node-'+vo.name">
                                 <label v-bind:for="v.name" v-text="v.title"></label>
                             </span>
@@ -74,7 +74,7 @@
             },
             added: function () {
                 var data = jQuery('#role').serializeArray();
-                data.push({ name: 'method', value: 'user.role.added'});
+                data.push({ name: 'method', value: 'user.role.added' });
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',

@@ -158,12 +158,12 @@ abstract class BaseLogic
 
         // 创建新操作方法
         if (is_null($has)) {
-            $res = (new ModelAction)
-                ->save([
-                    'name'  => $_method,
-                    'title' => $_write_log,
-                ]);
-            $has['id'] = $res->id;
+            $modelAction = new ModelAction;
+            $modelAction->save([
+                'name'  => $_method,
+                'title' => $_write_log,
+            ]);
+            $has['id'] = $modelAction->id;
         }
 
         // 写入操作日志

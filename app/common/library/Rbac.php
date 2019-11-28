@@ -47,7 +47,6 @@ class Rbac
 
         $_uid = (int) $_uid;
 
-
         // 登录并请求方法需要审核
         if ($_uid && $this->checkAccess($_app, $_logic, $_action, $_method)) {
             // 实时检验权限

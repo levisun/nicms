@@ -88,17 +88,19 @@ class Role extends BaseLogic
             return $result;
         }
 
-        print_r($receive_data);
-        die();
-
         (new ModelRole)->transaction(function () use ($receive_data) {
             $role = new ModelRole;
             $role->save($receive_data);
             $list = [];
-
+            $node = $this->request->param('node/a');
+            foreach ($node as $value) {
+                $list[] = [
+                    'role_id' => $role->id,
+                    'node_id' => $value,
+                ];
+            }
             (new ModelRoleAccess)->saveAll($list);
         });
-        // (new ModelRole)->save($receive_data);
 
         return [
             'debug' => false,

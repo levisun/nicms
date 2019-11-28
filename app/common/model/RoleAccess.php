@@ -18,11 +18,9 @@ CREATE TABLE IF NOT EXISTS `nc_role_access` (
     `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
     `role_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '组ID',
     `node_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '节点ID',
-    `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态',
     PRIMARY KEY (`id`),
     KEY `role_id` (`role_id`) USING BTREE,
-    KEY `node_id` (`node_id`) USING BTREE,
-    KEY `status` (`status`) USING BTREE
+    KEY `node_id` (`node_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
 */
 namespace app\common\model;
@@ -38,12 +36,10 @@ class RoleAccess extends Model
     protected $type = [
         'role_id' => 'integer',
         'node_id' => 'integer',
-        'status'  => 'integer',
     ];
     protected $field = [
         'id',
         'role_id',
         'node_id',
-        'status',
     ];
 }
