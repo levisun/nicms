@@ -19,9 +19,7 @@ Route::group(function () {
     Route::get(':logic/:action/:method/:id$', 'Index/index')->ext('html');
     Route::get('/verify', 'Index/verify')->ext('png');
 
-    Route::miss(function () {
-        return miss(404);
-    });
+    Route::miss('Index/miss');
 })->pattern([
     'logic'  => '[a-z]+',
     'action' => '[a-z]+',

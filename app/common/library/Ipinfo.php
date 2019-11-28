@@ -189,7 +189,7 @@ class Ipinfo
 
         if (!$has) {
             (new ModelIpinfo)
-                ->create([
+                ->save([
                     'ip'          => $binip,
                     'country_id'  => $country,
                     'province_id' => $province,

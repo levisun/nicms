@@ -134,7 +134,7 @@ class Node extends BaseLogic
             return $result;
         }
 
-        (new ModelNode)->create($receive_data);
+        (new ModelNode)->save($receive_data);
 
         return [
             'debug' => false,

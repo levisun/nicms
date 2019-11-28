@@ -13,6 +13,16 @@
 
 use think\facade\Route;
 
+/**
+ * CDN
+ */
+Route::domain('cdn', function () {
+    Route::miss(function () {
+        return app('request')->url();
+        return miss(404);
+    });
+});
+
 Route::group(function () {
     // 首页
     Route::get('/', 'Index/index')->ext('html');
@@ -27,14 +37,11 @@ Route::group(function () {
     // 搜索页
     Route::get('search', 'Search/index')->ext('html');
 
-
-    Route::get('404', 'cms/miss')->append(['code' => '404'])->ext('html');
-    Route::get('500', 'cms/miss')->append(['code' => '500'])->ext('html');
-    Route::get('502', 'cms/miss')->append(['code' => '502'])->ext('html');
-    Route::miss(function () {
-        // event('app\event\RecordRequest');
-        return miss(404);
-    });
+    Route::miss('Index/miss');
+    // Route::miss(function () {
+    //     // event('app\event\RecordRequest');
+    //     return miss(404);
+    // });
 })->pattern([
     'name' => '[a-z]+',
     'cid'  => '\d+',

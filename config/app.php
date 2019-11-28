@@ -51,6 +51,7 @@ return [
         'admin' => 'admin',
         'api'   => 'api',
         'www'   => 'cms',
+        'cdn'   => 'cms',
     ],
     // 禁止URL访问的应用列表（自动多应用模式有效）
     'deny_app_list'    => ['common'],

@@ -331,8 +331,9 @@
     <?php } else { ?>
     <div class="exception">
         <div class="info" style="text-align:center;margin-top:50px;">
-            <h2 style="font-weight:normal;display:inline-block;">404</h2>
-            <h3 style="font-weight:normal;display:inline-block;">Oops! Page not found.</h3>
+            <h2 style="font-weight:normal;display:inline-block;">500</h2>
+            <h3 style="font-weight:normal;display:inline-block;">Oops! Something went wrong.</h3>
+            <script type="text/javascript">setTimeout(function(){location.href="/";}, 300000);</script>
         </div>
     </div>
     <?php } ?>

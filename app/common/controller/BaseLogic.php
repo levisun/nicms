@@ -159,7 +159,7 @@ abstract class BaseLogic
         // 创建新操作方法
         if (is_null($has)) {
             $res = (new ModelAction)
-                ->create([
+                ->save([
                     'name'  => $_method,
                     'title' => $_write_log,
                 ]);
@@ -168,7 +168,7 @@ abstract class BaseLogic
 
         // 写入操作日志
         (new ModelActionLog)
-            ->create([
+            ->save([
                 'action_id' => $has['id'],
                 'user_id'   => $this->uid,
                 'action_ip' => $this->request->ip(),

@@ -530,7 +530,9 @@ abstract class Async
                 continue;
             }
             if (is_array($value)) {
-                $str .= $key . '[]=' . $value . '&';
+                foreach ($value as $val) {
+                    $str .= $key . '[]=' . $val . '&';
+                }
             } else {
                 $str .= $key . '=' . $value . '&';
             }

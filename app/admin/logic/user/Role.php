@@ -19,6 +19,7 @@ namespace app\admin\logic\user;
 
 use app\common\controller\BaseLogic;
 use app\common\model\Role as ModelRole;
+use app\common\model\RoleAccess as ModelRoleAccess;
 
 class Role extends BaseLogic
 {
@@ -87,7 +88,17 @@ class Role extends BaseLogic
             return $result;
         }
 
-        // (new ModelRole)->create($receive_data);
+        print_r($receive_data);
+        die();
+
+        (new ModelRole)->transaction(function () use ($receive_data) {
+            $role = new ModelRole;
+            $role->save($receive_data);
+            $list = [];
+
+            (new ModelRoleAccess)->saveAll($list);
+        });
+        // (new ModelRole)->save($receive_data);
 
         return [
             'debug' => false,
@@ -102,9 +113,7 @@ class Role extends BaseLogic
      * @return array
      */
     public function find()
-    {
-
-    }
+    { }
 
     /**
      * 编辑

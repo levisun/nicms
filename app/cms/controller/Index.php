@@ -53,8 +53,6 @@ class Index extends BaseController
      */
     public function index()
     {
-        cookie('testring', date('Y-m-d H:i:s'));
-        return cookie('testring');
         return $this->fetch('index');
     }
 }

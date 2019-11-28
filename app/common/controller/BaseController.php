@@ -84,6 +84,8 @@ abstract class BaseController
         // 生成客户端cookie令牌
         if (!$this->session->has('client_token')) {
             $this->session->set('client_token', Base64::client_id());
+        }
+        if (!$this->cookie->has('PHPSESSID')) {
             $this->cookie->set('PHPSESSID', $this->session->get('client_token'));
             $this->cookie->set('client_ip', $this->request->ip());
         }
@@ -120,10 +122,10 @@ abstract class BaseController
 
     /**
      * miss
-     * @access protected
+     * @access public
      * @return void
      */
-    protected function miss(string $code = '404')
+    public function miss(string $code = '404')
     {
         $assign = [
             'url' => $this->request->url(true),

@@ -86,7 +86,7 @@ class Type extends BaseLogic
             return $result;
         }
 
-        (new ModelType)->create($receive_data);
+        (new ModelType)->save($receive_data);
 
         return [
             'debug' => false,

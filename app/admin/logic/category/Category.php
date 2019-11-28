@@ -155,7 +155,7 @@ class Category extends BaseLogic
             return $result;
         }
 
-        (new ModelCategory)->create($receive_data);
+        (new ModelCategory)->save($receive_data);
 
         $this->cache->tag('CMS NAV')->clear();
 

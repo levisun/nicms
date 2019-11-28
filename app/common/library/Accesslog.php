@@ -68,7 +68,7 @@ class AccessLog
                     ->update();
             } else {
                 $searchengine
-                    ->create([
+                    ->save([
                         'name'       => $spider,
                         'user_agent' => $this->userAgent,
                         'date'       => strtotime(date('Y-m-d'))
@@ -96,7 +96,7 @@ class AccessLog
                     ->update();
             } else {
                 $visit
-                    ->create([
+                    ->save([
                         'ip'         => $ip['ip'],
                         'ip_attr'    => $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'],
                         'user_agent' => $this->userAgent,
