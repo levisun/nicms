@@ -1,0 +1,140 @@
+<div class="box">
+    <div class="box-header clearfix">
+        <div class="no-margin pull-left">
+            <button class="btn btn-primary">{:lang('sort')}</button>
+        </div>
+        <div class="no-margin pull-right">
+            <button v-on:click="added" class="btn btn-primary">{:lang('added')}</button>
+        </div>
+    </div>
+    <div class="box-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th width="5%">{:lang('sort')}</th>
+                    <th>{:lang('name')}</th>
+                    <th>{:lang('model')}</th>
+                    <th>{:lang('type')}</th>
+                    <th>{:lang('attribute')}</th>
+                    <th>{:lang('operation')}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template v-for="vo in items">
+                    <tr>
+                        <td>
+                            <input type="text" class="form-control" v-bind:name="'sort_order['+vo.id+']'"
+                                v-bind:value="vo.sort_order">
+                        </td>
+                        <td v-text="vo.name"></td>
+                        <td v-text="vo.model_name"></td>
+                        <td v-text="vo.type_name"></td>
+                        <td>
+                            <span class="label label-primary">
+                                <font v-if="vo.is_show == 1">{:lang('show')}</font>
+                                <font v-if="vo.is_show == 0">{:lang('hide')}</font>
+                            </span>
+                        </td>
+                        <td>
+                            <a v-if="vo.child" v-on:click="child(vo.id)">
+                                <i class="fa fa-plus"></i>
+                                {:lang('child')}
+                            </a>
+                            <a class="added" v-bind:href="vo.url.added">
+                                <i class="fa fa-plus"></i>
+                                {:lang('added')}
+                            </a>
+                            <a class="editor" v-bind:href="vo.url.editor">
+                                <i class="fa fa-pencil-square-o"></i>
+                                {:lang('editor')}
+                            </a>
+                            <a v-on:click="remove(vo.id)" v-bind:data="vo.id">
+                                <i class="fa fa-trash"></i>
+                                {:lang('remove')}
+                            </a>
+                        </td>
+                    </tr>
+                    <tr v-if="vo.child" v-bind:class="'child-'+vo.id" v-for="cv in vo.child" style="display: none;">
+                        <td>
+                            <input type="text" class="form-control" v-bind:name="'sort_order['+cv.id+']'"
+                                v-bind:value="cv.sort_order">
+                        </td>
+                        <td v-text="cv.name"></td>
+                        <td v-text="cv.model_name"></td>
+                        <td v-text="cv.type_name"></td>
+                        <td>
+                            <span class="label label-primary">
+                                <font v-if="cv.is_show == 1">{:lang('show')}</font>
+                                <font v-if="cv.is_show == 0">{:lang('hide')}</font>
+                            </span>
+                        </td>
+                        <td>
+                            <a class="child" v-if="cv.child" v-bind:data="cv.id">
+                                {:lang('child')}
+                            </a>
+                            <a class="added" v-bind:href="cv.url.added">
+                                {:lang('added')}
+                            </a>
+                            <a class="editor" v-bind:href="cv.url.editor">
+                                {:lang('editor')}
+                            </a>
+                            <a class="remove" v-bind:data="cv.id">
+                                <i class="fa fa-trash"></i>
+                                {:lang('remove')}
+                            </a>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+    <div class="box-footer">
+        <button class="btn btn-primary">{:lang('sort')}</button>
+    </div>
+</div>
+<script type="text/javascript">
+    let category = new Vue({
+        el: '.box',
+        data: {
+            items: []
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'category.category.query' }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            category.items = result.data.list;
+                        }
+                    }
+                });
+            },
+            added: function () {
+                window.location.href = NICMS.domain + '/category/category/added.html';
+            },
+            child: function (id) {
+                jQuery('.child-' + id).toggle();
+            },
+            remove: function (id) {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: [
+                        { name: 'method', value: 'category.category.remove' },
+                        { name: 'id', value: id }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            category.load();
+                        }
+                    }
+                });
+            }
+        }
+    });
+    category.load();
+</script>

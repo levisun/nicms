@@ -75,7 +75,7 @@ class Role extends BaseLogic
      * @access public
      * @return array
      */
-    public function added()
+    public function added(): array
     {
         $this->actionLog(__METHOD__, 'admin role added');
 
@@ -105,7 +105,7 @@ class Role extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'node added success',
+            'msg'   => 'role added success',
         ];
     }
 

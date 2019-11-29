@@ -18,7 +18,7 @@
     };
 
     jQuery.getForm = function (_element) {
-        return jQuery(_element).serializeArray();
+        // return jQuery(_element).serializeArray();
         // var form_data = {};
         // jQuery.each(array, function (i, field) {
         //     // form_data.push({field.name field.value});
@@ -50,26 +50,77 @@
      * 上传
      */
     jQuery.upload = function (_params) {
-        var data = _params.data;
-        var timestamp = jQuery.timestamp();
-        _params.data = new FormData(document.getElementById(_params.file));
-        _params.data.append('appid', NICMS.api.appid);
-        _params.data.append('timestamp', timestamp);
-        _params.data.append('__token__', jQuery('meta[name="csrf-token"]').attr('content'));
-        for (var index in data) {
-            _params.data.append(index, data[index]);
+        var defaults = {
+            push: false,                        // 添加历史记录
+            replace: false,                     // 替换历史记录
+            scrollTo: false,                    // 是否回到顶部 可定义顶部像素
+            requestUrl: window.location.href,   // 重写地址
+            type: 'GET',
+            async: false,
+            cache: false,
+            processData: false,
+            // contentType: 'application/x-www-form-urlencoded',
+            contentType: false,
+            data: []
+        };
+
+        _params = jQuery.extend(true, defaults, _params);
+
+        _params.data.appid = NICMS.api.appid;
+
+        if ('POST' == _params.type || 'post' == _params.type) {
+            _params.data.__token__ = jQuery('meta[name="csrf-token"]').attr('content');
         }
-        _params.data.append('sign', jQuery.sign({
-            appid: NICMS.api.appid,
-            timestamp: timestamp,
-            method: data.method,
-        }));
-        _params.type = 'post';
-        _params.async = false;
-        _params.cache = false;
-        _params.processData = false;
-        _params.contentType = false;
-        jQuery.pjax(_params);
+        _params.data.timestamp = jQuery.timestamp();
+        var newkey = Object.keys(_params.data).sort();
+        console.log(newkey.length);
+
+        var newObj = {};
+        for (var i = 0; i < newkey.length; i++) {
+            // 遍历newkey数组
+            newObj[newkey[i]] = _params[newkey[i]];
+        }
+        var sign = '';
+        for (var index in newObj) {
+            if (index == 'appid' || index == 'sign_type' || index == 'timestamp' || index == 'method') {
+                sign += index + '=' + newObj[index] + '&';
+            }
+        }
+        sign = sign.substr(0, sign.length - 1);
+        sign += jQuery('meta[name="csrf-appsecret"]').attr('content');
+        console.log(sign);
+        _params.data.append('sign', md5(sign));
+
+        // 设置头部
+        _params.beforeSend = function (xhr) {
+            xhr.setRequestHeader('Accept', 'application/vnd.' + jQuery('meta[name="csrf-root"]').attr('content') + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
+            xhr.setRequestHeader('Authorization', jQuery('meta[name="csrf-authorization"]').attr('content'));
+        }
+
+        _params.complete = function (xhr) {
+            if ('undefined' !== typeof (xhr.responseText)) {
+                var result = JSON.parse(xhr.responseText);
+                if ('undefined' !== typeof (result.token)) {
+                    jQuery('meta[name="csrf-token"]').attr('content', result.token);
+                }
+            }
+        }
+
+        var xhr = jQuery.ajax(_params);
+
+        if (xhr.readyState > 0) {
+            // 添加历史记录
+            if (_params.push === true) {
+                window.history.pushState(null, document.title, _params.requestUrl);
+            }
+
+            // 替换历史记录
+            else if (_params.replace === true) {
+                window.history.replaceState(null, document.title, _params.requestUrl);
+            }
+        }
+
+        return xhr;
     };
 
     /**
@@ -94,7 +145,27 @@
             _params.data.push({ name: '__token__', value: jQuery('meta[name="csrf-token"]').attr('content') });
         }
 
-        _params.data.push({ name: 'sign', value: jQuery.sign(_params.data) });
+        // 生成签名
+        var compare = function (obj1, obj2) {
+            var val1 = obj1.name;
+            var val2 = obj2.name;
+            if (val1 < val2) {
+                return -1;
+            } else if (val1 > val2) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        _params.data = _params.data.sort(compare);
+        var sign = '';
+        jQuery.each(_params.data, function (i, field) {
+            sign += field.name + '=' + field.value + '&';
+        });
+        sign = sign.substr(0, sign.length - 1);
+        sign += jQuery('meta[name="csrf-appsecret"]').attr('content');
+
+        _params.data.push({ name: 'sign', value: md5(sign) });
 
         // 设置头部
         _params.beforeSend = function (xhr) {
@@ -134,39 +205,5 @@
     jQuery.timestamp = function () {
         var timestamp = Date.parse(new Date());
         return timestamp / 1000;
-    };
-
-    /**
-     * 签名
-     */
-    jQuery.sign = function (_params) {
-        var compare = function (obj1, obj2) {
-            var val1 = obj1.name;
-            var val2 = obj2.name;
-            if (val1 < val2) {
-                return -1;
-            } else if (val1 > val2) {
-                return 1;
-            } else {
-                return 0;
-            }
-        }
-
-        _params = _params.sort(compare);
-
-
-        var sign = '';
-        jQuery.each(_params, function (i, field) {
-            sign += field.name + '=' + field.value + '&';
-            // if (field.name == 'appid' || field.name == 'sign_type' || field.name == 'timestamp' || field.name == 'method') {
-            //     sign += field.name + '=' + field.value + '&';
-            // }
-        });
-        sign = sign.substr(0, sign.length - 1);
-        sign += jQuery('meta[name="csrf-appsecret"]').attr('content');
-        console.log(sign);
-        sign = md5(sign);
-
-        return sign;
     };
 }));

@@ -232,7 +232,6 @@ abstract class BaseLogic
      * 上传文件
      * @access protected
      * @param  string $_element 表单名 默认upload
-     * @param  string $_dir     子目录
      * @return array
      */
     protected function uploadFile(string $_element = 'upload'): array
@@ -249,8 +248,11 @@ abstract class BaseLogic
         @ini_set('memory_limit', '256M');
         set_time_limit(600);
 
-        $upload = new UploadFile($this->uid, $_element);
-        $result = $upload->result();
+        $width = $this->request->param('width/d', 0);
+        $height = $this->request->param('height/d', 0);
+
+        $upload = new UploadFile($this->uid, $_element, $width, $height);
+        $result = $upload->getFileInfo();
 
         return [
             'debug' => false,

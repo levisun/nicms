@@ -24,16 +24,48 @@ use think\Validate;
 
 class UploadFile
 {
-    private $element = '';
-    private $files = null;
+    /**
+     * 用户ID
+     * @var int
+     */
     private $uid = 0;
+
+    /**
+     * 表单name
+     * @var string
+     */
+    private $element = '';
+
+    /**
+     * 上传文件实例
+     * @var object
+     */
+    private $files = null;
+
+    /**
+     * 图片规定尺寸
+     * @var array
+     */
+    private $thumbSize = [
+        'width' => 0,
+        'height' => 0,
+    ];
+
+    /**
+     * 上传文件日志
+     * @var string
+     */
     private $uploadLogFile = '';
 
-    public function __construct(int $_uid = 0, string $_element = '')
+    public function __construct(int $_uid = 0, string $_element = '', int $_width = 0, int $_height = 0)
     {
+        $this->uid = $_uid;
         $this->element = $_element;
         $this->files = $_element ? app('request')->file($_element) : null;
-        $this->uid = $_uid;
+        $this->thumbSize = [
+            'width' => $_width,
+            'height' => $_height,
+        ];
 
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
             'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
@@ -42,7 +74,6 @@ class UploadFile
         $this->uploadLogFile = $path . md5('upload_file_log' . date('Ymd') . $_uid) . '.php';
 
         clearstatcache();
-
     }
 
     public function remove(int $_uid, string $_sql): void
@@ -145,7 +176,7 @@ class UploadFile
         }
     }
 
-    public function result()
+    public function getFileInfo()
     {
         // 校验上传文件
         if (!$result = $this->validate()) {
@@ -223,30 +254,44 @@ class UploadFile
 
         if (false !== strpos($_files->getMime(), 'image/')) {
             $image = Image::open(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
-            // 图片最大尺寸
-            if ($image->width() >= 800) {
+
+            // 缩放图片到指定尺寸
+            if ($this->thumbSize['width'] && $this->thumbSize['height']) {
+                $image->thumb($this->thumbSize['width'], $this->thumbSize['height'], Image::THUMB_SCALING);
+            }
+            // 规定图片最大尺寸
+            elseif ($image->width() > 800) {
                 $image->thumb(800, 800, Image::THUMB_SCALING);
             }
-            // 转换图片格式
+
+            // 转换webp格式
             $webp_file = str_replace('.' . $_files->extension(), '.webp', $save_file);
             $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $webp_file, 'webp');
+
+            // 转换png格式
+            $png_file = str_replace('.' . $_files->extension(), '.png', $save_file);
+            $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $png_file, 'png');
+
             unset($image);
-            if ('webp' !== $_files->extension()) {
+
+            // 删除非png格式图片
+            if ('png' !== $_files->extension()) {
                 unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
             }
-            $save_file = $webp_file;
-            unset($webp_file);
+            $save_file = $png_file;
         }
 
+        // 记录上传文件日志
         $this->write($this->uid, $save_file);
 
         return [
-            'extension'    => $_files->extension(),
+            // 'extension'    => $_files->extension(),
+            'extension'    => pathinfo($save_file, PATHINFO_EXTENSION),
             'name'         => pathinfo($save_file, PATHINFO_BASENAME),
             'old_name'     => $_files->getOriginalName(),
             'original_url' => $save_file,
-            'size'         => $_files->getSize(),
-            'type'         => $_files->getMime(),
+            // 'size'         => $_files->getSize(),
+            // 'type'         => $_files->getMime(),
             'url'          => Config::get('app.cdn_host') . $save_file,
         ];
     }

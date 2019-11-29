@@ -1,0 +1,164 @@
+<div class="box">
+    <div class="box-body">
+        <form id="category">
+            <div class="form-group">
+                <label>{:lang('parent')}</label>
+                <input type="text" class="form-control" disabled="true" v-bind:value="items.parent">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('name')}</label>
+                <input type="text" name="name" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('aliases')}</label>
+                <input type="text" name="aliases" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('title')}</label>
+                <input type="text" name="title" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('keywords')}</label>
+                <input type="text" name="keywords" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('description')}</label>
+                <input type="text" name="description" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('image')}</label>
+                <input type="text" name="image" class="image form-control">
+                <input type="file" name="upload" id="upload" v-on:change="upload" class="form-control">
+                <img class="image-box" style="display: none;">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('type')}</label>
+                <select class="form-control" name="type_id">
+                    <template v-for="vo in items.type_name">
+                        <option v-bind:value="vo.id" v-text="vo.name"></option>
+                    </template>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('model')}</label>
+                <select class="form-control" name="model_id">
+                    <option>{:lang('select')}</option>
+                    <template v-for="vo in items.model_name">
+                        <option v-bind:value="vo.id" v-text="vo.name"></option>
+                    </template>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('show')}</label>
+                <label>
+                    <input type="radio" name="is_show" value="1" checked="checked"> {:lang('yes')}
+                </label>
+                <label>
+                    <input type="radio" name="is_show" value="0"> {:lang('no')}
+                </label>
+                <br>
+                <label>{:lang('channel')}</label>
+                <label>
+                    <input type="radio" name="is_channel" value="1"> {:lang('yes')}
+                </label>
+                <label>
+                    <input type="radio" name="is_channel" value="0" checked="checked"> {:lang('no')}
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('sort')}</label>
+                <input type="text" name="sort_order" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('access')}</label>
+                <select class="form-control" name="access_id">
+                    <option value="0">{:lang('select')}</option>
+                    <template v-for="vo in items.access_name">
+                        <option v-bind:value="vo.id" v-text="vo.name"></option>
+                    </template>
+                </select>
+            </div>
+
+            <p><b>{:lang('url')}</b></p>
+            <div class="input-group">
+                <span class="input-group-addon">http://</span>
+                <input type="text" name="url" class="form-control">
+            </div>
+        </form>
+    </div>
+    <div class="box-footer">
+        <button class="btn btn-primary" @click="save">{:lang('save')}</button>
+    </div>
+</div>
+<script>
+    var category = new Vue({
+        el: '.box',
+        data: {
+            items: [],
+        },
+        methods: {
+            find: function() {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'category.category.find' },
+                        { name: 'pid', value: NICMS.api.param.id }
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            category.items = result.data;
+                        }
+                    }
+                });
+            },
+            save: function() {
+                var data = jQuery('#category').serializeArray();
+                data.push({ name: 'method', value: 'category.category.added' });
+                data.push({ name: 'pid', value: NICMS.api.param.id });
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: data,
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            jQuery.uiToast(result.message);
+                            history.back();
+                        }
+                    }
+                });
+            },
+            upload: function() {
+                var data = new FormData(document.getElementById('category'));
+                data.method = 'category.category.upload';
+                data.width = 100;
+                data.height = 100;
+
+                jQuery.upload({
+                    url: NICMS.api.url + '/upload.do',
+                    file: 'category',
+                    data: data,
+                    success: function (result) {
+                        jQuery.uiToast(result.message);
+                        if (10000 == result.code) {
+                            jQuery('.image').val(result.data.original_url);
+                            jQuery('.image-box').show().attr('src', result.data.url);
+                        }
+                    }
+                });
+            }
+        }
+    });
+    category.find();
+</script>
