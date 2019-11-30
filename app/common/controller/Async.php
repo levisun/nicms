@@ -535,7 +535,7 @@ abstract class Async
                     $str .= is_string($k) ? $k : '';
                     $str .= ']=' . $val . '&';
                 }
-            } else {
+            } elseif (is_string($value) && $value) {
                 $str .= $key . '=' . $value . '&';
             }
 
@@ -568,8 +568,6 @@ abstract class Async
             $this->log->record('[Async] auth-appid not', 'error');
             $this->error('非法参数{20007}', 20007);
         }
-
-
 
         $this->appId -= 1000000;
         $result = (new ModelApiApp)

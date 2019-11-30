@@ -55,7 +55,7 @@
             replace: false,                     // 替换历史记录
             scrollTo: false,                    // 是否回到顶部 可定义顶部像素
             requestUrl: window.location.href,   // 重写地址
-            type: 'GET',
+            type: 'POST',
             async: false,
             cache: false,
             processData: false,
@@ -66,25 +66,22 @@
 
         _params = jQuery.extend(true, defaults, _params);
 
-        _params.data.appid = NICMS.api.appid;
+        _params.data.append('timestamp', jQuery.timestamp());
+        _params.data.append('appid', NICMS.api.appid);
 
         if ('POST' == _params.type || 'post' == _params.type) {
-            _params.data.__token__ = jQuery('meta[name="csrf-token"]').attr('content');
+            _params.data.append('__token__', jQuery('meta[name="csrf-token"]').attr('content'));
         }
-        _params.data.timestamp = jQuery.timestamp();
-        var newkey = Object.keys(_params.data).sort();
-        console.log(newkey.length);
 
-        var newObj = {};
-        for (var i = 0; i < newkey.length; i++) {
-            // 遍历newkey数组
-            newObj[newkey[i]] = _params[newkey[i]];
+        let newkey = [];
+        for (let index in _params.data) {
+            console.log(index);
         }
+        var newkey = Object.keys(_params.data).sort();
         var sign = '';
-        for (var index in newObj) {
-            if (index == 'appid' || index == 'sign_type' || index == 'timestamp' || index == 'method') {
-                sign += index + '=' + newObj[index] + '&';
-            }
+        for (var i = 0; i < newkey.length; i++) {
+            console.log(newkey[i]);
+            sign += newkey[i] + '=' + _params.data[newkey[i]] + '&';
         }
         sign = sign.substr(0, sign.length - 1);
         sign += jQuery('meta[name="csrf-appsecret"]').attr('content');
