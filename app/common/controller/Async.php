@@ -521,6 +521,7 @@ abstract class Async
 
 
         $params = $this->request->param('', '', 'trim');
+        $params = array_merge($params, $_FILES);
         ksort($params);
 
         $str = '';
@@ -530,23 +531,13 @@ abstract class Async
                 continue;
             }
             if (is_array($value)) {
-                foreach ($value as $k => $val) {
-                    $str .= $key . '[';
-                    $str .= is_string($k) ? $k : '';
-                    $str .= ']=' . $val . '&';
-                }
-            } elseif (is_string($value) && $value) {
+                $str .= $key . '=Array&';
+            } elseif (is_numeric($value) || $value) {
                 $str .= $key . '=' . $value . '&';
             }
-
-            // if (is_string($value) && !is_null($value) && in_array($key, $c_f)) {
-            //     $str .= $key . '=' . $value . '&';
-            // }
         }
         $str = rtrim($str, '&');
         $str .= $this->appSecret;
-
-
 
         if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
             $this->debugLog['sign_str'] = $str;

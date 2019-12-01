@@ -73,20 +73,17 @@
             _params.data.append('__token__', jQuery('meta[name="csrf-token"]').attr('content'));
         }
 
-        let newkey = [];
-        for (let index in _params.data) {
-            console.log(index);
+        let newData = [];
+        let items = _params.data.entries();
+        while (item = items.next()) {
+            if (item.done) {
+                break;
+            }
+            if (item.value[1]) {
+                newData.push({ name: item.value[0], value: item.value[1] });
+            }
         }
-        var newkey = Object.keys(_params.data).sort();
-        var sign = '';
-        for (var i = 0; i < newkey.length; i++) {
-            console.log(newkey[i]);
-            sign += newkey[i] + '=' + _params.data[newkey[i]] + '&';
-        }
-        sign = sign.substr(0, sign.length - 1);
-        sign += jQuery('meta[name="csrf-appsecret"]').attr('content');
-        console.log(sign);
-        _params.data.append('sign', md5(sign));
+        _params.data.append('sign', jQuery.sign(newData));
 
         // 设置头部
         _params.beforeSend = function (xhr) {
@@ -142,27 +139,7 @@
             _params.data.push({ name: '__token__', value: jQuery('meta[name="csrf-token"]').attr('content') });
         }
 
-        // 生成签名
-        var compare = function (obj1, obj2) {
-            var val1 = obj1.name;
-            var val2 = obj2.name;
-            if (val1 < val2) {
-                return -1;
-            } else if (val1 > val2) {
-                return 1;
-            } else {
-                return 0;
-            }
-        }
-        _params.data = _params.data.sort(compare);
-        var sign = '';
-        jQuery.each(_params.data, function (i, field) {
-            sign += field.name + '=' + field.value + '&';
-        });
-        sign = sign.substr(0, sign.length - 1);
-        sign += jQuery('meta[name="csrf-appsecret"]').attr('content');
-
-        _params.data.push({ name: 'sign', value: md5(sign) });
+        _params.data.push({ name: 'sign', value: jQuery.sign(_params.data) });
 
         // 设置头部
         _params.beforeSend = function (xhr) {
@@ -202,5 +179,38 @@
     jQuery.timestamp = function () {
         var timestamp = Date.parse(new Date());
         return timestamp / 1000;
+    };
+
+    /**
+     * 生成签名
+     */
+    jQuery.sign = function (_data) {
+        var compare = function (obj1, obj2) {
+            var val1 = obj1.name;
+            var val2 = obj2.name;
+            if (val1 < val2) {
+                return -1;
+            } else if (val1 > val2) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        _data = _data.sort(compare);
+        var sign = '';
+        jQuery.each(_data, function (i, field) {
+            if ('function' != typeof (field.value) && 'undefined' != typeof (field.value) && '' != field.value) {
+                if ('object' == typeof (field.value)) {
+                    sign += field.name + '=Array&';
+                } else {
+                    sign += field.name + '=' + field.value + '&';
+                }
+            }
+        });
+        sign = sign.substr(0, sign.length - 1);
+        sign += jQuery('meta[name="csrf-appsecret"]').attr('content');
+        // console.log(sign);
+
+        return md5(sign);
     };
 }));

@@ -53,6 +53,8 @@ class Index extends BaseController
      */
     public function index()
     {
-        return $this->fetch('index');
+        // 清除上传垃圾文件
+        (new \app\common\library\UploadFile)->ReGarbage();
+        // return $this->fetch('index');
     }
 }

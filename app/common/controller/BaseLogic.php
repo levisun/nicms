@@ -234,7 +234,7 @@ abstract class BaseLogic
      * @param  string $_element 表单名 默认upload
      * @return array
      */
-    protected function uploadFile(string $_element = 'upload'): array
+    protected function uploadFile(): array
     {
         if (!$this->request->isPost() || empty($_FILES) || !$this->uid) {
             return [
@@ -248,11 +248,12 @@ abstract class BaseLogic
         @ini_set('memory_limit', '256M');
         set_time_limit(600);
 
+        $element = $this->request->param('element', 'upload');
         $width = $this->request->param('width/d', 0);
         $height = $this->request->param('height/d', 0);
+        $type = $this->request->param('type/b', false);
 
-        $upload = new UploadFile($this->uid, $_element, $width, $height);
-        $result = $upload->getFileInfo();
+        $result = (new UploadFile)->getFileInfo($this->uid, $element, $width, $height, $type);
 
         return [
             'debug' => false,
