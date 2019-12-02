@@ -127,13 +127,14 @@ class Sitemap
      * @param  array  $_data
      * @return void
      */
-    private function saveXml(array $_data, string $_path): void
+    private function saveXml(array &$_data, string $_path): void
     {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>' . PHP_EOL .
-            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
-        $xml .= $this->toXml($_data) . PHP_EOL;
-        $xml .= '</urlset>' . PHP_EOL;
+        $xml  = '';
         $xml .= '<!-- generated-on="' . date('Y-m-d H:i:s') . '" -->';
+        $xml .= '<?xml version="1.0" encoding="UTF-8" ?>' .
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+        $xml .= $this->toXml($_data);
+        $xml .= '</urlset>';
 
         $filename = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_path;
         if (!is_dir(dirname($filename))) {
@@ -148,7 +149,7 @@ class Sitemap
      * @param  array  $_data
      * @return string
      */
-    private function toXml(array $_data): string
+    private function toXml(array &$_data): string
     {
         $xml = '';
         foreach ($_data as $key => $value) {
@@ -157,13 +158,13 @@ class Sitemap
             }
 
             if (is_array($value)) {
-                $xml .= PHP_EOL . $this->toXml($value) . PHP_EOL;
+                $xml .= PHP_EOL . $this->toXml($value);
             } else {
                 $xml .= $value;
             }
 
             if (is_string($key)) {
-                $xml .= '</' . $key . '>' . PHP_EOL;
+                $xml .= '</' . $key . '>';
             }
         }
 

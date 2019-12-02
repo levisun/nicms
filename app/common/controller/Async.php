@@ -304,6 +304,7 @@ abstract class Async
     /**
      * 开启调试
      * @access protected
+     * @param  bool $_debug 开启或关闭调试模式
      * @return $this
      */
     protected function debug(bool $_debug)
@@ -315,6 +316,7 @@ abstract class Async
     /**
      * 设置缓存
      * @access protected
+     * @param  bool $_cache
      * @return $this
      */
     protected function cache(bool $_cache)

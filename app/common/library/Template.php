@@ -560,7 +560,7 @@ class Template implements TemplateHandlerInterface
         $_content = str_replace('\/', '/', $_content);
 
         // 添加安全代码及模板引用记录
-        $_content = '<?php /*' . json_encode($this->includeFile) . '*/ ?>' . PHP_EOL . $_content;
+        $_content = '<?php /*' . serialize($this->includeFile) . '*/ ?>' . PHP_EOL . $_content;
 
         // 编译存储
         $dir = dirname($_cache_file);

@@ -41,6 +41,26 @@ class CheckRequestCache
             }
         }
 
+        // 模板静态缓存路径
+        $html_path = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR;
+        // $html_path .= str_replace('/', '_', trim(app('request')->baseUrl(), '/'));
+        $html_path .= md5(app('request')->baseUrl()) . '.html';
+
+        // 读取模板静态缓存
+        if (is_file($html_path) && filemtime($html_path) > strtotime('-3 hour')) {
+            $time = $request->server('REQUEST_TIME') + 1440;
+            $content = file_get_contents($html_path);
+            if (function_exists('gzcompress')) {
+                $content = gzuncompress($content);
+            }
+            return Response::create($content)
+                ->allowCache(true)
+                ->cacheControl('max-age=1440,must-revalidate')
+                ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT')
+                ->header(['X-Powered-By' => 'NICMS']);
+        }
+
         $response = $next($request);
 
         // API有独立缓存定义,请勿开启缓存
@@ -51,11 +71,20 @@ class CheckRequestCache
 
             $response->header(array_merge(['X-Powered-By' => 'NICMS'], $response->getHeader()));
             if (200 == $response->getCode() && $request->isGet() && $response->isAllowCache()) {
-                $time = time() + 1440;
+                $time = $request->server('REQUEST_TIME') + 1440;
                 $response->allowCache(true)
                     ->cacheControl('max-age=1440,must-revalidate')
                     ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
                     ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT');
+
+                // 生成模板静态缓存
+                if (!is_file($html_path) || filemtime($html_path) < strtotime('-3 hour')) {
+                    is_dir(dirname($html_path)) or mkdir(dirname($html_path), 0755, true);
+                    if (function_exists('gzcompress')) {
+                        $content = gzcompress($response->getContent(), 3);
+                    }
+                    file_put_contents($html_path, $content);
+                }
             }
         }
 
