@@ -108,47 +108,6 @@ class UploadFile
      */
     public function ReGarbage()
     {
-        $upload_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
-            'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*';
-        $dir = (array) glob($path);
-        foreach ($dir as $files) {
-            if (!is_file($files)) {
-                continue;
-            }
-            $data = include $files;
-            $data = !empty($data) ? (array) $data : [];
-            foreach ($data as $value) {
-                $extension = pathinfo($value, PATHINFO_EXTENSION);
-                $value = $upload_path . str_replace('/', DIRECTORY_SEPARATOR, trim($value, " \/,._-\t\n\r\0\x0B"));
-                if (!is_file($value)) {
-                    continue;
-                }
-
-                // 图片
-                if (in_array($extension, ['png', 'webp'])) {
-                    for ($i = 1; $i < 9; $i++) {
-                        $size = $i * 100;
-                        $thumb = str_replace('.' . $extension, '_' . $size . '.png', $value);
-                        if (!is_file($thumb)) {
-                            @unlink($thumb);
-                        }
-                        $thumb = str_replace('.' . $extension, '_' . $size . '.webp', $value);
-                        if (!is_file($thumb)) {
-                            @unlink($thumb);
-                        }
-                    }
-                }
-
-                @unlink($value);
-            }
-        }
-        print_r($dir);
-        return;
-
-
-
-
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'lock' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
         $lock = $path . 'remove_upload_garbage.lock';
@@ -156,38 +115,39 @@ class UploadFile
         if (!is_file($lock) || filemtime($lock) <= strtotime('-12 hour')) {
             if ($fp = @fopen($lock, 'w+')) {
                 if (flock($fp, LOCK_EX | LOCK_NB)) {
-                    Log::record('[REGARBAGE] 删除上传垃圾文件', 'alert');
-
+                    $upload_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
                     $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
                         'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*';
                     $dir = (array) glob($path);
-
-                    $upload_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
-                    $day = strtotime('-1 days');
                     foreach ($dir as $files) {
-                        if (is_file($files) && filemtime($files) <= $day) {
-                            $data = include $files;
-                            $data = !empty($data) ? (array) $data : [];
-                            foreach ($data as $key => $value) {
-                                $value = str_replace('/', DIRECTORY_SEPARATOR, trim($value, " \/,._-\t\n\r\0\x0B"));
-                                if (is_file($upload_path . $value)) {
-                                    Log::record('[删除上传垃圾] ' . $value, 'alert');
-                                    @unlink($upload_path . $value);
-                                }
+                        if (!is_file($files)) {
+                            continue;
+                        }
+                        $data = include $files;
+                        $data = !empty($data) ? (array) $data : [];
+                        foreach ($data as $value) {
+                            $extension = pathinfo($value, PATHINFO_EXTENSION);
+                            $value = $upload_path . str_replace('/', DIRECTORY_SEPARATOR, trim($value, " \/,._-\t\n\r\0\x0B"));
+                            if (!is_file($value)) {
+                                continue;
+                            }
 
-                                // 删除缩略图
-                                $ext = '.' . pathinfo($value, PATHINFO_EXTENSION);
+                            // 图片
+                            if (in_array($extension, ['png', 'webp'])) {
                                 for ($i = 1; $i < 9; $i++) {
                                     $size = $i * 100;
-                                    $thumb = str_replace($ext, '_' . $size . $ext, $value);
-                                    if (is_file($upload_path . $thumb)) {
-                                        Log::record('[删除上传垃圾] ' . $thumb, 'alert');
-                                        @unlink($upload_path . $thumb);
+                                    $thumb = str_replace('.' . $extension, '_' . $size . '.png', $value);
+                                    if (!is_file($thumb)) {
+                                        @unlink($thumb);
+                                    }
+                                    $thumb = str_replace('.' . $extension, '_' . $size . '.webp', $value);
+                                    if (!is_file($thumb)) {
+                                        @unlink($thumb);
                                     }
                                 }
                             }
 
-                            @unlink($files);
+                            @unlink($value);
                         }
                     }
 
@@ -333,7 +293,7 @@ class UploadFile
             // 'extension'    => $_files->extension(),
             'extension'    => pathinfo($save_file, PATHINFO_EXTENSION),
             'name'         => pathinfo($save_file, PATHINFO_BASENAME),
-            'old_name'     => $_files->getOriginalName(),
+            // 'old_name'     => $_files->getOriginalName(),
             'original_url' => $save_file,
             // 'size'         => $_files->getSize(),
             // 'type'         => $_files->getMime(),

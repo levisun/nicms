@@ -426,14 +426,13 @@ class Template implements TemplateHandlerInterface
 
         $_content = preg_replace_callback($pattern, function ($matches) {
             $pattern = [
-                '/\/\/.*?(\n|\r)+/i',
+                '/(\/\*)(.*?)(\*\/)/i',
+                '/(\/\/)(.*?)(\n|\r)+/i',
                 '/\n|\r|\f/'
             ];
-            // $matches[3] = preg_replace($pattern, '', $matches[3]);
+            $matches[3] = preg_replace($pattern, '', $matches[3]);
 
             $this->script .= $matches[3];
-            // $type = $matches[2] ?: 'text/javascript';
-            // $this->script .= '<script type="' . $type . '">' . $matches[3] . '</script>';
             return;
         }, $_content);
 
