@@ -42,23 +42,23 @@ class CheckRequestCache
         }
 
         // 模板静态缓存路径
-        $html_path = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR;
-        // $html_path .= str_replace('/', '_', trim(app('request')->baseUrl(), '/'));
-        $html_path .= md5(app('request')->baseUrl()) . '.html';
+        $html_path = trim(app('request')->baseUrl(), '/');
+        $html_path = $html_path ?: 'index.html';
+        $html_path = str_replace('/', '_', trim($html_path, '/'));
+        $html_path = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . $html_path;
 
         // 读取模板静态缓存
-        if (is_file($html_path) && filemtime($html_path) > strtotime('-3 hour')) {
-            $time = $request->server('REQUEST_TIME') + 1440;
-            $content = file_get_contents($html_path);
-            if (function_exists('gzcompress')) {
-                $content = gzuncompress($content);
+        if (!in_array(app('http')->getName(), ['admin', 'api', 'my'])) {
+            if (is_file($html_path) && filemtime($html_path) > strtotime('-3 hour')) {
+                $time = $request->server('REQUEST_TIME') + 1440;
+                $content = file_get_contents($html_path);
+                return Response::create($content)
+                    ->allowCache(true)
+                    ->cacheControl('max-age=1440,must-revalidate')
+                    ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
+                    ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT')
+                    ->header(['X-Powered-By' => 'NICMS']);
             }
-            return Response::create($content)
-                ->allowCache(true)
-                ->cacheControl('max-age=1440,must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT')
-                ->header(['X-Powered-By' => 'NICMS']);
         }
 
         $response = $next($request);
@@ -78,12 +78,11 @@ class CheckRequestCache
                     ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT');
 
                 // 生成模板静态缓存
-                if (!is_file($html_path) || filemtime($html_path) < strtotime('-3 hour')) {
-                    is_dir(dirname($html_path)) or mkdir(dirname($html_path), 0755, true);
-                    if (function_exists('gzcompress')) {
-                        $content = gzcompress($response->getContent(), 3);
+                if (!in_array(app('http')->getName(), ['admin', 'api', 'my'])) {
+                    if (!is_file($html_path) || filemtime($html_path) < strtotime('-3 hour')) {
+                        is_dir(dirname($html_path)) or mkdir(dirname($html_path), 0755, true);
+                        file_put_contents($html_path, $response->getContent() . '<!-- ' . date('Y-m-d H:i:s') . ' -->');
                     }
-                    file_put_contents($html_path, $content);
                 }
             }
         }
