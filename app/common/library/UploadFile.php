@@ -53,6 +53,12 @@ class UploadFile
     ];
 
     /**
+     * 图片规定尺寸
+     * @var bool
+     */
+    private $thumbWater = true;
+
+    /**
      * 上传文件日志
      * @var string
      */
@@ -164,19 +170,19 @@ class UploadFile
      * @access public
      * @param  int    $_uid 用户ID
      * @param  string $_element 表单名
-     * @param  int    $_width 缩略图宽
-     * @param  int    $_height 缩略图宽
-     * @param  bool   $_type 缩略图是否等比例缩放 默认false
+     * @param  array  $_thumb 缩略图宽高,缩放比例
+     * @param  bool   $_water 添加水印
      * @retuen array
      */
-    public function getFileInfo(int $_uid = 0, string $_element = '', int $_width = 0, int $_height = 0, bool $_type = false): array
+    public function getFileInfo(int $_uid, string $_element, array $_thumb, bool $_water): array
     {
         $files = app('request')->file($_element);
         $this->thumbSize = [
-            'width'  => $_width,
-            'height' => $_height,
-            'type'   => $_type ? Image::THUMB_SCALING : Image::THUMB_FIXED,
+            'width'  => $_thumb['width'],
+            'height' => $_thumb['height'],
+            'type'   => $_thumb['type'] ? Image::THUMB_SCALING : Image::THUMB_FIXED,
         ];
+        $this->thumbWater = $_water;
 
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
             'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
@@ -269,6 +275,17 @@ class UploadFile
             // 规定图片最大尺寸
             elseif ($image->width() > 800) {
                 $image->thumb(800, 800, Image::THUMB_SCALING);
+            }
+
+            // 添加水印
+            if (true === $this->thumbWater) {
+                $image->text(
+                    app('request')->rootDomain(),
+                    app()->getRootPath() . 'extend' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf',
+                    16,
+                    '#00000000',
+                    mt_rand(1, 9)
+                );
             }
 
             // 转换webp格式

@@ -34,24 +34,23 @@ class CheckRequestCache
      */
     public function handle(Request $request, Closure $next)
     {
-        // 返回浏览器缓存
+        $key = md5($request->baseUrl());
+        $time = $request->server('REQUEST_TIME') + 1440;
+
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
-            if (strtotime($ms) >= $request->server('REQUEST_TIME')) {
-                return Response::create()->code(304);   // 读取缓存
-            } else {
-                if (false === app()->isDebug() && !in_array(app('http')->getName(), ['admin', 'api', 'my'])) {
-                    $key = md5($request->baseUrl());
-                    if ($content = Cache::get($key)) {
-                        $time = $request->server('REQUEST_TIME') + 1440;
-                        return Response::create($content)
-                            ->allowCache(true)
-                            ->cacheControl('max-age=1440,must-revalidate')
-                            ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
-                            ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT')
-                            ->header(['X-Powered-By' => 'NICMS']);
-                    }
-                }
+            // 返回浏览器缓存
+            if (!in_array(app('http')->getName(), ['admin', 'my']) && strtotime($ms) >= $request->server('REQUEST_TIME')) {
+                return Response::create()->code(304);
             }
+        }
+
+        if (false === app()->isDebug() && $content = Cache::get($key)) {
+            return Response::create($content)
+                ->allowCache(true)
+                ->cacheControl('max-age=1440,must-revalidate')
+                ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT')
+                ->header(['X-Powered-By' => 'NICMS']);
         }
 
         $response = $next($request);
@@ -64,14 +63,12 @@ class CheckRequestCache
 
             $response->header(array_merge(['X-Powered-By' => 'NICMS'], $response->getHeader()));
             if (200 == $response->getCode() && $request->isGet() && $response->isAllowCache()) {
-                $time = $request->server('REQUEST_TIME') + 1440;
                 $response->allowCache(true)
                     ->cacheControl('max-age=1440,must-revalidate')
                     ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
                     ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT');
 
                 if (!in_array(app('http')->getName(), ['admin', 'api', 'my'])) {
-                    $key = md5($request->baseUrl());
                     Cache::tag('browser')->set($key, $response->getContent()  . '<!-- ' . date('Y-m-d H:i:s') . ' -->', mt_rand(28800, 29900));
                 }
             }

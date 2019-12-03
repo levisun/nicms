@@ -249,11 +249,14 @@ abstract class BaseLogic
         set_time_limit(600);
 
         $element = $this->request->param('element', 'upload');
-        $width = $this->request->param('width/d', 0);
-        $height = $this->request->param('height/d', 0);
-        $type = $this->request->param('type/b', false);
+        $thumb = [
+            'width' => $this->request->param('width/d', 0),
+            'height' => $this->request->param('height/d', 0),
+            'type' => $this->request->param('type/b', false),
+        ];
+        $water = $this->request->param('water/b', true);
 
-        $result = (new UploadFile)->getFileInfo($this->uid, $element, $width, $height, $type);
+        $result = (new UploadFile)->getFileInfo($this->uid, $element, $thumb, $water);
 
         return [
             'debug' => false,
