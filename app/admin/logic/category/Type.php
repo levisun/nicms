@@ -38,7 +38,7 @@ class Type extends BaseLogic
             ->view('category', ['name' => 'cat_name'], 'category.id=type.category_id')
             ->order('category.id DESC, type.id')
             ->paginate([
-                'list_rows'=> $query_limit,
+                'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
             ]);
 
@@ -107,7 +107,8 @@ class Type extends BaseLogic
                 ->where([
                     ['id', '=', $id],
                 ])
-                ->findOrEmpty();
+                ->find();
+            $result = $result ? $result->toArray() : [];
         }
 
         return [

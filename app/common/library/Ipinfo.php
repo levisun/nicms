@@ -119,7 +119,7 @@ class Ipinfo
      */
     private function query(string $_ip): array
     {
-        return (new ModelIpinfo)
+        $result = (new ModelIpinfo)
             ->view('ipinfo', ['id', 'ip', 'isp', 'update_time'])
             ->view('region country', ['id' => 'country_id', 'name' => 'country'], 'country.id=ipinfo.country_id')
             ->view('region region', ['id' => 'region_id', 'name' => 'region'], 'region.id=ipinfo.province_id')
@@ -128,7 +128,8 @@ class Ipinfo
             ->where([
                 ['ipinfo.ip', '=', bindec(app('request')->ip2bin($_ip))]
             ])
-            ->findOrEmpty();
+            ->find();
+        return $result ? $result->toArray() : [];
     }
 
     /**
@@ -169,7 +170,8 @@ class Ipinfo
         }
 
         $result = $result['data'];
-        $isp     = !empty($result['isp']) ? DataFilter::default($result['isp']) : '';
+        $isp     = !empty($result['isp']) ? DataFilter::
+        default($result['isp']) : '';
         $country = $this->queryRegion($result['country'], 0);
         if (!$country) {
             return false;
@@ -219,7 +221,8 @@ class Ipinfo
         }
 
         $result = $result['data'];
-        $isp     = !empty($result['isp']) ? DataFilter::default($result['isp']) : '';
+        $isp     = !empty($result['isp']) ? DataFilter::
+        default($result['isp']) : '';
         $country = $this->queryRegion($result['country'], 0);
         if (!$country) {
             return false;

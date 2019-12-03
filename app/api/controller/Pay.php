@@ -53,11 +53,23 @@ class Pay extends Async
         return miss(404);
     }
 
+    /**
+     * 同步回调
+     * @access public
+     * @param  string $method
+     * @return array
+     */
     public function respond(string $method)
     {
         return 'respond:' . $method;
     }
 
+    /**
+     * 异步回调
+     * @access public
+     * @param  string $method
+     * @return array
+     */
     public function notify(string $method)
     {
         return 'notify:' . $method;

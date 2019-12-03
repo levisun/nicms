@@ -200,8 +200,8 @@
         var sign = '';
         jQuery.each(_data, function (i, field) {
             if ('function' != typeof (field.value) && 'undefined' != typeof (field.value) && '' != field.value) {
-                if ('object' == typeof (field.value)) {
-                    sign += field.name + '=Array&';
+                if (field.name.indexOf('[') > 0 || 'object' == typeof (field.value)) {
+                    // sign += field.name + '=Array&';
                 } else {
                     sign += field.name + '=' + field.value + '&';
                 }
@@ -212,5 +212,14 @@
         // console.log(sign);
 
         return md5(sign);
+    };
+
+    jQuery.in_array = function (needle, haystack) {
+        for (var index in haystack) {
+            if (needle == haystack[index]) {
+                return true;
+            }
+        }
+        return false;
     };
 }));

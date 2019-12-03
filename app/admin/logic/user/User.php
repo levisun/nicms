@@ -74,12 +74,14 @@ class User extends BaseLogic
      */
     public function find(): array
     {
+        $result = [];
         if ($id = $this->request->param('id/d')) {
             $result = (new ModelUser)
                 ->where([
                     ['id', '=', $id],
                 ])
-                ->findOrEmpty();
+                ->find();
+            $result = $result ? $result->toArray() : [];
         }
 
         return [

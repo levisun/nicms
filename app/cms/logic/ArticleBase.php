@@ -84,14 +84,16 @@ class ArticleBase extends BaseLogic
                     $list['render'] = $result->render();
 
                     foreach ($list['data'] as $key => $value) {
-                        $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
-                        $value['update_time'] = date($date_format, strtotime($value['update_time']));
-
-                        $value['thumb_original'] = (new Canvas)->image($value['thumb'], 0);
-                        $value['thumb'] = (new Canvas)->image($value['thumb'], 300);
-
+                        // 栏目链接
                         $value['cat_url'] = url('list/' . $value['model_name'] . '/' . $value['category_id']);
+                        // 文章链接
                         $value['url'] = url('details/' . $value['model_name'] . '/' . $value['category_id'] . '/' . $value['id']);
+                        // 标识符
+                        $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
+                        // 缩略图
+                        $value['thumb'] = (new Canvas)->image($value['thumb'], 300);
+                        // 时间格式
+                        $value['update_time'] = date($date_format, strtotime($value['update_time']));
 
                         // 附加字段数据
                         $fields = (new ArticleExtend)
@@ -115,6 +117,10 @@ class ArticleBase extends BaseLogic
                             ])
                             ->select()
                             ->toArray();
+                        foreach ($value['tags'] as $k => $tag) {
+                            $tag['url'] = url('tags/' . $tag['tags_id']);
+                            $result['tags'][$k] = $tag;
+                        }
 
                         $list['data'][$key] = $value;
                     }
@@ -154,26 +160,17 @@ class ArticleBase extends BaseLogic
                     ->find();
 
                 if (null !== $result && $result = $result->toArray()) {
+                    // 栏目链接
+                    $result['cat_url'] = url('list/' . $result['model_name'] . '/' . $result['category_id']);
+                    // 文章链接
+                    $result['url'] = url('details/' . $result['model_name'] . '/' . $result['category_id'] . '/' . $result['id']);
+                    // 标识符
                     $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
+                    // 缩略图
+                    $result['thumb'] = (new Canvas)->image($result['thumb'], 300);
+                    // 时间格式
                     $date_format = $this->request->param('date_format', 'Y-m-d');
                     $result['update_time'] = date($date_format, strtotime($result['update_time']));
-                    $result['thumb'] = (new Canvas)->image($result['thumb'], 300);
-                    $result['content'] = DataFilter::contentDecode($result['content']);
-                    // $result['content'] = preg_replace_callback([
-                    //     '/(style=["|\'])(.*?)(["|\'])/si',
-                    //     '/<\/?h[1-4]{1}(.*?)>/si'
-                    // ], function () {
-                    //     return '';
-                    // }, $result['content']);
-
-                    $result['content'] =
-                        preg_replace_callback('/(src=["|\'])(.*?)(["|\'])/si', function ($matches) {
-                            $thumb = (new Canvas)->image($matches[2], 300);
-                            return 'src="' . $thumb . '" original="' . (new Canvas)->image($matches[2], 0) . '"';
-                        }, $result['content']);
-
-                    $result['url'] = url('details/' . $result['model_name'] . '/' . $result['category_id'] . '/' . $result['id']);
-                    $result['cat_url'] = url('list/' . $result['model_name'] . '/' . $result['category_id']);
 
                     // 上一篇 下一篇
                     $result['next'] = $this->next((int) $result['id']);
@@ -199,8 +196,27 @@ class ArticleBase extends BaseLogic
                         ->where([
                             ['article_tags.article_id', '=', $result['id']],
                         ])
-                        ->select();
-                    $result['tags'] = $result['tags'] ? $result['tags']->toArray() : [];
+                        ->select()
+                        ->toArray();
+                    foreach ($result['tags'] as $key => $tag) {
+                        $tag['url'] = url('tags/' . $tag['tags_id']);
+                        $result['tags'][$key] = $tag;
+                    }
+
+                    // 文章内容
+                    $result['content'] = DataFilter::deContent($result['content']);
+                    // $result['content'] = preg_replace_callback([
+                    //     '/(style=["|\'])(.*?)(["|\'])/si',
+                    //     '/<\/?h[1-4]{1}(.*?)>/si'
+                    // ], function () {
+                    //     return '';
+                    // }, $result['content']);
+
+                    $result['content'] =
+                        preg_replace_callback('/(src=["|\'])(.*?)(["|\'])/si', function ($matches) {
+                            $thumb = (new Canvas)->image($matches[2], 300);
+                            return 'src="' . $thumb . '" original="' . (new Canvas)->image($matches[2], 0) . '"';
+                        }, $result['content']);
 
                     $this->cache->tag('cms')->set($cache_key, $result);
                 }

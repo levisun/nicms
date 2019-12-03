@@ -533,7 +533,8 @@ abstract class Async
                 continue;
             }
             if (is_array($value)) {
-                $str .= $key . '=Array&';
+                continue;
+                // $str .= $key . '=Array&';
             } elseif (is_numeric($value) || $value) {
                 $str .= $key . '=' . $value . '&';
             }

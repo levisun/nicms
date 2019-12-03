@@ -37,6 +37,7 @@ class DataFilter
             $_data = self::fun($_data);
             $_data = self::enter($_data);
             $_data = strip_tags($_data);
+            $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::default($value);
@@ -60,7 +61,7 @@ class DataFilter
             $_data = self::safe($_data);
             $_data = self::fun($_data);
             $_data = self::enter($_data);
-            $_data = htmlspecialchars($_data);
+            $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::content($value);
@@ -76,17 +77,17 @@ class DataFilter
      * @param  string|array $_data
      * @return string|array
      */
-    public static function contentDecode($_data)
+    public static function deContent($_data)
     {
         if (is_string($_data)) {
-            $_data = htmlspecialchars_decode($_data);
+            $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = trim($_data, " \/,._-\t\n\r\0\x0B");
             $_data = (new Emoji)->decode($_data);
             $_data = self::safe($_data);
             // $_data = self::fun($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::contentDecode($value);
+                $_data[$key] = self::deContent($value);
             }
         }
         return $_data;
@@ -124,20 +125,24 @@ class DataFilter
     private static function enter(string &$_str): string
     {
         $pattern = [
-            '/( ){2,}/si'           => '',
-            '/>(\n|\r|\f)+/si'      => '>',
-            '/(\n|\r|\f)+</si'      => '<',
-            '/<\!\-\-(.*?)\-\->/si' => '',
-            '/\/\*(.*?)\*\//si'     => '',
+            '/class=[ "|\'](.*?)["|\']/si' => '',
+            '/id=[ "|\'](.*?)["|\']/si'    => '',
+            '/style=[ "|\'](.*?)["|\']/si' => '',
+
+            '/( ){2,}/si'             => '',
+            '/>(\n|\r|\f)+/si'        => '>',
+            '/(\n|\r|\f)+</si'        => '<',
+            '/<\!\-\-(.*?)\-\->/si'   => '',
+            '/\/\*(.*?)\*\//si'       => '',
             // '/(<!--)(.*?)(-->)/si' => '',
             // '/\/\*(.*?)\*\//si'    => '',
 
-            // '/(\n|\r|\f)+\}/si' => '}',
-            // '/\}(\n|\r|\f)+/si' => '}',
-            // '/\{(\n|\r|\f)+/si' => '{',
-            // '/;(\n|\r|\f)+/si'  => ';',
-            // '/,(\n|\r|\f)+/si'  => ',',
-            // '/\)(\n|\r|\f)+/si' => ')',
+            // '/(\n|\r|\f)+\}/si'    => '}',
+            // '/\}(\n|\r|\f)+/si'    => '}',
+            // '/\{(\n|\r|\f)+/si'    => '{',
+            // '/;(\n|\r|\f)+/si'     => ';',
+            // '/,(\n|\r|\f)+/si'     => ',',
+            // '/\)(\n|\r|\f)+/si'    => ')',
         ];
         return preg_replace(array_keys($pattern), array_values($pattern), $_str);
     }
@@ -204,6 +209,8 @@ class DataFilter
             // XXE XML 实体扩展攻击
             '/<html.*?>(.*?)<\/html.*?>/si',                '/<(\/?html.*?)>/si',
             '/<title.*?>(.*?)<\/title.*?>/si',              '/<(\/?title.*?)>/si',
+            '/<(\/?head)>/si',
+            '/<(\/?body)>/si',
             /* '/<head.*?>(.*?)<\/head.*?>/si',
             '/<body.*?>(.*?)<\/body.*?>/si',                '/<(\/?body.*?)>/si', */
             '/<style.*?>(.*?)<\/style.*?>/si',              '/<(\/?style.*?)>/si',

@@ -20,6 +20,7 @@ use think\App;
 use think\contract\TemplateHandlerInterface;
 use think\exception\HttpResponseException;
 use think\Response;
+use app\common\library\DataFilter;
 
 class Template implements TemplateHandlerInterface
 {
@@ -436,7 +437,7 @@ class Template implements TemplateHandlerInterface
             return;
         }, $_content);
 
-        $_content = \app\common\library\DataFilter::string($_content);
+        $_content = DataFilter::string($_content);
 
         if ($this->script) {
             $_content .= '<!-- --><script type="text/javascript">' . $this->script . '</script>';

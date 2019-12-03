@@ -1,0 +1,119 @@
+<div class="box">
+    <div class="box-body">
+        <form id="role">
+            <div class="form-group">
+                <label>{:lang('role name')}</label>
+                <input type="text" name="name" class="form-control" v-bind:value="items.name">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('status')}</label>
+                <label>
+                    <input type="radio" name="status" value="1" v-bind:checked="items.status == 1">
+                    {:lang('open')}
+                </label>
+                <label>
+                    <input type="radio" name="status" value="0" v-bind:checked="items.status == 0">
+                    {:lang('close')}
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('node')}</label>
+                <template v-for="val in node">
+                    <input type="hidden" name="node[]" v-bind:value="val.id" checked="checked">
+                    <template v-for="vo in val.child">
+                        <div>
+                            <input type="checkbox" name="node[]" v-bind:value="vo.id" v-bind:id="'node-'+vo.name"
+                                v-on:click="select(vo.name)" v-bind:checked="inArray(vo.id, items.node)">
+                            <label v-bind:for="'node-'+vo.name" v-text="vo.title" v-on:click="select(vo.name)"></label>
+
+                            <template v-for="v in vo.child">
+                                <span>
+                                    <input type="checkbox" name="node[]" v-bind:value="v.id" v-bind:id="v.name"
+                                        v-bind:class="'node-'+vo.name" v-bind:checked="inArray(v.id, items.node)">
+                                    <label v-bind:for="v.name" v-text="v.title"></label>
+                                </span>
+                            </template>
+                        </div>
+                    </template>
+                </template>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('remark')}</label>
+                <input type="text" name="remark" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <input type="button" class="btn btn-primary" v-on:click="editor" value="{:lang('save')}">
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    let role = new Vue({
+        el: '.box',
+        data: {
+            items: [],
+            node: []
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'user.node.query' }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            role.node = result.data.list;
+                        }
+
+                        jQuery.pjax({
+                            url: NICMS.api.url + '/query.do',
+                            type: 'GET',
+                            data: [
+                                { name: 'method', value: 'user.role.find' },
+                                { name: 'id', value: NICMS.api.param.id }
+                            ],
+                            success: function (result) {
+                                if (result.code == 10000) {
+                                    role.items = result.data;
+                                }
+                            }
+                        });
+                    }
+                });
+            },
+            inArray: function (needle, haystack) {
+                for (var index in haystack) {
+                    if (needle == haystack[index]) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            select: function (_id) {
+                jQuery('.node-' + _id).attr('checked', true);
+            },
+            editor: function () {
+                var data = jQuery('#role').serializeArray();
+                data.push({ name: 'method', value: 'user.role.editor' });
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: data,
+                    success: function (result) {
+                        if (result.code === 10000) {
+                            jQuery.uiToast(result.message);
+                            history.back();
+                        }
+                    }
+                });
+            }
+        }
+    });
+    role.load();
+</script>

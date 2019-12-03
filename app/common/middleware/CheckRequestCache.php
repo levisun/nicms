@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace app\common\middleware;
 
 use Closure;
-use think\facade\Config;
+use think\facade\Cache;
 use think\Request;
 use think\Response;
 
@@ -27,7 +27,6 @@ class CheckRequestCache
     /**
      * 设置当前地址的请求缓存
      * 缓存为浏览器
-     * 安全原因不写文件缓存,文件缓存无法根据客户记录
      * @access public
      * @param  Request $request
      * @param  Closure $next
@@ -35,29 +34,23 @@ class CheckRequestCache
      */
     public function handle(Request $request, Closure $next)
     {
+        // 返回浏览器缓存
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
             if (strtotime($ms) >= $request->server('REQUEST_TIME')) {
                 return Response::create()->code(304);   // 读取缓存
-            }
-        }
-
-        // 模板静态缓存路径
-        $html_path = trim(app('request')->baseUrl(), '/');
-        $html_path = $html_path ?: 'index.html';
-        $html_path = str_replace('/', '_', trim($html_path, '/'));
-        $html_path = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . $html_path;
-
-        // 读取模板静态缓存
-        if (!in_array(app('http')->getName(), ['admin', 'api', 'my'])) {
-            if (is_file($html_path) && filemtime($html_path) > strtotime('-3 hour')) {
-                $time = $request->server('REQUEST_TIME') + 1440;
-                $content = file_get_contents($html_path);
-                return Response::create($content)
-                    ->allowCache(true)
-                    ->cacheControl('max-age=1440,must-revalidate')
-                    ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
-                    ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT')
-                    ->header(['X-Powered-By' => 'NICMS']);
+            } else {
+                if (false === app()->isDebug() && !in_array(app('http')->getName(), ['admin', 'api', 'my'])) {
+                    $key = md5($request->baseUrl());
+                    if ($content = Cache::get($key)) {
+                        $time = $request->server('REQUEST_TIME') + 1440;
+                        return Response::create($content)
+                            ->allowCache(true)
+                            ->cacheControl('max-age=1440,must-revalidate')
+                            ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
+                            ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT')
+                            ->header(['X-Powered-By' => 'NICMS']);
+                    }
+                }
             }
         }
 
@@ -77,12 +70,9 @@ class CheckRequestCache
                     ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
                     ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT');
 
-                // 生成模板静态缓存
                 if (!in_array(app('http')->getName(), ['admin', 'api', 'my'])) {
-                    if (!is_file($html_path) || filemtime($html_path) < strtotime('-3 hour')) {
-                        is_dir(dirname($html_path)) or mkdir(dirname($html_path), 0755, true);
-                        file_put_contents($html_path, $response->getContent() . '<!-- ' . date('Y-m-d H:i:s') . ' -->');
-                    }
+                    $key = md5($request->baseUrl());
+                    Cache::tag('browser')->set($key, $response->getContent()  . '<!-- ' . date('Y-m-d H:i:s') . ' -->', mt_rand(28800, 29900));
                 }
             }
         }

@@ -115,7 +115,37 @@ class Role extends BaseLogic
      * @return array
      */
     public function find()
-    { }
+    {
+        $result = [];
+        if ($id = $this->request->param('id/d')) {
+            $result = (new ModelRole)
+                ->where([
+                    ['id', '=', $id],
+                ])
+                ->find();
+            $result = $result ? $result->toArray() : [];
+
+            $node = (new ModelRoleAccess)
+                ->field('node_id')
+                ->where([
+                    ['role_id', '=', $id]
+                ])
+                ->order('node_id ASC')
+                ->select();
+            if ($node = $node->toArray()) {
+                foreach ($node as $value) {
+                    $result['node'][] = $value['node_id'];
+                }
+            }
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'role',
+            'data'  => $result
+        ];
+    }
 
     /**
      * 编辑
