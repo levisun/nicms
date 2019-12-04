@@ -39,7 +39,7 @@ class CheckRequestCache
 
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
             // 返回浏览器缓存
-            if (!in_array(app('http')->getName(), ['admin', 'my']) && strtotime($ms) >= $request->server('REQUEST_TIME')) {
+            if (strtotime($ms) >= $request->server('REQUEST_TIME')) {
                 return Response::create()->code(304);
             }
         }
@@ -69,7 +69,15 @@ class CheckRequestCache
                     ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT');
 
                 if (!in_array(app('http')->getName(), ['admin', 'api', 'my'])) {
-                    Cache::tag('browser')->set($key, $response->getContent()  . '<!-- ' . date('Y-m-d H:i:s') . ' -->', mt_rand(28800, 29900));
+                    $content = $response->getContent();
+                    $pattern = [
+                        '/<meta name="csrf-authorization" content="(.*?)" \/>/si' => '',
+                        '/<meta name="csrf-token" content="(.*?)" \/>/si' => '',
+                    ];
+                    // $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $content);
+                    $content .= '<!-- ' . date('Y-m-d H:i:s') . ' -->';
+
+                    Cache::tag('browser')->set($key, $content, mt_rand(28800, 29900));
                 }
             }
         }

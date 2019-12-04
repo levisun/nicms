@@ -28,7 +28,8 @@ class DataFilter
      * @param  string|array $_data
      * @return string|array
      */
-    public static function default($_data)
+    public static function
+    default($_data)
     {
         if (is_string($_data)) {
             $_data = trim($_data, " \/,._-\t\n\r\0\x0B");
@@ -40,7 +41,8 @@ class DataFilter
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::default($value);
+                $_data[$key] = self::
+                    default($value);
             }
         }
         return $_data;
@@ -60,6 +62,54 @@ class DataFilter
             $_data = (new Emoji)->encode($_data);
             $_data = self::safe($_data);
             $_data = self::fun($_data);
+            // 过滤标签上的信息
+            $_data = preg_replace_callback('/([a-zA-Z0-9-_]+)=["|\'](.*?)["|\']/si', function ($matches) {
+                if (in_array($matches[1], ['href', 'src', 'atr', 'title'])) {
+                    return $matches[0];
+                } else {
+                    return;
+                }
+            }, $_data);
+            // 过滤非法标签
+            $_data = preg_replace_callback('/<([a-zA-Z0-9\/]+)(.*?)>/si', function ($matches) {
+                $matches[1] = trim($matches[1]);
+                $element = [
+                    'a', '/a',
+                    'audio', '/audio',
+                    'b', '/b',
+                    'br', 'br/',
+                    'center', '/center',
+                    'dd', '/dd',
+                    'del', '/del',
+                    'div', '/div',
+                    'dl', '/dl',
+                    'dt', '/dt',
+                    'em', '/em',
+                    'embed', '/embed',
+                    'i', '/i',
+                    'img',
+                    'li', '/li',
+                    'ol', '/ol',
+                    'p', '/p',
+                    // 'font', '/font',
+
+
+                    'strong', '/strong',
+                    'h1', '/h1',
+                    'h2', '/h2',
+                    'h3', '/h3',
+                    'h4', '/h4',
+                    'h5', '/h5',
+                    // 'span', '/span',
+                ];
+                if (in_array($matches[1], $element)) {
+                    return $matches[0];
+                } else {
+                    return;
+                }
+                halt($matches);
+            }, $_data);
+
             $_data = self::enter($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
@@ -125,15 +175,19 @@ class DataFilter
     private static function enter(string &$_str): string
     {
         $pattern = [
-            '/class=[ "|\'](.*?)["|\']/si' => '',
-            '/id=[ "|\'](.*?)["|\']/si'    => '',
-            '/style=[ "|\'](.*?)["|\']/si' => '',
+            '~>\s+<~'       => '><',
+            '~>(\s+\n|\r)~' => '>',
+            '/( ){2,}/si'   => ' ',
+            '/( )+</si'     => '<',
+            '/( )+>/si'     => '>',
+            // '/<(\/?[a|b|p|strong].*?)>/si' => '',
 
-            '/( ){2,}/si'             => '',
-            '/>(\n|\r|\f)+/si'        => '>',
-            '/(\n|\r|\f)+</si'        => '<',
-            '/<\!\-\-(.*?)\-\->/si'   => '',
-            '/\/\*(.*?)\*\//si'       => '',
+            // '/>(\n|\r|\f)+/si'        => '>',
+            // '/(\n|\r|\f)+</si'        => '<',
+            // '/<\!\-\-(.*?)\-\->/si'   => '',
+            // '/\/\*(.*?)\*\//si'       => '',
+
+
             // '/(<!--)(.*?)(-->)/si' => '',
             // '/\/\*(.*?)\*\//si'    => '',
 
@@ -144,7 +198,7 @@ class DataFilter
             // '/,(\n|\r|\f)+/si'     => ',',
             // '/\)(\n|\r|\f)+/si'    => ')',
         ];
-        return preg_replace(array_keys($pattern), array_values($pattern), $_str);
+        return (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
     }
 
     /**
@@ -180,7 +234,7 @@ class DataFilter
             // '/(\()/si'                   => '&#40;',
             // '/(\))/si'                   => '&#41;',
         ];
-        return preg_replace(array_keys($pattern), array_values($pattern), $_str);
+        return (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
     }
 
     /**
@@ -196,7 +250,7 @@ class DataFilter
     {
         libxml_disable_entity_loader(true);
 
-        return preg_replace([
+        return (string) preg_replace([
             // XSS跨站脚本攻击
             '/on([a-zA-Z0-9]+)([ ]*?=[ ]*?)["|\'](.*?)["|\']/si',
             '/(javascript:)(.*?)(\))/si',

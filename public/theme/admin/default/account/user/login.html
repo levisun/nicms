@@ -49,7 +49,7 @@
                             if (10000 == res.code) {
                                 if ('undefined' == typeof (res.return_url)) {
                                     window.location.href = '/settings/dashboard/index.html';
-                                    location.reload();
+                                    // location.reload();
                                 } else {
                                     window.location.href = res.return_url;
                                 }

@@ -190,6 +190,8 @@
                     success: function (result) {
                         if (result.code == 10000 && result.data) {
                             header.user_profile = result.data;
+                        } else {
+                            window.location.href = '/account/user/login.html';
                         }
                     }
                 });
