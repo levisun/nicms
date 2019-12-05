@@ -255,7 +255,7 @@ abstract class Async
         // 请勿开启调试模式
         $this->app->debug(false);
         // 设置请求默认过滤方法
-        $this->request->filter('\app\common\library\DataFilter::default');
+        $this->request->filter('\app\common\library\DataFilter::filter');
         // 请勿更改参数
         @ini_set('memory_limit', '8M');
         set_time_limit(10);

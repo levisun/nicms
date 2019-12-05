@@ -34,9 +34,6 @@ class CheckRequestCache
      */
     public function handle(Request $request, Closure $next)
     {
-        $key = md5($request->baseUrl());
-        $time = $request->server('REQUEST_TIME') + 1440;
-
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
             // 返回浏览器缓存
             if (strtotime($ms) >= $request->server('REQUEST_TIME')) {
@@ -44,7 +41,14 @@ class CheckRequestCache
             }
         }
 
+        $key = md5($request->baseUrl());
+        $time = $request->server('REQUEST_TIME') + 1440;
         if (false === app()->isDebug() && $content = Cache::get($key)) {
+            $pattern = [
+                '<meta name="csrf-authorization" content="" />' => '<meta name="csrf-authorization" content="' . create_authorization() . '" />',
+                '<meta name="csrf-token" content="" />' => '<meta name="csrf-token" content="' . token() . '" />',
+            ];
+            $content = str_replace(array_keys($pattern), array_values($pattern), $content);
             return Response::create($content)
                 ->allowCache(true)
                 ->cacheControl('max-age=1440,must-revalidate')
@@ -68,17 +72,14 @@ class CheckRequestCache
                     ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
                     ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT');
 
-                if (!in_array(app('http')->getName(), ['admin', 'api', 'my'])) {
-                    $content = $response->getContent();
-                    $pattern = [
-                        '/<meta name="csrf-authorization" content="(.*?)" \/>/si' => '',
-                        '/<meta name="csrf-token" content="(.*?)" \/>/si' => '',
-                    ];
-                    // $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $content);
-                    $content .= '<!-- ' . date('Y-m-d H:i:s') . ' -->';
-
-                    Cache::tag('browser')->set($key, $content, mt_rand(28800, 29900));
-                }
+                $content = $response->getContent();
+                $pattern = [
+                    '/<meta name="csrf-authorization" content="(.*?)" \/>/si' => '<meta name="csrf-authorization" content="" />',
+                    '/<meta name="csrf-token" content="(.*?)" \/>/si' => '<meta name="csrf-token" content="" />',
+                ];
+                $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $content);
+                $content .= '<!-- ' . date('Y-m-d H:i:s') . ' -->';
+                Cache::tag('browser')->set($key, $content, mt_rand(28800, 29900));
             }
         }
 

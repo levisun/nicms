@@ -79,7 +79,7 @@ abstract class BaseController
         // api和logic层默认关闭
         $this->app->debug((bool) $this->app->env->get('app_debug', false));
         // 设置请求默认过滤方法
-        $this->request->filter('\app\common\library\DataFilter::default');
+        $this->request->filter('\app\common\library\DataFilter::filter');
 
         // 生成客户端cookie令牌
         if (!$this->session->has('client_token')) {
