@@ -32,7 +32,6 @@ class Search extends BaseController
     {
         $result = Siteinfo::query();
         $this->view->config([
-            'app_name'   => 'cms',
             'view_theme' => $result['theme'],
             'tpl_replace_string' => [
                 '__NAME__'        => $result['name'],

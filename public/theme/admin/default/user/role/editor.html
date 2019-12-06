@@ -101,6 +101,7 @@
             editor: function () {
                 var data = jQuery('#role').serializeArray();
                 data.push({ name: 'method', value: 'user.role.editor' });
+                data.push({ name: 'id', value: NICMS.api.param.id });
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',

@@ -18,8 +18,8 @@ declare(strict_types=1);
 namespace app\admin\logic\user;
 
 use app\common\controller\BaseLogic;
-use app\common\model\Role as ModelRole;
-use app\common\model\RoleAccess as ModelRoleAccess;
+use app\common\model\Admin as ModelAdmin;
+use app\common\model\RoleAdmin as ModelRoleAdmin;
 
 class Role extends BaseLogic
 {
@@ -34,7 +34,7 @@ class Role extends BaseLogic
     {
         $query_limit = $this->request->param('limit/d', 10);
 
-        $result = (new ModelRole)
+        $result = (new ModelAdmin)
             ->where([
                 ['id', '<>', 1]
             ])
@@ -88,8 +88,8 @@ class Role extends BaseLogic
             return $result;
         }
 
-        (new ModelRole)->transaction(function () use ($receive_data) {
-            $role = new ModelRole;
+        (new ModelAdmin)->transaction(function () use ($receive_data) {
+            $role = new ModelAdmin;
             $role->save($receive_data);
             $list = [];
             $node = $this->request->param('node/a');
@@ -118,7 +118,7 @@ class Role extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d')) {
-            $result = (new ModelRole)
+            $result = (new ModelAdmin)
                 ->where([
                     ['id', '=', $id],
                 ])
@@ -174,8 +174,8 @@ class Role extends BaseLogic
             return $result;
         }
 
-        (new ModelRole)->transaction(function () use ($receive_data, $id) {
-            (new ModelRole)->where([
+        (new ModelAdmin)->transaction(function () use ($receive_data, $id) {
+            (new ModelAdmin)->where([
                 ['id', '=', $id]
             ])
             ->data($receive_data)
@@ -220,8 +220,8 @@ class Role extends BaseLogic
             ];
         }
 
-        (new ModelRole)->transaction(function () use ($id) {
-            (new ModelRole)->where([
+        (new ModelAdmin)->transaction(function () use ($id) {
+            (new ModelAdmin)->where([
                 ['id', '=', $id]
             ])
             ->delete();

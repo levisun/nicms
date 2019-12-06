@@ -50,6 +50,8 @@ composer require lizhichao/word
 composer require overtrue/pinyin
 composer require overtrue/wechat
 composer require phpmailer/phpmailer
+
+composer require guzzlehttp/guzzle
 ~~~
 
 ## composer 命令

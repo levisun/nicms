@@ -33,6 +33,7 @@ return [
     'auth cache'    => '缓存',
 
     'auth user'     => '用户',
+    'auth admin'    => '管理员',
     'auth role'     => '管理员组',
     'auth node'     => '权限节点',
 

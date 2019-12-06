@@ -99,11 +99,14 @@ class Template implements TemplateHandlerInterface
     public function __construct(App $app, array $_config = [])
     {
         $this->app     = $app;
-        $this->config['compile_path'] = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
-            'compile' . DIRECTORY_SEPARATOR . app('http')->getName() . DIRECTORY_SEPARATOR;
+        // 默认值
+        $this->config['compile_path'] = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
         $this->config['view_path'] = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR;
         $this->config['tpl_compile'] = (bool) !env('app_debug', false);
+        $this->config['app_name'] = app('http')->getName();
+        // 合并配置
         $this->config  = array_merge($this->config, $_config);
+
         $this->appName = app('http')->getName();
     }
 
@@ -174,7 +177,7 @@ class Template implements TemplateHandlerInterface
         }
 
         // 主题设置
-        $tpl_config = $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] . 'config.json';
+        $tpl_config = $this->config['app_name'] . DIRECTORY_SEPARATOR . $this->config['view_theme'] . 'config.json';
         if (is_file($this->config['view_path'] . $tpl_config)) {
             $json = file_get_contents($this->config['view_path'] . $tpl_config);
             if ($json && $json = json_decode($json, true)) {
@@ -186,10 +189,10 @@ class Template implements TemplateHandlerInterface
         $compile_file  = $this->config['compile_path'] .
             md5(
                 $this->config['view_theme'] .
-                $this->config['strip_space'] .
-                $this->config['layout_on'] .
-                $this->config['layout_name'] .
-                $_template
+                    $this->config['strip_space'] .
+                    $this->config['layout_on'] .
+                    $this->config['layout_name'] .
+                    $_template
             ) . '.' .
             trim($this->config['compile_suffix'], '.');
 
@@ -213,24 +216,32 @@ class Template implements TemplateHandlerInterface
      */
     private function paresReplace(string &$_content): void
     {
-        $theme  = $this->app->config->get('app.cdn_host') . '/theme/' .
-            $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'];
+        $path  = $this->app->config->get('app.cdn_host') . '/theme/';
+        $path .= $this->config['app_name'] . DIRECTORY_SEPARATOR . $this->config['view_theme'];
 
         // 拼装移动端模板路径
-        $mobile = 'mobile' . DIRECTORY_SEPARATOR;
-        if ($this->app->request->isMobile() && is_dir($this->config['view_path'] . $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] . $mobile)) {
-            $theme .= $mobile;
+        if ($this->app->request->isMobile()) {
+            $mobile  = $this->config['view_path'] . $this->config['app_name'] . DIRECTORY_SEPARATOR . $this->config['view_theme'];
+            // 微信端模板
+            if (is_wechat() && is_dir($mobile . 'wechat' . DIRECTORY_SEPARATOR)) {
+                $path .= 'wechat' . DIRECTORY_SEPARATOR;
+            }
+            // 移动端模板
+            elseif (is_dir($mobile . 'mobile' . DIRECTORY_SEPARATOR)) {
+                $path .= 'mobile' . DIRECTORY_SEPARATOR;
+            }
         }
 
-        $theme = str_replace(DIRECTORY_SEPARATOR, '/', $theme);
+
+        $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
 
         $replace = [
             '__SYS_VERSION__' => $this->app->config->get('app.version', '1.0.1'),
             '__STATIC__'      => $this->app->config->get('app.cdn_host') . '/static/',
-            '__THEME__'       => $theme,
-            '__CSS__'         => $theme . 'css/',
-            '__IMG__'         => $theme . 'img/',
-            '__JS__'          => $theme . 'js/',
+            '__THEME__'       => $path,
+            '__CSS__'         => $path . 'css/',
+            '__IMG__'         => $path . 'img/',
+            '__JS__'          => $path . 'js/',
         ];
 
         $replace = array_merge($this->config['tpl_replace_string'], $replace);
@@ -446,7 +457,7 @@ class Template implements TemplateHandlerInterface
         $this->script = '';
 
         $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.do" defer ></script>';
-        if ('admin' !== $this->appName) {
+        if ('admin' !== $this->config['app_name']) {
             $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.do" defer ></script>';
         }
     }
@@ -645,25 +656,22 @@ class Template implements TemplateHandlerInterface
         $_template = $_template
             ? rtrim(trim($_template, " \/,._-\t\n\r\0\x0B"), '.') . '.' . $this->config['view_suffix']
             : $request->action(true);
-        $_template = $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] . $_template;
+        $_template = $this->config['app_name'] . DIRECTORY_SEPARATOR . $this->config['view_theme'] . $_template;
 
         // 拼装移动端或微信端模板路径
         if ($request->isMobile()) {
-            $view_path = $this->config['view_path'] . $this->appName . DIRECTORY_SEPARATOR .
-                $this->config['view_theme'];
+            $mobile = $this->config['view_path'] . $this->config['app_name'] . DIRECTORY_SEPARATOR . $this->config['view_theme'];
 
             // 微信端模板
-            if (is_wechat() && is_file($view_path . 'wechat' . DIRECTORY_SEPARATOR . $_template)) {
-                $_template = $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] .
-                    'wechat' . DIRECTORY_SEPARATOR . $_template;
+            if (is_wechat() && is_file($mobile . 'wechat' . DIRECTORY_SEPARATOR . $_template)) {
+                $_template = $this->config['app_name'] . DIRECTORY_SEPARATOR . $this->config['view_theme'] . 'wechat' . DIRECTORY_SEPARATOR . $_template;
             }
 
             // 移动端模板
-            elseif (is_file($view_path . 'mobile' . DIRECTORY_SEPARATOR . $_template)) {
-                $_template = $this->appName . DIRECTORY_SEPARATOR . $this->config['view_theme'] .
-                    'mobile' . DIRECTORY_SEPARATOR . $_template;
+            elseif (is_file($mobile . 'mobile' . DIRECTORY_SEPARATOR . $_template)) {
+                $_template = $this->config['app_name'] . DIRECTORY_SEPARATOR . $this->config['view_theme'] . 'mobile' . DIRECTORY_SEPARATOR . $_template;
             }
-            unset($view_path);
+            unset($mobile);
         }
 
         // 模板不存在 抛出异常

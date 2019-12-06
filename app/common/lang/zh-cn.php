@@ -59,4 +59,7 @@ return [
     'level' => '等级',
     'status' => '状态',
     'table' => '表',
+
+    'last login ip' => '登录IP',
+    'last login time' => '登录时间',
 ];
