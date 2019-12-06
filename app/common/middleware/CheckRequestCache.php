@@ -72,13 +72,12 @@ class CheckRequestCache
                     ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
                     ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT');
 
-                $content = $response->getContent();
+                $content = '<!-- ' . date('Y-m-d H:i:s') . ' -->' . $response->getContent();
                 $pattern = [
                     '/<meta name="csrf-authorization" content="(.*?)" \/>/si' => '<meta name="csrf-authorization" content="" />',
                     '/<meta name="csrf-token" content="(.*?)" \/>/si' => '<meta name="csrf-token" content="" />',
                 ];
                 $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $content);
-                $content .= '<!-- ' . date('Y-m-d H:i:s') . ' -->';
                 Cache::tag('browser')->set($key, $content, mt_rand(28800, 29900));
             }
         }

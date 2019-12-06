@@ -25,9 +25,9 @@ return [
             // 驱动方式
             'type'          => 'File',
             // 缓存保存目录
-            'path'          => '',
+            'path'          => app()->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR,
             // 缓存前缀
-            'prefix'        => '',
+            'prefix'        => app('request')->subDomain(),
             // 缓存有效期 0表示永久缓存
             'expire'        => $expire,
             // 关闭子目录

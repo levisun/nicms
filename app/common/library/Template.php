@@ -20,7 +20,6 @@ use think\App;
 use think\contract\TemplateHandlerInterface;
 use think\exception\HttpResponseException;
 use think\Response;
-use app\common\library\DataFilter;
 
 class Template implements TemplateHandlerInterface
 {
@@ -46,12 +45,12 @@ class Template implements TemplateHandlerInterface
         'view_theme'         => '',                     // 模板主题
         'view_suffix'        => 'html',                 // 默认模板文件后缀
 
-        'cache_path'         => '',
-        'cache_suffix'       => 'php',                  // 默认模板缓存后缀
-        'cache_prefix'       => '',                     // 模板缓存前缀标识，可以动态改变
-        'cache_time'         => 0,                      // 模板缓存有效期 0 为永久，(以数字为值，单位:秒)
-        'cache_id'           => '',                     // 模板缓存ID
-        'tpl_cache'          => true,                   // 是否开启模板编译缓存,设为false则每次都会重新编译
+        'compile_path'       => '',
+        'compile_suffix'     => 'php',                  // 默认模板编译后缀
+        'compile_prefix'     => '',                     // 模板编译前缀标识，可以动态改变
+        'compile_time'       => 0,                      // 模板编译有效期 0 为永久，(以数字为值，单位:秒)
+        'compile_id'         => '',                     // 模板编译ID
+        'tpl_compile'        => true,                   // 是否开启模板编译,设为false则每次都会重新编译
 
         'tpl_begin'          => '{',                    // 模板引擎普通标签开始标记
         'tpl_end'            => '}',                    // 模板引擎普通标签结束标记
@@ -100,6 +99,10 @@ class Template implements TemplateHandlerInterface
     public function __construct(App $app, array $_config = [])
     {
         $this->app     = $app;
+        $this->config['compile_path'] = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
+            'compile' . DIRECTORY_SEPARATOR . app('http')->getName() . DIRECTORY_SEPARATOR;
+        $this->config['view_path'] = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR;
+        $this->config['tpl_compile'] = (bool) !env('app_debug', false);
         $this->config  = array_merge($this->config, $_config);
         $this->appName = app('http')->getName();
     }
@@ -180,26 +183,26 @@ class Template implements TemplateHandlerInterface
         }
 
         // 缓存路径
-        $cache_file  = $this->config['cache_path'] .
-            $this->config['view_theme'] .
+        $compile_file  = $this->config['compile_path'] .
             md5(
+                $this->config['view_theme'] .
                 $this->config['strip_space'] .
-                    $this->config['layout_on'] .
-                    $this->config['layout_name'] .
-                    $_template
+                $this->config['layout_on'] .
+                $this->config['layout_name'] .
+                $_template
             ) . '.' .
-            trim($this->config['cache_suffix'], '.');
+            trim($this->config['compile_suffix'], '.');
 
-        if (false === $this->checkCache($cache_file)) {
+        if (false === $this->checkCompiler($compile_file)) {
             // 缓存无效 重新模板编译
-            $content = file_get_contents($_template);
-            $this->compiler($content, $cache_file);
+            $content = trim(file_get_contents($_template));
+            $this->compiler($content, $compile_file);
         }
 
         extract($_data, EXTR_OVERWRITE);
 
         //载入模版缓存文件
-        include $cache_file;
+        include $compile_file;
     }
 
     /**
@@ -437,15 +440,14 @@ class Template implements TemplateHandlerInterface
             return;
         }, $_content);
 
-        $_content = DataFilter::string($_content);
-
         if ($this->script) {
-            $_content .= '<!-- --><script type="text/javascript">' . $this->script . '</script>';
+            $_content .= '<script type="text/javascript">' . $this->script . '</script>';
         }
         $this->script = '';
 
+        $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.do" defer ></script>';
         if ('admin' !== $this->appName) {
-            $_content .= '<!-- 访问统计 --><script src="' . $this->app->config->get('app.api_host') . '/record.do" defer ></script>';
+            $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.do" defer ></script>';
         }
     }
 
@@ -536,10 +538,10 @@ class Template implements TemplateHandlerInterface
      * 编译模板文件内容
      * @access private
      * @param  string $_content 模板内容
-     * @param  string $_cache_file 缓存文件名
+     * @param  string $_compiler_file 缓存文件名
      * @return void
      */
-    private function compiler(string &$_content, string $_cache_file): void
+    private function compiler(string &$_content, string $_compiler_file): void
     {
         // 模板解析
         $this->parse($_content);
@@ -547,27 +549,32 @@ class Template implements TemplateHandlerInterface
         // 去除html空格与换行
         if ($this->config['strip_space']) {
             /* 去除html空格与换行 */
-            $find    = ['/( ){2,}/s', '/(\r|\n){3,}/s', '~>\s+<~', '~>(\s+\n|\r)~'];
-            $replace = ['', '', '><', '>'];
-            $_content = preg_replace($find, $replace, $_content);
+            $pattern = [
+                '~>\s+<~'        => '><',
+                '~>(\s+\n|\r)~'  => '>',
+                '/( ){2,}/s'     => '',
+                '/(\r|\n){3,}/s' => '',
+            ];
+            $_content = preg_replace(array_keys($pattern), array_values($pattern), $_content);
         }
 
         // 优化生成的php代码
         $_content = preg_replace([
             /* '/\?>\s*<\?php\s(?!echo\b|\bend)/s', */
             '/\?>\s*<\?php/s',
-            '/<\/script>\s*<script[a-z "\/=]*>/s'
+            // '/<\/script>\s*<script[a-z "\/=]*>/s',
+            // '/<\/script>\s*<script (type=)*>/s',
         ], '', $_content);
         $_content = str_replace('\/', '/', $_content);
 
         // 添加安全代码及模板引用记录
-        $_content = '<?php /*' . serialize($this->includeFile) . '*/ ?>' . PHP_EOL . $_content;
+        $_content = '<?php /*' . serialize($this->includeFile) . '*/ ?>' . PHP_EOL . trim($_content);
 
         // 编译存储
-        $dir = dirname($_cache_file);
+        $dir = dirname($_compiler_file);
         is_dir($dir) or mkdir($dir, 0755, true);
 
-        file_put_contents($_cache_file, $_content);
+        file_put_contents($_compiler_file, $_content);
 
         $this->includeFile = [];
     }
@@ -576,12 +583,12 @@ class Template implements TemplateHandlerInterface
      * 检查编译缓存是否有效
      * 如果无效则需要重新编译
      * @access private
-     * @param  string $_cache_file 文件名
+     * @param  string $_compiler_file 文件名
      * @return bool
      */
-    private function checkCache($_cache_file): bool
+    private function checkCompiler($_compiler_file): bool
     {
-        if (!$this->config['tpl_cache'] || !is_file($_cache_file) || !$handle = @fopen($_cache_file, 'r')) {
+        if (!$this->config['tpl_compile'] || !is_file($_compiler_file) || !$handle = @fopen($_compiler_file, 'r')) {
             return false;
         }
 
@@ -605,7 +612,7 @@ class Template implements TemplateHandlerInterface
             }
         }
 
-        if (0 !== $this->config['cache_time'] && time() > filemtime($_cache_file) + $this->config['cache_time']) {
+        if (0 !== $this->config['compile_time'] && time() > filemtime($_compiler_file) + $this->config['compile_time']) {
             // 缓存是否在有效期
             return false;
         }

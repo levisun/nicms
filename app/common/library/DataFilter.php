@@ -61,7 +61,7 @@ class DataFilter
             $_data = self::safe($_data);
             $_data = self::fun($_data);
             // 过滤标签上的信息
-            $_data = preg_replace_callback('/([a-zA-Z0-9-_]+)=["|\'](.*?)["|\']/si', function ($matches) {
+            $_data = preg_replace_callback('/([a-zA-Z0-9-_]+)=("|\')(.*?)("|\')/si', function ($matches) {
                 if (in_array($matches[1], ['href', 'src', 'atr', 'title'])) {
                     return $matches[0];
                 } else {
@@ -209,7 +209,16 @@ class DataFilter
 
         return (string) preg_replace([
             // XSS跨站脚本攻击
-            '/on([a-zA-Z0-9]+)([ ]*?=[ ]*?)["|\'](.*?)["|\']/si',
+            // '/on([a-zA-Z0-9]+)([ ]*?=[ ]*?)(["\'])(.*?)(["\'])/si',
+            // '/on([a-zA-Z0-9]+)(=)(.*?)/si',
+            // '/on([ a-zA-Z0-9=_()"\']+)/si',
+            '/on([a-zA-Z0-9]+)([ a-zA-Z0-9=_()"\']+)/si',
+
+
+            // '/on([ a-zA-Z0-9=_()\\\\"\'\/]+)/si',
+
+            // '/(id|class|style)=["|\'](.*?)["|\']/si',
+            // '/(id|class|style)=([a-zA-Z0-9_\-]+)/si',
             '/(javascript:)(.*?)(\))/si',
             '/<javascript.*?>(.*?)<\/javascript.*?>/si',    '/<(\/?javascript.*?)>/si',
             '/<script.*?>(.*?)<\/script.*?>/si',            '/<(\/?script.*?)>/si',
