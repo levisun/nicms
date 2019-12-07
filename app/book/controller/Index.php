@@ -31,7 +31,6 @@ class Index extends BaseController
     {
         $result = (new Siteinfo)->query();
         $this->view->config([
-            'app_name'   => 'book',
             'view_theme' => $result['theme'],
             'tpl_replace_string' => [
                 '__NAME__'        => $result['name'],
@@ -48,17 +47,14 @@ class Index extends BaseController
     /**
      * 主页
      * @access public
-     * @param  string $service
-     * @param  string $logic
-     * @param  string $action
      * @return
      */
-    public function index(string $logic = 'account', string $action = 'user', string $method = 'login')
+    public function index()
     {
-        $this->authenticate($logic, $action, $method);
+        // $this->authenticate($logic, $action, $method);
 
-        $tpl = $logic . DIRECTORY_SEPARATOR . $action . DIRECTORY_SEPARATOR . $method;
-        return $this->fetch($tpl);
+        // $tpl = $logic . DIRECTORY_SEPARATOR . $action . DIRECTORY_SEPARATOR . $method;
+        return $this->fetch('index');
     }
 
     /**

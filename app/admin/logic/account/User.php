@@ -58,9 +58,12 @@ class User extends BaseLogic
         $user = (new ModelAdmin)
             ->view('admin', ['id', 'username', 'password', 'salt', 'flag'])
             ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
-            ->view('role role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
+            ->view('role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
             ->where([
                 ['admin.username', '=', $this->request->param('username')]
+            ])
+            ->whereOr([
+                ['admin.phone', '=', $this->request->param('username')]
             ])
             ->find();
         if (null === $user || false === Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {

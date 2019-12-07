@@ -138,7 +138,7 @@ class Tags
             '<meta name="keywords" content="__KEYWORDS__" />' .
             '<meta name="description" content="__DESCRIPTION__" />' .
             '<meta property="og:title" content="__NAME__">' .
-            '<meta property="og:type" content="website">' .
+            '<meta property="og:type" content="article">' .
             '<meta property="og:url" content="' . request()->url(true) . '">' .
             '<meta property="og:image" content="">' .
 

@@ -52,6 +52,48 @@ class Index extends BaseController
      */
     public function index()
     {
-        return $this->fetch('index');
+        $client = new \GuzzleHttp\Client([
+            'base_uri' => 'https://www.jx.la/book/',
+        ]);
+
+        $response = $client->request('GET', '159462');
+        if (200 == $response->getStatusCode()) {
+            $body = $response->getBody();
+            $content = $body->getContents();
+            preg_match_all('/<a style="" href="\/book\/(.*?)">(.*?)<\/a>/si', $content, $matches);
+            if (!empty($matches[1])) {
+                foreach ($matches[1] as $key => $url) {
+                    $response = $client->request('GET', $url);
+                    if (200 == $response->getStatusCode()) {
+                        $body = $response->getBody();
+                        $content = $body->getContents();
+                        preg_match('/<div id="content">(.*?)<\/div>/si', $content, $mat);
+                        if (!empty($mat[1])) {
+                            $content = trim($mat[1]);
+                            $content = str_replace(['　', '</br>'], '', $content);
+                            $pattern = [
+                                '/<script>(.*?)<\/script>/si',
+                                '/([ \s]+)/si',
+                            ];
+                            $content = preg_replace($pattern, '', $content);
+                            $content = explode('<br/>', $content);
+                            $content = array_map(function($value){
+                                $value = trim($value);
+                                $value = htmlspecialchars_decode($value, ENT_QUOTES);
+                                $value = strip_tags($value);
+                                return $value;
+                            }, $content);
+                            $content = array_filter($content);
+                            $content = implode('<br/>', $content);
+                        }
+                        halt($content);
+                    }
+                }
+            }
+
+
+            # code...
+        }
+        // return $this->fetch('index');
     }
 }

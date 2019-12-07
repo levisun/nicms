@@ -33,5 +33,52 @@
     </div>
 </div>
 <script type="text/javascript">
-
+    let admin = new Vue({
+        el: '.box',
+        data: {
+            items: []
+        },
+        methods: {
+            load: function (_p) {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    push: true,
+                    replace: true,
+                    requestUrl: NICMS.url + '?page=' + _p,
+                    data: [
+                        { name: 'method', value: 'user.admin.query' },
+                        { name: 'page', value: _p }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            admin.items = result.data;
+                        }
+                    }
+                });
+            },
+            added: function () {
+                window.location.href = NICMS.domain + '/user/admin/added.html';
+            },
+            remove: function (id) {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: [
+                        { name: 'method', value: 'user.admin.remove' },
+                        { name: 'id', value: id }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            location.reload();
+                        }
+                    }
+                });
+            }
+        }
+    });
+    admin.load(1);
+    function paging(_p) {
+        admin.load(_p);
+    }
 </script>

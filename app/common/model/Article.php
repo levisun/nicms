@@ -16,7 +16,7 @@
 DROP TABLE IF EXISTS `nc_article`;
 CREATE TABLE IF NOT EXISTS `nc_article` (
     `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `title` varchar(20) NOT NULL DEFAULT '' COMMENT '标题',
+    `title` varchar(50) NOT NULL DEFAULT '' COMMENT '标题',
     `keywords` varchar(100) NOT NULL DEFAULT '' COMMENT '关键词',
     `description` varchar(300) NOT NULL DEFAULT '' COMMENT '描述',
     `category_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '栏目ID',
@@ -90,7 +90,6 @@ class Article extends Model
         'sort_order',
         'hits',
         'username',
-        'origin',
         'admin_id',
         'user_id',
         'show_time',

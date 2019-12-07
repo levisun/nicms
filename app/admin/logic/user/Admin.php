@@ -21,7 +21,7 @@ use app\common\controller\BaseLogic;
 use app\common\model\Admin as ModelAdmin;
 use app\common\model\RoleAdmin as ModelRoleAdmin;
 
-class Role extends BaseLogic
+class Admin extends BaseLogic
 {
     protected $authKey = 'admin_auth_key';
 
@@ -35,8 +35,11 @@ class Role extends BaseLogic
         $query_limit = $this->request->param('limit/d', 10);
 
         $result = (new ModelAdmin)
+            ->view('admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
+            ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
+            ->view('role role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
             ->where([
-                ['id', '<>', 1]
+                ['admin.id', '<>', 1]
             ])
             ->order('id DESC')
             ->paginate([
@@ -89,17 +92,10 @@ class Role extends BaseLogic
         }
 
         (new ModelAdmin)->transaction(function () use ($receive_data) {
-            $role = new ModelAdmin;
-            $role->save($receive_data);
-            $list = [];
-            $node = $this->request->param('node/a');
-            foreach ($node as $value) {
-                $list[] = [
-                    'role_id' => $role->id,
-                    'node_id' => $value,
-                ];
-            }
-            (new ModelRoleAccess)->saveAll($list);
+            $admin = new ModelAdmin;
+            $admin->save($receive_data);
+
+            // (new ModelRoleAdmin)->saveAll($list);
         });
 
         return [
@@ -125,7 +121,7 @@ class Role extends BaseLogic
                 ->find();
             $result = $result ? $result->toArray() : [];
 
-            $node = (new ModelRoleAccess)
+            $node = (new ModelRoleAdmin)
                 ->field('node_id')
                 ->where([
                     ['role_id', '=', $id]
@@ -178,10 +174,10 @@ class Role extends BaseLogic
             (new ModelAdmin)->where([
                 ['id', '=', $id]
             ])
-            ->data($receive_data)
-            ->update();
+                ->data($receive_data)
+                ->update();
             // 删除旧数据
-            (new ModelRoleAccess)->where([
+            (new ModelRoleAdmin)->where([
                 ['role_id', '=', $id]
             ])->delete();
             $list = [];
@@ -192,7 +188,7 @@ class Role extends BaseLogic
                     'node_id' => $value,
                 ];
             }
-            (new ModelRoleAccess)->saveAll($list);
+            (new ModelRoleAdmin)->saveAll($list);
         });
 
         return [
@@ -224,8 +220,8 @@ class Role extends BaseLogic
             (new ModelAdmin)->where([
                 ['id', '=', $id]
             ])
-            ->delete();
-            (new ModelRoleAccess)->where([
+                ->delete();
+            (new ModelRoleAdmin)->where([
                 ['role_id', '=', $id]
             ])->delete();
         });
