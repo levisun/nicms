@@ -50,8 +50,9 @@ return [
     'domain_bind'      => [
         'admin' => 'admin',
         'api'   => 'api',
-        'www'   => 'cms',
+        'book'  => 'book',
         'cdn'   => 'cms',
+        'www'   => 'cms',
     ],
     // 禁止URL访问的应用列表（自动多应用模式有效）
     'deny_app_list'    => ['common'],

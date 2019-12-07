@@ -1,8 +1,9 @@
 <?php
+
 /**
  *
  * 控制层
- * Book
+ * admin
  *
  * @package   NICMS
  * @category  app\book\controller
@@ -11,13 +12,13 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
 
-namespace app\controller;
+declare(strict_types=1);
+
+namespace app\book\controller;
 
 use app\common\controller\BaseController;
 use app\common\library\Siteinfo;
-
 
 class Index extends BaseController
 {
@@ -51,28 +52,6 @@ class Index extends BaseController
      */
     public function index()
     {
-        // $this->authenticate($logic, $action, $method);
-
-        // $tpl = $logic . DIRECTORY_SEPARATOR . $action . DIRECTORY_SEPARATOR . $method;
-        return $this->fetch('index');
-    }
-
-    /**
-     * 操作验证权限
-     * @access private
-     * @param  string $_logic   业务层
-     * @param  string $_action  控制器
-     * @param  string $_method  方法
-     * @return void
-     */
-    protected function authenticate(string $_logic, string $_action, string $_method): void
-    {
-        if ($this->session->has('user_auth_key') && $_logic === 'account') {
-            // $this->redirect('settings/dashboard/index');
-        }
-
-        elseif (!$this->session->has('user_auth_key') && !in_array($_method, ['login', 'forget'])) {
-            $this->redirect('account/user/login');
-        }
+        // return $this->fetch('index');
     }
 }

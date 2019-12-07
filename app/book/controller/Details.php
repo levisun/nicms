@@ -6,7 +6,7 @@
  * admin
  *
  * @package   NICMS
- * @category  app\cms\controller
+ * @category  app\book\controller
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -15,12 +15,12 @@
 
 declare(strict_types=1);
 
-namespace app\cms\controller;
+namespace app\book\controller;
 
 use app\common\controller\BaseController;
 use app\common\library\Siteinfo;
 
-class Index extends BaseController
+class Details extends BaseController
 {
 
     /**
@@ -46,12 +46,13 @@ class Index extends BaseController
     }
 
     /**
-     * 主页
+     * 详情页
      * @access public
-     * @return
+     * @param  string $name 分层名
+     * @return void
      */
-    public function index()
+    public function index(string $name)
     {
-        return $this->fetch('index');
+        return $this->fetch($name . '_details');
     }
 }
