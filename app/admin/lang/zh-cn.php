@@ -33,6 +33,7 @@ return [
     'auth cache'    => '缓存',
 
     'auth user'     => '用户',
+    'auth level'    => '用户组',
     'auth admin'    => '管理员',
     'auth role'     => '管理员组',
     'auth node'     => '权限节点',
@@ -100,4 +101,5 @@ return [
     'run action' => '执行方法',
     'backname' => '备份文件名',
 
+    'qingshuru' => '123',
 ];

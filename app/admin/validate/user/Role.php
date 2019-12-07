@@ -22,7 +22,7 @@ class Role extends Validate
     protected $rule = [
         'name'       => ['require', 'length: 2,20', 'unique: role'],
         'remark'     => ['max: 100'],
-        'status'     => ['require', 'number'],
+        'status'     => ['require', 'integer'],
     ];
 
     protected $message = [

@@ -10,8 +10,8 @@
                 <tr>
                     <th width="5%">{:lang('id')}</th>
                     <th>{:lang('username')}</th>
-                    <th>{:lang('email')}</th>
                     <th>{:lang('phone')}</th>
+                    <th>{:lang('email')}</th>
                     <th>{:lang('role name')}</th>
                     <th>{:lang('status')}</th>
                     <th>{:lang('last login ip')}</th>
@@ -20,17 +20,37 @@
                 </tr>
             </thead>
             <tbody>
-                <template v-for="vo in items">
+                <template v-for="vo in items.list">
                     <tr>
+                        <td v-text="vo.id"></td>
+                        <td v-text="vo.username"></td>
+                        <td v-text="vo.phone"></td>
+                        <td v-text="vo.email"></td>
+                        <td v-text="vo.role_name"></td>
                         <td>
-
-
+                            <span class="label label-primary">
+                                <font v-if="vo.status == 1">{:lang('open')}</font>
+                                <font v-if="vo.status == 0">{:lang('close')}</font>
+                            </span>
+                        </td>
+                        <td v-text="vo.last_login_ip"></td>
+                        <td v-text="vo.last_login_time"></td>
+                        <td>
+                            <a class="editor" v-bind:href="vo.url.editor">
+                                <i class="fa fa-pencil-square-o"></i>
+                                {:lang('editor')}
+                            </a>
+                            <a v-on:click="remove(vo.id)">
+                                <i class="fa fa-trash"></i>
+                                {:lang('remove')}
+                            </a>
                         </td>
                     </tr>
                 </template>
             </tbody>
         </table>
     </div>
+    <div class="box-footer clearfix" v-html="items.page"></div>
 </div>
 <script type="text/javascript">
     let admin = new Vue({

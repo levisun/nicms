@@ -27,8 +27,8 @@
                 <label>{:lang('level')}</label>
                 <select class="form-control" name="level">
                     <template v-for="vo in items.level_list">
-                        <option v-bind:value="vo.id" v-text="vo.name" v-if="items.level==vo.id" selected></option>
-                        <option v-bind:value="vo.id" v-text="vo.name" v-else></option>
+                        <option v-bind:value="vo.id" v-text="vo.name"
+                            v-bind:selected="items.level==vo.id ? true : false"></option>
                     </template>
                 </select>
             </div>
@@ -90,6 +90,8 @@
                         if (result.code === 10000) {
                             jQuery.uiToast(result.message);
                             location.reload();
+                        } else {
+                            jQuery.uiToast(result.message);
                         }
                     }
                 });

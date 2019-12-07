@@ -18,9 +18,10 @@ CREATE TABLE IF NOT EXISTS `nc_admin` (
     `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `username` varchar(20) NOT NULL DEFAULT '' COMMENT '用户名',
     `password` varchar(60) NOT NULL DEFAULT '' COMMENT '密码',
+    `salt` char(6) NOT NULL DEFAULT '' COMMENT '佐料',
     `phone` varchar(11) NOT NULL DEFAULT '' COMMENT '电话',
     `email` varchar(40) NOT NULL DEFAULT '' COMMENT '邮箱',
-    `salt` char(6) NOT NULL DEFAULT '' COMMENT '佐料',
+    `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '状态 1正常 0停用',
     `flag` varchar(40) NOT NULL DEFAULT '' COMMENT '登录标识',
     `last_login_ip` varchar(15) NOT NULL DEFAULT '' COMMENT '登录IP',
     `last_login_ip_attr` varchar(100) NOT NULL DEFAULT '' COMMENT '登录IP地区',
@@ -44,7 +45,7 @@ use think\Model;
 class Admin extends Model
 {
     protected $name = 'admin';
-    protected $autoWriteTimestamp = false;
+    protected $autoWriteTimestamp = true;
     protected $updateTime = 'update_time';
     protected $pk = 'id';
     protected $field = [

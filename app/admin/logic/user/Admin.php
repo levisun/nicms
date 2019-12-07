@@ -18,7 +18,9 @@ declare(strict_types=1);
 namespace app\admin\logic\user;
 
 use app\common\controller\BaseLogic;
+use app\common\library\Base64;
 use app\common\model\Admin as ModelAdmin;
+use app\common\model\Role as ModelRole;
 use app\common\model\RoleAdmin as ModelRoleAdmin;
 
 class Admin extends BaseLogic
@@ -35,7 +37,7 @@ class Admin extends BaseLogic
         $query_limit = $this->request->param('limit/d', 10);
 
         $result = (new ModelAdmin)
-            ->view('admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
+            ->view('admin', ['id', 'username', 'email', 'status', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
             ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
             ->view('role role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
             ->where([
@@ -52,8 +54,8 @@ class Admin extends BaseLogic
 
         foreach ($list['data'] as $key => $value) {
             $value['url'] = [
-                'editor' => url('user/role/editor/' . $value['id']),
-                'remove' => url('user/role/remove/' . $value['id']),
+                'editor' => url('user/admin/editor/' . $value['id']),
+                'remove' => url('user/admin/remove/' . $value['id']),
             ];
             $list['data'][$key] = $value;
         }
@@ -80,22 +82,32 @@ class Admin extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog(__METHOD__, 'admin role added');
+        $this->actionLog(__METHOD__, 'admin admin added');
 
         $receive_data = [
-            'name'       => $this->request->param('name'),
-            'remark'     => $this->request->param('remark'),
-            'status'     => $this->request->param('status/d'),
+            'username'         => $this->request->param('username'),
+            'password'         => $this->request->param('password'),
+            'password_confirm' => $this->request->param('password_confirm'),
+            'phone'            => $this->request->param('phone'),
+            'email'            => $this->request->param('email'),
+            'role_id'          => $this->request->param('role_id/d'),
+            'status'           => $this->request->param('status/d'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
         }
 
         (new ModelAdmin)->transaction(function () use ($receive_data) {
+            $receive_data['salt'] = Base64::flag(md5(microtime(true) . $receive_data['password']), 6);
+            $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
+
             $admin = new ModelAdmin;
             $admin->save($receive_data);
 
-            // (new ModelRoleAdmin)->saveAll($list);
+            (new ModelRoleAdmin)->save([
+                'user_id' => $admin->id,
+                'role_id' => $receive_data['role_id']
+            ]);
         });
 
         return [
@@ -115,30 +127,27 @@ class Admin extends BaseLogic
         $result = [];
         if ($id = $this->request->param('id/d')) {
             $result = (new ModelAdmin)
+                ->view('admin', ['id', 'username', 'phone', 'email', 'status'])
+                ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
                 ->where([
-                    ['id', '=', $id],
+                    ['admin.id', '=', $id],
                 ])
                 ->find();
             $result = $result ? $result->toArray() : [];
-
-            $node = (new ModelRoleAdmin)
-                ->field('node_id')
-                ->where([
-                    ['role_id', '=', $id]
-                ])
-                ->order('node_id ASC')
-                ->select();
-            if ($node = $node->toArray()) {
-                foreach ($node as $value) {
-                    $result['node'][] = $value['node_id'];
-                }
-            }
         }
+
+        $role = (new ModelRole)
+            ->where([
+                ['id', '<>', 1],
+                ['status', '=', 1]
+            ])
+            ->select();
+        $result['role_list'] = $role ? $role->toArray() : [];
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'role',
+            'msg'   => 'admin',
             'data'  => $result
         ];
     }
@@ -150,7 +159,7 @@ class Admin extends BaseLogic
      */
     public function editor()
     {
-        $this->actionLog(__METHOD__, 'admin role editor');
+        $this->actionLog(__METHOD__, 'admin admin editor');
 
         if (!$id = $this->request->param('id/d')) {
             return [
@@ -162,39 +171,44 @@ class Admin extends BaseLogic
         }
 
         $receive_data = [
-            'name'       => $this->request->param('name'),
-            'remark'     => $this->request->param('remark'),
-            'status'     => $this->request->param('status/d'),
+            'username'         => $this->request->param('username'),
+            'password'         => $this->request->param('password'),
+            'password_confirm' => $this->request->param('password_confirm'),
+            'phone'            => $this->request->param('phone'),
+            'email'            => $this->request->param('email'),
+            'role_id'          => $this->request->param('role_id/d'),
+            'status'           => $this->request->param('status/d'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
         }
 
         (new ModelAdmin)->transaction(function () use ($receive_data, $id) {
+            $receive_data['salt'] = Base64::flag(md5(microtime(true) . $receive_data['password']), 6);
+            $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
+
             (new ModelAdmin)->where([
                 ['id', '=', $id]
-            ])
-                ->data($receive_data)
-                ->update();
-            // 删除旧数据
+            ])->data([
+                'username' => $receive_data['username'],
+                'password' => $receive_data['password'],
+                'salt' => $receive_data['salt'],
+                'phone' => $receive_data['phone'],
+                'email' => $receive_data['email'],
+                'status' => $receive_data['status']
+            ])->update();
+
             (new ModelRoleAdmin)->where([
-                ['role_id', '=', $id]
-            ])->delete();
-            $list = [];
-            $node = $this->request->param('node/a');
-            foreach ($node as $value) {
-                $list[] = [
-                    'role_id' => $id,
-                    'node_id' => $value,
-                ];
-            }
-            (new ModelRoleAdmin)->saveAll($list);
+                ['user_id', '=', $id]
+            ])->data([
+                'role_id' => $receive_data['role_id']
+            ])->update();
         });
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'role editor success',
+            'msg'   => 'admin editor success',
         ];
     }
 
@@ -205,7 +219,7 @@ class Admin extends BaseLogic
      */
     public function remove()
     {
-        $this->actionLog(__METHOD__, 'admin role remove');
+        $this->actionLog(__METHOD__, 'admin admin remove');
 
         if (!$id = $this->request->param('id/d')) {
             return [
@@ -222,14 +236,14 @@ class Admin extends BaseLogic
             ])
                 ->delete();
             (new ModelRoleAdmin)->where([
-                ['role_id', '=', $id]
+                ['user_id', '=', $id]
             ])->delete();
         });
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'role remove success',
+            'msg'   => 'admin remove success',
         ];
     }
 }

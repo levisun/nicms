@@ -26,12 +26,12 @@ class Category extends Validate
         'keywords'    => ['max:100'],
         'description' => ['max:300'],
         'image'       => ['max:100'],
-        'type_id'     => ['require', 'number'],
-        'model_id'    => ['require', 'number'],
-        'is_show'     => ['require', 'number'],
-        'is_channel'  => ['require', 'number'],
-        'sort_order'  => ['require', 'number'],
-        'access_id'   => ['require', 'number'],
+        'type_id'     => ['require', 'integer'],
+        'model_id'    => ['require', 'integer'],
+        'is_show'     => ['require', 'integer'],
+        'is_channel'  => ['require', 'integer'],
+        'sort_order'  => ['require', 'integer'],
+        'access_id'   => ['require', 'integer'],
         'url'         => ['max:100'],
     ];
 

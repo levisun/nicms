@@ -23,10 +23,10 @@ class Node extends Validate
         'name'       => ['require', 'length: 2,20', /* 'unique: node' */],
         'title'      => ['require', 'length: 2,20', /* 'unique: node' */],
         'remark'     => ['max: 100'],
-        'pid'        => ['require', 'number'],
-        'level'      => ['require', 'number'],
-        'status'     => ['require', 'number'],
-        'sort_order' => ['require', 'number'],
+        'pid'        => ['require', 'integer'],
+        'level'      => ['require', 'integer', 'gt: 0'],
+        'status'     => ['require', 'integer'],
+        'sort_order' => ['require', 'integer'],
     ];
 
     protected $message = [
@@ -40,12 +40,15 @@ class Node extends Validate
 
         'remark.max'         => '{%error remark}',
 
-        'pid.require'        => '{%error type}',
-        'pid.number'         => '{%error type}',
+        'pid.require'        => '{%error pid}',
+        'pid.number'         => '{%error pid}',
+
         'level.require'      => '{%error level}',
         'level.number'       => '{%error level}',
+
         'status.require'     => '{%error status}',
         'status.number'      => '{%error status}',
+
         'sort_order.require' => '{%error sort_order}',
         'sort_order.number'  => '{%error sort_order}',
     ];

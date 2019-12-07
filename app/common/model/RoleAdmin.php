@@ -31,7 +31,7 @@ use think\Model;
 
 class RoleAdmin extends Model
 {
-    protected $name = 'role_access';
+    protected $name = 'role_admin';
     protected $autoWriteTimestamp = false;
     protected $updateTime = false;
     protected $pk = 'id';

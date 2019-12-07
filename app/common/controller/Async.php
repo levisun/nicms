@@ -285,7 +285,7 @@ abstract class Async
 
         // 校验返回数据
         if (!is_array($this->result) && array_key_exists('msg', $this->result)) {
-            $this->error('返回数据格式错误', 40001);
+            $this->error('返回数据格式错误', 41001);
         }
 
         // 调试模式设置

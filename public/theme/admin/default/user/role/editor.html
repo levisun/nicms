@@ -110,6 +110,8 @@
                         if (result.code === 10000) {
                             jQuery.uiToast(result.message);
                             history.back();
+                        } else {
+                            jQuery.uiToast(result.message);
                         }
                     }
                 });
