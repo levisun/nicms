@@ -52,48 +52,27 @@ class Index extends BaseController
      */
     public function index()
     {
-        $client = new \GuzzleHttp\Client([
-            'base_uri' => 'https://www.jx.la/book/',
-        ]);
+        $book = new \gather\Book('https://www.jx.la/book/');
+        $data = $book->getCat('159462');
 
-        $response = $client->request('GET', '159462');
-        if (200 == $response->getStatusCode()) {
-            $body = $response->getBody();
-            $content = $body->getContents();
-            preg_match_all('/<a style="" href="\/book\/(.*?)">(.*?)<\/a>/si', $content, $matches);
-            if (!empty($matches[1])) {
-                foreach ($matches[1] as $key => $url) {
-                    $response = $client->request('GET', $url);
-                    if (200 == $response->getStatusCode()) {
-                        $body = $response->getBody();
-                        $content = $body->getContents();
-                        preg_match('/<div id="content">(.*?)<\/div>/si', $content, $mat);
-                        if (!empty($mat[1])) {
-                            $content = trim($mat[1]);
-                            $content = str_replace(['　', '</br>'], '', $content);
-                            $pattern = [
-                                '/<script>(.*?)<\/script>/si',
-                                '/([ \s]+)/si',
-                            ];
-                            $content = preg_replace($pattern, '', $content);
-                            $content = explode('<br/>', $content);
-                            $content = array_map(function($value){
-                                $value = trim($value);
-                                $value = htmlspecialchars_decode($value, ENT_QUOTES);
-                                $value = strip_tags($value);
-                                return $value;
-                            }, $content);
-                            $content = array_filter($content);
-                            $content = implode('<br/>', $content);
-                        }
-                        halt($content);
-                    }
-                }
+        foreach ($data as $value) {
+            $value['content'] = $book->getContent($value['uri']);
+            $value['show_time'] = time();
+            $value['book_id'] = 1;
+            unset($value['uri']);
+            $value = \app\common\library\DataFilter::content($value);
+            $value['hash'] = hash_hmac('sha256', $value['content'], sha1($value['content']));
+
+            $id = (new \app\common\model\BookArticle)->where([
+                ['hash', '=', $value['hash']]
+            ])
+            ->value('id');
+            if (!$id) {
+                (new \app\common\model\BookArticle)->save($value);
             }
-
-
-            # code...
         }
+        return ;
+
         // return $this->fetch('index');
     }
 }
