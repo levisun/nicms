@@ -28,34 +28,21 @@ class AppMaintain
     public function handle()
     {
         // 垃圾信息维护
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'lock' . DIRECTORY_SEPARATOR;
-        is_dir($path) or mkdir($path, 0755, true);
-        $lock = $path . app()->http->getName() . '_remove_garbage.lock';
+        $lock = app()->http->getName() . '_remove_garbage.lock';
+        only_execute($lock, '-3 hour', function () {
+            app('log')->record('[REGARBAGE] 应用维护', 'alert');
+            // 生成网站地图
+            (new Sitemap)->create();
 
-        clearstatcache();
-        if (!is_file($lock) || filemtime($lock) <= strtotime('-3 hour')) {
-            if ($fp = @fopen($lock, 'w+')) {
-                if (flock($fp, LOCK_EX | LOCK_NB)) {
-                    app('log')->record('[REGARBAGE] 应用维护', 'alert');
+            // 清除上传垃圾文件
+            (new UploadFile)->ReGarbage();
 
-                    // 生成网站地图
-                    (new Sitemap)->create();
+            // 清除过期缓存文件
+            (new ReGarbage)->remove(app()->getRuntimePath() . 'cache', 1);
 
-                    // 清除上传垃圾文件
-                    (new UploadFile)->ReGarbage();
-
-                    // 清除过期缓存文件
-                    (new ReGarbage)->remove(app()->getRuntimePath() . 'cache', 1);
-
-                    // 清除过期临时文件
-                    (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1);
-
-                    fwrite($fp, '应用维护' . date('Y-m-d H:i:s'));
-                    flock($fp, LOCK_UN);
-                }
-                fclose($fp);
-            }
-        }
+            // 清除过期临时文件
+            (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1);
+        });
     }
 
     public function test()

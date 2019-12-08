@@ -22,16 +22,16 @@ class CheckRequest
 
     public function handle()
     {
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
-        is_dir($path) or mkdir($path, 0755, true);
-        app('log')->record('[锁定]', 'alert')->save();
+        // $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
+        // is_dir($path) or mkdir($path, 0755, true);
+        app('log')->record('[锁定] 锁定', 'alert');
 
-        $lock  = $path . md5(app('request')->ip() . date('Ymd')) . '.lock';
-        if (is_file($lock)) {
-            app('log')->record('[锁定]', 'alert')->save();
-            http_response_code(502);
-            echo file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '502.html');
-            exit();
-        }
+        // $lock  = $path . md5(app('request')->ip() . date('Ymd')) . '.lock';
+        // if (is_file($lock)) {
+        //     app('log')->record('[锁定]', 'alert')->save();
+        //     http_response_code(502);
+        //     echo file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '502.html');
+        //     exit();
+        // }
     }
 }

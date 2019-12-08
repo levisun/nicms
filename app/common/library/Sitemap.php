@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
-use think\facade\Log;
-use app\common\library\ReGarbage;
 use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;
 
@@ -26,28 +24,15 @@ class Sitemap
 
     public function create()
     {
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'lock' . DIRECTORY_SEPARATOR;
-        is_dir($path) or mkdir($path, 0755, true);
-        $lock = $path . 'create_sitemap.lock';
+        only_execute('create_sitemap.lock', '-1 days', function () {
+            app('log')->record('[生成网站地图]', 'alert');
 
-        clearstatcache();
-        if (!is_file($lock) || filemtime($lock) <= strtotime('-24 hour')) {
-            if ($fp = @fopen($lock, 'w+')) {
-                if (flock($fp, LOCK_EX | LOCK_NB)) {
-                    Log::record('[REGARBAGE] 生成网站地图', 'alert');
+            // 保存网站地图文件
+            $this->saveSitemapFile();
 
-                    // 保存网站地图文件
-                    $this->saveSitemapFile();
-
-                    // 清除过期网站地图文件
-                    (new ReGarbage)->remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'sitemaps', 3);
-
-                    fwrite($fp, '生成网站地图' . date('Y-m-d H:i:s'));
-                    flock($fp, LOCK_UN);
-                }
-                fclose($fp);
-            }
-        }
+            // 清除过期网站地图文件
+            // (new ReGarbage)->remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'sitemaps', 3);
+        });
     }
 
     /**

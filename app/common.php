@@ -54,22 +54,7 @@ if (!function_exists('remove_img')) {
     }
 }
 
-if (!function_exists('miss')) {
-    /**
-     * miss
-     * @param  int $_code
-     * @return string
-     */
-    function miss(int $_code): string
-    {
-        $file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.html';
-        if (is_file($file)) {
-            return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.html');
-        } else {
-            return '<style type="text/css">*{padding:0; margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>' . $_code . '</title><section><h2>' . $_code . '</h2></section>';
-        }
-    }
-}
+
 
 if (!function_exists('format_size')) {
     /**
@@ -90,6 +75,35 @@ if (!function_exists('format_size')) {
         }
 
         return $_file_size;
+    }
+}
+
+if (!function_exists('only_execute')) {
+    /**
+     * 非阻塞模式并发运行
+     * @param string       $_lock     锁定文件
+     * @param false|string $_time     锁定文件
+     * @param callable     $_callback
+     * @return void
+     */
+    function only_execute(string $_lock, $_time, callable $_callback): void
+    {
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'lock' . DIRECTORY_SEPARATOR;
+        is_dir($path) or mkdir($path, 0755, true);
+
+        clearstatcache();
+        if (!is_file($path . $_lock) || false === $_time || filemtime($path . $_lock) <= strtotime($_time)) {
+            if ($resource = @fopen($path . $_lock, 'w+')) {
+                if (flock($resource, LOCK_EX | LOCK_NB)) {
+                    fwrite($resource, 'runtime:' . date('Y-m-d H:i:s'));
+
+                    call_user_func_array($_callback, [$resource, $path . $_lock]);
+
+                    flock($resource, LOCK_UN);
+                }
+                fclose($resource);
+            }
+        }
     }
 }
 
@@ -124,6 +138,23 @@ if (!function_exists('is_wechat')) {
     function is_wechat(): bool
     {
         return false !== strpos(app('request')->server('HTTP_USER_AGENT'), 'MicroMessenger') ? true : false;
+    }
+}
+
+if (!function_exists('miss')) {
+    /**
+     * miss
+     * @param  int $_code
+     * @return string
+     */
+    function miss(int $_code): string
+    {
+        $file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.html';
+        if (is_file($file)) {
+            return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.html');
+        } else {
+            return '<style type="text/css">*{padding:0; margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>' . $_code . '</title><section><h2>' . $_code . '</h2></section>';
+        }
     }
 }
 

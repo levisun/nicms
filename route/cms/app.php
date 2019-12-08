@@ -37,7 +37,6 @@ Route::group(function () {
     // 搜索页
     Route::get('search', 'Search/index')->ext('html');
 
-    // event('app\event\RecordRequest');
     Route::miss('Index/miss');
 })->pattern([
     'name' => '[a-z]+',

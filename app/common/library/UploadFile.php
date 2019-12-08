@@ -114,55 +114,43 @@ class UploadFile
      */
     public function ReGarbage()
     {
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'lock' . DIRECTORY_SEPARATOR;
-        is_dir($path) or mkdir($path, 0755, true);
-        $lock = $path . 'remove_upload_garbage.lock';
+        only_execute('remove_upload_garbage.lock', '-1 days', function () {
+            $upload_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+            $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
+                'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*';
+            $dir = (array) glob($path);
+            foreach ($dir as $files) {
+                if (!is_file($files)) {
+                    continue;
+                }
+                $data = include $files;
+                $data = !empty($data) ? (array) $data : [];
+                foreach ($data as $value) {
+                    $extension = pathinfo($value, PATHINFO_EXTENSION);
+                    $value = $upload_path . str_replace('/', DIRECTORY_SEPARATOR, trim($value, " \/,._-\t\n\r\0\x0B"));
+                    if (!is_file($value)) {
+                        continue;
+                    }
 
-        if (!is_file($lock) || filemtime($lock) <= strtotime('-12 hour')) {
-            if ($fp = @fopen($lock, 'w+')) {
-                if (flock($fp, LOCK_EX | LOCK_NB)) {
-                    $upload_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
-                    $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
-                        'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*';
-                    $dir = (array) glob($path);
-                    foreach ($dir as $files) {
-                        if (!is_file($files)) {
-                            continue;
-                        }
-                        $data = include $files;
-                        $data = !empty($data) ? (array) $data : [];
-                        foreach ($data as $value) {
-                            $extension = pathinfo($value, PATHINFO_EXTENSION);
-                            $value = $upload_path . str_replace('/', DIRECTORY_SEPARATOR, trim($value, " \/,._-\t\n\r\0\x0B"));
-                            if (!is_file($value)) {
-                                continue;
+                    // 图片
+                    if (in_array($extension, ['png', 'webp'])) {
+                        for ($i = 1; $i < 9; $i++) {
+                            $size = $i * 100;
+                            $thumb = str_replace('.' . $extension, '_' . $size . '.png', $value);
+                            if (!is_file($thumb)) {
+                                @unlink($thumb);
                             }
-
-                            // 图片
-                            if (in_array($extension, ['png', 'webp'])) {
-                                for ($i = 1; $i < 9; $i++) {
-                                    $size = $i * 100;
-                                    $thumb = str_replace('.' . $extension, '_' . $size . '.png', $value);
-                                    if (!is_file($thumb)) {
-                                        @unlink($thumb);
-                                    }
-                                    $thumb = str_replace('.' . $extension, '_' . $size . '.webp', $value);
-                                    if (!is_file($thumb)) {
-                                        @unlink($thumb);
-                                    }
-                                }
+                            $thumb = str_replace('.' . $extension, '_' . $size . '.webp', $value);
+                            if (!is_file($thumb)) {
+                                @unlink($thumb);
                             }
-
-                            @unlink($value);
                         }
                     }
 
-                    fwrite($fp, '删除上传垃圾文件' . date('Y-m-d H:i:s'));
-                    flock($fp, LOCK_UN);
+                    @unlink($value);
                 }
-                fclose($fp);
             }
-        }
+        });
     }
 
     /**
