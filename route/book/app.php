@@ -2,7 +2,7 @@
 
 /**
  *
- * CMS路由
+ * 路由
  *
  * @package   NICMS
  * @author    失眠小枕头 [levisun.mail@gmail.com]
@@ -12,16 +12,6 @@
  */
 
 use think\facade\Route;
-
-/**
- * CDN
- */
-Route::domain('cdn', function () {
-    Route::miss(function () {
-        return app('request')->url();
-        return miss(404);
-    });
-});
 
 Route::group(function () {
     // 首页

@@ -456,7 +456,7 @@ class Template implements TemplateHandlerInterface
         }
         $this->script = '';
 
-        $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.do" defer ></script>';
+        $_content .= '<script type="text/javascript" src="' . $this->app->config->get('app.api_host') . '/ip.do" defer ></script>';
         if ('admin' !== $this->config['app_name']) {
             $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.do" defer ></script>';
         }
@@ -676,7 +676,7 @@ class Template implements TemplateHandlerInterface
 
         // 模板不存在 抛出异常
         if (!is_file($this->config['view_path'] . $_template)) {
-            $error = 'template not exists:' . $_template;
+            $error = app()->isDebug() ? 'template not exists:' . $_template : miss(404);
             $response = Response::create($error, 'html', 404);
             throw new HttpResponseException($response);
         }

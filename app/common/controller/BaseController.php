@@ -115,7 +115,7 @@ abstract class BaseController
      */
     public function verify()
     {
-        // $config = mt_rand(0, 1) ? 'verify_zh' : 'verify_math';
+        $config = mt_rand(0, 1) ? 'verify_zh' : 'verify_math';
         return Captcha::create();
     }
 
@@ -126,6 +126,8 @@ abstract class BaseController
      */
     public function miss(string $code = '404')
     {
+        return miss((int) $code);
+
         $assign = [
             'url' => $this->request->url(true),
         ];

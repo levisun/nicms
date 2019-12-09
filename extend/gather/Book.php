@@ -9,21 +9,15 @@ use GuzzleHttp\Client;
 class Book
 {
     private $searchURI = 'https://sou.xanbhx.com/search?siteid=qula&q=';
-    private $bookURI = 'https://www.jx.la/book/';
-
-    public function __construct()
-    {
-        @ini_set('memory_limit', '64M');
-        set_time_limit(1440);
-    }
+    private $bookURI = 'https://www.jx.la/';
 
     public function search(string $_key)
     {
-        $_key = urlencode($_key);
-        $content = $this->getResponse($this->searchURI, $_key);
+        // $_key = urlencode($_key);
+        // $content = $this->getResponse($this->searchURI, $_key);
     }
 
-    public function getCat(string $_uri): array
+    public function getItems(string $_uri): array
     {
         $data = [];
         if ($content = $this->getResponse($this->bookURI, $_uri)) {
@@ -32,7 +26,7 @@ class Book
                 foreach ($matches[1] as $key => $uri) {
                     $data[$key] = [
                         'title' => $matches[2][$key],
-                        'uri' => $uri
+                        'uri'   => '/book/' . $uri
                     ];
                 }
             }
@@ -41,7 +35,7 @@ class Book
         return $data;
     }
 
-    public function getContent(string &$_uri): string
+    public function getContent(string $_uri): string
     {
         if ($content = $this->getResponse($this->bookURI, $_uri)) {
             preg_match('/<div id="content">(.*?)<\/div>/si', $content, $matches);
@@ -70,7 +64,7 @@ class Book
 
     private function getResponse(string &$_baseURI, string &$_uri, string &$_method = 'GET'): string
     {
-        usleep(mt_rand(500, 1000));
+        // usleep(mt_rand(500, 1000));
         $this->client = new Client([
             'base_uri' => $_baseURI,
         ]);

@@ -2,7 +2,7 @@
 
 /**
  *
- * API路由
+ * 路由
  *
  * @package   NICMS
  * @author    失眠小枕头 [levisun.mail@gmail.com]

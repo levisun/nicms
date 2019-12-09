@@ -14,15 +14,12 @@
 use think\facade\Route;
 
 Route::group(function () {
+    // 首页
     Route::get('/', 'Index/index')->ext('html');
-    Route::get(':logic/:action/:method$', 'Index/index')->ext('html');
-    Route::get(':logic/:action/:method/:id$', 'Index/index')->ext('html');
-    Route::get('/verify', 'Index/verify')->ext('png');
 
     Route::miss('Index/miss');
 })->pattern([
-    'logic'  => '[a-z]+',
-    'action' => '[a-z]+',
-    'method' => '[a-z]+',
-    'id'     => '\d+',
+    'name' => '[a-z]+',
+    'cid'  => '\d+',
+    'id'   => '\d+',
 ]);

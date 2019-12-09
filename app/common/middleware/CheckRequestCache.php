@@ -42,19 +42,8 @@ class CheckRequestCache
         }
 
         $key = md5($request->baseUrl());
-        $time = $request->server('REQUEST_TIME') + 1440;
-        if (false === app()->isDebug() && $content = Cache::get($key)) {
-            $pattern = [
-                '<meta name="csrf-authorization" content="" />' => '<meta name="csrf-authorization" content="' . create_authorization() . '" />',
-                '<meta name="csrf-token" content="" />' => '<meta name="csrf-token" content="' . token() . '" />',
-            ];
-            $content = str_replace(array_keys($pattern), array_values($pattern), $content);
-            return Response::create($content)
-                ->allowCache(true)
-                ->cacheControl('max-age=1440,must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT')
-                ->header(['X-Powered-By' => 'NICMS']);
+        if ($content = $this->readCache($key, $request)) {
+            return $content;
         }
 
         $response = $next($request);
@@ -69,19 +58,58 @@ class CheckRequestCache
             if (200 == $response->getCode() && $request->isGet() && $response->isAllowCache()) {
                 $response->allowCache(true)
                     ->cacheControl('max-age=1440,must-revalidate')
-                    ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
-                    ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT');
+                    ->expires(gmdate('D, d M Y H:i:s', $request->server('REQUEST_TIME') + 1440) . ' GMT')
+                    ->lastModified(gmdate('D, d M Y H:i:s', $request->server('REQUEST_TIME') + 1440) . ' GMT');
 
-                $content = '<!-- ' . date('Y-m-d H:i:s') . ' -->' . $response->getContent();
-                $pattern = [
-                    '/<meta name="csrf-authorization" content="(.*?)" \/>/si' => '<meta name="csrf-authorization" content="" />',
-                    '/<meta name="csrf-token" content="(.*?)" \/>/si' => '<meta name="csrf-token" content="" />',
-                ];
-                $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $content);
-                Cache::tag('browser')->set($key, $content, mt_rand(28800, 29900));
+                $this->writeCache($key, $response);
             }
         }
 
         return $response;
+    }
+
+    /**
+     * 读取缓存
+     * @access private
+     * @param  string  $_key
+     * @param  Request $_request
+     * @return false|request
+     */
+    private function readCache(string &$_key, Request &$_request)
+    {
+        $response = false;
+        if (false === app()->isDebug() && $content = Cache::get($_key)) {
+            $pattern = [
+                '<meta name="csrf-authorization" content="" />' => '<meta name="csrf-authorization" content="' . create_authorization() . '" />',
+                '<meta name="csrf-token" content="" />' => '<meta name="csrf-token" content="' . token() . '" />',
+            ];
+            $content = str_replace(array_keys($pattern), array_values($pattern), $content);
+            $response = Response::create($content)
+                ->allowCache(true)
+                ->cacheControl('max-age=1440,must-revalidate')
+                ->expires(gmdate('D, d M Y H:i:s', $_request->server('REQUEST_TIME') + 1440) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s', $_request->server('REQUEST_TIME') + 1440) . ' GMT')
+                ->header(['X-Powered-By' => 'NICMS']);
+        }
+
+        return $response;
+    }
+
+    /**
+     * 写入缓存
+     * @access private
+     * @param  string   $_key
+     * @param  Response $_response
+     * @return void
+     */
+    private function writeCache(string &$_key, Response &$_response): void
+    {
+        $_content = $_response->getContent() . '<!-- ' . date('Y-m-d H:i:s') . ' -->';
+        $pattern = [
+            '/<meta name="csrf-authorization" content="(.*?)" \/>/si' => '<meta name="csrf-authorization" content="" />',
+            '/<meta name="csrf-token" content="(.*?)" \/>/si' => '<meta name="csrf-token" content="" />',
+        ];
+        $_content = (string) preg_replace(array_keys($pattern), array_values($pattern), $_content);
+        Cache::tag('browser')->set($_key, $_content, mt_rand(28800, 29900));
     }
 }

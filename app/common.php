@@ -151,9 +151,9 @@ if (!function_exists('miss')) {
     {
         $file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.html';
         if (is_file($file)) {
-            return file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.html');
+            return file_get_contents($file);
         } else {
-            return '<style type="text/css">*{padding:0; margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>' . $_code . '</title><section><h2>' . $_code . '</h2></section>';
+            return '<style type="text/css">*{padding:0; margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>' . $_code . '</title><section><h2>' . $_code . '</h2></section><script type="text/javascript">setTimeout(function(){location.href = "/";},30000);</script>';
         }
     }
 }

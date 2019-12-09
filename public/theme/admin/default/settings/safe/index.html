@@ -105,7 +105,7 @@
             items: []
         },
         methods: {
-            load() {
+            load: function () {
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
@@ -119,7 +119,7 @@
                     }
                 });
             },
-            save() {
+            save: function () {
                 var data = jQuery('#safe-config').serializeArray();
                 data.push({ name: 'method', value: 'settings.safe.editor' });
                 jQuery.pjax({

@@ -52,6 +52,7 @@ return [
         'api'   => 'api',
         'book'  => 'book',
         'cdn'   => 'cms',
+        'my'    => 'user',
         'www'   => 'cms',
     ],
     // 禁止URL访问的应用列表（自动多应用模式有效）
