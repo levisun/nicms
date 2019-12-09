@@ -3,7 +3,7 @@
 /**
  *
  * 控制层
- * admin
+ * book
  *
  * @package   NICMS
  * @category  app\book\controller
@@ -54,9 +54,9 @@ class Search extends BaseController
      */
     public function index()
     {
-        $query = $this->request->param('q');
-        $content = (new Book)->search($query);
+        // $query = $this->request->param('q');
+        // $content = (new Book)->search($query);
 
-        // return $this->fetch('search');
+        return $this->fetch('search');
     }
 }

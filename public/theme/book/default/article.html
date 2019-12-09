@@ -1,0 +1,64 @@
+<style>
+    #app p {
+        text-indent: 2em;
+    }
+</style>
+<div class="container">
+    <div id="app">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <h4 style="text-align: center;" v-text="items.title"></h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <div style="font-size: 16px;" v-html="items.content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <a v-if="items.prev" v-bind:href="items.prev.url" v-text="items.prev.title"></a>
+                </div>
+                <div class="col-sm" style="text-align: right;">
+                    <a v-if="items.next" v-bind:href="items.next.url" v-text="items.next.title"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    let article = new Vue({
+        el: '#app',
+        data: {
+            items: []
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'book.article.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                        { name: 'id', value: NICMS.api.param.id },
+                        { name: 't', value: NICMS.api.param.t },
+                        { name: 'u', value: NICMS.api.param.u }
+                    ],
+                    success: function (result) {
+                        article.items = result.data;
+                    }
+                });
+            }
+        }
+    });
+    article.load();
+</script>

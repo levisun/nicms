@@ -32,7 +32,7 @@ Route::group(function () {
     Route::get('list/:name/:cid$', 'Category/index')->ext('html');
 
     // 详情页
-    Route::get('details/:name/:cid/:id$', 'Details/index')->ext('html');
+    Route::get('article/:name/:cid/:id$', 'Article/index')->ext('html');
 
     // 搜索页
     Route::get('search', 'Search/index')->ext('html');

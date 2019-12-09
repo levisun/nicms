@@ -1,0 +1,35 @@
+<style>
+#app a {
+    margin-right: 15px;
+}
+</style>
+<div id="app">
+    <template v-for="vo in items.list">
+        <a v-bind:href="vo.url" v-text="vo.title"></a>
+    </template>
+</div>
+
+<script>
+    let catalog = new Vue({
+        el: '#app',
+        data: {
+            items: []
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'book.catalog.query' },
+                        { name: 'id', value: NICMS.api.param.id }
+                    ],
+                    success: function (result) {
+                        catalog.items = result.data;
+                    }
+                });
+            }
+        }
+    });
+    catalog.load();
+</script>

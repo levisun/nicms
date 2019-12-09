@@ -29,10 +29,11 @@ Route::group(function () {
     Route::get('index', 'Index/index')->ext('html');
 
     // 列表页
-    Route::get('list/:name/:cid$', 'Category/index')->ext('html');
+    Route::get('list/:tid$', 'Category/index')->ext('html');
+    Route::get('catalog/:id$', 'Catalog/index')->ext('html');
 
     // 详情页
-    Route::get('details/:name/:cid/:id$', 'Details/index')->ext('html');
+    Route::get('article/:cid/:id$', 'Article/index')->ext('html');
 
     // 搜索页
     Route::get('search', 'Search/index')->ext('html');

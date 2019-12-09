@@ -1,0 +1,31 @@
+<div id="app">
+    <template v-for="vo in items">
+        <p>
+            <a v-bind:href="vo.url" v-text="vo.title"></a>
+        </p>
+    </template>
+</div>
+
+<script>
+    let category = new Vue({
+        el: '#app',
+        data: {
+            items: []
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'book.category.query' }
+                    ],
+                    success: function (result) {
+                        category.items = result.data.list;
+                    }
+                });
+            }
+        }
+    });
+    category.load();
+</script>

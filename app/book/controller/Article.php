@@ -20,7 +20,7 @@ namespace app\book\controller;
 use app\common\controller\BaseController;
 use app\common\library\Siteinfo;
 
-class Index extends BaseController
+class Article extends BaseController
 {
 
     /**
@@ -46,12 +46,12 @@ class Index extends BaseController
     }
 
     /**
-     * 主页
+     * 详情页
      * @access public
-     * @return
+     * @return void
      */
     public function index()
     {
-        return $this->fetch('index');
+        return $this->fetch('article');
     }
 }
