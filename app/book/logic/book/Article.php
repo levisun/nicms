@@ -54,7 +54,7 @@ class Article extends BaseLogic
 
                 if ($result) {
                     $result = $result->toArray();
-                    $result['content'] = DataFilter::deContent($result['content']);
+                    $result['content'] = DataFilter::decode($result['content']);
                 } else {
                     $uri = $this->request->param('u');
                     $uri = Base64::decrypt($uri, date('Ymd'));

@@ -204,7 +204,7 @@ class ArticleBase extends BaseLogic
                     }
 
                     // 文章内容
-                    $result['content'] = DataFilter::deContent($result['content']);
+                    $result['content'] = DataFilter::decode($result['content']);
                     // $result['content'] = preg_replace_callback([
                     //     '/(style=["|\'])(.*?)(["|\'])/si',
                     //     '/<\/?h[1-4]{1}(.*?)>/si'

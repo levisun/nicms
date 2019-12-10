@@ -85,7 +85,7 @@ class DataFilter
      * @param  string|array $_data
      * @return string|array
      */
-    public static function decontent($_data)
+    public static function decode($_data)
     {
         if (is_string($_data)) {
             $_data = trim($_data, " \/,._-\t\n\r\0\x0B");
@@ -95,7 +95,7 @@ class DataFilter
             // $_data = self::fun($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::deContent($value);
+                $_data[$key] = self::decode($value);
             }
         }
         return $_data;
