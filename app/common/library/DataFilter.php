@@ -60,28 +60,15 @@ class DataFilter
             $_data = (new Emoji)->encode($_data);
             $_data = self::safe($_data);
             $_data = self::fun($_data);
-            // 过滤标签上的信息
-            $_data = preg_replace_callback('/([a-zA-Z0-9-_]+)=("|\')(.*?)("|\')/si', function ($matches) {
-                if (in_array($matches[1], ['href', 'src', 'atr', 'title'])) {
-                    return $matches[0];
-                } else {
-                    return;
-                }
-            }, $_data);
-            // 过滤非法标签
-            $_data = preg_replace_callback('/<([a-zA-Z0-9\/]+)(.*?)>/si', function ($matches) {
-                $matches[1] = trim($matches[1]);
-                $element = [
-                    'a', '/a', 'audio', '/audio', 'b', '/b', 'br', 'br/', 'center', '/center', 'dd', '/dd', 'del', '/del', 'div', '/div', 'dl', '/dl', 'dt', '/dt', 'em', '/em', 'h1', '/h1', 'h2', '/h2', 'h3', '/h3', 'h4', '/h4', 'h5', '/h5', 'h6', '/h6', 'i', '/i', 'img', 'li', '/li', 'ol', '/ol', 'p', '/p', 'pre', '/pre', 'small', '/small', 'strong', '/strong', 'table', '/table', 'tbody', '/tbody', 'td', '/td', 'th', '/th', 'thead', '/thead', 'tr', '/tr', 'ul', '/ul', 'video', '/video',
-                ];
-                if (in_array($matches[1], $element)) {
-                    return $matches[0];
-                } else {
-                    return;
-                }
-            }, $_data);
-
             $_data = self::enter($_data);
+            // // 过滤标签上的信息
+            // $_data = preg_replace_callback('/([a-zA-Z0-9-_]+)=("|\')(.*?)("|\')/si', function ($matches) {
+            //     if (in_array($matches[1], ['href', 'src', 'atr', 'title'])) {
+            //         return $matches[0];
+            //     } else {
+            //         return;
+            //     }
+            // }, $_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
@@ -98,39 +85,17 @@ class DataFilter
      * @param  string|array $_data
      * @return string|array
      */
-    public static function deContent($_data)
+    public static function decontent($_data)
     {
         if (is_string($_data)) {
             $_data = trim($_data, " \/,._-\t\n\r\0\x0B");
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = (new Emoji)->decode($_data);
-            $_data = self::safe($_data);
+            // $_data = self::safe($_data);
             // $_data = self::fun($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::deContent($value);
-            }
-        }
-        return $_data;
-    }
-
-    /**
-     * 字符过滤
-     * @access public
-     * @static
-     * @param  string|array $_data
-     * @return string|array
-     */
-    public static function string($_data)
-    {
-        if (is_string($_data)) {
-            $_data = trim($_data, " \/,._-\t\n\r\0\x0B");
-            $_data = (new Emoji)->clear($_data);
-            $_data = self::safe($_data);
-            // $_data = self::fun($_data);
-        } elseif (is_array($_data)) {
-            foreach ($_data as $key => $value) {
-                $_data[$key] = self::string($value);
             }
         }
         return $_data;
@@ -146,14 +111,11 @@ class DataFilter
     private static function enter(string &$_str): string
     {
         $pattern = [
-            '~>\s+<~'       => '><',
-            '~>(\s+\n|\r)~' => '>',
-            '/( ){2,}/si'   => ' ',
-            '/( )+</si'     => '<',
-            '/( )+>/si'     => '>',
-
-            // '/(<!--)(.*?)(-->)/si' => '',
-            // '/\/\*(.*?)\*\//si'    => '',
+            // 过滤空格回车制表符等
+            '/(\s+\n|\r)/si'    => '',
+            '/( ){2,}/si'       => ' ',
+            '/<!--(.*?)-->/si'  => '',
+            '/\/\*(.*?)\*\//si' => '',
         ];
         return (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
     }
@@ -168,30 +130,47 @@ class DataFilter
     private static function fun(string &$_str): string
     {
         $pattern = [
-            '/(base64_decode)/si'        => 'ba&#115;e64_decode',
-            '/(call_user_func_array)/si' => 'cal&#108;_user_func_array',
-            '/(call_user_func)/si'       => 'cal&#108;_user_func',
-            '/(chown)/si'                => 'ch&#111;wn',
-            '/(eval)/si'                 => 'ev&#97;l',
-            '/(exec)/si'                 => 'ex&#101;c',
-            '/(passthru)/si'             => 'pa&#115;sthru',
-            '/(phpinfo)/si'              => 'ph&#112;info',
-            '/(proc_open)/si'            => 'pr&#111;c_open',
-            '/(popen)/si'                => 'po&#112;en',
-            '/(shell_exec)/si'           => 'sh&#101;ll_exec',
-            '/(system)/si'               => 'sy&#115;tem',
+            'base64_decode'        => 'ba&#115;e64_decode',
+            'call_user_func_array' => 'cal&#108;_user_func_array',
+            'call_user_func'       => 'cal&#108;_user_func',
+            'chown'                => 'ch&#111;wn',
+            'eval'                 => 'ev&#97;l',
+            'exec'                 => 'ex&#101;c',
+            'passthru'             => 'pa&#115;sthru',
+            'phpinfo'              => 'ph&#112;info',
+            'proc_open'            => 'pr&#111;c_open',
+            'popen'                => 'po&#112;en',
+            'shell_exec'           => 'sh&#101;ll_exec',
+            'system'               => 'sy&#115;tem',
 
-            // '/(select)/si'               => '&#115;elect',
-            '/(drop)/si'                 => 'dro&#112;',
-            '/(delete)/si'               => 'd&#101;lete',
-            '/(create)/si'               => 'cr#101;ate',
-            '/(update)/si'               => 'updat#101;',
-            '/(insert)/si'               => 'ins#101;rt',
+            // 'select'               => '&#115;elect',
+            'drop'                 => 'dro&#112;',
+            'delete'               => 'd&#101;lete',
+            'create'               => 'cr#101;ate',
+            'update'               => 'updat#101;',
+            'insert'               => 'ins#101;rt',
 
             // '/(\()/si'                   => '&#40;',
             // '/(\))/si'                   => '&#41;',
+
+            '*' => '&lowast;',
+            '`' => '&acute;',
+            '￥' => '&yen;',
+            '™' => '&trade;',
+            '®' => '&reg;',
+            '©' => '&copy;',
+            '　' => ' ',
+
+            '０' => '0', '１' => '1', '２' => '2', '３' => '3', '４' => '4', '５' => '5', '６' => '6', '７' => '7', '８' => '8', '９' => '9',
+            'Ａ' => 'A', 'Ｂ' => 'B', 'Ｃ' => 'C', 'Ｄ' => 'D', 'Ｅ' => 'E', 'Ｆ' => 'F', 'Ｇ' => 'G', 'Ｈ' => 'H', 'Ｉ' => 'I', 'Ｊ' => 'J', 'Ｋ' => 'K', 'Ｌ' => 'L', 'Ｍ' => 'M', 'Ｎ' => 'N', 'Ｏ' => 'O', 'Ｐ' => 'P', 'Ｑ' => 'Q', 'Ｒ' => 'R', 'Ｓ' => 'S', 'Ｔ' => 'T', 'Ｕ' => 'U', 'Ｖ' => 'V', 'Ｗ' => 'W', 'Ｘ' => 'X', 'Ｙ' => 'Y', 'Ｚ' => 'Z',
+            'ａ' => 'a', 'ｂ' => 'b', 'ｃ' => 'c', 'ｄ' => 'd', 'ｅ' => 'e', 'ｆ' => 'f', 'ｇ' => 'g', 'ｈ' => 'h', 'ｉ' => 'i', 'ｊ' => 'j', 'ｋ' => 'k', 'ｌ' => 'l', 'ｍ' => 'm', 'ｎ' => 'n', 'ｏ' => 'o', 'ｐ' => 'p', 'ｑ' => 'q', 'ｒ' => 'r', 'ｓ' => 's', 'ｔ' => 't', 'ｕ' => 'u', 'ｖ' => 'v', 'ｗ' => 'w', 'ｘ' => 'x', 'ｙ' => 'y', 'ｚ' => 'z',
+            '（' => '(', '）' => ')', '〔' => '[', '〕' => ']', '【' => '[', '】' => ']', '〖' => '[', '〗' => ']', '｛' => '{', '｝' => '}', '％' => '%', '＋' => '+', '—' => '-', '－' => '-', '～' => '-', '：' => ':', '？' => '?', '！' => '!', '…' => '-', '‖' => '|',
+
+            // '\'' => '&#39;', '"' => '&quot;', '<' => '&lt;', '>' => '&gt;',
+            // '”' => '&quot;', '“' => '&quot;',  '’' => '&acute;', '‘' => '&acute;',
+            // '｜' => '|', '〃' => '&quot;'
         ];
-        return (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
+        return str_replace(array_keys($pattern), array_values($pattern), $_str);
     }
 
     /**
@@ -207,18 +186,11 @@ class DataFilter
     {
         libxml_disable_entity_loader(true);
 
-        return (string) preg_replace([
+        $_str = (string) preg_replace([
             // XSS跨站脚本攻击
             // '/on([a-zA-Z0-9]+)([ ]*?=[ ]*?)(["\'])(.*?)(["\'])/si',
-            // '/on([a-zA-Z0-9]+)(=)(.*?)/si',
-            // '/on([ a-zA-Z0-9=_()"\']+)/si',
-            '/on([a-zA-Z0-9]+)([ a-zA-Z0-9=_()"\']+)/si',
+            '/on([a-zA-Z0-9 ]+)=([ a-zA-Z0-9_("\']+)(["\');]+)/si',
 
-
-            // '/on([ a-zA-Z0-9=_()\\\\"\'\/]+)/si',
-
-            // '/(id|class|style)=["|\'](.*?)["|\']/si',
-            // '/(id|class|style)=([a-zA-Z0-9_\-]+)/si',
             '/(javascript:)(.*?)(\))/si',
             '/<javascript.*?>(.*?)<\/javascript.*?>/si',    '/<(\/?javascript.*?)>/si',
             '/<script.*?>(.*?)<\/script.*?>/si',            '/<(\/?script.*?)>/si',
@@ -231,8 +203,8 @@ class DataFilter
             '/<title.*?>(.*?)<\/title.*?>/si',              '/<(\/?title.*?)>/si',
             '/<(\/?head)>/si',
             '/<(\/?body)>/si',
-            /* '/<head.*?>(.*?)<\/head.*?>/si',
-            '/<body.*?>(.*?)<\/body.*?>/si',                '/<(\/?body.*?)>/si', */
+            '/<head.*?>(.*?)<\/head.*?>/si',
+            '/<body.*?>(.*?)<\/body.*?>/si',                '/<(\/?body.*?)>/si',
             '/<style.*?>(.*?)<\/style.*?>/si',              '/<(\/?style.*?)>/si',
             '/<iframe.*?>(.*?)<\/iframe.*?>/si',            '/<(\/?iframe.*?)>/si',
             '/<frame.*?>(.*?)<\/frame.*?>/si',              '/<(\/?frame.*?)>/si',
@@ -251,5 +223,19 @@ class DataFilter
             '/<\?php/si',
             '/<\?/si',
         ], '', $_str);
+
+        // 过滤非法标签
+        $_str = preg_replace_callback('/<(\/)?([a-zA-Z1-6]+)(.*?)>/si', function ($matches) {
+            $element = [
+                'a', 'audio', 'b', 'br', 'br/', 'center', 'dd', 'del', 'div', 'dl', 'dt', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'img', 'li', 'ol', 'p', 'pre', 'small', 'strong', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'ul', 'video',
+            ];
+            if (in_array($matches[2], $element)) {
+                return $matches[0];
+            } else {
+                return;
+            }
+        }, $_str);
+
+        return $_str;
     }
 }

@@ -52,6 +52,11 @@ class Index extends BaseController
      */
     public function index()
     {
+        return \app\common\library\DataFilter::content('base64_decode onclick=alert()
+
+
+
+        <div>ddd\/</div> <a data-title="12311"          href=http://baidu.com>');
         return $this->fetch('index');
     }
 }
