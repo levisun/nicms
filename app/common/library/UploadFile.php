@@ -21,6 +21,7 @@ use think\facade\Config;
 use think\facade\Filesystem;
 use think\facade\Log;
 use think\Validate;
+use app\common\model\UploadFileLog as ModelUploadFileLog;
 
 class UploadFile
 {
@@ -63,95 +64,6 @@ class UploadFile
      * @var string
      */
     private $uploadLogFile = '';
-
-    public function remove(int $_uid, string $_sql): void
-    {
-        trace($_uid . $_sql, 'alert');
-        $data = is_file($this->uploadLogFile) ? include $this->uploadLogFile : '';
-
-        if ($fp = @fopen($this->uploadLogFile, 'w+')) {
-            if (flock($fp, LOCK_EX | LOCK_NB)) {
-                $data = !empty($data) ? (array) $data : [];
-                foreach ($data as $key => $value) {
-                    if (false !== strpos($value, $_sql)) {
-                        unset($data[$key]);
-                    }
-                }
-
-                $upload_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
-                foreach ($data as $key => $value) {
-                    $value = str_replace('/', DIRECTORY_SEPARATOR, trim($value, " \/,._-\t\n\r\0\x0B"));
-                    if (is_file($upload_path . $value)) {
-                        unlink($upload_path . $value);
-                    }
-
-                    // 删除缩略图
-                    $ext = '.' . pathinfo($value, PATHINFO_EXTENSION);
-                    for ($i = 1; $i < 9; $i++) {
-                        $size = $i * 100;
-                        $thumb = str_replace($ext, '_' . $size . $ext, $value);
-                        if (is_file($upload_path . $thumb)) {
-                            Log::record('[删除上传垃圾] ' . $thumb, 'alert');
-                            unlink($upload_path . $thumb);
-                        }
-                    }
-
-                    unset($data[$key]);
-                }
-
-                $data = '<?php /*' . $_uid . '*/ return ' . var_export($data, true) . ';';
-                fwrite($fp, $data);
-                flock($fp, LOCK_UN);
-            }
-            fclose($fp);
-        }
-    }
-
-    /**
-     * 删除上传垃圾文件
-     * @access public
-     * @return void
-     */
-    public function ReGarbage()
-    {
-        only_execute('remove_upload_garbage.lock', '-1 days', function () {
-            $upload_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
-            $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
-                'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . '*';
-            $dir = (array) glob($path);
-            foreach ($dir as $files) {
-                if (!is_file($files)) {
-                    continue;
-                }
-                $data = include $files;
-                $data = !empty($data) ? (array) $data : [];
-                foreach ($data as $value) {
-                    $extension = pathinfo($value, PATHINFO_EXTENSION);
-                    $value = $upload_path . str_replace('/', DIRECTORY_SEPARATOR, trim($value, " \/,._-\t\n\r\0\x0B"));
-                    if (!is_file($value)) {
-                        continue;
-                    }
-
-                    // 图片
-                    if (in_array($extension, ['png', 'webp'])) {
-                        for ($i = 1; $i < 9; $i++) {
-                            $size = $i * 100;
-                            $thumb = str_replace('.' . $extension, '_' . $size . '.png', $value);
-                            if (!is_file($thumb)) {
-                                @unlink($thumb);
-                            }
-                            $thumb = str_replace('.' . $extension, '_' . $size . '.webp', $value);
-                            if (!is_file($thumb)) {
-                                @unlink($thumb);
-                            }
-                        }
-                    }
-
-                    @unlink($value);
-                }
-            }
-        });
-    }
 
     /**
      * 获得上传文件信息
@@ -251,7 +163,7 @@ class UploadFile
 
         $save_path = Config::get('filesystem.disks.public.url') . '/';
         $save_file = $save_path . Filesystem::disk('public')->putFile('uploads' . $_dir, $_files, 'uniqid');
-        $this->write($_uid, $save_file);   // 记录上传文件日志
+        $this->writeUploadLog($save_file);   // 记录上传文件日志
 
         if (false !== strpos($_files->getMime(), 'image/')) {
             $image = Image::open(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
@@ -279,19 +191,14 @@ class UploadFile
             // 转换webp格式
             $webp_file = str_replace('.' . $_files->extension(), '.webp', $save_file);
             $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $webp_file, 'webp');
-            $this->write($_uid, $webp_file);   // 记录上传文件日志
-
-            // 转换png格式
-            $png_file = str_replace('.' . $_files->extension(), '.png', $save_file);
-            $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $png_file, 'png');
-            $this->write($_uid, $png_file);    // 记录上传文件日志
-            unset($image);
-
-            // 删除非png格式图片
-            if ('png' !== $_files->extension()) {
+            $this->writeUploadLog($webp_file);   // 记录上传文件日志
+            // 删除非webp格式图片
+            if ('webp' !== $_files->extension()) {
                 unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
             }
-            $save_file = $png_file;
+            $save_file = $webp_file;
+
+            unset($image);
         }
 
         return [
@@ -308,24 +215,94 @@ class UploadFile
 
     /**
      * 记录上传文件
-     * @access private
-     * @param  int    $_uid
+     * @access public
      * @param  string $_file 文件
+     * @param  int    $_module_id   模块ID
+     * @param  int    $_module_type 模块类型 1用户头像 2栏目图标 3文章缩略图 4文章内容插图 5...
      * @return void
      */
-    private function write(int $_uid, string $_file): void
+    public function writeUploadLog(string $_file, int $_module_id = 0, int $_module_type = 0): void
     {
-        $data = is_file($this->uploadLogFile) ? include $this->uploadLogFile : '';
+        (new ModelUploadFileLog)->save([
+            'file'        => $_file,
+            'module_id'   => $_module_id,
+            'module_type' => $_module_type,
+        ]);
+    }
 
-        if ($fp = @fopen($this->uploadLogFile, 'w+')) {
-            if (flock($fp, LOCK_EX | LOCK_NB)) {
-                $data = !empty($data) ? (array) $data : [];
-                $data[] = $_file;
-                $data = '<?php /*uid:' . $_uid . '*/ return ' . var_export($data, true) . ';';
-                fwrite($fp, $data);
-                flock($fp, LOCK_UN);
+    /**
+     * 删除入库上传文件
+     * @access public
+     * @param  int    $_module_id   模块ID
+     * @param  int    $_module_type 模块类型 1用户头像 2栏目图标 3文章缩略图 4文章内容插图 5...
+     * @return void
+     */
+    public function remove(int $_module_id, int $_module_type): void
+    {
+        $map = [
+            ['type', '=', '1'],
+            ['module_id', '=', '$_module_id'],
+            ['module_type', '=', '$_module_type'],
+        ];
+        $result = (new ModelUploadFileLog)
+            ->where($map)
+            ->select();
+        $result = $result ? $result->toArray() : [];
+
+        $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+        foreach ($result as $file) {
+            $file['file'] = trim($file['file'], " \/,._-\t\n\r\0\x0B");
+            $file['file'] = str_replace('/', DIRECTORY_SEPARATOR, $file['file']);
+            if (is_file($path . $file['file'])) {
+                @unlink($path . $file['file']);
             }
-            fclose($fp);
         }
+
+        (new ModelUploadFileLog)
+            ->where($map)
+            ->delete();
+    }
+
+    /**
+     * 删除上传垃圾文件
+     * @access public
+     * @return void
+     */
+    public function ReGarbage(): void
+    {
+        only_execute('remove_upload_garbage.lock', '-10 minute', function () {
+            $sort_order = mt_rand(0, 1) ? 'upload_file_log.id DESC' : 'upload_file_log.id ASC';
+            $result = (new ModelUploadFileLog)
+                ->view('upload_file_log', ['id', 'file'])
+                ->view('upload_file_log log', ['id' => 'log_id'], 'log.type=1 and log.file=upload_file_log.file', 'LEFT')
+                ->where([
+                    ['upload_file_log.type', '=', '0'],
+                    ['log.id', '=', null],
+                    ['upload_file_log.create_time', '<=', strtotime('-1 days')]
+                ])
+                ->order($sort_order)
+                ->limit(10)
+                ->select();
+            $result = $result ? $result->toArray() : [];
+            $id = [];
+
+            $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+            foreach ($result as $file) {
+                $id[] = (int) $file['id'];
+                $file['file'] = trim($file['file'], " \/,._-\t\n\r\0\x0B");
+                $file['file'] = str_replace('/', DIRECTORY_SEPARATOR, $file['file']);
+                if (is_file($path . $file['file'])) {
+                    @unlink($path . $file['file']);
+                }
+            }
+
+            if (!empty($id) && 0 < count($id)) {
+                (new ModelUploadFileLog)
+                    ->where([
+                        ['id', 'in', $id]
+                    ])
+                    ->delete();
+            }
+        });
     }
 }

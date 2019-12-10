@@ -149,7 +149,7 @@ if (!function_exists('miss')) {
      */
     function miss(int $_code): string
     {
-        $file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.html';
+        $file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $_code . '.html';
         if (is_file($file)) {
             return file_get_contents($file);
         } else {

@@ -52,6 +52,10 @@ class Index extends BaseController
      */
     public function index()
     {
+        (new \app\common\library\UploadFile)->ReGarbage();
+
+
+
         return \app\common\library\DataFilter::content('base64_decode onclick=alert()
 
 

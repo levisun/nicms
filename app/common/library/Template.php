@@ -67,7 +67,7 @@ class Template implements TemplateHandlerInterface
             '__CSS__'             => 'css/',
             '__IMG__'             => 'img/',
             '__JS__'              => 'js/',
-            '__STATIC__'          => 'static/',
+            '__STATIC__'          => 'theme/static/',
             '__NAME__'            => 'NICMS',
             '__TITLE__'           => 'NICMS',
             '__KEYWORDS__'        => 'NICMS',
@@ -237,7 +237,7 @@ class Template implements TemplateHandlerInterface
 
         $replace = [
             '__SYS_VERSION__' => $this->app->config->get('app.version', '1.0.1'),
-            '__STATIC__'      => $this->app->config->get('app.cdn_host') . '/static/',
+            '__STATIC__'      => $this->app->config->get('app.cdn_host') . '/theme/static/',
             '__THEME__'       => $path,
             '__CSS__'         => $path . 'css/',
             '__IMG__'         => $path . 'img/',
