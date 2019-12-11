@@ -116,24 +116,7 @@ abstract class BaseController
     public function verify()
     {
         $config = mt_rand(0, 1) ? 'verify_zh' : 'verify_math';
-        return Captcha::create();
-    }
-
-    /**
-     * miss
-     * @access public
-     * @return void
-     */
-    public function miss(string $code = '404')
-    {
-        return miss((int) $code);
-
-        $assign = [
-            'url' => $this->request->url(true),
-        ];
-
-        $code = $code ?: '404';
-        return $this->fetch($code, $assign);
+        return Captcha::create($config);
     }
 
     /**

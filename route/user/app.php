@@ -17,7 +17,9 @@ Route::group(function () {
     // 首页
     Route::get('/', 'Index/index')->ext('html');
 
-    Route::miss('Index/miss');
+    Route::miss(function () {
+        return miss(404);
+    });
 })->pattern([
     'name' => '[a-z]+',
     'cid'  => '\d+',

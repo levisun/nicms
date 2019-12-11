@@ -19,12 +19,13 @@
         nc.pjax({
             url: NICMS.api.url + '/query.do',
             method: 'get',
-            data: {
-                method: 'article.details.query',
-                id: NICMS.api.param.id
-            },
+            data: [
+                { name: 'method', value: 'article.details.query' },
+                { name: 'id', value: NICMS.api.param.id }
+            ],
             success: function (result) {
                 if (result.code == '10000') {
+                    result.data.content = window.atob(result.data.content);
                     new Vue({
                         el: "#article",
                         data: {
@@ -38,10 +39,10 @@
         nc.pjax({
             url: NICMS.api.url + '/query.do',
             method: 'get',
-            data: {
-                method: 'article.details.hits',
-                id: NICMS.api.param.id
-            },
+            data: [
+                { name: 'method', value: 'article.details.hits' },
+                { name: 'id', value: NICMS.api.param.id }
+            ],
             success: function (result) {
                 if (result.code == '10000') {
 

@@ -29,10 +29,10 @@
         nc.pjax({
             url: NICMS.api.url + '/query.do',
             method: 'get',
-            data: {
-                method: 'article.lists.query',
-                cid: NICMS.api.param.cid
-            },
+            data: [
+                { name: 'method', value: 'article.lists.query' },
+                { name: 'cid', value: NICMS.api.param.cid }
+            ],
             success: function (result) {
                 if (result.code == 10000) {
                     new Vue({

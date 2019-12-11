@@ -46,7 +46,7 @@ class Siteinfo
                 'name'      => $this->name(),
             ];
 
-            Cache::tag('SYSTEM')->set($cache_key, $common);
+            Cache::tag('browser')->set($cache_key, $common);
         }
 
         $cache_key .= app('request')->param('id/f', null) . app('request')->param('cid/f', null);
@@ -58,7 +58,7 @@ class Siteinfo
                 'description' => $this->description(),
             ];
 
-            Cache::tag('SYSTEM')->set($cache_key, $result);
+            Cache::tag('browser')->set($cache_key, $result);
         }
 
 
@@ -87,7 +87,9 @@ class Siteinfo
                     ['id', '=', $cid]
                 ])
                 ->value('description', '');
-        } else {
+        }
+        // 默认
+        else {
             $result = (new ModelConfig)
                 ->where([
                     ['name', '=', $this->appName . '_description'],
@@ -121,7 +123,9 @@ class Siteinfo
                     ['id', '=', $cid]
                 ])
                 ->value('keywords', '');
-        } else {
+        }
+        // 默认
+        else {
             $result = (new ModelConfig)
                 ->where([
                     ['name', '=', $this->appName . '_keywords'],
@@ -155,7 +159,9 @@ class Siteinfo
                     ['id', '=', $cid]
                 ])
                 ->value('name', 'NICMS');
-        } else {
+        }
+        // 默认
+        else {
             $result = (new ModelConfig)
                 ->where([
                     ['name', '=', $this->appName . '_sitename'],
@@ -208,7 +214,7 @@ class Siteinfo
             ? '<a href="http://www.beian.miit.gov.cn" target="_blank" rel="nofollow">' . $beian . '</a>'
             : '';
 
-        return htmlspecialchars_decode($copyright) . $beian . ' Powered by <a href="http://www.niphp.com" target="_blank" rel="nofollow">nicms</a>';
+        return htmlspecialchars_decode($copyright) . $beian . ' Powered by <a href="http://www.niphp.com" target="_blank">nicms</a>';
     }
 
     /**

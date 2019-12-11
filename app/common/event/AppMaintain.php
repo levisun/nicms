@@ -27,15 +27,16 @@ class AppMaintain
 
     public function handle()
     {
+        // 生成网站地图
+        (new Sitemap)->create();
+
+        // 清除上传垃圾文件
+        (new UploadFile)->ReGarbage();
+
         // 垃圾信息维护
         $lock = app()->http->getName() . '_remove_garbage.lock';
         only_execute($lock, '-3 hour', function () {
             app('log')->record('[REGARBAGE] 应用维护', 'alert');
-            // 生成网站地图
-            (new Sitemap)->create();
-
-            // 清除上传垃圾文件
-            (new UploadFile)->ReGarbage();
 
             // 清除过期缓存文件
             (new ReGarbage)->remove(app()->getRuntimePath() . 'cache', 1);

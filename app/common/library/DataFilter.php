@@ -61,14 +61,7 @@ class DataFilter
             $_data = self::safe($_data);
             $_data = self::fun($_data);
             $_data = self::enter($_data);
-            // // 过滤标签上的信息
-            // $_data = preg_replace_callback('/([a-zA-Z0-9-_]+)=("|\')(.*?)("|\')/si', function ($matches) {
-            //     if (in_array($matches[1], ['href', 'src', 'atr', 'title'])) {
-            //         return $matches[0];
-            //     } else {
-            //         return;
-            //     }
-            // }, $_data);
+            $_data = self::element($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
@@ -91,14 +84,59 @@ class DataFilter
             $_data = trim($_data, " \/,._-\t\n\r\0\x0B");
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = (new Emoji)->decode($_data);
-            // $_data = self::safe($_data);
-            // $_data = self::fun($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::decode($value);
             }
         }
         return $_data;
+    }
+
+    /**
+     * 过滤标签
+     * @access private
+     * @static
+     * @param  string $_str
+     * @return string
+     */
+    private static function element(string &$_str): string
+    {
+        $pattern = [
+            '/<!--(.*?)-->/si',
+            '/\/\*(.*?)\*\//si',
+        ];
+        $_str = (string) preg_replace($pattern, '', $_str);
+
+        $_str = preg_replace_callback('/<(\/)?([a-zA-Z1-6]+)(.*?)>/si', function ($matches) {
+            // 保留标签
+            $element = [
+                'a', 'audio', 'b', 'br', 'br/', 'center', 'dd', 'del', 'div', 'dl', 'dt', 'em',
+                'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'img', 'li', 'ol', 'p', 'pre',
+                'section', 'small', 'strong', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'ul', 'video',
+            ];
+            $matches[2] = strtolower($matches[2]);
+            if (in_array($matches[2], $element)) {
+                // 过滤标签属性
+                $matches[3] = $matches[3] ? trim($matches[3]) . ' ' : '';
+                $matches[3] = preg_replace_callback('/([a-zA-Z0-9-_]+)=(.*?)( )/si', function ($ema) {
+                    // 保留属性
+                    $attr = ['href', 'src', 'alt', 'title', 'target', 'rel', 'height', 'width', 'align'];
+                    $ema[1] = strtolower($ema[1]);
+                    if (in_array($ema[1], $attr)) {
+                        $ema[2] = str_replace(['“', '”', '‘', '’'], '"', $ema[2]);
+                        return ' ' . $ema[1] . '="' . trim($ema[2], '"\'') . '"';
+                    } else {
+                        return;
+                    }
+                }, $matches[3]);
+
+                return '<' . $matches[1] . $matches[2] . $matches[3] . '>';
+            } else {
+                return;
+            }
+        }, $_str);
+
+        return $_str;
     }
 
     /**
@@ -112,10 +150,11 @@ class DataFilter
     {
         $pattern = [
             // 过滤空格回车制表符等
-            '/(\s+\n|\r)/si'    => '',
-            '/( ){2,}/si'       => ' ',
-            '/<!--(.*?)-->/si'  => '',
-            '/\/\*(.*?)\*\//si' => '',
+            '~>\s+<~'        => '><',
+            '~>\s+~'         => '>',
+            '~\s+<~'         => '<',
+            '/(\s+\n|\r)/si' => '',
+            '/( ){2,}/si'    => ' ',
         ];
         return (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
     }
@@ -153,13 +192,7 @@ class DataFilter
             // '/(\()/si'                   => '&#40;',
             // '/(\))/si'                   => '&#41;',
 
-            '*' => '&lowast;',
-            '`' => '&acute;',
-            '￥' => '&yen;',
-            '™' => '&trade;',
-            '®' => '&reg;',
-            '©' => '&copy;',
-            '　' => ' ',
+            '*' => '&lowast;', '`' => '&acute;', '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;', '　' => ' ',
 
             '０' => '0', '１' => '1', '２' => '2', '３' => '3', '４' => '4', '５' => '5', '６' => '6', '７' => '7', '８' => '8', '９' => '9',
             'Ａ' => 'A', 'Ｂ' => 'B', 'Ｃ' => 'C', 'Ｄ' => 'D', 'Ｅ' => 'E', 'Ｆ' => 'F', 'Ｇ' => 'G', 'Ｈ' => 'H', 'Ｉ' => 'I', 'Ｊ' => 'J', 'Ｋ' => 'K', 'Ｌ' => 'L', 'Ｍ' => 'M', 'Ｎ' => 'N', 'Ｏ' => 'O', 'Ｐ' => 'P', 'Ｑ' => 'Q', 'Ｒ' => 'R', 'Ｓ' => 'S', 'Ｔ' => 'T', 'Ｕ' => 'U', 'Ｖ' => 'V', 'Ｗ' => 'W', 'Ｘ' => 'X', 'Ｙ' => 'Y', 'Ｚ' => 'Z',
@@ -186,7 +219,7 @@ class DataFilter
     {
         libxml_disable_entity_loader(true);
 
-        $_str = (string) preg_replace([
+        return (string) preg_replace([
             // XSS跨站脚本攻击
             // '/on([a-zA-Z0-9]+)([ ]*?=[ ]*?)(["\'])(.*?)(["\'])/si',
             '/on([a-zA-Z0-9 ]+)=([ a-zA-Z0-9_("\']+)(["\');]+)/si',
@@ -223,19 +256,5 @@ class DataFilter
             '/<\?php/si',
             '/<\?/si',
         ], '', $_str);
-
-        // 过滤非法标签
-        $_str = preg_replace_callback('/<(\/)?([a-zA-Z1-6]+)(.*?)>/si', function ($matches) {
-            $element = [
-                'a', 'audio', 'b', 'br', 'br/', 'center', 'dd', 'del', 'div', 'dl', 'dt', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'img', 'li', 'ol', 'p', 'pre', 'small', 'strong', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'ul', 'video',
-            ];
-            if (in_array($matches[2], $element)) {
-                return $matches[0];
-            } else {
-                return;
-            }
-        }, $_str);
-
-        return $_str;
     }
 }

@@ -26,8 +26,9 @@ class Canvas
      * 拼接图片地址
      * 生成缩略图
      * @access public
-     * @param  string      $_file  图片路径
-     * @param  int|integer $_size  缩略图宽高
+     * @param  string      $_file   图片路径
+     * @param  int|integer $_size   缩略图宽高
+     * @param  bool        $_base64 缩略图宽高
      * @return string
      */
     public function image(string $_file, int $_size = 0,  bool $_base64 = false): string

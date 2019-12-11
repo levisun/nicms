@@ -1,5 +1,5 @@
 layui.config({
-    dir: '/static/layui/' //layui.js 所在路径
+    dir: '/theme/static/layui/' //layui.js 所在路径
 }).extend({
     nicms: '{/}' + NICMS.cdn.static + 'layui.nicms', // {/}的意思即代表采用自有路径，即不跟随 base 路径
 });
@@ -11,9 +11,9 @@ layui.use(['jquery', 'laypage', 'nicms'], function(){
     nc.pjax({
         url: NICMS.api.url + '/query.do',
         method: 'get',
-        data: {
-            method: 'nav.main.query'
-        },
+        data: [
+            { name: 'method', value: 'nav.main.query' }
+        ],
         success: function(result) {
             if (result.code == '10000') {
                 new Vue({
@@ -34,10 +34,10 @@ layui.use(['jquery', 'laypage', 'nicms'], function(){
         nc.pjax({
             url: NICMS.api.url + '/query.do',
             method: 'get',
-            data: {
-                method: 'nav.sidebar.query',
-                cid: NICMS.api.param.cid
-            },
+            data: [
+                { name: 'method', value: 'nav.sidebar.query' },
+                { name: 'cid', value: NICMS.api.param.cid }
+            ],
             success: function(result) {
                 if (result.code == '10000') {
                     new Vue({
@@ -54,10 +54,10 @@ layui.use(['jquery', 'laypage', 'nicms'], function(){
         nc.pjax({
             url: NICMS.api.url + '/query.do',
             method: 'get',
-            data: {
-                method: 'nav.breadcrumb.query',
-                cid: NICMS.api.param.cid
-            },
+            data: [
+                { name: 'method', value: 'nav.breadcrumb.query' },
+                { name: 'cid', value: NICMS.api.param.cid }
+            ],
             success: function(result) {
                 if (result.code == '10000') {
                     new Vue({

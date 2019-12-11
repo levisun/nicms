@@ -28,7 +28,9 @@ Route::group(function () {
     // 搜索页
     Route::get('search', 'Search/index')->ext('html');
 
-    Route::miss('Index/miss');
+    Route::miss(function () {
+        return miss(404);
+    });
 })->pattern([
     'name' => '[a-z]+',
     'cid'  => '\d+',

@@ -19,29 +19,11 @@ namespace app\common\library;
 use think\Image;
 use think\facade\Config;
 use think\facade\Filesystem;
-use think\facade\Log;
 use think\Validate;
 use app\common\model\UploadFileLog as ModelUploadFileLog;
 
 class UploadFile
 {
-    /**
-     * 用户ID
-     * @var int
-     */
-    private $uid = 0;
-
-    /**
-     * 表单name
-     * @var string
-     */
-    private $element = '';
-
-    /**
-     * 上传文件实例
-     * @var object
-     */
-    private $files = null;
 
     /**
      * 图片规定尺寸
@@ -54,10 +36,10 @@ class UploadFile
     ];
 
     /**
-     * 图片规定尺寸
+     * 图片水印
      * @var bool
      */
-    private $thumbWater = true;
+    private $imgWater = true;
 
     /**
      * 上传文件日志
@@ -82,7 +64,7 @@ class UploadFile
             'height' => $_thumb['height'],
             'type'   => $_thumb['type'] ? Image::THUMB_SCALING : Image::THUMB_FIXED,
         ];
-        $this->thumbWater = $_water;
+        $this->imgWater = $_water;
 
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
             'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
@@ -178,14 +160,9 @@ class UploadFile
             }
 
             // 添加水印
-            if (true === $this->thumbWater) {
-                $image->text(
-                    app('request')->rootDomain(),
-                    app()->getRootPath() . 'extend' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf',
-                    16,
-                    '#00000000',
-                    mt_rand(1, 9)
-                );
+            if (true === $this->imgWater) {
+                $ttf = app()->getRootPath() . 'extend' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf';
+                $image->text(app('request')->rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9));
             }
 
             // 转换webp格式
