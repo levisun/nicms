@@ -38,6 +38,7 @@ Route::group(function () {
     Route::post('upload$', 'Upload/index')->ext('do');
 
     // 验证码接口
+    Route::get('verify/img$', 'Verify/img')->ext('do');
     Route::post('verify/sms$', 'Verify/sms')->ext('do');
     // Route::post('verify/check/:type$', 'Verify/check')->ext('do');
 

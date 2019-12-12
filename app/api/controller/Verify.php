@@ -17,12 +17,41 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
+use think\Response;
+use think\exception\HttpResponseException;
 use app\common\controller\Async;
 use think\captcha\facade\Captcha;
 
 class Verify extends Async
 {
 
+    /**
+     * 图片验证码
+     * @access public
+     * @return
+     */
+    public function img()
+    {
+        if ($this->analysis()->isReferer(false)) {
+            $config = mt_rand(0, 1) ? 'verify_zh' : 'verify_math';
+            $captcha = Captcha::create($config);
+            $captcha = 'data:image/png;base64,' . base64_encode($captcha->getContent());
+            return Response::create($captcha)
+                ->header([
+                    'X-Powered-By'   => 'NIAPI',
+                    'Content-Length' => strlen($captcha)
+                ])
+                ->contentType('image/png');
+        }
+
+        return miss(404);
+    }
+
+    /**
+     * 短信验证码
+     * @access public
+     * @return
+     */
     public function sms()
     {
         if ($this->analysis()->isReferer()) {

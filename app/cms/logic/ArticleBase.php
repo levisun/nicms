@@ -206,11 +206,11 @@ class ArticleBase extends BaseLogic
                     // 文章内容
                     $result['content'] = DataFilter::decode($result['content']);
 
-                    // $result['content'] =
-                    //     preg_replace_callback('/(src=["|\'])(.*?)(["|\'])/si', function ($matches) {
-                    //         $thumb = (new Canvas)->image($matches[2], 300);
-                    //         return 'src="' . $thumb . '" original="' . (new Canvas)->image($matches[2], 0) . '"';
-                    //     }, $result['content']);
+                    $result['content'] =
+                        preg_replace_callback('/(src=["|\'])(.*?)(["|\'])/si', function ($matches) {
+                            $thumb = (new Canvas)->image($matches[2]);
+                            return 'src="' . $thumb . '" original="' . (new Canvas)->image($matches[2], 0) . '"';
+                        }, $result['content']);
 
                     $this->cache->tag('cms')->set($cache_key, $result);
                 }

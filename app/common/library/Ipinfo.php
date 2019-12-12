@@ -79,7 +79,7 @@ class Ipinfo
      * @param  string  $_ip
      * @return bool
      */
-    private function validate(string $_ip): bool
+    private function validate(string &$_ip): bool
     {
         $_ip = explode('.', $_ip);
         if (count($_ip) == 4) {
@@ -117,7 +117,7 @@ class Ipinfo
      * @param  string  $_ip
      * @return array
      */
-    private function query(string $_ip): array
+    private function query(string &$_ip): array
     {
         $result = (new ModelIpinfo)
             ->view('ipinfo', ['id', 'ip', 'isp', 'update_time'])
@@ -139,9 +139,9 @@ class Ipinfo
      * @param  int     $_pid
      * @return int
      */
-    private function queryRegion(string $_name, int $_pid): int
+    private function queryRegion(string &$_name, int $_pid): int
     {
-        $_name = DataFilter::default($_name);
+        $_name = DataFilter::filter($_name);
 
         $result = (new ModelRegion)
             ->where([
@@ -158,7 +158,7 @@ class Ipinfo
      * @access private
      * @return array|false
      */
-    private function added($_ip)
+    private function added(string &$_ip): array
     {
         $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
         // $result = $this->get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
@@ -170,8 +170,7 @@ class Ipinfo
         }
 
         $result = $result['data'];
-        $isp     = !empty($result['isp']) ? DataFilter::
-        default($result['isp']) : '';
+        $isp     = !empty($result['isp']) ? DataFilter::filter($result['isp']) : '';
         $country = $this->queryRegion($result['country'], 0);
         if (!$country) {
             return false;
@@ -211,7 +210,7 @@ class Ipinfo
      * @access private
      * @return bool
      */
-    private function update($_ip)
+    private function update(string &$_ip): array
     {
         $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
         // $result = $this->get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
@@ -221,8 +220,7 @@ class Ipinfo
         }
 
         $result = $result['data'];
-        $isp     = !empty($result['isp']) ? DataFilter::
-        default($result['isp']) : '';
+        $isp     = !empty($result['isp']) ? DataFilter::filter($result['isp']) : '';
         $country = $this->queryRegion($result['country'], 0);
         if (!$country) {
             return false;
@@ -256,7 +254,7 @@ class Ipinfo
         return $this->query($_ip);
     }
 
-    private function get_curl($_url): string
+    private function get_curl(string &$_url): string
     {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $_url);

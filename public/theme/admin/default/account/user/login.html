@@ -18,7 +18,9 @@
                 </div>
                 <div class="form-group has-feedback">
                     <input type="text" id="verify" name="captcha" class="form-control" placeholder="{:lang('verify')}">
+                    <span v-on:click="verify">od</span>
                     <img id="img-verify">
+
                 </div>
                 <div class="row">
                     <div class="col-xs-4">
@@ -37,7 +39,16 @@
             el: '.login-box-body',
             methods: {
                 verify: function () {
-                    jQuery('#img-verify').attr('src', '/verify.png?timestamp=' + jQuery.timestamp());
+                    jQuery.pjax({
+                        url: NICMS.api.url + '/verify/img.do',
+                        type: 'get',
+                        data: [
+                            {name: 'timestamp', value: jQuery.timestamp()}
+                        ],
+                        success: function (result) {
+                            jQuery('#img-verify').attr('src', result);
+                        }
+                    });
                 },
                 login: function () {
                     var data = jQuery('#login-form').serializeArray();
@@ -60,25 +71,9 @@
                             jQuery.uiToast(res.message);
                         }
                     });
-
-                    // jQuery.pjax({
-                    //     url: NICMS.api.url + '/verify/check/img.do',
-                    //     type: 'POST',
-                    //     data: {
-                    //         verify: jQuery('#verify').val()
-                    //     },
-                    //     success: function (result) {
-                    //         if (10000 == result.code) {
-
-                    //         } else {
-                    //             login.verify();
-                    //             jQuery.uiToast(result.message);
-                    //         }
-                    //     }
-                    // });
                 }
             }
         });
-        login.verify();
+        // login.verify();
     </script>
     {tags:foot /}
