@@ -28,7 +28,8 @@ class Ip extends Async
         if ($this->isReferer(false)) {
             $ip = $this->request->param('ip', false) ?: $this->request->ip();
             if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
-                return $this->cache(true)->success('IP INFO', (new Ipinfo)->get($ip));
+                $ip = (new Ipinfo)->get($ip);
+                return $this->cache(true)->success('IP INFO', $ip);
             }
         }
 

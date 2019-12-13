@@ -291,18 +291,21 @@ class Template implements TemplateHandlerInterface
 
             // SESSION
             elseif ('SESSION' === $var_type) {
-                $vars = '未定义';
+                $vars = '';
             }
 
             // SERVER
             elseif ('SERVER' === $var_type) {
-                $vars = '未定义';
+                $vars = '';
             }
 
             // ENV
             elseif ('ENV' === $var_type) {
-                $vars = '未定义';
-            } elseif ('' !== $var_type) {
+                $vars = '';
+            }
+
+            //
+            elseif ('' !== $var_type) {
                 $vars = '$' . strtolower($var_type);
                 $arr = explode('.', $var_name);
                 foreach ($arr as $name) {
@@ -311,25 +314,6 @@ class Template implements TemplateHandlerInterface
             } else {
                 $vars = '$' . $var_name;
             }
-
-
-
-            // if ('GET' === $var_type) {
-            //     $vars = 'request()->param("' . $var_name . '")';
-            // } elseif ('POST' === $var_type) {
-            //     $vars = 'request()->post("' . $var_name . '")';
-            // } elseif ('COOKIE' === $var_type) {
-            //     $vars = 'request()->cookie("' . $var_name . '")';
-            // } elseif (isset($var_type)) {
-            //     $vars = '$' . strtolower($var_type);
-            //     $arr = explode('.', $var_name);
-            //     foreach ($arr as $name) {
-            //         $vars .= '[\'' . $name . '\']';
-            //     }
-            //     $vars = 'isset(' . $vars . ') ? ' . $vars . ' : \'\'';
-            // } else {
-            //     $vars = '$' . $var_name;
-            // }
 
             return '<?php echo htmlspecialchars(' . $vars . ');?>';
         }, $_content);
@@ -456,7 +440,6 @@ class Template implements TemplateHandlerInterface
         }
         $this->script = '';
 
-        $_content .= '<script type="text/javascript" src="' . $this->app->config->get('app.api_host') . '/ip.do" defer ></script>';
         if ('admin' !== $this->config['app_name']) {
             $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.do" defer ></script>';
         }

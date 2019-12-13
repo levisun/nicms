@@ -20,6 +20,7 @@ use think\App;
 use think\Response;
 use think\exception\HttpResponseException;
 use app\common\library\Base64;
+use app\common\library\Ipinfo;
 use think\captcha\facade\Captcha;
 
 abstract class BaseController
@@ -87,7 +88,8 @@ abstract class BaseController
         }
         if (!$this->cookie->has('PHPSESSID')) {
             $this->cookie->set('PHPSESSID', $this->session->get('client_token'));
-            $this->cookie->set('client_ip', $this->request->ip());
+            $ip = (new Ipinfo)->get($this->request->ip());
+            $this->cookie->set('client_ip', implode(',', $ip));
         }
 
         @ini_set('memory_limit', '8M');
