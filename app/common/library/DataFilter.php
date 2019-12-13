@@ -117,23 +117,21 @@ class DataFilter
             $matches[2] = strtolower($matches[2]);
             if (in_array($matches[2], $element)) {
                 // 过滤标签属性
-                $matches[3] = $matches[3] ? trim($matches[3]) . ' ' : '';
-                $matches[3] = preg_replace_callback('/([a-zA-Z0-9-_]+)=(.*?)( )/si', function ($ema) {
-                    // 保留属性
-                    $attr = ['href', 'src', 'alt', 'title', 'target', 'rel', 'height', 'width', 'align'];
-                    $ema[1] = strtolower($ema[1]);
-                    if (in_array($ema[1], $attr)) {
-                        $ema[2] = str_replace(['“', '”', '‘', '’'], '"', $ema[2]);
-                        return ' ' . $ema[1] . '="' . trim($ema[2], '"\'') . '"';
-                    } else {
-                        return;
-                    }
-                }, $matches[3]);
-
-                return '<' . $matches[1] . $matches[2] . $matches[3] . '>';
-            } else {
-                return;
+                if ($matches[3]) {
+                    $matches[3] = preg_replace_callback('/([a-zA-Z0-9-_]+)=(.*?)( )/si', function ($ema) {
+                        // 保留属性
+                        $attr = ['href', 'src', 'alt', 'title', 'target', 'rel', 'height', 'width', 'align'];
+                        $ema[1] = strtolower($ema[1]);
+                        if (in_array($ema[1], $attr)) {
+                            $ema[2] = str_replace(['“', '”', '‘', '’'], '"', $ema[2]);
+                            $eres = ' ' . $ema[1] . '="' . trim($ema[2], '"\'') . '"';
+                        }
+                        return isset($eres) ? $eres : '';
+                    }, $matches[3] . ' ');
+                }
+                $result = '<' . $matches[1] . $matches[2] . $matches[3] . '>';
             }
+            return isset($result) ? $result : '';
         }, $_str);
 
         return $_str;

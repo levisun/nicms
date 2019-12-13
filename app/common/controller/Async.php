@@ -285,7 +285,7 @@ abstract class Async
 
         // 校验返回数据
         if (!is_array($this->result) && array_key_exists('msg', $this->result)) {
-            $this->error('返回数据格式错误', 41001);
+            $this->abort('返回数据格式错误', 41001);
         }
 
         // 调试模式设置
@@ -423,7 +423,7 @@ abstract class Async
                 $this->notAuth
             );
             if (false === $result) {
-                $this->error('非法参数', 30001);
+                $this->abort('非法参数', 30001);
             }
         }
     }
@@ -438,7 +438,7 @@ abstract class Async
         // 校验API方法
         $this->method = $this->request->param('method');
         if (!$this->method || !preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $this->method)) {
-            $this->error('非法参数{20014}', 20014);
+            $this->abort('非法参数{20014}', 20014);
         }
 
         list($logic, $action, $method) = explode('.', $this->method, 3);
@@ -451,13 +451,13 @@ abstract class Async
         if (!class_exists($class)) {
             $this->debugLog['method not found'] = $class;
             $this->log->record('[Async] method not found ' . $class, 'error');
-            $this->error('非法参数{20015}', 20015);
+            $this->abort('非法参数{20015}', 20015);
         }
         // 校验类方法是否存在
         if (!method_exists($class, $method)) {
             $this->debugLog['action not found'] = $class . '->' . $method . '();';
             $this->log->record('[Async] action not found ' . $class . '->' . $method . '();', 'error');
-            $this->error('非法参数{20016}', 20016);
+            $this->abort('非法参数{20016}', 20016);
         }
 
         $this->appMethod = [
@@ -479,7 +479,7 @@ abstract class Async
         if ($this->request->isPost()) {
             $this->apiFromToken = true;
             if (false === $this->request->checkToken()) {
-                $this->error('非法参数{20013}', 20013);
+                $this->abort('非法参数{20013}', 20013);
             }
         }
     }
@@ -493,7 +493,7 @@ abstract class Async
     {
         $this->timestamp = $this->request->param('timestamp/d', $this->request->time());
         if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
-            $this->error('非法参数{20012}', 20012);
+            $this->abort('非法参数{20012}', 20012);
         }
     }
 
@@ -509,7 +509,7 @@ abstract class Async
         if (!$this->signType || !function_exists($this->signType)) {
             $this->debugLog['sign_type'] = $this->signType;
             $this->log->record('[Async] params-sign_type error', 'error');
-            $this->error('非法参数{20009}', 20009);
+            $this->abort('非法参数{20009}', 20009);
         }
 
         // 校验签名合法性
@@ -517,7 +517,7 @@ abstract class Async
         if (!$this->sign || !preg_match('/^[A-Za-z0-9]+$/u', $this->sign)) {
             $this->debugLog['sign'] = $this->sign;
             $this->log->record('[Async] params-sign error', 'error');
-            $this->error('非法参数{20010}', 20010);
+            $this->abort('非法参数{20010}', 20010);
         }
 
 
@@ -546,7 +546,7 @@ abstract class Async
             $this->debugLog['sign_str'] = $str;
             $this->debugLog['sign'] = call_user_func($this->signType, $str);
             $this->log->record('[Async] params-sign error:' . $str, 'error');
-            $this->error('非法参数{20011}', 20011);
+            $this->abort('非法参数{20011}', 20011);
         }
     }
 
@@ -560,7 +560,7 @@ abstract class Async
         $this->appId = $this->request->param('appid/f', 1000001);
         if (!$this->appId || $this->appId < 1000001) {
             $this->log->record('[Async] auth-appid not', 'error');
-            $this->error('非法参数{20007}', 20007);
+            $this->abort('非法参数{20007}', 20007);
         }
 
         $this->appId -= 1000000;
@@ -578,7 +578,7 @@ abstract class Async
             $this->appAuthKey = $result['authkey'];
         } else {
             $this->log->record('[Async] auth-appid error', 'error');
-            $this->error('非法参数{20008}', 20008);
+            $this->abort('非法参数{20008}', 20008);
         }
     }
 
@@ -597,7 +597,7 @@ abstract class Async
         $this->authorization = str_replace('Bearer ', '', $this->authorization);
         if (!$this->authorization) {
             $this->log->record('[Async] header-authorization params error', 'error');
-            $this->error('非法参数{20001-1}', 20001);
+            $this->abort('非法参数{20001-1}', 20001);
         }
 
         $token = (new Parser)->parse($this->authorization);
@@ -615,7 +615,7 @@ abstract class Async
 
         if (false === $token->verify(new Sha256, $key) || false === $token->validate($data)) {
             $this->log->record('[Async] header-authorization params error', 'error');
-            $this->error('非法参数{20001-2}', 20001);
+            $this->abort('非法参数{20001-2}', 20001);
         }
 
 
@@ -629,7 +629,7 @@ abstract class Async
             $this->request->withSession($this->session);
         } else {
             $this->log->record('[Async] header-authorization params error', 'error');
-            $this->error('非法参数{20002}', 20002);
+            $this->abort('非法参数{20002}', 20002);
         }
 
 
@@ -640,7 +640,7 @@ abstract class Async
         if (!$this->accept || !preg_match($pattern, $this->accept)) {
             $this->debugLog['accept'] = $this->accept;
             $this->log->record('[Async] header-accept error', 'error');
-            $this->error('非法参数{20003}', 20003);
+            $this->abort('非法参数{20003}', 20003);
         }
 
 
@@ -653,7 +653,7 @@ abstract class Async
         list($root) = explode('.', $this->request->rootDomain(), 2);
         if (!hash_equals($domain, $root)) {
             $this->log->record('[Async] header-accept domain error', 'error');
-            $this->error('非法参数{20004}', 20004);
+            $this->abort('非法参数{20004}', 20004);
         }
         unset($doamin, $root);
 
@@ -664,7 +664,7 @@ abstract class Async
         if (!$version || !preg_match('/^[a-zA-Z0-9.]+$/u', $version)) {
             $this->debugLog['version'] = $version;
             $this->log->record('[Async] header-accept version error', 'error');
-            $this->error('非法参数{20005}', 20005);
+            $this->abort('非法参数{20005}', 20005);
         }
         // 去掉"v"
         $version = substr($version, 1);
@@ -682,12 +682,12 @@ abstract class Async
         if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
             $this->debugLog['format'] = $this->format;
             $this->log->record('[Async] header-accept format error', 'error');
-            $this->error('非法参数{20006}', 20006);
+            $this->abort('非法参数{20006}', 20006);
         }
     }
 
     /**
-     * 操作成功返回的数据
+     * 操作成功
      * @access protected
      * @param  string  $msg  提示信息
      * @param  array   $data 要返回的数据
@@ -700,7 +700,7 @@ abstract class Async
     }
 
     /**
-     * 操作失败抛出数据
+     * 操作失败
      * 10000 成功
      * 200xx 权限|授权|参数等错误
      * 3000x 请求类型等错误
@@ -711,7 +711,19 @@ abstract class Async
      * @param  integer $code 错误码，默认为40001
      * @return void
      */
-    protected function error(string $_msg, int $_code = 40001): void
+    protected function error(string $_msg, int $_code = 40001): Response
+    {
+        return $this->response($_msg, [], $_code);
+    }
+
+    /**
+     * 抛出异常
+     * @access protected
+     * @param  string  $msg  提示信息
+     * @param  integer $code 错误码，默认为40001
+     * @return void
+     */
+    protected function abort(string $_msg, int $_code = 40001): void
     {
         $response = $this->response($_msg, [], $_code);
         throw new HttpResponseException($response);
