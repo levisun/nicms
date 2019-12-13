@@ -25,11 +25,7 @@ class Handle extends Async
     public function index()
     {
         if ($this->analysis()->isReferer()) {
-            if (empty($_POST)) {
-                $this->error('错误请求', 40009);
-            }
-
-            $this->run()->cache(false)->response(
+            return $this->run()->cache(false)->response(
                 $this->result['msg'],
                 $this->result['data'],
                 $this->result['code']

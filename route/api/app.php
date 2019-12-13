@@ -24,7 +24,7 @@ Route::group(function () {
     Route::get('ip$', 'Ip/index')->ext('do');
 
     // 支付
-    Route::get('pay/order/:method$', 'Pay/index')->ext('do');
+    Route::post('pay/order/:method$', 'Pay/index')->ext('do');
     Route::get('pay/respond/:method$', 'Pay/respond')->ext('do');
     Route::get('pay/notify/:method$', 'Pay/notify')->ext('do');
 

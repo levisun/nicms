@@ -12,16 +12,16 @@
  * @since     2019
  */
 
- return [
+use think\facade\Request;
+
+// USER_AGENT生成
+$name = Request::rootDomain() . __DIR__ . Request::server('HTTP_USER_AGENT', Request::ip());
+$name = hash_hmac('sha256', $name, sha1(__DIR__));
+$name = substr(strtoupper($name), 7, 7);
+
+return [
     // session name
-    // USER_AGENT生成
-    'name'           => strtoupper(
-        substr(
-            sha1(__DIR__ . app('request')->rootDomain() . app('request')->server('HTTP_USER_AGENT')),
-            7,
-            7
-        )
-    ),
+    'name'           => $name,
     // SESSION_ID的提交变量,解决flash上传跨域
     'var_session_id' => '',
     // 驱动方式 支持file cache

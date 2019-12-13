@@ -68,7 +68,13 @@ class Book
         $this->client = new Client([
             'base_uri' => $_baseURI,
         ]);
-        $response = $this->client->request($_method, $_uri);
+        $response = $this->client->request($_method, $_uri, [
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0',
+                'Referer' => 'https://www.jx.la/',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            ]
+        ]);
         $content = '';
         if (200 == $response->getStatusCode()) {
             $body = $response->getBody();

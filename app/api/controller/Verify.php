@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace app\api\controller;
 
 use think\Response;
-use think\exception\HttpResponseException;
 use app\common\controller\Async;
 use think\captcha\facade\Captcha;
 
@@ -70,9 +69,9 @@ class Verify extends Async
                     'time'   => time() + 120,
                     'phone'  => $phone,
                 ]);
-                $this->cache(false)->success('验证码发送成功');
+                return $this->cache(false)->success('验证码发送成功');
             } else {
-                $this->error('手机号错误', 40009);
+                return $this->error('手机号错误', 40009);
             }
         }
 
@@ -91,7 +90,7 @@ class Verify extends Async
                 if ($this->session->has($key) && $result = $this->session->get($key)) {
                     if ($result['time'] >= time() && $result['verify'] == $verify && $result['phone'] == $phone) {
                         $this->session->delete($key);
-                        $this->cache(false)->success('验证码验证成功');
+                        return $this->cache(false)->success('验证码验证成功');
                     }
                 }
             }

@@ -694,13 +694,13 @@ abstract class Async
      * @param  integer $code 错误码，默认为10000
      * @return void
      */
-    protected function success(string $_msg, array $_data = [], int $_code = 10000): void
+    protected function success(string $_msg, array $_data = [], int $_code = 10000): Response
     {
-        $this->response($_msg, $_data, $_code);
+        return $this->response($_msg, $_data, $_code);
     }
 
     /**
-     * 操作失败返回的数据
+     * 操作失败抛出数据
      * 10000 成功
      * 200xx 权限|授权|参数等错误
      * 3000x 请求类型等错误
@@ -713,7 +713,8 @@ abstract class Async
      */
     protected function error(string $_msg, int $_code = 40001): void
     {
-        $this->response($_msg, [], $_code);
+        $response = $this->response($_msg, [], $_code);
+        throw new HttpResponseException($response);
     }
 
     /**
@@ -722,9 +723,9 @@ abstract class Async
      * @param  string $msg    提示信息
      * @param  array  $data   要返回的数据
      * @param  string $code   返回码
-     * @return void
+     * @return Response
      */
-    protected function response(string $_msg, array $_data = [], int $_code = 10000): void
+    protected function response(string $_msg, array $_data = [], int $_code = 10000): Response
     {
         $result = [
             'code'    => $_code,
@@ -735,7 +736,7 @@ abstract class Async
                 count(get_included_files()),
 
             // 返回地址
-            'return_url' => $this->apiFromToken
+            'return_url' => $this->session->has('return_url')
                 ? $this->session->pull('return_url')
                 : '',
 
@@ -751,7 +752,7 @@ abstract class Async
                 'log'     => $this->debugLog,
                 'method'  => $this->method,
                 'version' => implode('.', $this->version),
-            ] : [],
+            ] : '',
         ];
         $result = array_filter($result);
 
@@ -772,6 +773,6 @@ abstract class Async
             $this->session->save();
         }
 
-        throw new HttpResponseException($response);
+        return $response;
     }
 }

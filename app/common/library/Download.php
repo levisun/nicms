@@ -54,7 +54,7 @@ class Download
      * @param  string $_filename
      * @return void
      */
-    public function file(string $_filename): void
+    public function file(string $_filename): Response
     {
         $_filename = $_filename ? Base64::decrypt($_filename, $this->salt) : '';
 
@@ -67,11 +67,10 @@ class Download
 
             $ext = pathinfo($path . $_filename, PATHINFO_EXTENSION);
             if (is_file($path . $_filename) && in_array($ext, $this->extension)) {
-                $response = Response::create($path . $_filename, 'file')
+                return Response::create($path . $_filename, 'file')
                     ->name(md5($_filename . $this->salt))
                     ->isContent(false)
                     ->expire(28800);
-                throw new HttpResponseException($response);
             }
         }
     }

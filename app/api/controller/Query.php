@@ -25,7 +25,7 @@ class Query extends Async
     public function index()
     {
         if ($this->analysis()->isReferer()) {
-            $this->run()->response(
+            return $this->run()->response(
                 $this->result['msg'],
                 $this->result['data'],
                 $this->result['code']
