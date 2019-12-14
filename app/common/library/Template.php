@@ -440,6 +440,7 @@ class Template implements TemplateHandlerInterface
         }
         $this->script = '';
 
+        $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.do?ip=" defer ></script>';
         if ('admin' !== $this->config['app_name']) {
             $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.do" defer ></script>';
         }

@@ -23,7 +23,7 @@ Route::group(function () {
     Route::get('catalog/:id$', 'Catalog/index')->ext('html');
 
     // 详情页
-    Route::get('article/:cid/:id$', 'Article/index')->ext('html');
+    Route::get('article/:bid/:id$', 'Article/index')->ext('html');
 
     // 搜索页
     Route::get('search', 'Search/index')->ext('html');

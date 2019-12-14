@@ -33,40 +33,42 @@ class Article extends BaseLogic
      */
     public function query(): array
     {
-        $result = false;
+        $result = null;
 
-        $cid = $this->request->param('cid/d');
-        $sort_order = $this->request->param('id/d');
-        $title = $this->request->param('t');
-        $title = Base64::decrypt($title, date('Ymd'));
-        $title = DataFilter::filter($title);
-
-        if ($cid && $sort_order && $title) {
-            $cache_key = md5(__METHOD__ . date('Ymd') . $cid . $sort_order . $title);
+        $bid = $this->request->param('bid/d');
+        $id = $this->request->param('id/d');
+        $sort_order = $this->request->param('o');
+        $sort_order = Base64::decrypt($sort_order, date('Ymd'));
+        $cache_key = md5(__METHOD__ . date('Ymd') . $bid . $id);
+        if ($bid && $id && $sort_order) {
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $result = (new ModelBookArticle)
                     ->field('id, title, content')
                     ->where([
-                        ['book_id', '=', $cid],
-                        ['title', '=', $title]
+                        ['id', '=', $id],
+                        ['book_id', '=', $bid],
                     ])
                     ->find();
-
                 if ($result) {
                     $result = $result->toArray();
                     $result['content'] = DataFilter::decode($result['content']);
+
+                    $this->cache->tag('book')->set($cache_key, $result);
                 } else {
+                    $title = $this->request->param('t');
+                    $title = Base64::decrypt($title, date('Ymd'));
+                    $title = DataFilter::filter($title);
                     $uri = $this->request->param('u');
                     $uri = Base64::decrypt($uri, date('Ymd'));
-
-                    if ($content = (new GatherBook)->getContent($uri)) {
+                    if ($sort_order && $title && $uri && $content = (new GatherBook)->getContent($uri)) {
+                        $content = DataFilter::content($content);
                         $ModelBookArticle = new ModelBookArticle;
                         $ModelBookArticle
                             ->data([
-                                'book_id'    => $cid,
+                                'book_id'    => $bid,
                                 'is_pass'    => 1,
                                 'title'      => $title,
-                                'content'    => DataFilter::content($content),
+                                'content'    => $content,
                                 'sort_order' => $sort_order,
                                 'show_time'  => time(),
                             ])
@@ -75,15 +77,13 @@ class Article extends BaseLogic
                         $result = [
                             'id'      => $ModelBookArticle->id,
                             'title'   => $title,
-                            'content' => $content
+                            'content' => DataFilter::decode($content)
                         ];
                     }
                 }
-
-                $this->cache->tag('book')->set($cache_key, $result);
             }
 
-            $cache_key = md5('app\book\logic\book\Catalog::query' . date('Ymd') . $cid);
+            $cache_key = md5('app\book\logic\book\Catalog::query' . $bid);
             $catalog = $this->cache->get($cache_key);
             $catalog = $catalog['list'];
 

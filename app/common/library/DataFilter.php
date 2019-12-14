@@ -31,7 +31,7 @@ class DataFilter
     public static function filter($_data)
     {
         if (is_string($_data)) {
-            $_data = trim($_data, " \/,._-\t\n\r\0\x0B");
+            $_data = trim($_data, " \t\n\r\0\x0B");
             $_data = (new Emoji)->clear($_data);
             $_data = self::safe($_data);
             $_data = self::fun($_data);
@@ -56,7 +56,7 @@ class DataFilter
     public static function content($_data)
     {
         if (is_string($_data)) {
-            $_data = trim($_data, " \/,._-\t\n\r\0\x0B");
+            $_data = trim($_data, " \t\n\r\0\x0B");
             $_data = (new Emoji)->encode($_data);
             $_data = self::safe($_data);
             $_data = self::fun($_data);
@@ -81,7 +81,7 @@ class DataFilter
     public static function decode($_data)
     {
         if (is_string($_data)) {
-            $_data = trim($_data, " \/,._-\t\n\r\0\x0B");
+            $_data = trim($_data, " \t\n\r\0\x0B");
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = (new Emoji)->decode($_data);
         } elseif (is_array($_data)) {
@@ -153,6 +153,9 @@ class DataFilter
             '~\s+<~'         => '<',
             '/(\s+\n|\r)/si' => '',
             '/( ){2,}/si'    => ' ',
+            '/(_){2,}/si'    => '',
+            '/(-){2,}/si'    => '',
+            '/(=){2,}/si'    => '',
         ];
         return (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
     }
@@ -195,7 +198,7 @@ class DataFilter
             '０' => '0', '１' => '1', '２' => '2', '３' => '3', '４' => '4', '５' => '5', '６' => '6', '７' => '7', '８' => '8', '９' => '9',
             'Ａ' => 'A', 'Ｂ' => 'B', 'Ｃ' => 'C', 'Ｄ' => 'D', 'Ｅ' => 'E', 'Ｆ' => 'F', 'Ｇ' => 'G', 'Ｈ' => 'H', 'Ｉ' => 'I', 'Ｊ' => 'J', 'Ｋ' => 'K', 'Ｌ' => 'L', 'Ｍ' => 'M', 'Ｎ' => 'N', 'Ｏ' => 'O', 'Ｐ' => 'P', 'Ｑ' => 'Q', 'Ｒ' => 'R', 'Ｓ' => 'S', 'Ｔ' => 'T', 'Ｕ' => 'U', 'Ｖ' => 'V', 'Ｗ' => 'W', 'Ｘ' => 'X', 'Ｙ' => 'Y', 'Ｚ' => 'Z',
             'ａ' => 'a', 'ｂ' => 'b', 'ｃ' => 'c', 'ｄ' => 'd', 'ｅ' => 'e', 'ｆ' => 'f', 'ｇ' => 'g', 'ｈ' => 'h', 'ｉ' => 'i', 'ｊ' => 'j', 'ｋ' => 'k', 'ｌ' => 'l', 'ｍ' => 'm', 'ｎ' => 'n', 'ｏ' => 'o', 'ｐ' => 'p', 'ｑ' => 'q', 'ｒ' => 'r', 'ｓ' => 's', 'ｔ' => 't', 'ｕ' => 'u', 'ｖ' => 'v', 'ｗ' => 'w', 'ｘ' => 'x', 'ｙ' => 'y', 'ｚ' => 'z',
-            '（' => '(', '）' => ')', '〔' => '[', '〕' => ']', '【' => '[', '】' => ']', '〖' => '[', '〗' => ']', '｛' => '{', '｝' => '}', '％' => '%', '＋' => '+', '—' => '-', '－' => '-', '～' => '-', '：' => ':', '？' => '?', '！' => '!', '…' => '-', '‖' => '|',
+            '　' => '', '（' => '(', '）' => ')', '〔' => '[', '〕' => ']', '【' => '[', '】' => ']', '〖' => '[', '〗' => ']', '｛' => '{', '｝' => '}', '％' => '%', '＋' => '+', '—' => '-', '－' => '-', '～' => '~', '：' => ':', '？' => '?', '！' => '!', '‖' => '|',
 
             // '\'' => '&#39;', '"' => '&quot;', '<' => '&lt;', '>' => '&gt;',
             // '”' => '&quot;', '“' => '&quot;',  '’' => '&acute;', '‘' => '&acute;',

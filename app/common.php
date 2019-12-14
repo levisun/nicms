@@ -13,6 +13,7 @@
  */
 
 use think\Response;
+use think\exception\HttpResponseException;
 use think\facade\Config;
 use think\facade\Cookie;
 use think\facade\Route;
