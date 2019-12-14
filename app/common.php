@@ -165,12 +165,12 @@ if (!function_exists('miss')) {
     }
 }
 
-if (!function_exists('create_authorization')) {
+if (!function_exists('authorization_meta')) {
     /**
      * API授权字符串
      * @return string
      */
-    function create_authorization(): string
+    function authorization_meta(): string
     {
         $time = app('request')->time();
         $jti  = Base64::encrypt(Session::getId(false));
@@ -199,7 +199,9 @@ if (!function_exists('create_authorization')) {
             // Retrieves the generated token
             ->getToken(new Sha256, new Key($key));
 
-        return 'Bearer ' . (string) $token;
+        $token = 'Bearer ' . (string) $token;
+
+        return '<meta name="csrf-authorization" content="' . $token . '" />';
     }
 }
 

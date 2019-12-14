@@ -121,8 +121,8 @@ class Tags
 
             '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
 
-            '<meta name="csrf-authorization" content="<?php echo create_authorization();?>" />' .
-            '<meta name="csrf-token" content="<?php echo token();?>" />' .
+            '<?php echo authorization_meta();?>' .
+            '<?php echo token_meta();?>' .
             '<meta name="csrf-version" content="' . config('app.version') . '" />' .
             '<meta name="csrf-root" content="' . $root . '" />' .
             '<meta name="csrf-appid" content="' . $_config['tpl_config']['api_appid'] . '" />' .

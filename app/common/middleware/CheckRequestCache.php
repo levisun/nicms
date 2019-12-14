@@ -73,15 +73,15 @@ class CheckRequestCache
      * @access private
      * @param  string  $_key
      * @param  Request $_request
-     * @return false|request
+     * @return false|Response
      */
     private function readCache(string &$_key, Request &$_request)
     {
         $response = false;
         if (false === app()->isDebug() && $content = Cache::get($_key)) {
             $pattern = [
-                '<meta name="csrf-authorization" content="" />' => '<meta name="csrf-authorization" content="' . create_authorization() . '" />',
-                '<meta name="csrf-token" content="" />' => '<meta name="csrf-token" content="' . token() . '" />',
+                '<meta name="csrf-authorization" content="" />' => authorization_meta(),
+                '<meta name="csrf-token" content="" />' => token_meta(),
             ];
             $content = str_replace(array_keys($pattern), array_values($pattern), $content);
             $response = Response::create($content)
