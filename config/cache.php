@@ -14,8 +14,6 @@
 
 use think\facade\Env;
 
-$expire = (int) Env::get('cache.expire', 28800) - mt_rand(0, 1440);
-
 return [
     // 默认缓存驱动
     'default' => Env::get('cache.driver', 'file'),
@@ -29,7 +27,7 @@ return [
             // 缓存前缀
             'prefix'        => '',
             // 缓存有效期 0表示永久缓存
-            'expire'        => $expire,
+            'expire'        => (int) Env::get('cache.expire', 28800) - mt_rand(0, 1440),
             // 关闭子目录
             'cache_subdir'  => false,
             // 启用数据压缩
@@ -48,7 +46,7 @@ return [
             // 端口
             'port'   => 6379,
             // 缓存有效期 0表示永久缓存
-            'expire' => $expire,
+            'expire' => (int) Env::get('cache.expire', 28800) - mt_rand(0, 1440),
         ],
         // 更多的缓存连接
     ],

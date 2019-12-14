@@ -86,10 +86,12 @@ abstract class BaseController
         if (!$this->session->has('client_token')) {
             $this->session->set('client_token', Base64::client_id());
         }
-        if (!$this->cookie->has('PHPSESSID')) {
-            $this->cookie->set('PHPSESSID', $this->session->get('client_token'));
+        if (!$this->cookie->has('client_ip')) {
             $ip = (new Ipinfo)->get($this->request->ip());
             $this->cookie->set('client_ip', implode(',', $ip));
+        }
+        if (!$this->cookie->has('PHPSESSID')) {
+            $this->cookie->set('PHPSESSID', $this->session->get('client_token'));
         }
 
         @ini_set('memory_limit', '8M');

@@ -14,14 +14,13 @@
 
 use think\facade\Request;
 
-// USER_AGENT生成
-$name = Request::rootDomain() . __DIR__ . Request::server('HTTP_USER_AGENT', Request::ip());
-$name = hash_hmac('sha256', $name, sha1(__DIR__));
-$name = substr(strtoupper($name), 7, 7);
-
 return [
     // session name
-    'name'           => $name,
+    'name'           => substr(strtoupper(hash_hmac(
+        'sha256',
+        Request::rootDomain() . __DIR__ . Request::server('HTTP_USER_AGENT', Request::ip()),
+        sha1(__DIR__)
+    )), 7, 7),
     // SESSION_ID的提交变量,解决flash上传跨域
     'var_session_id' => '',
     // 驱动方式 支持file cache
