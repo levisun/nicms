@@ -29,10 +29,12 @@ class Ip extends Async
             $ip = $this->request->param('ip', false) ?: $this->request->ip();
             if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
                 $ip = (new Ipinfo)->get($ip);
-                return $this->cache(true)->success('IP INFO', $ip);
+                if ($this->request->isAjax() || $this->request->isPjax()) {
+                    return $this->cache(true)->success('IP INFO', $ip);
+                }
             }
         }
 
-        return miss(404);
+        return miss(200);
     }
 }

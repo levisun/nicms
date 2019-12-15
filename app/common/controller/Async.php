@@ -716,7 +716,12 @@ abstract class Async
      */
     protected function abort(string $_msg, int $_code = 40001): void
     {
-        $response = $this->response($_msg, [], $_code);
+        if ($this->request->isAjax() || $this->request->isPjax()) {
+            $response = $this->response($_msg, [], $_code);
+        } else {
+            $response = miss(404);
+        }
+
         throw new HttpResponseException($response);
     }
 

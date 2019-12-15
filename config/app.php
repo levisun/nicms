@@ -13,6 +13,7 @@
  */
 
 use think\facade\Env;
+use think\facade\Request;
 
 return [
     'version'          => '1.0.1CB10',
@@ -29,8 +30,8 @@ return [
     // 上传文件类型(扩展名)
     'upload_type'      => Env::get('app.upload_type', 'gif,jpg,png,zip,rar'),
 
-    'api_host'         => '//api.' . request()->rootDomain(),
-    'cdn_host'         => '//cdn.' . request()->rootDomain(),
+    'api_host'         => '//api.' . Request::rootDomain(),
+    'cdn_host'         => '//cdn.' . Request::rootDomain(),
 
 
 
