@@ -66,7 +66,7 @@ class Verify extends Async
 
                 $this->session->set($key, [
                     'verify' => mt_rand(100000, 999999),
-                    'time'   => time() + 120,
+                    'time'   => time() + 300,
                     'phone'  => $phone,
                 ]);
                 return $this->cache(false)->success('验证码发送成功');

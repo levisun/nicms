@@ -48,7 +48,6 @@ class Search extends BaseController
     /**
      * 详情页
      * @access public
-     * @param  string $name 分层名
      * @return void
      */
     public function index()

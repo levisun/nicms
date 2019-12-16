@@ -75,9 +75,9 @@ class Breadcrumb extends BaseLogic
             $result['id'] = (int) $result['id'];
             $result['image'] = (new Canvas)->image($result['image']);
             $result['flag'] = Base64::flag($result['id'], 7);
-            $result['url'] = url('list/' . $result['action_name'] . '/' . $result['id']);
+            $result['url'] = url('list/' . $result['id']);
             if ($result['access_id']) {
-                $result['url'] = url('channel/' . $result['action_name'] . '/' . $result['id']);
+                $result['url'] = url('channel/' . $result['id']);
             }
             unset($result['action_name']);
 

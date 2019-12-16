@@ -85,9 +85,9 @@ class ArticleBase extends BaseLogic
 
                     foreach ($list['data'] as $key => $value) {
                         // 栏目链接
-                        $value['cat_url'] = url('list/' . $value['model_name'] . '/' . $value['category_id']);
+                        $value['cat_url'] = url('list/' . $value['category_id']);
                         // 文章链接
-                        $value['url'] = url('details/' . $value['model_name'] . '/' . $value['category_id'] . '/' . $value['id']);
+                        $value['url'] = url('details/' . $value['category_id'] . '/' . $value['id']);
                         // 标识符
                         $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
                         // 缩略图
@@ -161,9 +161,9 @@ class ArticleBase extends BaseLogic
 
                 if (null !== $result && $result = $result->toArray()) {
                     // 栏目链接
-                    $result['cat_url'] = url('list/' . $result['model_name'] . '/' . $result['category_id']);
+                    $result['cat_url'] = url('list/' . $result['category_id']);
                     // 文章链接
-                    $result['url'] = url('details/' . $result['model_name'] . '/' . $result['category_id'] . '/' . $result['id']);
+                    $result['url'] = url('details/' . $result['category_id'] . '/' . $result['id']);
                     // 标识符
                     $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
                     // 缩略图
@@ -284,8 +284,8 @@ class ArticleBase extends BaseLogic
 
         if (null !== $result && $result = $result->toArray()) {
             $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
-            $result['url'] = url('details/' . $result['model_name'] . '/' . $result['category_id'] . '/' . $result['id']);
-            $result['cat_url'] = url('list/' . $result['model_name'] . '/' . $result['category_id']);
+            $result['url'] = url('details/' . $result['category_id'] . '/' . $result['id']);
+            $result['cat_url'] = url('list/' . $result['category_id']);
         }
 
         return $result;
@@ -321,8 +321,8 @@ class ArticleBase extends BaseLogic
 
         if (null !== $result && $result = $result->toArray()) {
             $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
-            $result['url'] = url('details/' . $result['model_name'] . '/' . $result['category_id'] . '/' . $result['id']);
-            $result['cat_url'] = url('list/' . $result['model_name'] . '/' . $result['category_id']);
+            $result['url'] = url('details/' . $result['category_id'] . '/' . $result['id']);
+            $result['cat_url'] = url('list/' . $result['category_id']);
         }
 
         return $result;

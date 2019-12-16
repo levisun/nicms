@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\cms\controller;
 
 use app\common\controller\BaseController;
+use app\common\model\Category as ModelCategory;
 use app\common\library\Siteinfo;
 
 class Category extends BaseController
@@ -48,11 +49,22 @@ class Category extends BaseController
     /**
      * 列表页
      * @access public
-     * @param  string $name 分层名
      * @return void
      */
-    public function index(string $name)
+    public function index()
     {
-        return $this->fetch($name . '_list');
+        $result = (new ModelCategory)->view('category', ['id'])
+            ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
+            ->where([
+                ['category.is_show', '=', 1],
+                ['category.id', '=', $this->request->param('cid/d')],
+            ])
+            ->cache(true)
+            ->find();
+        if ($result && $result = $result->toArray()) {
+            return $this->fetch($result['theme_name'] . '_list');
+        } else {
+            return miss(404);
+        }
     }
 }
