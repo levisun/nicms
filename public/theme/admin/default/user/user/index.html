@@ -1,0 +1,101 @@
+<div class="box">
+    <div class="box-header clearfix">
+        <div class="no-margin pull-right">
+            <button class="btn btn-primary" v-on:click="added">{:lang('added')}</button>
+        </div>
+    </div>
+    <div class="box-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th width="5%">{:lang('id')}</th>
+                    <th>{:lang('username')}</th>
+                    <th>{:lang('phone')}</th>
+                    <th>{:lang('email')}</th>
+                    <th>{:lang('level name')}</th>
+                    <th>{:lang('status')}</th>
+                    <th>{:lang('operation')}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template v-for="vo in items.list">
+                    <tr>
+                        <td v-text="vo.id"></td>
+                        <td v-text="vo.username"></td>
+                        <td v-text="vo.phone"></td>
+                        <td v-text="vo.email"></td>
+                        <td v-text="vo.level_name"></td>
+                        <td>
+                            <span class="label label-primary">
+                                <font v-if="vo.status == 1">{:lang('open')}</font>
+                                <font v-if="vo.status == 0">{:lang('close')}</font>
+                            </span>
+                        </td>
+                        <td v-text="vo.create_time"></td>
+                        <td>
+                            <a class="editor" v-bind:href="vo.url.editor">
+                                <i class="fa fa-pencil-square-o"></i>
+                                {:lang('editor')}
+                            </a>
+                            <a v-on:click="remove(vo.id)">
+                                <i class="fa fa-trash"></i>
+                                {:lang('remove')}
+                            </a>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+    <div class="box-footer clearfix" v-html="items.page"></div>
+</div>
+<script type="text/javascript">
+    let user = new Vue({
+        el: '.box',
+        data: {
+            items: []
+        },
+        methods: {
+            load: function (_p) {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    push: true,
+                    replace: true,
+                    requestUrl: NICMS.url + '?page=' + _p,
+                    data: [
+                        { name: 'method', value: 'user.user.query' },
+                        { name: 'page', value: _p }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            user.items = result.data;
+                        }
+                    }
+                });
+            },
+            added: function () {
+                window.location.href = NICMS.domain + '/user/user/added.html';
+            },
+            remove: function (id) {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: [
+                        { name: 'method', value: 'user.user.remove' },
+                        { name: 'id', value: id }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            location.reload();
+                        }
+                    }
+                });
+            }
+        }
+    });
+    user.load(1);
+    function paging(_p) {
+        user.load(_p);
+    }
+</script>

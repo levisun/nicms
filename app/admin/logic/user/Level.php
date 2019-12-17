@@ -3,7 +3,7 @@
 /**
  *
  * API接口层
- * 权限组
+ * 会员等级
  *
  * @package   NICMS
  * @category  app\admin\logic\user
@@ -18,10 +18,9 @@ declare(strict_types=1);
 namespace app\admin\logic\user;
 
 use app\common\controller\BaseLogic;
-use app\common\model\Role as ModelRole;
-use app\common\model\RoleAccess as ModelRoleAccess;
+use app\common\model\Level as ModelLevel;
 
-class Role extends BaseLogic
+class Level extends BaseLogic
 {
     protected $authKey = 'admin_auth_key';
 
@@ -34,10 +33,7 @@ class Role extends BaseLogic
     {
         $query_limit = $this->request->param('limit/d', 10);
 
-        $result = (new ModelRole)
-            ->where([
-                ['id', '<>', 1]
-            ])
+        $result = (new ModelLevel)
             ->order('id DESC')
             ->paginate([
                 'list_rows' => $query_limit,
@@ -49,8 +45,8 @@ class Role extends BaseLogic
 
         foreach ($list['data'] as $key => $value) {
             $value['url'] = [
-                'editor' => url('user/role/editor/' . $value['id']),
-                'remove' => url('user/role/remove/' . $value['id']),
+                'editor' => url('user/level/editor/' . $value['id']),
+                'remove' => url('user/level/remove/' . $value['id']),
             ];
             $list['data'][$key] = $value;
         }
@@ -81,6 +77,7 @@ class Role extends BaseLogic
 
         $receive_data = [
             'name'       => $this->request->param('name'),
+            'credit'     => $this->request->param('credit/d'),
             'remark'     => $this->request->param('remark'),
             'status'     => $this->request->param('status/d'),
         ];
@@ -88,24 +85,12 @@ class Role extends BaseLogic
             return $result;
         }
 
-        (new ModelRole)->transaction(function () use ($receive_data) {
-            $role = new ModelRole;
-            $role->save($receive_data);
-            $list = [];
-            $node = $this->request->param('node/a');
-            foreach ($node as $value) {
-                $list[] = [
-                    'role_id' => $role->id,
-                    'node_id' => $value,
-                ];
-            }
-            (new ModelRoleAccess)->saveAll($list);
-        });
+        (new ModelLevel)->save($receive_data);
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'role added success',
+            'msg'   => 'level added success',
         ];
     }
 
@@ -118,25 +103,12 @@ class Role extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d')) {
-            $result = (new ModelRole)
+            $result = (new ModelLevel)
                 ->where([
                     ['id', '=', $id],
                 ])
                 ->find();
             $result = $result ? $result->toArray() : [];
-
-            $node = (new ModelRoleAccess)
-                ->field('node_id')
-                ->where([
-                    ['role_id', '=', $id]
-                ])
-                ->order('node_id ASC')
-                ->select();
-            if ($node = $node->toArray()) {
-                foreach ($node as $value) {
-                    $result['node'][] = $value['node_id'];
-                }
-            }
         }
 
         return [
@@ -167,6 +139,7 @@ class Role extends BaseLogic
 
         $receive_data = [
             'name'       => $this->request->param('name'),
+            'credit'     => $this->request->param('credit/d'),
             'remark'     => $this->request->param('remark'),
             'status'     => $this->request->param('status/d'),
         ];
@@ -174,31 +147,16 @@ class Role extends BaseLogic
             return $result;
         }
 
-        (new ModelRole)->transaction(function () use ($receive_data, $id) {
-            (new ModelRole)->where([
-                ['id', '=', $id]
-            ])
+        (new ModelLevel)->where([
+            ['id', '=', $id]
+        ])
             ->data($receive_data)
             ->update();
-            // 删除旧数据
-            (new ModelRoleAccess)->where([
-                ['role_id', '=', $id]
-            ])->delete();
-            $list = [];
-            $node = $this->request->param('node/a');
-            foreach ($node as $value) {
-                $list[] = [
-                    'role_id' => $id,
-                    'node_id' => $value,
-                ];
-            }
-            (new ModelRoleAccess)->saveAll($list);
-        });
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'role editor success',
+            'msg'   => 'level editor success',
         ];
     }
 
@@ -220,20 +178,15 @@ class Role extends BaseLogic
             ];
         }
 
-        (new ModelRole)->transaction(function () use ($id) {
-            (new ModelRole)->where([
-                ['id', '=', $id]
-            ])
+        (new ModelLevel)->where([
+            ['id', '=', $id]
+        ])
             ->delete();
-            (new ModelRoleAccess)->where([
-                ['role_id', '=', $id]
-            ])->delete();
-        });
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'role remove success',
+            'msg'   => 'level remove success',
         ];
     }
 }

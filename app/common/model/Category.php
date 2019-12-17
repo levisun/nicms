@@ -53,6 +53,7 @@ class Category extends Model
     protected $name = 'category';
     protected $autoWriteTimestamp = true;
     protected $updateTime = 'update_time';
+    protected $dateFormat = false;
     protected $pk = 'id';
     protected $type = [
         'type_id'    => 'integer',

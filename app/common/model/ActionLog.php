@@ -37,6 +37,7 @@ class ActionLog extends Model
     protected $name = 'action_log';
     protected $autoWriteTimestamp = true;
     protected $updateTime = false;
+    protected $dateFormat = false;
     protected $pk = 'id';
     protected $type = [
         'action_id' => 'integer',

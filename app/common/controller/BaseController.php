@@ -20,8 +20,6 @@ use think\App;
 use think\Response;
 use think\exception\HttpResponseException;
 use app\common\library\Base64;
-use app\common\library\Ipinfo;
-use think\captcha\facade\Captcha;
 
 abstract class BaseController
 {
@@ -94,10 +92,8 @@ abstract class BaseController
         set_time_limit(30);
 
         if (1 === mt_rand(1, 999)) {
-            $this->app->log->record('[并发]', 'alert')->save();
-            http_response_code(500);
-            echo '<style type="text/css">*{padding:0; margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>500</title><section><h2>500</h2><h3>Oops! Something went wrong.</h3></section><script>setTimeout(function(){location.href="/";}, 3000);</script>';
-            exit();
+            $response = miss(500);
+            throw new HttpResponseException($response);
         }
 
         // 控制器初始化
@@ -107,17 +103,6 @@ abstract class BaseController
     // 初始化
     protected function initialize()
     { }
-
-    /**
-     * 验证码
-     * @access public
-     * @return mixed
-     */
-    public function verify()
-    {
-        $config = mt_rand(0, 1) ? 'verify_zh' : 'verify_math';
-        return Captcha::create($config);
-    }
 
     /**
      * 302重指向

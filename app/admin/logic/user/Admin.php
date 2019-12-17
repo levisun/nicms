@@ -3,7 +3,7 @@
 /**
  *
  * API接口层
- * 权限节点
+ * 管理员
  *
  * @package   NICMS
  * @category  app\admin\logic\user
@@ -52,7 +52,10 @@ class Admin extends BaseLogic
         $list = $result->toArray();
         $list['render'] = $result->render();
 
+        $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
         foreach ($list['data'] as $key => $value) {
+            $value['last_login_time'] = date($date_format, (int) $value['last_login_time']);
+
             $value['url'] = [
                 'editor' => url('user/admin/editor/' . $value['id']),
                 'remove' => url('user/admin/remove/' . $value['id']),
@@ -113,7 +116,7 @@ class Admin extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'role added success',
+            'msg'   => 'admin added success',
         ];
     }
 

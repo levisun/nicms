@@ -1,0 +1,98 @@
+<div class="box">
+    <div class="box-body">
+        <form id="admin">
+            <div class="form-group">
+                <label>{:lang('username')}</label>
+                <input type="text" name="username" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('password')}</label>
+                <input type="password" name="password" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('not_password')}</label>
+                <input type="password" name="password_confirm" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('phone')}</label>
+                <input type="text" name="phone" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('email')}</label>
+                <input type="text" name="email" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('level')}</label>
+                <select class="form-control" name="level_id">
+                    <option>{:lang('select')}</option>
+                    <template v-for="vo in level_list">
+                        <option v-bind:value="vo.id" v-text="vo.name"></option>
+                    </template>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('status')}</label>
+                <label>
+                    <input type="radio" name="status" value="1" checked="checked">
+                    {:lang('open')}
+                </label>
+                <label>
+                    <input type="radio" name="status" value="0">
+                    {:lang('close')}
+                </label>
+            </div>
+
+            <div class="form-group">
+                <input type="button" class="btn btn-primary" v-on:click="added" value="{:lang('save')}">
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    let user = new Vue({
+        el: '.box',
+        data: {
+            level_list: []
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'user.user.find' }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            user.level_list = result.data.level_list;
+                        }
+                    }
+                });
+            },
+            added: function () {
+                var data = jQuery('#admin').serializeArray();
+                data.push({ name: 'method', value: 'user.user.added' });
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: data,
+                    success: function (result) {
+                        if (result.code === 10000) {
+                            jQuery.uiToast(result.message);
+                            history.back();
+                        } else {
+                            jQuery.uiToast(result.message);
+                        }
+                    }
+                });
+            }
+        }
+    });
+    user.load();
+</script>

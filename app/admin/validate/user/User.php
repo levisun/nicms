@@ -3,7 +3,7 @@
 /**
  *
  * 验证器
- * 用户 - 管理员
+ * 用户 - 会员
  *
  * @package   NICMS
  * @category  app\admin\validate\user
@@ -17,14 +17,14 @@ namespace app\admin\validate\user;
 
 use think\Validate;
 
-class Admin extends Validate
+class User extends Validate
 {
     protected $rule = [
-        'username' => ['require', 'length: 4,20', 'unique: admin,username'],
+        'username' => ['require', 'length: 4,20', 'unique: user,username'],
         'password' => ['require', 'length: 6,20', 'confirm'],
-        'phone'    => ['mobile'],
-        'email'    => ['email'],
-        'role_id'  => ['require', 'integer', 'gt: 0'],
+        'phone'    => ['mobile', 'unique: user,phone'],
+        'email'    => ['email', 'unique: user,email'],
+        'level_id' => ['require', 'integer', 'gt: 0'],
         'status'   => ['require', 'integer'],
     ];
 
@@ -38,11 +38,9 @@ class Admin extends Validate
         'password.confirm'  => '{%error password confirm}',
 
         'phone.mobile'  => '{%error phone mobile}',
+        'phone.unique'  => '{%error phone unique}',
 
         'email.email'  => '{%error email email}',
-
-        'captcha.require'  => '{%error captcha require}',
-        'captcha.length'   => '{%error captcha length}',
-        'captcha.captcha'  => '{%error captcha}',
+        'email.unique'  => '{%error email unique}',
     ];
 }

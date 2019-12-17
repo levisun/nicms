@@ -21,8 +21,8 @@ use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Lang;
 use think\facade\Request;
-use app\library\Base64;
-use app\model\Article as ModelArticle;
+use app\common\library\Base64;
+use app\common\model\Article as ModelArticle;
 
 class Tags
 {
@@ -82,7 +82,7 @@ class Tags
                 $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
                 $value['cat_url'] = url('list/' . $value['action_name'] . '/' . $value['category_id']);
                 $value['url'] = url('details/' . $value['action_name'] . '/' . $value['category_id'] . '/' . $value['id']);
-                $value['update_time'] = date($date_format, $value['update_time']);
+                $value['update_time'] = date($date_format, (int) $value['update_time']);
 
                 $value['thumb'] = imgUrl($value['thumb'], $img_size);
 

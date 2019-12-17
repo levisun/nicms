@@ -93,7 +93,7 @@ class ArticleBase extends BaseLogic
                         // 缩略图
                         $value['thumb'] = (new Canvas)->image($value['thumb'], 300);
                         // 时间格式
-                        $value['update_time'] = date($date_format, strtotime($value['update_time']));
+                        $value['update_time'] = date($date_format, (int) $value['update_time']);
 
                         // 附加字段数据
                         $fields = (new ArticleExtend)
@@ -170,7 +170,7 @@ class ArticleBase extends BaseLogic
                     $result['thumb'] = (new Canvas)->image($result['thumb'], 300);
                     // 时间格式
                     $date_format = $this->request->param('date_format', 'Y-m-d');
-                    $result['update_time'] = date($date_format, strtotime($result['update_time']));
+                    $result['update_time'] = date($date_format, (int) $value['update_time']);
 
                     // 上一篇 下一篇
                     $result['next'] = $this->next((int) $result['id']);

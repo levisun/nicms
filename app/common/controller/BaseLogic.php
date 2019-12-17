@@ -207,7 +207,7 @@ abstract class BaseLogic
             return [
                 'debug' => false,
                 'cache' => false,
-                'code'  => 40011,
+                'code'  => 30001,
                 'msg'   => '请求错误'
             ];
         }
@@ -220,7 +220,7 @@ abstract class BaseLogic
             return [
                 'debug' => false,
                 'cache' => false,
-                'code'  => 40012,
+                'code'  => 30002,
                 'msg'   => $v->getError()
             ];
         } else {
@@ -261,7 +261,7 @@ abstract class BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'code'  => is_string($result) ? 40031 : 10000,
+            'code'  => is_string($result) ? 31001 : 10000,
             'msg'   => is_string($result) ? $result : 'upload success',
             'data'  => is_string($result) ? [] : $result
 

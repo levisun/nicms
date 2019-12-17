@@ -3,7 +3,7 @@
 /**
  *
  * 验证器
- * 栏目 - 栏目
+ * 用户 - 管理员组
  *
  * @package   NICMS
  * @category  app\admin\validate\user

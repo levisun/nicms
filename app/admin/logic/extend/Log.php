@@ -50,8 +50,7 @@ class Log extends BaseLogic
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
         foreach ($list['data'] as $key => $value) {
-            $value['create_time'] = strtotime($value['create_time']);
-            $value['create_time'] = date($date_format, $value['create_time']);
+            $value['create_time'] = date($date_format, (int) $value['create_time']);
             $value['action_name'] = $this->lang->get($value['action_name']);
             unset($value['action_id'], $value['user_id']);
             $list['data'][$key] = $value;

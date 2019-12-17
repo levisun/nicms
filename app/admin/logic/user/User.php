@@ -3,7 +3,7 @@
 /**
  *
  * API接口层
- * 网站栏目
+ * 用户
  *
  * @package   NICMS
  * @category  app\admin\logic\user
@@ -18,6 +18,8 @@ declare(strict_types=1);
 namespace app\admin\logic\user;
 
 use app\common\controller\BaseLogic;
+use app\common\library\Base64;
+use app\common\model\Level as ModelLevel;
 use app\common\model\User as ModelUser;
 
 class User extends BaseLogic
@@ -34,11 +36,11 @@ class User extends BaseLogic
         $query_limit = $this->request->param('limit/d', 10);
 
         $result = (new ModelUser)
-            ->view('user', ['id', 'username', 'realname', 'nickname', 'email', 'phone', 'status', 'phone', 'phone'])
-            ->view('level', ['name' => 'level_name'], 'level.id=user.id')
+            ->view('user', ['id', 'username', 'realname', 'nickname', 'email', 'phone', 'status', 'create_time'])
+            ->view('level', ['name' => 'level_name'], 'level.id=user.level_id')
             ->order('user.create_time DESC')
             ->paginate([
-                'list_rows'=> $query_limit,
+                'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
             ]);
 
@@ -47,8 +49,13 @@ class User extends BaseLogic
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
         foreach ($list['data'] as $key => $value) {
-            $value['create_time'] = strtotime($value['create_time']);
-            $value['create_time'] = date($date_format, $value['create_time']);
+            $value['create_time'] = date($date_format, (int) $value['create_time']);
+
+            $value['url'] = [
+                'editor' => url('user/user/editor/' . $value['id']),
+                'remove' => url('user/user/remove/' . $value['id']),
+            ];
+
             $list['data'][$key] = $value;
         }
 
@@ -68,6 +75,39 @@ class User extends BaseLogic
     }
 
     /**
+     * 添加
+     * @access public
+     * @return array
+     */
+    public function added(): array
+    {
+        $this->actionLog(__METHOD__, 'admin user added');
+
+        $receive_data = [
+            'username'         => $this->request->param('username'),
+            'password'         => $this->request->param('password'),
+            'password_confirm' => $this->request->param('password_confirm'),
+            'phone'            => $this->request->param('phone'),
+            'email'            => $this->request->param('email'),
+            'level_id'         => $this->request->param('level_id/d'),
+            'status'           => $this->request->param('status/d'),
+        ];
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+
+        $receive_data['salt'] = Base64::flag(md5(microtime(true) . $receive_data['password']), 6);
+        $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
+        (new ModelUser)->save($receive_data);
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'user added success',
+        ];
+    }
+
+    /**
      * 查询
      * @access public
      * @return array
@@ -77,6 +117,7 @@ class User extends BaseLogic
         $result = [];
         if ($id = $this->request->param('id/d')) {
             $result = (new ModelUser)
+                ->field('id, username, phone, email, level_id, status')
                 ->where([
                     ['id', '=', $id],
                 ])
@@ -84,11 +125,98 @@ class User extends BaseLogic
             $result = $result ? $result->toArray() : [];
         }
 
+        $level = (new ModelLevel)
+            ->where([
+                ['status', '=', 1]
+            ])
+            ->select();
+        $result['level_list'] = $level ? $level->toArray() : [];
+
         return [
             'debug' => false,
             'cache' => false,
             'msg'   => 'user data',
             'data'  => $result
+        ];
+    }
+
+    /**
+     * 编辑
+     * @access public
+     * @return array
+     */
+    public function editor()
+    {
+        $this->actionLog(__METHOD__, 'admin user editor');
+
+        if (!$id = $this->request->param('id/d')) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40001,
+                'msg'   => '请求错误'
+            ];
+        }
+
+        $receive_data = [
+            'username'         => $this->request->param('username'),
+            'password'         => $this->request->param('password'),
+            'password_confirm' => $this->request->param('password_confirm'),
+            'phone'            => $this->request->param('phone'),
+            'email'            => $this->request->param('email'),
+            'level_id'         => $this->request->param('level_id/d'),
+            'status'           => $this->request->param('status/d'),
+        ];
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+        $receive_data['salt'] = Base64::flag(md5(microtime(true) . $receive_data['password']), 6);
+        $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
+
+        (new ModelUser)->where([
+            ['id', '=', $id]
+        ])->data([
+            'username' => $receive_data['username'],
+            'password' => $receive_data['password'],
+            'phone'    => $receive_data['phone'],
+            'email'    => $receive_data['email'],
+            'level_id' => $receive_data['level_id'],
+            'status'   => $receive_data['status'],
+        ])->update();
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'user editor success',
+        ];
+    }
+
+    /**
+     * 删除
+     * @access public
+     * @return array
+     */
+    public function remove()
+    {
+        $this->actionLog(__METHOD__, 'admin user remove');
+
+        if (!$id = $this->request->param('id/d')) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40001,
+                'msg'   => '请求错误'
+            ];
+        }
+
+        (new ModelUser)->where([
+            ['id', '=', $id]
+        ])->delete();
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'user remove success',
         ];
     }
 }

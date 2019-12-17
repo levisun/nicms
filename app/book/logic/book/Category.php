@@ -73,7 +73,7 @@ class Category extends BaseLogic
 
                 foreach ($list['data'] as $key => $value) {
                     $value['url'] = url('catalog/' . $value['id']);
-                    $value['update_time'] = date($date_format, strtotime($value['update_time']));
+                    $value['update_time'] = date($date_format, (int) $value['update_time']);
 
                     $list['data'][$key] = $value;
                 }

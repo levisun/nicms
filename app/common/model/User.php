@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS `nc_user`;
 CREATE TABLE IF NOT EXISTS `nc_user` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
     `username` varchar(20) NOT NULL DEFAULT '' COMMENT '用户名',
-    `password` varchar(32) NOT NULL DEFAULT '' COMMENT '密码',
+    `password` varchar(60) NOT NULL DEFAULT '' COMMENT '密码',
     `email` varchar(40) NOT NULL DEFAULT '' COMMENT '邮箱',
     `realname` varchar(50) NOT NULL DEFAULT '' COMMENT '真实姓名',
     `nickname` varchar(50) NOT NULL DEFAULT '' COMMENT '昵称',
