@@ -142,7 +142,7 @@ class Template implements TemplateHandlerInterface
     {
         if ('' == pathinfo($_template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
-            $_template = $this->parseTemplate($_template);
+            $_template = $this->parseTemplateFile($_template);
         }
 
         return is_file($_template);
@@ -181,20 +181,14 @@ class Template implements TemplateHandlerInterface
         if (is_file($this->config['view_path'] . $tpl_config)) {
             $json = file_get_contents($this->config['view_path'] . $tpl_config);
             if ($json && $json = json_decode($json, true)) {
-                $this->config['tpl_config'] = array_merge($this->config['tpl_config'], $json);
+                $this->config['tpl_config'] = array_merge($this->config['tpl_config'], (array) $json);
             }
         }
 
         // 缓存路径
-        $compile_file  = $this->config['compile_path'] .
-            md5(
-                $this->config['view_theme'] .
-                    $this->config['strip_space'] .
-                    $this->config['layout_on'] .
-                    $this->config['layout_name'] .
-                    $_template
-            ) . '.' .
-            trim($this->config['compile_suffix'], '.');
+        $compile_file  = $this->config['compile_path'] . $this->config['view_theme'] .
+            md5($this->config['layout_on'] . $this->config['layout_name'] . $_template) .
+            '.' . ltrim($this->config['compile_suffix'], '.');
 
         if (false === $this->checkCompiler($compile_file)) {
             // 缓存无效 重新模板编译

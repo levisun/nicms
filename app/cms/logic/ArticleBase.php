@@ -159,7 +159,7 @@ class ArticleBase extends BaseLogic
                     ->where($map)
                     ->find();
 
-                if (null !== $result && $result = $result->toArray()) {
+                if ($result && $result = $result->toArray()) {
                     // 栏目链接
                     $result['cat_url'] = url('list/' . $result['category_id']);
                     // 文章链接
@@ -170,7 +170,7 @@ class ArticleBase extends BaseLogic
                     $result['thumb'] = (new Canvas)->image($result['thumb'], 300);
                     // 时间格式
                     $date_format = $this->request->param('date_format', 'Y-m-d');
-                    $result['update_time'] = date($date_format, (int) $value['update_time']);
+                    $result['update_time'] = date($date_format, (int) $result['update_time']);
 
                     // 上一篇 下一篇
                     $result['next'] = $this->next((int) $result['id']);
@@ -209,7 +209,7 @@ class ArticleBase extends BaseLogic
                     $result['content'] =
                         preg_replace_callback('/(src=["|\'])(.*?)(["|\'])/si', function ($matches) {
                             $thumb = (new Canvas)->image($matches[2]);
-                            return 'src="' . $thumb . '" original="' . (new Canvas)->image($matches[2], 0) . '"';
+                            return 'src="' . $thumb . '"';
                         }, $result['content']);
 
                     $this->cache->tag('cms')->set($cache_key, $result);

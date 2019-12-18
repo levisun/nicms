@@ -60,7 +60,7 @@ class Index extends BaseController
      * @param  string $_method  方法
      * @return void
      */
-    protected function authenticate(string $_logic, string $_action, string $_method): void
+    protected function authenticate(string &$_logic, string &$_action, string &$_method): void
     {
         if ($this->session->has('admin_auth_key')) {
             $result = (new Rbac)->authenticate(
