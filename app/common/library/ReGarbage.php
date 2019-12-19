@@ -47,7 +47,9 @@ class ReGarbage
         $files = is_dir($_dir) ? scandir($_dir) : [];
 
         foreach ($files as $file) {
-            if ('.' != $file && '..' != $file && is_dir($_dir . $file)) {
+            if ('.' == $file || '..' == $file) {
+                continue;
+            } elseif (is_dir($_dir . $file)) {
                 $this->clear($_dir . $file . DIRECTORY_SEPARATOR, $_time);
                 @rmdir($_dir . $file);
             } elseif (is_file($_dir . $file) && filemtime($_dir . $file) <= $_time) {

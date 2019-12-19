@@ -101,5 +101,7 @@ return [
     'run action' => '执行方法',
     'backname' => '备份文件名',
 
+    'remove cache success' => '缓存清空成功!',
+
     'qingshuru' => '123',
 ];

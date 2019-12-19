@@ -72,8 +72,16 @@ class Siteinfo
      */
     private function description(): string
     {
+        // 默认
+        $result = (new ModelConfig)
+            ->where([
+                ['name', '=', $this->appName . '_description'],
+                ['lang', '=', $this->langSet]
+            ])
+            ->value('value', '');
+
         // 文章描述
-        if ($id = app('request')->param('id/f', null)) {
+        if ($id = app('request')->param('id/d', null)) {
             $result = (new ModelArticle)
                 ->where([
                     ['id', '=', $id]
@@ -81,21 +89,12 @@ class Siteinfo
                 ->value('description', '');
         }
         // 栏目描述
-        elseif ($cid = app('request')->param('cid/f', null)) {
+        elseif ($cid = app('request')->param('cid/d', null)) {
             $result = (new ModelCategory)
                 ->where([
                     ['id', '=', $cid]
                 ])
                 ->value('description', '');
-        }
-        // 默认
-        else {
-            $result = (new ModelConfig)
-                ->where([
-                    ['name', '=', $this->appName . '_description'],
-                    ['lang', '=', $this->langSet]
-                ])
-                ->value('value', '');
         }
 
         return strip_tags(htmlspecialchars_decode($result));
@@ -108,8 +107,16 @@ class Siteinfo
      */
     private function keywords(): string
     {
+        // 默认
+        $result = (new ModelConfig)
+            ->where([
+                ['name', '=', $this->appName . '_keywords'],
+                ['lang', '=', $this->langSet]
+            ])
+            ->value('value', '');
+
         // 文章关键词
-        if ($id = app('request')->param('id/f', null)) {
+        if ($id = app('request')->param('id/d', null)) {
             $result = (new ModelArticle)
                 ->where([
                     ['id', '=', $id]
@@ -117,21 +124,12 @@ class Siteinfo
                 ->value('keywords', '');
         }
         // 栏目关键词
-        elseif ($cid = app('request')->param('cid/f', null)) {
+        elseif ($cid = app('request')->param('cid/d', null)) {
             $result = (new ModelCategory)
                 ->where([
                     ['id', '=', $cid]
                 ])
                 ->value('keywords', '');
-        }
-        // 默认
-        else {
-            $result = (new ModelConfig)
-                ->where([
-                    ['name', '=', $this->appName . '_keywords'],
-                    ['lang', '=', $this->langSet]
-                ])
-                ->value('value', '');
         }
 
         return strip_tags(htmlspecialchars_decode($result));
@@ -144,31 +142,30 @@ class Siteinfo
      */
     private function title(): string
     {
+        $result = '';
+
         // 文章名
-        if ($id = app('request')->param('id/f', null)) {
-            $result = (new ModelArticle)
+        if ($id = app('request')->param('id/d', null)) {
+            $article = (new ModelArticle)
                 ->where([
                     ['id', '=', $id]
                 ])
                 ->value('title', '');
+            $result .= $article ? $article . '_' : '';
         }
+
         // 栏目名
-        elseif ($cid = app('request')->param('cid/f', null)) {
-            $result = (new ModelCategory)
+        if ($cid = app('request')->param('cid/d', null)) {
+            $category = (new ModelCategory)
                 ->where([
                     ['id', '=', $cid]
                 ])
-                ->value('name', 'NICMS');
+                ->value('name', '');
+            $result .= $category ? $category . '_' : '';
         }
+
         // 默认
-        else {
-            $result = (new ModelConfig)
-                ->where([
-                    ['name', '=', $this->appName . '_sitename'],
-                    ['lang', '=', $this->langSet]
-                ])
-                ->value('value', 'NICMS');
-        }
+        $result .= $this->name();
 
         return strip_tags(htmlspecialchars_decode($result));
     }

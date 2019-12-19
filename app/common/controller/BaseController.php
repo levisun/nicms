@@ -20,6 +20,7 @@ use think\App;
 use think\Response;
 use think\exception\HttpResponseException;
 use app\common\library\Base64;
+use app\common\model\ApiApp as ModelApiApp;
 
 abstract class BaseController
 {
@@ -80,6 +81,9 @@ abstract class BaseController
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\DataFilter::filter');
 
+        @ini_set('memory_limit', '8M');
+        set_time_limit(30);
+
         // 生成客户端cookie令牌
         if (!$this->session->has('client_token')) {
             $this->session->set('client_token', Base64::client_id());
@@ -88,8 +92,16 @@ abstract class BaseController
             $this->cookie->set('PHPSESSID', $this->session->get('client_token'));
         }
 
-        @ini_set('memory_limit', '8M');
-        set_time_limit(30);
+        $key = substr(strtoupper(sha1($this->request->domain() . __DIR__)), 7, 7);
+        if (!$this->cookie->has($key)) {
+            $result = (new ModelApiApp)
+                ->where([
+                    ['name', '=', $this->app->http->getName()]
+                ])
+                ->cache('APP:' . $this->app->http->getName())
+                ->value('secret');
+            $this->cookie->set($key, $result, ['httponly' => false]);
+        }
 
         if (1 === mt_rand(1, 999)) {
             $response = miss(500);
@@ -102,7 +114,8 @@ abstract class BaseController
 
     // 初始化
     protected function initialize()
-    { }
+    {
+    }
 
     /**
      * 302重指向

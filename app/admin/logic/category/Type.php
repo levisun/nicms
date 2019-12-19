@@ -3,7 +3,7 @@
 /**
  *
  * API接口层
- * 网站栏目
+ * 分类
  *
  * @package   NICMS
  * @category  app\admin\logic\category

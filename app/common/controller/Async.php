@@ -237,13 +237,13 @@ abstract class Async
      */
     public function __construct(App $_app)
     {
-        $this->app      = $_app;
-        $this->cache    = $this->app->cache;
-        $this->config   = $this->app->config;
-        $this->lang     = $this->app->lang;
-        $this->log      = $this->app->log;
-        $this->request  = $this->app->request;
-        $this->session  = $this->app->session;
+        $this->app     = $_app;
+        $this->cache   = $this->app->cache;
+        $this->config  = $this->app->config;
+        $this->lang    = $this->app->lang;
+        $this->log     = $this->app->log;
+        $this->request = $this->app->request;
+        $this->session = $this->app->session;
 
         // 请勿开启调试模式
         $this->app->debug(false);
@@ -738,7 +738,7 @@ abstract class Async
         $result = [
             'code'    => $_code,
             'data'    => $_data,
-            'message' => true === $this->apiDebug ? $_msg : (10000 === $_code ? 'success' : $_msg),
+            'message' => $_msg,
             'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 3) . 's,' .
                 number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . 'mb,' .
                 count(get_included_files()),

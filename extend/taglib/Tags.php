@@ -121,12 +121,12 @@ class Tags
 
             '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
 
-            '<?php echo authorization_meta();?>' .
-            '<?php echo token_meta();?>' .
-            '<meta name="csrf-version" content="' . config('app.version') . '" />' .
-            '<meta name="csrf-root" content="' . $root . '" />' .
             '<meta name="csrf-appid" content="' . $_config['tpl_config']['api_appid'] . '" />' .
             '<meta name="csrf-appsecret" content="' . $_config['tpl_config']['api_appsecret'] . '" />' .
+            '<?php echo authorization_meta();?>' .
+            '<meta name="csrf-root" content="' . $root . '" />' .
+            '<?php echo token_meta();?>' .
+            '<meta name="csrf-version" content="' . $_config['tpl_config']['api_version'] . '" />' .
 
             '<link rel="dns-prefetch" href="' . config('app.api_host') . '" />' .
             '<link rel="dns-prefetch" href="' . config('app.cdn_host') . '" />' .
@@ -146,8 +146,8 @@ class Tags
 
             '<script type="text/javascript">var NICMS=' . json_encode([
                 'domain' => '//' . request()->subDomain() . '.' . request()->rootDomain(),
+                'rootDomain' => '//' . request()->rootDomain(),
                 'url'    => request()->baseUrl(true),
-                // 'param'  => request()->param(),
                 'api'    => [
                     'url'   => config('app.api_host'),
                     'appid' => $_config['tpl_config']['api_appid'],

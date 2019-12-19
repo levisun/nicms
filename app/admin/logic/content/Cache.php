@@ -32,14 +32,28 @@ class Cache extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content cache reomve');
 
-        $this->app->console->call('clear', ['cache']);
-        $this->app->console->call('clear', ['schema']);
-        $this->app->console->call('clear', ['temp']);
+        $dir = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR;
+        $app = $this->app->config->get('app.domain_bind');
+        $app = array_values($app);
+        $app = array_unique($app);
+        foreach ($app as $app_name) {
+            $app_name = $dir . $app_name . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR;
+            if (is_dir($app_name)) {
+                $files = scandir($app_name);
+                foreach ($files as $file_name) {
+                    if ('.' == $file_name || '..' == $file_name) {
+                        continue;
+                    } elseif (is_file($app_name . $file_name)) {
+                        @unlink($app_name . $file_name);
+                    }
+                }
+            }
+        }
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'remove cache success'
+            'msg'   => lang('remove cache success')
         ];
     }
 
@@ -52,7 +66,32 @@ class Cache extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content compile reomve');
 
-        $this->app->console->call('clear', ['compile']);
+        $dir = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR;
+        $app = $this->app->config->get('app.domain_bind');
+        $app = array_values($app);
+        $app = array_unique($app);
+        foreach ($app as $app_name) {
+            $app_name = $dir . $app_name . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR;
+            if (is_dir($app_name)) {
+                $files = scandir($app_name);
+                foreach ($files as $dir_name) {
+                    if ('.' == $dir_name || '..' == $dir_name) {
+                        continue;
+                    } elseif (is_dir($app_name . $dir_name)) {
+                        $dir_name = $dir_name . DIRECTORY_SEPARATOR;
+                        $_files = scandir($app_name . $dir_name);
+                        foreach ($_files as $file_name) {
+                            if ('.' == $file_name || '..' == $file_name) {
+                                continue;
+                            } elseif (is_file($app_name . $dir_name . $file_name)) {
+                                @unlink($app_name . $dir_name . $file_name);
+                            }
+                        }
+                        @rmdir($app_name . $dir_name);
+                    }
+                }
+            }
+        }
 
         return [
             'debug' => false,

@@ -12,6 +12,19 @@
         </form>
 
         <ul class="sidebar-menu" data-widget="tree">
+            <li class="header">LABELS</li>
+            <li>
+                <a v-on:click="site_home">
+                    <i class="fa fa-circle-o text-red"></i>
+                    <span>{:lang('site home')}</span>
+                </a>
+            </li>
+            <li>
+                <a v-on:click="remove_cache">
+                    <i class="fa fa-circle-o text-red"></i>
+                    <span>{:lang('remove cache')}</span>
+                </a>
+            </li>
             <li class="header">MAIN NAVIGATION</li>
             <template v-for="vo in user_auth">
                 <li v-bind:class="NICMS.api.param.logic==vo.name ? 'treeview active' : 'treeview'">
@@ -30,19 +43,6 @@
                     </ul>
                 </li>
             </template>
-            <li class="header">LABELS</li>
-            <li>
-                <a v-on:click="remove_cache()">
-                    <i class="fa fa-circle-o text-red"></i>
-                    <span>{:lang('remove cache')}</span>
-                </a>
-            </li>
-            <li>
-                <a href="{:url('extend/databack/index')}">
-                    <i class="fa fa-circle-o text-red"></i>
-                    <span>{:lang('backup database')}</span>
-                </a>
-            </li>
         </ul>
     </section>
 </aside>
@@ -82,26 +82,19 @@
                     }
                 });
             },
+            site_home: function () {
+                window.location.href = NICMS.rootDomain;
+            },
             remove_cache: function () {
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
                     data: [
-                        { name: 'method', value: 'content.cache.reCache' }
+                        { name: 'method', value: 'content.cache.recache' }
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
-                        }
-                    }
-                });
-                jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
-                    type: 'GET',
-                    data: [
-                        { name: 'method', value: 'content.cache.reCompile' }
-                    ],
-                    success: function (result) {
-                        if (result.code == 10000) {
+                            jQuery.uiToast(result.message);
                         }
                     }
                 });

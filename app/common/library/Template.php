@@ -103,11 +103,11 @@ class Template implements TemplateHandlerInterface
         $this->config['compile_path'] = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
         $this->config['view_path'] = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR;
         $this->config['tpl_compile'] = (bool) !env('app_debug', false);
-        $this->config['app_name'] = app('http')->getName();
+        $this->config['app_name'] = $this->app->http->getName();
         // 合并配置
         $this->config  = array_merge($this->config, $_config);
 
-        $this->appName = app('http')->getName();
+        $this->appName = $this->app->http->getName();
     }
 
     /**
