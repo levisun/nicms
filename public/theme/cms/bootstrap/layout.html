@@ -1,7 +1,7 @@
 {tags:meta /}
 
-<header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<header id="layout-header" class="bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <a class="navbar-brand text-white" href="/">__NAME__</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -10,12 +10,12 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link text-muted" href="/">首页</a>
+                    <a class="nav-link" href="/">首页</a>
                 </li>
                 <template v-for="vo in nav">
                     <template v-if="vo.child[0]">
                         <li class="nav-item dropdown">
-                            <a class="nav-link text-muted dropdown-toggle" v-bind:href="vo.url" id="navbarDropdown" role="button"
+                            <a class="nav-link dropdown-toggle" v-bind:href="vo.url" id="navbarDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-text="vo.name"></a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <template v-for="v in vo.child">
@@ -26,7 +26,7 @@
                     </template>
                     <template v-else>
                         <li class="nav-item">
-                            <a class="nav-link text-muted" v-bind:href="vo.url" v-text="vo.name"></a>
+                            <a class="nav-link" v-bind:href="vo.url" v-text="vo.name"></a>
                         </li>
                     </template>
                 </template>
@@ -39,9 +39,11 @@
     </nav>
 </header>
 
+<main id="layout-main" class="bg-light">
 {__CONTENT__}
+</main>
 
-<footer>
+<footer id="layout-footer" class="bg-dark">
     <div class="container">
         <div class="row">
             <div class="col-sm text-white-50">
