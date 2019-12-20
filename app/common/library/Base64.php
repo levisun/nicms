@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Config;
+use think\facade\Request;
 
 class Base64
 {
@@ -64,12 +65,12 @@ class Base64
      */
     public static function client_id(): string
     {
-        $token  = app('request')->server('HTTP_USER_AGENT');
+        $token  = Request::server('HTTP_USER_AGENT');
         $token .= date('Ymd');
-        $token .= bindec(app('request')->ip2bin(app('request')->ip()));
+        $token .= bindec(Request::ip2bin(Request::ip()));
         $token .= date('His');
         $token .= number_format(microtime(true) - app()->getBeginTime(), 3);
-        $token .= app('request')->time(true);
+        $token .= Request::time(true);
         $token .= number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3);
 
         return md5(uniqid($token, true));
@@ -113,7 +114,7 @@ class Base64
     public static function encrypt($_data, string $_salt = '')
     {
         if (is_string($_data)) {
-            $secretkey = md5(__DIR__ . app('request')->header('user_agent') . $_salt);
+            $secretkey = md5(__DIR__ . Request::header('user_agent') . $_salt);
             $secretkey = hash_hmac('sha256', $secretkey, Config::get('app.secretkey', __DIR__));
             $iv = substr(sha1($secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
             $_data = base64_encode(openssl_encrypt((string) $_data, 'AES-256-CBC', $secretkey, OPENSSL_RAW_DATA, $iv));
@@ -137,7 +138,7 @@ class Base64
     public static function decrypt($_data, string $_salt = '')
     {
         if (is_string($_data)) {
-            $secretkey = md5(__DIR__ . app('request')->header('user_agent') . $_salt);
+            $secretkey = md5(__DIR__ . Request::header('user_agent') . $_salt);
             $secretkey = hash_hmac('sha256', $secretkey, Config::get('app.secretkey', __DIR__));
             $iv = substr(sha1($secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
             $_data = openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $secretkey, OPENSSL_RAW_DATA, $iv);

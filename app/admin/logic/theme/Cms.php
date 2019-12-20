@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\theme;
 
 use app\common\controller\BaseLogic;
+use app\common\model\Config as ModelConfig;
 use app\common\library\Base64;
 
 class Cms extends BaseLogic
@@ -31,24 +32,27 @@ class Cms extends BaseLogic
      */
     public function query()
     {
-        $file = (array) glob($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . 'cms' . DIRECTORY_SEPARATOR . '*');
-        rsort($file);
-        foreach ($file as $key => $value) {
+        $files = (array) glob($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . 'cms' . DIRECTORY_SEPARATOR . '*');
+        rsort($files);
+        foreach ($files as $key => $value) {
             if (is_file($value . DIRECTORY_SEPARATOR . 'config.json')) {
                 $config = file_get_contents($value . DIRECTORY_SEPARATOR . 'config.json');
                 $config = json_decode($config, true);
+                if (!is_array($config)) {
+                    unset($files[$key]);
+                    continue;
+                }
             } else {
-                $config = [
-                    'img'           => '',
-                    'theme'         => '未知',
-                    'theme_version' => '未知',
-                    'api_version'   => '未知',
-                ];
+                unset($files[$key]);
+                continue;
             }
 
-            $file[$key] = [
-                'id'          => Base64::encrypt(basename($value), date('Ymd')),
-                'img'         => $config['img'],
+            $value = basename($value);
+            $value = Base64::encrypt($value);
+            $value = trim($value, '=');
+            $files[$key] = [
+                'id'          => $value,
+                'img'         => isset($config['img']) ? $config['img'] : '',
                 'name'        => $config['theme'],
                 'version'     => $config['theme_version'],
                 'api_version' => $config['api_version'],
@@ -60,8 +64,8 @@ class Cms extends BaseLogic
             'cache' => false,
             'msg'   => 'theme cms data',
             'data'  => [
-                'list'  => $file,
-                'total' => count($file)
+                'list'  => $files,
+                'total' => count($files)
             ]
         ];
     }
@@ -69,5 +73,26 @@ class Cms extends BaseLogic
     public function editor()
     {
         $this->actionLog(__METHOD__, 'admin theme cms editor');
+
+        $id = $this->request->param('id');
+        if ($id && $id = Base64::decrypt($id)) {
+            $path = $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . 'cms' . DIRECTORY_SEPARATOR;
+            if (is_dir($path . $id)) {
+                (new ModelConfig)
+                    ->where([
+                        ['name', '=', 'cms_theme']
+                    ])
+                    ->data([
+                        'value' => $id
+                    ])
+                    ->update();
+            }
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'use success',
+        ];
     }
 }

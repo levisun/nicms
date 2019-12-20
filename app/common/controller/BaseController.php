@@ -92,16 +92,30 @@ abstract class BaseController
             $this->cookie->set('PHPSESSID', $this->session->get('client_token'));
         }
 
-        $key = substr(strtoupper(sha1($this->request->domain() . __DIR__)), 7, 7);
-        if (!$this->cookie->has($key)) {
-            $result = (new ModelApiApp)
-                ->where([
-                    ['name', '=', $this->app->http->getName()]
-                ])
-                ->cache('APP:' . $this->app->http->getName())
-                ->value('secret');
-            $this->cookie->set($key, $result, ['httponly' => false]);
-        }
+        // if (!$this->cookie->has('gld')) {
+        //     $result = (new ModelApiApp)
+        //         ->field('id, secret')
+        //         ->where([
+        //             ['name', '=', $this->app->http->getName()]
+        //         ])
+        //         ->cache('APP:' . $this->app->http->getName())
+        //         ->find();
+        //     if ($result && $result = $result->toArray()) {
+        //         $result['id'] += 1000000;
+        //         $result = array_map(function ($value) {
+        //             $value = (string) $value;
+        //             $value = base64_encode($value);
+        //             $value = trim($value, '=');
+        //             return $value;
+        //         }, $result);
+        //         $result = $this->request->ip() . ',' .
+        //             strlen($result['secret']) . ',' .
+        //             str_replace('.', '', $this->request->time(true)) . ',' .
+        //             trim(base64_encode(implode('', $result)), '=');
+        //     }
+
+        //     $this->cookie->set('gld', $result, ['httponly' => false]);
+        // }
 
         if (1 === mt_rand(1, 999)) {
             $response = miss(500);

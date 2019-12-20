@@ -180,7 +180,7 @@ abstract class Async
      * 返回表单令牌
      * @var bool
      */
-    protected $apiFromToken = false;
+    protected $apiRetFromToken = false;
 
     /**
      * 请求时间戳
@@ -336,10 +336,9 @@ abstract class Async
     /**
      * 验证请求来源
      * @access protected
-     * @param  bool $_strict 严格
      * @return bool
      */
-    protected function isReferer(bool $_strict = true): bool
+    protected function isReferer(): bool
     {
         // 验证请求来源
         $refere = $this->request->server('HTTP_REFERER');
@@ -354,12 +353,6 @@ abstract class Async
             $this->abort('错误请求', 27002);
         }
         unset($max_input_vars);
-
-        // 检查客户端token
-        // token由\app\common\controller\BaseController::class签发
-        if (true === $_strict && !$this->session->has('client_token')) {
-            $this->abort('错误请求', 27003);
-        }
 
         return true;
     }
@@ -379,6 +372,12 @@ abstract class Async
         $this->checkSign();
         // 验证时间戳
         $this->checkTimestamp();
+
+        // 检查客户端token
+        // token由\app\common\controller\BaseController::class签发
+        if (!$this->session->has('client_token')) {
+            $this->abort('错误请求', 27003);
+        }
 
         return $this;
     }
@@ -466,11 +465,13 @@ abstract class Async
      */
     private function checkFromToken(): void
     {
-        // POST请求 表单令牌验证
+        // POST请求时验证表单令牌
         if ($this->request->isPost()) {
-            $this->apiFromToken = true;
             if (false === $this->request->checkToken()) {
                 $this->abort('错误请求', 24001);
+            } else {
+                // 验证通过返回新表单令牌
+                $this->apiRetFromToken = true;
             }
         }
     }
@@ -483,7 +484,7 @@ abstract class Async
     private function checkTimestamp(): void
     {
         $this->timestamp = $this->request->param('timestamp/d', $this->request->time());
-        if (!$this->timestamp || date('ymd', $this->timestamp) !== date('ymd')) {
+        if (!$this->timestamp || $this->timestamp <= strtotime('-10 minute')) {
             $this->abort('错误请求', 23001);
         }
     }
@@ -497,7 +498,7 @@ abstract class Async
     {
         // 校验签名类型
         $this->signType = $this->request->param('sign_type', 'md5');
-        if (!$this->signType || !function_exists($this->signType)) {
+        if (!function_exists($this->signType)) {
             $this->debugLog['sign_type'] = $this->signType;
             $this->log->record('[Async] params-sign_type error', 'error');
             $this->abort('错误请求', 22001);
@@ -513,19 +514,17 @@ abstract class Async
 
 
 
+        // 获得原始数据
         $params = $this->request->param('', '', 'trim');
         $params = array_merge($params, $_FILES);
         ksort($params);
 
         $str = '';
-        $c_f = ['appid', 'sign_type', 'timestamp', 'method'];
         foreach ($params as $key => $value) {
-            if (in_array($key, ['sign', 'sign_type'])) {
+            if ('sign' == $key) {
                 continue;
-            }
-            if (is_array($value)) {
+            } elseif (is_array($value)) {
                 continue;
-                // $str .= $key . '=Array&';
             } elseif (is_numeric($value) || $value) {
                 $str .= $key . '=' . $value . '&';
             }
@@ -548,7 +547,7 @@ abstract class Async
      */
     private function checkAppId(): void
     {
-        $this->appId = $this->request->param('appid/f', 1000001);
+        $this->appId = $this->request->param('appid/f');
         if (!$this->appId || $this->appId < 1000001) {
             $this->log->record('[Async] auth-appid not', 'error');
             $this->abort('错误请求', 21001);
@@ -583,6 +582,7 @@ abstract class Async
      */
     private function analysisHeader(): void
     {
+        // 解析authorization
         $this->authorization = $this->request->header('authorization');
         $this->authorization = str_replace('&#43;', '+', $this->authorization);
         $this->authorization = str_replace('Bearer ', '', $this->authorization);
@@ -591,6 +591,7 @@ abstract class Async
             $this->abort('错误请求', 20001);
         }
 
+        // 校验authorization合法性
         $token = (new Parser)->parse($this->authorization);
 
         $key  = $this->request->ip();
@@ -611,8 +612,8 @@ abstract class Async
 
 
 
-        // Session初始化
-        // 规定sessionID
+        // 校验session是否存在
+        // Session初始化并规定sessionID
         $jti = Base64::decrypt($token->getClaim('jti'));
         if ($jti && is_file($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . 'sess_' . $jti)) {
             $this->session->setId($jti);
@@ -748,8 +749,8 @@ abstract class Async
                 ? $this->session->pull('return_url')
                 : '',
 
-            // 表单令牌
-            'token' => $this->apiFromToken
+            // 新表单令牌
+            'token' => $this->apiRetFromToken
                 ? $this->request->buildToken('__token__', 'md5')
                 : '',
 

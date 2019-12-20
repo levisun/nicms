@@ -115,9 +115,11 @@
         _params = jQuery.extend(true, defaults, _params);
 
         _params.data.push({ name: 'appid', value: NICMS.api.appid });
+        _params.data.push({ name: 'sign_type', value: 'md5' });
 
         if ('POST' == _params.type || 'post' == _params.type) {
             _params.data.push({ name: '__token__', value: jQuery('meta[name="csrf-token"]').attr('content') });
+            _params.data.push({ name: 'timestamp', value: jQuery.timestamp() });
         }
 
         _params.data.push({ name: 'sign', value: jQuery.sign(_params.data) });
@@ -194,6 +196,29 @@
 
         return md5(sign);
     };
+
+    jQuery.set_cookie = function (cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        var expires = "expires=" + d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    };
+
+    jQuery.get_cookie = function (cname) {
+        var name = cname + '=';
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return '';
+    }
 
     jQuery.in_array = function (needle, haystack) {
         for (var index in haystack) {

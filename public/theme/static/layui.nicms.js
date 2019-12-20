@@ -75,6 +75,7 @@ layui.define('jquery', function (exports) {
             _params = jQuery.extend(true, defaults, _params);
 
             _params.data.push({ name: 'appid', value: NICMS.api.appid });
+            _params.data.push({ name: 'sign_type', value: 'md5' });
 
             if ('POST' == _params.type || 'post' == _params.type) {
                 _params.data.push({ name: '__token__', value: jQuery('meta[name="csrf-token"]').attr('content') });
