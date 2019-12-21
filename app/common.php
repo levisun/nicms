@@ -13,7 +13,6 @@
  */
 
 use think\Response;
-use think\exception\HttpResponseException;
 use think\facade\Config;
 use think\facade\Cookie;
 use think\facade\Request;
@@ -183,7 +182,7 @@ if (!function_exists('authorization_meta')) {
         $key  = app('request')->ip();
         $key .= $key . app('request')->rootDomain();
         $key .= $key . app('request')->server('HTTP_USER_AGENT');
-        $key = md5(Base64::encrypt($key));
+        $key = sha1(Base64::encrypt($key));
 
         $token = (new Builder)
             // Configures the issuer (iss claim)

@@ -28,13 +28,13 @@ Route::group(function () {
     Route::get('index', 'Index/index')->ext('html');
 
     // 列表页
-    Route::get('list/:cid$', 'Category/index')->ext('html');
+    Route::get('list/:cid$', 'Index/category')->ext('html');
 
     // 详情页
-    Route::get('details/:cid/:id$', 'Details/index')->ext('html');
+    Route::get('details/:cid/:id$', 'Index/details')->ext('html');
 
     // 搜索页
-    Route::get('search', 'Search/index')->ext('html');
+    Route::get('search', 'Index/search')->ext('html');
 
     Route::miss(function () {
         return miss(404);

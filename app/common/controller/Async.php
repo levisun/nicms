@@ -597,7 +597,7 @@ abstract class Async
         $key  = $this->request->ip();
         $key .= $key . $this->request->rootDomain();
         $key .= $key . $this->request->server('HTTP_USER_AGENT');
-        $key = md5(Base64::encrypt($key));
+        $key = sha1(Base64::encrypt($key));
 
         $data = new ValidationData;
         $data->setIssuer($this->request->rootDomain());

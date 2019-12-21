@@ -1,8 +1,8 @@
 <?php
+
 /**
  *
  * 控制层
- * 会员
  *
  * @package   NICMS
  * @category  app\user\controller
@@ -11,13 +11,13 @@
  * @link      www.NiPHP.com
  * @since     2019
  */
-declare (strict_types = 1);
 
-namespace app\controller;
+declare(strict_types=1);
+
+namespace app\user\controller;
 
 use app\common\controller\BaseController;
 use app\common\library\Siteinfo;
-
 
 class Index extends BaseController
 {
@@ -31,7 +31,6 @@ class Index extends BaseController
     {
         $result = (new Siteinfo)->query();
         $this->view->config([
-            'app_name'   => 'user',
             'view_theme' => $result['theme'],
             'tpl_replace_string' => [
                 '__NAME__'        => $result['name'],
@@ -69,13 +68,17 @@ class Index extends BaseController
      * @param  string $_method  方法
      * @return void
      */
-    protected function authenticate(string $_logic, string $_action, string $_method): void
+    protected function authenticate(string &$_logic, string &$_action, string &$_method): void
     {
-        if ($this->session->has('user_auth_key') && $_logic === 'account') {
+        if ($this->session->has('user_auth_key')) {
             // $this->redirect('settings/dashboard/index');
         }
 
-        elseif (!$this->session->has('user_auth_key') && !in_array($_method, ['login', 'forget'])) {
+        elseif ($this->session->has('user_auth_key') && $_logic === 'account') {
+            // $this->redirect('settings/dashboard/index');
+        }
+
+        elseif (!$this->session->has('user_auth_key') && !in_array($_method, ['login', 'reg', 'forget'])) {
             $this->redirect('account/user/login');
         }
     }

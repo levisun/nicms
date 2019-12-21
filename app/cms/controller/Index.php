@@ -3,7 +3,6 @@
 /**
  *
  * 控制层
- * admin
  *
  * @package   NICMS
  * @category  app\cms\controller
@@ -19,6 +18,7 @@ namespace app\cms\controller;
 
 use app\common\controller\BaseController;
 use app\common\library\Siteinfo;
+use app\common\model\Category as ModelCategory;
 
 class Index extends BaseController
 {
@@ -53,5 +53,59 @@ class Index extends BaseController
     public function index()
     {
         return $this->fetch('index');
+    }
+
+    /**
+     * 列表页
+     * @access public
+     * @return void
+     */
+    public function category()
+    {
+        $result = (new ModelCategory)->view('category', ['id'])
+            ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
+            ->where([
+                ['category.is_show', '=', 1],
+                ['category.id', '=', $this->request->param('cid/d')],
+            ])
+            ->cache(true)
+            ->find();
+        if ($result && $result = $result->toArray()) {
+            return $this->fetch($result['theme_name'] . '_list');
+        } else {
+            return miss(404);
+        }
+    }
+
+    /**
+     * 详情页
+     * @access public
+     * @return void
+     */
+    public function details()
+    {
+        $result = (new ModelCategory)->view('category', ['id'])
+            ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
+            ->where([
+                ['category.is_show', '=', 1],
+                ['category.id', '=', $this->request->param('cid/d')],
+            ])
+            ->cache(true)
+            ->find();
+        if ($result && $result = $result->toArray()) {
+            return $this->fetch($result['theme_name'] . '_details');
+        } else {
+            return miss(404);
+        }
+    }
+
+    /**
+     * 搜索页
+     * @access public
+     * @return void
+     */
+    public function search()
+    {
+        return $this->fetch('search');
     }
 }

@@ -33,7 +33,7 @@ class User extends BaseLogic
      * @access public
      * @return array
      */
-    public function login()
+    public function login(): array
     {
         $lock = $this->app->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5($this->request->ip() . date('YmdH')) . '.lock';
         if (is_file($lock)) {

@@ -1,4 +1,16 @@
+[class*='col-']{
+    padding: 5px;
+
+}
 #layout-footer {
     padding-top: 3rem;
     padding-bottom: 1rem;
+}
+#layout-main {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+#index-aside-right .card {
+    margin-bottom: 15px;
 }

@@ -81,7 +81,7 @@ abstract class OAuth
      * @access protected
      * @param  array $params  默认参数
      * @param  array/string $param 额外参数
-     * @return array:
+     * @return array
      */
     protected function param($params, $param) {
         if (is_string($param)) {
@@ -96,7 +96,7 @@ abstract class OAuth
      * @param
      * @return array
      */
-    protected function _params()
+    protected function codePparams()
     {
         $params = [
             'client_id'     => $this->config['app_key'],
@@ -132,7 +132,7 @@ abstract class OAuth
             throw new HttpException(404, '传递的STATE参数不匹配！');
         } else {
             $this->initConfig();
-            $params      = $this->_params();
+            $params      = $this->codePparams();
             $data        = OAuthHttp::post($this->AccessTokenURL, $params);
             $this->token = $this->parseToken($data);
             Cookie::delete('A_S');

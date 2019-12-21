@@ -55,7 +55,7 @@ class Verify extends Async
     {
         if ($this->analysis()->isReferer()) {
             $phone = $this->request->param('phone', false);
-            if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone)) {
+            if ($phone && preg_match('/^1[0-9]\d{9}$/', $phone)) {
                 $key = md5('sms_' . $this->request->ip());
 
                 if ($this->session->has($key) && $result = $this->session->get($key)) {
