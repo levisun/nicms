@@ -34,6 +34,7 @@ class AccessLog
         'SOGOU'          => 'sogou web spider',
         'SOGOU'          => 'sogou push spider',
         'YISOU'          => 'yisouspider',
+
     ];
     private $userAgent = '';
 

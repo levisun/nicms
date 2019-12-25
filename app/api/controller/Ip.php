@@ -25,15 +25,13 @@ class Ip extends Async
 
     public function index()
     {
-        if ($this->isReferer(false)) {
-            $ip = $this->request->param('ip', false) ?: $this->request->ip();
-            if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
-                $ip = (new Ipinfo)->get($ip);
-                if ($this->request->isAjax() || $this->request->isPjax()) {
-                    return $this->cache(true)->success('IP INFO', $ip);
-                }
-            }
+        // if ($this->isReferer(false)) {
+        $ip = $this->request->param('ip', false) ?: $this->request->ip();
+        if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
+            $ip = (new Ipinfo)->get($ip);
+            return $this->cache(true)->success('IP INFO', $ip);
         }
+        // }
 
         return miss(200);
     }

@@ -48,7 +48,7 @@ class Ipinfo
 
         if ($_ip && false !== filter_var($_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && $this->validate($_ip)) {
             $cache_key = md5(__METHOD__ . $_ip);
-            if (!Cache::has($cache_key)) {
+            if (!Cache::has($cache_key) || true) {
                 // 查询IP地址库
                 $region = $this->query($_ip);
 
@@ -79,7 +79,7 @@ class Ipinfo
      * @param  string  $_ip
      * @return bool
      */
-    private function validate(string &$_ip): bool
+    private function validate(string $_ip): bool
     {
         $_ip = explode('.', $_ip);
         if (count($_ip) == 4) {
@@ -214,6 +214,7 @@ class Ipinfo
     {
         $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
         // $result = $this->get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
+
         $result = $result ? json_decode($result, true) : null;
         if (!is_array($result) || empty($result) || $result['code'] == 0) {
             return false;
@@ -254,7 +255,7 @@ class Ipinfo
         return $this->query($_ip);
     }
 
-    private function get_curl(string &$_url): string
+    private function get_curl(string $_url): string
     {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $_url);
