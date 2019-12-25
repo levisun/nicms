@@ -3,7 +3,7 @@
 /**
  *
  * 数据层
- * 附加字段表
+ * 自定义字段表
  *
  * @package   NICMS
  * @category  app\common\model

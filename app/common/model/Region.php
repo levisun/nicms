@@ -2196,7 +2196,7 @@ INSERT INTO `nc_region` (`id`, `pid`, `name`) VALUES
 (450881, 450800, '桂平市'),
 (450900, 450000, '玉林市'),
 (450902, 450900, '玉州区');
-INSERT INTO `np_region` (`id`, `pid`, `name`) VALUES
+INSERT INTO `nc_region` (`id`, `pid`, `name`) VALUES
 (450903, 450900, '福绵区'),
 (450921, 450900, '容县'),
 (450922, 450900, '陆川县'),

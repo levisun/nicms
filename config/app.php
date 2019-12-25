@@ -53,11 +53,11 @@ return [
     'app_map'          => [],
     // 域名绑定（自动多应用模式有效）
     'domain_bind'      => [
-        'admin' => 'admin',
         'api'   => 'api',
         'book'  => 'book',
         'my'    => 'user',
         'www'   => 'cms',
+        Env::get('admin.entry', 'admin') => 'admin',
 
         'cdn'   => 'cms',
         'img'   => 'cms',

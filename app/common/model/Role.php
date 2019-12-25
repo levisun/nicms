@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `nc_role` (
     KEY `pid` (`pid`) USING BTREE,
     KEY `status` (`status`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='组表';
-INSERT INTO `np_role` (`id`, `pid`, `name`, `status`, `remark`) VALUES
+INSERT INTO `nc_role` (`id`, `pid`, `name`, `status`, `remark`) VALUES
 (1, 0, '创始人', 1, '创始人');
 */
 namespace app\common\model;

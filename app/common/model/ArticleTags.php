@@ -3,7 +3,7 @@
 /**
  *
  * 数据层
- * 标签文章关联表
+ * 文章标签关联表
  *
  * @package   NICMS
  * @category  app\common\model
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `nc_article_tags` (
     PRIMARY KEY (`id`),
     KEY `tags_id` (`tags_id`) USING BTREE,
     KEY `article_id` (`article_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='标签文章关联表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章标签关联表';
  */
 
 namespace app\common\model;
