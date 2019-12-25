@@ -5,7 +5,7 @@
  * 事件定义文件
  *
  * @package   NICMS
- * @category  app\cms
+ * @category  app\api
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -15,14 +15,14 @@
 return [
     'bind'      => [],
     'listen'    => [
-        'AppInit'  => [],
+        'AppInit'  => [
+        ],
         'HttpRun'  => [
-            \app\common\event\CheckRequest::class
+            \app\common\event\CheckRequest::class,
         ],
         'HttpEnd'  => [
             \app\common\event\RecordRequest::class,
             \app\common\event\AppMaintain::class,
-            \app\common\event\DbMaintain::class,
         ],
         'RouteLoaded' => [],
         'LogWrite' => [],

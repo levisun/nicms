@@ -16,7 +16,7 @@ use think\facade\Route;
 /**
  * CDN
  */
-Route::domain('cdn', function () {
+Route::domain(['cdn', 'img'], function () {
     Route::miss(function () {
         return miss(404);
     });

@@ -30,13 +30,17 @@ return [
     // 上传文件类型(扩展名)
     'upload_type'      => Env::get('app.upload_type', 'gif,jpg,png,zip,rar'),
 
+    // API地址
     'api_host'         => '//api.' . Request::rootDomain(),
+    // CDN地址
     'cdn_host'         => '//cdn.' . Request::rootDomain(),
+    // IMG地址
+    'img_host'         => '//img.' . Request::rootDomain(),
 
 
 
     // 应用地址
-    'app_host'         => Env::get('app.host', ''),
+    'app_host'         => Env::get('app.host', '//www.' . Request::rootDomain()),
     // 应用的命名空间
     'app_namespace'    => '',
     // 是否启用路由
@@ -52,9 +56,11 @@ return [
         'admin' => 'admin',
         'api'   => 'api',
         'book'  => 'book',
-        'cdn'   => 'cms',
         'my'    => 'user',
         'www'   => 'cms',
+
+        'cdn'   => 'cms',
+        'img'   => 'cms',
     ],
     // 禁止URL访问的应用列表（自动多应用模式有效）
     'deny_app_list'    => ['common'],

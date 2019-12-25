@@ -64,7 +64,7 @@ class Canvas
                     finfo_close($finfo);
                     $_file = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path . $_file));
                 } else {
-                    $_file = Config::get('app.cdn_host') . '/' . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
+                    $_file = Config::get('app.img_host') . '/' . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
                 }
             } else {
                 // 图片不存在

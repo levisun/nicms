@@ -17,21 +17,24 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
+use think\exception\HttpResponseException;
+use app\common\library\ReGarbage;
+use app\common\library\Sitemap;
+use app\common\library\UploadFile;
+
 class CheckRequest
 {
 
     public function handle()
     {
-        // $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
-        // is_dir($path) or mkdir($path, 0755, true);
-        app('log')->record('[锁定] 锁定', 'alert');
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
+        is_dir($path) or mkdir($path, 0755, true);
 
-        // $lock  = $path . md5(app('request')->ip() . date('Ymd')) . '.lock';
-        // if (is_file($lock)) {
-        //     app('log')->record('[锁定]', 'alert')->save();
-        //     http_response_code(502);
-        //     echo file_get_contents(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '502.html');
-        //     exit();
-        // }
+        $lock  = $path . md5(app('request')->ip() . date('Ymd')) . '.lock';
+        if (is_file($lock)) {
+            app('log')->record('[锁定]', 'alert')->save();
+            $response = miss(502);
+            throw new HttpResponseException($response);
+        }
     }
 }

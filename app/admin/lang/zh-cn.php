@@ -26,6 +26,7 @@ return [
     'auth member'   => '会员主题',
 
     'auth category' => '栏目管理',
+    'auth fields'   => '字段管理',
     'auth type'     => '类别管理',
     'auth model'    => '模型管理',
 
