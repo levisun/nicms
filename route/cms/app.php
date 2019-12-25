@@ -36,6 +36,8 @@ Route::group(function () {
     // 搜索页
     Route::get('search', 'Index/search')->ext('html');
 
+    Route::get('ipinfo$', '\app\api\controller\Ip@index')->ext('shtml');
+
     Route::miss(function () {
         return miss(404);
     });

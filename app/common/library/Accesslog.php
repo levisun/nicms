@@ -48,19 +48,16 @@ class AccessLog
         $this->userAgent = strtolower(app('request')->server('HTTP_USER_AGENT'));
 
         if ($spider = $this->isSpider()) {
-            $searchengine = new ModelSearchengine;
-            $has = $searchengine
-                ->where([
+            $has = (new ModelSearchengine)->where([
                     ['name', '=', $spider],
                     ['user_agent', '=', $this->userAgent],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])
-                ->cache(__METHOD__ . $spider . $this->userAgent)
+                // ->cache(__METHOD__ . $spider . $this->userAgent)
                 ->value('name');
 
             if ($has) {
-                $searchengine
-                    ->where([
+                (new ModelSearchengine)->where([
                         ['name', '=', $spider],
                         ['user_agent', '=', $this->userAgent],
                         ['date', '=', strtotime(date('Y-m-d'))]
@@ -68,8 +65,7 @@ class AccessLog
                     ->inc('count', 1, 60)
                     ->update();
             } else {
-                $searchengine
-                    ->save([
+                (new ModelSearchengine)->save([
                         'name'       => $spider,
                         'user_agent' => $this->userAgent,
                         'date'       => strtotime(date('Y-m-d'))
@@ -77,18 +73,15 @@ class AccessLog
             }
         } else {
             $ip = (new Ipinfo)->get(app('request')->ip());
-            $visit = new ModelVisit;
-            $has = $visit
-                ->where([
+            $has = (new ModelVisit)->where([
                     ['ip', '=', $ip['ip']],
                     ['user_agent', '=', $this->userAgent],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])
-                ->cache(__METHOD__ . $ip['ip'] . $this->userAgent)
+                // ->cache(__METHOD__ . $ip['ip'] . $this->userAgent)
                 ->value('ip');
             if ($has) {
-                $visit
-                    ->where([
+                (new ModelVisit)->where([
                         ['ip', '=', $ip['ip']],
                         ['user_agent', '=', $this->userAgent],
                         ['date', '=', strtotime(date('Y-m-d'))]
@@ -96,8 +89,7 @@ class AccessLog
                     ->inc('count', 1, 60)
                     ->update();
             } else {
-                $visit
-                    ->save([
+                (new ModelVisit)->save([
                         'ip'         => $ip['ip'],
                         'ip_attr'    => $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'],
                         'user_agent' => $this->userAgent,
