@@ -56,7 +56,7 @@ class Type extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'action log data',
+            'msg'   => 'type data',
             'data'  => [
                 'list'         => $list['data'],
                 'total'        => $list['total'],

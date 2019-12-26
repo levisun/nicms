@@ -39,7 +39,7 @@ class Fields extends BaseLogic
             ->view('fields', ['id', 'name', 'is_require', 'remark'])
             ->view('category', ['name' => 'cat_name'], 'category.id=fields.category_id')
             ->view('fields_type', ['name' => 'type_name'], 'fields_type.id=fields.type_id')
-            ->order('category.id DESC, type.id')
+            ->order('fields.id DESC')
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
@@ -50,8 +50,8 @@ class Fields extends BaseLogic
 
         foreach ($list['data'] as $key => $value) {
             $value['url'] = [
-                'editor' => url('category/type/editor/' . $value['id']),
-                'remove' => url('category/type/remove/' . $value['id']),
+                'editor' => url('category/fields/editor/' . $value['id']),
+                'remove' => url('category/fields/remove/' . $value['id']),
             ];
             $list['data'][$key] = $value;
         }
@@ -59,7 +59,7 @@ class Fields extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'action log data',
+            'msg'   => 'fields data',
             'data'  => [
                 'list'         => $list['data'],
                 'total'        => $list['total'],
@@ -78,7 +78,7 @@ class Fields extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog(__METHOD__, 'admin type added');
+        $this->actionLog(__METHOD__, 'admin fields added');
 
         $receive_data = [
             'category_id' => $this->request->param('category_id/d'),
@@ -98,7 +98,7 @@ class Fields extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'type added success',
+            'msg'   => 'fields added success',
         ];
     }
 
@@ -124,10 +124,16 @@ class Fields extends BaseLogic
             ->select()
             ->toArray();
 
+        $result['category_name'] = call_user_func([
+            $this->app->make('\app\admin\logic\category\Category'),
+            'query'
+        ]);
+        $result['category_name'] = $result['category_name']['data']['list'];
+
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'type data',
+            'msg'   => 'fields data',
             'data'  => isset($result) ? $result : []
         ];
     }
@@ -139,7 +145,7 @@ class Fields extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin type editor');
+        $this->actionLog(__METHOD__, 'admin fields editor');
 
         if (!$id = $this->request->param('id/d')) {
             return [
@@ -173,7 +179,7 @@ class Fields extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'type editor success'
+            'msg'   => 'fields editor success'
         ];
     }
 
@@ -184,7 +190,7 @@ class Fields extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin category remove');
+        $this->actionLog(__METHOD__, 'admin fields remove');
 
         if (!$id = $this->request->param('id/d')) {
             return [
@@ -210,7 +216,7 @@ class Fields extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'remove category success'
+            'msg'   => 'remove fields success'
         ];
     }
 }

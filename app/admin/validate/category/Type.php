@@ -20,7 +20,7 @@ class Type extends Validate
     protected $rule = [
         'name'        => ['require', 'length:2,20'],
         'remark'      => ['max: 300'],
-        'category_id' => ['require', 'number'],
+        'category_id' => ['require', 'integer'],
     ];
 
     protected $message = [
@@ -29,6 +29,6 @@ class Type extends Validate
         // 'name.unique'         => '{%error type name unique}',
         'remark.max'          => '{%error remark}',
         'category_id.require' => '{%error category_id}',
-        'category_id.number'  => '{%error category_id}',
+        'category_id.integer' => '{%error category_id}',
     ];
 }

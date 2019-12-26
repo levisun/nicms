@@ -26,6 +26,8 @@ use app\common\model\Models as ModelModels;
 class Category extends BaseLogic
 {
     protected $authKey = 'admin_auth_key';
+    // 层级
+    private $layer = 0;
 
     /**
      * 查询
@@ -76,6 +78,8 @@ class Category extends BaseLogic
      */
     private function child(int $_pid)
     {
+        $this->layer++;
+
         $result = (new ModelCategory)
             ->view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
@@ -89,6 +93,10 @@ class Category extends BaseLogic
         $result = $result ? $result->toArray() : [];
 
         foreach ($result as $key => $value) {
+            for ($i=0; $i < $this->layer; $i++) {
+                $value['name'] = '|__' . $value['name'];
+            }
+
             $value['type_name'] = $this->typeName($value['type_id']);
             $value['url'] = [
                 'added'  => url('category/category/added/' . $value['id']),

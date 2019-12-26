@@ -42,14 +42,18 @@ class Fields extends Model
     protected $type = [
         'category_id' => 'integer',
         'type_id'     => 'integer',
-        'is_require'  => 'integer'
+        'maxlength'   => 'integer',
+        'is_require'  => 'integer',
+        'sort_order'  => 'integer',
     ];
     protected $field = [
         'id',
         'category_id',
         'type_id',
         'name',
-        'description',
+        'maxlength',
         'is_require',
+        'sort_order',
+        'remark',
     ];
 }

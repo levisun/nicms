@@ -240,6 +240,7 @@ abstract class BaseLogic
             return [
                 'debug' => false,
                 'cache' => false,
+                'code'  => 31001,
                 'msg'   => 'upload error'
             ];
         }
@@ -261,7 +262,7 @@ abstract class BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'code'  => is_string($result) ? 31001 : 10000,
+            'code'  => is_string($result) ? 31002 : 10000,
             'msg'   => is_string($result) ? $result : 'upload success',
             'data'  => is_string($result) ? [] : $result
 
