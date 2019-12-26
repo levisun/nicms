@@ -60,9 +60,11 @@ class UploadFile
     {
         $files = app('request')->file($_element);
         $this->thumbSize = [
-            'width'  => $_thumb['width'],
-            'height' => $_thumb['height'],
-            'type'   => $_thumb['type'] ? Image::THUMB_SCALING : Image::THUMB_FIXED,
+            'width'  => !empty($_thumb['width']) ? $_thumb['width'] : 0,
+            'height' => !empty($_thumb['height']) ? $_thumb['height'] : 0,
+            // THUMB_SCALING:等比例缩放
+            // THUMB_FIXED:固定尺寸缩放
+            'type'   => !empty($_thumb['type']) ? Image::THUMB_SCALING : Image::THUMB_FIXED,
         ];
         $this->imgWater = $_water;
 
@@ -140,8 +142,8 @@ class UploadFile
     private function save(int &$_uid, \think\File &$_files): array
     {
         $_dir = $_uid
-            ? '/u' . dechex(date('ym')) . dechex($_uid)
-            : '/t' . dechex(date('ym'));
+            ? '/u' . dechex(date('Ym')) . dechex($_uid)
+            : '/t' . dechex(date('Ym'));
 
         $save_path = Config::get('filesystem.disks.public.url') . '/';
         $save_file = $save_path . Filesystem::disk('public')->putFile('uploads' . $_dir, $_files, 'uniqid');
@@ -218,8 +220,8 @@ class UploadFile
     {
         $map = [
             ['type', '=', '1'],
-            ['module_id', '=', '$_module_id'],
-            ['module_type', '=', '$_module_type'],
+            ['module_id', '=', $_module_id],
+            ['module_type', '=', $_module_type],
         ];
         $result = (new ModelUploadFileLog)
             ->where($map)
@@ -228,10 +230,24 @@ class UploadFile
 
         $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
         foreach ($result as $file) {
+            // 过滤非法字符
             $file['file'] = trim($file['file'], " \/,._-\t\n\r\0\x0B");
             $file['file'] = str_replace('/', DIRECTORY_SEPARATOR, $file['file']);
+            // 删除文件
             if (is_file($path . $file['file'])) {
                 @unlink($path . $file['file']);
+            }
+
+            // 删除系统生成的缩略图
+            $extension = '.' . pathinfo($file['file'], PATHINFO_EXTENSION);
+            if ('webp' === $extension) {
+                for ($i = 1; $i <= 8; $i++) {
+                    $size = $i * 100;
+                    $thumb = str_replace($extension, '_' . $size . $extension, $file['file']);
+                    if (is_file($path . $thumb)) {
+                        @unlink($path . $thumb);
+                    }
+                }
             }
         }
 
@@ -247,8 +263,10 @@ class UploadFile
      */
     public function ReGarbage(): void
     {
-        only_execute('remove_upload_garbage.lock', '-10 minute', function () {
+        only_execute('remove_upload_garbage.lock', '-30 minute', function () {
             $sort_order = mt_rand(0, 1) ? 'upload_file_log.id DESC' : 'upload_file_log.id ASC';
+
+            // 查询未入库的文件
             $result = (new ModelUploadFileLog)
                 ->view('upload_file_log', ['id', 'file'])
                 ->view('upload_file_log log', ['id' => 'log_id'], 'log.type=1 and log.file=upload_file_log.file', 'LEFT')
@@ -261,15 +279,31 @@ class UploadFile
                 ->limit(10)
                 ->select();
             $result = $result ? $result->toArray() : [];
-            $id = [];
 
             $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+            $id = [];
             foreach ($result as $file) {
+                // 记录ID
                 $id[] = (int) $file['id'];
+
+                // 过滤非法字符
                 $file['file'] = trim($file['file'], " \/,._-\t\n\r\0\x0B");
                 $file['file'] = str_replace('/', DIRECTORY_SEPARATOR, $file['file']);
+                // 删除文件
                 if (is_file($path . $file['file'])) {
                     @unlink($path . $file['file']);
+                }
+
+                // 删除系统生成的缩略图
+                $extension = '.' . pathinfo($file['file'], PATHINFO_EXTENSION);
+                if ('webp' === $extension) {
+                    for ($i = 1; $i <= 8; $i++) {
+                        $size = $i * 100;
+                        $thumb = str_replace($extension, '_' . $size . $extension, $file['file']);
+                        if (is_file($path . $thumb)) {
+                            @unlink($path . $thumb);
+                        }
+                    }
                 }
             }
 

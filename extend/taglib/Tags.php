@@ -129,6 +129,7 @@ class Tags
             '<meta name="csrf-version" content="' . $_config['tpl_config']['api_version'] . '" />' .
 
             '<link rel="dns-prefetch" href="' . config('app.api_host') . '" />' .
+            '<link rel="dns-prefetch" href="' . config('app.img_host') . '" />' .
             '<link rel="dns-prefetch" href="' . config('app.cdn_host') . '" />' .
 
             '<link href="' . config('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' .

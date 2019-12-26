@@ -35,98 +35,109 @@ class ArticleBase extends BaseLogic
      */
     protected function ArticleList()
     {
-        if ($category_id = $this->request->param('cid/d')) {
-            $map = [
-                ['article.category_id', '=', $category_id],
-                ['article.is_pass', '=', '1'],
-                ['article.show_time', '<', time()],
-                ['article.lang', '=', $this->lang->getLangSet()]
-            ];
+        $map = [
+            ['article.is_pass', '=', '1'],
+            ['article.show_time', '<', time()],
+            ['article.lang', '=', $this->lang->getLangSet()]
+        ];
 
-            if ($com = $this->request->param('com/d', 0)) {
-                $map[] = ['article.is_com', '=', '1'];
-            } elseif ($top = $this->request->param('top/d', 0)) {
-                $map[] = ['article.is_top', '=', '1'];
-            } elseif ($hot = $this->request->param('hot/d', 0)) {
-                $map[] = ['article.is_hot', '=', '1'];
-            }
+        if ($category_id = $this->request->param('cid/d', 0)) {
+            $map[] = ['article.category_id', '=', $category_id];
+        }
 
-            if ($type_id = $this->request->param('tid/d', 0)) {
-                $map[] = ['article.type_id', '=', $type_id];
-            }
+        if ($com = $this->request->param('com/d', 0)) {
+            $map[] = ['article.is_com', '=', '1'];
+        } elseif ($top = $this->request->param('top/d', 0)) {
+            $map[] = ['article.is_top', '=', '1'];
+        } elseif ($hot = $this->request->param('hot/d', 0)) {
+            $map[] = ['article.is_hot', '=', '1'];
+        }
 
-            $query_limit = $this->request->param('limit/d', 10);
-            $query_page = $this->request->param('page/d', 1);
-            $date_format = $this->request->param('date_format', 'Y-m-d');
+        if ($type_id = $this->request->param('tid/d', 0)) {
+            $map[] = ['article.type_id', '=', $type_id];
+        }
 
-            $cache_key = __METHOD__ . date('Ymd') . $category_id .
-                $com . $top . $hot . $type_id .
-                $query_limit . $query_page . $date_format;
-            $cache_key = md5($cache_key);
+        if ($sort_order = $this->request->param('sort')) {
+            $sort_order = 'article.' . $sort_order;
+        } else {
+            $sort_order = 'article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.show_time DESC';
+        }
 
-            if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
-                $result = (new ModelArticle)
-                    ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-                    ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
-                    ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
-                    ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
-                    ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
-                    ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
-                    ->where($map)
-                    ->order('article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.show_time DESC')
-                    ->paginate([
-                        'list_rows' => $query_limit,
-                        'path' => 'javascript:paging([PAGE]);',
-                    ]);
+        $query_limit = $this->request->param('limit/d', 10);
+        $query_page = $this->request->param('page/d', 1);
+        $date_format = $this->request->param('date_format', 'Y-m-d');
 
-                if ($result) {
-                    $list = $result->toArray();
-                    $list['render'] = $result->render();
+        $cache_key = __METHOD__ . date('Ymd') . $category_id .
+            $com . $top . $hot . $type_id .
+            $query_limit . $query_page . $date_format;
+        $cache_key = md5($cache_key);
 
-                    foreach ($list['data'] as $key => $value) {
-                        // 栏目链接
-                        $value['cat_url'] = url('list/' . $value['category_id']);
-                        // 文章链接
-                        $value['url'] = url('details/' . $value['category_id'] . '/' . $value['id']);
-                        // 标识符
-                        $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
-                        // 缩略图
-                        $value['thumb'] = (new Canvas)->image($value['thumb'], 300);
-                        // 时间格式
-                        $value['update_time'] = date($date_format, (int) $value['update_time']);
+        if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
+            $result = (new ModelArticle)
+                ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'username', 'access_id', 'hits', 'update_time'])
+                ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+                ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
+                ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
+                ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
+                ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
+                ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
+                ->where($map)
+                ->order($sort_order)
+                ->paginate([
+                    'list_rows' => $query_limit,
+                    'path' => 'javascript:paging([PAGE]);',
+                ]);
 
-                        // 附加字段数据
-                        $fields = (new ArticleExtend)
-                            ->view('article_extend extend', ['data'])
-                            ->view('fields fields', ['name' => 'fields_name'], 'fields.id=extend.fields_id')
-                            ->where([
-                                ['extend.article_id', '=', $value['id']],
-                            ])
-                            ->select()
-                            ->toArray();
-                        foreach ($fields as $val) {
-                            $value[$val['fields_name']] = $val['data'];
-                        }
+            if ($result) {
+                $list = $result->toArray();
+                $list['render'] = $result->render();
 
-                        // 标签
-                        $value['tags'] = (new ModelArticleTags)
-                            ->view('article_tags article', ['tags_id'])
-                            ->view('tags tags', ['name'], 'tags.id=article.tags_id')
-                            ->where([
-                                ['article.article_id', '=', $value['id']],
-                            ])
-                            ->select()
-                            ->toArray();
-                        foreach ($value['tags'] as $k => $tag) {
-                            $tag['url'] = url('tags/' . $tag['tags_id']);
-                            $result['tags'][$k] = $tag;
-                        }
+                foreach ($list['data'] as $key => $value) {
+                    // 栏目链接
+                    $value['cat_url'] = url('list/' . $value['category_id']);
+                    // 文章链接
+                    $value['url'] = url('details/' . $value['category_id'] . '/' . $value['id']);
+                    // 标识符
+                    $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
+                    // 缩略图
+                    $value['thumb'] = (new Canvas)->image($value['thumb'], 300);
+                    // 时间格式
+                    $value['update_time'] = date($date_format, (int) $value['update_time']);
+                    // 作者
+                    $value['author'] = $value['author'] ?: $value['username'];
+                    unset($value['username']);
 
-                        $list['data'][$key] = $value;
+                    // 附加字段数据
+                    $fields = (new ArticleExtend)
+                        ->view('article_extend extend', ['data'])
+                        ->view('fields fields', ['name' => 'fields_name'], 'fields.id=extend.fields_id')
+                        ->where([
+                            ['extend.article_id', '=', $value['id']],
+                        ])
+                        ->select()
+                        ->toArray();
+                    foreach ($fields as $val) {
+                        $value[$val['fields_name']] = $val['data'];
                     }
 
-                    $this->cache->tag('cms')->set($cache_key, $list);
+                    // 标签
+                    $value['tags'] = (new ModelArticleTags)
+                        ->view('article_tags article', ['tags_id'])
+                        ->view('tags tags', ['name'], 'tags.id=article.tags_id')
+                        ->where([
+                            ['article.article_id', '=', $value['id']],
+                        ])
+                        ->select()
+                        ->toArray();
+                    foreach ($value['tags'] as $k => $tag) {
+                        $tag['url'] = url('tags/' . $tag['tags_id']);
+                        $result['tags'][$k] = $tag;
+                    }
+
+                    $list['data'][$key] = $value;
                 }
+
+                $this->cache->tag('cms')->set($cache_key, $list);
             }
         }
 
@@ -150,12 +161,13 @@ class ArticleBase extends BaseLogic
             $cache_key = md5(__METHOD__ . $id);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $result = (new ModelArticle)
-                    ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+                    ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'username', 'access_id', 'hits', 'update_time'])
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                     ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
                     ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
                     ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                     ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
+                    ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
                     ->where($map)
                     ->find();
 
@@ -171,6 +183,9 @@ class ArticleBase extends BaseLogic
                     // 时间格式
                     $date_format = $this->request->param('date_format', 'Y-m-d');
                     $result['update_time'] = date($date_format, (int) $result['update_time']);
+                    // 作者
+                    $result['author'] = $result['author'] ?: $result['username'];
+                    unset($result['username']);
 
                     // 上一篇 下一篇
                     $result['next'] = $this->next((int) $result['id']);
