@@ -81,7 +81,6 @@ class DataManage
      */
     public function autoBackup(): bool
     {
-        $lock = $this->lockPath . 'db_auto_back.lock';
         only_execute('db_auto_back.lock', '-10 minute', function () {
             ignore_user_abort(true);
 
@@ -95,15 +94,21 @@ class DataManage
                 $btime = [];
             }
 
+            // 获得库中所有的表名
             $table_name = $this->queryTableName();
             foreach ($table_name as $name) {
                 $sql_file = $this->savePath . $name . '.sql';
 
+                // 检查表结构备份是否存在或过期
                 if (!isset($btime[$name]) || strtotime($btime[$name]) <= strtotime('-3 days')) {
+                    // 记录新的备份时间
                     $btime[$name] = date('Y-m-d H:i:s');
+
+                    // 获得表结构SQL语句
                     $sql = $this->queryTableStructure($name);
                     file_put_contents($sql_file, $sql);
 
+                    // 压缩SQL文件
                     $zip_name = pathinfo($sql_file, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR .
                         pathinfo($sql_file, PATHINFO_FILENAME) . '.zip';
                     $zip = new \ZipArchive;
@@ -114,6 +119,7 @@ class DataManage
                     }
                 }
 
+                // 获得表总数据
                 if ($total = $this->DB->table($name)->count()) {
                     $total = $total ? (int) ceil($total / 100000) : 0;
                     $field = $this->queryTableInsertField($name);
