@@ -125,8 +125,8 @@ class Tags
             '<meta name="csrf-appsecret" content="' . $_config['tpl_config']['api_appsecret'] . '" />' .
             '<?php echo authorization_meta();?>' .
             '<meta name="csrf-root" content="' . $root . '" />' .
-            '<?php echo token_meta();?>' .
             '<meta name="csrf-version" content="' . $_config['tpl_config']['api_version'] . '" />' .
+            '<?php echo token_meta();?>' .
 
             '<link rel="dns-prefetch" href="' . config('app.api_host') . '" />' .
             '<link rel="dns-prefetch" href="' . config('app.img_host') . '" />' .

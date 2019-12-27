@@ -107,7 +107,7 @@ class CheckRequestCache
         $_content = $_response->getContent() . '<!-- ' . date('Y-m-d H:i:s') . ' -->';
         $pattern = [
             '/<meta name="csrf-authorization" content="(.*?)" \/>/si' => '<meta name="csrf-authorization" content="" />',
-            '/<meta name="csrf-token" content="(.*?)" \/>/si' => '<meta name="csrf-token" content="" />',
+            '/<meta name="csrf-token" content="(.*?)">/si' => '<meta name="csrf-token" content="" />',
         ];
         $_content = (string) preg_replace(array_keys($pattern), array_values($pattern), $_content);
         Cache::tag('browser')->set($_key, $_content, mt_rand(28800, 29900));

@@ -50,15 +50,15 @@ class AppMaintain
             // 路由编译文件
             $path = app()->getRuntimePath();
             if (false === app()->isDebug() && !is_file($path . 'route.php')) {
-                app()->console->call('optimize:route', [app('http')->getName()]);
-            } elseif (is_file($path . 'route.php')) {
+                // app()->console->call('optimize:route', [app('http')->getName()]);
+            } elseif (true === app()->isDebug() && is_file($path . 'route.php')) {
                 unlink($path . 'route.php');
             }
 
             // 数据库优化|修复
             (new DataManage)->optimize();
             // 数据库备份
-            (new DataManage)->autoBackup();
+            // (new DataManage)->autoBackup();
         }
     }
 }
