@@ -99,7 +99,7 @@ class DataFilter
      * @param  string $_data
      * @return array
      */
-    public static function word(string $_data): array
+    public static function word(string $_data, int $_length = 0): array
     {
         $pattern = '/[~!@#$%^&\*()_+-={}|\[\]\\\:";\\\'<>\?,.\/]/si';
         $_data = preg_replace($pattern, '', $_data);
@@ -122,6 +122,10 @@ class DataFilter
             $_data[$key] = $value[0];
         }
         $_data = array_unique($_data);
+        sort($_data);
+        if ($_length) {
+            $_data = array_slice($_data, 0, $_length);
+        }
         return $_data;
     }
 

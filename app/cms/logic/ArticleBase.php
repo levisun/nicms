@@ -22,7 +22,10 @@ use app\common\library\Base64;
 use app\common\library\Canvas;
 use app\common\library\DataFilter;
 use app\common\model\Article as ModelArticle;
-use app\common\model\ArticleExtend as ArticleExtend;
+use app\common\model\ArticleContent as ModelArticleContent;
+use app\common\model\ArticleExtend as ModelArticleExtend;
+use app\common\model\ArticleFile as ModelArticleFile;
+use app\common\model\ArticleImage as ModelArticleImage;
 use app\common\model\ArticleTags as ModelArticleTags;
 
 class ArticleBase extends BaseLogic
@@ -69,7 +72,11 @@ class ArticleBase extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
-            $search_key = DataFilter::word($search_key);
+            $query = DataFilter::word($search_key, 5);
+            foreach ($query as $key => $value) {
+                $query[$key] = '%' . $value . '%';
+            }
+            $map[] = ['title', 'like', $query, 'OR'];
         }
 
         $query_limit = $this->request->param('limit/d', 10);
@@ -77,7 +84,7 @@ class ArticleBase extends BaseLogic
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
         $cache_key = 'article list' . date('Ymd') . $category_id .
-            $com . $top . $hot . $type_id .
+            $com . $top . $hot . $type_id . $sort_order . $search_key .
             $query_limit . $query_page . $date_format;
         $cache_key = md5($cache_key);
 
@@ -117,7 +124,7 @@ class ArticleBase extends BaseLogic
                     unset($value['username']);
 
                     // 附加字段数据
-                    $fields = (new ArticleExtend)
+                    $fields = (new ModelArticleExtend)
                         ->view('article_extend extend', ['data'])
                         ->view('fields fields', ['name' => 'fields_name'], 'fields.id=extend.fields_id')
                         ->where([
@@ -172,8 +179,8 @@ class ArticleBase extends BaseLogic
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'username', 'access_id', 'hits', 'update_time'])
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
-                    ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
-                    ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
+                    ->view('model', ['name' => 'model_name', 'table_name'], 'model.id=category.model_id')
+                    // ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
                     ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                     ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
                     ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
@@ -187,8 +194,6 @@ class ArticleBase extends BaseLogic
                     $result['url'] = url('details/' . $result['category_id'] . '/' . $result['id']);
                     // 标识符
                     $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
-                    // 缩略图
-                    $result['thumb'] = (new Canvas)->image($result['thumb'], 300);
                     // 时间格式
                     $date_format = $this->request->param('date_format', 'Y-m-d');
                     $result['update_time'] = date($date_format, (int) $result['update_time']);
@@ -201,7 +206,7 @@ class ArticleBase extends BaseLogic
                     $result['prev'] = $this->prev((int) $result['id']);
 
                     // 附加字段数据
-                    $fields = (new ArticleExtend)
+                    $fields = (new ModelArticleExtend)
                         ->view('article_extend extend', ['data'])
                         ->view('fields fields', ['name' => 'fields_name'], 'fields.id=extend.fields_id')
                         ->where([
@@ -227,6 +232,14 @@ class ArticleBase extends BaseLogic
                         $result['tags'][$key] = $tag;
                     }
 
+                    // table_name
+                    $model = \think\helper\Str::studly($result['table_name']);
+                    $model = 'Model' . $model;
+                    $content = (new $model);
+                    halt($content);
+                    // 缩略图
+                    $result['thumb'] = isset($result['thumb']) ? (new Canvas)->image($result['thumb'], 300) : '';
+                    $result['content'] = '';
                     // 文章内容
                     $result['content'] = DataFilter::decode($result['content']);
 
@@ -236,7 +249,7 @@ class ArticleBase extends BaseLogic
                             return 'src="' . $thumb . '"';
                         }, $result['content']);
 
-                    $this->cache->set($cache_key, $result);
+                    // $this->cache->set($cache_key, $result);
                 }
             }
         }

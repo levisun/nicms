@@ -17,10 +17,9 @@ declare(strict_types=1);
 
 namespace app\cms\logic\download;
 
-use think\facade\Lang;
-use app\cms\logic\BaseArticle;
+use app\cms\logic\ArticleBase;
 
-class Lists extends BaseArticle
+class Lists extends ArticleBase
 {
 
     /**
@@ -31,20 +30,20 @@ class Lists extends BaseArticle
      */
     public function query(): array
     {
-        $list = $this->ArticleList();
+        $result = $this->ArticleList();
 
         return [
             'debug' => false,
-            'cache' => false,
-            'msg'   => Lang::get('success'),
-            'data'  => [
-                'list'         => $list['data'],
-                'total'        => $list['total'],
-                'per_page'     => $list['per_page'],
-                'current_page' => $list['current_page'],
-                'last_page'    => $list['last_page'],
-                'page'         => $list['render'],
-            ]
+            'cache' => $result ? true : false,
+            'msg'   => $result ? 'download list data' : 'download list error',
+            'data'  => $result ? [
+                'list'         => $result['data'],
+                'total'        => $result['total'],
+                'per_page'     => $result['per_page'],
+                'current_page' => $result['current_page'],
+                'last_page'    => $result['last_page'],
+                'page'         => $result['render'],
+            ] : []
         ];
     }
 }

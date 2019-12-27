@@ -1,0 +1,37 @@
+<script>
+
+
+    jQuery.pjax({
+        url: NICMS.api.url + '/query.do',
+        method: 'get',
+        data: [
+            { name: 'method', value: 'article.details.query' },
+            { name: 'id', value: NICMS.api.param.id }
+        ],
+        success: function (result) {
+            if (result.code == '10000') {
+                new Vue({
+                    el: "#article",
+                    data: {
+                        details: result.data
+                    }
+                });
+            }
+        }
+    });
+
+    jQuery.pjax({
+        url: NICMS.api.url + '/query.do',
+        method: 'get',
+        data: [
+            { name: 'method', value: 'article.details.hits' },
+            { name: 'id', value: NICMS.api.param.id }
+        ],
+        success: function (result) {
+            if (result.code == '10000') {
+
+            }
+        }
+    });
+
+</script>
