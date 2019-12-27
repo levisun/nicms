@@ -61,7 +61,7 @@ class Foot extends BaseLogic
 
                 $result[$key] = $value;
             }
-            $this->cache->tag('cms')->set($cache_key, $result);
+            $this->cache->tag('cms nav')->set($cache_key, $result);
         }
 
         return [

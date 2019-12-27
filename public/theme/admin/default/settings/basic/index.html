@@ -8,22 +8,22 @@
 
             <div class="form-group">
                 <label>{:lang('website keywords')}</label>
-                <input type="text" name="cms_keywords" class="form-control" v-bind:value="items.cms_keywords">
+                <textarea name="cms_keywords" class="form-control" v-bind:value="items.cms_keywords"></textarea>
             </div>
 
             <div class="form-group">
                 <label>{:lang('website description')}</label>
-                <input type="text" name="cms_description" class="form-control" v-bind:value="items.cms_description">
+                <textarea name="cms_description" class="form-control" v-bind:value="items.cms_description"></textarea>
             </div>
 
             <div class="form-group">
                 <label>{:lang('website footer')}</label>
-                <input type="text" name="cms_footer" class="form-control" v-bind:value="items.cms_footer">
+                <textarea name="cms_footer" class="form-control" v-bind:value="items.cms_footer"></textarea>
             </div>
 
             <div class="form-group">
                 <label>{:lang('website copyright')}</label>
-                <input type="text" name="cms_copyright" class="form-control" v-bind:value="items.cms_copyright">
+                <textarea name="cms_copyright" class="form-control" v-bind:value="items.cms_copyright"></textarea>
             </div>
 
             <div class="form-group">
@@ -33,8 +33,7 @@
 
             <div class="form-group">
                 <label>{:lang('website script')}</label>
-                <textarea name="cms_script" class="form-control" cols="30" rows="10"
-                    v-bind:value="items.cms_script"></textarea>
+                <textarea name="cms_script" class="form-control" v-bind:value="items.cms_script"></textarea>
             </div>
             <div class="form-group">
                 <button type="button" class="btn btn-primary" @click="save">{:lang('save')}</button>

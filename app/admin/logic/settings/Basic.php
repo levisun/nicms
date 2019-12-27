@@ -47,6 +47,8 @@ class Basic extends BaseLogic
             unset($result[$key]);
         }
 
+        $this->cache->tag('siteinfo')->clear();
+
         return [
             'debug' => false,
             'cache' => false,

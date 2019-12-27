@@ -41,10 +41,12 @@ class ArticleBase extends BaseLogic
             ['article.lang', '=', $this->lang->getLangSet()]
         ];
 
+        // 安栏目查询,为空查询所有
         if ($category_id = $this->request->param('cid/d', 0)) {
             $map[] = ['article.category_id', '=', $category_id];
         }
 
+        // 推荐置顶最热,三选一
         if ($com = $this->request->param('com/d', 0)) {
             $map[] = ['article.is_com', '=', '1'];
         } elseif ($top = $this->request->param('top/d', 0)) {
@@ -53,21 +55,28 @@ class ArticleBase extends BaseLogic
             $map[] = ['article.is_hot', '=', '1'];
         }
 
+        // 安类别查询,为空查询所有
         if ($type_id = $this->request->param('tid/d', 0)) {
             $map[] = ['article.type_id', '=', $type_id];
         }
 
+        // 排序,为空依次安置顶,最热,推荐,自定义顺序,最新发布时间排序
         if ($sort_order = $this->request->param('sort')) {
             $sort_order = 'article.' . $sort_order;
         } else {
-            $sort_order = 'article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.show_time DESC';
+            $sort_order = 'article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.update_time DESC';
+        }
+
+        // 搜索
+        if ($search_key = $this->request->param('key')) {
+            $search_key = DataFilter::word($search_key);
         }
 
         $query_limit = $this->request->param('limit/d', 10);
         $query_page = $this->request->param('page/d', 1);
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
-        $cache_key = __METHOD__ . date('Ymd') . $category_id .
+        $cache_key = 'article list' . date('Ymd') . $category_id .
             $com . $top . $hot . $type_id .
             $query_limit . $query_page . $date_format;
         $cache_key = md5($cache_key);
@@ -137,7 +146,7 @@ class ArticleBase extends BaseLogic
                     $list['data'][$key] = $value;
                 }
 
-                $this->cache->tag('cms')->set($cache_key, $list);
+                $this->cache->tag('cms article list' . $category_id)->set($cache_key, $list);
             }
         }
 
@@ -158,7 +167,7 @@ class ArticleBase extends BaseLogic
                 ['article.show_time', '<', time()],
                 ['article.lang', '=', $this->lang->getLangSet()]
             ];
-            $cache_key = md5(__METHOD__ . $id);
+            $cache_key = md5('article details' . $id);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'username', 'access_id', 'hits', 'update_time'])
@@ -227,7 +236,7 @@ class ArticleBase extends BaseLogic
                             return 'src="' . $thumb . '"';
                         }, $result['content']);
 
-                    $this->cache->tag('cms')->set($cache_key, $result);
+                    $this->cache->set($cache_key, $result);
                 }
             }
         }

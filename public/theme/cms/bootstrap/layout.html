@@ -1,46 +1,51 @@
 {tags:meta /}
 
 <header id="layout-header" class="bg-dark">
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <a class="navbar-brand text-white" href="/">__NAME__</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="/">首页</a>
-                </li>
-                <template v-for="vo in nav">
-                    <template v-if="vo.child[0]">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" v-bind:href="vo.url" id="navbarDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-text="vo.name"></a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <template v-for="v in vo.child">
-                                    <a class="dropdown-item" v-bind:href="v.url" v-text="v.name"></a>
-                                </template>
-                            </div>
-                        </li>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <a class="navbar-brand text-white" href="/">__NAME__</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/">首页</a>
+                    </li>
+                    <template v-for="vo in nav">
+                        <template v-if="vo.child[0]">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" v-bind:href="vo.url" id="navbarDropdown"
+                                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                    v-text="vo.name"></a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <template v-for="v in vo.child">
+                                        <a class="dropdown-item" v-bind:href="v.url" v-text="v.name"></a>
+                                    </template>
+                                </div>
+                            </li>
+                        </template>
+                        <template v-else>
+                            <li class="nav-item">
+                                <a class="nav-link" v-bind:href="vo.url" v-text="vo.name"></a>
+                            </li>
+                        </template>
                     </template>
-                    <template v-else>
-                        <li class="nav-item">
-                            <a class="nav-link" v-bind:href="vo.url" v-text="vo.name"></a>
-                        </li>
-                    </template>
-                </template>
-            </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
-        </div>
-    </nav>
+                </ul>
+                <form class="form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+            </div>
+        </nav>
+    </div>
 </header>
 
 <main id="layout-main" class="bg-light">
-{__CONTENT__}
+    <div class="container">
+        {__CONTENT__}
+    </div>
 </main>
 
 <footer id="layout-footer" class="bg-dark">

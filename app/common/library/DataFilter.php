@@ -34,7 +34,7 @@ class DataFilter
             $_data = trim($_data);
             $_data = (new Emoji)->clear($_data);
             $_data = self::safe($_data);
-            $_data = self::fun($_data);
+            $_data = self::funSymbol($_data);
             $_data = self::enter($_data);
             $_data = strip_tags($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
@@ -59,7 +59,7 @@ class DataFilter
             $_data = trim($_data);
             $_data = (new Emoji)->encode($_data);
             $_data = self::safe($_data);
-            $_data = self::fun($_data);
+            $_data = self::funSymbol($_data);
             $_data = self::enter($_data);
             $_data = self::element($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
@@ -93,6 +93,39 @@ class DataFilter
     }
 
     /**
+     * 过滤并分词
+     * @access public
+     * @static
+     * @param  string $_data
+     * @return array
+     */
+    public static function word(string $_data): array
+    {
+        $pattern = '/[~!@#$%^&\*()_+-={}|\[\]\\\:";\\\'<>\?,.\/]/si';
+        $_data = preg_replace($pattern, '', $_data);
+        $pattern = [
+            '·', '~', '！', '@', '#', '￥', '%', '…', '&', '*', '（', '）', '—', '—', '+', '-', '=', '｛', '｝', '|', '【', '】', '、', '：', '“', '；', '‘', '《', '》', '？', '，', '。', '、', '’', '”',
+            '〖', '〗', '『', '』', '「', '」', '〈', '〉', '〔', '〕', '｜', '〃', '～', '々', '…', '—', '·', 'ˉ', 'ˇ', '¨',
+            '┌', '┍', '┎', '┏', '┐', '┑', '┒', '┓', '─', '┄', '┈', '├', '┝', '┞', '┟', '┠', '┡', '┢', '┣', '│', '┆', '┊', '┬', '┭', '┮', '┯', '┰', '┱', '┲', '┳', '┼', '┽', '┾', '┿', '╀', '╁', '╂', '╃', '└', '┕', '┖', '┗', '┘', '┙', '┚', '┛', '━', '┅', '┉', '┤', '┥', '┦', '┧', '┨', '┩', '┪', '┫', '┃', '┇', '┋', '┴', '┵', '┶', '┷', '┸', '┹', '┺', '┻', '╄', '╅', '╆', '╇', '╈', '╉', '╊', '╋',
+            '§', '№', '☆', '★', '○', '●', '◎', '◇', '◆', '□', '■', '△', '▲', '※', '→', '←', '↑', '↓', '〓', '＃', '＆', '＠', '＼', '＾', '＿', '￣', '―', '♂', '♀',
+        ];
+        $_data = str_replace($pattern, '', $_data);
+
+        @ini_set('memory_limit', '256M');
+        $path = app()->getRootPath() . 'vendor/lizhichao/word/Data/dict.json';
+        define('_VIC_WORD_DICT_PATH_', $path);
+
+        $fc = new \Lizhichao\Word\VicWord('json');
+        $_data = $fc->getAutoWord($_data);
+        unset($fc);
+        foreach ($_data as $key => $value) {
+            $_data[$key] = $value[0];
+        }
+        $_data = array_unique($_data);
+        return $_data;
+    }
+
+    /**
      * 过滤标签
      * @access private
      * @static
@@ -117,10 +150,10 @@ class DataFilter
             $matches[2] = strtolower($matches[2]);
             if (in_array($matches[2], $element)) {
                 // 过滤标签属性
-                if ($matches[3]) {
+                if (!empty($matches[3])) {
                     $matches[3] = preg_replace_callback('/([a-zA-Z0-9-_]+)=(.*?)( )/si', function ($ema) {
-                        // 保留属性
-                        $attr = ['href', 'src', 'alt', 'title', 'target', 'rel', 'height', 'width', 'align'];
+                        // 保留属性 href
+                        $attr = ['src', 'alt', 'title', 'target', 'rel', 'height', 'width', 'align'];
                         $ema[1] = strtolower($ema[1]);
                         if (in_array($ema[1], $attr)) {
                             $ema[2] = str_replace(['“', '”', '‘', '’'], '"', $ema[2]);
@@ -167,7 +200,7 @@ class DataFilter
      * @param  string $_str
      * @return string
      */
-    private static function fun(string &$_str): string
+    private static function funSymbol(string &$_str): string
     {
         $pattern = [
             'base64_decode'        => 'ba&#115;e64_decode',

@@ -18,9 +18,6 @@ declare(strict_types=1);
 namespace app\common\event;
 
 use think\exception\HttpResponseException;
-use app\common\library\ReGarbage;
-use app\common\library\Sitemap;
-use app\common\library\UploadFile;
 
 class CheckRequest
 {

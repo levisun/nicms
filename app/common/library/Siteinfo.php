@@ -46,7 +46,7 @@ class Siteinfo
                 'name'      => $this->name(),
             ];
 
-            Cache::tag('browser')->set($cache_key, $common);
+            Cache::tag('siteinfo')->set($cache_key, $common);
         }
 
         $cache_key .= app('request')->param('id/f', null) . app('request')->param('cid/f', null);
@@ -58,7 +58,7 @@ class Siteinfo
                 'description' => $this->description(),
             ];
 
-            Cache::tag('browser')->set($cache_key, $result);
+            Cache::tag('siteinfo')->set($cache_key, $result);
         }
 
 

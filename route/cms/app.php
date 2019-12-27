@@ -29,13 +29,13 @@ Route::group(function () {
 
     // 列表页
     Route::get('list/:cid$', 'Index/category')->ext('html');
+    Route::get('tags/:id$', 'Index/tags')->ext('html');
+    Route::get('search', 'Index/search')->ext('html');
 
     // 详情页
     Route::get('details/:cid/:id$', 'Index/details')->ext('html');
 
-    // 搜索页
-    Route::get('search', 'Index/search')->ext('html');
-
+    // 老版本兼容
     Route::get('ipinfo$', '\app\api\controller\Ip@index')->ext('shtml');
 
     Route::miss(function () {

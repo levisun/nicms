@@ -77,8 +77,5 @@ class RecordRequest
                 'info'
             );
         }
-
-        // (bool) glob($path . 'schema' . DIRECTORY_SEPARATOR . '*')
-        // app()->console->call('optimize:schema', [app()->http->getName()]);
     }
 }

@@ -93,7 +93,7 @@ class Category extends BaseLogic
         $result = $result ? $result->toArray() : [];
 
         foreach ($result as $key => $value) {
-            for ($i=0; $i < $this->layer; $i++) {
+            for ($i = 0; $i < $this->layer; $i++) {
                 $value['name'] = '|__' . $value['name'];
             }
 
@@ -153,7 +153,7 @@ class Category extends BaseLogic
             'is_show'     => $this->request->param('is_show/d', 1),
             'is_channel'  => $this->request->param('is_channel/d', 0),
             'sort_order'  => $this->request->param('sort_order/d', 0),
-            'access_id'   => $this->request->param('access_id/d'),
+            'access_id'   => $this->request->param('access_id/d', 0),
             'url'         => $this->request->param('url'),
             'update_time' => time(),
             'create_time' => time(),
@@ -165,7 +165,7 @@ class Category extends BaseLogic
 
         (new ModelCategory)->save($receive_data);
 
-        $this->cache->tag('CMS NAV')->clear();
+        $this->cache->tag('cms nav')->clear();
 
         return [
             'debug' => false,
@@ -197,19 +197,6 @@ class Category extends BaseLogic
                         ['id', '=', $result['pid']]
                     ])
                     ->value('name as parent');
-
-                $result['type_name'] = [
-                    ['id' => '1', 'name' => $this->lang->get('category top type')],
-                    ['id' => '2', 'name' => $this->lang->get('category main type')],
-                    ['id' => '3', 'name' => $this->lang->get('category foot type')],
-                    ['id' => '4', 'name' => $this->lang->get('category other type')],
-                ];
-
-                $result['access_name'] = (new ModelLevel)
-                    ->field('id, name')
-                    ->order('id DESC')
-                    ->select()
-                    ->toArray();
             }
         } else {
             $result = [];
@@ -220,29 +207,29 @@ class Category extends BaseLogic
                     ])
                     ->value('name as parent');
             }
-
-            $result['type_name'] = [
-                ['id' => '1', 'name' => $this->lang->get('category top type')],
-                ['id' => '2', 'name' => $this->lang->get('category main type')],
-                ['id' => '3', 'name' => $this->lang->get('category foot type')],
-                ['id' => '4', 'name' => $this->lang->get('category other type')],
-            ];
-
-            $result['access_name'] = (new ModelLevel)
-                ->field('id, name')
-                ->order('id DESC')
-                ->select()
-                ->toArray();
-
-            $result['model_name'] = (new ModelModels)
-                ->field('id, name')
-                ->where([
-                    ['status', '=', 1]
-                ])
-                ->order('id ASC')
-                ->select()
-                ->toArray();
         }
+
+        $result['type_list'] = [
+            ['id' => '1', 'name' => $this->lang->get('category top type')],
+            ['id' => '2', 'name' => $this->lang->get('category main type')],
+            ['id' => '3', 'name' => $this->lang->get('category foot type')],
+            ['id' => '4', 'name' => $this->lang->get('category other type')],
+        ];
+
+        $result['access_list'] = (new ModelLevel)
+            ->field('id, name')
+            ->order('id DESC')
+            ->select()
+            ->toArray();
+
+        $result['model_list'] = (new ModelModels)
+            ->field('id, name')
+            ->where([
+                ['status', '=', 1]
+            ])
+            ->order('id ASC')
+            ->select()
+            ->toArray();
 
         return [
             'debug' => false,

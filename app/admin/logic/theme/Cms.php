@@ -89,6 +89,8 @@ class Cms extends BaseLogic
             }
         }
 
+        $this->cache->tag('siteinfo')->clear();
+
         return [
             'debug' => false,
             'cache' => false,
