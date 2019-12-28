@@ -235,6 +235,7 @@ class ArticleBase extends BaseLogic
 
                     // table_name
                     $model = \think\helper\Str::studly($result['table_name']);
+                    unset($result['table_name']);
                     $content = $this->app->make('\app\common\model\\' . $model);
                     $content = $content->where([
                         ['article_id', '=', $id]
@@ -260,10 +261,12 @@ class ArticleBase extends BaseLogic
 
                                     // 文章内容
                                 case 'content':
-                                    $result[$key] = preg_replace_callback('/(src=["|\'])(.*?)(["|\'])/si', function ($matches) {
-                                        $thumb = (new Canvas)->image($matches[2]);
-                                        // return 'src="' . $thumb . '"';
-                                    }, DataFilter::decode($value));
+                                    $value = DataFilter::decode($value);
+                                    $result[$key] = $value;
+                                    // $result[$key] = preg_replace_callback('/(src=["|\']+)([a-zA-Z0-9\._\/\\\]+)(["|\']+)/si', function ($matches) {
+                                    //     $thumb = (new Canvas)->image($matches[2]);
+                                    //     return 'src="' . $thumb . '"';
+                                    // }, $value);
                                     break;
 
                                     // 下载文件
