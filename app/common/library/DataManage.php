@@ -47,7 +47,7 @@ class DataManage
      */
     public function optimize(): bool
     {
-        only_execute('db_optimize.lock', '-7 days', function () {
+        only_execute('db_optimize.lock', '-30 days', function () {
             ignore_user_abort(true);
 
             $tables = $this->queryTableName();
@@ -58,7 +58,21 @@ class DataManage
                     $this->DB->query('OPTIMIZE TABLE `' . $name . '`');
                     Log::record('[AUTO BACKUP] 优化表' . $name, 'alert');
                 }
+            }
 
+            ignore_user_abort(false);
+        });
+
+        return true;
+    }
+
+    public function repair()
+    {
+        only_execute('db_repair.lock', '-30 days', function () {
+            ignore_user_abort(true);
+
+            $tables = $this->queryTableName();
+            foreach ($tables as $name) {
                 $result = $this->DB->query('CHECK TABLE `' . $name . '`');
                 $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
                 if (false === $result) {
@@ -66,7 +80,6 @@ class DataManage
                     Log::record('[AUTO BACKUP] 修复表' . $name, 'alert');
                 }
             }
-
 
             ignore_user_abort(false);
         });

@@ -23,47 +23,38 @@ use think\Response;
 
 class CheckRequestCache
 {
+    private $appName = '';
+    private $key = '';
 
     /**
      * 设置当前地址的请求缓存
-     * 缓存为浏览器
      * @access public
      * @param  Request $request
      * @param  Closure $next
      * @return Response
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
+        // 获得应用名
+        $this->appName = app('http')->getName();
+        // 缓存KEY
+        $this->key = md5($request->baseUrl(true));
+
+        // 返回304
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
-            // 返回浏览器缓存
             if (strtotime($ms) >= $request->server('REQUEST_TIME')) {
                 return Response::create()->code(304);
             }
         }
 
-        $key = md5($request->baseUrl());
-        if ($content = $this->readCache($key, $request)) {
-            return $content;
+        // 返回缓存
+        if ($response = $this->readCache($request)) {
+            return $response;
         }
 
         $response = $next($request);
 
-        // API有独立缓存定义,请勿开启缓存
-        // API缓存在\app\common\controller\Async::result方法定义
-        if ('api' !== app('http')->getName()) {
-            // 调试模式关闭缓存
-            $response->allowCache(!app()->isDebug());
-
-            $response->header(array_merge(['X-Powered-By' => 'NICMS'], $response->getHeader()));
-            if (200 == $response->getCode() && $request->isGet() && $response->isAllowCache()) {
-                $response->allowCache(true)
-                    ->cacheControl('max-age=1440,must-revalidate')
-                    ->expires(gmdate('D, d M Y H:i:s', $request->server('REQUEST_TIME') + 1440) . ' GMT')
-                    ->lastModified(gmdate('D, d M Y H:i:s', $request->server('REQUEST_TIME') + 1440) . ' GMT');
-
-                $this->writeCache($key, $response);
-            }
-        }
+        $response = $this->writeCache($response, $request);
 
         return $response;
     }
@@ -71,25 +62,21 @@ class CheckRequestCache
     /**
      * 读取缓存
      * @access private
-     * @param  string  $_key
      * @param  Request $_request
      * @return false|Response
      */
-    private function readCache(string &$_key, Request &$_request)
+    private function readCache(Request &$_request)
     {
         $response = false;
-        if (false === app()->isDebug() && $content = Cache::get($_key)) {
+        if (false === app()->isDebug() && $content = Cache::get($this->key)) {
             $pattern = [
                 '<meta name="csrf-authorization" content="" />' => authorization_meta(),
                 '<meta name="csrf-token" content="" />' => token_meta(),
             ];
             $content = str_replace(array_keys($pattern), array_values($pattern), $content);
-            $response = Response::create($content)
-                ->allowCache(true)
-                ->cacheControl('max-age=1440,must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $_request->server('REQUEST_TIME') + 1440) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $_request->server('REQUEST_TIME') + 1440) . ' GMT')
-                ->header(['X-Powered-By' => 'NICMS']);
+            $response = Response::create($content);
+            $response = $this->browserCache($response, $_request);
+
         }
 
         return $response;
@@ -98,18 +85,49 @@ class CheckRequestCache
     /**
      * 写入缓存
      * @access private
-     * @param  string   $_key
      * @param  Response $_response
-     * @return void
+     * @param  Request  $_request
+     * @return Response
      */
-    private function writeCache(string &$_key, Response &$_response): void
+    private function writeCache(Response &$_response, Request &$_request): Response
     {
-        $_content = $_response->getContent() . '<!-- ' . date('Y-m-d H:i:s') . ' -->';
-        $pattern = [
-            '/<meta name="csrf-authorization" content="(.*?)" \/>/si' => '<meta name="csrf-authorization" content="" />',
-            '/<meta name="csrf-token" content="(.*?)">/si' => '<meta name="csrf-token" content="" />',
-        ];
-        $_content = (string) preg_replace(array_keys($pattern), array_values($pattern), $_content);
-        Cache::tag('browser')->set($_key, $_content, mt_rand(28800, 29900));
+        // API有独立缓存定义,请勿开启缓存
+        if ('api' !== $this->appName) {
+            $_response->allowCache(!app()->isDebug());
+            $_response->header(array_merge(['X-Powered-By' => 'NICMS'], $_response->getHeader()));
+
+            if (200 == $_response->getCode() && $_request->isGet() && $_response->isAllowCache()) {
+                $content = $_response->getContent() . '<!-- ' . date('Y-m-d H:i:s') . ' -->';
+                $pattern = [
+                    '/<meta name="csrf-authorization" content="(.*?)" \/>/si' => '<meta name="csrf-authorization" content="" />',
+                    '/<meta name="csrf-token" content="(.*?)">/si' => '<meta name="csrf-token" content="" />',
+                ];
+                $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $content);
+                Cache::tag('browser')->set($this->key, $content, mt_rand(28800, 29900));
+
+                $_response = $this->browserCache($_response, $_request);
+            }
+        }
+
+        return $_response;
+    }
+
+    /**
+     * 浏览器缓存信息
+     * @access private
+     * @param  Response $_response
+     * @param  Request  $_request
+     * @return Response
+     */
+    private function browserCache(Response &$_response, Request &$_request): Response
+    {
+        if ($this->appName && !in_array($this->appName, ['admin', 'api', 'user'])) {
+            $_response->allowCache(true)
+                ->cacheControl('max-age=1440,must-revalidate')
+                ->expires(gmdate('D, d M Y H:i:s', $_request->server('REQUEST_TIME') + 1440) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s', $_request->server('REQUEST_TIME') + 1440) . ' GMT');
+        }
+
+        return $_response;
     }
 }

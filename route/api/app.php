@@ -39,8 +39,9 @@ Route::group(function () {
 
     // 验证码接口
     Route::get('verify/img$', 'Verify/img')->ext('do');
+    Route::post('verify/img_check$', 'Verify/imgCheck')->ext('do');
     Route::post('verify/sms$', 'Verify/sms')->ext('do');
-    // Route::post('verify/check/:type$', 'Verify/check')->ext('do');
+    Route::post('verify/sms_check$', 'Verify/smsCheck')->ext('do');
 
     // 微信接口
     Route::get('wechat$', 'Wechat/index')->ext('do');

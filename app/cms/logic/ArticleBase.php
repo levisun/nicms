@@ -21,6 +21,7 @@ use app\common\controller\BaseLogic;
 use app\common\library\Base64;
 use app\common\library\Canvas;
 use app\common\library\DataFilter;
+use app\common\library\Download;
 use app\common\model\Article as ModelArticle;
 use app\common\model\ArticleContent as ModelArticleContent;
 use app\common\model\ArticleExtend as ModelArticleExtend;
@@ -234,20 +235,48 @@ class ArticleBase extends BaseLogic
 
                     // table_name
                     $model = \think\helper\Str::studly($result['table_name']);
-                    $model = 'Model' . $model;
-                    $content = (new $model);
-                    halt($content);
-                    // 缩略图
-                    $result['thumb'] = isset($result['thumb']) ? (new Canvas)->image($result['thumb'], 300) : '';
-                    $result['content'] = '';
-                    // 文章内容
-                    $result['content'] = DataFilter::decode($result['content']);
+                    $content = $this->app->make('\app\common\model\\' . $model);
+                    $content = $content->where([
+                        ['article_id', '=', $id]
+                    ])->find();
+                    if ($content) {
+                        $content = $content->toArray();
+                        unset($content['id'], $content['article_id']);
+                        foreach ($content as $key => $value) {
+                            if (!$value) {
+                                continue;
+                            }
 
-                    $result['content'] =
-                        preg_replace_callback('/(src=["|\'])(.*?)(["|\'])/si', function ($matches) {
-                            $thumb = (new Canvas)->image($matches[2]);
-                            return 'src="' . $thumb . '"';
-                        }, $result['content']);
+                            switch ($key) {
+                                    // 缩略图
+                                case 'thumb':
+                                    $result[$key] = (new Canvas)->image($value, 300);
+                                    break;
+
+                                    // 图片
+                                case 'image_url':
+                                    $result[$key] = (new Canvas)->image($value);
+                                    break;
+
+                                    // 文章内容
+                                case 'content':
+                                    $result[$key] = preg_replace_callback('/(src=["|\'])(.*?)(["|\'])/si', function ($matches) {
+                                        $thumb = (new Canvas)->image($matches[2]);
+                                        // return 'src="' . $thumb . '"';
+                                    }, DataFilter::decode($value));
+                                    break;
+
+                                    // 下载文件
+                                case 'file_url':
+                                    $result[$key] = Download::getUrl($value);
+                                    break;
+
+                                default:
+                                    $result[$key] = $value;
+                                    break;
+                            }
+                        }
+                    }
 
                     // $this->cache->set($cache_key, $result);
                 }

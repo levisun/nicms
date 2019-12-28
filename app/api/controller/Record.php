@@ -27,10 +27,9 @@ class Record extends Async
     {
         if ($this->isReferer(false)) {
             (new AccessLog)->record();
-            return;
-            // return $this->cache(false)->success('record');
+            return $this->cache(true)->success('record');
         }
 
-        return miss(200);
+        return miss(404);
     }
 }

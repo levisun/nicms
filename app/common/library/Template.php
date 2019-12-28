@@ -98,7 +98,7 @@ class Template implements TemplateHandlerInterface
      */
     public function __construct(App $app, array $_config = [])
     {
-        $this->app     = $app;
+        $this->app = $app;
         // 默认值
         $this->config['compile_path'] = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
         $this->config['view_path'] = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR;
@@ -436,7 +436,7 @@ class Template implements TemplateHandlerInterface
 
         $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.do" defer ></script>';
         if ('admin' !== $this->config['app_name']) {
-            $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.do" defer ></script>';
+            $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.do?token=' . md5($this->app->request->url(true)) . '" defer ></script>';
         }
     }
 

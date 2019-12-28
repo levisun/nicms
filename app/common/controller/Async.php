@@ -281,12 +281,15 @@ abstract class Async
             $this->abort('返回数据格式错误', 28001);
         }
 
-        // 调试模式设置
+        // 调试模式
         // 返回数据没有指定默认关闭
         $this->debug(isset($this->result['debug']) ? $this->result['debug'] : false);
-        // 缓存设置
+        // 缓存
         // 返回数据没有指定默认开启
         $this->cache(isset($this->result['cache']) ? $this->result['cache'] : true);
+        // 缓存时间
+        // 返回数据没有指定默认1440秒
+        $this->expire(isset($this->result['expire']) ? $this->result['expire'] : 1440);
 
         $this->result['data'] = isset($this->result['data']) ? $this->result['data'] : [];
         $this->result['code'] = isset($this->result['code']) ? $this->result['code'] : 10000;
@@ -307,7 +310,7 @@ abstract class Async
     }
 
     /**
-     * 设置缓存
+     * 开启缓存
      * @access protected
      * @param  bool $_cache
      * @return $this
@@ -315,6 +318,18 @@ abstract class Async
     protected function cache(bool $_cache)
     {
         $this->apiCache = (true === $this->apiDebug) ? false : $_cache;
+        return $this;
+    }
+
+    /**
+     * 缓存时间
+     * @access protected
+     * @param  int $_time
+     * @return $this
+     */
+    protected function expire(int $_time)
+    {
+        $this->apiExpire = $_time ?: $this->apiExpire;
         return $this;
     }
 
@@ -467,11 +482,11 @@ abstract class Async
     {
         // POST请求时验证表单令牌
         if ($this->request->isPost()) {
+            // 验证通过返回新表单令牌
+            $this->apiRetFromToken = true;
+
             if (false === $this->request->checkToken()) {
                 $this->abort('错误请求', 24001);
-            } else {
-                // 验证通过返回新表单令牌
-                $this->apiRetFromToken = true;
             }
         }
     }
@@ -717,12 +732,7 @@ abstract class Async
      */
     protected function abort(string $_msg, int $_code = 40001): void
     {
-        if ($this->request->isAjax() || $this->request->isPjax()) {
-            $response = $this->response($_msg, [], $_code);
-        } else {
-            $response = miss(404);
-        }
-
+        $response = $this->response($_msg, [], $_code);
         throw new HttpResponseException($response);
     }
 
@@ -740,7 +750,8 @@ abstract class Async
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 3) . 's,' .
+            'runtime' => date('Y-m-d H:i:s') . ',' .
+                number_format(microtime(true) - $this->app->getBeginTime(), 3) . 's,' .
                 number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . 'mb,' .
                 count(get_included_files()),
 

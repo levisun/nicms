@@ -18,7 +18,6 @@ namespace app\common\library;
 
 use think\facade\Config;
 use think\Response;
-use think\exception\HttpResponseException;
 use app\common\library\Base64;
 
 class Download

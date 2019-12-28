@@ -46,6 +46,20 @@ class Verify extends Async
         return miss(404);
     }
 
+    public function imgCheck()
+    {
+        if ($this->analysis()->isReferer()) {
+            $captcha = $this->request->param('captcha', false);
+            if (true === Captcha::check($captcha)) {
+                return $this->cache(false)->success('验证成功');
+            } else {
+                return $this->error('验证码错误', 40009);
+            }
+        }
+
+        return miss(404);
+    }
+
     /**
      * 短信验证码
      * @access public
@@ -56,11 +70,11 @@ class Verify extends Async
         if ($this->analysis()->isReferer()) {
             $phone = $this->request->param('phone', false);
             if ($phone && preg_match('/^1[0-9]\d{9}$/', $phone)) {
-                $key = md5('sms_' . $this->request->ip());
+                $key = md5('sms_' . $phone);
 
                 if ($this->session->has($key) && $result = $this->session->get($key)) {
                     if ($result['time'] >= time()) {
-                        $this->cache(false)->success('请勿重复请求');
+                        return $this->cache(false)->error('请勿重复请求', 40009);
                     }
                 }
 
@@ -78,21 +92,24 @@ class Verify extends Async
         return miss(404);
     }
 
-    public function check()
+    public function smsCheck()
     {
-        // sms
         if ($this->analysis()->isReferer()) {
             $phone = $this->request->param('phone', false);
             $verify = $this->request->param('verify/d', false);
             if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone) && $verify) {
-                $key = md5('sms_' . $this->request->ip());
+                $key = md5('sms_' . $phone);
 
                 if ($this->session->has($key) && $result = $this->session->get($key)) {
                     if ($result['time'] >= time() && $result['verify'] == $verify && $result['phone'] == $phone) {
                         $this->session->delete($key);
-                        return $this->cache(false)->success('验证码验证成功');
+                        return $this->cache(false)->success('验证成功');
+                    } else {
+                        return $this->error('手机号或验证码错误', 40009);
                     }
                 }
+            } else {
+                return $this->error('手机号或验证码错误', 40009);
             }
         }
 

@@ -64,7 +64,7 @@ class Ipinfo
                 unset($region['id'], $region['update_time']);
                 $region['ip'] = $_ip;
 
-                Cache::tag('SYSTEM')->set($cache_key, $region);
+                Cache::set($cache_key, $region);
             } else {
                 $region = Cache::get($cache_key);
             }
