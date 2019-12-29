@@ -38,7 +38,7 @@ class CheckRequestCache
         // 获得应用名
         $this->appName = app('http')->getName();
         // 缓存KEY
-        $this->key = md5($request->baseUrl(true));
+        $this->key = md5($this->appName . $request->baseUrl());
 
         // 返回304
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
@@ -103,7 +103,7 @@ class CheckRequestCache
                     '/<meta name="csrf-token" content="(.*?)">/si' => '<meta name="csrf-token" content="" />',
                 ];
                 $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $content);
-                Cache::tag('browser')->set($this->key, $content, mt_rand(28800, 29900));
+                Cache::tag('browser')->set($this->key, $content, mt_rand(27700, 28800));
 
                 $_response = $this->browserCache($_response, $_request);
             }

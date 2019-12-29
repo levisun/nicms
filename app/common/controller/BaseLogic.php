@@ -101,12 +101,12 @@ abstract class BaseLogic
      */
     public function __construct(App $_app)
     {
-        $this->app      = $_app;
-        $this->cache    = $this->app->cache;
-        $this->config   = $this->app->config;
-        $this->lang     = $this->app->lang;
-        $this->request  = $this->app->request;
-        $this->session  = $this->app->session;
+        $this->app      = &$_app;
+        $this->cache    = &$this->app->cache;
+        $this->config   = &$this->app->config;
+        $this->lang     = &$this->app->lang;
+        $this->request  = &$this->app->request;
+        $this->session  = &$this->app->session;
 
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\DataFilter::filter');

@@ -63,12 +63,12 @@ abstract class BaseController
      */
     public function __construct(App $_app)
     {
-        $this->app      = $_app;
-        $this->config   = $this->app->config;
-        $this->request  = $this->app->request;
-        $this->session  = $this->app->session;
-        $this->cookie   = $this->app->cookie;
-        $this->view     = $this->app->view;
+        $this->app      = &$_app;
+        $this->config   = &$this->app->config;
+        $this->request  = &$this->app->request;
+        $this->session  = &$this->app->session;
+        $this->cookie   = &$this->app->cookie;
+        $this->view     = &$this->app->view;
 
         // 加载语言包
         $lang  = $this->app->getBasePath() . 'common' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;

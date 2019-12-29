@@ -34,6 +34,7 @@ class Verify extends Async
         if ($this->analysis()->isReferer(false)) {
             $config = mt_rand(0, 1) ? 'verify_zh' : 'verify_math';
             $captcha = Captcha::create($config);
+            $this->session->save();
             $captcha = 'data:image/png;base64,' . base64_encode($captcha->getContent());
             return Response::create($captcha)
                 ->header([
@@ -49,8 +50,8 @@ class Verify extends Async
     public function imgCheck()
     {
         if ($this->analysis()->isReferer()) {
-            $captcha = $this->request->param('captcha', false);
-            if (true === Captcha::check($captcha)) {
+            $captcha = (string) $this->request->param('captcha', false);
+            if ($captcha && true === Captcha::check($captcha)) {
                 return $this->cache(false)->success('验证成功');
             } else {
                 return $this->error('验证码错误', 40009);

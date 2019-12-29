@@ -31,12 +31,6 @@ class AppMaintain
         if ($lock = app('http')->getName()) {
             $lock .= '_remove_garbage.lock';
 
-            // 生成网站地图
-            (new Sitemap)->create();
-
-            // 清除上传垃圾文件
-            (new UploadFile)->ReGarbage();
-
             only_execute($lock, '-3 hour', function () {
                 app('log')->record('[REGARBAGE] 应用维护', 'alert');
 
@@ -47,8 +41,15 @@ class AppMaintain
                 (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1);
             });
 
+            // 生成网站地图
+            (new Sitemap)->create();
+
+            // 清除上传垃圾文件
+            (new UploadFile)->ReGarbage();
+
             // 数据库优化|修复
             (new DataManage)->optimize();
+
             // 数据库备份
             // (new DataManage)->autoBackup();
         }

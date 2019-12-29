@@ -32,5 +32,5 @@ return [
     // 前缀
     'prefix'         => '',
     // 数据压缩
-    'data_compress'  => true,
+    'data_compress'  => false,
 ];

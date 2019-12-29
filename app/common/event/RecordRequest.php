@@ -51,14 +51,17 @@ class RecordRequest
 
 
         $request_params = app('request')->param()
-            ? json_encode(app('request')->except(['username', 'password', 'sign']))
-            : '';
+            ? app('request')->except(['username', 'password', 'sign', '__token__'])
+            : [];
+        $request_params = array_filter($request_params);
+        $request_params = !empty($request_params) ? json_encode($request_params) : '';
         $request_url = app('request')->url(true);
         $request_method = app('request')->method(true) . ' ' . app('request')->ip();
         $run_time = number_format(microtime(true) - app()->getBeginTime(), 3);
         $time_memory = $run_time . 's ' .
             number_format((memory_get_usage() - app()->getBeginMem()) / 1024 / 1024, 3) . 'mb ';
 
+        $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec/si';
 
 
         if (2 <= $run_time) {
@@ -68,12 +71,16 @@ class RecordRequest
             );
         }
 
-
-
-        $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec/si';
-        if (0 !== preg_match($pattern, $request_url . $request_params)) {
+        elseif (0 !== preg_match($pattern, $request_url . $request_params)) {
             app('log')->record(
                 '{非法关键词 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params,
+                'info'
+            );
+        }
+
+        else {
+            app('log')->record(
+                '{访问 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params,
                 'info'
             );
         }

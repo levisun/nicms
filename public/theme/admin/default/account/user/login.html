@@ -18,8 +18,7 @@
                 </div>
                 <div class="form-group has-feedback">
                     <input type="text" id="verify" name="captcha" class="form-control" placeholder="{:lang('verify')}">
-                    <img id="img-verify">
-                    <span v-on:click="verify"><font class="fa fa-refresh" ></font>获得验证码</span>
+                    <img id="img-verify" v-on:click="verify">
                 </div>
                 <div class="row">
                     <div class="col-xs-4">
@@ -42,7 +41,7 @@
                         url: NICMS.api.url + '/verify/img.do',
                         type: 'get',
                         data: [
-                            {name: 'timestamp', value: jQuery.timestamp()}
+                            { name: 'timestamp', value: jQuery.timestamp() }
                         ],
                         success: function (result) {
                             jQuery('#img-verify').attr('src', result);
@@ -50,29 +49,42 @@
                     });
                 },
                 login: function () {
-                    var data = jQuery('#login-form').serializeArray();
-                    data.push({ name: 'method', value: 'account.user.login' });
                     jQuery.pjax({
-                        url: NICMS.api.url + '/handle.do',
+                        url: NICMS.api.url + '/verify/img_check.do',
                         type: 'POST',
-                        data: data,
-                        success: function (res) {
-                            if (10000 == res.code) {
-                                if ('undefined' == typeof (res.return_url)) {
-                                    window.location.href = '/settings/dashboard/index.html';
-                                    // location.reload();
-                                } else {
-                                    window.location.href = res.return_url;
-                                }
+                        data: [
+                            { name: 'captcha', value: jQuery('#verify').val() },
+                        ],
+                        success: function (result) {
+                            if (10000 == result.code) {
+                                var data = jQuery('#login-form').serializeArray();
+                                data.push({ name: 'method', value: 'account.user.login' });
+                                jQuery.pjax({
+                                    url: NICMS.api.url + '/handle.do',
+                                    type: 'POST',
+                                    data: data,
+                                    success: function (res) {
+                                        if (10000 == res.code) {
+                                            if ('undefined' == typeof (res.return_url)) {
+                                                window.location.href = '/settings/dashboard/index.html';
+                                                // location.reload();
+                                            } else {
+                                                window.location.href = res.return_url;
+                                            }
+                                        } else {
+                                            login.verify();
+                                        }
+                                        jQuery.uiToast(res.message);
+                                    }
+                                });
                             } else {
-                                login.verify();
+                                jQuery.uiToast(result.message);
                             }
-                            jQuery.uiToast(res.message);
                         }
                     });
                 }
             }
         });
-        // login.verify();
+        login.verify();
     </script>
     {tags:foot /}
