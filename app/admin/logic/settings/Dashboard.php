@@ -34,6 +34,7 @@ class Dashboard extends BaseLogic
             $gd .= $gd_info['GIF Read Support'] ? 'GIF' : '';
             $gd .= $gd_info['JPEG Support'] ? ' JPEG' : '';
             $gd .= $gd_info['PNG Support'] ? ' PNG' : '';
+            $gd .= $gd_info['WebP Support'] ? ' WebP' : '';
             $gd .= ')';
 
             $result = [

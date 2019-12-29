@@ -141,12 +141,16 @@ class UploadFile
      */
     private function save(int &$_uid, \think\File &$_files): array
     {
-        $_dir = $_uid
-            ? '/u' . dechex(date('Ym')) . dechex($_uid)
-            : '/t' . dechex(date('Ym'));
+        $_dir = 'uploads' . DIRECTORY_SEPARATOR;
+        $_dir .= $_uid
+            ? 'u' . dechex(date('Ym')) . dechex($_uid)
+            : 't' . dechex(date('Ym'));
+
+        is_dir(Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR . $_dir) or
+            mkdir(Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR. $_dir, 0755, true);;
 
         $save_path = Config::get('filesystem.disks.public.url') . '/';
-        $save_file = $save_path . Filesystem::disk('public')->putFile('uploads' . $_dir, $_files, 'uniqid');
+        $save_file = $save_path . Filesystem::disk('public')->putFile($_dir, $_files, 'uniqid');
         $this->writeUploadLog($save_file);   // 记录上传文件日志
 
         if (false !== strpos($_files->getMime(), 'image/')) {
@@ -167,28 +171,42 @@ class UploadFile
                 $image->text(app('request')->rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9));
             }
 
-            // 转换webp格式
-            $webp_file = str_replace('.' . $_files->extension(), '.webp', $save_file);
-            $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $webp_file, 'webp');
-            $this->writeUploadLog($webp_file);   // 记录上传文件日志
-            // 删除非webp格式图片
-            if ('webp' !== $_files->extension()) {
-                unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
+            if (function_exists('imagewebp')) {
+                // 转换webp格式
+                $webp_file = str_replace('.' . $_files->extension(), '.webp', $save_file);
+                $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $webp_file, 'webp');
+                $this->writeUploadLog($webp_file);   // 记录上传文件日志
+                // 删除非webp格式图片
+                if ('webp' !== $_files->extension()) {
+                    unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
+                }
+                $save_file = $webp_file;
+            } else {
+                // 转换jpg格式
+                $jpg_file = str_replace('.' . $_files->extension(), '.jpg', $save_file);
+                $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $jpg_file, 'jpg');
+                $this->writeUploadLog($jpg_file);   // 记录上传文件日志
+                // 删除非jpg格式图片
+                if ('jpg' !== $_files->extension()) {
+                    unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
+                }
+                $save_file = $jpg_file;
             }
-            $save_file = $webp_file;
 
             unset($image);
         }
 
+        $save_file = str_replace(DIRECTORY_SEPARATOR, '/', $save_file);
+
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+
         return [
-            // 'extension'    => $_files->extension(),
-            'extension'    => pathinfo($save_file, PATHINFO_EXTENSION),
-            'name'         => pathinfo($save_file, PATHINFO_BASENAME),
-            // 'old_name'     => $_files->getOriginalName(),
-            'original_url' => $save_file,
-            // 'size'         => $_files->getSize(),
-            // 'type'         => $_files->getMime(),
-            'url'          => Config::get('app.cdn_host') . $save_file,
+            'extension' => pathinfo($save_file, PATHINFO_EXTENSION),
+            'name'      => pathinfo($save_file, PATHINFO_BASENAME),
+            'save_path' => $save_file,
+            'size'      => filesize(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file),
+            'type'      => finfo_file($finfo, app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file),
+            'url'       => Config::get('app.img_host') . $save_file,
         ];
     }
 
@@ -263,7 +281,7 @@ class UploadFile
      */
     public function ReGarbage(): void
     {
-        only_execute('remove_upload_garbage.lock', '-30 minute', function () {
+        only_execute('remove_upload_garbage.lock', '-120 minute', function () {
             $sort_order = mt_rand(0, 1) ? 'upload_file_log.id DESC' : 'upload_file_log.id ASC';
 
             // 查询未入库的文件

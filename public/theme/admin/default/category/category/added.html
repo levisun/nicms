@@ -154,7 +154,7 @@
                     success: function (result) {
                         jQuery.uiToast(result.message);
                         if (10000 == result.code) {
-                            jQuery('.image').val(result.data.original_url);
+                            jQuery('.image').val(result.data.save_path);
                             jQuery('.image-box').show().attr('src', result.data.url);
                         }
                     }

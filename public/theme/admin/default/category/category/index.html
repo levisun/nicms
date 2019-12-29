@@ -89,7 +89,7 @@
         </table>
     </div>
     <div class="box-footer">
-        <button class="btn btn-primary">{:lang('sort')}</button>
+        <button class="btn btn-primary" v-on:click="sort">{:lang('sort')}</button>
     </div>
 </div>
 <script type="text/javascript">
@@ -115,6 +115,9 @@
             },
             added: function () {
                 window.location.href = NICMS.domain + '/category/category/added.html';
+            },
+            sort: function () {
+
             },
             child: function (id) {
                 jQuery('.child-' + id).toggle();

@@ -9,7 +9,7 @@ return [
         ],
         'public' => [
             'type'       => 'local',
-            'root'       => app()->getRootPath() . 'public/storage',
+            'root'       => app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage',
             'url'        => '/storage',
             'visibility' => 'public',
         ],
