@@ -211,7 +211,7 @@ class Siteinfo
             ? '<a href="http://www.beian.miit.gov.cn" target="_blank" rel="nofollow">' . $beian . '</a>'
             : '';
 
-        return htmlspecialchars_decode($copyright) . $beian . ' Powered by <a href="http://www.niphp.com" target="_blank">nicms</a>';
+        return htmlspecialchars_decode($copyright) . $beian . ' Powered by <a href="//www.niphp.com" target="_blank">nicms</a>';
     }
 
     /**

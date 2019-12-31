@@ -180,14 +180,11 @@
             }
         }
         _data = _data.sort(compare);
+        // console.log(_data);
         var sign = '';
         jQuery.each(_data, function (i, field) {
-            if ('function' != typeof (field.value) && 'undefined' != typeof (field.value) && '' != field.value) {
-                if (field.name.indexOf('[') > 0 || 'object' == typeof (field.value)) {
-                    // sign += field.name + '=Array&';
-                } else {
-                    sign += field.name + '=' + field.value + '&';
-                }
+            if ('function' != typeof (field.value) && 'undefined' != typeof (field.value) && '' !== field.value) {
+                sign += field.name + '=' + field.value + '&';
             }
         });
         sign = sign.substr(0, sign.length - 1);

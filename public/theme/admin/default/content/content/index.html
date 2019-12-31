@@ -1,0 +1,195 @@
+<div class="box">
+    <div class="box-header clearfix">
+        <div class="pull-left" style="margin-right: 15px;">
+            <div class="form-inline">
+                <label>{:lang('category')}</label>
+                <select class="form-control" v-model="category_id" v-on:change="filter">
+                    <option value="0">{:lang('select')}</option>
+                    <template v-for="vo in category_list">
+                        <optgroup v-if="vo.child" v-bind:label="vo.name"></optgroup>
+                        <option v-else v-bind:value="vo.id" v-text="vo.name"></option>
+                        <template v-for="v in vo.child">
+                            <option v-bind:value="v.id" v-text="v.name"></option>
+                        </template>
+                    </template>
+                </select>
+            </div>
+        </div>
+        <div class="no-margin pull-left">
+            <div class="form-inline">
+                <label>{:lang('model')}</label>
+                <select class="form-control" v-model="model_id" v-on:change="filter">
+                    <option value="0">{:lang('select')}</option>
+                    <template v-for="vo in model_list">
+                        <optgroup v-if="vo.child" v-bind:label="vo.name"></optgroup>
+                        <option v-else v-bind:value="vo.id" v-text="vo.name"></option>
+                        <template v-for="v in vo.child">
+                            <option v-bind:value="v.id" v-text="v.name"></option>
+                        </template>
+                    </template>
+                </select>
+            </div>
+        </div>
+        <div class="no-margin pull-right">
+            <button class="btn btn-primary" v-on:click="added()">{:lang('added')}</button>
+        </div>
+    </div>
+    <div class="box-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>{:lang('title')}</th>
+                    <th>{:lang('category')}</th>
+                    <th>{:lang('model name')}</th>
+                    <th>{:lang('author')}</th>
+                    <th>{:lang('status')}</th>
+                    <th>{:lang('type name')}</th>
+                    <th>{:lang('access name')}</th>
+                    <th>{:lang('update time')}</th>
+                    <th>{:lang('operation')}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template v-for="vo in items.list">
+                    <tr>
+                        <td>
+                            <a v-bind:href="vo.url.url" v-text="vo.title"></a>
+                        </td>
+                        <td>
+                            <a v-bind:href="vo.url.cat_url" v-text="vo.cat_name"></a>
+                        </td>
+                        <td v-text="vo.model_name"></td>
+                        <td v-text="vo.author"></td>
+                        <td>
+                            <span class="label label-primary" v-if="vo.is_com">{:lang('commend')}</span>
+                            <span class="label label-primary" v-if="vo.is_hot">{:lang('hot')}</span>
+                            <span class="label label-primary" v-if="vo.is_top">{:lang('top')}</span>
+                        </td>
+                        <td v-text="vo.type_name"></td>
+                        <td v-text="vo.access_name"></td>
+                        <td v-text="vo.update_time"></td>
+                        <td>
+                            <a class="editor" v-bind:href="vo.url.editor">
+                                <i class="fa fa-pencil-square-o"></i>
+                                {:lang('editor')}
+                            </a>
+                            <a class="remove" v-on:click="remove(vo.id)" v-bind:data="vo.id">
+                                <i class="fa fa-trash"></i>
+                                {:lang('remove')}
+                            </a>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script type="text/javascript">
+    let article = new Vue({
+        el: '.box',
+        data: {
+            category_list: [],
+            category_id: typeof (NICMS.api.param.cid) == 'undefined' ? 0 : NICMS.api.param.cid,
+            model_list: [],
+            model_id: typeof (NICMS.api.param.mid) == 'undefined' ? 0 : NICMS.api.param.mid,
+            items: []
+        },
+        methods: {
+            loadCategory: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'category.category.query' }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            article.category_list = result.data.list;
+                        }
+                    }
+                });
+            },
+            loadModel: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'category.model.query' }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            article.model_list = result.data.list;
+                        }
+                    }
+                });
+            },
+            filter: function () {
+                var filter = '';
+                if (this.category_id != 0) {
+                    filter += '&cid=' + this.category_id;
+                }
+                if (this.model_id != 0) {
+                    filter += '&mid=' + this.model_id;
+                }
+
+                if (filter) {
+                    window.location.href = '?filter' + filter;
+                } else {
+                    window.location.href = '?filter';
+                }
+            },
+            load: function (_p) {
+                var request = NICMS.url + '?page=' + _p;
+                if (this.category_id != 0) {
+                    request += '&cid=' + this.category_id;
+                }
+                if (this.model_id != 0) {
+                    request += '&mid=' + this.model_id;
+                }
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    push: true,
+                    replace: true,
+                    requestUrl: request,
+                    data: [
+                        { name: 'method', value: 'content.content.query' },
+                        { name: 'page', value: _p },
+                        { name: 'cid', value: article.category_id },
+                        { name: 'mid', value: article.model_id },
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            article.items = result.data
+                        }
+                    }
+                });
+            },
+            added: function () {
+                window.location.href = NICMS.domain + '/content/content/added.html';
+            },
+            remove: function (id) {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: [
+                        { name: 'method', value: 'content.content.remove' },
+                        { name: 'id', value: id }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            location.reload();
+                        }
+                    }
+                });
+            }
+        }
+    });
+    article.loadCategory();
+    article.loadModel();
+    article.load(1);
+    function paging(_p) {
+        article.load(_p);
+    }
+</script>

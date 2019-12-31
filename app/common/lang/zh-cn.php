@@ -60,6 +60,9 @@ return [
     'status' => '状态',
     'table' => '表',
 
+    'author' => '作者',
+    'category' => '栏目',
+
     'last login ip' => '登录IP',
     'last login time' => '登录时间',
 ];

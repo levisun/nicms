@@ -311,25 +311,19 @@ abstract class Async
 
     /**
      * 开启缓存
-     * @access protected
-     * @param  bool $_cache
-     * @return $this
-     */
-    protected function cache(bool $_cache)
-    {
-        $this->apiCache = (true === $this->apiDebug) ? false : $_cache;
-        return $this;
-    }
-
-    /**
      * 缓存时间
      * @access protected
-     * @param  int $_time
+     * @param  int|false $_cache
      * @return $this
      */
-    protected function expire(int $_time)
+    protected function cache($_cache)
     {
-        $this->apiExpire = $_time ?: $this->apiExpire;
+        if (false === $_cache || true === $this->apiDebug) {
+            $this->apiCache = false;
+        } else {
+            $_cache = (int) $_cache;
+            $this->apiExpire = $_cache ?: $this->apiExpire;
+        }
         return $this;
     }
 

@@ -23,10 +23,7 @@ use app\common\library\Canvas;
 use app\common\library\DataFilter;
 use app\common\library\Download;
 use app\common\model\Article as ModelArticle;
-use app\common\model\ArticleContent as ModelArticleContent;
 use app\common\model\ArticleExtend as ModelArticleExtend;
-use app\common\model\ArticleFile as ModelArticleFile;
-use app\common\model\ArticleImage as ModelArticleImage;
 use app\common\model\ArticleTags as ModelArticleTags;
 
 class ArticleBase extends BaseLogic
@@ -96,7 +93,7 @@ class ArticleBase extends BaseLogic
                 ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
                 ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
                 ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
-                ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
+                ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
                 ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
                 ->where($map)
                 ->order($sort_order)
@@ -183,7 +180,7 @@ class ArticleBase extends BaseLogic
                     ->view('model', ['name' => 'model_name', 'table_name'], 'model.id=category.model_id')
                     // ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
                     ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
-                    ->view('level', ['name' => 'level_name'], 'level.id=article.access_id', 'LEFT')
+                    ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
                     ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
                     ->where($map)
                     ->find();

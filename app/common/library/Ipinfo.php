@@ -161,7 +161,6 @@ class Ipinfo
     private function added(string &$_ip): array
     {
         $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
-        // $result = $this->get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
 
         $result = $result ? json_decode($result, true) : null;
 
@@ -213,7 +212,6 @@ class Ipinfo
     private function update(string &$_ip): array
     {
         $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
-        // $result = $this->get_curl('http://www.niphp.com/ipinfo.shtml?ip=' . $_ip);
 
         $result = $result ? json_decode($result, true) : null;
         if (!is_array($result) || empty($result) || $result['code'] == 0) {
