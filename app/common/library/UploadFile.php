@@ -146,9 +146,6 @@ class UploadFile
             ? 'u' . dechex(date('Ym')) . dechex($_uid)
             : 't' . dechex(date('Ym'));
 
-        is_dir(Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR . $_dir) or
-            mkdir(Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR. $_dir, 0755, true);;
-
         $save_path = Config::get('filesystem.disks.public.url') . '/';
         $save_file = $save_path . Filesystem::disk('public')->putFile($_dir, $_files, 'uniqid');
         $this->writeUploadLog($save_file);   // 记录上传文件日志

@@ -55,6 +55,7 @@ class Category extends BaseLogic
                 'editor' => url('category/category/editor/' . $value['id']),
                 'remove' => url('category/category/remove/' . $value['id']),
             ];
+            $this->layer = 0;
             $value['child'] = $this->child((int) $value['id']);
             $result[$key] = $value;
         }
@@ -97,7 +98,7 @@ class Category extends BaseLogic
                 $value['name'] = '|__' . $value['name'];
             }
 
-            $value['type_name'] = $this->typeName($value['type_id']);
+            $value['type_name'] = $this->typeName((int) $value['type_id']);
             $value['url'] = [
                 'added'  => url('category/category/added/' . $value['id']),
                 'editor' => url('category/category/editor/' . $value['id']),
@@ -138,7 +139,7 @@ class Category extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin category added');
 
-        $pid = $pid = $this->request->param('pid/d', 0);
+        $pid = $this->request->param('pid/d', 0);
 
         $receive_data = [
             'pid'         => $pid,
@@ -264,13 +265,15 @@ class Category extends BaseLogic
             'keywords'    => $this->request->param('keywords'),
             'description' => $this->request->param('description'),
             'image'       => $this->request->param('image'),
-            'type_id'     => $this->request->param('type_id/d'),
-            'is_show'     => $this->request->param('is_show/d'),
-            'is_channel'  => $this->request->param('is_channel/d'),
-            'sort_order'  => $this->request->param('sort_order/d'),
-            'access_id'   => $this->request->param('access_id/d'),
+            'model_id'    => $this->request->param('model_id/d', 1),
+            'type_id'     => $this->request->param('type_id/d', 1),
+            'is_show'     => $this->request->param('is_show/d', 1),
+            'is_channel'  => $this->request->param('is_channel/d', 0),
+            'sort_order'  => $this->request->param('sort_order/d', 0),
+            'access_id'   => $this->request->param('access_id/d', 0),
             'url'         => $this->request->param('url'),
-            'update_time' => time()
+            'update_time' => time(),
+            'lang'        => $this->lang->getLangSet()
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -294,7 +297,7 @@ class Category extends BaseLogic
             ->data($receive_data)
             ->update();
 
-        $this->cache->tag('CMS NAV')->clear();
+        $this->cache->tag('cms nav')->clear();
 
         return [
             'debug' => false,
@@ -337,7 +340,7 @@ class Category extends BaseLogic
                 ])
                 ->delete();
 
-            $this->cache->tag('CMS NAV')->clear();
+            $this->cache->tag('cms nav')->clear();
         }
 
         return [
