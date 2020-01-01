@@ -114,7 +114,7 @@
 
         _params = jQuery.extend(true, defaults, _params);
 
-        _params.data.push({ name: 'appid', value: NICMS.api.appid });
+        _params.data.push({ name: 'appid', value: jQuery('meta[name="csrf-appid"]').attr('content') });
         _params.data.push({ name: 'sign_type', value: 'md5' });
 
         if ('POST' == _params.type || 'post' == _params.type) {
@@ -226,8 +226,7 @@
         return false;
     };
 
-    jQuery.filter_str = function (str)
-    {
+    jQuery.filter_str = function (str) {
         var pattern = new RegExp("[`~!@#$^&\\-*\"()=|{}':;,\\[\\].<>/?~！@#￥……&*（）——丨{}【】‘；：”“'。，、？%+_]");
         var specialStr = '';
         for (let i = 0; i < str.length; i++) {

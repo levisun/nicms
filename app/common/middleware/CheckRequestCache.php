@@ -20,6 +20,7 @@ use Closure;
 use think\facade\Cache;
 use think\Request;
 use think\Response;
+use app\common\library\Base64;
 
 class CheckRequestCache
 {
@@ -38,7 +39,15 @@ class CheckRequestCache
         // 获得应用名
         $this->appName = app('http')->getName();
         // 缓存KEY
-        $this->key = md5($this->appName . $request->baseUrl());
+        $this->key = md5($this->appName . $request->baseUrl(true));
+
+        // 生成客户端cookie令牌
+        if (!app('session')->has('client_token')) {
+            app('session')->set('client_token', Base64::client_id());
+        }
+        if (!app('cookie')->has('PHPSESSID')) {
+            app('cookie')->set('PHPSESSID', app('session')->get('client_token'));
+        }
 
         // 返回304
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {

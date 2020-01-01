@@ -170,7 +170,7 @@ class Ipinfo
 
         $result = $result['data'];
         $isp     = !empty($result['isp']) ? DataFilter::filter($result['isp']) : '';
-        $country = $this->queryRegion($result['country'], 0);
+        $country = !empty($result['country']) ? $this->queryRegion($result['country'], 0) : '';
         if (!$country) {
             return false;
         }
@@ -220,7 +220,7 @@ class Ipinfo
 
         $result = $result['data'];
         $isp     = !empty($result['isp']) ? DataFilter::filter($result['isp']) : '';
-        $country = $this->queryRegion($result['country'], 0);
+        $country = !empty($result['country']) ? $this->queryRegion($result['country'], 0) : '';
         if (!$country) {
             return false;
         }

@@ -111,7 +111,7 @@ class Tags
 
             '<meta name="generator" content="nicms" />' .
             '<meta name="author" content="levisun.mail@gmail.com" />' .
-            '<meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" />' .
+            '<meta name="copyright" content="2013-<?php echo date("Y");?> nicms all rights reserved" />' .
 
             '<meta http-equiv="Window-target" content="_blank">' .
             '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' .
@@ -123,9 +123,9 @@ class Tags
 
             '<meta name="csrf-appid" content="' . $_config['tpl_config']['api_appid'] . '" />' .
             '<meta name="csrf-appsecret" content="' . $_config['tpl_config']['api_appsecret'] . '" />' .
-            '<?php echo authorization_meta();?>' .
             '<meta name="csrf-root" content="' . $root . '" />' .
             '<meta name="csrf-version" content="' . $_config['tpl_config']['api_version'] . '" />' .
+            '<?php echo authorization_meta();?>' .
             '<?php echo token_meta();?>' .
 
             '<link rel="dns-prefetch" href="' . config('app.api_host') . '" />' .
@@ -144,23 +144,21 @@ class Tags
             '<meta property="og:image" content="">' .
 
             $head .
-
-            '<script type="text/javascript">var NICMS=' . json_encode([
-                'domain' => '//' . request()->subDomain() . '.' . request()->rootDomain(),
-                'rootDomain' => '//' . request()->rootDomain(),
-                'url'    => request()->baseUrl(true),
-                'api'    => [
-                    'url'   => config('app.api_host'),
-                    'appid' => $_config['tpl_config']['api_appid'],
-                    'param' => request()->param()
-                ],
-                'cdn' => [
-                    'static' => '__STATIC__',
-                    'theme'  => '__THEME__',
-                    'css'    => '__CSS__',
-                    'img'    => '__IMG__',
-                    'js'     => '__JS__',
-                ]
-            ]) . '</script></head>';
+            '<script type="text/javascript">var NICMS={
+                "doamin": "//' . request()->subDomain() . '.' . request()->rootDomain() . '",
+                "rootDomain": "//' . request()->rootDomain() . '",
+                "url": "' . request()->baseUrl(true) . '",
+                "api": {
+                    "url": "' . config('app.api_host') . '",
+                    "param": {__REQUEST_PARAM__}
+                },
+                "cdn": {
+                    "static": "__STATIC__",
+                    "theme": "__THEME__",
+                    "css": "__CSS__",
+                    "img": "__IMG__",
+                    "js": "__JS__"
+                }
+            }</script></head>';
     }
 }

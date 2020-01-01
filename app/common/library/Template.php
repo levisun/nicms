@@ -63,6 +63,7 @@ class Template implements TemplateHandlerInterface
         'tpl_replace_string' => [
             '{__AUTHORIZATION__}' => '<?php echo create_authorization();?>',
             '{__TOKEN__}'         => '<?php echo token_field();?>',
+            '{__REQUEST_PARAM__}' => '<?php echo json_encode(app("request")->param());?>',
             '__THEME__'           => 'theme/',
             '__CSS__'             => 'css/',
             '__IMG__'             => 'img/',
@@ -654,8 +655,12 @@ class Template implements TemplateHandlerInterface
 
         // 模板不存在 抛出异常
         if (!is_file($this->config['view_path'] . $_template)) {
-            $error = app()->isDebug() ? 'template not exists:' . $_template : miss(404);
-            $response = Response::create($error, 'html', 404);
+            if (app()->isDebug()) {
+                $error = 'template not exists:' . $_template;
+                $response = Response::create($error, 'html', 200);
+            } else {
+                $response = miss(404);
+            }
             throw new HttpResponseException($response);
         }
 

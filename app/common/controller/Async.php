@@ -285,11 +285,10 @@ abstract class Async
         // 返回数据没有指定默认关闭
         $this->debug(isset($this->result['debug']) ? $this->result['debug'] : false);
         // 缓存
+        // 缓存时间
         // 返回数据没有指定默认开启
         $this->cache(isset($this->result['cache']) ? $this->result['cache'] : true);
-        // 缓存时间
-        // 返回数据没有指定默认1440秒
-        $this->expire(isset($this->result['expire']) ? $this->result['expire'] : 1440);
+        //
 
         $this->result['data'] = isset($this->result['data']) ? $this->result['data'] : [];
         $this->result['code'] = isset($this->result['code']) ? $this->result['code'] : 10000;
@@ -383,7 +382,7 @@ abstract class Async
         $this->checkTimestamp();
 
         // 检查客户端token
-        // token由\app\common\controller\BaseController::class签发
+        // token由\app\common\middleware\CheckRequestCache::class签发
         if (!$this->session->has('client_token')) {
             $this->abort('错误请求', 27003);
         }

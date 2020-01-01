@@ -84,14 +84,6 @@ abstract class BaseController
         @ini_set('memory_limit', '8M');
         set_time_limit(30);
 
-        // 生成客户端cookie令牌
-        if (!$this->session->has('client_token')) {
-            $this->session->set('client_token', Base64::client_id());
-        }
-        if (!$this->cookie->has('PHPSESSID')) {
-            $this->cookie->set('PHPSESSID', $this->session->get('client_token'));
-        }
-
         // if (!$this->cookie->has('gld')) {
         //     $result = (new ModelApiApp)
         //         ->field('id, secret')

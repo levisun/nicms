@@ -64,23 +64,19 @@ class RecordRequest
         $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec/si';
 
 
-        if (2 <= $run_time) {
+        if (0 !== preg_match($pattern, $request_url . $request_params)) {
             app('log')->record(
-                '{长请求 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params,
+                '{非法关键词 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params . PHP_EOL . PHP_EOL,
                 'info'
             );
-        }
-
-        elseif (0 !== preg_match($pattern, $request_url . $request_params)) {
+        } elseif (2 <= $run_time) {
             app('log')->record(
-                '{非法关键词 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params,
+                '{长请求 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params . PHP_EOL . PHP_EOL,
                 'info'
             );
-        }
-
-        else {
+        } else {
             app('log')->record(
-                '{访问 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params,
+                '{访问 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params . PHP_EOL . PHP_EOL,
                 'info'
             );
         }
