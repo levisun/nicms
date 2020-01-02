@@ -36,29 +36,26 @@ class CheckRequestCache
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // 获得应用名
-        $this->appName = app('http')->getName();
-        // 缓存KEY
-        $this->key = md5($this->appName . $request->baseUrl(true));
-
-        if (1 === mt_rand(1, 999)) {
-            // $response = miss(500);
-            // throw new HttpResponseException($response);
-        }
-
-        // 生成客户端cookie令牌
-        if ('api' !== $this->appName && !app('session')->has('client_token')) {
-            app('session')->set('client_token', Base64::client_id());
-        }
-        if ('api' !== $this->appName && !app('cookie')->has('PHPSESSID')) {
-            app('cookie')->set('PHPSESSID', app('session')->get('client_token'));
-        }
-
         // 返回304
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
             if (strtotime($ms) >= $request->server('REQUEST_TIME')) {
                 return Response::create()->code(304);
             }
+        }
+
+        // 获得应用名
+        $this->appName = app('http')->getName();
+        // 缓存KEY
+        $this->key = md5($this->appName . $request->baseUrl(true));
+
+        if ('api' !== $this->appName) {
+            if (1 === mt_rand(1, 999)) {
+                return miss(500);
+            }
+
+            // 生成客户端cookie令牌
+            app('session')->has('client_token') or app('session')->set('client_token', Base64::client_id());
+            app('cookie')->has('PHPSESSID') or app('cookie')->set('PHPSESSID', app('session')->get('client_token'));
         }
 
         // 返回缓存

@@ -54,31 +54,25 @@ class RecordRequest
             ? app('request')->except(['username', 'password', 'sign', '__token__'])
             : [];
         $request_params = array_filter($request_params);
-        $request_params = !empty($request_params) ? json_encode($request_params) : '';
+        $request_params = !empty($request_params) ? PHP_EOL . json_encode($request_params) : '';
         $request_url = app('request')->url(true);
         $request_method = app('request')->method(true) . ' ' . app('request')->ip();
         $run_time = number_format(microtime(true) - app()->getBeginTime(), 3);
         $time_memory = $run_time . 's ' .
             number_format((memory_get_usage() - app()->getBeginMem()) / 1024 / 1024, 3) . 'mb ';
 
+
+        $tags = '访问';
         $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec/si';
-
-
         if (0 !== preg_match($pattern, $request_url . $request_params)) {
-            app('log')->record(
-                '{非法关键词 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params . PHP_EOL . PHP_EOL,
-                'info'
-            );
+            $tags = '<b style="color:red;">非法关键词</b>';
         } elseif (2 <= $run_time) {
-            app('log')->record(
-                '{长请求 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params . PHP_EOL . PHP_EOL,
-                'info'
-            );
-        } else {
-            app('log')->record(
-                '{访问 ' . $time_memory . $request_method . ' ' . $request_url . '}' . PHP_EOL . $request_params . PHP_EOL . PHP_EOL,
-                'info'
-            );
+            $tags = '<font style="color:red;">长请求</font>';
         }
+
+        app('log')->record(
+            '{' . $tags . $time_memory . $request_method . ' ' . $request_url . '}' . $request_params . PHP_EOL,
+            'info'
+        );
     }
 }

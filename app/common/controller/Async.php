@@ -320,8 +320,10 @@ abstract class Async
         if (false === $_cache || true === $this->apiDebug) {
             $this->apiCache = false;
         } else {
-            $_cache = (int) $_cache;
-            $this->apiExpire = $_cache ?: $this->apiExpire;
+            if (is_numeric($_cache)) {
+                $this->apiExpire = $_cache ? (int) $_cache : $this->apiExpire;
+            }
+            $this->apiCache = true;
         }
         return $this;
     }
@@ -601,17 +603,15 @@ abstract class Async
 
         // 校验authorization合法性
         $token = (new Parser)->parse($this->authorization);
-
-        $key  = $this->request->ip();
-        $key .= $key . $this->request->rootDomain();
-        $key .= $key . $this->request->server('HTTP_USER_AGENT');
+        // 密钥
+        $key  = $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
         $key = sha1(Base64::encrypt($key));
 
         $data = new ValidationData;
         $data->setIssuer($this->request->rootDomain());
         $data->setAudience(parse_url($this->request->server('HTTP_REFERER'), PHP_URL_HOST));
         $data->setId($token->getClaim('jti'));
-        $data->setCurrentTime(time() + 60);
+        $data->setCurrentTime($this->request->time() + 60);
 
         if (false === $token->verify(new Sha256, $key) || false === $token->validate($data)) {
             $this->log->record('[Async] header-authorization params error', 'error');

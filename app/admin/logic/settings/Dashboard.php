@@ -18,6 +18,8 @@ declare(strict_types=1);
 namespace app\admin\logic\settings;
 
 use app\common\controller\BaseLogic;
+use app\common\model\Article as ModelArticle;
+use app\common\model\Visit as ModelVisit;
 
 class Dashboard extends BaseLogic
 {
@@ -59,12 +61,53 @@ class Dashboard extends BaseLogic
             $this->cache->set(__METHOD__, $result);
         }
 
+        $result['total'] = $this->total();
+
 
         return [
             'debug' => false,
             'cache' => true,
             'msg'   => 'info data',
             'data'  => $result
+        ];
+    }
+
+    private function total()
+    {
+        // 会话统计
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR;
+        $session_count = count((array) glob($path . '*'));
+
+        // 访问统计
+        $access_total = (new ModelVisit)
+            ->field('max(count) as count')
+            ->where([
+                ['date', '=', strtotime(date('Y-m-d'))]
+            ])
+            ->find();
+
+        // 文章统计
+        $article_total = (new ModelArticle)
+            ->where([
+                ['lang', '=', $this->lang->getLangSet()],
+                ['update_time', '>=', strtotime(date('Y-m-d'))],
+            ])
+            ->count();
+        $article_pass_total = (new ModelArticle)
+            ->where([
+                ['lang', '=', $this->lang->getLangSet()],
+                ['is_pass', '=', '1'],
+                ['update_time', '>=', strtotime(date('Y-m-d'))],
+            ])
+            ->count();
+
+        return [
+            'session_count' => number_format($session_count),
+            'access_total'  => $access_total['count'] ? number_format($access_total['count']) : 0,
+            'article_count' => [
+                'total' => $article_total,
+                'pass' => $article_pass_total,
+            ]
         ];
     }
 }

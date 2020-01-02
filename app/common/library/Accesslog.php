@@ -101,14 +101,14 @@ class AccessLog
         if (1 === mt_rand(1, 9)) {
             (new ModelSearchengine)
                 ->where([
-                    ['date', '<=', strtotime('-90 days')]
+                    ['date', '<=', strtotime('-30 days')]
                 ])
                 ->limit(100)
                 ->delete();
 
             (new ModelVisit)
                 ->where([
-                    ['date', '<=', strtotime('-90 days')]
+                    ['date', '<=', strtotime('-30 days')]
                 ])
                 ->limit(100)
                 ->delete();

@@ -48,7 +48,7 @@ class Ipinfo
 
         if ($_ip && false !== filter_var($_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && $this->validate($_ip)) {
             $cache_key = md5(__METHOD__ . $_ip);
-            if (!Cache::has($cache_key) || true) {
+            if (!Cache::has($cache_key)) {
                 // 查询IP地址库
                 $region = $this->query($_ip);
 
@@ -158,7 +158,7 @@ class Ipinfo
      * @access private
      * @return array|false
      */
-    private function added(string &$_ip): array
+    private function added(string &$_ip)
     {
         $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
 
@@ -209,7 +209,7 @@ class Ipinfo
      * @access private
      * @return bool
      */
-    private function update(string &$_ip): array
+    private function update(string &$_ip)
     {
         $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
 

@@ -14,7 +14,6 @@
 
 use think\Response;
 use think\facade\Config;
-use think\facade\Cookie;
 use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
@@ -109,29 +108,6 @@ if (!function_exists('only_execute')) {
     }
 }
 
-if (!function_exists('cookie')) {
-    /**
-     * Cookie管理
-     * @param string $name   cookie名称
-     * @param mixed  $value  cookie值
-     * @param mixed  $option 参数
-     * @return mixed
-     */
-    function cookie(string $name, $value = '', $option = null)
-    {
-        if (is_null($value)) {
-            // 删除
-            Cookie::delete($name);
-        } elseif ('' === $value) {
-            // 获取
-            return 0 === strpos($name, '?') ? Cookie::has(substr($name, 1)) : Base64::decrypt(Cookie::get($name));
-        } else {
-            // 设置
-            return Cookie::set($name, Base64::encrypt($value), $option);
-        }
-    }
-}
-
 if (!function_exists('is_wechat')) {
     /**
      * 是否微信请求
@@ -176,20 +152,21 @@ if (!function_exists('authorization_meta')) {
      */
     function authorization_meta(): string
     {
-        $time = app('request')->time();
+        // 会话ID(SessionID)
         $jti  = Base64::encrypt(Session::getId(false));
-        $uid  = Session::has('client_token') ? Session::get('client_token') : md5(app('request')->ip());
-
-        $key  = app('request')->ip();
-        $key .= $key . app('request')->rootDomain();
-        $key .= $key . app('request')->server('HTTP_USER_AGENT');
+        // 请求时间
+        $time = Request::time();
+        // 客户端token
+        $uid  = Session::has('client_token') ? Session::get('client_token') : sha1(Request::ip());
+        // 密钥
+        $key = Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         $key = sha1(Base64::encrypt($key));
 
         $token = (new Builder)
             // Configures the issuer (iss claim)
-            ->issuedBy(app('request')->rootDomain())
+            ->issuedBy(Request::rootDomain())
             // Configures the audience (aud claim)
-            ->permittedFor(parse_url(app('request')->url(true), PHP_URL_HOST))
+            ->permittedFor(parse_url(Request::url(true), PHP_URL_HOST))
             // Configures the id (jti claim), replicating as a header item
             ->identifiedBy($jti, false)
             // Configures the time that the token was issue (iat claim)

@@ -181,6 +181,7 @@ abstract class BaseLogic
             ->where([
                 ['create_time', '<=', strtotime('-90 days')]
             ])
+            ->limit(100)
             ->delete();
     }
 

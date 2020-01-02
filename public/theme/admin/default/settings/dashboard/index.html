@@ -1,67 +1,68 @@
-<div class="row">
-    <div class="col-md-3 col-sm-6 col-xs-12">
-        <div class="info-box">
-            <span class="info-box-icon bg-aqua"><i class="ion ion-ios-gear-outline"></i></span>
+<div class="dashboard">
+    <div class="row">
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                <span class="info-box-icon bg-aqua"><i class="ion ion-ios-gear-outline"></i></span>
 
-            <div class="info-box-content">
-                <span class="info-box-text">CPU Traffic</span>
-                <span class="info-box-number">90<small>%</small></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">CPU Traffic</span>
+                    <span class="info-box-number">90<small>%</small></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                <span class="info-box-icon bg-red"><i class="fa fa-google-plus"></i></span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">Likes</span>
+                    <span class="info-box-number">41,410</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                <span class="info-box-icon bg-green"><i class="ion ion-ios-cart-outline"></i></span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">{:lang('browse')}</span>
+                    <span class="info-box-number" v-text="items.total.access_total"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                <span class="info-box-icon bg-yellow"><i class="ion ion-ios-people-outline"></i></span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">{:lang('session')}</span>
+                    <span class="info-box-number" v-text="items.total.session_count"></span>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3 col-sm-6 col-xs-12">
-        <div class="info-box">
-            <span class="info-box-icon bg-red"><i class="fa fa-google-plus"></i></span>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="box box-info">
+                <div class="box-header with-border">
+                    <h3 class="box-title">{:lang('system info')}</h3>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table no-margin">
+                            <tbody>
+                                <template v-for="(vo, index) in items.sysinfo">
+                                    <tr>
+                                        <th v-text="index"></th>
+                                        <td v-text="vo"></td>
+                                    </tr>
+                                </template>
 
-            <div class="info-box-content">
-                <span class="info-box-text">Likes</span>
-                <span class="info-box-number">41,410</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3 col-sm-6 col-xs-12">
-        <div class="info-box">
-            <span class="info-box-icon bg-green"><i class="ion ion-ios-cart-outline"></i></span>
-
-            <div class="info-box-content">
-                <span class="info-box-text">Sales</span>
-                <span class="info-box-number">760</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3 col-sm-6 col-xs-12">
-        <div class="info-box">
-            <span class="info-box-icon bg-yellow"><i class="ion ion-ios-people-outline"></i></span>
-
-            <div class="info-box-content">
-                <span class="info-box-text">New Members</span>
-                <span class="info-box-number">2,000</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="box box-info">
-            <div class="box-header with-border">
-                <h3 class="box-title">{:lang('system info')}</h3>
-            </div>
-            <div class="box-body">
-                <div class="table-responsive">
-                    <table class="table no-margin">
-                        <tbody>
-                            <template v-for="(vo, index) in items.sysinfo">
-                                <tr>
-                                    <th v-text="index"></th>
-                                    <td v-text="vo"></td>
-                                </tr>
-                            </template>
-
-                            <!-- <tr>
+                                <!-- <tr>
                                 <td><a href="pages/examples/invoice.html">OR9842</a></td>
                                 <td>Call of Duty IV</td>
                                 <td><span class="label label-success">Shipped</span></td>
@@ -70,25 +71,28 @@
                                     </div>
                                 </td>
                             </tr> -->
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="box box-info">
+                <div class="box-header with-border">
+                    <h3 class="box-title">{:lang('system info')}</h3>
+                </div>
+                <div class="box-body">
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="box box-info">
-            <div class="box-header with-border">
-                <h3 class="box-title">{:lang('system info')}</h3>
-            </div>
-            <div class="box-body">
-            </div>
-        </div>
-    </div>
+
 </div>
+
 <script>
     var info = new Vue({
-        el: '.box',
+        el: '.dashboard',
         data: {
             items: []
         },

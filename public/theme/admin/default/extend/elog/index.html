@@ -36,7 +36,7 @@
                     </button>
                     <h4 class="modal-title" v-text="error_log.title"></h4>
                 </div>
-                <div class="modal-body" v-text="error_log.content">
+                <div class="modal-body" v-html="error_log.content">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
