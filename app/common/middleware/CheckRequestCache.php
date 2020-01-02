@@ -41,6 +41,11 @@ class CheckRequestCache
         // 缓存KEY
         $this->key = md5($this->appName . $request->baseUrl(true));
 
+        if (1 === mt_rand(1, 999)) {
+            // $response = miss(500);
+            // throw new HttpResponseException($response);
+        }
+
         // 生成客户端cookie令牌
         if ('api' !== $this->appName && !app('session')->has('client_token')) {
             app('session')->set('client_token', Base64::client_id());
@@ -77,7 +82,7 @@ class CheckRequestCache
     private function readCache(Request &$_request)
     {
         $response = false;
-        if (false === app()->isDebug() && $content = Cache::get($this->key)) {
+        if (false === app()->isDebug() && 'api' !== $this->appName && $content = Cache::get($this->key)) {
             $pattern = [
                 '<meta name="csrf-authorization" content="" />' => authorization_meta(),
                 '<meta name="csrf-token" content="" />' => token_meta(),
@@ -85,7 +90,6 @@ class CheckRequestCache
             $content = str_replace(array_keys($pattern), array_values($pattern), $content);
             $response = Response::create($content);
             $response = $this->browserCache($response, $_request);
-
         }
 
         return $response;
@@ -112,7 +116,7 @@ class CheckRequestCache
                     '/<meta name="csrf-token" content="(.*?)">/si' => '<meta name="csrf-token" content="" />',
                 ];
                 $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $content);
-                Cache::tag('browser')->set($this->key, $content, mt_rand(27700, 28800));
+                Cache::tag('request')->set($this->key, $content, mt_rand(27700, 28800));
 
                 $_response = $this->browserCache($_response, $_request);
             }

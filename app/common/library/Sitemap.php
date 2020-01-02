@@ -52,7 +52,7 @@ class Sitemap
             ->toArray();
 
         $sitemap_xml = [];
-        $domain = app('request')->scheme() . ':' . app('config')->get('app.app_host');
+        $domain = app('request')->scheme() . ':' . app('request')->rootDomain();
         foreach ($category as $vo_cate) {
             $article = (new ModelArticle)
                 ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])

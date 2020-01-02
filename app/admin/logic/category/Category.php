@@ -223,15 +223,6 @@ class Category extends BaseLogic
             ->select()
             ->toArray();
 
-        $result['model_list'] = (new ModelModels)
-            ->field('id, name')
-            ->where([
-                ['status', '=', 1]
-            ])
-            ->order('id ASC')
-            ->select()
-            ->toArray();
-
         return [
             'debug' => false,
             'cache' => false,

@@ -51,7 +51,7 @@
                 <label>{:lang('model')}</label>
                 <select class="form-control" name="model_id">
                     <option>{:lang('select')}</option>
-                    <template v-for="vo in items.model_list">
+                    <template v-for="vo in model_list">
                         <option v-bind:value="vo.id" v-text="vo.name"></option>
                     </template>
                 </select>
@@ -107,6 +107,7 @@
     var category = new Vue({
         el: '.box',
         data: {
+            model_list: [],
             items: [],
         },
         methods: {
@@ -121,6 +122,19 @@
                     success: function (result) {
                         if (10000 == result.code) {
                             category.items = result.data;
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'category.model.query' }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            category.model_list = result.data.list;
                         }
                     }
                 });

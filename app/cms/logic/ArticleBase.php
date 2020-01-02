@@ -38,6 +38,7 @@ class ArticleBase extends BaseLogic
     {
         $map = [
             ['article.is_pass', '=', '1'],
+            ['article.delete_time', '=', '0'],
             ['article.show_time', '<', time()],
             ['article.lang', '=', $this->lang->getLangSet()]
         ];
@@ -169,6 +170,7 @@ class ArticleBase extends BaseLogic
             $map = [
                 ['article.id', '=', $id],
                 ['article.is_pass', '=', '1'],
+                ['article.delete_time', '=', '0'],
                 ['article.show_time', '<', time()],
                 ['article.lang', '=', $this->lang->getLangSet()]
             ];
@@ -242,6 +244,7 @@ class ArticleBase extends BaseLogic
                         unset($content['id'], $content['article_id']);
                         foreach ($content as $key => $value) {
                             if (!$value) {
+                                $result[$key] = $value;
                                 continue;
                             }
 
@@ -278,7 +281,7 @@ class ArticleBase extends BaseLogic
                         }
                     }
 
-                    // $this->cache->set($cache_key, $result);
+                    $this->cache->set($cache_key, $result);
                 }
             }
         }

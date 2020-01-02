@@ -1,0 +1,248 @@
+<div class="box">
+    <div class="box-body">
+        <form id="article">
+            <div class="form-group">
+                <label>{:lang('title')}</label>
+                <input type="text" name="title" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('username')}</label>
+                <input type="text" name="username" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('keywords')}</label>
+                <textarea name="keywords" class="form-control"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('description')}</label>
+                <textarea name="description" class="form-control"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('keywords')}</label>
+                <textarea name="keywords" class="form-control"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('description')}</label>
+                <textarea name="description" class="form-control"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('category')}</label>
+                <select class="form-control" name="category_id" v-model="category_id" v-on:change="filterType">
+                    <option value="0">{:lang('select')}</option>
+                    <template v-for="vo in category_list">
+                        <optgroup v-if="vo.child" v-bind:label="vo.name"></optgroup>
+                        <option v-else v-bind:value="vo.id" v-text="vo.name"></option>
+                        <template v-for="v in vo.child">
+                            <option v-bind:value="v.id" v-text="v.name"></option>
+                        </template>
+                    </template>
+                </select>
+            </div>
+
+            <div class="form-group" v-if="has_type">
+                <label>{:lang('type')}</label>
+                <select class="form-control" name="type_id">
+                    <option value="0">{:lang('select')}</option>
+                    <template v-for="vo in type_list">
+                        <option v-bind:value="vo.id" v-text="vo.name"></option>
+                    </template>
+                </select>
+            </div>
+
+            <template style="display:black;" v-if="model_id <= 3">
+                <div class="form-group">
+                    <label>{:lang('com')}</label>
+                    <label>
+                        <input type="radio" name="is_com" value="1"> {:lang('yes')}
+                    </label>
+                    <label>
+                        <input type="radio" name="is_com" value="0" checked="checked"> {:lang('no')}
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label>{:lang('top')}</label>
+                    <label>
+                        <input type="radio" name="is_top" value="1"> {:lang('yes')}
+                    </label>
+                    <label>
+                        <input type="radio" name="is_top" value="0" checked="checked"> {:lang('no')}
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label>{:lang('hot')}</label>
+                    <label>
+                        <input type="radio" name="is_hot" value="1"> {:lang('yes')}
+                    </label>
+                    <label>
+                        <input type="radio" name="is_hot" value="0" checked="checked"> {:lang('no')}
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label>{:lang('sort')}</label>
+                    <input type="text" name="sort_order" class="form-control" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label>{:lang('show time')}</label>
+                    <input type="text" name="show_time" class="form-control" value="">
+                </div>
+
+                <div class="form-group">
+                    <label>{:lang('access')}</label>
+                    <select class="form-control" name="access_id">
+                        <option value="0">{:lang('select')}</option>
+                        <template v-for="vo in items.access_list">
+                            <option v-bind:value="vo.id" v-text="vo.name"></option>
+                        </template>
+                    </select>
+                </div>
+            </template>
+
+            <div class="form-group" v-show="model_id==1">
+                <label>{:lang('content')}</label>
+                <textarea name="content" id="editor"></textarea>
+            </div>
+        </form>
+    </div>
+    <div class="box-footer">
+        <button class="btn btn-primary" @click="save">{:lang('save')}</button>
+    </div>
+</div>
+<script src="__STATIC__ckeditor5/ckeditor.js"></script>
+<script src="__STATIC__ckeditor5/translations/zh-cn.js"></script>
+
+<script>
+    var article = new Vue({
+        el: '.box',
+        data: {
+            has_type: false,
+            category_id: 0,
+            category_list: [],
+            type_list: [],
+            model_id: 0,
+            items: [],
+        },
+        methods: {
+            find: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'category.category.query' }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            article.category_list = result.data.list;
+                        }
+                    }
+                });
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'content.content.find' },
+                        { name: 'id', value: NICMS.api.param.id }
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            article.items = result.data;
+                        }
+                    }
+                });
+            },
+            filterType: function () {
+                for (let index = 0; index < article.category_list.length; index++) {
+                    const element = article.category_list[index];
+                    if (element.id == article.category_id) {
+                        article.model_id = element.model_id;
+                        continue;
+                    } else if (element.child) {
+                        for (let i = 0; i < element.child.length; i++) {
+                            const ele = element.child[i];
+                            if (ele.id == article.category_id) {
+                                article.model_id = ele.model_id;
+                                continue;
+                            }
+                        }
+                    }
+                }
+                if (article.model_id == 1) {
+                    ClassicEditor
+                        .create(document.querySelector('#editor'), {
+                            language: 'zh-cn'
+                            // toolbar: [ 'heading', '|', 'bold', 'italic', 'link' ]
+                        })
+                        .then(editor => {
+                            window.editor = editor;
+                        })
+                        .catch(err => {
+                            console.error(err.stack);
+                        });
+                }
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'category.type.query' },
+                        { name: 'category_id', value: article.category_id }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            article.has_type = true;
+                            article.type_list = result.data.list;
+                        } else {
+                            article.has_type = false;
+                            article.type_list = [];
+                        }
+                    }
+                });
+            },
+            save: function () {
+                var data = jQuery('#article').serializeArray();
+                data.push({ name: 'method', value: 'content.content.added' });
+                data.push({ name: 'pid', value: NICMS.api.param.id });
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: data,
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            jQuery.uiToast(result.message);
+                            history.back();
+                        }
+                    }
+                });
+            },
+            upload: function () {
+                var data = new FormData(document.getElementById('content'));
+                data.append('method', 'content.content.upload');
+                data.append('width', 100);
+                data.append('height', 100);
+                data.append('water', false);
+
+                jQuery.upload({
+                    url: NICMS.api.url + '/upload.do',
+                    file: 'article',
+                    data: data,
+                    success: function (result) {
+                        jQuery.uiToast(result.message);
+                        if (10000 == result.code) {
+                            jQuery('.image').val(result.data.save_path);
+                            jQuery('.image-box').show().attr('src', result.data.url);
+                        }
+                    }
+                });
+            }
+        }
+    });
+    article.find();
+</script>

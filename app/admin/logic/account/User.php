@@ -206,7 +206,7 @@ class User extends BaseLogic
         if (null !== $result && $result = $result->toArray()) {
             $result['last_login_time'] = date('Y-m-d H:i:s', (int) $result['last_login_time']);
             $result['avatar'] = (new Canvas)->avatar('', $result['username']);
-            unset($result['id'], $result['role_id']);
+            // unset($result['id'], $result['role_id']);
         }
 
         return [

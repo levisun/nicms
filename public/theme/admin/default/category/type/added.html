@@ -14,12 +14,13 @@
             <div class="form-group">
                 <label>{:lang('category_id')}</label>
                 <select class="form-control" name="category_id">
-                    <option>{:lang('select')}</option>
-                    <template v-for="vo in category">
-                        <option v-bind:value="vo.id" v-text="vo.name"></option>
-
-                        <option v-for="v in vo.child" v-bind:value="v.id" v-text="'|__'+v.name"></option>
-
+                    <option value="0">{:lang('select')}</option>
+                    <template v-for="vo in category_list">
+                        <optgroup v-if="vo.child" v-bind:label="vo.name"></optgroup>
+                        <option v-else v-bind:value="vo.id" v-text="vo.name"></option>
+                        <template v-for="v in vo.child">
+                            <option v-bind:value="v.id" v-text="v.name"></option>
+                        </template>
                     </template>
                 </select>
             </div>
@@ -33,7 +34,7 @@
     let type = new Vue({
         el: '.box',
         data: {
-            category: [],
+            category_list: [],
         },
         methods: {
             load: function () {
@@ -45,7 +46,7 @@
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
-                            type.category = result.data.list;
+                            type.category_list = result.data.list;
                         }
                     }
                 });

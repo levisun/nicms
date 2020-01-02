@@ -19,8 +19,8 @@
             <div class="form-group">
                 <label>{:lang('category')}</label>
                 <select class="form-control" name="category_id">
-                    <option>{:lang('select')}</option>
-                    <template v-for="vo in items.category_name">
+                    <option value="0">{:lang('select')}</option>
+                    <template v-for="vo in category_list">
                         <optgroup v-if="vo.child" v-bind:label="vo.name"></optgroup>
                         <option v-else v-bind:value="vo.id" v-text="vo.name"></option>
                         <template v-for="v in vo.child">
@@ -64,6 +64,7 @@
     var fields = new Vue({
         el: '.box',
         data: {
+            category_list: [],
             items: [],
         },
         methods: {
@@ -77,6 +78,19 @@
                     success: function (result) {
                         if (10000 == result.code) {
                             fields.items = result.data;
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'category.category.query' }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            fields.category_list = result.data.list;
                         }
                     }
                 });

@@ -33,9 +33,15 @@ class Type extends BaseLogic
     {
         $query_limit = $this->request->param('limit/d', 10);
 
+        $map = [];
+        if ($category_id = $this->request->param('category_id/d')) {
+            $map[] = ['type.category_id', '=', $category_id];
+        }
+
         $result = (new ModelType)
             ->view('type', ['id', 'name', 'remark'])
             ->view('category', ['name' => 'cat_name'], 'category.id=type.category_id')
+            ->where($map)
             ->order('category.id DESC, type.id')
             ->paginate([
                 'list_rows' => $query_limit,

@@ -124,12 +124,6 @@ class Fields extends BaseLogic
             ->select()
             ->toArray();
 
-        $result['category_name'] = call_user_func([
-            $this->app->make('\app\admin\logic\category\Category'),
-            'query'
-        ]);
-        $result['category_name'] = $result['category_name']['data']['list'];
-
         return [
             'debug' => false,
             'cache' => false,

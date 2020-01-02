@@ -84,36 +84,6 @@ abstract class BaseController
         @ini_set('memory_limit', '8M');
         set_time_limit(30);
 
-        // if (!$this->cookie->has('gld')) {
-        //     $result = (new ModelApiApp)
-        //         ->field('id, secret')
-        //         ->where([
-        //             ['name', '=', $this->app->http->getName()]
-        //         ])
-        //         ->cache('APP:' . $this->app->http->getName())
-        //         ->find();
-        //     if ($result && $result = $result->toArray()) {
-        //         $result['id'] += 1000000;
-        //         $result = array_map(function ($value) {
-        //             $value = (string) $value;
-        //             $value = base64_encode($value);
-        //             $value = trim($value, '=');
-        //             return $value;
-        //         }, $result);
-        //         $result = $this->request->ip() . ',' .
-        //             strlen($result['secret']) . ',' .
-        //             str_replace('.', '', $this->request->time(true)) . ',' .
-        //             trim(base64_encode(implode('', $result)), '=');
-        //     }
-
-        //     $this->cookie->set('gld', $result, ['httponly' => false]);
-        // }
-
-        if (1 === mt_rand(1, 999)) {
-            $response = miss(500);
-            throw new HttpResponseException($response);
-        }
-
         // 控制器初始化
         $this->initialize();
     }

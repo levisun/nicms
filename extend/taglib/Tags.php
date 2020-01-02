@@ -144,8 +144,8 @@ class Tags
             '<meta property="og:image" content="">' .
 
             $head .
-            '<script type="text/javascript">var NICMS={
-                "doamin": "//' . request()->subDomain() . '.' . request()->rootDomain() . '",
+            '<script type="text/javascript">var NICMS = {
+                "domain": "//' . request()->subDomain() . '.' . request()->rootDomain() . '",
                 "rootDomain": "//' . request()->rootDomain() . '",
                 "url": "' . request()->baseUrl(true) . '",
                 "api": {

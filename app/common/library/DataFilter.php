@@ -32,11 +32,11 @@ class DataFilter
     {
         if (is_string($_data)) {
             $_data = trim($_data);
-            $_data = (new Emoji)->clear($_data);
             $_data = self::safe($_data);
             $_data = self::funSymbol($_data);
             $_data = self::enter($_data);
             $_data = strip_tags($_data);
+            $_data = (new Emoji)->clear($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
@@ -57,11 +57,11 @@ class DataFilter
     {
         if (is_string($_data)) {
             $_data = trim($_data);
-            $_data = (new Emoji)->encode($_data);
             $_data = self::safe($_data);
             $_data = self::funSymbol($_data);
             $_data = self::enter($_data);
             $_data = self::element($_data);
+            $_data = (new Emoji)->encode($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {

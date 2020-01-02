@@ -70,7 +70,7 @@ class Content extends BaseLogic
             ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
             ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
             ->where($map)
-            ->order('article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.update_time DESC')
+            ->order('article.is_pass ASC, article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.update_time DESC')
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
@@ -160,6 +160,10 @@ class Content extends BaseLogic
      */
     public function find(): array
     {
+        $result = [];
+        if ($id = $this->request->param('id/d')) {
+
+        }
 
         $result['access_list'] = (new ModelLevel)
             ->field('id, name')
