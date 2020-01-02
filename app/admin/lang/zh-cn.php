@@ -42,7 +42,7 @@ return [
     'auth extend'   => '扩展',
     'auth log'      => '操作日志',
     'auth databack' => '数据备份',
-    'auth elog'     => '错误日志',
+    'auth elog'     => '系统日志',
     'auth visit'    => '访问日志',
 
 

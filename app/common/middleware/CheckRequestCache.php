@@ -42,10 +42,10 @@ class CheckRequestCache
         $this->key = md5($this->appName . $request->baseUrl(true));
 
         // 生成客户端cookie令牌
-        if (!app('session')->has('client_token')) {
+        if ('api' !== $this->appName && !app('session')->has('client_token')) {
             app('session')->set('client_token', Base64::client_id());
         }
-        if (!app('cookie')->has('PHPSESSID')) {
+        if ('api' !== $this->appName && !app('cookie')->has('PHPSESSID')) {
             app('cookie')->set('PHPSESSID', app('session')->get('client_token'));
         }
 

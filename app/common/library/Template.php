@@ -119,7 +119,13 @@ class Template implements TemplateHandlerInterface
      */
     public function config(array $_config): void
     {
-        $this->config = array_merge($this->config, $_config);
+        foreach ($_config as $key => $value) {
+            if (is_array($value)) {
+                $this->config[$key] = array_merge($this->config[$key], $value);
+            } else {
+                $this->config[$key] = $value;
+            }
+        }
     }
 
     /**

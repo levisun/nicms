@@ -30,7 +30,7 @@ class Index extends BaseController
      */
     public function initialize()
     {
-        $result = (new Siteinfo)->query();
+        $result = (new Siteinfo)->query('cms', $this->app->lang->getLangSet());
         $this->view->config([
             'view_theme' => $result['theme'],
             'tpl_replace_string' => [
@@ -58,7 +58,7 @@ class Index extends BaseController
     /**
      * 列表页
      * @access public
-     * @return void
+     * @return
      */
     public function category()
     {
@@ -80,7 +80,7 @@ class Index extends BaseController
     /**
      * 详情页
      * @access public
-     * @return void
+     * @return
      */
     public function details()
     {
@@ -102,7 +102,7 @@ class Index extends BaseController
     /**
      * 搜索页
      * @access public
-     * @return void
+     * @return
      */
     public function search()
     {

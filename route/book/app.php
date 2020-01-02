@@ -19,20 +19,20 @@ Route::group(function () {
     Route::get('index', 'Index/index')->ext('html');
 
     // 列表页
-    Route::get('list/:tid$', 'Category/index')->ext('html');
-    Route::get('catalog/:id$', 'Catalog/index')->ext('html');
+    Route::get('list/:tid$', 'Index/category')->ext('html');
+    Route::get('catalog/:id$', 'Index/catalog')->ext('html');
 
     // 详情页
-    Route::get('article/:bid/:id$', 'Article/index')->ext('html');
+    Route::get('article/:bid/:id$', 'Index/article')->ext('html');
 
     // 搜索页
-    Route::get('search', 'Search/index')->ext('html');
+    Route::get('search', 'Index/search')->ext('html');
 
     Route::miss(function () {
         return miss(404);
     });
 })->pattern([
-    'name' => '[a-z]+',
-    'cid'  => '\d+',
+    'tid'  => '\d+',
+    'bid'  => '\d+',
     'id'   => '\d+',
 ]);

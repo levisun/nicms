@@ -27,14 +27,11 @@ class Siteinfo
     private $appName = '';
     private $langSet = '';
 
-    public function __construct()
+    public function query(string $_appname, string $_lang): array
     {
-        $this->appName = app('http')->getName();
-        $this->langSet = Lang::getLangSet();
-    }
+        $this->appName = $_appname;
+        $this->langSet = $_lang;
 
-    public function query()
-    {
         $cache_key = $this->appName . $this->langSet;
         $cache_key = md5($cache_key);
         if (!Cache::has($cache_key) || !$common = Cache::get($cache_key)) {

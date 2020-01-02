@@ -24,14 +24,11 @@ class Sitemap
 
     public function create()
     {
-        only_execute('create_sitemap.lock', '-1 days', function () {
+        only_execute('create_sitemap.lock', '-12 hour', function () {
             app('log')->record('[生成网站地图]', 'alert');
 
             // 保存网站地图文件
             $this->saveSitemapFile();
-
-            // 清除过期网站地图文件
-            // (new ReGarbage)->remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'sitemaps', 3);
         });
     }
 
@@ -55,7 +52,7 @@ class Sitemap
             ->toArray();
 
         $sitemap_xml = [];
-        $sub_path = 'sitemaps' . DIRECTORY_SEPARATOR;
+        $domain = app('request')->scheme() . ':' . app('config')->get('app.app_host');
         foreach ($category as $vo_cate) {
             $article = (new ModelArticle)
                 ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
@@ -64,41 +61,27 @@ class Sitemap
                 ->where([
                     ['article.category_id', '=', $vo_cate['id']],
                     ['article.is_pass', '=', '1'],
-                    ['article.show_time', '<=', time()],
+                    ['article.show_time', '<', time()],
                 ])
                 ->order('article.id DESC')
                 ->limit(100)
                 ->select()
                 ->toArray();
-
-            $article_xml = [];
-            $category_xml = [];
-            foreach ($article as $vo_art) {
-                $article_xml[]['url'] = [
-                    'loc'        => app('request')->domain() . url('details/' . $vo_art['action_name'] . '/' . $vo_art['category_id'] . '/' . $vo_art['id']),
-                    'lastmod'    => $vo_art['update_time'],
-                    'changefreq' => 'weekly',
-                    'priority'   => '0.8',
-                ];
-
-                $category_xml[]['url'] = [
-                    'loc'        => app('request')->domain() . url('list/' . $vo_cate['action_name'] . '/' . $vo_cate['id']),
-                    'lastmod'    => $vo_art['update_time'],
+            if (!empty($article)) {
+                $sitemap_xml[] = [
+                    'loc'        => $domain . url('list/' . $vo_cate['action_name'] . '/' . $vo_cate['id']),
+                    'lastmod'    => date('Y-m-d H:i:s'),
                     'changefreq' => 'daily',
                     'priority'   => '1.0',
                 ];
             }
-            if ($article_xml) {
-                $this->saveXml($article_xml, $sub_path . 'details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
-                $this->saveXml($category_xml, $sub_path . 'list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml');
 
-                $sitemap_xml[]['sitemap'] = [
-                    'loc'     => app('request')->domain() . '/sitemaps/details-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
-                    'lastmod' => date('Y-m-d H:i:s')
-                ];
-                $sitemap_xml[]['sitemap'] = [
-                    'loc'     => app('request')->domain() . '/sitemaps/list-' . $vo_cate['action_name'] . '-' . $vo_cate['id'] . '.xml',
-                    'lastmod' => date('Y-m-d H:i:s')
+            foreach ($article as $vo_art) {
+                $sitemap_xml[] = [
+                    'loc'        => $domain . url('details/' . $vo_art['action_name'] . '/' . $vo_art['category_id'] . '/' . $vo_art['id']),
+                    'lastmod'    => date('Y-m-d H:i:s', $vo_art['update_time']),
+                    'changefreq' => 'weekly',
+                    'priority'   => '0.8',
                 ];
             }
         }
@@ -115,11 +98,11 @@ class Sitemap
     private function saveXml(array &$_data, string $_path): void
     {
         $xml  = '';
-        $xml .= '<!-- generated-on="' . date('Y-m-d H:i:s') . '" -->';
-        $xml .= '<?xml version="1.0" encoding="UTF-8" ?>' .
-            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+        $xml .= '<!-- generated-on="' . date('Y-m-d H:i:s') . '" -->' . PHP_EOL;
+        $xml .= '<?xml version="1.0" encoding="UTF-8" ?>' . PHP_EOL .
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
         $xml .= $this->toXml($_data);
-        $xml .= '</urlset>';
+        $xml .= PHP_EOL . '</urlset>';
 
         $filename = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_path;
         if (!is_dir(dirname($filename))) {
@@ -149,10 +132,10 @@ class Sitemap
             }
 
             if (is_string($key)) {
-                $xml .= '</' . $key . '>';
+                $xml .= '</' . $key . '>' . PHP_EOL;
             }
         }
 
-        return trim($xml);
+        return $xml;
     }
 }

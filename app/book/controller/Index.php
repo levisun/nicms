@@ -30,7 +30,7 @@ class Index extends BaseController
      */
     public function initialize()
     {
-        $result = (new Siteinfo)->query();
+        $result = (new Siteinfo)->query('book', $this->app->lang->getLangSet());
         $this->view->config([
             'view_theme' => $result['theme'],
             // 'tpl_replace_string' => [
@@ -53,5 +53,48 @@ class Index extends BaseController
     public function index()
     {
         return $this->fetch('index');
+    }
+
+    /**
+     * 栏目页
+     * @access public
+     * @return
+     */
+    public function category()
+    {
+        return $this->fetch('list');
+    }
+
+    /**
+     * 列表页
+     * @access public
+     * @return
+     */
+    public function catalog()
+    {
+        return $this->fetch('catalog');
+    }
+
+    /**
+     * 详情页
+     * @access public
+     * @return
+     */
+    public function article()
+    {
+        return $this->fetch('article');
+    }
+
+    /**
+     * 搜索
+     * @access public
+     * @return
+     */
+    public function search()
+    {
+        // $query = $this->request->param('q');
+        // $content = (new Book)->search($query);
+
+        return $this->fetch('search');
     }
 }
