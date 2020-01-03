@@ -38,7 +38,7 @@ class CheckRequestCache
     {
         // 返回304
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
-            if (strtotime($ms) >= $request->server('REQUEST_TIME')) {
+            if (strtotime($ms) >= $request->time()) {
                 return Response::create()->code(304);
             }
         }
@@ -134,8 +134,8 @@ class CheckRequestCache
         if ($this->appName && !in_array($this->appName, ['admin', 'api', 'user'])) {
             $_response->allowCache(true)
                 ->cacheControl('max-age=1440,must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $_request->server('REQUEST_TIME') + 1440) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $_request->server('REQUEST_TIME') + 1440) . ' GMT');
+                ->expires(gmdate('D, d M Y H:i:s', $_request->time() + 1440) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s', $_request->time() + 1440) . ' GMT');
         }
 
         return $_response;

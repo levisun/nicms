@@ -781,7 +781,6 @@ abstract class Async
         }
 
         $this->log->save();
-
         $this->session->save();
 
         return $response;

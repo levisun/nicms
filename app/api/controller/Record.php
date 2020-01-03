@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
+use think\Response;
 use app\common\controller\Async;
 use app\common\library\AccessLog;
 
@@ -27,7 +28,14 @@ class Record extends Async
     {
         if ($this->isReferer(false)) {
             (new AccessLog)->record();
-            return $this->cache(30)->success('record');
+
+            return Response::create()->allowCache(true)
+                ->cacheControl('max-age=60,must-revalidate')
+                ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + 60) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + 60) . ' GMT')
+                ->header([
+                    'Content-Type' => 'application/javascript'
+                ]);
         }
 
         return miss(404);

@@ -138,40 +138,32 @@ class DataFilter
      */
     private static function element(string &$_str): string
     {
-        $pattern = [
-            '/<!--(.*?)-->/si',
-            '/\/\*(.*?)\*\//si',
-        ];
-        $_str = (string) preg_replace($pattern, '', $_str);
+        // 保留标签
+        $allowable_tags = '<a><audio><b><br><center><dd><del><div><dl><dt><em><h1><h2><h3><h4><h5><h6><i><img><li><ol><p><pre><section><small><span><strong><table><tbody><td><th><thead><tr><u><ul><video>';
+        $_str = strip_tags($_str, $allowable_tags);
 
-        $_str = preg_replace_callback('/<(\/)?([a-zA-Z1-6]+)(.*?)>/si', function ($matches) {
-            // 保留标签
-            $element = [
-                'a', 'audio', 'b', 'br', 'br/', 'center', 'dd', 'del', 'div', 'dl', 'dt', 'em',
-                'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'img', 'li', 'ol', 'p', 'pre',
-                'section', 'small', 'strong', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'ul', 'video',
-            ];
-            $matches[2] = strtolower($matches[2]);
-            if (in_array($matches[2], $element)) {
-                // 过滤标签属性
-                if (!empty($matches[3])) {
-                    $matches[3] = preg_replace_callback('/([a-zA-Z0-9-_]+)=(.*?)( )/si', function ($ema) {
-                        // 保留属性 href
-                        $attr = ['src', 'alt', 'title', 'target', 'rel', 'height', 'width', 'align'];
-                        $ema[1] = strtolower($ema[1]);
-                        if (in_array($ema[1], $attr)) {
-                            $ema[2] = str_replace(['“', '”', '‘', '’'], '"', $ema[2]);
-                            $eres = ' ' . $ema[1] . '="' . trim($ema[2], '"\'') . '"';
-                        }
-                        return isset($eres) ? $eres : '';
-                    }, $matches[3] . ' ');
+        return preg_replace_callback('/<(\/)?([a-zA-Z1-6]+)(.*?)>/si', function ($matches) {
+            $matches[3] = preg_replace_callback('/([a-zA-Z0-9-_]+)=(.*?)( )/si', function ($ema) {
+                $ema[1] = strtolower($ema[1]);
+                $ema[2] = trim($ema[2], '"\'');
+                $ema[2] = str_replace(['"', '\'', '<', '>'], '', $ema[2]);
+
+                // 过滤外链
+                if ('href' == $ema[1] && false !== stripos($ema[2], app('request')->rootDomain())) {
+                    return ' ' . $ema[1] . '="' . $ema[2] . '"';
                 }
-                $result = '<' . $matches[1] . $matches[2] . $matches[3] . '>';
-            }
-            return isset($result) ? $result : '';
-        }, $_str);
 
-        return $_str;
+                // 过滤非法属性
+                $attr = ['src', 'alt', 'title', 'target', 'rel', 'height', 'width', 'align'];
+                if (!in_array($ema[1], $attr)) {
+                    return;
+                } else {
+                    return ' ' . $ema[1] . '="' . $ema[2] . '"';
+                }
+            }, $matches[3] . ' ');
+
+            return '<' . $matches[1] . $matches[2] . $matches[3] . '>';
+        }, $_str);
     }
 
     /**
