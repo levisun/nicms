@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Cache;
-use think\facade\Lang;
+use think\facade\Request;
 use app\common\model\Config as ModelConfig;
 use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;
@@ -46,7 +46,7 @@ class Siteinfo
             Cache::tag('siteinfo')->set($cache_key, $common);
         }
 
-        $cache_key .= app('request')->param('id/f', null) . app('request')->param('cid/f', null);
+        $cache_key .= Request::param('id/f', null) . Request::param('cid/f', null);
         $cache_key = md5($cache_key);
         if (!Cache::has($cache_key) || !$result = Cache::get($cache_key)) {
             $result = [
@@ -78,7 +78,7 @@ class Siteinfo
             ->value('value', '');
 
         // 文章描述
-        if ($id = app('request')->param('id/d', null)) {
+        if ($id = Request::param('id/d', null)) {
             $result = (new ModelArticle)
                 ->where([
                     ['id', '=', $id]
@@ -86,7 +86,7 @@ class Siteinfo
                 ->value('description', '');
         }
         // 栏目描述
-        elseif ($cid = app('request')->param('cid/d', null)) {
+        elseif ($cid = Request::param('cid/d', null)) {
             $result = (new ModelCategory)
                 ->where([
                     ['id', '=', $cid]
@@ -113,7 +113,7 @@ class Siteinfo
             ->value('value', '');
 
         // 文章关键词
-        if ($id = app('request')->param('id/d', null)) {
+        if ($id = Request::param('id/d', null)) {
             $result = (new ModelArticle)
                 ->where([
                     ['id', '=', $id]
@@ -121,7 +121,7 @@ class Siteinfo
                 ->value('keywords', '');
         }
         // 栏目关键词
-        elseif ($cid = app('request')->param('cid/d', null)) {
+        elseif ($cid = Request::param('cid/d', null)) {
             $result = (new ModelCategory)
                 ->where([
                     ['id', '=', $cid]
@@ -142,7 +142,7 @@ class Siteinfo
         $result = '';
 
         // 文章名
-        if ($id = app('request')->param('id/d', null)) {
+        if ($id = Request::param('id/d', null)) {
             $article = (new ModelArticle)
                 ->where([
                     ['id', '=', $id]
@@ -152,7 +152,7 @@ class Siteinfo
         }
 
         // 栏目名
-        if ($cid = app('request')->param('cid/d', null)) {
+        if ($cid = Request::param('cid/d', null)) {
             $category = (new ModelCategory)
                 ->where([
                     ['id', '=', $cid]

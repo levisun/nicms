@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Config;
+use think\facade\Request;
 use think\Image;
 
 class Canvas
@@ -72,7 +73,7 @@ class Canvas
         } else {
             // 图片不存在
             $_file = 'data:image/svg+xml;base64,' .
-                base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="200" width="200"><rect fill="rgb(221,221,221)" x="0" y="0" width="200" height="200"></rect><text x="100" y="100" font-size="50" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="canvas" alignment-baseline="central">' . app('request')->rootDomain() . '</text></svg>');
+                base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="200" width="200"><rect fill="rgb(221,221,221)" x="0" y="0" width="200" height="200"></rect><text x="100" y="100" font-size="50" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="canvas" alignment-baseline="central">' . Request::rootDomain() . '</text></svg>');
         }
 
         return $_file;
@@ -96,7 +97,7 @@ class Canvas
         }
 
         $length = mb_strlen($_username);
-        $salt = mb_strlen(app('request')->rootDomain());
+        $salt = mb_strlen(Request::rootDomain());
         $bg = (intval($length * $salt) % 255) . ',' . (intval($length * $salt * 3) % 255) . ',' . (intval($length * $salt * 9) % 255);
 
         return 'data:image/svg+xml;base64,' .

@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
-use app\admin\logic\category\Model;
 use think\Image;
 use think\facade\Config;
+use think\facade\Request;
 use think\facade\Filesystem;
 use think\Validate;
 use app\common\model\UploadFileLog as ModelUploadFileLog;
@@ -61,7 +61,7 @@ class UploadFile
     {
         set_time_limit(600);
 
-        $files = app('request')->file($_element);
+        $files = Request::file($_element);
         $this->thumbSize = [
             'width'  => !empty($_thumb['width']) ? $_thumb['width'] : 0,
             'height' => !empty($_thumb['height']) ? $_thumb['height'] : 0,
@@ -170,7 +170,7 @@ class UploadFile
             // 添加水印
             if (true === $this->imgWater) {
                 $ttf = app()->getRootPath() . 'extend' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf';
-                $image->text(app('request')->rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9));
+                $image->text(Request::rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9));
             }
 
             if (function_exists('imagewebp')) {

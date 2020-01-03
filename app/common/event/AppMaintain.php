@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
+use think\facade\Log;
 use app\common\library\DataManage;
 use app\common\library\ReGarbage;
 use app\common\library\Sitemap;
@@ -32,7 +33,7 @@ class AppMaintain
             $lock .= '_remove_garbage.lock';
 
             only_execute($lock, '-4 hour', function () {
-                app('log')->record('[REGARBAGE] ' . app('http')->getName() . '应用维护', 'alert');
+                Log::record('[REGARBAGE] ' . app('http')->getName() . '应用维护', 'alert');
 
                 // 清除过期缓存文件
                 (new ReGarbage)->remove(app()->getRuntimePath() . 'cache', 1);

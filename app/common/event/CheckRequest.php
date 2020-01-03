@@ -3,8 +3,9 @@
 /**
  *
  * 检查请求
- * 频繁或非法请求将被锁定
  * 非域名进入302跳转
+ * 304缓存
+ * 频繁或非法请求将被锁定
  *
  * @package   NICMS
  * @category  app\common\event
@@ -18,6 +19,9 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
+use think\facade\Config;
+use think\facade\Log;
+use think\facade\Request;
 use think\Response;
 use think\exception\HttpResponseException;
 
@@ -26,20 +30,34 @@ class CheckRequest
 
     public function handle()
     {
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
-        is_dir($path) or mkdir($path, 0755, true);
-
-        $lock  = $path . md5(app('request')->ip() . date('Ymd')) . '.lock';
-        if (is_file($lock)) {
-            app('log')->record('[锁定]', 'alert')->save();
-            $response = miss(502);
+        // 非域名进入302跳转
+        $domain = Request::subDomain() . '.' . Request::rootDomain();
+        if (false !== filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $response = Response::create(Config::get('app.app_host'), 'redirect', 302);
             throw new HttpResponseException($response);
         }
 
-        // 非域名进入302跳转
-        $domain = app('request')->subDomain() . '.' . app('request')->rootDomain();
-        if (false !== filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            $response = Response::create(app('config')->get('app.app_host'), 'redirect', 302);
+        // 304缓存
+        if (Request::isGet() && $ms = Request::server('HTTP_IF_MODIFIED_SINCE')) {
+            if (strtotime($ms) >= Request::time()) {
+                $response = Response::create()->code(304);
+                $response->header(array_merge(['X-Powered-By' => 'NICACHE'], $response->getHeader()));
+                throw new HttpResponseException($response);
+            }
+        }
+
+        if (1 === mt_rand(1, 999)) {
+            $response = miss(500);
+            throw new HttpResponseException($response);
+        }
+
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
+        is_dir($path) or mkdir($path, 0755, true);
+
+        $lock  = $path . md5(Request::ip() . date('Ymd')) . '.lock';
+        if (is_file($lock)) {
+            Log::record('[锁定]', 'alert')->save();
+            $response = miss(502);
             throw new HttpResponseException($response);
         }
     }

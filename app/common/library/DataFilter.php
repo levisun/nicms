@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use think\facade\Request;
 use app\common\library\Emoji;
 
 class DataFilter
@@ -149,7 +150,7 @@ class DataFilter
                 $ema[2] = str_replace(['"', '\'', '<', '>'], '', $ema[2]);
 
                 // 过滤外链
-                if ('href' == $ema[1] && false !== stripos($ema[2], app('request')->rootDomain())) {
+                if ('href' == $ema[1] && false !== stripos($ema[2], Request::rootDomain())) {
                     return ' ' . $ema[1] . '="' . $ema[2] . '"';
                 }
 

@@ -17,6 +17,9 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
+use think\facade\Log;
+use think\facade\Request;
+
 class RecordRequest
 {
 
@@ -25,7 +28,7 @@ class RecordRequest
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
 
-        $client_ip = md5(app('request')->ip() . date('Ymd'));
+        $client_ip = md5(Request::ip() . date('Ymd'));
 
         $log  = $path . $client_ip . '.php';
         $number = is_file($log) ? include $log : '';
@@ -40,7 +43,7 @@ class RecordRequest
                 } else {
                     $number[$time] = isset($number[$time]) ? ++$number[$time] : 1;
                     $number = [$time => end($number)];
-                    $data = '<?php /*请求数 ' . app('request')->ip() . '*/ return ' . var_export($number, true) . ';';
+                    $data = '<?php /*请求数 ' . Request::ip() . '*/ return ' . var_export($number, true) . ';';
                     fwrite($fp, $data);
                 }
                 flock($fp, LOCK_UN);
@@ -50,13 +53,13 @@ class RecordRequest
 
 
 
-        $request_params = app('request')->param()
-            ? app('request')->except(['username', 'password', 'sign', '__token__'])
+        $request_params = Request::param()
+            ? Request::except(['username', 'password', 'sign', '__token__'])
             : [];
         $request_params = array_filter($request_params);
         $request_params = !empty($request_params) ? PHP_EOL . json_encode($request_params) : '';
-        $request_url = app('request')->url(true);
-        $request_method = app('request')->method(true) . ' ' . app('request')->ip();
+        $request_url = Request::url(true);
+        $request_method = Request::method(true) . ' ' . Request::ip();
         $run_time = number_format(microtime(true) - app()->getBeginTime(), 3);
         $time_memory = $run_time . 's ' .
             number_format((memory_get_usage() - app()->getBeginMem()) / 1024 / 1024, 3) . 'mb ';
@@ -70,7 +73,7 @@ class RecordRequest
             $tags = '<font style="color:red;">长请求</font>';
         }
 
-        app('log')->record(
+        Log::record(
             '{' . $tags . $time_memory . $request_method . ' ' . $request_url . '}' . $request_params . PHP_EOL,
             'info'
         );

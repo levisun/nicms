@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use think\facade\Log;
+use think\facade\Request;
 use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;
 
@@ -25,7 +27,7 @@ class Sitemap
     public function create()
     {
         only_execute('create_sitemap.lock', '-12 hour', function () {
-            app('log')->record('[生成网站地图]', 'alert');
+            Log::record('[生成网站地图]', 'alert');
 
             // 保存网站地图文件
             $this->saveSitemapFile();
@@ -52,7 +54,7 @@ class Sitemap
             ->toArray();
 
         $sitemap_xml = [];
-        $domain = app('request')->scheme() . ':' . app('request')->rootDomain();
+        $domain = Request::scheme() . ':' . Request::rootDomain();
         foreach ($category as $vo_cate) {
             $article = (new ModelArticle)
                 ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])

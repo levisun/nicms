@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use think\facade\Request;
 use app\common\library\Ipinfo;
 use app\common\model\Searchengine as ModelSearchengine;
 use app\common\model\Visit as ModelVisit;
@@ -45,7 +46,7 @@ class AccessLog
      */
     public function record(): void
     {
-        $this->userAgent = strtolower(app('request')->server('HTTP_USER_AGENT'));
+        $this->userAgent = strtolower(Request::server('HTTP_USER_AGENT'));
 
         if ($spider = $this->isSpider()) {
             $has = (new ModelSearchengine)->where([
@@ -72,7 +73,7 @@ class AccessLog
                     ]);
             }
         } else {
-            $ip = (new Ipinfo)->get(app('request')->ip());
+            $ip = (new Ipinfo)->get(Request::ip());
             $has = (new ModelVisit)->where([
                     ['ip', '=', $ip['ip']],
                     ['user_agent', '=', $this->userAgent],

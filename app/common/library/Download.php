@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Config;
+use think\facade\Request;
 use think\Response;
 use app\common\library\Base64;
 
@@ -30,7 +31,7 @@ class Download
 
     public function __construct()
     {
-        $this->salt = md5(date('Ymd') . app('request')->server('HTTP_USER_AGENT'));
+        $this->salt = md5(date('Ymd') . Request::server('HTTP_USER_AGENT'));
     }
 
     /**

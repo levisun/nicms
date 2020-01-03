@@ -18,6 +18,8 @@ namespace app\common\middleware;
 
 use Closure;
 use think\facade\Cache;
+use think\facade\Cookie;
+use think\facade\Session;
 use think\Request;
 use think\Response;
 use app\common\library\Base64;
@@ -49,13 +51,9 @@ class CheckRequestCache
         $this->key = md5($this->appName . $request->baseUrl(true));
 
         if ($this->appName && 'api' !== $this->appName) {
-            if (1 === mt_rand(1, 999)) {
-                return miss(500);
-            }
-
             // 生成客户端cookie令牌
-            app('session')->has('client_token') or app('session')->set('client_token', Base64::client_id());
-            app('cookie')->has('PHPSESSID') or app('cookie')->set('PHPSESSID', app('session')->get('client_token'));
+            Session::has('client_token') or Session::set('client_token', Base64::client_id());
+            Cookie::has('PHPSESSID') or Cookie::set('PHPSESSID', Session::get('client_token'));
         }
 
         // 返回缓存

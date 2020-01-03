@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Cache;
+use think\facade\Request;
 use app\common\library\DataFilter;
 use app\common\model\IpInfo as ModelIpinfo;
 use app\common\model\Region as ModelRegion;
@@ -126,7 +127,7 @@ class Ipinfo
             ->view('region city', ['id' => 'city_id', 'name' => 'city'], 'city.id=ipinfo.city_id')
             ->view('region area', ['id' => 'area_id', 'name' => 'area'], 'area.id=ipinfo.area_id', 'LEFT')
             ->where([
-                ['ipinfo.ip', '=', bindec(app('request')->ip2bin($_ip))]
+                ['ipinfo.ip', '=', bindec(Request::ip2bin($_ip))]
             ])
             ->find();
         return $result ? $result->toArray() : [];
@@ -179,7 +180,7 @@ class Ipinfo
         $city     = $this->queryRegion($result['city'], $province);
         $area     = !empty($result['area']) ? $this->queryRegion($result['area'], $city) : 0;
 
-        $binip = bindec(app('request')->ip2bin($_ip));
+        $binip = bindec(Request::ip2bin($_ip));
 
         $has = (new ModelIpinfo)
             ->where([
@@ -231,14 +232,14 @@ class Ipinfo
 
         $has = (new ModelIpinfo)
             ->where([
-                ['ip', '=', bindec(app('request')->ip2bin($_ip))]
+                ['ip', '=', bindec(Request::ip2bin($_ip))]
             ])
             ->value('id');
 
         if ($has) {
             (new ModelIpinfo)
                 ->where([
-                    ['ip', '=', bindec(app('request')->ip2bin($_ip))],
+                    ['ip', '=', bindec(Request::ip2bin($_ip))],
                 ])
                 ->update([
                     'country_id'  => $country,
