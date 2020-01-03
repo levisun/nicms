@@ -278,7 +278,8 @@ class Category extends BaseLogic
             ])
             ->value('image');
         if ($image !== $receive_data['image']) {
-            remove_img($image);
+            $this->removeFile($image);
+            $this->writeFileLog($receive_data['image']);
         }
 
         (new ModelCategory)
@@ -315,24 +316,24 @@ class Category extends BaseLogic
             ];
         }
 
-        $result = (new ModelCategory)
+        $image = (new ModelCategory)
             ->where([
                 ['id', '=', $id],
                 ['lang', '=', $this->lang->getLangSet()]
             ])
-            ->find();
+            ->value('image');
 
-        if (null !== $result && $result = $result->toArray()) {
-            remove_img($result['image']);
-
-            (new ModelCategory)
-                ->where([
-                    ['id', '=', $id]
-                ])
-                ->delete();
-
-            $this->cache->tag('cms nav')->clear();
+        if (null !== $image && $image) {
+            $this->removeFile($image);
         }
+
+        (new ModelCategory)
+            ->where([
+                ['id', '=', $id]
+            ])
+            ->delete();
+
+        $this->cache->tag('cms nav')->clear();
 
         return [
             'debug' => false,

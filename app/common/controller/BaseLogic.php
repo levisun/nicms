@@ -230,6 +230,28 @@ abstract class BaseLogic
     }
 
     /**
+     * 删除文件
+     * @access protected
+     * @param  string $_file
+     * @return void
+     */
+    public function removeFile(string $_file): void
+    {
+        (new UploadFile)->remove($_file);
+    }
+
+    /**
+     * 写入日志
+     * @access protected
+     * @param  string $_file
+     * @return void
+     */
+    public function writeFileLog(string $_file): void
+    {
+        (new UploadFile)->writeUploadLog($_file, 1);
+    }
+
+    /**
      * 上传文件
      * @access protected
      * @param  string $_element 表单名 默认upload
@@ -245,10 +267,6 @@ abstract class BaseLogic
                 'msg'   => 'upload error'
             ];
         }
-
-        // 请勿更改参数
-        @ini_set('memory_limit', '256M');
-        set_time_limit(600);
 
         $element = $this->request->param('element', 'upload');
         $thumb = [
@@ -266,7 +284,6 @@ abstract class BaseLogic
             'code'  => is_string($result) ? 44001 : 10000,
             'msg'   => is_string($result) ? $result : 'upload success',
             'data'  => is_string($result) ? [] : $result
-
         ];
     }
 }

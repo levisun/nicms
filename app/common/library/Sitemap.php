@@ -70,7 +70,7 @@ class Sitemap
             if (!empty($article)) {
                 $sitemap_xml[] = [
                     'loc'        => $domain . url('list/' . $vo_cate['action_name'] . '/' . $vo_cate['id']),
-                    'lastmod'    => date('Y-m-d H:i:s'),
+                    'lastmod'    => date('Y-m-d'),
                     'changefreq' => 'daily',
                     'priority'   => '1.0',
                 ];

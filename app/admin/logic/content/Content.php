@@ -82,7 +82,6 @@ class Content extends BaseLogic
 
             foreach ($list['data'] as $key => $value) {
                 $value['url'] = [
-                    'added'  => url('content/content/added/' . $value['id']),
                     'editor' => url('content/content/editor/' . $value['id']),
                     'remove' => url('content/content/remove/' . $value['id']),
 
@@ -97,33 +96,6 @@ class Content extends BaseLogic
                 // 作者
                 $value['author'] = $value['author'] ?: $value['username'];
                 unset($value['username']);
-
-                // 附加字段数据
-                $fields = (new ModelArticleExtend)
-                    ->view('article_extend extend', ['data'])
-                    ->view('fields fields', ['name' => 'fields_name'], 'fields.id=extend.fields_id')
-                    ->where([
-                        ['extend.article_id', '=', $value['id']],
-                    ])
-                    ->select()
-                    ->toArray();
-                foreach ($fields as $val) {
-                    $value[$val['fields_name']] = $val['data'];
-                }
-
-                // 标签
-                $value['tags'] = (new ModelArticleTags)
-                    ->view('article_tags article', ['tags_id'])
-                    ->view('tags tags', ['name'], 'tags.id=article.tags_id')
-                    ->where([
-                        ['article.article_id', '=', $value['id']],
-                    ])
-                    ->select()
-                    ->toArray();
-                foreach ($value['tags'] as $k => $tag) {
-                    $tag['url'] = url('tags/' . $tag['tags_id']);
-                    $result['tags'][$k] = $tag;
-                }
 
                 $list['data'][$key] = $value;
             }

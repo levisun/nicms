@@ -19,6 +19,8 @@ namespace app\admin\logic\settings;
 
 use app\common\controller\BaseLogic;
 use app\common\model\Article as ModelArticle;
+use app\common\model\IpInfo as ModelIpInfo;
+use app\common\model\Searchengine as ModelSearchengine;
 use app\common\model\Visit as ModelVisit;
 
 class Dashboard extends BaseLogic
@@ -74,12 +76,23 @@ class Dashboard extends BaseLogic
 
     private function total()
     {
+        // IP统计
+        $ip_total = (new ModelIpInfo)->count();
+
         // 会话统计
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR;
         $session_count = count((array) glob($path . '*'));
 
         // 访问统计
         $access_total = (new ModelVisit)
+            ->field('max(count) as count')
+            ->where([
+                ['date', '=', strtotime(date('Y-m-d'))]
+            ])
+            ->find();
+
+        // 搜索引擎统计
+        $searchengine_total = (new ModelSearchengine)
             ->field('max(count) as count')
             ->where([
                 ['date', '=', strtotime(date('Y-m-d'))]
@@ -102,8 +115,10 @@ class Dashboard extends BaseLogic
             ->count();
 
         return [
+            'ip_total' => $ip_total,
             'session_count' => number_format($session_count),
             'access_total'  => $access_total['count'] ? number_format($access_total['count']) : 0,
+            'searchengine_total' => $searchengine_total['count'] ? number_format($searchengine_total['count']) : 0,
             'article_count' => [
                 'total' => $article_total,
                 'pass' => $article_pass_total,

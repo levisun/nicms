@@ -13,7 +13,6 @@
  */
 
 use think\Response;
-use think\facade\Config;
 use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
@@ -21,41 +20,6 @@ use app\common\library\Base64;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
-
-if (!function_exists('remove_img')) {
-    /**
-     * 删除图片
-     * @param  string $_img 图片路径
-     * @return bool
-     */
-    function remove_img(string $_img): bool
-    {
-        // 网络图片直接返回
-        if (false !== stripos($_img, 'http')) {
-            return true;
-        }
-
-        $path = app()->getRootPath() . Config::get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
-        $_img = str_replace('/', DIRECTORY_SEPARATOR, ltrim($_img, '/'));
-        $ext = '.' . pathinfo($_img, PATHINFO_EXTENSION);
-        $_img = str_replace($ext, '_skl' . $ext, $_img);
-
-        if (is_file($path . $_img)) {
-            for ($i = 1; $i <= 8; $i++) {
-                $size = $i * 100;
-                $thumb = str_replace($ext, '_' . $size . $ext, $_img);
-                if (is_file($path . $thumb)) {
-                    @unlink($path . $thumb);
-                }
-            }
-            @unlink($path . $_img);
-        }
-
-        return true;
-    }
-}
-
-
 
 if (!function_exists('format_size')) {
     /**
@@ -125,11 +89,14 @@ if (!function_exists('miss')) {
      * @param  int $_code
      * @return string
      */
-    function miss(int $_code): Response
+    function miss(int $_code, bool $_redirect = true): Response
     {
-        $return_url = '//www.' . Request::rootDomain();
+        $return_url = '';
+        if (true === $_redirect) {
+            $return_url = '<script type="text/javascript">setTimeout(function(){location.href = "//www.' . Request::rootDomain() . '";},30000);</script>';
+        }
 
-        $content = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>' . $_code . '</title><section><h2>' . $_code . '</h2></section><script type="text/javascript">setTimeout(function(){location.href = "' . $return_url . '";},30000);</script>';
+        $content = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>' . $_code . '</title><section><h2>o(╥﹏╥)o ' . $_code . '</h2></section>';
 
         $file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $_code . '.html';
         if (is_file($file)) {

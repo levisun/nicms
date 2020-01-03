@@ -48,7 +48,7 @@ class CheckRequestCache
         // 缓存KEY
         $this->key = md5($this->appName . $request->baseUrl(true));
 
-        if ('api' !== $this->appName) {
+        if ($this->appName && 'api' !== $this->appName) {
             if (1 === mt_rand(1, 999)) {
                 return miss(500);
             }
@@ -79,7 +79,7 @@ class CheckRequestCache
     private function readCache(Request &$_request)
     {
         $response = false;
-        if (false === app()->isDebug() && 'api' !== $this->appName && $content = Cache::get($this->key)) {
+        if (false === app()->isDebug() && $this->appName && 'api' !== $this->appName && $content = Cache::get($this->key)) {
             $pattern = [
                 '<meta name="csrf-authorization" content="" />' => authorization_meta(),
                 '<meta name="csrf-token" content="" />' => token_meta(),
@@ -102,7 +102,7 @@ class CheckRequestCache
     private function writeCache(Response &$_response, Request &$_request): Response
     {
         // API有独立缓存定义,请勿开启缓存
-        if ('api' !== $this->appName) {
+        if ($this->appName && 'api' !== $this->appName) {
             $_response->allowCache(!app()->isDebug());
             $_response->header(array_merge(['X-Powered-By' => 'NICMS'], $_response->getHeader()));
 

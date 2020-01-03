@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use app\admin\logic\category\Model;
 use think\Image;
 use think\facade\Config;
 use think\facade\Filesystem;
@@ -58,6 +59,8 @@ class UploadFile
      */
     public function getFileInfo(int $_uid, string $_element, array $_thumb, bool $_water): array
     {
+        set_time_limit(600);
+
         $files = app('request')->file($_element);
         $this->thumbSize = [
             'width'  => !empty($_thumb['width']) ? $_thumb['width'] : 0,
@@ -151,6 +154,8 @@ class UploadFile
         $this->writeUploadLog($save_file);   // 记录上传文件日志
 
         if (false !== strpos($_files->getMime(), 'image/')) {
+            @ini_set('memory_limit', '256M');
+
             $image = Image::open(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
 
             // 缩放图片到指定尺寸
@@ -211,64 +216,34 @@ class UploadFile
      * 记录上传文件
      * @access public
      * @param  string $_file 文件
-     * @param  int    $_module_id   模块ID
-     * @param  int    $_module_type 模块类型 1用户头像 2栏目图标 3文章缩略图 4文章内容插图 5...
+     * @param  int    $_type
      * @return void
      */
-    public function writeUploadLog(string $_file, int $_module_id = 0, int $_module_type = 0): void
+    public function writeUploadLog(string $_file, int $_type = 0): void
     {
-        (new ModelUploadFileLog)->save([
-            'file'        => $_file,
-            'module_id'   => $_module_id,
-            'module_type' => $_module_type,
-        ]);
-    }
+        $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
 
-    /**
-     * 删除入库上传文件
-     * @access public
-     * @param  int    $_module_id   模块ID
-     * @param  int    $_module_type 模块类型 1用户头像 2栏目图标 3文章缩略图 4文章内容插图 5...
-     * @return void
-     */
-    public function remove(int $_module_id, int $_module_type): void
-    {
-        $map = [
-            ['type', '=', '1'],
-            ['module_id', '=', $_module_id],
-            ['module_type', '=', $_module_type],
-        ];
-        $result = (new ModelUploadFileLog)
-            ->where($map)
-            ->select();
-        $result = $result ? $result->toArray() : [];
+        $has = (new ModelUploadFileLog)
+            ->where([
+                ['file', '=', $_file]
+            ])
+            ->value('file');
 
-        $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
-        foreach ($result as $file) {
-            // 过滤非法字符
-            $file['file'] = trim($file['file'], " \/,._-\t\n\r\0\x0B");
-            $file['file'] = str_replace('/', DIRECTORY_SEPARATOR, $file['file']);
-            // 删除文件
-            if (is_file($path . $file['file'])) {
-                @unlink($path . $file['file']);
-            }
-
-            // 删除系统生成的缩略图
-            $extension = '.' . pathinfo($file['file'], PATHINFO_EXTENSION);
-            if ('webp' === $extension) {
-                for ($i = 1; $i <= 8; $i++) {
-                    $size = $i * 100;
-                    $thumb = str_replace($extension, '_' . $size . $extension, $file['file']);
-                    if (is_file($path . $thumb)) {
-                        @unlink($path . $thumb);
-                    }
-                }
-            }
+        if ($has) {
+            (new ModelUploadFileLog)
+                ->where([
+                    ['file', '=', $_file]
+                ])
+                ->data([
+                    'type' => $_type
+                ])
+                ->update();
+        } else {
+            (new ModelUploadFileLog)->save([
+                'file' => $_file,
+                'type' => $_type
+            ]);
         }
-
-        (new ModelUploadFileLog)
-            ->where($map)
-            ->delete();
     }
 
     /**
@@ -278,10 +253,10 @@ class UploadFile
      */
     public function ReGarbage(): void
     {
-        only_execute('remove_upload_garbage.lock', '-120 minute', function () {
+        only_execute('remove_upload_garbage.lock', '-2 hour', function () {
             $sort_order = mt_rand(0, 1) ? 'upload_file_log.id DESC' : 'upload_file_log.id ASC';
 
-            // 查询未入库的文件
+            // 查询文件记录
             $result = (new ModelUploadFileLog)
                 ->view('upload_file_log', ['id', 'file'])
                 ->view('upload_file_log log', ['id' => 'log_id'], 'log.type=1 and log.file=upload_file_log.file', 'LEFT')
@@ -303,22 +278,25 @@ class UploadFile
 
                 // 过滤非法字符
                 $file['file'] = trim($file['file'], " \/,._-\t\n\r\0\x0B");
-                $file['file'] = str_replace('/', DIRECTORY_SEPARATOR, $file['file']);
-                // 删除文件
-                if (is_file($path . $file['file'])) {
-                    @unlink($path . $file['file']);
-                }
+                $file['file'] = $path . str_replace('/', DIRECTORY_SEPARATOR, $file['file']);
 
                 // 删除系统生成的缩略图
-                $extension = '.' . pathinfo($file['file'], PATHINFO_EXTENSION);
-                if ('webp' === $extension) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mime = finfo_file($finfo, $file['file']);
+                if (false !== strpos($mime, 'image/')) {
+                    $extension = '.' . pathinfo($file['file'], PATHINFO_EXTENSION);
                     for ($i = 1; $i <= 8; $i++) {
                         $size = $i * 100;
                         $thumb = str_replace($extension, '_' . $size . $extension, $file['file']);
-                        if (is_file($path . $thumb)) {
-                            @unlink($path . $thumb);
+                        if (is_file($thumb)) {
+                            @unlink($thumb);
                         }
                     }
+                }
+
+                // 删除文件
+                if (is_file($file['file'])) {
+                    @unlink($file['file']);
                 }
             }
 
@@ -330,5 +308,44 @@ class UploadFile
                     ->delete();
             }
         });
+    }
+
+    /**
+     * 删除入库上传文件
+     * @access public
+     * @param  string $_file
+     * @return void
+     */
+    public function remove(string $_file): void
+    {
+        $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+        // 过滤非法字符
+        $abs_file = trim($_file, " \/,._-\t\n\r\0\x0B");
+        $abs_file = $path . str_replace('/', DIRECTORY_SEPARATOR, $abs_file);
+
+        // 删除系统生成的缩略图
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $abs_file);
+        if (false !== strpos($mime, 'image/')) {
+            $extension = '.' . pathinfo($abs_file, PATHINFO_EXTENSION);
+            for ($i = 1; $i <= 8; $i++) {
+                $size = $i * 100;
+                $thumb = str_replace($extension, '_' . $size . $extension, $abs_file);
+                if (is_file($thumb)) {
+                    @unlink($thumb);
+                }
+            }
+        }
+
+        // 删除文件
+        if (is_file($abs_file)) {
+            @unlink($abs_file);
+        }
+
+        (new ModelUploadFileLog)
+            ->where([
+                ['file', '=', $_file]
+            ])
+            ->delete();
     }
 }

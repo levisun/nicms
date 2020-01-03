@@ -48,7 +48,7 @@
         _params = jQuery.extend(true, defaults, _params);
 
         _params.data.append('timestamp', jQuery.timestamp());
-        _params.data.append('appid', NICMS.api.appid);
+        _params.data.append('appid', jQuery('meta[name="csrf-appid"]').attr('content'));
 
         if ('POST' == _params.type || 'post' == _params.type) {
             _params.data.append('__token__', jQuery('meta[name="csrf-token"]').attr('content'));
@@ -60,9 +60,7 @@
             if (item.done) {
                 break;
             }
-            if (item.value[1]) {
-                newData.push({ name: item.value[0], value: item.value[1] });
-            }
+            newData.push({ name: item.value[0], value: item.value[1] });
         }
         _params.data.append('sign', jQuery.sign(newData));
 
@@ -183,7 +181,11 @@
         // console.log(_data);
         var sign = '';
         jQuery.each(_data, function (i, field) {
-            if ('function' != typeof (field.value) && 'undefined' != typeof (field.value) && '' !== field.value) {
+            // console.log(typeof (field.value));
+            if ('function' != typeof (field.value) &&
+                'object' != typeof (field.value) &&
+                'undefined' != typeof (field.value) &&
+                '' !== field.value) {
                 sign += field.name + '=' + field.value + '&';
             }
         });
