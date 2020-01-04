@@ -1,0 +1,27 @@
+<script>
+    let search = new Vue({
+        el: '#layout-search',
+        data: {
+            sideber: [],
+            items: [],
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'article.lists.query' },
+                        { name: 'key', value: NICMS.api.param.key },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            search.items = result.data.list;
+                        }
+                    }
+                });
+            }
+        }
+    });
+    search.load();
+</script>

@@ -243,7 +243,8 @@ class Siteinfo
             ])
             ->value('value', '');
 
-        return htmlspecialchars_decode($result);
+        return '<script type="text/javascript">' .
+            htmlspecialchars_decode($result) . '</script>';
     }
 
     /**

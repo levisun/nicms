@@ -26,7 +26,7 @@ class Sitemap
 
     public function create()
     {
-        only_execute('create_sitemap.lock', '-12 hour', function () {
+        only_execute('create_sitemap.lock', '-4 hour', function () {
             Log::record('[生成网站地图]', 'alert');
 
             // 保存网站地图文件
@@ -54,7 +54,7 @@ class Sitemap
             ->toArray();
 
         $sitemap_xml = [];
-        $domain = Request::scheme() . ':' . Request::rootDomain();
+        $domain = Request::scheme() . '://www.' . Request::rootDomain();
         foreach ($category as $vo_cate) {
             $article = (new ModelArticle)
                 ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])

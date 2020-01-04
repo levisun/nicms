@@ -55,17 +55,17 @@ class Tags
      * @param  array $_config 模板配置
      * @return string
      */
-    public static function foot(array $_attr, array $_config): string
+    public static function tpljs(array $_attr, array $_config): string
     {
-        $foot = '';
+        $tpljs = '';
 
         // JS引入
         foreach ($_config['tpl_config']['js'] as $js) {
             // defer
-            $foot .= str_replace('\'', '"', $js) . PHP_EOL;
+            $tpljs .= str_replace('\'', '"', $js) . PHP_EOL;
         }
 
-        return $foot;
+        return $tpljs;
     }
 
     /**
@@ -78,7 +78,7 @@ class Tags
      * @param  array $_config 模板配置
      * @return string
      */
-    public static function meta(array $_attr, array $_config): string
+    public static function head(array $_attr, array $_config): string
     {
         $head = '';
 

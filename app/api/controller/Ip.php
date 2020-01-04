@@ -29,15 +29,8 @@ class Ip extends Async
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
         if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
             $ip = (new Ipinfo)->get($ip);
-            $data = '';
-            foreach ($ip as $key => $value) {
-                $data .= $key . '=' . $value . '&';
-            }
-            $data = rtrim($data, '&');
 
-            // if ($this->isReferer(false)) {
-
-            // }
+            $data = 'var NICMS_IPINFO=' . json_encode($ip, JSON_UNESCAPED_UNICODE);
 
             return Response::create($data)->allowCache(true)
                 ->cacheControl('max-age=1440,must-revalidate')

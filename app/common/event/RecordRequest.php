@@ -53,29 +53,24 @@ class RecordRequest
 
 
 
-        $request_params = Request::param()
-            ? Request::except(['username', 'password', 'sign', '__token__'])
-            : [];
-        $request_params = array_filter($request_params);
-        $request_params = !empty($request_params) ? PHP_EOL . json_encode($request_params) : '';
-        $request_url = Request::url(true);
-        $request_method = Request::method(true) . ' ' . Request::ip();
         $run_time = number_format(microtime(true) - app()->getBeginTime(), 3);
-        $time_memory = $run_time . 's ' .
+        $run_time = $run_time . 's ' .
             number_format((memory_get_usage() - app()->getBeginMem()) / 1024 / 1024, 3) . 'mb ';
+        $url = Request::ip() . ' ' . Request::method(true) . ' ' . Request::baseUrl(true);
+        $params = Request::param()
+            ? Request::except(['password', 'sign', '__token__', 'timestamp', 'sign_type', 'appid'])
+            : [];
+        $params = array_filter($params);
+        $params = !empty($params) ? PHP_EOL . json_encode($params, JSON_UNESCAPED_UNICODE) : '';
 
-
-        $tags = '访问';
+        $tags = '访问 ';
         $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec/si';
-        if (0 !== preg_match($pattern, $request_url . $request_params)) {
-            $tags = '<b style="color:red;">非法关键词</b>';
+        if (0 !== preg_match($pattern, $url . $params)) {
+            $tags = '<b style="color:red;">非法关键词</b> ';
         } elseif (2 <= $run_time) {
-            $tags = '<font style="color:red;">长请求</font>';
+            $tags = '<font style="color:red;">长请求</font> ';
         }
 
-        Log::record(
-            '{' . $tags . $time_memory . $request_method . ' ' . $request_url . '}' . $request_params . PHP_EOL,
-            'info'
-        );
+        Log::record($tags . $run_time . $url . $params . PHP_EOL, 'info');
     }
 }

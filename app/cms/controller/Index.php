@@ -68,7 +68,7 @@ class Index extends BaseController
                 ['category.is_show', '=', 1],
                 ['category.id', '=', $this->request->param('cid/d')],
             ])
-            ->cache(true)
+            ->cache(28800)
             ->find();
         if ($result && $result = $result->toArray()) {
             return $this->fetch($result['theme_name'] . '_list');
@@ -90,7 +90,7 @@ class Index extends BaseController
                 ['category.is_show', '=', 1],
                 ['category.id', '=', $this->request->param('cid/d')],
             ])
-            ->cache(true)
+            ->cache(28800)
             ->find();
         if ($result && $result = $result->toArray()) {
             return $this->fetch($result['theme_name'] . '_details');

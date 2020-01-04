@@ -71,11 +71,11 @@ class ArticleBase extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
-            $query = DataFilter::word($search_key, 5);
+            $query = DataFilter::word($search_key, 3);
             foreach ($query as $key => $value) {
                 $query[$key] = '%' . $value . '%';
             }
-            $map[] = ['title', 'like', $query, 'OR'];
+            $map[] = ['article.title', 'like', $query, 'OR'];
         }
 
         $query_limit = $this->request->param('limit/d', 10);
@@ -314,8 +314,7 @@ class ArticleBase extends BaseLogic
 
         return [
             'debug'  => false,
-            'cache'  => isset($result) ? true : false,
-            'expire' => 60,
+            'cache'  => false,
             'msg'    => isset($result) ? 'article hits' : 'article hits error',
             'data'   => isset($result) ? ['hits' => $result] : []
         ];

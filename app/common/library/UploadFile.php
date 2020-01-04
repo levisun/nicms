@@ -253,7 +253,7 @@ class UploadFile
      */
     public function ReGarbage(): void
     {
-        only_execute('remove_upload_garbage.lock', '-2 hour', function () {
+        only_execute('remove_upload_garbage.lock', '-4 hour', function () {
             $sort_order = mt_rand(0, 1) ? 'upload_file_log.id DESC' : 'upload_file_log.id ASC';
 
             // 查询文件记录

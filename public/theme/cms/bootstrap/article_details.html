@@ -1,37 +1,83 @@
+<div id="layout-details">
+    <div class="row">
+        {include file="sideber"}
+        <div id="list" class="col-md-9">
+            <div class="card">
+                <div class="card-body">
+                    <h3 v-html="items.title"></h3>
+                    <p class="text-muted">
+                        <span style="margin-right:10px;">
+                            <i class="fa fa-calendar-day"></i>
+                            <font v-text="items.update_time"></font>
+                        </span>
+                        <span style="margin-right:10px;">
+                            <i class="fa fa-user"></i>
+                            <font v-text="items.author"></font>
+                        </span>
+                        <span style="margin-right:10px;">
+                            <i class="fa fa-eye"></i>
+                            <font v-text="items.hits"></font>
+                        </span>
+                    </p>
+                    <div v-html="items.content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+    let = details = new Vue({
+        el: '#layout-details',
+        data: {
+            sideber: [],
+            items: [],
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.sidebar.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            details.sideber = result.data;
+                        }
+                    }
+                });
 
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'article.details.query' },
+                        { name: 'id', value: NICMS.api.param.id }
+                    ],
+                    success: function (result) {
+                        if (result.code == '10000') {
+                            details.items = result.data;
+                        }
+                    }
+                });
 
-    jQuery.pjax({
-        url: NICMS.api.url + '/query.do',
-        method: 'get',
-        data: [
-            { name: 'method', value: 'article.details.query' },
-            { name: 'id', value: NICMS.api.param.id }
-        ],
-        success: function (result) {
-            if (result.code == '10000') {
-                new Vue({
-                    el: "#article",
-                    data: {
-                        details: result.data
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'article.details.hits' },
+                        { name: 'id', value: NICMS.api.param.id }
+                    ],
+                    success: function (result) {
+                        if (result.code == '10000') {
+
+                        }
                     }
                 });
             }
         }
     });
-
-    jQuery.pjax({
-        url: NICMS.api.url + '/query.do',
-        method: 'get',
-        data: [
-            { name: 'method', value: 'article.details.hits' },
-            { name: 'id', value: NICMS.api.param.id }
-        ],
-        success: function (result) {
-            if (result.code == '10000') {
-
-            }
-        }
-    });
-
+    details.load();
 </script>

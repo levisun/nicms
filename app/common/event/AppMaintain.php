@@ -29,9 +29,22 @@ class AppMaintain
 
     public function handle()
     {
-        if ($lock = app('http')->getName()) {
-            $lock .= '_remove_garbage.lock';
+        if ($app_name = app('http')->getName()) {
+            if ('api' !== $app_name) {
+                // 生成网站地图
+                (new Sitemap)->create();
 
+                // 清除上传垃圾文件
+                (new UploadFile)->ReGarbage();
+
+                // 数据库优化|修复
+                (new DataManage)->optimize();
+
+                // 数据库备份
+                // (new DataManage)->autoBackup();
+            }
+
+            $lock = $app_name . '_remove_garbage.lock';
             only_execute($lock, '-4 hour', function () {
                 Log::record('[REGARBAGE] ' . app('http')->getName() . '应用维护', 'alert');
 
@@ -59,18 +72,6 @@ class AppMaintain
                 //     }
                 // }
             });
-
-            // 生成网站地图
-            (new Sitemap)->create();
-
-            // 清除上传垃圾文件
-            (new UploadFile)->ReGarbage();
-
-            // 数据库优化|修复
-            (new DataManage)->optimize();
-
-            // 数据库备份
-            // (new DataManage)->autoBackup();
         }
     }
 }

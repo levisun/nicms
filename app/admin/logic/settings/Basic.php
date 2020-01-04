@@ -73,7 +73,7 @@ class Basic extends BaseLogic
             'cms_footer'      => $this->request->param('cms_footer'),
             'cms_copyright'   => $this->request->param('cms_copyright', '', '\app\common\library\DataFilter::content'),
             'cms_beian'       => $this->request->param('cms_beian'),
-            'cms_script'      => $this->request->param('cms_script', '', 'trim,htmlspecialchars'),
+            'cms_script'      => $this->request->param('cms_script', '', 'strip_tags,trim,htmlspecialchars'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -82,7 +82,8 @@ class Basic extends BaseLogic
         foreach ($receive_data as $key => $value) {
             (new ModelConfig)
                 ->where([
-                    ['name', '=', $key]
+                    ['name', '=', $key],
+                    ['lang', '=', $this->lang->getLangSet()],
                 ])
                 ->data([
                     'value' => $value

@@ -121,7 +121,11 @@ class DataFilter
         $_data = $fc->getAutoWord($_data);
         unset($fc);
         foreach ($_data as $key => $value) {
-            $_data[$key] = $value[0];
+            if (1 < mb_strlen($value[0], 'utf-8')) {
+                $_data[$key] = $value[0];
+            } else {
+                unset($_data[$key]);
+            }
         }
         $_data = array_unique($_data);
         sort($_data);
@@ -167,7 +171,7 @@ class DataFilter
                 }
             }, $matches[3] . ' ');
 
-            return '<' . $matches[1] . $matches[2] . $matches[3] . '>';
+            return '<' . trim($matches[1]) . trim($matches[2]) . rtrim($matches[3]) . '>';
         }, $_str);
     }
 
