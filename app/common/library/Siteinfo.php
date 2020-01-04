@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Cache;
+use think\facade\Lang;
 use think\facade\Request;
 use app\common\model\Config as ModelConfig;
 use app\common\model\Article as ModelArticle;
@@ -27,10 +28,10 @@ class Siteinfo
     private $appName = '';
     private $langSet = '';
 
-    public function query(string $_appname, string $_lang): array
+    public function query(string $_appname): array
     {
         $this->appName = $_appname;
-        $this->langSet = $_lang;
+        $this->langSet = Lang::getLangSet();
 
         $cache_key = $this->appName . $this->langSet;
         $cache_key = md5($cache_key);
@@ -223,7 +224,7 @@ class Siteinfo
                 ['name', '=', $this->appName . '_footer'],
                 ['lang', '=', $this->langSet]
             ])
-            ->value('value', 'footer');
+            ->value('value', '');
 
         return htmlspecialchars_decode($result);
     }
@@ -258,6 +259,9 @@ class Siteinfo
                 ['lang', '=', $this->langSet]
             ])
             ->value('value', 'default');
+        if ($result === 'default') {
+            \think\facade\Log::record($this->appName . $this->langSet, 'alert');
+        }
 
         return strip_tags(htmlspecialchars_decode($result));
     }

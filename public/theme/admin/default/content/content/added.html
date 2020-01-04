@@ -33,10 +33,11 @@
 
             <div class="form-group">
                 <label>{:lang('category')}</label>
+                <!-- disabled -->
                 <select class="form-control" name="category_id" v-model="category_id" v-on:change="filterType">
                     <option value="0">{:lang('select')}</option>
                     <template v-for="vo in category_list">
-                        <optgroup v-if="vo.child" v-bind:label="vo.name"></optgroup>
+                        <optgroup v-if="vo.child || vo.model_id >= 4" v-bind:label="vo.name"></optgroup>
                         <option v-else v-bind:value="vo.id" v-text="vo.name"></option>
                         <template v-for="v in vo.child">
                             <option v-bind:value="v.id" v-text="v.name"></option>
@@ -55,9 +56,47 @@
                 </select>
             </div>
 
-            <template style="display:black;" v-if="model_id <= 3">
+            <!-- 模型:文章 -->
+            <template v-if="model_id==1">
                 <div class="form-group">
-                    <label>{:lang('com')}</label>
+                    <label>{:lang('thumb')}</label>
+                    <input type="text" name="thumb" class="form-control">
+                    <input type="file" name="upload" id="upload" v-on:change="upload('thumb')" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>{:lang('origin')}</label>
+                    <input type="text" name="origin" class="form-control">
+                </div>
+            </template>
+
+            <!-- 模型:相册 -->
+            <template v-if="model_id==2">
+                <div class="form-group">
+                    <label>{:lang('image')}</label>
+                    <input type="text" name="image_url" class="form-control">
+                    <input type="file" name="upload" id="upload" v-on:change="upload('image')" class="form-control">
+                </div>
+            </template>
+
+            <!-- 模型:下载 -->
+            <template v-if="model_id==3">
+                <div class="form-group">
+                    <label>{:lang('file')}</label>
+                    <input type="text" name="file_url" class="form-control">
+                    <input type="file" name="upload" id="upload" v-on:change="upload('file')" class="form-control">
+                </div>
+            </template>
+
+            <!-- 模型:文章,下载,单页 -->
+            <div class="form-group" v-show="model_id==1 || model_id==3 || model_id==4">
+                <label>{:lang('content')}</label>
+                <textarea name="content" id="editor"></textarea>
+            </div>
+
+            <!-- 模型:文章,相册,下载 -->
+            <template v-if="model_id<=3">
+                <div class="form-group">
+                    <label>{:lang('commend')}</label>
                     <label>
                         <input type="radio" name="is_com" value="1"> {:lang('yes')}
                     </label>
@@ -106,11 +145,6 @@
                     </select>
                 </div>
             </template>
-
-            <div class="form-group" v-show="model_id==1">
-                <label>{:lang('content')}</label>
-                <textarea name="content" id="editor"></textarea>
-            </div>
         </form>
     </div>
     <div class="box-footer">
@@ -179,7 +213,6 @@
                     ClassicEditor
                         .create(document.querySelector('#editor'), {
                             language: 'zh-cn'
-                            // toolbar: [ 'heading', '|', 'bold', 'italic', 'link' ]
                         })
                         .then(editor => {
                             window.editor = editor;
@@ -209,7 +242,6 @@
             save: function () {
                 var data = jQuery('#article').serializeArray();
                 data.push({ name: 'method', value: 'content.content.added' });
-                data.push({ name: 'pid', value: NICMS.api.param.id });
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',
@@ -222,7 +254,7 @@
                     }
                 });
             },
-            upload: function () {
+            upload: function (_type) {
                 var data = new FormData(document.getElementById('content'));
                 data.append('method', 'content.content.upload');
                 data.append('width', 100);

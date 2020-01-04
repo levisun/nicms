@@ -33,9 +33,7 @@ class Record extends Async
                 ->cacheControl('max-age=60,must-revalidate')
                 ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + 60) . ' GMT')
                 ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + 60) . ' GMT')
-                ->header([
-                    'Content-Type' => 'application/javascript'
-                ]);
+                ->contentType('application/javascript');
         }
 
         return miss(404);

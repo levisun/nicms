@@ -65,7 +65,7 @@ class Content extends BaseLogic
         $result = (new ModelArticle)
             ->view('article', ['id', 'category_id', 'title', 'is_com', 'is_hot', 'is_top', 'username', 'access_id', 'hits', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
-            ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
+            ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id')
             ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
             ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
             ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')

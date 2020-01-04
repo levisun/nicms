@@ -15,6 +15,7 @@
 return [
     // 跨域
     \app\common\middleware\AllowCrossDomain::class,
-    // 全局请求缓存
-    \app\common\middleware\CheckRequestCache::class,
+    // 请求缓存在\app\common\event\CheckRequest::class中定义
+    // API不做文件[redis]缓存
+    // 请勿使用\app\common\middleware\CheckRequestCache::class中间件
 ];

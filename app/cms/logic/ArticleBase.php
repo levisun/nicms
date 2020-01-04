@@ -23,8 +23,8 @@ use app\common\library\Canvas;
 use app\common\library\DataFilter;
 use app\common\library\Download;
 use app\common\model\Article as ModelArticle;
-use app\common\model\ArticleExtend as ModelArticleExtend;
 use app\common\model\ArticleTags as ModelArticleTags;
+use app\common\model\FieldsExtend as ModelFieldsExtend;
 
 class ArticleBase extends BaseLogic
 {
@@ -91,7 +91,7 @@ class ArticleBase extends BaseLogic
             $result = (new ModelArticle)
                 ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'username', 'access_id', 'hits', 'update_time'])
                 ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
-                ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
+                ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id')
                 ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
                 ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                 ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
@@ -123,10 +123,11 @@ class ArticleBase extends BaseLogic
                     unset($value['username']);
 
                     // 附加字段数据
-                    $fields = (new ModelArticleExtend)
-                        ->view('article_extend extend', ['data'])
+                    $fields = (new ModelFieldsExtend)
+                        ->view('fields_extend extend', ['data'])
                         ->view('fields fields', ['name' => 'fields_name'], 'fields.id=extend.fields_id')
                         ->where([
+                            ['extend.model_id', '=', $value['model_id']],
                             ['extend.article_id', '=', $value['id']],
                         ])
                         ->select()
@@ -179,8 +180,7 @@ class ArticleBase extends BaseLogic
                 $result = (new ModelArticle)
                     ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'username', 'access_id', 'hits', 'update_time'])
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
-                    ->view('model', ['name' => 'model_name', 'table_name'], 'model.id=category.model_id')
-                    // ->view('article_content', ['thumb', 'content'], 'article_content.article_id=article.id', 'LEFT')
+                    ->view('model', ['id' => 'model_id', 'name' => 'model_name', 'table_name'], 'model.id=category.model_id')
                     ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                     ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
                     ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
@@ -202,20 +202,23 @@ class ArticleBase extends BaseLogic
                     unset($result['username']);
 
                     // 上一篇 下一篇
-                    $result['next'] = $this->next((int) $result['id']);
-                    $result['prev'] = $this->prev((int) $result['id']);
+                    if ($result['model_id'] <= 3) {
+                        $result['next'] = $this->next((int) $result['id']);
+                        $result['prev'] = $this->prev((int) $result['id']);
+                    }
 
                     // 附加字段数据
-                    $fields = (new ModelArticleExtend)
-                        ->view('article_extend extend', ['data'])
+                    $fields = (new ModelFieldsExtend)
+                        ->view('fields_extend extend', ['data'])
                         ->view('fields fields', ['name' => 'fields_name'], 'fields.id=extend.fields_id')
                         ->where([
+                            ['extend.model_id', '=', $result['model_id']],
                             ['extend.article_id', '=', $result['id']],
                         ])
-                        ->select();
-                    $fields = $fields ? $fields->toArray() : [];
+                        ->select()
+                        ->toArray();
                     foreach ($fields as $val) {
-                        $result[$val['fields_name']] = $val['data'];
+                        $value[$val['fields_name']] = $val['data'];
                     }
 
                     // 标签
@@ -244,7 +247,7 @@ class ArticleBase extends BaseLogic
                         unset($content['id'], $content['article_id']);
                         foreach ($content as $key => $value) {
                             if (!$value) {
-                                $result[$key] = $value;
+                                $result[$key] = '';
                                 continue;
                             }
 
@@ -261,12 +264,7 @@ class ArticleBase extends BaseLogic
 
                                     // 文章内容
                                 case 'content':
-                                    $value = DataFilter::decode($value);
-                                    $result[$key] = $value;
-                                    // $result[$key] = preg_replace_callback('/(src=["|\']+)([a-zA-Z0-9\._\/\\\]+)(["|\']+)/si', function ($matches) {
-                                    //     $thumb = (new Canvas)->image($matches[2]);
-                                    //     return 'src="' . $thumb . '"';
-                                    // }, $value);
+                                    $result[$key] = DataFilter::decode($value);
                                     break;
 
                                     // 下载文件

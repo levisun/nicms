@@ -69,7 +69,13 @@
                         <td v-text="vo.access_name"></td>
                         <td v-text="vo.update_time"></td>
                         <td>
-                            <a class="editor" v-bind:href="vo.url.editor">
+                            <a class="show" v-if="model_id==5">
+                                {:lang('feedback')}
+                            </a>
+                            <a class="show" v-if="model_id==6">
+                                {:lang('see')}
+                            </a>
+                            <a class="editor" v-if="model_id<=4" v-bind:href="vo.url.editor">
                                 <i class="fa fa-pencil-square-o"></i>
                                 {:lang('editor')}
                             </a>

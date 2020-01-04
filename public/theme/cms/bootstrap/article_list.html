@@ -1,0 +1,26 @@
+<script>
+    let list = new Vue({
+        el: '#layout-list',
+        data: {
+            items: [],
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'article.lists.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            list.items = result.data.list;
+                        }
+                    }
+                });
+            }
+        }
+    });
+    list.load();
+</script>

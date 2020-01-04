@@ -42,22 +42,22 @@ class AppMaintain
                 (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1);
 
                 // 删除根目录多余文件
-                $files = (array) glob(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '*');
-                $cant = [
-                    '.htaccess',
-                    '.nginx',
-                    'favicon.ico',
-                    'index.php',
-                    'robots.txt',
-                    'router.php',
-                    'sitemap.xml',
-                ];
-                foreach ($files as $key => $file) {
-                    $file_name = pathinfo($file, PATHINFO_BASENAME);
-                    if (is_file($file) && !in_array($file_name, $cant)) {
-                        unlink($file);
-                    }
-                }
+                // $files = (array) glob(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '*');
+                // $cant = [
+                //     '.htaccess',
+                //     '.nginx',
+                //     'favicon.ico',
+                //     'index.php',
+                //     'robots.txt',
+                //     'router.php',
+                //     'sitemap.xml',
+                // ];
+                // foreach ($files as $key => $file) {
+                //     $file_name = pathinfo($file, PATHINFO_BASENAME);
+                //     if (is_file($file) && !in_array($file_name, $cant)) {
+                //         unlink($file);
+                //     }
+                // }
             });
 
             // 生成网站地图

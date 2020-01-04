@@ -26,7 +26,6 @@ class Ip extends Async
 
     public function index()
     {
-
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
         if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
             $ip = (new Ipinfo)->get($ip);
@@ -44,9 +43,7 @@ class Ip extends Async
                 ->cacheControl('max-age=1440,must-revalidate')
                 ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + 1440) . ' GMT')
                 ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + 1440) . ' GMT')
-                ->header([
-                    'Content-Type' => 'application/javascript'
-                ]);
+                ->contentType('application/javascript');
         }
 
 

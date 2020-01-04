@@ -14,7 +14,7 @@
 
 return [
     //验证码位数
-    'length'   => 5,
+    'length'   => 3,
     // 验证码字符集合
     'codeSet'  => '2345678abcdefhijkmnpqrstuvwxyzABCDEFGHJKLMNPQRTUVWXY',
     // 验证码过期时间
@@ -22,7 +22,7 @@ return [
     // 是否使用中文验证码
     'useZh'    => false,
     // 是否使用算术验证码
-    'math'     => false,
+    'math'     => true,
     // 是否使用背景图
     'useImgBg' => false,
     //验证码字符大小
@@ -41,10 +41,4 @@ return [
     'imageW'   => 0,
 
     // 添加额外的验证码设置
-    'verify_zh' => [
-        'useZh' => true,
-    ],
-    'verify_math' => [
-        'math' => true,
-    ]
 ];

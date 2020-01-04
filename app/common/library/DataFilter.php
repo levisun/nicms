@@ -85,6 +85,7 @@ class DataFilter
             $_data = trim($_data);
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = (new Emoji)->decode($_data);
+            $_data = self::element($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::decode($value);
@@ -147,6 +148,7 @@ class DataFilter
             $matches[3] = preg_replace_callback('/([a-zA-Z0-9-_]+)=(.*?)( )/si', function ($ema) {
                 $ema[1] = strtolower($ema[1]);
                 $ema[2] = trim($ema[2], '"\'');
+                $ema[2] = trim($ema[2]);
                 $ema[2] = str_replace(['"', '\'', '<', '>'], '', $ema[2]);
 
                 // 过滤外链
@@ -158,8 +160,10 @@ class DataFilter
                 $attr = ['src', 'alt', 'title', 'target', 'rel', 'height', 'width', 'align'];
                 if (!in_array($ema[1], $attr)) {
                     return;
-                } else {
+                } elseif ($ema[2]) {
                     return ' ' . $ema[1] . '="' . $ema[2] . '"';
+                } else {
+                    return;
                 }
             }, $matches[3] . ' ');
 

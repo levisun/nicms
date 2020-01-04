@@ -30,7 +30,7 @@ class Index extends BaseController
      */
     public function initialize()
     {
-        $result = (new Siteinfo)->query('book', $this->app->lang->getLangSet());
+        $result = (new Siteinfo)->query('book');
         $this->view->config([
             'view_theme' => $result['theme'],
             // 'tpl_replace_string' => [

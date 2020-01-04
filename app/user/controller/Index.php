@@ -29,7 +29,7 @@ class Index extends BaseController
      */
     public function initialize()
     {
-        $result = (new Siteinfo)->query();
+        $result = (new Siteinfo)->query('user');
         $this->view->config([
             'view_theme' => $result['theme'],
             'tpl_replace_string' => [

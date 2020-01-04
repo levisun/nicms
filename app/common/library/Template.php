@@ -427,10 +427,9 @@ class Template implements TemplateHandlerInterface
             $pattern = [
                 '/(\/\*)(.*?)(\*\/)/i',
                 '/(\/\/)(.*?)(\n|\r)+/i',
-                '/\n|\r|\f/'
+                '/\n|\r|\f/',
             ];
             $matches[3] = preg_replace($pattern, '', $matches[3]);
-
             $this->script .= $matches[3];
             return;
         }, $_content);

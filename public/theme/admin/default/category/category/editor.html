@@ -92,10 +92,9 @@
                 </select>
             </div>
 
-            <p><b>{:lang('url')}</b></p>
-            <div class="input-group">
-                <span class="input-group-addon">https://</span>
-                <input type="text" name="url" class="form-control">
+            <div class="form-group">
+                <label>{:lang('url')}</label>
+                <input type="text" name="url" class="form-control" v-bind:value="items.url">
             </div>
         </form>
     </div>
