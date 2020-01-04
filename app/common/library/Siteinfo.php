@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Cache;
+use think\facade\config;
 use think\facade\Lang;
 use think\facade\Request;
 use app\common\model\Config as ModelConfig;
@@ -31,7 +32,7 @@ class Siteinfo
     public function query(string $_appname): array
     {
         $this->appName = $_appname;
-        $this->langSet = Lang::getLangSet();
+        $this->langSet = Lang::getLangSet() ?: Config::get('lang.default_lang');
 
         $cache_key = $this->appName . $this->langSet;
         $cache_key = md5($cache_key);

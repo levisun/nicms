@@ -27,7 +27,7 @@ return [
             // 缓存前缀
             'prefix'        => '',
             // 缓存有效期 0表示永久缓存
-            'expire'        => (int) Env::get('cache.expire', 28800) - mt_rand(0, 1440),
+            'expire'        => (int) Env::get('cache.expire', 28800) - mt_rand(1, 1440),
             // 关闭子目录
             'cache_subdir'  => false,
             // 启用数据压缩

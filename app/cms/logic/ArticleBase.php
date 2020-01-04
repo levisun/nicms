@@ -71,11 +71,10 @@ class ArticleBase extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
-            $query = DataFilter::word($search_key, 3);
-            foreach ($query as $key => $value) {
-                $query[$key] = '%' . $value . '%';
+            $query_search = DataFilter::word($search_key);
+            if (!empty($query_search)) {
+                $map[] = ['article.title', 'regexp', implode('|', $query_search)];
             }
-            $map[] = ['article.title', 'like', $query, 'OR'];
         }
 
         $query_limit = $this->request->param('limit/d', 10);
@@ -153,7 +152,7 @@ class ArticleBase extends BaseLogic
                     $list['data'][$key] = $value;
                 }
 
-                $this->cache->tag('cms article list' . $category_id)->set($cache_key, $list);
+                // $this->cache->tag('cms article list' . $category_id)->set($cache_key, $list);
             }
         }
 

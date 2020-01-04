@@ -111,7 +111,7 @@ class CheckRequestCache
                     '/<meta name="csrf-token" content="(.*?)">/si' => '<meta name="csrf-token" content="" />',
                 ];
                 $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $content);
-                Cache::tag('request')->set($this->key, $content, mt_rand(27700, 28800));
+                Cache::tag('request')->set($this->key, $content, mt_rand(27360, 28800));
 
                 $_response = $this->browserCache($_response, $_request);
             }

@@ -109,11 +109,11 @@ class Tags
             '<meta name="force-rendering" content="webkit" />' .
             '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' .
 
-            '<meta name="generator" content="nicms" />' .
             '<meta name="author" content="levisun.mail@gmail.com" />' .
+            '<meta name="generator" content="nicms" />' .
             '<meta name="copyright" content="2013-<?php echo date("Y");?> nicms all rights reserved" />' .
 
-            '<meta http-equiv="Window-target" content="_blank">' .
+            '<meta http-equiv="Window-target" content="_top">' .
             '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' .
 
             '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
