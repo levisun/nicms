@@ -47,7 +47,8 @@ class CheckRequest
         }
 
         if (1 === mt_rand(1, 999)) {
-            $response = miss(500);
+            Log::record('[命运]', 'alert')->save();
+            $response = miss(502, false);
             throw new HttpResponseException($response);
         }
 
@@ -57,7 +58,7 @@ class CheckRequest
         $lock  = $path . md5(Request::ip() . date('Ymd')) . '.lock';
         if (is_file($lock)) {
             Log::record('[锁定]', 'alert')->save();
-            $response = miss(502);
+            $response = miss(502, false);
             throw new HttpResponseException($response);
         }
     }

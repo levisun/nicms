@@ -77,7 +77,7 @@ class User extends BaseLogic
                     'flag'               => $this->session->getId(false),
                     'last_login_time'    => time(),
                     'last_login_ip'      => $info['ip'],
-                    'last_login_ip_attr' => $info['country_id'] ? $info['region'] . $info['city'] . $info['area'] : ''
+                    'last_login_ip_attr' => isset($info['country_id']) ? $info['region'] . $info['city'] . $info['area'] : ''
                 ])
                 ->update();
 

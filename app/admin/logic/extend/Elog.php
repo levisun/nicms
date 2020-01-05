@@ -31,7 +31,7 @@ class Elog extends BaseLogic
      */
     public function query(): array
     {
-        $path = app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR;
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR;
         $file = (array) glob($path . '*');
         rsort($file);
 
@@ -74,7 +74,7 @@ class Elog extends BaseLogic
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id, date('Ymd'))) {
 
-            $file = app()->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . $id;
+            $file = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . $id;
             if (is_file($file)) {
                 $data = file_get_contents($file);
                 $data = nl2br($data);

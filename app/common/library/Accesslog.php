@@ -92,7 +92,7 @@ class AccessLog
             } else {
                 (new ModelVisit)->save([
                         'ip'         => $ip['ip'],
-                        'ip_attr'    => $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'],
+                        'ip_attr'    => isset($ip['country']) ? $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'] : '',
                         'user_agent' => $this->userAgent,
                         'date'       => strtotime(date('Y-m-d'))
                     ]);
