@@ -4,11 +4,15 @@
         <div id="list" class="col-md-9">
             <div class="card">
                 <div class="card-body">
-                    <h3 v-html="items.title"></h3>
+                    <h3><a v-bind:href="items.url" v-html="items.title"></a></h3>
                     <p class="text-muted">
                         <span style="margin-right:10px;">
                             <i class="fa fa-calendar-day"></i>
                             <font v-text="items.update_time"></font>
+                        </span>
+                        <span style="margin-right:10px;">
+                            <i class="fa fa-calendar-day"></i>
+                            <a v-bind:href="items.cat_url" v-text="items.cat_name"></a>
                         </span>
                         <span style="margin-right:10px;">
                             <i class="fa fa-user"></i>

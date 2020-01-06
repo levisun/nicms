@@ -277,7 +277,7 @@ class ArticleBase extends BaseLogic
                         }
                     }
 
-                    $this->cache->tag('cms article' . $id)->set($cache_key, $result);
+                    // $this->cache->tag('cms article' . $id)->set($cache_key, $result);
                 }
             }
         }
