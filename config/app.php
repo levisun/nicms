@@ -70,7 +70,7 @@ return [
     // 异常页面的模板文件
     'exception_tmpl'   => Env::get('app_debug', false)
         ? app()->getThinkPath() . 'tpl/think_exception.tpl'
-        : miss(502),
+        : app()->getRootPath() . 'public/theme/404.html',
     // 错误显示信息,非调试模式有效
     'error_message'    => '页面错误！请稍后再试～',
     // 显示错误信息
