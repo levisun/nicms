@@ -76,6 +76,28 @@ class Dashboard extends BaseLogic
 
     private function total()
     {
+        $ip = (new ModelIpInfo)->count();
+        $session_path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR;
+        $browse = (new ModelVisit)
+            ->field('max(count) as count')->where([
+                ['date', '=', strtotime(date('Y-m-d'))]
+            ])
+            ->value('count', 0);
+        $searchengine = (new ModelSearchengine)
+            ->field('max(count) as count')->where([
+                ['date', '=', strtotime(date('Y-m-d'))]
+            ])
+            ->value('count', 0);
+        return [
+            'ip'      => number_format($ip),
+            'session' => number_format(count((array) glob($session_path . '*'))),
+            'access'  => [
+                'browse'       => number_format($browse),
+                'searchengine' => number_format($searchengine),
+            ]
+        ];
+
+
         // IP统计
         $ip_total = (new ModelIpInfo)->count();
 

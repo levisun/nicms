@@ -183,7 +183,7 @@ class UploadFile
                     unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
                 }
                 $save_file = $webp_file;
-            } else {
+            } elseif ('gif' !== $_files->extension()) {
                 // 转换jpg格式
                 $jpg_file = str_replace('.' . $_files->extension(), '.jpg', $save_file);
                 $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $jpg_file, 'jpg');
@@ -280,22 +280,22 @@ class UploadFile
                 $file['file'] = trim($file['file'], " \/,._-\t\n\r\0\x0B");
                 $file['file'] = $path . str_replace('/', DIRECTORY_SEPARATOR, $file['file']);
 
-                // 删除系统生成的缩略图
-                $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                $mime = finfo_file($finfo, $file['file']);
-                if (false !== strpos($mime, 'image/')) {
-                    $extension = '.' . pathinfo($file['file'], PATHINFO_EXTENSION);
-                    for ($i = 1; $i <= 8; $i++) {
-                        $size = $i * 100;
-                        $thumb = str_replace($extension, '_' . $size . $extension, $file['file']);
-                        if (is_file($thumb)) {
-                            @unlink($thumb);
+                if (is_file($file['file'])) {
+                    // 删除系统生成的缩略图
+                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                    $mime = finfo_file($finfo, $file['file']);
+                    if (false !== strpos($mime, 'image/')) {
+                        $extension = '.' . pathinfo($file['file'], PATHINFO_EXTENSION);
+                        for ($i = 1; $i <= 8; $i++) {
+                            $size = $i * 100;
+                            $thumb = str_replace($extension, '_' . $size . $extension, $file['file']);
+                            if (is_file($thumb)) {
+                                @unlink($thumb);
+                            }
                         }
                     }
-                }
 
-                // 删除文件
-                if (is_file($file['file'])) {
+                    // 删除文件
                     @unlink($file['file']);
                 }
             }
@@ -323,22 +323,22 @@ class UploadFile
         $abs_file = trim($_file, " \/,._-\t\n\r\0\x0B");
         $abs_file = $path . str_replace('/', DIRECTORY_SEPARATOR, $abs_file);
 
-        // 删除系统生成的缩略图
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime = finfo_file($finfo, $abs_file);
-        if (false !== strpos($mime, 'image/')) {
-            $extension = '.' . pathinfo($abs_file, PATHINFO_EXTENSION);
-            for ($i = 1; $i <= 8; $i++) {
-                $size = $i * 100;
-                $thumb = str_replace($extension, '_' . $size . $extension, $abs_file);
-                if (is_file($thumb)) {
-                    @unlink($thumb);
+        if (is_file($abs_file)) {
+            // 删除系统生成的缩略图
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_file($finfo, $abs_file);
+            if (false !== strpos($mime, 'image/')) {
+                $extension = '.' . pathinfo($abs_file, PATHINFO_EXTENSION);
+                for ($i = 1; $i <= 8; $i++) {
+                    $size = $i * 100;
+                    $thumb = str_replace($extension, '_' . $size . $extension, $abs_file);
+                    if (is_file($thumb)) {
+                        @unlink($thumb);
+                    }
                 }
             }
-        }
 
-        // 删除文件
-        if (is_file($abs_file)) {
+            // 删除文件
             @unlink($abs_file);
         }
 

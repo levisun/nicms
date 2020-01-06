@@ -35,10 +35,16 @@ class Fields extends BaseLogic
     {
         $query_limit = $this->request->param('limit/d', 10);
 
+        $map = [];
+        if ($category_id = $this->request->param('category_id/d')) {
+            $map[] = ['fields.category_id', '=', $category_id];
+        }
+
         $result = (new ModelFields)
             ->view('fields', ['id', 'name', 'is_require', 'remark'])
             ->view('category', ['name' => 'cat_name'], 'category.id=fields.category_id')
-            ->view('fields_type', ['name' => 'type_name'], 'fields_type.id=fields.type_id')
+            ->view('fields_type', ['id' => 'type_id', 'name' => 'type_name'], 'fields_type.id=fields.type_id')
+            ->where($map)
             ->order('fields.id DESC')
             ->paginate([
                 'list_rows' => $query_limit,

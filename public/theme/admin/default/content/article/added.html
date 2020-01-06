@@ -22,36 +22,16 @@
             </div>
 
             <div class="form-group">
-                <label>{:lang('keywords')}</label>
-                <textarea name="keywords" class="form-control"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label>{:lang('description')}</label>
-                <textarea name="description" class="form-control"></textarea>
-            </div>
-
-            <div class="form-group">
                 <label>{:lang('category')}</label>
                 <!-- disabled -->
                 <select class="form-control" name="category_id" v-model="category_id" v-on:change="filterType">
                     <option value="0">{:lang('select')}</option>
                     <template v-for="vo in category_list">
-                        <optgroup v-if="vo.child || vo.model_id >= 4" v-bind:label="vo.name"></optgroup>
+                        <optgroup v-if="vo.child || vo.model_id>=4" v-bind:label="vo.name"></optgroup>
                         <option v-else v-bind:value="vo.id" v-text="vo.name"></option>
                         <template v-for="v in vo.child">
                             <option v-bind:value="v.id" v-text="v.name"></option>
                         </template>
-                    </template>
-                </select>
-            </div>
-
-            <div class="form-group" v-if="has_type">
-                <label>{:lang('type')}</label>
-                <select class="form-control" name="type_id">
-                    <option value="0">{:lang('select')}</option>
-                    <template v-for="vo in type_list">
-                        <option v-bind:value="vo.id" v-text="vo.name"></option>
                     </template>
                 </select>
             </div>
@@ -86,12 +66,6 @@
                     <input type="file" name="upload" id="upload" v-on:change="upload('file')" class="form-control">
                 </div>
             </template>
-
-            <!-- 模型:文章,下载,单页 -->
-            <div class="form-group" v-show="model_id==1 || model_id==3 || model_id==4">
-                <label>{:lang('content')}</label>
-                <textarea name="content" id="editor"></textarea>
-            </div>
 
             <!-- 模型:文章,相册,下载 -->
             <template v-if="model_id<=3">
@@ -145,6 +119,37 @@
                     </select>
                 </div>
             </template>
+
+            <!-- 分类 -->
+            <div class="form-group" v-if="has_type">
+                <label>{:lang('type')}</label>
+                <select class="form-control" name="type_id">
+                    <option value="0">{:lang('select')}</option>
+                    <template v-for="vo in type_list">
+                        <option v-bind:value="vo.id" v-text="vo.name"></option>
+                    </template>
+                </select>
+            </div>
+
+            <!-- 自定义字段 -->
+            <template v-if="has_fields">
+                <div class="form-group" v-for="vo in fields_list">
+                    <label v-text="vo.name"></label>
+                    <template v-if="1==vo.type_id">
+                        <textarea v-bind:name="'fields['+vo.id+']'" class="form-control"></textarea>
+                    </template>
+                    <template v-else>
+                        <input type="text" v-bind:name="'fields['+vo.id+']'" class="form-control">
+                    </template>
+                </div>
+            </template>
+
+            <!-- 模型:文章,下载,单页 -->
+            <div class="form-group" v-show="model_id==1 || model_id==3 || model_id==4">
+                <label>{:lang('content')}</label>
+                <textarea name="content" id="editor"></textarea>
+            </div>
+
         </form>
     </div>
     <div class="box-footer">
@@ -159,9 +164,12 @@
         el: '.box',
         data: {
             has_type: false,
+            type_list: [],
+            has_fields: false,
+            fields_list: [],
+
             category_id: 0,
             category_list: [],
-            type_list: [],
             model_id: 0,
             items: [],
         },
@@ -226,7 +234,8 @@
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.type.query' },
-                        { name: 'category_id', value: article.category_id }
+                        { name: 'category_id', value: article.category_id },
+                        { name: 'limit', value: 100 }
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
@@ -235,6 +244,25 @@
                         } else {
                             article.has_type = false;
                             article.type_list = [];
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'category.fields.query' },
+                        { name: 'category_id', value: article.category_id },
+                        { name: 'limit', value: 100 }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            article.has_fields = true;
+                            article.fields_list = result.data.list;
+                        } else {
+                            article.has_fields = false;
+                            article.fields_list = [];
                         }
                     }
                 });

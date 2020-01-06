@@ -22,7 +22,7 @@ class Rbac
 {
     private $config = [
         'auth_founder'     => 1,        // 超级管理员ID
-        'auth_type'        => false,    // 实时验证方式
+        'auth_type'        => true,     // 实时验证方式
         'not_auth_app'     => [],
         'not_auth_service' => [],
         'not_auth_logic'   => [],

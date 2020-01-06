@@ -20,11 +20,11 @@ namespace app\admin\logic\content;
 use app\common\controller\BaseLogic;
 use app\common\library\DataFilter;
 use app\common\model\Article as ModelArticle;
-use app\common\model\ArticleExtend as ModelArticleExtend;
 use app\common\model\ArticleTags as ModelArticleTags;
+use app\common\model\Fields as ModelFields;
 use app\common\model\Level as ModelLevel;
 
-class Content extends BaseLogic
+class Article extends BaseLogic
 {
     protected $authKey = 'admin_auth_key';
 
@@ -37,6 +37,7 @@ class Content extends BaseLogic
     {
         $map = [
             // ['article.is_pass', '=', '1'],
+            ['model_id', '<=', '4'],
             ['article.lang', '=', $this->lang->getLangSet()]
         ];
 
@@ -47,7 +48,7 @@ class Content extends BaseLogic
 
         // 安模型查询,为空查询所有
         if ($model_id = $this->request->param('mid/d', 0)) {
-            $map[] = ['article.model_id', '=', $model_id];
+            $map[] = ['model_id', '=', $model_id];
         }
 
         // 搜索
@@ -134,7 +135,6 @@ class Content extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d')) {
-
         }
 
         $result['access_list'] = (new ModelLevel)

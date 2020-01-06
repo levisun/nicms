@@ -26,13 +26,13 @@ class Record extends Async
 
     public function index()
     {
-        if ($this->isReferer(false)) {
+        if ($this->isReferer()) {
             (new AccessLog)->record();
 
             return Response::create()->allowCache(true)
-                ->cacheControl('max-age=60,must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + 60) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + 60) . ' GMT')
+                ->cacheControl('max-age=30,must-revalidate')
+                ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + 30) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + 30) . ' GMT')
                 ->contentType('application/javascript');
         }
 

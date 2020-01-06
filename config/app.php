@@ -16,7 +16,7 @@ use think\facade\Env;
 use think\facade\Request;
 
 return [
-    'version'          => '1.0.1CB10',
+    'version'          => '1.0.1CB200106',
     'theme'            => Env::get('admin.theme', 'default'),
     // 后台入口域名
     'entry'            => Env::get('admin.entry', 'admin'),
@@ -53,12 +53,11 @@ return [
     'app_map'          => [],
     // 域名绑定（自动多应用模式有效）
     'domain_bind'      => [
+        Env::get('admin.entry', 'admin') => 'admin',
         'api'   => 'api',
         'book'  => 'book',
         'my'    => 'user',
         'www'   => 'cms',
-        Env::get('admin.entry', 'admin') => 'admin',
-
         'cdn'   => 'cms',
         'img'   => 'cms',
     ],
@@ -69,7 +68,9 @@ return [
     // 默认时区
     'default_timezone' => 'Asia/Shanghai',
     // 异常页面的模板文件
-    'exception_tmpl'   => Env::get('app_debug', false) ? app()->getThinkPath() . 'tpl/think_exception.tpl' : miss(502),
+    'exception_tmpl'   => Env::get('app_debug', false)
+        ? app()->getThinkPath() . 'tpl/think_exception.tpl'
+        : miss(502),
     // 错误显示信息,非调试模式有效
     'error_message'    => '页面错误！请稍后再试～',
     // 显示错误信息

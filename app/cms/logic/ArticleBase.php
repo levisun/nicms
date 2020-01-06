@@ -71,7 +71,7 @@ class ArticleBase extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
-            $query_search = DataFilter::word($search_key);
+            $query_search = DataFilter::word($search_key, 5);
             if (!empty($query_search)) {
                 $map[] = ['article.title', 'regexp', implode('|', $query_search)];
             }
@@ -123,11 +123,11 @@ class ArticleBase extends BaseLogic
 
                     // 附加字段数据
                     $fields = (new ModelFieldsExtend)
-                        ->view('fields_extend extend', ['data'])
-                        ->view('fields fields', ['name' => 'fields_name'], 'fields.id=extend.fields_id')
+                        ->view('fields_extend', ['data'])
+                        ->view('fields', ['name' => 'fields_name'], 'fields.id=fields_extend.fields_id')
                         ->where([
-                            ['extend.model_id', '=', $value['model_id']],
-                            ['extend.article_id', '=', $value['id']],
+                            ['fields_extend.model_id', '=', $value['model_id']],
+                            ['fields_extend.article_id', '=', $value['id']],
                         ])
                         ->select()
                         ->toArray();
@@ -152,7 +152,7 @@ class ArticleBase extends BaseLogic
                     $list['data'][$key] = $value;
                 }
 
-                // $this->cache->tag('cms article list' . $category_id)->set($cache_key, $list);
+                $this->cache->tag('cms article list' . $category_id)->set($cache_key, $list);
             }
         }
 
@@ -208,11 +208,11 @@ class ArticleBase extends BaseLogic
 
                     // 附加字段数据
                     $fields = (new ModelFieldsExtend)
-                        ->view('fields_extend extend', ['data'])
-                        ->view('fields fields', ['name' => 'fields_name'], 'fields.id=extend.fields_id')
+                        ->view('fields_extend', ['data'])
+                        ->view('fields', ['name' => 'fields_name'], 'fields.id=fields_extend.fields_id')
                         ->where([
-                            ['extend.model_id', '=', $result['model_id']],
-                            ['extend.article_id', '=', $result['id']],
+                            ['fields_extend.model_id', '=', $result['model_id']],
+                            ['fields_extend.article_id', '=', $result['id']],
                         ])
                         ->select()
                         ->toArray();
@@ -278,7 +278,7 @@ class ArticleBase extends BaseLogic
                         }
                     }
 
-                    $this->cache->set($cache_key, $result);
+                    $this->cache->tag('cms article' . $id)->set($cache_key, $result);
                 }
             }
         }

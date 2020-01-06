@@ -28,7 +28,11 @@
 
                 <div class="info-box-content">
                     <span class="info-box-text">{:lang('browse')}</span>
-                    <span class="info-box-number" v-text="items.total.access_total"></span>
+                    <span class="info-box-number">
+                        IP: <font v-text="items.total.ip"></font><br>
+                        browse: <font v-text="items.total.access.browse"></font>
+                        se: <font v-text="items.total.access.searchengine"></font>
+                    </span>
                 </div>
             </div>
         </div>
@@ -39,7 +43,7 @@
 
                 <div class="info-box-content">
                     <span class="info-box-text">{:lang('session')}</span>
-                    <span class="info-box-number" v-text="items.total.session_count"></span>
+                    <span class="info-box-number" v-text="items.total.session"></span>
                 </div>
             </div>
         </div>

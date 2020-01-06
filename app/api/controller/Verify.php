@@ -31,7 +31,7 @@ class Verify extends Async
      */
     public function img()
     {
-        if ($this->analysis()->isReferer(false)) {
+        if ($this->analysis()->isReferer()) {
             $captcha = Captcha::create();
             $this->session->save();
             $captcha = 'data:image/png;base64,' . base64_encode($captcha->getContent());

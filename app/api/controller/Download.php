@@ -25,7 +25,7 @@ class Download extends Async
 
     public function index()
     {
-        if ($this->isReferer(false)) {
+        if ($this->isReferer()) {
             if ($file = $this->request->param('file', false)) {
                 return (new DownloadFile)->file($file);
             }

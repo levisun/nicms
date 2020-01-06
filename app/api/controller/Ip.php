@@ -30,15 +30,17 @@ class Ip extends Async
         if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
             $ip = (new Ipinfo)->get($ip);
 
-            $data = 'var NICMS_IPINFO=' . json_encode($ip, JSON_UNESCAPED_UNICODE);
-
-            return Response::create($data)->allowCache(true)
-                ->cacheControl('max-age=1440,must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + 1440) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + 1440) . ' GMT')
-                ->contentType('application/javascript');
+            if ($this->isReferer()) {
+                return $this->cache(true)->success('IP', $ip);
+            } else {
+                $data = 'var NICMS_IPINFO=' . json_encode($ip, JSON_UNESCAPED_UNICODE);
+                return Response::create($data)->allowCache(true)
+                    ->cacheControl('max-age=1440,must-revalidate')
+                    ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + 1440) . ' GMT')
+                    ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + 1440) . ' GMT')
+                    ->contentType('application/javascript');
+            }
         }
-
 
         return miss(404);
     }
