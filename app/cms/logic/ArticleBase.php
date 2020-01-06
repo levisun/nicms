@@ -241,24 +241,23 @@ class ArticleBase extends BaseLogic
                     $content = $content->where([
                         ['article_id', '=', $id]
                     ])->find();
-                    if ($content) {
-                        $content = $content->toArray();
+                    if ($content && $content = $content->toArray()) {
                         unset($content['id'], $content['article_id']);
                         foreach ($content as $key => $value) {
-                            if (!$value) {
-                                $result[$key] = '';
-                                continue;
-                            }
-
                             switch ($key) {
                                     // 缩略图
                                 case 'thumb':
-                                    $result[$key] = (new Canvas)->image($value, 300);
+                                    $result[$key] = (new Canvas)->image($value);
                                     break;
 
                                     // 图片
                                 case 'image_url':
-                                    $result[$key] = (new Canvas)->image($value);
+                                    $value = unserialize($value);
+                                    foreach ($value as $v) {
+                                        $result[$key][] = $v ? (new Canvas)->image($v) : '';
+                                    }
+                                    $result[$key] = array_unique($result[$key]);
+                                    $result[$key] = array_filter($result[$key]);
                                     break;
 
                                     // 文章内容
@@ -268,7 +267,7 @@ class ArticleBase extends BaseLogic
 
                                     // 下载文件
                                 case 'file_url':
-                                    $result[$key] = Download::getUrl($value);
+                                    $result[$key] = $value ? Download::getUrl($value) : '';
                                     break;
 
                                 default:

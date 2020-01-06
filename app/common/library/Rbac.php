@@ -39,7 +39,7 @@ class Rbac
      * @param  string $_method  方法名
      * @return boolean
      */
-    public function authenticate($_uid, string $_app, string $_logic, string $_action, string $_method, array $_config = []): bool
+    public function authenticate(int $_uid, string $_app, string $_logic, string $_action, string $_method, array $_config = []): bool
     {
         if (!empty($_config)) {
             $this->config = array_merge($this->config, $_config);
@@ -77,7 +77,7 @@ class Rbac
      * @param  int   $_uid
      * @return array
      */
-    public function getAuth($_uid): array
+    public function getAuth(int $_uid): array
     {
         $_uid = (int) $_uid;
         if (true === $this->config['auth_type']) {
@@ -130,7 +130,7 @@ class Rbac
     /**
      * 检查当前操作是否需要认证
      * @access private
-     * @param  int    $_uid     用户ID
+     * @param  int    $_uid 用户ID
      * @return array
      */
     private function accessDecision(int $_uid): array
@@ -185,7 +185,7 @@ class Rbac
                     ['level', '=', $_level],
                     ['pid', '=', $_pid],
                 ])
-                ->cache('NODE' . $_uid . $_level . $_pid)
+                ->cache('NODE_FOUNDER' . $_uid . $_level . $_pid)
                 ->select();
         } else {
             $result = (new ModelNode)
@@ -198,7 +198,6 @@ class Rbac
                     ['node.level', '=', $_level],
                     ['node.pid', '=', $_pid],
                 ])
-                ->cache('NODE' . $_uid . $_level . $_pid)
                 ->select();
         }
 

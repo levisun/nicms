@@ -20,9 +20,14 @@ namespace app\admin\logic\content;
 use app\common\controller\BaseLogic;
 use app\common\library\DataFilter;
 use app\common\model\Article as ModelArticle;
+use app\common\model\ArticleContent as ModelArticleContent;
+use app\common\model\ArticleFile as ModelArticleFile;
+use app\common\model\ArticleImage as ModelArticleImage;
 use app\common\model\ArticleTags as ModelArticleTags;
 use app\common\model\Fields as ModelFields;
+use app\common\model\FieldsExtend as ModelFFieldsExtend;
 use app\common\model\Level as ModelLevel;
+use app\common\model\Tags as ModelTags;
 
 class Article extends BaseLogic
 {
@@ -124,6 +129,48 @@ class Article extends BaseLogic
      */
     public function added()
     {
+        $this->actionLog(__METHOD__, 'admin category added');
+
+        $receive_data = [
+            'title'       => $this->request->param('title'),
+            'keywords'    => $this->request->param('keywords'),
+            'description' => $this->request->param('description'),
+            'category_id' => $this->request->param('category_id/d'),
+            'model_id'    => $this->request->param('model_id/d'),
+            'type_id'     => $this->request->param('type_id/d', 0),
+            'admin_id'    => $this->request->param('admin_id/d'),
+            'user_id'     => $this->request->param('user_id/d', 0),
+            'is_pass'     => $this->request->param('is_pass/d', 0),
+            'is_com'      => $this->request->param('is_com/d', 0),
+            'is_top'      => $this->request->param('is_top/d', 0),
+            'is_hot'      => $this->request->param('is_hot/d', 0),
+            'sort_order'  => $this->request->param('sort_order/d', 0),
+            'username'    => $this->request->param('username'),
+            'access_id'   => $this->request->param('access_id/d', 0),
+            'show_time'   => $this->request->param('show_time', time()),
+            'update_time' => time(),
+            'create_time' => time(),
+            'lang'        => $this->lang->getLangSet()
+        ];
+
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+
+        (new ModelArticle)->transaction(function () use ($receive_data) {
+            $article = new ModelArticle;
+            $article->save($receive_data);
+            if (1 === $receive_data['model_id'] || 4 === $receive_data['model_id']) {
+                # code...
+            } elseif (2 === $receive_data['model_id']) {
+                # code...
+            } elseif (3 === $receive_data['model_id']) {
+                # code...
+            }
+        });
+
+
+        $this->cache->tag('cms nav')->clear();
     }
 
     /**

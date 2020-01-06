@@ -17,10 +17,10 @@ return [
     'listen'    => [
         'AppInit'  => [
         ],
-        'HttpRun'  => [
+        'HttpRun' => [
             \app\common\event\CheckRequest::class,
         ],
-        'HttpEnd'  => [
+        'HttpEnd' => [
             \app\common\event\RecordRequest::class,
             \app\common\event\AppMaintain::class,
         ],

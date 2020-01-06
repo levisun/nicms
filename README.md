@@ -7,7 +7,7 @@ nicms1.x 未完成项目,正在拼命中...
 
 ## 运行环境
 
-> `PHP7.1+` `Mysql` `PDO` `Apache`
+> `PHP7.3+` `Mysql` `PDO` `Apache`
 
 ## 主要特性
 
@@ -65,7 +65,7 @@ composer require phpmailer/phpmailer
 
 ## 版权信息
 
-版权所有Copyright © 2013-2019 by [失眠小枕头](https://github.com/levisun/nicms)
+版权所有Copyright © 2013-2020 by [失眠小枕头](https://github.com/levisun/nicms)
 
 All rights reserved。
 

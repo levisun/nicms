@@ -20,7 +20,7 @@ namespace app\admin\logic\category;
 use app\common\controller\BaseLogic;
 use app\common\model\Fields as ModelFields;
 use app\common\model\FieldsType as ModelFieldsType;
-use app\common\model\ArticleExtend as ModelArticleExtend;
+use app\common\model\FieldsExtend as ModelFieldsExtend;
 
 class Fields extends BaseLogic
 {
@@ -207,7 +207,7 @@ class Fields extends BaseLogic
             ])
             ->delete();
 
-        (new ModelArticleExtend)
+        (new ModelFieldsExtend)
             ->where([
                 ['fields_id', '=', $id]
             ])
