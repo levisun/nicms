@@ -12,11 +12,14 @@
  */
 
 use think\facade\Route;
+use think\Response;
 
 Route::group(function () {
     // 首页
-    Route::get('/', 'Index/index')->ext('html');
-    Route::get('index', 'Index/index')->ext('html');
+    Route::get('/$', 'Index/index')->ext('html');
+    Route::get('index$', function () {
+        return Response::create('/', 'redirect', 302);
+    })->ext('html');
 
     // 列表页
     Route::get('list/:tid$', 'Index/category')->ext('html');
@@ -26,7 +29,7 @@ Route::group(function () {
     Route::get('article/:bid/:id$', 'Index/article')->ext('html');
 
     // 搜索页
-    Route::get('search', 'Index/search')->ext('html');
+    Route::get('search$', 'Index/search')->ext('html');
 
     Route::miss(function () {
         return miss(404);

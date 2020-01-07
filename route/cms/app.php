@@ -12,6 +12,7 @@
  */
 
 use think\facade\Route;
+use think\Response;
 
 /**
  * CDN
@@ -24,19 +25,21 @@ Route::domain(['cdn', 'img'], function () {
 
 Route::group(function () {
     // 首页
-    Route::get('/', 'Index/index')->ext('html');
-    Route::get('index', 'Index/index')->ext('html');
+    Route::get('/$', 'Index/index')->ext('html');
+    Route::get('index$', function () {
+        return Response::create('/', 'redirect', 302);
+    })->ext('html');
 
     // 列表页
     Route::get('list/:cid$', 'Index/category')->ext('html');
     Route::get('tags/:id$', 'Index/tags')->ext('html');
-    Route::get('search', 'Index/search')->ext('html');
+    Route::get('search$', 'Index/search')->ext('html');
 
     // 详情页
     Route::get('details/:cid/:id$', 'Index/details')->ext('html');
 
     // 老版本兼容
-    Route::get('ipinfo$', '\app\api\controller\Ip@index')->ext('shtml');
+    // Route::get('ipinfo$', '\app\api\controller\Ip@index')->ext('shtml');
 
     Route::miss(function () {
         return miss(404);

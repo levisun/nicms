@@ -99,7 +99,7 @@ if (!function_exists('miss')) {
         }
 
         $return_url = true === $_redirect
-            ? '<script type="text/javascript">setTimeout(function(){location.href = "//www.' . Request::rootDomain() . '";},30000);</script>'
+            ? '<script type="text/javascript">setTimeout(function(){location.href = "//www.' . Request::rootDomain() . '";},3000);</script>'
             : '';
 
         $content = str_replace('{$return_url}', $return_url, $content);
