@@ -91,7 +91,7 @@ class Tags
         // link标签
         if (!empty($_config['tpl_config']['link'])) {
             foreach ($_config['tpl_config']['link'] as $link) {
-                $head .= str_replace('\'', '"', $link). PHP_EOL;
+                $head .= str_replace('\'', '"', $link) . PHP_EOL;
             }
         }
 

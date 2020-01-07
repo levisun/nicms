@@ -57,7 +57,10 @@ class RecordRequest
         $run_time = number_format(microtime(true) - app()->getBeginTime(), 3);
         $run_time = $run_time . 's ' .
             number_format((memory_get_usage() - app()->getBeginMem()) / 1024 / 1024, 3) . 'mb ';
-        $url = Request::ip() . ' ' . Request::method(true) . ' ' . Request::baseUrl(true);
+        $url = Request::ip() . ' ' .
+            Request::method(true) . ' ' .
+            Request::baseUrl(true) . ' ' .
+            Request::server('HTTP_REFERER')  . ' ';
         $params = Request::param()
             ? Request::except(['password', 'sign', '__token__', 'timestamp', 'sign_type', 'appid'])
             : [];

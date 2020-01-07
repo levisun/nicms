@@ -38,9 +38,13 @@ Route::group(function () {
     // 详情页
     Route::get('details/:cid/:id$', 'Index/details')->ext('html');
 
+
     // 老版本兼容
     // Route::get('ipinfo$', '\app\api\controller\Ip@index')->ext('shtml');
 
+    Route::get('404&', function(){
+        return miss(404);
+    });
     Route::miss(function () {
         return miss(404);
     });

@@ -91,7 +91,7 @@ if (!function_exists('miss')) {
      */
     function miss(int $_code, bool $_redirect = true): Response
     {
-        $file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $_code . '.html';
+        $file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.htm';
         if (is_file($file)) {
             $content = file_get_contents($file);
         } else {

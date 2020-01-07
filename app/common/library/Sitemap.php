@@ -99,9 +99,7 @@ class Sitemap
      */
     private function saveXml(array &$_data, string $_path): void
     {
-        $xml  = '';
-        $xml .= '<!-- generated-on="' . date('Y-m-d H:i:s') . '" -->' . PHP_EOL;
-        $xml .= '<?xml version="1.0" encoding="UTF-8" ?>' . PHP_EOL .
+        $xml  = '<?xml version="1.0" encoding="UTF-8" ?>' . PHP_EOL .
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
         $xml .= $this->toXml($_data);
         $xml .= PHP_EOL . '</urlset>';
