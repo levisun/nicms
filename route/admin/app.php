@@ -11,6 +11,7 @@
  * @since     2019
  */
 
+use think\facade\Env;
 use think\facade\Route;
 
 Route::group(function () {
@@ -21,7 +22,9 @@ Route::group(function () {
     Route::miss(function () {
         return miss(404);
     });
-})->pattern([
+})
+->domain(Env::get('admin.entry', 'admin'))
+->pattern([
     'logic'  => '[a-z]+',
     'action' => '[a-z]+',
     'method' => '[a-z]+',

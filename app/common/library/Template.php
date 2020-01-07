@@ -79,7 +79,7 @@ class Template implements TemplateHandlerInterface
 
         'tpl_config' => [
             'api_version'   => '1.0.1',
-            'api_appid'     => '1000001',
+            'api_appid'     => '1000002',
             'api_appsecret' => '962940cfbe94a64efcd1573cf6d7a175',
         ],
     ];

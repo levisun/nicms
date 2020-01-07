@@ -31,7 +31,9 @@ Route::group(function () {
     Route::miss(function () {
         return miss(404);
     });
-})->pattern([
+})
+->domain('book')
+->pattern([
     'tid'  => '\d+',
     'bid'  => '\d+',
     'id'   => '\d+',

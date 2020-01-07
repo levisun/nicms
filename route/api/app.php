@@ -49,6 +49,8 @@ Route::group(function () {
     Route::miss(function () {
         return miss(404);
     });
-})->pattern([
+})
+->domain('api')
+->pattern([
     'method' => '[a-z]+',
 ]);

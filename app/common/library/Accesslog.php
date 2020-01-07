@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Request;
+use app\common\library\DataFilter;
 use app\common\library\Ipinfo;
 use app\common\model\Searchengine as ModelSearchengine;
 use app\common\model\Visit as ModelVisit;
@@ -47,55 +48,56 @@ class AccessLog
     public function record(): void
     {
         $this->userAgent = strtolower(Request::server('HTTP_USER_AGENT'));
+        $this->userAgent = DataFilter::filter($this->userAgent);
 
         if ($spider = $this->isSpider()) {
             $has = (new ModelSearchengine)->where([
-                    ['name', '=', $spider],
-                    ['user_agent', '=', $this->userAgent],
-                    ['date', '=', strtotime(date('Y-m-d'))]
-                ])
+                ['name', '=', $spider],
+                ['user_agent', '=', $this->userAgent],
+                ['date', '=', strtotime(date('Y-m-d'))]
+            ])
                 // ->cache(__METHOD__ . $spider . $this->userAgent)
                 ->value('name');
 
             if ($has) {
                 (new ModelSearchengine)->where([
-                        ['name', '=', $spider],
-                        ['user_agent', '=', $this->userAgent],
-                        ['date', '=', strtotime(date('Y-m-d'))]
-                    ])
+                    ['name', '=', $spider],
+                    ['user_agent', '=', $this->userAgent],
+                    ['date', '=', strtotime(date('Y-m-d'))]
+                ])
                     ->inc('count', 1, 60)
                     ->update();
             } else {
                 (new ModelSearchengine)->save([
-                        'name'       => $spider,
-                        'user_agent' => $this->userAgent,
-                        'date'       => strtotime(date('Y-m-d'))
-                    ]);
+                    'name'       => $spider,
+                    'user_agent' => $this->userAgent,
+                    'date'       => strtotime(date('Y-m-d'))
+                ]);
             }
         } else {
             $ip = (new Ipinfo)->get(Request::ip());
             $has = (new ModelVisit)->where([
-                    ['ip', '=', $ip['ip']],
-                    ['user_agent', '=', $this->userAgent],
-                    ['date', '=', strtotime(date('Y-m-d'))]
-                ])
+                ['ip', '=', $ip['ip']],
+                ['user_agent', '=', $this->userAgent],
+                ['date', '=', strtotime(date('Y-m-d'))]
+            ])
                 // ->cache(__METHOD__ . $ip['ip'] . $this->userAgent)
                 ->value('ip');
             if ($has) {
                 (new ModelVisit)->where([
-                        ['ip', '=', $ip['ip']],
-                        ['user_agent', '=', $this->userAgent],
-                        ['date', '=', strtotime(date('Y-m-d'))]
-                    ])
+                    ['ip', '=', $ip['ip']],
+                    ['user_agent', '=', $this->userAgent],
+                    ['date', '=', strtotime(date('Y-m-d'))]
+                ])
                     ->inc('count', 1, 60)
                     ->update();
             } else {
                 (new ModelVisit)->save([
-                        'ip'         => $ip['ip'],
-                        'ip_attr'    => isset($ip['country']) ? $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'] : '',
-                        'user_agent' => $this->userAgent,
-                        'date'       => strtotime(date('Y-m-d'))
-                    ]);
+                    'ip'         => $ip['ip'],
+                    'ip_attr'    => isset($ip['country']) ? $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'] : '',
+                    'user_agent' => $this->userAgent,
+                    'date'       => strtotime(date('Y-m-d'))
+                ]);
             }
         }
 

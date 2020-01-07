@@ -62,9 +62,7 @@ class RecordRequest
             ? Request::except(['password', 'sign', '__token__', 'timestamp', 'sign_type', 'appid'])
             : [];
         $params = array_filter($params);
-        foreach ($params as $key => $value) {
-            $params[$key] = DataFilter::content($value);
-        }
+        $params = array_map('htmlspecialchars', $params);
         $params = !empty($params) ? PHP_EOL . json_encode($params, JSON_UNESCAPED_UNICODE) : '';
 
         $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec/si';

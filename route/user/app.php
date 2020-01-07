@@ -21,7 +21,9 @@ Route::group(function () {
     Route::miss(function () {
         return miss(404);
     });
-})->pattern([
+})
+->domain('my')
+->pattern([
     'logic'  => '[a-z]+',
     'action' => '[a-z]+',
     'method' => '[a-z]+',
