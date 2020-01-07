@@ -19,6 +19,7 @@ namespace app\common\event;
 
 use think\facade\Log;
 use think\facade\Request;
+use app\common\library\DataFilter;
 
 class RecordRequest
 {
@@ -61,16 +62,16 @@ class RecordRequest
             ? Request::except(['password', 'sign', '__token__', 'timestamp', 'sign_type', 'appid'])
             : [];
         $params = array_filter($params);
+        foreach ($params as $key => $value) {
+            $params[$key] = DataFilter::content($value);
+        }
         $params = !empty($params) ? PHP_EOL . json_encode($params, JSON_UNESCAPED_UNICODE) : '';
 
-        $tags = '访问 ';
         $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec/si';
         if (0 !== preg_match($pattern, $url . $params)) {
-            $tags = '<b style="color:red;">非法关键词</b> ';
+            Log::record('非法关键词 ' . $run_time . $url . $params . PHP_EOL, 'info');
         } elseif (2 <= $run_time) {
-            $tags = '<font style="color:red;">长请求</font> ';
+            Log::record('长请求 ' . $run_time . $url . $params . PHP_EOL, 'info');
         }
-
-        Log::record($tags . $run_time . $url . $params . PHP_EOL, 'info');
     }
 }

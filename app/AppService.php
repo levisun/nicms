@@ -2,7 +2,7 @@
 
 /**
  *
- * 应用请求对象类
+ * 应用服务类
  *
  * @package   NICMS
  * @category  app
@@ -12,8 +12,20 @@
  * @since     2019
  */
 
+declare(strict_types=1);
+
 namespace app;
 
-class Request extends \think\Request
+use think\Service;
+
+class AppService extends Service
 {
+    public function register()
+    {
+        // 服务注册
+    }
+    public function boot()
+    {
+        // 服务启动
+    }
 }

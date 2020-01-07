@@ -2,7 +2,8 @@
 
 /**
  *
- * 容器Provider定义文件
+ * 系统服务定义文件
+ * 服务在完成全局初始化之后执行
  *
  * @package   NICMS
  * @category  app
@@ -12,10 +13,8 @@
  * @since     2019
  */
 
-use app\ExceptionHandle;
-use app\Request;
+use app\AppService;
 
 return [
-    'think\Request'          => Request::class,
-    'think\exception\Handle' => ExceptionHandle::class,
+    AppService::class,
 ];
