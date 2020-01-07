@@ -2,6 +2,7 @@
     <div class="row">
         {include file="sideber"}
         <div id="list" class="col-md-9">
+            {include file="breadcrumb"}
             <div class="card">
                 <div class="card-body">
                     <h3><a v-bind:href="items.url" v-html="items.title"></a></h3>
@@ -35,6 +36,7 @@
         el: '#layout-details',
         data: {
             sideber: [],
+            breadcrumb: [],
             items: [],
         },
         methods: {
@@ -49,6 +51,20 @@
                     success: function (result) {
                         if (10000 == result.code) {
                             details.sideber = result.data;
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.breadcrumb.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            details.breadcrumb = result.data;
                         }
                     }
                 });

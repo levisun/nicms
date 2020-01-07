@@ -1,3 +1,41 @@
+<div id="layout-list">
+    <div class="row">
+        <div id="list" class="col-md-9">
+            <div class="card">
+                <div class="card-header" v-text="sideber.name"></div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <template v-for="vo in items">
+                            <li class="list-group-item">
+                                <h5 class="card-title">
+                                    <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="vo.cat_url"
+                                        v-text="vo.cat_name"></a>
+                                    <a v-bind:href="vo.url" v-html="vo.title"></a>
+                                </h5>
+                                <p class="text-muted">
+                                    <span style="margin-right:10px;">
+                                        <i class="fa fa-calendar-day"></i>
+                                        <font v-text="vo.update_time"></font>
+                                    </span>
+                                    <span style="margin-right:10px;">
+                                        <i class="fa fa-user"></i>
+                                        <font v-text="vo.author"></font>
+                                    </span>
+                                    <span style="margin-right:10px;">
+                                        <i class="fa fa-eye"></i>
+                                        <font v-text="vo.hits"></font>
+                                    </span>
+                                </p>
+                                <p class="card-text" v-text="vo.description"></p>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     let search = new Vue({
         el: '#layout-search',

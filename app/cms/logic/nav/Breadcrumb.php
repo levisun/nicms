@@ -81,10 +81,11 @@ class Breadcrumb extends BaseLogic
             }
             unset($result['action_name']);
 
-            $this->bread[] = $result;
             if ($result['pid']) {
                 $this->parentCate((int) $result['pid']);
+                $this->bread[$result['pid']]['child'] = $result['id'];
             }
+            $this->bread[$result['id']] = $result;
         }
     }
 }
