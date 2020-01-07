@@ -3,10 +3,10 @@
 /**
  *
  * API接口层
- * 下载列表
+ * 文章搜索
  *
  * @package   NICMS
- * @category  app\cms\logic\download
+ * @category  app\cms\logic\search
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -15,11 +15,11 @@
 
 declare(strict_types=1);
 
-namespace app\cms\logic\download;
+namespace app\cms\logic\article;
 
-use app\cms\logic\ArticleBase;
+use app\cms\logic\article\ArticleBase;
 
-class Lists extends ArticleBase
+class Search extends ArticleBase
 {
 
     /**
@@ -35,7 +35,7 @@ class Lists extends ArticleBase
         return [
             'debug' => false,
             'cache' => $result ? true : false,
-            'msg'   => $result ? 'download list data' : 'download list error',
+            'msg'   => $result ? 'article search list data' : 'article search list error',
             'data'  => $result ? [
                 'list'         => $result['data'],
                 'total'        => $result['total'],

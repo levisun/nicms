@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-namespace app\cms\logic;
+namespace app\cms\logic\article;
 
 use app\common\controller\BaseLogic;
 use app\common\library\Base64;
@@ -71,7 +71,7 @@ class ArticleBase extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
-            $query_search = DataFilter::word($search_key, 5);
+            $query_search = DataFilter::word($search_key, 3);
             if (!empty($query_search)) {
                 $map[] = ['article.title', 'regexp', implode('|', $query_search)];
             }

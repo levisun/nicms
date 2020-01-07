@@ -1,4 +1,4 @@
-<div id="layout-list">
+<div id="layout-search">
     <div class="row">
         <div id="list" class="col-md-9">
             <div class="card">
@@ -49,7 +49,7 @@
                     url: NICMS.api.url + '/query.do',
                     method: 'get',
                     data: [
-                        { name: 'method', value: 'article.lists.query' },
+                        { name: 'method', value: 'article.search.query' },
                         { name: 'key', value: NICMS.api.param.key },
                     ],
                     success: function (result) {

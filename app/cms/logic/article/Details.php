@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace app\cms\logic\article;
 
-use app\cms\logic\ArticleBase;
+use app\cms\logic\article\ArticleBase;
 
 class Details extends ArticleBase
 {

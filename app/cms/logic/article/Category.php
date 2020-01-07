@@ -3,7 +3,7 @@
 /**
  *
  * API接口层
- * 文章列表
+ * 文章栏目列表
  *
  * @package   NICMS
  * @category  app\cms\logic\article
@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace app\cms\logic\article;
 
-use app\cms\logic\ArticleBase;
+use app\cms\logic\article\ArticleBase;
 
-class Lists extends ArticleBase
+class Category extends ArticleBase
 {
 
     /**
