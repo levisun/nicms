@@ -207,7 +207,7 @@ class Siteinfo
             ])
             ->value('value', '');
         $beian = $beian
-            ? '<a href="http://www.beian.miit.gov.cn" target="_blank" rel="nofollow">' . $beian . '</a>'
+            ? '<a href="http://www.beian.miit.gov.cn" target="_blank" rel="nofollow">' . strtoupper($beian) . '</a>'
             : '';
 
         return htmlspecialchars_decode($copyright) . $beian . ' Powered by <a href="//www.niphp.com" target="_blank">nicms</a>';

@@ -1,5 +1,8 @@
 User-agent: *
-Disallow: /storage/
-Disallow: /theme/
+Disallow: /storage/*
+Disallow: /theme/*
 Disallow: /router.php
-Sitemap: http://www.nicms.com/sitemap.xml
+Disallow: /search/*
+Disallow: /*?*
+Allow: .html$
+Sitemap: https://www.nicms.com/sitemap.xml

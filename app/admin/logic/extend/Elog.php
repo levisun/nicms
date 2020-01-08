@@ -77,8 +77,9 @@ class Elog extends BaseLogic
             $file = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . $id;
             if (is_file($file)) {
                 $data = file_get_contents($file);
-                // $data = nl2br($data);
+                $data = str_replace(['<', '>'], ['[', ']'], $data);
                 $data = str_replace($this->app->getRootPath(), 'ROOT_PATH', $data);
+                $data = nl2br($data);
                 $data = preg_replace_callback('/mysql\:host=[0-9A-Za-z_.=;]+;/si', function ($matches) {
                     return 'ROOT ';
                 }, $data);

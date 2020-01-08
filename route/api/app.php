@@ -11,7 +11,9 @@
  * @since     2019
  */
 
+use think\facade\Env;
 use think\facade\Route;
+use think\Response;
 
 Route::group(function () {
     // 下载接口
@@ -47,7 +49,7 @@ Route::group(function () {
     Route::get('wechat$', 'Wechat/index')->ext('do');
 
     Route::miss(function () {
-        return miss(404);
+        return Response::create(Env::get('app.host'), 'redirect', 302);
     });
 })
 ->domain('api')

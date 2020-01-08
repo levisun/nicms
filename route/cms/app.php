@@ -11,6 +11,7 @@
  * @since     2019
  */
 
+use think\facade\Env;
 use think\facade\Route;
 use think\Response;
 
@@ -19,7 +20,7 @@ use think\Response;
  */
 Route::domain(['cdn', 'img'], function () {
     Route::miss(function () {
-        return miss(404);
+        return Response::create(Env::get('app.host'), 'redirect', 302);
     });
 });
 
@@ -28,11 +29,11 @@ Route::group(function () {
     Route::get('/$', 'Index/index')->ext('html');
     Route::get('index$', function () {
         return Response::create('/', 'redirect', 302);
-    })->ext('html');
+    })->ext('html|htm');
 
     // 列表页
-    Route::get('list/:cid$', 'Index/category')->ext('html');
-    Route::get('tags/:id$', 'Index/tags')->ext('html');
+    Route::get('list/:cid/[:page]$', 'Index/category')->ext('html');
+    Route::get('tags/:id/[:page]$', 'Index/tags')->ext('html');
     Route::get('search$', 'Index/search')->ext('html');
 
     // 详情页
@@ -49,6 +50,7 @@ Route::group(function () {
         return miss(404);
     });
 })->pattern([
+    'page' => '\d+',
     'cid'  => '\d+',
     'id'   => '\d+',
 ]);

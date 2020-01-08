@@ -53,7 +53,7 @@ class CheckRequestCache
         if ($this->appName && 'api' !== $this->appName) {
             // 生成客户端cookie令牌
             Session::has('client_token') or Session::set('client_token', Base64::client_id());
-            Cookie::has('PHPSESSID') or Cookie::set('PHPSESSID', Session::get('client_token'));
+            Cookie::has('SID') or Cookie::set('SID', Session::get('client_token'));
         }
 
         // 返回缓存
