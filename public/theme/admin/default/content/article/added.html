@@ -40,8 +40,9 @@
             <template v-if="model_id==1">
                 <div class="form-group">
                     <label>{:lang('thumb')}</label>
-                    <input type="text" name="thumb" class="form-control">
+                    <input type="text" name="thumb" class="form-control thumb">
                     <input type="file" name="upload" id="upload" v-on:change="upload('thumb')" class="form-control">
+                    <img class="thumb-box" style="display: none;">
                 </div>
                 <div class="form-group">
                     <label>{:lang('origin')}</label>
@@ -158,6 +159,8 @@
 </div>
 <script src="__STATIC__ckeditor5/ckeditor.js"></script>
 <script src="__STATIC__ckeditor5/translations/zh-cn.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="__STATIC__ckeditor5/upload.js"></script>
 
 <script>
     var article = new Vue({
@@ -191,7 +194,7 @@
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
                     data: [
-                        { name: 'method', value: 'content.content.find' },
+                        { name: 'method', value: 'content.article.find' },
                         { name: 'id', value: NICMS.api.param.id }
                     ],
                     success: function (result) {
@@ -220,7 +223,11 @@
                 if (article.model_id == 1) {
                     ClassicEditor
                         .create(document.querySelector('#editor'), {
-                            language: 'zh-cn'
+                            language: 'zh-cn',
+                            extraPlugins: [ MyCustomUploadAdapterPlugin ],
+                            ckfinder: {
+                                // uploadUrl: NICMS.api.url + '/upload.do?method=content.article.upload&sign='
+                            }
                         })
                         .then(editor => {
                             window.editor = editor;
@@ -269,7 +276,7 @@
             },
             save: function () {
                 var data = jQuery('#article').serializeArray();
-                data.push({ name: 'method', value: 'content.content.added' });
+                data.push({ name: 'method', value: 'content.article.added' });
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',
@@ -283,11 +290,16 @@
                 });
             },
             upload: function (_type) {
-                var data = new FormData(document.getElementById('content'));
-                data.append('method', 'content.content.upload');
-                data.append('width', 100);
-                data.append('height', 100);
-                data.append('water', false);
+                var data = new FormData(document.getElementById('article'));
+                data.append('method', 'content.article.upload');
+                if ('thumb' == _type) {
+                    data.append('width', 100);
+                    data.append('height', 100);
+                    data.append('water', true);
+                } else if ('image' == _type) {
+                    data.append('water', true);
+                }
+
 
                 jQuery.upload({
                     url: NICMS.api.url + '/upload.do',
@@ -296,8 +308,8 @@
                     success: function (result) {
                         jQuery.uiToast(result.message);
                         if (10000 == result.code) {
-                            jQuery('.image').val(result.data.save_path);
-                            jQuery('.image-box').show().attr('src', result.data.url);
+                            jQuery('.thumb').val(result.data.save_path);
+                            jQuery('.thumb-box').show().attr('src', result.data.url);
                         }
                     }
                 });

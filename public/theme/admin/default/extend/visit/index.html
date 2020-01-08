@@ -12,17 +12,17 @@
             <tbody>
                 <template v-for="vo in items.list">
                     <tr>
-                        <td>
-                            <font v-text="vo.ip"></font>
+                        <td width="10%">
+                            <font v-text="vo.ip"></font><br>
                             [<font v-text="vo.ip_attr"></font>]
                         </td>
-                        <td>
+                        <td width="5%">
                             <font v-text="vo.count"></font>
                         </td>
                         <td>
                             <font v-text="vo.user_agent"></font>
                         </td>
-                        <td>
+                        <td width="10%">
                             <font v-text="vo.date"></font>
                         </td>
                     </tr>

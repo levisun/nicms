@@ -137,7 +137,8 @@ abstract class BaseLogic
      * @return void
      */
     protected function initialize()
-    { }
+    {
+    }
 
     /**
      * 权限验证
@@ -259,24 +260,19 @@ abstract class BaseLogic
      */
     protected function uploadFile(): array
     {
-        if (!$this->request->isPost() || empty($_FILES) || !$this->uid) {
-            return [
-                'debug' => false,
-                'cache' => false,
-                'code'  => 41001,
-                'msg'   => 'upload error'
+        if ($this->request->isPost() && !empty($_FILES) && $this->uid) {
+            $element = $this->request->param('element', 'upload');
+            $thumb = [
+                'width'  => $this->request->param('width/d', 0),
+                'height' => $this->request->param('height/d', 0),
+                'type'   => $this->request->param('type/b', false),
             ];
+            $water = $this->request->param('water/b', true);
+
+            $result = (new UploadFile)->getFileInfo($this->uid, $element, $thumb, $water);
+        } else {
+            $result = 'upload error';
         }
-
-        $element = $this->request->param('element', 'upload');
-        $thumb = [
-            'width'  => $this->request->param('width/d', 0),
-            'height' => $this->request->param('height/d', 0),
-            'type'   => $this->request->param('type/b', false),
-        ];
-        $water = $this->request->param('water/b', true);
-
-        $result = (new UploadFile)->getFileInfo($this->uid, $element, $thumb, $water);
 
         return [
             'debug' => false,

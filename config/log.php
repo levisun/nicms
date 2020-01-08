@@ -47,7 +47,7 @@ return [
                 'info',
             ],
             // 最大日志文件数量
-            'max_files'      => 7,
+            'max_files'      => 15,
             // 使用JSON格式记录
             'json'           => false,
             // 日志处理

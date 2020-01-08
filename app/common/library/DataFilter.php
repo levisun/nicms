@@ -162,7 +162,7 @@ class DataFilter
                 $ema[2] = str_replace(['"', '\'', '<', '>'], '', $ema[2]);
 
                 // 过滤外链
-                if ('href' == $ema[1] && false !== stripos($ema[2], Request::rootDomain())) {
+                if ('href' === $ema[1] && false !== stripos($ema[2], Request::rootDomain())) {
                     return ' ' . $ema[1] . '="' . $ema[2] . '"';
                 }
 
@@ -199,7 +199,7 @@ class DataFilter
             '/( ){2,}/si'    => ' ',
             '/(_){2,}/si'    => '',
             '/(-){2,}/si'    => '',
-            '/(=){2,}/si'    => '',
+            '/(=){4,}/si'    => '',
         ];
         return (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
     }

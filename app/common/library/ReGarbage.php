@@ -28,7 +28,7 @@ class ReGarbage
      */
     public function remove(string $_dir, int $_expire)
     {
-        $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_dir, " \/,._-\t\n\r\0\x0B"));
+        $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, rtrim($_dir, " \/,._-\t\n\r\0\x0B"));
         $_dir .= DIRECTORY_SEPARATOR;
 
         $day = strtotime('-' . $_expire . ' days');
@@ -47,7 +47,7 @@ class ReGarbage
         $files = is_dir($_dir) ? scandir($_dir) : [];
 
         foreach ($files as $file) {
-            if ('.' == $file || '..' == $file) {
+            if ('.' === $file || '..' === $file) {
                 continue;
             } elseif (is_dir($_dir . $file)) {
                 $this->clear($_dir . $file . DIRECTORY_SEPARATOR, $_time);

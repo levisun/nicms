@@ -3,6 +3,8 @@
 /**
  *
  * 模板标签
+ * 不再提供具体功能标签,建议使用Vue+API实现.
+ * API接口使用与方法名请参考[\app\api\README.md]文档.
  *
  * @package   NICMS
  * @category  extend\taglib
@@ -18,32 +20,6 @@ namespace taglib;
 
 class Tags
 {
-
-    /**
-     * foreach标签解析
-     * 输出HTML底部部内容
-     * 格式1： {tags:foreach name="变量名" [key="键" value="值"]}循环体{/foreach}
-     * 格式2： {tags:foreach 变量名 键 => 值}循环体{/foreach}
-     * @access public
-     * @static
-     * @param  array  $_attr    标签属性
-     * @param  string $_content 循环体
-     * @param  array  $_config  模板配置
-     * @return string
-     */
-    public static function foreach(array $_attr, string $_content, array $_config): string
-    {
-        $params  = isset($_attr['name']) ? '$' . $_attr['name'] . ' as ' : '';
-        if ($params) {
-            $params .= isset($_attr['key']) ? '$' . $_attr['key'] . ' => ' : '$key => ';
-            $params .= isset($_attr['value']) ? '$' . $_attr['value'] : '$value';
-            return '<?php foreach (' . $params . ')' . PHP_EOL . '{' . PHP_EOL . $_content . PHP_EOL . '} ?>';
-        } elseif (isset($_attr['expression'])) {
-            return '<?php foreach (' . $_attr['expression'] . ')' . PHP_EOL . '{' . PHP_EOL . $_content . PHP_EOL . '} ?>';
-        } else {
-            return '<!-- 无法解析:foreach ' . htmlspecialchars_decode($_content) . ' -->';
-        }
-    }
 
     /**
      * foot标签解析

@@ -42,7 +42,9 @@ class Download
      */
     public function getUrl(string $_filename): string
     {
-        $_filename = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_filename, " \/,._-\t\n\r\0\x0B"));
+        $_filename = ltrim($_filename, " ,._-\t\n\r\0\x0B");
+        $_filename = rtrim($_filename, " \/,._-\t\n\r\0\x0B");
+        $_filename = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_filename);
         $_filename = str_replace(['storage' . DIRECTORY_SEPARATOR, 'uploads' . DIRECTORY_SEPARATOR], '', $_filename);
         $_filename = Base64::encrypt($_filename, $this->salt);
         return Config::get('app.api_host') . '/download.do?file=' . urlencode($_filename);
@@ -59,7 +61,9 @@ class Download
         $_filename = $_filename ? Base64::decrypt($_filename, $this->salt) : '';
 
         if ($_filename && false !== preg_match('/^[a-zA-Z0-9_\/\\\]+\.[a-zA-Z0-9]{2,4}$/u', $_filename)) {
-            $_filename = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_filename, " \/,._-\t\n\r\0\x0B"));
+            $_filename = ltrim($_filename, " ,._-\t\n\r\0\x0B");
+            $_filename = rtrim($_filename, " \/,._-\t\n\r\0\x0B");
+            $_filename = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_filename);
 
             $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR .'uploads' . DIRECTORY_SEPARATOR;
             $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
