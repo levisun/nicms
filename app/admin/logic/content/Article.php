@@ -157,6 +157,8 @@ class Article extends BaseLogic
             return $result;
         }
 
+        halt($receive_data);
+
         (new ModelArticle)->transaction(function () use ($receive_data) {
             $article = new ModelArticle;
             $article->save($receive_data);
@@ -170,7 +172,7 @@ class Article extends BaseLogic
         });
 
 
-        $this->cache->tag('cms nav')->clear();
+        // $this->cache->tag('cms nav')->clear();
     }
 
     /**

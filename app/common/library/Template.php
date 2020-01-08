@@ -439,9 +439,9 @@ class Template implements TemplateHandlerInterface
         }
         $this->script = '';
 
-        $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.do?ip=' . $this->app->request->ip() . '" defer ></script>';
+        $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.js?ip=' . $this->app->request->ip() . '" defer ></script>';
         if ('admin' !== $this->config['app_name']) {
-            $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.do?token=' . md5($this->app->request->url(true)) . '" defer ></script>';
+            $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.js?token=' . md5($this->app->request->url(true)) . '" defer ></script>';
         }
     }
 

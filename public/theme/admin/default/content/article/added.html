@@ -277,6 +277,9 @@
             save: function () {
                 var data = jQuery('#article').serializeArray();
                 data.push({ name: 'method', value: 'content.article.added' });
+                data.push({ name: 'model_id', value: article.model_id });
+                data.push({ name: 'content', value: window.editor.getData() });
+
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',

@@ -21,7 +21,7 @@ Route::group(function () {
     Route::post('handle$', 'Handle/index')->ext('do');
 
     // IP信息接口
-    Route::get('ip$', 'Ip/index')->ext('do');
+    Route::get('ip$', 'Ip/index')->ext('do|js');
 
     // 支付
     Route::post('pay/order/:method$', 'Pay/index')->ext('do');
@@ -32,7 +32,7 @@ Route::group(function () {
     Route::get('query$', 'Query/index')->ext('do');
 
     // 访问日志
-    Route::get('record$', 'Record/index')->ext('do');
+    Route::get('record$', 'Record/index')->ext('do|js');
 
     // 上传文件接口
     Route::post('upload$', 'Upload/index')->ext('do');

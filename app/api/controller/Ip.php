@@ -30,7 +30,7 @@ class Ip extends Async
         if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
             $ip = (new Ipinfo)->get($ip);
 
-            if ($this->request->param('json', false)) {
+            if ('do' === $this->request->ext()) {
                 return $this->cache(true)->success('IP', $ip);
             } else {
                 $data = 'var NICMS_IPINFO=' . json_encode($ip, JSON_UNESCAPED_UNICODE);

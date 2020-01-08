@@ -182,7 +182,9 @@
         var sign = '';
         jQuery.each(_data, function (i, field) {
             // console.log(typeof (field.value));
-            if ('function' != typeof (field.value) &&
+            if (
+                field.name.indexOf('[') == -1 &&
+                'function' != typeof (field.value) &&
                 'object' != typeof (field.value) &&
                 'undefined' != typeof (field.value) &&
                 '' !== field.value) {

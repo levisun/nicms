@@ -3,7 +3,7 @@
 /**
  *
  * 验证器
- * 栏目 - 栏目
+ * 栏目 - 自定义字段
  *
  * @package   NICMS
  * @category  app\admin\validate\category
