@@ -61,20 +61,17 @@ class Template implements TemplateHandlerInterface
         'layout_item'        => '{__CONTENT__}',        // 布局模板的内容替换标识
 
         'tpl_replace_string' => [
-            '{__AUTHORIZATION__}' => '<?php echo create_authorization();?>',
-            '{__TOKEN__}'         => '<?php echo token_field();?>',
-            '{__REQUEST_PARAM__}' => '<?php echo json_encode(app("request")->param());?>',
-            '__THEME__'           => 'theme/',
-            '__CSS__'             => 'css/',
-            '__IMG__'             => 'img/',
-            '__JS__'              => 'js/',
-            '__STATIC__'          => 'theme/static/',
-            '__NAME__'            => 'NICMS',
-            '__TITLE__'           => 'NICMS',
-            '__KEYWORDS__'        => 'NICMS',
-            '__DESCRIPTION__'     => 'NICMS',
-            '__BOTTOM_MSG__'      => 'NICMS',
-            '__COPYRIGHT__'       => 'NICMS',
+            '__THEME__'         => 'theme/',
+            '__CSS__'           => 'css/',
+            '__IMG__'           => 'img/',
+            '__JS__'            => 'js/',
+            '__STATIC__'        => 'theme/static/',
+            '__NAME__'          => 'NICMS',
+            '__TITLE__'         => 'NICMS',
+            '__KEYWORDS__'      => 'NICMS',
+            '__DESCRIPTION__'   => 'NICMS',
+            '__BOTTOM_MSG__'    => 'NICMS',
+            '__COPYRIGHT__'     => 'NICMS',
         ],
 
         'tpl_config' => [
@@ -191,17 +188,20 @@ class Template implements TemplateHandlerInterface
             }
         }
 
-        // 缓存路径
-        $compile_file  = $this->config['compile_path'] . $this->config['view_theme'] .
+        // 编译路径
+        $compile_file = $this->config['compile_path'] . $this->config['view_theme'] .
             md5($this->config['layout_on'] . $this->config['layout_name'] . $_template) .
             '.' . ltrim($this->config['compile_suffix'], '.');
 
         if (false === $this->checkCompiler($compile_file)) {
-            // 缓存无效 重新模板编译
+            // 编译无效 重新模板编译
             $content = trim(file_get_contents($_template));
             $this->compiler($content, $compile_file);
         }
 
+        // 模板Replace变量
+        $replace = $this->getReplaceVars($_data);
+        $_data = !empty($replace) ? array_merge($_data, $replace) : $_data;
         extract($_data, EXTR_OVERWRITE);
 
         //载入模版缓存文件
@@ -209,12 +209,11 @@ class Template implements TemplateHandlerInterface
     }
 
     /**
-     * 模板过滤输出
+     * 模板Replace变量
      * @access private
-     * @param  string $content 要解析的模板内容
      * @return void
      */
-    private function paresReplace(string &$_content): void
+    private function getReplaceVars(): array
     {
         $path  = $this->app->config->get('app.cdn_host') . '/theme/';
         $path .= $this->config['app_name'] . DIRECTORY_SEPARATOR . $this->config['view_theme'];
@@ -232,7 +231,6 @@ class Template implements TemplateHandlerInterface
             }
         }
 
-
         $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
 
         $replace = [
@@ -244,8 +242,7 @@ class Template implements TemplateHandlerInterface
             '__JS__'          => $path . 'js/',
         ];
 
-        $replace = array_merge($this->config['tpl_replace_string'], $replace);
-        $_content = str_replace(array_keys($replace), array_values($replace), $_content);
+        return array_merge($this->config['tpl_replace_string'], $replace);
     }
 
     /**
@@ -315,7 +312,11 @@ class Template implements TemplateHandlerInterface
                 $vars = '$' . $var_name;
             }
 
-            return '<?php echo htmlspecialchars(' . $vars . ');?>';
+            return '<?php echo is_string(' . $vars . ') ? htmlspecialchars(' . $vars . ') : "";?>';
+        }, $_content);
+
+        $_content = preg_replace_callback('/(__)([A-Z_]+)(__)/si', function ($matches) {
+            return '<?php echo is_string($' . $matches[0] . ') ? $' . $matches[0] . ' : "";?>';
         }, $_content);
     }
 
@@ -439,9 +440,9 @@ class Template implements TemplateHandlerInterface
         }
         $this->script = '';
 
-        $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.js?ip=' . $this->app->request->ip() . '" defer ></script>';
+        $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.do?ip=' . $this->app->request->ip() . '" defer ></script>';
         if ('admin' !== $this->config['app_name']) {
-            $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.js?token=' . md5($this->app->request->url(true)) . '" defer ></script>';
+            $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.do?token=' . md5($this->app->request->url(true)) . '" defer ></script>';
         }
     }
 
@@ -518,9 +519,6 @@ class Template implements TemplateHandlerInterface
         // 解析变量
         $this->parseVars($_content);
 
-        // 模板过滤输出
-        $this->paresReplace($_content);
-
         if (false === stripos($_content, '<body')) {
             $_content = str_replace('</head>', '</head>' . PHP_EOL . '<body>', $_content);
         }
@@ -532,7 +530,7 @@ class Template implements TemplateHandlerInterface
      * 编译模板文件内容
      * @access private
      * @param  string $_content 模板内容
-     * @param  string $_compiler_file 缓存文件名
+     * @param  string $_compiler_file 编译文件名
      * @return void
      */
     private function compiler(string &$_content, string $_compiler_file): void

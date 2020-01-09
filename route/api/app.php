@@ -11,7 +11,7 @@
  * @since     2019
  */
 
-use think\facade\Env;
+use think\facade\Config;
 use think\facade\Route;
 use think\Response;
 
@@ -23,7 +23,7 @@ Route::group(function () {
     Route::post('handle$', 'Handle/index')->ext('do');
 
     // IP信息接口
-    Route::get('ip$', 'Ip/index')->ext('do|js');
+    Route::get('ip$', 'Ip/index')->ext('do');
 
     // 支付
     Route::post('pay/order/:method$', 'Pay/index')->ext('do');
@@ -34,7 +34,7 @@ Route::group(function () {
     Route::get('query$', 'Query/index')->ext('do');
 
     // 访问日志
-    Route::get('record$', 'Record/index')->ext('do|js');
+    Route::get('record$', 'Record/index')->ext('do');
 
     // 上传文件接口
     Route::post('upload$', 'Upload/index')->ext('do');
@@ -49,7 +49,7 @@ Route::group(function () {
     Route::get('wechat$', 'Wechat/index')->ext('do');
 
     Route::miss(function () {
-        return Response::create(Env::get('app.host'), 'redirect', 302);
+        return Response::create(Config::get('app.app_host'), 'redirect', 302);
     });
 })
 ->domain('api')

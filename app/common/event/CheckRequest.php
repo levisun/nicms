@@ -47,7 +47,7 @@ class CheckRequest
         }
 
         if (1 === mt_rand(1, 999)) {
-            Log::record('[命运]', 'alert')->save();
+            Log::record('[命运]' . htmlspecialchars(Request::url(true)), 'alert')->save();
             $response = miss(502, false);
             throw new HttpResponseException($response);
         }

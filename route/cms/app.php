@@ -11,16 +11,16 @@
  * @since     2019
  */
 
-use think\facade\Env;
+use think\facade\Config;
 use think\facade\Route;
 use think\Response;
 
 /**
- * CDN
+ * CDN IMG
  */
 Route::domain(['cdn', 'img'], function () {
     Route::miss(function () {
-        return Response::create(Env::get('app.host'), 'redirect', 302);
+        return Response::create(Config::get('app.app_host'), 'redirect', 302);
     });
 });
 
@@ -43,9 +43,6 @@ Route::group(function () {
     // 老版本兼容
     // Route::get('ipinfo$', '\app\api\controller\Ip@index')->ext('shtml');
 
-    Route::get('404&', function(){
-        return miss(404);
-    });
     Route::miss(function () {
         return miss(404);
     });
