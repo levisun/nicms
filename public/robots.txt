@@ -3,6 +3,7 @@ Disallow: /storage/*
 Disallow: /theme/*
 Disallow: /router.php
 Disallow: /search/*
+Disallow: .do$
 Disallow: /*?*
 Allow: .html$
 Sitemap: https://www.nicms.com/sitemap.xml

@@ -43,12 +43,6 @@ class UploadFile
     private $imgWater = true;
 
     /**
-     * 上传文件日志
-     * @var string
-     */
-    private $uploadLogFile = '';
-
-    /**
      * 获得上传文件信息
      * @access public
      * @param  int    $_uid 用户ID
@@ -74,8 +68,6 @@ class UploadFile
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
             'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
-
-        $this->uploadLogFile = $path . md5('upload_file_log' . date('Ymd') . $_uid) . '.php';
 
         // 校验上传文件
         if (!$result = $this->validate($_element, $files)) {
@@ -145,9 +137,9 @@ class UploadFile
     private function save(int &$_uid, \think\File &$_files): array
     {
         $_dir = 'uploads' . DIRECTORY_SEPARATOR;
-        $_dir .= $_uid
-            ? 'u' . dechex(date('Ym')) . dechex($_uid)
-            : 't' . dechex(date('Ym'));
+        $_dir .= $_uid ? dechex($_uid + 1000) . DIRECTORY_SEPARATOR : '';
+        $_dir .= dechex((int) date('Y')) . DIRECTORY_SEPARATOR;
+        $_dir .= dechex((int) date('ym')) . DIRECTORY_SEPARATOR;
 
         $save_path = Config::get('filesystem.disks.public.url') . '/';
         $save_file = $save_path . Filesystem::disk('public')->putFile($_dir, $_files, 'uniqid');

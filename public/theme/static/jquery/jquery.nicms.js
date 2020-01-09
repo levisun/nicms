@@ -198,11 +198,23 @@
         return md5(sign);
     };
 
+    jQuery.get_url_query = function () {
+        var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)');
+
+        //search,查询？后面的参数，并匹配正则
+        var result = window.location.search.substr(1).match(reg);
+        if (result != null) {
+            return unescape(r[2]);
+        } else {
+            return null;
+        }
+    };
+
     jQuery.set_cookie = function (cname, cvalue, exdays) {
         var d = new Date();
         d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-        var expires = "expires=" + d.toUTCString();
-        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        var expires = 'expires=' + d.toUTCString();
+        document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
     };
 
     jQuery.get_cookie = function (cname) {

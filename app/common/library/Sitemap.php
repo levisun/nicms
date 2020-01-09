@@ -71,7 +71,7 @@ class Sitemap
                 ->toArray();
             if (!empty($article)) {
                 $sitemap_xml[] = [
-                    'loc'        => $domain . url('list/' . $vo_cate['action_name'] . '/' . $vo_cate['id']),
+                    'loc'        => $domain . url('list/' . $vo_cate['id']),
                     'lastmod'    => date('Y-m-d'),
                     'changefreq' => 'daily',
                     'priority'   => '1.0',
@@ -80,7 +80,7 @@ class Sitemap
 
             foreach ($article as $vo_art) {
                 $sitemap_xml[] = [
-                    'loc'        => $domain . url('details/' . $vo_art['action_name'] . '/' . $vo_art['category_id'] . '/' . $vo_art['id']),
+                    'loc'        => $domain . url('details/' . $vo_art['category_id'] . '/' . $vo_art['id']),
                     'lastmod'    => date('Y-m-d H:i:s', $vo_art['update_time']),
                     'changefreq' => 'weekly',
                     'priority'   => '0.8',

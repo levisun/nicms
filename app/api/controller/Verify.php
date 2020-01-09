@@ -69,7 +69,7 @@ class Verify extends Async
     {
         if ($this->analysis()->isReferer()) {
             $phone = $this->request->param('phone', false);
-            if ($phone && preg_match('/^1[0-9]\d{9}$/', $phone)) {
+            if ($phone && preg_match('/^1[3-9]\d{9}$/', $phone)) {
                 $key = md5('sms_' . $phone);
 
                 if ($this->session->has($key) && $result = $this->session->get($key)) {
@@ -78,10 +78,23 @@ class Verify extends Async
                     }
                 }
 
+                $captcha = mt_rand(100000, 999999);
+
+                # TODO
+                // $alidy = new \sms\Alidy([
+                //    'AccessKeyId' => 'LTAIXSdAPLSmsECt'
+                // ]);
+                // $alidy->send([
+                //     'SignName'      => '学霸无忧',
+                //     'TemplateCode'  => 'SMS_163530537',
+                //     'PhoneNumbers'  => $phone,
+                //     'TemplateParam' => '{"code":"' . $captcha . '"}'
+                // ]);
+
                 $this->session->set($key, [
-                    'verify' => mt_rand(100000, 999999),
-                    'time'   => time() + 300,
-                    'phone'  => $phone,
+                    'captcha' => $captcha,
+                    'time'    => time() + 300,
+                    'phone'   => $phone,
                 ]);
                 return $this->cache(false)->success('验证码发送成功');
             } else {

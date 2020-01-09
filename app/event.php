@@ -16,10 +16,9 @@ return [
     'bind'      => [],
     'listen'    => [
         'AppInit'  => [
-        ],
-        'HttpRun' => [
             \app\common\event\CheckRequest::class,
         ],
+        'HttpRun' => [],
         'HttpEnd' => [
             \app\common\event\RecordRequest::class,
             \app\common\event\AppMaintain::class,

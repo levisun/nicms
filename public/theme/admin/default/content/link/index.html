@@ -1,0 +1,93 @@
+<div class="box">
+    <div class="box-header clearfix">
+        <div class="no-margin pull-left">
+            <button class="btn btn-primary">{:lang('sort')}</button>
+        </div>
+        <div class="no-margin pull-right">
+            <button v-on:click="added" class="btn btn-primary">{:lang('added')}</button>
+        </div>
+    </div>
+    <div class="box-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th width="5%">{:lang('sort')}</th>
+                    <th>{:lang('name')}</th>
+                    <th>{:lang('logo')}</th>
+                    <th>{:lang('operation')}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template v-for="vo in items">
+                    <tr>
+                        <td>
+                            <input type="text" class="form-control" v-bind:name="'sort_order['+vo.id+']'"
+                                v-bind:value="vo.sort_order">
+                        </td>
+                        <td v-text="vo.name"></td>
+                        <td v-text="vo.logo"></td>
+                        <td>
+                            <a class="editor" v-bind:href="vo.url.editor">
+                                <i class="fa fa-pencil-square-o"></i>
+                                {:lang('editor')}
+                            </a>
+                            <a v-on:click="remove(vo.id)" v-bind:data="vo.id">
+                                <i class="fa fa-trash"></i>
+                                {:lang('remove')}
+                            </a>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+    <div class="box-footer">
+        <button class="btn btn-primary" v-on:click="sort">{:lang('sort')}</button>
+    </div>
+</div>
+<script type="text/javascript">
+    let link = new Vue({
+        el: '.box',
+        data: {
+            items: []
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'content.link.query' }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            link.items = result.data.list;
+                        }
+                    }
+                });
+            },
+            added: function () {
+                window.location.href = NICMS.domain + '/content/link/added.html';
+            },
+            sort: function () {
+                alert('TODO');
+            },
+            remove: function (id) {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: [
+                        { name: 'method', value: 'content.link.remove' },
+                        { name: 'id', value: id }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            link.load();
+                        }
+                    }
+                });
+            }
+        }
+    });
+    link.load();
+</script>

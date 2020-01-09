@@ -122,21 +122,21 @@ class Tags
             '<link href="' . config('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' .
 
             $head .
-            '<script type="text/javascript">var NICMS = {
-                "domain": "//' . request()->subDomain() . '.' . request()->rootDomain() . '",
-                "rootDomain": "//' . request()->rootDomain() . '",
-                "url": "<?php echo request()->baseUrl(true);?>",
-                "api": {
-                    "url": "' . config('app.api_host') . '",
-                    "param": <?php echo json_encode(app("request")->param());?>
-                },
-                "cdn": {
-                    "static": "__STATIC__",
-                    "theme": "__THEME__",
-                    "css": "__CSS__",
-                    "img": "__IMG__",
-                    "js": "__JS__"
-                }
-            }</script></head>';
+            '<script type="text/javascript">var NICMS = {' .
+                'domain:"//' . request()->subDomain() . '.' . request()->rootDomain() . '",' .
+                'rootDomain:"//' . request()->rootDomain() . '",' .
+                'url:"<?php echo request()->baseUrl(true);?>",' .
+                'api:{' .
+                    'url:"' . config('app.api_host') . '",' .
+                    'param:<?php echo json_encode(app("request")->param());?>' .
+                '},' .
+                'cdn:{' .
+                    'static:"__STATIC__",' .
+                    'theme:"__THEME__",' .
+                    'css:"__CSS__",' .
+                    'img:"__IMG__",' .
+                    'js:"__JS__"' .
+                '}' .
+            '}</script></head>';
     }
 }

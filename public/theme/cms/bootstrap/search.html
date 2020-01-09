@@ -45,6 +45,10 @@
         },
         methods: {
             load: function () {
+                if (!NICMS.api.param.key) {
+                    window.location.href = '/';
+                    return;
+                }
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     method: 'get',

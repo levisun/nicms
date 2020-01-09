@@ -30,7 +30,8 @@
                         <optgroup v-if="vo.child || vo.model_id>=4" v-bind:label="vo.name"></optgroup>
                         <option v-else v-bind:value="vo.id" v-text="vo.name"></option>
                         <template v-for="v in vo.child">
-                            <option v-bind:value="v.id" v-text="v.name"></option>
+                            <optgroup v-if="v.child || v.model_id>=4" v-bind:label="v.name"></optgroup>
+                            <option v-else v-bind:value="v.id" v-text="v.name"></option>
                         </template>
                     </template>
                 </select>
@@ -122,15 +123,17 @@
             </template>
 
             <!-- 分类 -->
-            <div class="form-group" v-if="has_type">
-                <label>{:lang('type')}</label>
-                <select class="form-control" name="type_id">
-                    <option value="0">{:lang('select')}</option>
-                    <template v-for="vo in type_list">
-                        <option v-bind:value="vo.id" v-text="vo.name"></option>
-                    </template>
-                </select>
-            </div>
+            <template v-if="has_type">
+                <div class="form-group">
+                    <label>{:lang('type')}</label>
+                    <select class="form-control" name="type_id">
+                        <option value="0">{:lang('select')}</option>
+                        <template v-for="vo in type_list">
+                            <option v-bind:value="vo.id" v-text="vo.name"></option>
+                        </template>
+                    </select>
+                </div>
+            </template>
 
             <!-- 自定义字段 -->
             <template v-if="has_fields">
@@ -224,7 +227,7 @@
                     ClassicEditor
                         .create(document.querySelector('#editor'), {
                             language: 'zh-cn',
-                            extraPlugins: [ MyCustomUploadAdapterPlugin ],
+                            extraPlugins: [MyCustomUploadAdapterPlugin],
                             ckfinder: {
                                 // uploadUrl: NICMS.api.url + '/upload.do?method=content.article.upload&sign='
                             }
