@@ -65,10 +65,6 @@ class UploadFile
         ];
         $this->imgWater = $_water;
 
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
-            'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
-        is_dir($path) or mkdir($path, 0755, true);
-
         // 校验上传文件
         if (!$result = $this->validate($_element, $files)) {
             // 单文件
