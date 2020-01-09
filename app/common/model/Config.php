@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS `nc_config` (
     `lang` varchar(10) NOT NULL DEFAULT '' COMMENT '语言 niphp为全局设置',
     PRIMARY KEY (`id`),
     KEY `name` (`name`) USING BTREE,
-    KEY `value` (`value`) USING BTREE,
     KEY `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='设置表';
 INSERT INTO `nc_config` (`id`, `name`, `value`, `lang`) VALUES

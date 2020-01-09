@@ -139,7 +139,7 @@ class UploadFile
         $_dir = 'uploads' . DIRECTORY_SEPARATOR;
         $_dir .= $_uid ? dechex($_uid + 1000) . DIRECTORY_SEPARATOR : '';
         $_dir .= dechex((int) date('Y')) . DIRECTORY_SEPARATOR;
-        $_dir .= dechex((int) date('ym')) . DIRECTORY_SEPARATOR;
+        $_dir .= dechex((int) date('ym'));
 
         $save_path = Config::get('filesystem.disks.public.url') . '/';
         $save_file = $save_path . Filesystem::disk('public')->putFile($_dir, $_files, 'uniqid');

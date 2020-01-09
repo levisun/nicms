@@ -71,7 +71,6 @@
                     data: data,
                     success: function (result) {
                         jQuery.uiToast(result.message);
-                        jQuery('input[name="__token__"]').val(result.token);
                     }
                 });
             }

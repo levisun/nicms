@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `nc_role_admin` (
     `role_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '组ID',
     PRIMARY KEY (`id`),
     KEY `user_id` (`user_id`) USING BTREE,
-    KEY `group_id` (`role_id`) USING BTREE
+    KEY `role_id` (`role_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='管理员组关系表';
 INSERT INTO `nc_role_admin` (`id`, `user_id`, `role_id`) VALUES
 (1, 1, 1);

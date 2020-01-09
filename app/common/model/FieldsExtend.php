@@ -16,12 +16,10 @@
 DROP TABLE IF EXISTS `nc_fields_extend`;
 CREATE TABLE IF NOT EXISTS `nc_fields_extend` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `model_id` smallint(5) UNSIGNED NOT NULL COMMENT '模型ID',
     `article_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '文章ID',
     `fields_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '字段ID',
     `data` varchar(500) NOT NULL COMMENT '内容',
     PRIMARY KEY (`id`),
-    KEY `model_id` (`model_id`) USING BTREE,
     KEY `article_id` (`article_id`) USING BTREE,
     KEY `fields_id` (`fields_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='自定义字段扩展表';
@@ -38,13 +36,11 @@ class FieldsExtend extends Model
     protected $updateTime = false;
     protected $pk = 'id';
     protected $type = [
-        'model_id'   => 'integer',
         'article_id' => 'integer',
         'fields_id'  => 'integer',
     ];
     protected $field = [
         'id',
-        'model_id',
         'article_id',
         'fields_id',
         'data'
