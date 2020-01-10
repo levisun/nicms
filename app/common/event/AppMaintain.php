@@ -59,6 +59,8 @@ class AppMaintain
                 // $cant = [
                 //     '.htaccess',
                 //     '.nginx',
+                //     '404.html',
+                //     '502.html',
                 //     'favicon.ico',
                 //     'index.php',
                 //     'robots.txt',
