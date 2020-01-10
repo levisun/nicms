@@ -19,6 +19,9 @@ Route::group(function () {
     // 下载接口
     Route::get('download$', 'Download/index')->ext('do');
 
+    // 跳转接口
+    Route::get('go$', 'Go/index')->ext('html|do');
+
     // 操作接口
     Route::post('handle$', 'Handle/index')->ext('do');
 

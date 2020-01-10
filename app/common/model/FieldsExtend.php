@@ -16,7 +16,6 @@
 DROP TABLE IF EXISTS `nc_fields_extend`;
 CREATE TABLE IF NOT EXISTS `nc_fields_extend` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `model_id` smallint(5) UNSIGNED NOT NULL COMMENT '模型ID',
     `article_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '文章ID',
     `fields_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '字段ID',
     `data` varchar(500) NOT NULL COMMENT '内容',

@@ -25,7 +25,7 @@ use app\common\model\ArticleFile as ModelArticleFile;
 use app\common\model\ArticleImage as ModelArticleImage;
 use app\common\model\ArticleTags as ModelArticleTags;
 use app\common\model\Fields as ModelFields;
-use app\common\model\FieldsExtend as ModelFFieldsExtend;
+use app\common\model\FieldsExtend as ModelFieldsExtend;
 use app\common\model\Level as ModelLevel;
 use app\common\model\Tags as ModelTags;
 
@@ -41,7 +41,7 @@ class Article extends BaseLogic
     public function query(): array
     {
         $map = [
-            // ['article.is_pass', '=', '1'],
+            ['article.delete_time', '=', '0'],
             ['model_id', '<=', '4'],
             ['article.lang', '=', $this->lang->getLangSet()]
         ];
@@ -88,8 +88,8 @@ class Article extends BaseLogic
 
             foreach ($list['data'] as $key => $value) {
                 $value['url'] = [
-                    'editor' => url('content/content/editor/' . $value['id']),
-                    'remove' => url('content/content/remove/' . $value['id']),
+                    'editor' => url('content/article/editor/' . $value['id']),
+                    'remove' => url('content/article/remove/' . $value['id']),
 
                     // 栏目链接
                     'cat_url' => url('list/' . $value['category_id']),
@@ -138,16 +138,16 @@ class Article extends BaseLogic
             'category_id' => $this->request->param('category_id/d'),
             'model_id'    => $this->request->param('model_id/d'),
             'type_id'     => $this->request->param('type_id/d', 0),
-            'admin_id'    => $this->request->param('admin_id/d'),
+            'admin_id'    => $this->uid,
             'user_id'     => $this->request->param('user_id/d', 0),
             'is_pass'     => $this->request->param('is_pass/d', 0),
             'is_com'      => $this->request->param('is_com/d', 0),
             'is_top'      => $this->request->param('is_top/d', 0),
             'is_hot'      => $this->request->param('is_hot/d', 0),
             'sort_order'  => $this->request->param('sort_order/d', 0),
-            'username'    => $this->request->param('username'),
+            'username'    => $this->request->param('username', ''),
             'access_id'   => $this->request->param('access_id/d', 0),
-            'show_time'   => $this->request->param('show_time', time()),
+            'show_time'   => $this->request->param('show_time/d', 0),
             'update_time' => time(),
             'create_time' => time(),
             'lang'        => $this->lang->getLangSet()
@@ -157,22 +157,68 @@ class Article extends BaseLogic
             return $result;
         }
 
-        halt($receive_data);
-
         (new ModelArticle)->transaction(function () use ($receive_data) {
             $article = new ModelArticle;
             $article->save($receive_data);
+
+            // 自定义字段
+            if ($fiels = $this->request->param('fields/a', false)) {
+                foreach ($fiels as $key => $value) {
+                    $fiels_save[] = [
+                        'article_id' => $article->id,
+                        'fields_id'  => $key,
+                        'data'       => $value,
+                    ];
+                }
+                (new ModelFieldsExtend)->saveAll($fiels_save);
+            }
+
+            // 文章,单页
             if (1 === $receive_data['model_id'] || 4 === $receive_data['model_id']) {
-                # code...
-            } elseif (2 === $receive_data['model_id']) {
-                # code...
-            } elseif (3 === $receive_data['model_id']) {
-                # code...
+                $thumb = $this->request->param('thumb', '');
+                $this->writeFileLog($thumb);
+                (new ModelArticleContent)->save([
+                    'article_id' => $article->id,
+                    'thumb'      => $thumb,
+                    'origin'     => $this->request->param('origin', ''),
+                    'content'    => $this->request->param('content', '', '\app\common\library\DataFilter::content')
+                ]);
+            }
+            // 相册
+            elseif (2 === $receive_data['model_id']) {
+                $image_url = $this->request->param('image_url/a', '');
+                foreach ($image_url as $key => $value) {
+                    $this->writeFileLog($value);
+                }
+                (new ModelArticleImage)->save([
+                    'article_id'   => $article->id,
+                    'image_url'    => serialize($image_url),
+                    'image_width'  => $this->request->param('image_width/d', 0),
+                    'image_height' => $this->request->param('image_height/d', 0),
+                ]);
+            }
+            // 下载
+            elseif (3 === $receive_data['model_id']) {
+                (new ModelArticleFile)->save([
+                    'article_id' => $article->id,
+                    'file_url'   => $this->request->param('file_url'),
+                    'file_size'  => $this->request->param('file_size'),
+                    'file_ext'   => $this->request->param('file_ext'),
+                    'file_name'  => $this->request->param('file_name'),
+                    'file_mime'  => $this->request->param('file_mime'),
+                    'uhash'      => $this->request->param('uhash'),
+                    'md5file'    => $this->request->param('md5file'),
+                ]);
             }
         });
 
-
         // $this->cache->tag('cms nav')->clear();
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'content added success',
+        ];
     }
 
     /**
@@ -184,19 +230,249 @@ class Article extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d')) {
-        }
+            $result = (new ModelArticle)
+                ->view('article', ['id', 'title', 'keywords', 'description', 'category_id', 'type_id', 'is_pass', 'is_com', 'is_top', 'is_hot', 'sort_order', 'hits', 'username', 'admin_id', 'user_id', 'show_time', 'create_time', 'update_time', 'delete_time', 'access_id', 'lang'])
+                ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+                ->view('model', ['id' => 'model_id', 'name' => 'model_name', 'table_name'], 'model.id=category.model_id')
+                ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
+                ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
+                ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
+                ->where([
+                    ['article.id', '=', $id],
+                ])
+                ->find();
 
-        $result['access_list'] = (new ModelLevel)
-            ->field('id, name')
-            ->order('id DESC')
-            ->select()
-            ->toArray();
+            if ($result && $result = $result->toArray()) {
+                // table_name
+                $model = \think\helper\Str::studly($result['table_name']);
+                unset($result['table_name']);
+                $content = $this->app->make('\app\common\model\\' . $model);
+                $content = $content->where([
+                    ['article_id', '=', $id]
+                ])->find();
+                if ($content && $content = $content->toArray()) {
+                    unset($content['id'], $content['article_id']);
+                    foreach ($content as $key => $value) {
+                        $result[$key] = $value;
+                    }
+                }
+
+                // 附加字段数据
+                $fields = (new ModelFieldsExtend)
+                    ->view('fields_extend', ['data'])
+                    ->view('fields', ['id'], 'fields.id=fields_extend.fields_id')
+                    ->where([
+                        ['fields.category_id', '=', $result['category_id']],
+                        ['fields_extend.article_id', '=', $result['id']],
+                    ])
+                    ->select()
+                    ->toArray();
+                foreach ($fields as $key => $value) {
+                    $result['fields'][$value['id']] = $value['data'];
+                }
+
+                // 标签
+                $result['tags'] = (new ModelArticleTags)
+                    ->view('article_tags', ['tags_id'])
+                    ->view('tags', ['name'], 'tags.id=article_tags.tags_id')
+                    ->where([
+                        ['article_tags.article_id', '=', $result['id']],
+                    ])
+                    ->select()
+                    ->toArray();
+            }
+        }
 
         return [
             'debug' => false,
             'cache' => false,
             'msg'   => 'content data',
             'data'  => $result
+        ];
+    }
+
+    /**
+     * 编辑
+     * @access public
+     * @return array
+     */
+    public function editor(): array
+    {
+        $this->actionLog(__METHOD__, 'admin content editor');
+
+        if (!$id = $this->request->param('id/d')) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40001,
+                'msg'   => '请求错误'
+            ];
+        }
+
+        $receive_data = [
+            'title'       => $this->request->param('title'),
+            'keywords'    => $this->request->param('keywords'),
+            'description' => $this->request->param('description'),
+            'category_id' => $this->request->param('category_id/d'),
+            'model_id'    => $this->request->param('model_id/d'),
+            'type_id'     => $this->request->param('type_id/d', 0),
+            'admin_id'    => $this->uid,
+            'user_id'     => $this->request->param('user_id/d', 0),
+            'is_pass'     => $this->request->param('is_pass/d', 0),
+            'is_com'      => $this->request->param('is_com/d', 0),
+            'is_top'      => $this->request->param('is_top/d', 0),
+            'is_hot'      => $this->request->param('is_hot/d', 0),
+            'sort_order'  => $this->request->param('sort_order/d', 0),
+            'username'    => $this->request->param('username', ''),
+            'access_id'   => $this->request->param('access_id/d', 0),
+            'show_time'   => $this->request->param('show_time/d', 0),
+            'update_time' => time(),
+        ];
+
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+
+        (new ModelArticle)->transaction(function () use ($receive_data, $id) {
+            $model_id = $receive_data['model_id'];
+            unset($receive_data['model_id']);
+            $article = new ModelArticle;
+            $article->where([
+                ['id', '=', $id]
+            ])->data($receive_data)->update();
+            $receive_data['model_id'] = $model_id;
+            unset($model);
+
+            // 自定义字段
+            if ($fiels = $this->request->param('fields/a', false)) {
+                foreach ($fiels as $key => $value) {
+                    $has = (new ModelFieldsExtend)->where([
+                        ['article_id', '=', $id],
+                        ['fields_id', '=', $key]
+                    ])->value('id');
+                    if ($has) {
+                        (new ModelFieldsExtend)->where([
+                            ['article_id', '=', $id],
+                            ['fields_id', '=', $key]
+                        ])->data([
+                            'data' => $value
+                        ])->update();
+                    } else {
+                        (new ModelFieldsExtend)->save([
+                            'article_id' => $id,
+                            'fields_id'  => $key,
+                            'data'       => $value,
+                        ]);
+                    }
+                }
+            }
+
+            // 文章,单页
+            if (1 === $receive_data['model_id'] || 4 === $receive_data['model_id']) {
+                // 删除旧图片
+                $old_thumb = (new ModelArticleContent)->where([
+                    ['article_id', '=', $id]
+                ])->value('thumb');
+                $thumb = $this->request->param('thumb', '');
+                if ($old_thumb !== $thumb) {
+                    $this->removeFile($old_thumb);
+                    $this->writeFileLog($thumb);
+                }
+
+                (new ModelArticleContent)->where([
+                    ['article_id', '=', $id]
+                ])->data([
+                    'thumb'   => $thumb,
+                    'origin'  => $this->request->param('origin', ''),
+                    'content' => $this->request->param('content', '', '\app\common\library\DataFilter::content')
+                ])->update();
+            }
+            // 相册
+            elseif (2 === $receive_data['model_id']) {
+                // 删除旧图片
+                $old_img = (new ModelArticleImage)->where([
+                    ['article_id', '=', $id]
+                ])->value('image_url');
+                $old_img = unserialize($old_img);
+                $image_url = $this->request->param('image_url/a', '');
+                foreach ($old_img as $key => $value) {
+                    if (!in_array($value, $image_url)) {
+                        $this->removeFile($thumb);
+                    }
+                }
+                foreach ($image_url as $key => $value) {
+                    $this->writeFileLog($value);
+                }
+
+                (new ModelArticleImage)->where([
+                    ['article_id', '=', $id]
+                ])->data([
+                    'image_url'    => serialize($this->request->param('image_url/a', '')),
+                    'image_width'  => $this->request->param('image_width/d', 0),
+                    'image_height' => $this->request->param('image_height/d', 0),
+                ])->update();
+            }
+            // 下载
+            elseif (3 === $receive_data['model_id']) {
+                // 删除旧文件
+                $old_file_url = (new ModelArticleFile)->where([
+                    ['article_id', '=', $id]
+                ])->value('file_url');
+                $file_url = $this->request->param('file_url', '');
+                if ($old_file_url !== $file_url) {
+                    $this->removeFile($old_file_url);
+                    $this->writeFileLog($file_url);
+                }
+
+                (new ModelArticleFile)->where([
+                    ['article_id', '=', $id]
+                ])->data([
+                    'file_url'   => $file_url,
+                    'file_size'  => $this->request->param('file_size', ''),
+                    'file_ext'   => $this->request->param('file_ext', ''),
+                    'file_name'  => $this->request->param('file_name', ''),
+                    'file_mime'  => $this->request->param('file_mime', ''),
+                    'uhash'      => $this->request->param('uhash', ''),
+                    'md5file'    => $this->request->param('md5file', ''),
+                ])->update();
+            }
+        });
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'content editor success',
+        ];
+    }
+
+    /**
+     * 删除
+     * @access public
+     * @return array
+     */
+    public function remove(): array
+    {
+        $this->actionLog(__METHOD__, 'admin content remove');
+
+        if (!$id = $this->request->param('id/d')) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40001,
+                'msg'   => '请求错误'
+            ];
+        }
+
+        (new ModelArticle)->where([
+            ['id', '=', $id]
+        ])->data([
+            'delete_time' => time()
+        ])->update();
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'remove content success'
         ];
     }
 

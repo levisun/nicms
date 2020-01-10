@@ -188,7 +188,6 @@ class Category extends BaseLogic
                 ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
                 ->where([
                     ['category.id', '=', $id],
-                    ['category.lang', '=', $this->lang->getLangSet()]
                 ])
                 ->find();
 
@@ -274,7 +273,6 @@ class Category extends BaseLogic
         $image = (new ModelCategory)
             ->where([
                 ['id', '=', $id],
-                ['lang', '=', $this->lang->getLangSet()]
             ])
             ->value('image');
         if ($image !== $receive_data['image']) {

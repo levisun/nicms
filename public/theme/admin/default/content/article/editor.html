@@ -3,22 +3,22 @@
         <form id="article">
             <div class="form-group">
                 <label>{:lang('title')}</label>
-                <input type="text" name="title" class="form-control">
+                <input type="text" name="title" class="form-control" v-bind:value="items.title">
             </div>
 
             <div class="form-group">
                 <label>{:lang('username')}</label>
-                <input type="text" name="username" class="form-control">
+                <input type="text" name="username" class="form-control" v-bind:value="items.username">
             </div>
 
             <div class="form-group">
                 <label>{:lang('keywords')}</label>
-                <textarea name="keywords" class="form-control"></textarea>
+                <textarea name="keywords" class="form-control" v-bind:value="items.keywords"></textarea>
             </div>
 
             <div class="form-group">
                 <label>{:lang('description')}</label>
-                <textarea name="description" class="form-control"></textarea>
+                <textarea name="description" class="form-control" v-bind:value="items.description"></textarea>
             </div>
 
             <div class="form-group">
@@ -41,13 +41,13 @@
             <template v-if="model_id==1">
                 <div class="form-group">
                     <label>{:lang('thumb')}</label>
-                    <input type="text" name="thumb" class="form-control thumb">
+                    <input type="text" name="thumb" class="form-control thumb" v-bind:value="items.thumb">
                     <input type="file" name="upload" id="upload" v-on:change="upload('thumb')" class="form-control">
-                    <img class="thumb-box" style="display: none;">
+                    <img v-bind:src="items.thumb" class="thumb-box" style="display: none;">
                 </div>
                 <div class="form-group">
                     <label>{:lang('origin')}</label>
-                    <input type="text" name="origin" class="form-control">
+                    <input type="text" name="origin" class="form-control" v-bind:value="items.origin">
                 </div>
             </template>
 
@@ -55,17 +55,19 @@
             <template v-if="model_id==2">
                 <div class="form-group">
                     <label>{:lang('width')}</label>
-                    <input type="text" name="image_width" class="form-control image_width">
+                    <input type="text" name="image_width" class="form-control image_width"
+                        v-bind:value="items.image_width">
                 </div>
                 <div class="form-group">
                     <label>{:lang('height')}</label>
-                    <input type="text" name="image_height" class="form-control image_height">
+                    <input type="text" name="image_height" class="form-control image_height"
+                        v-bind:value="items.image_height">
                 </div>
                 <div class="form-group">
                     <label>{:lang('image')}</label>
-                    <input type="text" name="image_url[]" class="form-control image">
+                    <input type="text" name="image_url[]" class="form-control image" v-bind:value="items.image_url">
                     <input type="file" name="upload" id="upload" v-on:change="upload('image')" class="form-control">
-                    <img class="image-box" style="display: none;">
+                    <img v-bind:src="items.image_url" class="image-box" style="display: none;">
                 </div>
             </template>
 
@@ -73,7 +75,7 @@
             <template v-if="model_id==3">
                 <div class="form-group">
                     <label>{:lang('file')}</label>
-                    <input type="text" name="file_url" class="form-control file">
+                    <input type="text" name="file_url" class="form-control file" v-bind:value="items.file_url">
                     <input type="file" name="upload" id="upload" v-on:change="upload('file')" class="form-control">
                 </div>
             </template>
@@ -83,41 +85,47 @@
                 <div class="form-group">
                     <label>{:lang('commend')}</label>
                     <label>
-                        <input type="radio" name="is_com" value="1"> {:lang('yes')}
+                        <input type="radio" name="is_com" value="1" v-bind:checked="1==items.is_com ? true : false">
+                        {:lang('yes')}
                     </label>
                     <label>
-                        <input type="radio" name="is_com" value="0" checked="checked"> {:lang('no')}
+                        <input type="radio" name="is_com" value="0" v-bind:checked="0==items.is_com ? true : false">
+                        {:lang('no')}
                     </label>
                 </div>
 
                 <div class="form-group">
                     <label>{:lang('top')}</label>
                     <label>
-                        <input type="radio" name="is_top" value="1"> {:lang('yes')}
+                        <input type="radio" name="is_top" value="1" v-bind:checked="1==items.is_top ? true : false">
+                        {:lang('yes')}
                     </label>
                     <label>
-                        <input type="radio" name="is_top" value="0" checked="checked"> {:lang('no')}
+                        <input type="radio" name="is_top" value="0" v-bind:checked="0==items.is_top ? true : false">
+                        {:lang('no')}
                     </label>
                 </div>
 
                 <div class="form-group">
                     <label>{:lang('hot')}</label>
                     <label>
-                        <input type="radio" name="is_hot" value="1"> {:lang('yes')}
+                        <input type="radio" name="is_hot" value="1" v-bind:checked="1==items.is_hot ? true : false">
+                        {:lang('yes')}
                     </label>
                     <label>
-                        <input type="radio" name="is_hot" value="0" checked="checked"> {:lang('no')}
+                        <input type="radio" name="is_hot" value="0" v-bind:checked="0==items.is_hot ? true : false">
+                        {:lang('no')}
                     </label>
                 </div>
 
                 <div class="form-group">
                     <label>{:lang('sort')}</label>
-                    <input type="text" name="sort_order" class="form-control" value="0">
+                    <input type="text" name="sort_order" class="form-control" v-bind:value="items.sort_order">
                 </div>
 
                 <div class="form-group">
                     <label>{:lang('show time')}</label>
-                    <input type="text" name="show_time" class="form-control" value="">
+                    <input type="text" name="show_time" class="form-control" v-bind:value="items.show_time">
                 </div>
 
                 <div class="form-group">
@@ -125,7 +133,8 @@
                     <select class="form-control" name="access_id">
                         <option value="0">{:lang('select')}</option>
                         <template v-for="vo in access_list">
-                            <option v-bind:value="vo.id" v-text="vo.name"></option>
+                            <option v-bind:value="vo.id" v-text="vo.name"
+                                v-bind:selected="vo.id==items.access_id ? true : false"></option>
                         </template>
                     </select>
                 </div>
@@ -138,7 +147,8 @@
                     <select class="form-control" name="type_id">
                         <option value="0">{:lang('select')}</option>
                         <template v-for="vo in type_list">
-                            <option v-bind:value="vo.id" v-text="vo.name"></option>
+                            <option v-bind:value="vo.id" v-text="vo.name"
+                                v-bind:selected="vo.id==items.type_id ? true : false"></option>
                         </template>
                     </select>
                 </div>
@@ -149,10 +159,10 @@
                 <div class="form-group" v-for="vo in fields_list">
                     <label v-text="vo.name"></label>
                     <template v-if="1==vo.type_id">
-                        <textarea v-bind:name="'fields['+vo.id+']'" class="form-control"></textarea>
+                        <textarea v-bind:name="'fields['+vo.id+']'" class="form-control" v-bind:value="items.fields[vo.id]"></textarea>
                     </template>
                     <template v-else>
-                        <input type="text" v-bind:name="'fields['+vo.id+']'" class="form-control">
+                        <input type="text" v-bind:name="'fields['+vo.id+']'" class="form-control" v-bind:value="items.fields[vo.id]">
                     </template>
                 </div>
             </template>
@@ -160,7 +170,7 @@
             <!-- 模型:文章,下载,单页 -->
             <div class="form-group" v-show="model_id==1 || model_id==3 || model_id==4">
                 <label>{:lang('content')}</label>
-                <textarea id="editor"></textarea>
+                <textarea id="editor" v-html="items.content"></textarea>
             </div>
 
         </form>
@@ -213,6 +223,23 @@
                     success: function (result) {
                         if (10000 == result.code) {
                             article.access_list = result.data.list;
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'content.article.find' },
+                        { name: 'id', value: NICMS.api.param.id }
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            article.items = result.data;
+                            article.category_id = result.data.category_id;
+                            article.model_id = result.data.model_id;
+                            article.filterType();
                         }
                     }
                 });
@@ -289,9 +316,10 @@
             },
             save: function () {
                 var data = jQuery('#article').serializeArray();
-                data.push({ name: 'method', value: 'content.article.added' });
+                data.push({ name: 'method', value: 'content.article.editor' });
                 data.push({ name: 'model_id', value: article.model_id });
                 data.push({ name: 'content', value: window.editor.getData() });
+                data.push({ name: 'id', value: NICMS.api.param.id });
 
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
@@ -317,7 +345,7 @@
                     var height = jQuery('.image_height').val();
                     if (!width || !height) {
                         alert('请输入宽高');
-                        return ;
+                        return;
                     }
                     data.append('width', width);
                     data.append('height', height);

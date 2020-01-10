@@ -20,7 +20,6 @@ CREATE TABLE `nc_article_content` (
     `thumb` varchar(200) NOT NULL DEFAULT '' COMMENT '缩略图',
     `origin` varchar(200) NOT NULL DEFAULT '' COMMENT '来源',
     `content` longtext COMMENT '内容详情',
-    `hash` char(64) NOT NULL DEFAULT '' COMMENT '哈希',
     PRIMARY KEY (`id`),
     UNIQUE KEY `article_id` (`article_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章内容表';

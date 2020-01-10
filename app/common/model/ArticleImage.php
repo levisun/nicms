@@ -20,10 +20,6 @@ CREATE TABLE `nc_article_image` (
   `image_url` longtext DEFAULT '' COMMENT '图片存储路径',
   `image_width` smallint(5) DEFAULT '0' COMMENT '图片宽度',
   `image_height` smallint(5) DEFAULT '0' COMMENT '图片高度',
-  `image_size` mediumint(8) unsigned DEFAULT '0' COMMENT '文件大小',
-  `image_mime` varchar(50) DEFAULT '' COMMENT '图片类型',
-  `sort_order` smallint(5) DEFAULT '0' COMMENT '排序',
-  `create_time` int(10) unsigned DEFAULT '0' COMMENT '上传时间',
   PRIMARY KEY (`id`),
   KEY `article_id` (`article_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章图集图片表';

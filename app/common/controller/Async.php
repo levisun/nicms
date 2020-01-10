@@ -557,7 +557,7 @@ abstract class Async
      */
     private function checkAppId(): void
     {
-        $this->appId = $this->request->param('appid/f');
+        $this->appId = $this->request->param('appid/d');
         if (!$this->appId || $this->appId < 1000001) {
             $this->log->record('[Async] auth-appid not', 'error');
             $this->abort('错误请求', 21001);

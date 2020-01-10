@@ -176,7 +176,7 @@
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
-                            location.reload();
+                            article.load(NICM.api.param.page);
                         }
                     }
                 });

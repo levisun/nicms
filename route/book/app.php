@@ -17,9 +17,8 @@ use think\Response;
 Route::group(function () {
     // 首页
     Route::get('/$', 'Index/index')->ext('html');
-    Route::get('index$', function () {
-        return Response::create('/', 'redirect', 302);
-    })->ext('html');
+    Route::get('index$', 'Index/index')->ext('html');
+
 
     // 列表页
     Route::get('list/:tid$', 'Index/category')->ext('html');

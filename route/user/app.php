@@ -16,12 +16,9 @@ use think\Response;
 
 Route::group(function () {
     Route::get('/$', 'Index/index')->ext('html');
-    Route::get('index$', function () {
-        return Response::create('/', 'redirect', 302);
-    })->ext('html');
+    Route::get('index$', 'Index/index')->ext('html');
 
-    Route::get(':logic/:action/:method$', 'Index/index')->ext('html');
-    Route::get(':logic/:action/:method/:id$', 'Index/index')->ext('html');
+    Route::get(':logic/:action/:method/[:id]$', 'Index/index')->ext('html');
 
     Route::miss(function () {
         return miss(404);

@@ -24,8 +24,6 @@ CREATE TABLE `nc_article_file` (
   `file_mime` varchar(50) DEFAULT '' COMMENT '文件类型',
   `uhash` varchar(200) DEFAULT '' COMMENT '自定义的一种加密方式，用于文件下载权限验证',
   `md5file` varchar(200) DEFAULT '' COMMENT 'md5_file加密，可以检测上传/下载的文件包是否损坏',
-  `sort_order` smallint(5) DEFAULT '0' COMMENT '排序',
-  `create_time` int(10) unsigned DEFAULT '0' COMMENT '上传时间',
   PRIMARY KEY (`id`),
   KEY `article_id` (`article_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章下载附件表';

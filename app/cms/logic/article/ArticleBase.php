@@ -126,7 +126,7 @@ class ArticleBase extends BaseLogic
                         ->view('fields_extend', ['data'])
                         ->view('fields', ['name' => 'fields_name'], 'fields.id=fields_extend.fields_id')
                         ->where([
-                            ['fields_extend.model_id', '=', $value['model_id']],
+                            ['fields.category_id', '=', $value['category_id']],
                             ['fields_extend.article_id', '=', $value['id']],
                         ])
                         ->select()
@@ -172,7 +172,6 @@ class ArticleBase extends BaseLogic
                 ['article.is_pass', '=', '1'],
                 ['article.delete_time', '=', '0'],
                 ['article.show_time', '<', time()],
-                ['article.lang', '=', $this->lang->getLangSet()]
             ];
             $cache_key = md5('article details' . $id);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
@@ -211,13 +210,13 @@ class ArticleBase extends BaseLogic
                         ->view('fields_extend', ['data'])
                         ->view('fields', ['name' => 'fields_name'], 'fields.id=fields_extend.fields_id')
                         ->where([
-                            ['fields_extend.model_id', '=', $result['model_id']],
+                            ['fields.category_id', '=', $result['category_id']],
                             ['fields_extend.article_id', '=', $result['id']],
                         ])
                         ->select()
                         ->toArray();
-                    foreach ($fields as $val) {
-                        $value[$val['fields_name']] = $val['data'];
+                    foreach ($fields as $value) {
+                        $fields[$value['fields_name']] = $value['data'];
                     }
 
                     // 标签
@@ -277,7 +276,7 @@ class ArticleBase extends BaseLogic
                         }
                     }
 
-                    // $this->cache->tag('cms article' . $id)->set($cache_key, $result);
+                    $this->cache->tag('cms article' . $id)->set($cache_key, $result);
                 }
             }
         }

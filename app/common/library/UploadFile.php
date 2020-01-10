@@ -213,6 +213,10 @@ class UploadFile
      */
     public function writeUploadLog(string $_file, int $_type = 0): void
     {
+        if (!$_file) {
+            return;
+        }
+
         $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
 
         $has = (new ModelUploadFileLog)

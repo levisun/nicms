@@ -76,7 +76,7 @@
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
-                            location.reload();
+                            fields.load(NICM.api.param.page);
                         }
                     }
                 });

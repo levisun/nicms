@@ -16,10 +16,8 @@ use think\facade\Route;
 use think\Response;
 
 Route::group(function () {
-    Route::get('/$', 'Index/index')->ext('html');
-    Route::get('index$', function () {
-        return Response::create('/', 'redirect', 302);
-    })->ext('html');
+    Route::get('/$', 'Index/index');
+    Route::get('index$', 'Index/index')->ext('html');
 
     Route::get(':logic/:action/:method/[:id]$', 'Index/index')->ext('html');
 

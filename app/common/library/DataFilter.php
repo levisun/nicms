@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use think\facade\Config;
 use think\facade\Request;
 use app\common\library\Emoji;
 
@@ -37,6 +38,7 @@ class DataFilter
             $_data = self::funSymbol($_data);
             $_data = self::enter($_data);
             $_data = strip_tags($_data);
+            // $_data = escapeshellarg((string) $_data);
             $_data = (new Emoji)->clear($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
@@ -85,7 +87,7 @@ class DataFilter
             $_data = trim($_data);
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = (new Emoji)->decode($_data);
-            $_data = self::element($_data);
+            // $_data = self::element($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::decode($value);
@@ -161,16 +163,32 @@ class DataFilter
                 $ema[2] = trim($ema[2]);
                 $ema[2] = str_replace(['"', '\'', '<', '>'], '', $ema[2]);
 
+                // 图片处理
+                if ('src' === $ema[1]) {
+                    return $ema[2]
+                        ? ' ' . $ema[1] . '="' . (new Canvas)->image($ema[2]) . '"'
+                        : '';
+                }
+
                 // 过滤外链
-                if ('href' === $ema[1] && false !== stripos($ema[2], Request::rootDomain())) {
-                    return ' ' . $ema[1] . '="' . $ema[2] . '"';
+                if ('href' === $ema[1]) {
+                    // 本地相对地址
+                    if (0 === stripos($ema[2], Request::rootDomain())) {
+                        return ' ' . $ema[1] . '="' . $ema[2] . '"';
+                    }
+                    // 本地网络地址,移除http和https协议
+                    elseif (false !== stripos($ema[2], Request::rootDomain())) {
+                        return ' ' . $ema[1] . '="' . str_replace(['http:', 'https:'], '', $ema[2]) . '"';
+                    }
+                    // 外链
+                    else {
+                        return ' ' . $ema[1] . '="' . Config::get('app.api_host') . '/go.html?url=' . urlencode(base64_encode($ema[2])) . '"';
+                    }
                 }
 
                 // 过滤非法属性
-                $attr = ['src', 'alt', 'title', 'target', 'rel', 'height', 'width', 'align'];
-                if (!in_array($ema[1], $attr)) {
-                    return;
-                } elseif ($ema[2]) {
+                $attr = ['alt', 'title', 'target', 'rel', 'height', 'width', 'align'];
+                if (in_array($ema[1], $attr) && $ema[2]) {
                     return ' ' . $ema[1] . '="' . $ema[2] . '"';
                 } else {
                     return;
@@ -224,7 +242,7 @@ class DataFilter
             'phpinfo'              => 'ph&#112;info',
             'proc_open'            => 'pr&#111;c_open',
             'popen'                => 'po&#112;en',
-            'shell_exec'           => 'sh&#101;ll_exec',
+            'shell_exec'           => 'sh&#101;ll_ex&#101;c',
             'system'               => 'sy&#115;tem',
 
             'select'               => '&#115;elect',
@@ -297,8 +315,12 @@ class DataFilter
             '/<base.*?\/?>/si',
             '/<meta.*?\/?>/si',
 
+            // PHP代码攻击
+            '/<\?php(.*?)\?>/si',
+            '/<\?(.*?)\?>/si',
             '/<\?php/si',
             '/<\?/si',
+            '/\?>/si',
         ], '', $_str);
     }
 }

@@ -43,7 +43,7 @@
     <div class="box-footer clearfix" v-html="items.page"></div>
 </div>
 <script>
-    let role = new Vue({
+    let level = new Vue({
         el: '.box',
         data: {
             items: []
@@ -62,7 +62,7 @@
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
-                            role.items = result.data;
+                            level.items = result.data;
                         }
                     }
                 });
@@ -80,15 +80,15 @@
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
-                            location.reload();
+                            level.load(NICM.api.param.page);
                         }
                     }
                 });
             }
         }
     });
-    role.load(1);
+    level.load(1);
     function paging(_p) {
-        role.load(_p);
+        level.load(_p);
     }
 </script>
