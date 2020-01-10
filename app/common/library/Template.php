@@ -312,13 +312,17 @@ class Template implements TemplateHandlerInterface
                 $vars = '$' . $var_name;
             }
 
-            return '<?php echo is_string(' . $vars . ') ? htmlspecialchars(' . $vars . ') : "";?>';
+            if (0 === stripos($vars, '$')) {
+                return '<?php echo isset(' . $vars . ') ? htmlspecialchars(' . $vars . ') : "";?>';
+            } else {
+                return '<?php echo htmlspecialchars(' . $vars . ');?>';
+            }
         }, $_content);
 
         $regex = $this->getReplaceVars();
         $regex = '/(' . implode('|', array_keys($regex)) . ')/si';
         $_content = preg_replace_callback($regex, function ($matches) {
-            return '<?php echo is_string($' . $matches[0] . ') ? $' . $matches[0] . ' : "";?>';
+            return '<?php echo isset($' . $matches[0] . ') ? htmlspecialchars($' . $matches[0] . ') : "";?>';
         }, $_content);
     }
 
