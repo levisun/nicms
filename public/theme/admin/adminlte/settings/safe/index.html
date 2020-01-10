@@ -129,7 +129,6 @@
                     success: function (result) {
                         if (10000 == result.code) {
                             jQuery.uiToast(result.message);
-                            jQuery('input[name="__token__"]').val(result.token);
                             // location.reload();
                         }
                     }

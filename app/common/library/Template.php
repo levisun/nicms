@@ -315,7 +315,9 @@ class Template implements TemplateHandlerInterface
             return '<?php echo is_string(' . $vars . ') ? htmlspecialchars(' . $vars . ') : "";?>';
         }, $_content);
 
-        $_content = preg_replace_callback('/(__)([A-Z_]+)(__)/si', function ($matches) {
+        $regex = $this->getReplaceVars();
+        $regex = '/(' . implode('|', array_keys($regex)) . ')/si';
+        $_content = preg_replace_callback($regex, function ($matches) {
             return '<?php echo is_string($' . $matches[0] . ') ? $' . $matches[0] . ' : "";?>';
         }, $_content);
     }

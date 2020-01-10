@@ -65,10 +65,6 @@ class UploadFile
         ];
         $this->imgWater = $_water;
 
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
-            'temp' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
-        is_dir($path) or mkdir($path, 0755, true);
-
         // 校验上传文件
         if (!$result = $this->validate($_element, $files)) {
             // 单文件
@@ -139,7 +135,7 @@ class UploadFile
         $_dir = 'uploads' . DIRECTORY_SEPARATOR;
         $_dir .= $_uid ? dechex($_uid + 1000) . DIRECTORY_SEPARATOR : '';
         $_dir .= dechex((int) date('Y')) . DIRECTORY_SEPARATOR;
-        $_dir .= dechex((int) date('ym')) . DIRECTORY_SEPARATOR;
+        $_dir .= dechex((int) date('ym'));
 
         $save_path = Config::get('filesystem.disks.public.url') . '/';
         $save_file = $save_path . Filesystem::disk('public')->putFile($_dir, $_files, 'uniqid');

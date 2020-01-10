@@ -22,7 +22,9 @@ CREATE TABLE IF NOT EXISTS `nc_visit` (
     `user_agent` varchar(255) NOT NULL DEFAULT '' COMMENT '访问agent',
     `count` int(11) UNSIGNED NOT NULL DEFAULT '1' COMMENT '统计数量',
     PRIMARY KEY (`id`),
-    KEY `date` (`date`) USING BTREE
+    KEY `date` (`date`) USING BTREE,
+    KEY `ip` (`ip`) USING BTREE,
+    KEY `user_agent` (`user_agent`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='访问表';
  */
 

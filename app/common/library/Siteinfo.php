@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Cache;
-use think\facade\config;
+use think\facade\Config;
 use think\facade\Lang;
 use think\facade\Request;
 use app\common\model\Config as ModelConfig;
