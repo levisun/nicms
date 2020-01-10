@@ -62,19 +62,19 @@ class ArticleBase extends BaseLogic
             $map[] = ['article.type_id', '=', $type_id];
         }
 
-        // 排序,为空依次安置顶,最热,推荐,自定义顺序,最新发布时间排序
-        if ($sort_order = $this->request->param('sort')) {
-            $sort_order = 'article.' . $sort_order;
-        } else {
-            $sort_order = 'article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.update_time DESC';
-        }
-
         // 搜索
         if ($search_key = $this->request->param('key')) {
             $query_search = DataFilter::word($search_key, 3);
             if (!empty($query_search)) {
                 $map[] = ['article.title', 'regexp', implode('|', $query_search)];
             }
+        }
+
+        // 排序,为空依次安置顶,最热,推荐,自定义顺序,最新发布时间排序
+        if ($sort_order = $this->request->param('sort')) {
+            $sort_order = 'article.' . $sort_order;
+        } else {
+            $sort_order = 'article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.update_time DESC';
         }
 
         $query_limit = $this->request->param('limit/d', 10);

@@ -119,30 +119,33 @@ class DataFilter
             '§', '№', '☆', '★', '○', '●', '◎', '◇', '◆', '□', '■', '△', '▲', '※', '→', '←', '↑', '↓', '〓', '＃', '＆', '＠', '＼', '＾', '＿', '￣', '―', '♂', '♀',
         ];
         $_data = str_replace($pattern, '', $_data);
+        if ($_data = trim($_data)) {
+            // 分词
+            @ini_set('memory_limit', '256M');
+            $path = app()->getRootPath() . 'vendor/lizhichao/word/Data/dict.json';
+            define('_VIC_WORD_DICT_PATH_', $path);
+            $fc = new \Lizhichao\Word\VicWord('json');
+            $_data = $fc->getAutoWord($_data);
+            unset($fc);
 
-        // 分词
-        @ini_set('memory_limit', '256M');
-        $path = app()->getRootPath() . 'vendor/lizhichao/word/Data/dict.json';
-        define('_VIC_WORD_DICT_PATH_', $path);
-        $fc = new \Lizhichao\Word\VicWord('json');
-        $_data = $fc->getAutoWord($_data);
-        unset($fc);
-
-        // 过滤有效词
-        foreach ($_data as $key => $value) {
-            if (1 < mb_strlen($value[0], 'utf-8')) {
-                $_data[$key] = $value[0];
-            } else {
-                unset($_data[$key]);
+            // 过滤有效词
+            foreach ($_data as $key => $value) {
+                if (1 < mb_strlen($value[0], 'utf-8')) {
+                    $_data[$key] = $value[0];
+                } else {
+                    unset($_data[$key]);
+                }
             }
-        }
-        // 过滤重复词
-        $_data = array_unique($_data);
-        // 排序
-        sort($_data);
+            // 过滤重复词
+            $_data = array_unique($_data);
+            // 排序
+            sort($_data);
 
-        // 如果设定长度,返回对应长度数组
-        return $_length ? array_slice($_data, 0, $_length) : $_data;
+            // 如果设定长度,返回对应长度数组
+            return $_length ? array_slice($_data, 0, $_length) : $_data;
+        } else {
+            return [];
+        }
     }
 
     /**

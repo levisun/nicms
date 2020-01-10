@@ -65,7 +65,7 @@ class Template implements TemplateHandlerInterface
             '__CSS__'           => 'css/',
             '__IMG__'           => 'img/',
             '__JS__'            => 'js/',
-            '__STATIC__'        => 'theme/static/',
+            '__STATIC__'        => 'static/',
             '__NAME__'          => 'NICMS',
             '__TITLE__'         => 'NICMS',
             '__KEYWORDS__'      => 'NICMS',
@@ -235,7 +235,7 @@ class Template implements TemplateHandlerInterface
 
         $replace = [
             '__SYS_VERSION__' => $this->app->config->get('app.version', '1.0.1'),
-            '__STATIC__'      => $this->app->config->get('app.cdn_host') . '/theme/static/',
+            '__STATIC__'      => $this->app->config->get('app.cdn_host') . '/static/',
             '__THEME__'       => $path,
             '__CSS__'         => $path . 'css/',
             '__IMG__'         => $path . 'img/',
@@ -322,7 +322,7 @@ class Template implements TemplateHandlerInterface
         $regex = $this->getReplaceVars();
         $regex = '/(' . implode('|', array_keys($regex)) . ')/si';
         $_content = preg_replace_callback($regex, function ($matches) {
-            return '<?php echo isset($' . $matches[0] . ') ? htmlspecialchars($' . $matches[0] . ') : "";?>';
+            return '<?php echo isset($' . $matches[0] . ') ? $' . $matches[0] . ' : "";?>';
         }, $_content);
     }
 
@@ -667,7 +667,7 @@ class Template implements TemplateHandlerInterface
                 $error = 'template not exists:' . $_template;
                 $response = Response::create($error, 'html', 200);
             } else {
-                $response = miss(404);
+                $response = miss(403);
             }
             throw new HttpResponseException($response);
         }

@@ -55,24 +55,17 @@ class AppMaintain
                 (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1);
 
                 // 删除根目录多余文件
-                // $files = (array) glob(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . '*');
-                // $cant = [
-                //     '.htaccess',
-                //     '.nginx',
-                //     '404.html',
-                //     '502.html',
-                //     'favicon.ico',
-                //     'index.php',
-                //     'robots.txt',
-                //     'router.php',
-                //     'sitemap.xml',
-                // ];
-                // foreach ($files as $key => $file) {
-                //     $file_name = pathinfo($file, PATHINFO_BASENAME);
-                //     if (is_file($file) && !in_array($file_name, $cant)) {
-                //         unlink($file);
-                //     }
-                // }
+                $dir = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+                $files = is_dir($dir) ? scandir($dir) : [];
+                foreach ($files as $file) {
+                    if ('.' === $file || '..' === $file) {
+                        continue;
+                    } elseif (is_dir($dir . $file) && !in_array($file, ['screen', 'static', 'storage', 'theme'])) {
+                        (new ReGarbage)->remove($dir . $file, 0);
+                    } elseif (is_file($dir . $file) && !in_array($file, ['.htaccess', '.nginx', '.user.ini', '404.html', '502.html', 'favicon.ico', 'index.php', 'robots.txt', 'sitemap.xml'])) {
+                        @unlink($dir . $file);
+                    }
+                }
             });
         }
     }

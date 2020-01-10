@@ -28,7 +28,7 @@ return [
     // 上传文件大小,单位MB
     'upload_size'      => (int) Env::get('app.upload_size', 1),
     // 上传文件类型(扩展名)
-    'upload_type'      => Env::get('app.upload_type', 'gif,jpg,png,zip,rar'),
+    'upload_type'      => Env::get('app.upload_type', 'jpg,gif,png,webp,mp3,mp4,doc,docx,xls,xlsx,ppt,pptx,pdf,zip'),
 
     // API地址
     'api_host'         => '//api.' . Request::rootDomain(),
