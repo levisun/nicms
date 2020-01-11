@@ -24,9 +24,7 @@ use app\common\model\ArticleContent as ModelArticleContent;
 use app\common\model\ArticleFile as ModelArticleFile;
 use app\common\model\ArticleImage as ModelArticleImage;
 use app\common\model\ArticleTags as ModelArticleTags;
-use app\common\model\Fields as ModelFields;
 use app\common\model\FieldsExtend as ModelFieldsExtend;
-use app\common\model\Level as ModelLevel;
 use app\common\model\Tags as ModelTags;
 
 class Article extends BaseLogic
@@ -110,7 +108,7 @@ class Article extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'content data',
+            'msg'   => 'success',
             'data'  => [
                 'list'         => $list['data'],
                 'total'        => $list['total'],
@@ -147,7 +145,7 @@ class Article extends BaseLogic
             'sort_order'  => $this->request->param('sort_order/d', 0),
             'username'    => $this->request->param('username', ''),
             'access_id'   => $this->request->param('access_id/d', 0),
-            'show_time'   => $this->request->param('show_time/d', 0),
+            'show_time'   => $this->request->param('show_time/d', date('Y-m-d'), 'strtotime'),
             'update_time' => time(),
             'create_time' => time(),
             'lang'        => $this->lang->getLangSet()
@@ -158,8 +156,14 @@ class Article extends BaseLogic
         }
 
         (new ModelArticle)->transaction(function () use ($receive_data) {
+            $model_id = $receive_data['model_id'];
+            unset($receive_data['model_id']);
+
             $article = new ModelArticle;
             $article->save($receive_data);
+
+            $receive_data['model_id'] = $model_id;
+            unset($model);
 
             // 自定义字段
             if ($fiels = $this->request->param('fields/a', false)) {
@@ -210,14 +214,15 @@ class Article extends BaseLogic
                     'md5file'    => $this->request->param('md5file'),
                 ]);
             }
-        });
 
-        // $this->cache->tag('cms nav')->clear();
+            // 清除缓存
+            $this->cache->tag('cms article list' . $receive_data['category_id'])->clear();
+        });
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'content added success',
+            'msg'   => 'success',
         ];
     }
 
@@ -243,6 +248,7 @@ class Article extends BaseLogic
                 ->find();
 
             if ($result && $result = $result->toArray()) {
+                $result['show_time'] = date('Y-m-d', $result['show_time']);
                 // table_name
                 $model = \think\helper\Str::studly($result['table_name']);
                 unset($result['table_name']);
@@ -286,7 +292,7 @@ class Article extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'content data',
+            'msg'   => 'success',
             'data'  => $result
         ];
     }
@@ -305,7 +311,7 @@ class Article extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -325,7 +331,7 @@ class Article extends BaseLogic
             'sort_order'  => $this->request->param('sort_order/d', 0),
             'username'    => $this->request->param('username', ''),
             'access_id'   => $this->request->param('access_id/d', 0),
-            'show_time'   => $this->request->param('show_time/d', 0),
+            'show_time'   => $this->request->param('show_time/d', date('Y-m-d'), 'strtotime'),
             'update_time' => time(),
         ];
 
@@ -336,10 +342,12 @@ class Article extends BaseLogic
         (new ModelArticle)->transaction(function () use ($receive_data, $id) {
             $model_id = $receive_data['model_id'];
             unset($receive_data['model_id']);
+
             $article = new ModelArticle;
             $article->where([
                 ['id', '=', $id]
             ])->data($receive_data)->update();
+
             $receive_data['model_id'] = $model_id;
             unset($model);
 
@@ -395,12 +403,12 @@ class Article extends BaseLogic
                 ])->value('image_url');
                 $old_img = unserialize($old_img);
                 $image_url = $this->request->param('image_url/a', '');
-                foreach ($old_img as $key => $value) {
+                foreach ($old_img as $value) {
                     if (!in_array($value, $image_url)) {
-                        $this->removeFile($thumb);
+                        $this->removeFile($value);
                     }
                 }
-                foreach ($image_url as $key => $value) {
+                foreach ($image_url as $value) {
                     $this->writeFileLog($value);
                 }
 
@@ -436,12 +444,16 @@ class Article extends BaseLogic
                     'md5file'    => $this->request->param('md5file', ''),
                 ])->update();
             }
+
+            // 清除缓存
+            $this->cache->tag('cms article list' . $receive_data['category_id'])->clear();
+            $this->cache->delete(md5('article details' . $id));
         });
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'content editor success',
+            'msg'   => 'success',
         ];
     }
 
@@ -459,20 +471,30 @@ class Article extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
-        (new ModelArticle)->where([
+        $category_id = (new ModelArticle)->where([
             ['id', '=', $id]
-        ])->data([
-            'delete_time' => time()
-        ])->update();
+        ])->value('category_id');
+
+        if ($category_id) {
+            (new ModelArticle)->where([
+                ['id', '=', $id]
+            ])->data([
+                'delete_time' => time()
+            ])->update();
+
+            // 清除缓存
+            $this->cache->tag('cms article list' . $category_id)->clear();
+            $this->cache->delete(md5('article details' . $id));
+        }
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'remove content success'
+            'msg'   => 'success'
         ];
     }
 

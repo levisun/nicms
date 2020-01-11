@@ -45,6 +45,5 @@ class ArticleContent extends Model
         'thumb',
         'origin',
         'content',
-        'hash',
     ];
 }

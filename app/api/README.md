@@ -4,19 +4,19 @@ API说明文档
 ## 使用方法
 
 ~~~
-模板中必须使用{tags:head /}标签添加头部
+模板中必须使用`{tags:head /}`标签添加头部,否则API请求无法通过.
 ~~~
 
 ## API请求系统参数
 
-|参数|类型|必填|作用|示例|
-|Accept|header|yes|api版本与返回数据类型|Accept:application/vnd.niphp.v1.0.1+json|
-|Authorization|header|yes|API权限校验,JWT生成校验|Authorization: Bearer xxxx.xxx.xx|
-|__token__|string|POST yes|表单令牌|__token__=xxxx|
-|appid|int|yes|appid|appid=100002|
-|method|string|yes|接口名|method=article.category.query|
-|sign_type|string|yes|签名类型|sign_type=md5|
-|timestamp|int|yes|请求时间戳|timestamp=1578667111|
+| 参数 | 类型 | 必填 | 作用 | 示例 |
+| Accept | header | yes | api版本与返回数据类型 | Accept:application/vnd.niphp.v1.0.1+json |
+| Authorization | header | yes | API权限校验,JWT生成校验 | Authorization: Bearer xxxx.xxx.xx |
+| __token__ | string | POST yes | 表单令牌 | __token__=xxxx |
+| appid | int | yes | appid | appid=100002 |
+| method | string | yes | 接口名 | method=article.category.query |
+| sign_type | string | yes | 签名类型 | sign_type=md5 |
+| timestamp | int | yes | 请求时间戳 | timestamp=1578667111 |
 
 
 ## code对照表

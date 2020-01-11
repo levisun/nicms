@@ -47,7 +47,8 @@ CREATE TABLE IF NOT EXISTS `nc_user` (
     KEY `level_id` (`level_id`) USING BTREE,
     KEY `province_id` (`province_id`) USING BTREE,
     KEY `city_id` (`city_id`) USING BTREE,
-    KEY `area_id` (`area_id`) USING BTREE
+    KEY `area_id` (`area_id`) USING BTREE,
+    KEY `status` (`status`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户';
 
 DROP TABLE IF EXISTS `nc_user_oauth`;

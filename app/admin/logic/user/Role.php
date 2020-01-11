@@ -58,7 +58,7 @@ class Role extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'node data',
+            'msg'   => 'success',
             'data'  => [
                 'list'         => $list['data'],
                 'total'        => $list['total'],
@@ -105,7 +105,7 @@ class Role extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'role added success',
+            'msg'   => 'success',
         ];
     }
 
@@ -142,7 +142,7 @@ class Role extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'role',
+            'msg'   => 'success',
             'data'  => $result
         ];
     }
@@ -161,7 +161,7 @@ class Role extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -198,7 +198,7 @@ class Role extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'role editor success',
+            'msg'   => 'success',
         ];
     }
 
@@ -216,7 +216,7 @@ class Role extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -233,7 +233,7 @@ class Role extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'role remove success',
+            'msg'   => 'success',
         ];
     }
 }

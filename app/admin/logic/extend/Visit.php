@@ -52,7 +52,7 @@ class Visit extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'visit log data',
+            'msg'   => 'success',
             'data'  => [
                 'list'         => $list['data'],
                 'total'        => $list['total'],

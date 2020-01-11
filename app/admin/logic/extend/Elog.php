@@ -54,7 +54,7 @@ class Elog extends BaseLogic
         return [
             'debug' => false,
             'cache' => true,
-            'msg'   => 'error log data',
+            'msg'   => 'success',
             'data'  => [
                 'list'  => $file,
                 'total' => count($file)
@@ -87,13 +87,13 @@ class Elog extends BaseLogic
                 $data = 'null';
             }
 
-            $msg = 'error log data';
+            $msg = 'success';
             $data = [
                 'title'   => pathinfo($id, PATHINFO_FILENAME),
                 'content' => $data
             ];
         } else {
-            $msg = 'log data error';
+            $msg = 'success';
             $data = [
                 'title'   => 'error',
                 'content' => 'error',

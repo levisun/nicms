@@ -52,7 +52,7 @@ class Basic extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'basic data',
+            'msg'   => 'success',
             'data'  => $result
         ];
     }
@@ -96,7 +96,7 @@ class Basic extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'editor success'
+            'msg'   => 'success'
         ];
     }
 }

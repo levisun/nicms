@@ -61,7 +61,7 @@ class Safe extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'safe data',
+            'msg'   => 'success',
             'data'  => $result
         ];
     }
@@ -122,7 +122,7 @@ class Safe extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'editor success'
+            'msg'   => 'success'
         ];
     }
 }

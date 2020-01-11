@@ -59,7 +59,7 @@ class Log extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'action log data',
+            'msg'   => 'success',
             'data'  => [
                 'list'         => $list['data'],
                 'total'        => $list['total'],

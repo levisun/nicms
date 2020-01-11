@@ -261,7 +261,13 @@ class ArticleBase extends BaseLogic
 
                                     // 文章内容
                                 case 'content':
-                                    $result[$key] = DataFilter::decode($value);
+                                    $value = DataFilter::decode($value);
+                                    $value = preg_replace_callback('/(src=")([a-zA-Z0-9&=#,_:?.\/]+)(")/si', function ($matches) {
+                                        return $matches[2]
+                                            ? 'src="' . (new Canvas)->image($matches[2]) . '"'
+                                            : '';
+                                    }, $value);
+                                    $result[$key] = $value;
                                     break;
 
                                     // 下载文件
@@ -276,7 +282,7 @@ class ArticleBase extends BaseLogic
                         }
                     }
 
-                    $this->cache->tag('cms article' . $id)->set($cache_key, $result);
+                    $this->cache->set($cache_key, $result);
                 }
             }
         }

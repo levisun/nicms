@@ -62,7 +62,7 @@ class User extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'user data',
+            'msg'   => 'success',
             'data'  => [
                 'list'         => $list['data'],
                 'total'        => $list['total'],
@@ -103,7 +103,7 @@ class User extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'user added success',
+            'msg'   => 'success',
         ];
     }
 
@@ -135,7 +135,7 @@ class User extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'user data',
+            'msg'   => 'success',
             'data'  => $result
         ];
     }
@@ -154,7 +154,7 @@ class User extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -187,7 +187,7 @@ class User extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'user editor success',
+            'msg'   => 'success',
         ];
     }
 
@@ -205,7 +205,7 @@ class User extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -216,7 +216,7 @@ class User extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'user remove success',
+            'msg'   => 'success',
         ];
     }
 }

@@ -53,7 +53,7 @@ class Cache extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => lang('remove cache success')
+            'msg'   => 'success'
         ];
     }
 
@@ -96,7 +96,7 @@ class Cache extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'remove compile success'
+            'msg'   => 'success'
         ];
     }
 }

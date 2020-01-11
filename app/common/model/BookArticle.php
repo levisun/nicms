@@ -15,23 +15,23 @@
 /*
 DROP TABLE IF EXISTS `nc_book_article`;
 CREATE TABLE IF NOT EXISTS `nc_book_article` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `book_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '书ID',
-  `title` varchar(255) NOT NULL DEFAULT '' COMMENT '标题',
-  `content` mediumtext NOT NULL DEFAULT '' COMMENT '内容',
-  `hash` char(64) NOT NULL DEFAULT '' COMMENT '哈希',
-  `is_pass` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '审核',
-  `sort_order` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
-  `hits` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '点击量',
-  `show_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '显示时间',
-  `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
-  `delete_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
-  `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
-  PRIMARY KEY (`id`),
-  KEY `book_id` (`book_id`),
-  KEY `is_pass` (`is_pass`),
-  KEY `show_time` (`show_time`),
-  KEY `delete_time` (`delete_time`)
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `book_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '书ID',
+    `title` varchar(255) NOT NULL DEFAULT '' COMMENT '标题',
+    `content` mediumtext NOT NULL DEFAULT '' COMMENT '内容',
+    `is_pass` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '审核',
+    `sort_order` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
+    `hits` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '点击量',
+    `show_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '显示时间',
+    `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
+    `delete_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
+    `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    KEY `book_id` (`book_id`) USING BTREE,
+    KEY `is_pass` (`is_pass`) USING BTREE,
+    KEY `show_time` (`show_time`) USING BTREE,
+    KEY `sort_order` (`sort_order`) USING BTREE,
+    KEY `delete_time` (`delete_time`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='书库文章表';
  */
 

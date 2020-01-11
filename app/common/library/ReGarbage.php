@@ -35,20 +35,6 @@ class ReGarbage
         $this->clear($_dir, $day);
     }
 
-    public function clearPHP(string $_dir)
-    {
-        $files = is_dir($_dir) ? scandir($_dir) : [];
-        foreach ($files as $file) {
-            if ('.' === $file || '..' === $file) {
-                continue;
-            } elseif (is_dir($_dir . $file)) {
-                $this->clearPHP($_dir . $file . DIRECTORY_SEPARATOR);
-            } elseif (is_file($_dir . $file) && !in_array(pathinfo($file, PATHINFO_EXTENSION), ['jpg', 'gif', 'png', 'webp', 'mp3', 'mp4', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'zip'])) {
-                @unlink($_dir . $file);
-            }
-        }
-    }
-
     /**
      * 删除文件
      * @access private

@@ -14,3 +14,15 @@
 #index-aside-right .card {
     margin-bottom: 15px;
 }
+
+.details h1,
+.details h2,
+.details h3,
+.details h4,
+.details h5,
+.details h6 {
+    font-size: 16px;
+}
+.details p {
+    text-indent: 2em;
+}

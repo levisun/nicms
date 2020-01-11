@@ -34,7 +34,7 @@ class Category extends ArticleBase
         return [
             'debug' => false,
             'cache' => $result ? true : false,
-            'msg'   => $result ? 'article list data' : 'article list error',
+            'msg'   => $result ? 'category' : 'error',
             'data'  => $result ? [
                 'list'         => $result['data'],
                 'total'        => $result['total'],

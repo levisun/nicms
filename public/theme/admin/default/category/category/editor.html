@@ -86,7 +86,7 @@
                 <label>{:lang('access')}</label>
                 <select class="form-control" name="access_id">
                     <option value="0">{:lang('select')}</option>
-                    <template v-for="vo in items.access_list">
+                    <template v-for="vo in access_list">
                         <option v-bind:value="vo.id" v-text="vo.name" v-bind:selected="vo.id==items.access_id ? true : false"></option>
                     </template>
                 </select>
@@ -107,6 +107,7 @@
         el: '.box',
         data: {
             model_list: [],
+            access_list: [],
             items: [],
         },
         methods: {
@@ -134,6 +135,20 @@
                     success: function (result) {
                         if (result.code == 10000) {
                             category.model_list = result.data.list;
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'user.level.query' },
+                        { name: 'limit', value: 100 }
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            category.access_list = result.data.list;
                         }
                     }
                 });

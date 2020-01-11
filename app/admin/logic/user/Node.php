@@ -54,7 +54,7 @@ class Node extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'node data',
+            'msg'   => 'success',
             'data'  => [
                 'list'  => $result,
                 'total' => count($result),
@@ -139,7 +139,7 @@ class Node extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'node added success',
+            'msg'   => 'success',
         ];
     }
 
@@ -186,7 +186,7 @@ class Node extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'node data',
+            'msg'   => 'success',
             'data'  => isset($result) ? $result : []
         ];
     }
@@ -205,7 +205,7 @@ class Node extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -233,7 +233,7 @@ class Node extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'node editor success'
+            'msg'   => 'success'
         ];
     }
 
@@ -251,7 +251,7 @@ class Node extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -264,7 +264,7 @@ class Node extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'remove node success'
+            'msg'   => 'success'
         ];
     }
 }

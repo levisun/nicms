@@ -65,7 +65,7 @@ class Fields extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'fields data',
+            'msg'   => 'success',
             'data'  => [
                 'list'         => $list['data'],
                 'total'        => $list['total'],
@@ -104,7 +104,7 @@ class Fields extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'fields added success',
+            'msg'   => 'success',
         ];
     }
 
@@ -133,7 +133,7 @@ class Fields extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'fields data',
+            'msg'   => 'success',
             'data'  => isset($result) ? $result : []
         ];
     }
@@ -152,7 +152,7 @@ class Fields extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -179,7 +179,7 @@ class Fields extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'fields editor success'
+            'msg'   => 'success'
         ];
     }
 
@@ -197,7 +197,7 @@ class Fields extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -216,7 +216,7 @@ class Fields extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'remove fields success'
+            'msg'   => 'success'
         ];
     }
 }

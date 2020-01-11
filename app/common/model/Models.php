@@ -29,8 +29,7 @@ INSERT INTO `nc_model` (`id`, `name`, `table_name`, `remark`, `status`) VALUES
 (4, 'page', 'article_content', '单页模型', 1),
 (5, 'feedback', 'feedback', '反馈模型', 1),
 (6, 'message', 'message', '留言模型', 1),
-(7, 'link', 'link', '友链模型', 1),
-(8, 'external', '', '外部模型', 1);
+(7, 'link', 'link', '友链模型', 1);
  */
 
 namespace app\common\model;

@@ -24,7 +24,7 @@
                             <font v-text="items.hits"></font>
                         </span>
                     </p>
-                    <div v-html="items.content"></div>
+                    <div class="details" v-html="items.content"></div>
                 </div>
             </div>
         </div>
@@ -77,8 +77,10 @@
                         { name: 'id', value: NICMS.api.param.id }
                     ],
                     success: function (result) {
-                        if (result.code == '10000') {
+                        if (result.code == '10000' && result.message != 'error') {
                             details.items = result.data;
+                        } else {
+                            window.location.href = '/404.html';
                         }
                     }
                 });

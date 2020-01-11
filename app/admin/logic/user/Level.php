@@ -54,7 +54,7 @@ class Level extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'node data',
+            'msg'   => 'success',
             'data'  => [
                 'list'         => $list['data'],
                 'total'        => $list['total'],
@@ -90,7 +90,7 @@ class Level extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'level added success',
+            'msg'   => 'success',
         ];
     }
 
@@ -114,7 +114,7 @@ class Level extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'role',
+            'msg'   => 'success',
             'data'  => $result
         ];
     }
@@ -133,7 +133,7 @@ class Level extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -156,7 +156,7 @@ class Level extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'level editor success',
+            'msg'   => 'success',
         ];
     }
 
@@ -174,7 +174,7 @@ class Level extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -186,7 +186,7 @@ class Level extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'level remove success',
+            'msg'   => 'success',
         ];
     }
 }

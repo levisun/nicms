@@ -41,7 +41,7 @@ class User extends BaseLogic
             return [
                 'debug' => false,
                 'cache' => false,
-                'msg'   => 'login error'
+                'msg'   => 'error'
             ];
         }
 
@@ -60,10 +60,14 @@ class User extends BaseLogic
             ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
             ->view('role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
             ->where([
+                ['admin.status', '=', 1],
                 ['admin.username', '=', $this->request->param('username')]
             ])
             ->whereOr([
                 ['admin.phone', '=', $this->request->param('username')]
+            ])
+            ->whereOr([
+                ['admin.email', '=', $this->request->param('username')]
             ])
             ->find();
         if (!is_null($user) && $new_pw = Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {
@@ -110,7 +114,7 @@ class User extends BaseLogic
             'debug' => false,
             'cache' => false,
             'code'  => !is_null($user) && $new_pw ? 10000 : 40009,
-            'msg'   => !is_null($user) && $new_pw ? 'login success' : 'login error'
+            'msg'   => !is_null($user) && $new_pw ? 'success' : 'error'
         ];
     }
 
@@ -130,7 +134,7 @@ class User extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => $this->lang->get('logout success')
+            'msg'   => 'success'
         ];
     }
 
@@ -174,7 +178,7 @@ class User extends BaseLogic
         return [
             'debug' => false,
             'cache' => true,
-            'msg'   => 'user author',
+            'msg'   => 'success',
             'data'  => $result
         ];
     }
@@ -209,7 +213,7 @@ class User extends BaseLogic
         return [
             'debug'  => false,
             'cache'  => false,
-            'msg'    => 'user profile',
+            'msg'    => 'success',
             'data'   => $result
         ];
     }
@@ -258,7 +262,7 @@ class User extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'user notice',
+            'msg'   => 'success',
             'data'  => [
                 'list'  => $result,
                 'total' => count($result),

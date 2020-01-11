@@ -18,10 +18,8 @@ declare(strict_types=1);
 namespace app\admin\logic\category;
 
 use app\common\controller\BaseLogic;
-use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;
 use app\common\model\Level as ModelLevel;
-use app\common\model\Models as ModelModels;
 
 class Category extends BaseLogic
 {
@@ -63,7 +61,7 @@ class Category extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'category data',
+            'msg'   => 'success',
             'data'  => [
                 'list'  => $result,
                 'total' => count($result),
@@ -171,7 +169,7 @@ class Category extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'category added success',
+            'msg'   => 'success',
         ];
     }
 
@@ -216,16 +214,10 @@ class Category extends BaseLogic
             ['id' => '4', 'name' => $this->lang->get('category other type')],
         ];
 
-        $result['access_list'] = (new ModelLevel)
-            ->field('id, name')
-            ->order('id DESC')
-            ->select()
-            ->toArray();
-
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'category data',
+            'msg'   => 'success',
             'data'  => $result
         ];
     }
@@ -244,7 +236,7 @@ class Category extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -292,7 +284,7 @@ class Category extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'category editor success'
+            'msg'   => 'success'
         ];
     }
 
@@ -310,7 +302,7 @@ class Category extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -336,7 +328,7 @@ class Category extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'remove category success'
+            'msg'   => 'success'
         ];
     }
 

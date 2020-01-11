@@ -34,7 +34,6 @@ class Details extends ArticleBase
         return [
             'debug'  => false,
             'cache'  => $result ? true : false,
-            'expire' => 28800,
             'msg'    => $result ? 'details' : 'error',
             'data'   => $result ?: []
         ];

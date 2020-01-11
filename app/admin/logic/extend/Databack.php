@@ -55,7 +55,7 @@ class Databack extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'databack data',
+            'msg'   => 'success',
             'data'  => [
                 'list'  => $file,
                 'total' => count($file)
@@ -74,9 +74,9 @@ class Databack extends BaseLogic
 
         try {
             (new DataManage)->backup();
-            $msg = 'databack success';
-        } catch (Exception $e) {
-            $msg = 'databack error';
+            $msg = 'success';
+        } catch (\Exception $e) {
+            $msg = 'error';
         }
 
         return [
@@ -95,13 +95,13 @@ class Databack extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'databack backup remove');
 
-        $msg = 'remove error';
+        $msg = 'error';
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id, date('Ymd'))) {
             $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR . $id;
             if (is_file($path)) {
                 unlink($path);
-                $msg = 'remove success';
+                $msg = 'success';
             }
         }
 

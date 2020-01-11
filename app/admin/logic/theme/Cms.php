@@ -62,7 +62,7 @@ class Cms extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'theme cms data',
+            'msg'   => 'success',
             'data'  => [
                 'list'  => $files,
                 'total' => count($files)
@@ -94,7 +94,7 @@ class Cms extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'use success',
+            'msg'   => 'success',
         ];
     }
 }

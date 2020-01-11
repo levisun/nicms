@@ -278,7 +278,7 @@ abstract class BaseLogic
             'debug' => false,
             'cache' => false,
             'code'  => is_string($result) ? 44001 : 10000,
-            'msg'   => is_string($result) ? $result : 'upload success',
+            'msg'   => is_string($result) ? $result : 'success',
             'data'  => is_string($result) ? [] : $result
         ];
     }

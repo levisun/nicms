@@ -62,7 +62,7 @@ class Type extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'type data',
+            'msg'   => 'success',
             'data'  => [
                 'list'         => $list['data'],
                 'total'        => $list['total'],
@@ -97,7 +97,7 @@ class Type extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'type added success',
+            'msg'   => 'success',
         ];
     }
 
@@ -120,7 +120,7 @@ class Type extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'type data',
+            'msg'   => 'success',
             'data'  => isset($result) ? $result : []
         ];
     }
@@ -139,7 +139,7 @@ class Type extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -162,7 +162,7 @@ class Type extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'type editor success'
+            'msg'   => 'success'
         ];
     }
 
@@ -180,7 +180,7 @@ class Type extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -193,7 +193,7 @@ class Type extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'remove category success'
+            'msg'   => 'success'
         ];
     }
 }

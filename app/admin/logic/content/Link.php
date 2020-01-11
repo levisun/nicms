@@ -63,7 +63,7 @@ class Link extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'link data',
+            'msg'   => 'success',
             'data'  => [
                 'list'         => $list['data'],
                 'total'        => $list['total'],

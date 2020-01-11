@@ -30,8 +30,9 @@ CREATE TABLE IF NOT EXISTS `nc_banner` (
     `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
     `lang` varchar(20) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
     PRIMARY KEY (`id`),
-    KEY `pid` (`pid`),
-    KEY `lang` (`lang`)
+    KEY `pid` (`pid`) USING BTREE,
+    KEY `sort_order` (`sort_order`) USING BTREE,
+    KEY `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='幻灯片表';
  */
 

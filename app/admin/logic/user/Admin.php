@@ -66,7 +66,7 @@ class Admin extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'node data',
+            'msg'   => 'success',
             'data'  => [
                 'list'         => $list['data'],
                 'total'        => $list['total'],
@@ -116,7 +116,7 @@ class Admin extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'admin added success',
+            'msg'   => 'success',
         ];
     }
 
@@ -150,7 +150,7 @@ class Admin extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'admin',
+            'msg'   => 'success',
             'data'  => $result
         ];
     }
@@ -169,7 +169,7 @@ class Admin extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -211,7 +211,7 @@ class Admin extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'admin editor success',
+            'msg'   => 'success',
         ];
     }
 
@@ -229,7 +229,7 @@ class Admin extends BaseLogic
                 'debug' => false,
                 'cache' => false,
                 'code'  => 40001,
-                'msg'   => '请求错误'
+                'msg'   => 'error'
             ];
         }
 
@@ -246,7 +246,7 @@ class Admin extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'admin remove success',
+            'msg'   => 'success',
         ];
     }
 }

@@ -38,7 +38,6 @@ class DataFilter
             $_data = self::funSymbol($_data);
             $_data = self::enter($_data);
             $_data = strip_tags($_data);
-            // $_data = escapeshellarg((string) $_data);
             $_data = (new Emoji)->clear($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
@@ -63,9 +62,7 @@ class DataFilter
             $_data = self::safe($_data);
             $_data = self::funSymbol($_data);
             $_data = self::enter($_data);
-            // 保留标签
-            $allowable_tags = '<a><audio><b><br><center><dd><del><div><dl><dt><em><h1><h2><h3><h4><h5><h6><i><img><li><ol><p><pre><section><small><span><strong><table><tbody><td><th><thead><tr><u><ul><video>';
-            $_data = strip_tags($_data, $allowable_tags);
+            $_data = self::element($_data);
             $_data = (new Emoji)->encode($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
@@ -89,7 +86,6 @@ class DataFilter
             $_data = trim($_data);
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = (new Emoji)->decode($_data);
-            $_data = self::element($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::decode($value);
@@ -171,7 +167,7 @@ class DataFilter
                 // 图片处理
                 if ('src' === $ema[1]) {
                     return $ema[2]
-                        ? ' ' . $ema[1] . '="' . (new Canvas)->image($ema[2]) . '"'
+                        ? ' ' . $ema[1] . '="' . $ema[2] . '"'
                         : '';
                 }
 

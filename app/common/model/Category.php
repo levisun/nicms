@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS `nc_category` (
     KEY `type_id` (`type_id`) USING BTREE,
     KEY `model_id` (`model_id`) USING BTREE,
     KEY `is_show` (`is_show`) USING BTREE,
+    KEY `sort_order` (`sort_order`) USING BTREE,
     KEY `access_id` (`access_id`) USING BTREE,
     KEY `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='栏目表';

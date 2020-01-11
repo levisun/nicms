@@ -31,11 +31,11 @@ CREATE TABLE IF NOT EXISTS `nc_message` (
     `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
     `lang` varchar(10) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
     PRIMARY KEY (`id`),
-    KEY `category_id` (`category_id`),
-    KEY `type_id` (`type_id`),
-    KEY `is_pass` (`is_pass`),
-    KEY `delete_time` (`delete_time`),
-    KEY `lang` (`lang`)
+    KEY `category_id` (`category_id`) USING BTREE,
+    KEY `type_id` (`type_id`) USING BTREE,
+    KEY `is_pass` (`is_pass`) USING BTREE,
+    KEY `delete_time` (`delete_time`) USING BTREE,
+    KEY `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='留言表';
  */
 

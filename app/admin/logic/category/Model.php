@@ -48,7 +48,7 @@ class Model extends BaseLogic
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'model data',
+            'msg'   => 'success',
             'data'  => [
                 'list'  => $result,
                 'total' => count($result),
