@@ -37,7 +37,7 @@ class DataManage
         is_dir($this->lockPath) or mkdir($this->lockPath, 0755, true);
 
         @ini_set('memory_limit', '64M');
-        set_time_limit(28800);
+        set_time_limit(3600);
     }
 
     /**

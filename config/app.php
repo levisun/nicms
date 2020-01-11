@@ -16,7 +16,10 @@ use think\facade\Env;
 use think\facade\Request;
 
 return [
+    // CB|Alpha 内测版, RC|Beta  正式候选版, Demo 演示版, Stable 稳定版, Release 正式版
     'version'          => '1.0.1CB200106',
+
+    // 后台模板
     'theme'            => Env::get('admin.theme', 'default'),
     // 后台入口域名
     'entry'            => Env::get('admin.entry', 'admin'),
@@ -54,12 +57,12 @@ return [
     // 域名绑定（自动多应用模式有效）
     'domain_bind'      => [
         Env::get('admin.entry', 'admin') => 'admin',
-        'api'   => 'api',
-        'book'  => 'book',
-        'my'    => 'user',
-        'www'   => 'cms',
-        'cdn'   => 'cms',
-        'img'   => 'cms',
+        'api'  => 'api',
+        'book' => 'book',
+        'my'   => 'user',
+        'www'  => 'cms',
+        'cdn'  => 'cms',
+        'img'  => 'cms',
     ],
     // 禁止URL访问的应用列表（自动多应用模式有效）
     'deny_app_list'    => ['common'],

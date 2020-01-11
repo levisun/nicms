@@ -24,6 +24,7 @@ use app\common\model\ArticleContent as ModelArticleContent;
 use app\common\model\ArticleFile as ModelArticleFile;
 use app\common\model\ArticleImage as ModelArticleImage;
 use app\common\model\ArticleTags as ModelArticleTags;
+use app\common\model\Discuss as ModelDiscuss;
 use app\common\model\FieldsExtend as ModelFieldsExtend;
 
 class Recycle extends BaseLogic
@@ -55,11 +56,10 @@ class Recycle extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
-            $query = DataFilter::word($search_key, 5);
-            foreach ($query as $key => $value) {
-                $query[$key] = '%' . $value . '%';
+            $search_key = DataFilter::word($search_key, 3);
+            if (!empty($search_key)) {
+                $map[] = ['article.title', 'regexp', implode('|', $search_key)];
             }
-            $map[] = ['title', 'like', $query, 'OR'];
         }
 
         $query_limit = $this->request->param('limit/d', 10);
@@ -115,77 +115,48 @@ class Recycle extends BaseLogic
     }
 
     /**
-     * 查询
+     * 还原
      * @access public
      * @return array
      */
-    public function find(): array
+    public function editor(): array
     {
-        $result = [];
-        if ($id = $this->request->param('id/d')) {
-            $result = (new ModelArticle)
-                ->view('article', ['id', 'title', 'keywords', 'description', 'category_id', 'type_id', 'is_pass', 'is_com', 'is_top', 'is_hot', 'sort_order', 'hits', 'username', 'admin_id', 'user_id', 'show_time', 'create_time', 'update_time', 'delete_time', 'access_id', 'lang'])
-                ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
-                ->view('model', ['id' => 'model_id', 'name' => 'model_name', 'table_name'], 'model.id=category.model_id')
-                ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
-                ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
-                ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
-                ->where([
-                    ['article.id', '=', $id],
-                ])
-                ->find();
+        $this->actionLog(__METHOD__, 'admin content remove');
 
-            if ($result && $result = $result->toArray()) {
-                // table_name
-                $model = \think\helper\Str::studly($result['table_name']);
-                unset($result['table_name']);
-                $content = $this->app->make('\app\common\model\\' . $model);
-                $content = $content->where([
-                    ['article_id', '=', $id]
-                ])->find();
-                if ($content && $content = $content->toArray()) {
-                    unset($content['id'], $content['article_id']);
-                    foreach ($content as $key => $value) {
-                        $result[$key] = $value;
-                    }
-                }
+        if (!$id = $this->request->param('id/d')) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40001,
+                'msg'   => 'error'
+            ];
+        }
 
-                // 附加字段数据
-                $fields = (new ModelFieldsExtend)
-                    ->view('fields_extend', ['data'])
-                    ->view('fields', ['id'], 'fields.id=fields_extend.fields_id')
-                    ->where([
-                        ['fields.category_id', '=', $result['category_id']],
-                        ['fields_extend.article_id', '=', $result['id']],
-                    ])
-                    ->select()
-                    ->toArray();
-                foreach ($fields as $key => $value) {
-                    $result['fields'][$value['id']] = $value['data'];
-                }
+        $category_id = (new ModelArticle)->where([
+            ['id', '=', $id]
+        ])->value('category_id');
 
-                // 标签
-                $result['tags'] = (new ModelArticleTags)
-                    ->view('article_tags', ['tags_id'])
-                    ->view('tags', ['name'], 'tags.id=article_tags.tags_id')
-                    ->where([
-                        ['article_tags.article_id', '=', $result['id']],
-                    ])
-                    ->select()
-                    ->toArray();
-            }
+        if ($category_id) {
+            (new ModelArticle)->where([
+                ['id', '=', $id]
+            ])->data([
+                'delete_time' => 0
+            ])->update();
+
+            // 清除缓存
+            $this->cache->tag('cms article list' . $category_id)->clear();
+            $this->cache->delete(md5('article details' . $id));
         }
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => 'success',
-            'data'  => $result
+            'msg'   => 'success'
         ];
     }
 
     /**
-     * 删除
+     * 物理删除
      * @access public
      * @return array
      */
@@ -242,6 +213,11 @@ class Recycle extends BaseLogic
 
             // 删除标签数据
             (new ModelArticleTags)->where([
+                ['article_id', '=', $id]
+            ])->delete();
+
+            // 删除评论
+            (new ModelDiscuss)->where([
                 ['article_id', '=', $id]
             ])->delete();
 

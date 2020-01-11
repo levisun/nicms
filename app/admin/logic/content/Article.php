@@ -56,11 +56,10 @@ class Article extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
-            $query = DataFilter::word($search_key, 5);
-            foreach ($query as $key => $value) {
-                $query[$key] = '%' . $value . '%';
+            $search_key = DataFilter::word($search_key, 3);
+            if (!empty($search_key)) {
+                $map[] = ['article.title', 'regexp', implode('|', $search_key)];
             }
-            $map[] = ['title', 'like', $query, 'OR'];
         }
 
         $query_limit = $this->request->param('limit/d', 10);
@@ -248,7 +247,8 @@ class Article extends BaseLogic
                 ->find();
 
             if ($result && $result = $result->toArray()) {
-                $result['show_time'] = date('Y-m-d', $result['show_time']);
+                $result['show_time'] = $result['show_time'] ? date('Y-m-d', $result['show_time']) : '';
+
                 // table_name
                 $model = \think\helper\Str::studly($result['table_name']);
                 unset($result['table_name']);
@@ -261,6 +261,9 @@ class Article extends BaseLogic
                     foreach ($content as $key => $value) {
                         $result[$key] = $value;
                     }
+                }
+                if (isset($result['content'])) {
+                    $result['content'] = DataFilter::decode($result['content']);
                 }
 
                 // 附加字段数据
@@ -458,13 +461,13 @@ class Article extends BaseLogic
     }
 
     /**
-     * 删除
+     * 逻辑删除
      * @access public
      * @return array
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin content remove');
+        $this->actionLog(__METHOD__, 'admin content recycle');
 
         if (!$id = $this->request->param('id/d')) {
             return [

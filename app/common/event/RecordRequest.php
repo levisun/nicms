@@ -68,7 +68,7 @@ class RecordRequest
 
         $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec|php/si';
         if (0 !== preg_match($pattern, $params)) {
-            Log::record('非法关键词 ' . $run_time . $url . htmlspecialchars($params) . PHP_EOL, 'info');
+            Log::record('非法请求 ' . $run_time . $url . htmlspecialchars($params) . PHP_EOL, 'info');
         } elseif (2 <= $run_time) {
             Log::record('长请求 ' . $run_time . $url . htmlspecialchars($params) . PHP_EOL, 'info');
         }

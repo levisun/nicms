@@ -46,9 +46,9 @@ class Ads extends Model
     protected $updateTime = 'update_time';
     protected $pk = 'id';
     protected $type = [
-        'width'      => 'integer',
-        'height'     => 'integer',
-        'hits'       => 'integer',
+        'width'  => 'integer',
+        'height' => 'integer',
+        'hits'   => 'integer',
     ];
     protected $field = [
         'id',

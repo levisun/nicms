@@ -7,11 +7,11 @@ nicms1.x 未完成项目,正在拼命中...
 
 ## 运行环境
 
-> `PHP7.3+` `Mysql` `PDO` `Apache`
+> `PHP7.3+` `Mysql` `PDO` `Apache` `Nginx`
 
 ## 主要特性
 
-> 基于[ThinkPHP6+](http://www.thinkphp.cn/) 框架开发
+> 基于[ThinkPHP6+](https://github.com/top-think/framework) 框架开发
 
 > 基于[RBAC]验证的权限
 
