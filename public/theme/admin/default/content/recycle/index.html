@@ -65,9 +65,9 @@
                             <a id="open" data-toggle="modal" data-target="#modal-default" v-on:click="open(vo.id)">
                                 {:lang('open')}
                             </a>
-                            <a class="remove" v-on:click="reset(vo.id)">
+                            <a class="recover" v-on:click="recover(vo.id)">
                                 <i class="fa fa-pencil-square-o"></i>
-                                {:lang('reset')}
+                                {:lang('recover')}
                             </a>
                             <a class="remove" v-on:click="remove(vo.id)">
                                 <i class="fa fa-trash"></i>
@@ -200,12 +200,12 @@
                     }
                 });
             },
-            reset: function (_id) {
+            recover: function (_id) {
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
                     data: [
-                        { name: 'method', value: 'content.recycle.editor' },
+                        { name: 'method', value: 'content.recycle.recover' },
                         { name: 'id', value: _id }
                     ],
                     success: function (result) {

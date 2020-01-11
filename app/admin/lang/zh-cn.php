@@ -31,7 +31,9 @@ return [
     'auth model'    => '模型管理',
 
     'auth content'  => '内容管理',
+    'auth article'  => '文章管理',
     'auth cache'    => '缓存',
+    'auth recycle'  => '文章回收站',
 
     'auth user'     => '用户',
     'auth level'    => '用户组',

@@ -119,7 +119,7 @@ class Recycle extends BaseLogic
      * @access public
      * @return array
      */
-    public function editor(): array
+    public function recover(): array
     {
         $this->actionLog(__METHOD__, 'admin content remove');
 
