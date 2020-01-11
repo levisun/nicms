@@ -19,8 +19,6 @@ namespace app\common\controller;
 use think\App;
 use think\Response;
 use think\exception\HttpResponseException;
-use app\common\library\Base64;
-use app\common\model\ApiApp as ModelApiApp;
 
 abstract class BaseController
 {
@@ -82,7 +80,8 @@ abstract class BaseController
         $this->request->filter('\app\common\library\DataFilter::filter');
 
         @ini_set('memory_limit', '8M');
-        set_time_limit(30);
+        @ini_set('max_execution_time', '30');
+        @set_time_limit(30);
 
         // 控制器初始化
         $this->initialize();

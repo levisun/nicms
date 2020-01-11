@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS `nc_book_article` (
     KEY `is_pass` (`is_pass`) USING BTREE,
     KEY `show_time` (`show_time`) USING BTREE,
     KEY `sort_order` (`sort_order`) USING BTREE,
+    KEY `update_time` (`update_time`) USING BTREE,
     KEY `delete_time` (`delete_time`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='书库文章表';
  */

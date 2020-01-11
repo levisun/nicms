@@ -30,12 +30,6 @@ class Template implements TemplateHandlerInterface
     private $app;
 
     /**
-     * 应用名
-     * @var string
-     */
-    private $appName;
-
-    /**
      * 模板配置参数
      * @var array
      */
@@ -96,16 +90,17 @@ class Template implements TemplateHandlerInterface
      */
     public function __construct(App $app, array $_config = [])
     {
-        $this->app = $app;
+        $this->app = &$app;
+
         // 默认值
         $this->config['compile_path'] = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
         $this->config['view_path'] = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR;
         $this->config['tpl_compile'] = (bool) !env('app_debug', false);
         $this->config['app_name'] = $this->app->http->getName();
-        // 合并配置
-        $this->config  = array_merge($this->config, $_config);
 
-        $this->appName = $this->app->http->getName();
+        // 合并配置
+        $_config = DataFilter::filter($_config);
+        $this->config = array_merge($this->config, $_config);
     }
 
     /**
@@ -116,6 +111,8 @@ class Template implements TemplateHandlerInterface
      */
     public function config(array $_config): void
     {
+        $_config = DataFilter::filter($_config);
+
         foreach ($_config as $key => $value) {
             if (is_array($value)) {
                 $this->config[$key] = array_merge($this->config[$key], $value);
@@ -144,6 +141,8 @@ class Template implements TemplateHandlerInterface
      */
     public function exists(string $_template): bool
     {
+        $_template = DataFilter::filter($_template);
+
         if ('' == pathinfo($_template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
             $_template = $this->parseTemplateFile($_template);
@@ -174,6 +173,9 @@ class Template implements TemplateHandlerInterface
      */
     public function fetch(string $_template, array $_data = []): void
     {
+        $_template = DataFilter::filter($_template);
+        $_data = DataFilter::filter($_data);
+
         if ('' == pathinfo($_template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
             $_template = $this->parseTemplateFile($_template);
@@ -191,7 +193,7 @@ class Template implements TemplateHandlerInterface
         // 编译路径
         $compile_file = $this->config['compile_path'] . $this->config['view_theme'] .
             md5($this->config['layout_on'] . $this->config['layout_name'] . $_template) .
-            '.' . ltrim($this->config['compile_suffix'], '.');
+            '.' . $this->config['compile_suffix'];
 
         if (false === $this->checkCompiler($compile_file)) {
             // 编译无效 重新模板编译
@@ -635,13 +637,13 @@ class Template implements TemplateHandlerInterface
 
         // 拼装模板主题
         $this->config['view_theme'] = $this->config['view_theme']
-            ? trim($this->config['view_theme'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
+            ? $this->config['view_theme'] . DIRECTORY_SEPARATOR
             : '';
 
         // 拼装模板文件名
         // 为空默认类方法名作为模板文件名
         $_template = $_template
-            ? trim($_template, " \/,._-\t\n\r\0\x0B") . '.' . $this->config['view_suffix']
+            ? $_template . '.' . $this->config['view_suffix']
             : $request->action(true);
         $_template = $this->config['app_name'] . DIRECTORY_SEPARATOR . $this->config['view_theme'] . $_template;
 

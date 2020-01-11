@@ -77,7 +77,7 @@ class Tags
             '<!DOCTYPE html>' .
             '<html lang="<?php echo app("lang")->getLangSet();?>">' .
             '<head>' .
-            '<meta charset="utf-8" />' .
+            '<meta charset="UTF-8" />' .
 
             '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
             '<meta name="robots" content="all" />' .                                // 蜘蛛抓取

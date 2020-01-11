@@ -12,6 +12,12 @@
             <div class="input-group">
                 <input type="text" name="app[upload_type]" class="form-control" v-bind:value="items.app.upload_type">
                 <span class="input-group-addon">","隔开</span>
+            </div><br>
+
+            <div class="form-group">
+                <label>{:lang('app secretkey')}</label>
+                <input type="text" name="app[secretkey]" class="form-control" disabled="true"
+                    v-bind:value="items.app.secretkey">
             </div>
 
             <div class="form-group">
@@ -43,7 +49,7 @@
                 <input type="text" name="database[hostport]" class="form-control" disabled="true"
                     v-bind:value="items.database.hostport">
                 <span class="input-group-addon">3306</span>
-            </div>
+            </div><br>
 
             <div class="form-group">
                 <label>{:lang('database prefix')}</label>
@@ -73,12 +79,6 @@
                     <input type="radio" name="app_debug" value="0" v-bind:checked="items.app_debug==0 ? true : false">
                     {:lang('close')}
                 </label>
-            </div>
-
-            <div class="form-group">
-                <label>{:lang('admin authkey')}</label>
-                <input type="text" name="app[secretkey]" class="form-control" disabled="true"
-                    v-bind:value="items.app.secretkey">
             </div>
 
             <div class="form-group">

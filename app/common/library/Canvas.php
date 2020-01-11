@@ -19,6 +19,7 @@ namespace app\common\library;
 use think\facade\Config;
 use think\facade\Request;
 use think\Image;
+use app\common\library\DataFilter;
 
 class Canvas
 {
@@ -34,12 +35,13 @@ class Canvas
      */
     public function image(string $_file, int $_size = 0,  bool $_base64 = false): string
     {
-        if (false !== stripos($_file, 'http')) {
+        if (0 === stripos($_file, 'http')) {
             return $_file;
         }
 
         $path = app()->getRootPath() . Config::get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
-        $_file = str_replace('/', DIRECTORY_SEPARATOR, ltrim($_file, '/'));
+        $_file = DataFilter::filter($_file);
+        $_file = str_replace('/', DIRECTORY_SEPARATOR, $_file);
 
         if (is_file($path . $_file)) {
             // 缩略图
@@ -90,7 +92,8 @@ class Canvas
     public function avatar(string $_img, string $_username = 'avatar'): string
     {
         $path = app()->getRootPath() . Config::get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
-        $_img = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, ltrim($_img, '/'));
+        $_img = DataFilter::filter($_img);
+        $_img = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_img);
 
         if ($_img && is_file($path . $_img)) {
             return Config::get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);

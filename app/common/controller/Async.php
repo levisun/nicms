@@ -21,6 +21,7 @@ use think\Response;
 use think\exception\HttpResponseException;
 use app\common\library\Rbac;
 use app\common\library\Base64;
+use app\common\library\DataFilter;
 use app\common\model\ApiApp as ModelApiApp;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\ValidationData;
@@ -251,7 +252,8 @@ abstract class Async
         $this->request->filter('\app\common\library\DataFilter::filter');
         // 请勿更改参数
         @ini_set('memory_limit', '8M');
-        set_time_limit(10);
+        @ini_set('max_execution_time', '10');
+        @set_time_limit(10);
     }
 
     /**
@@ -623,6 +625,7 @@ abstract class Async
         // 校验session是否存在
         // Session初始化并规定sessionID
         $jti = Base64::decrypt($token->getClaim('jti'));
+        $jti = DataFilter::filter($jti);
         if ($jti && is_file($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . 'sess_' . $jti)) {
             $this->session->setId($jti);
             $this->session->init();

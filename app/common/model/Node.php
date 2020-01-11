@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS `nc_node` (
     PRIMARY KEY (`id`),
     KEY `pid` (`pid`) USING BTREE,
     KEY `level` (`level`) USING BTREE,
-    KEY `sort_order` (`sort_order`) USING BTREE,
-    KEY `status` (`status`) USING BTREE
+    KEY `status` (`status`) USING BTREE,
+    KEY `sort_order` (`sort_order`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='节点表';
 INSERT INTO `nc_node` (`id`, `pid`, `level`, `name`, `title`, `status`, `sort_order`, `remark`) VALUES
 (1, 0, 1, 'admin', '后台', 1, 0, '后台模块'),

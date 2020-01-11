@@ -256,9 +256,9 @@ class DataManage
                     $sql .= '\'' . addslashes($vo) . '\',';
                 }
             }
-            $sql = trim($sql, ',') . '),' . PHP_EOL;
+            $sql = rtrim($sql, ',') . '),' . PHP_EOL;
         }
-        return trim($sql, ',' . PHP_EOL) . ';' . PHP_EOL;
+        return rtrim($sql, ',' . PHP_EOL) . ';' . PHP_EOL;
     }
 
     /**
@@ -274,7 +274,7 @@ class DataManage
         foreach ($result as $value) {
             $field .= '`' . $value['Field'] . '`,';
         }
-        $field = trim($field, ',');
+        $field = rtrim($field, ',');
 
         return $field;
     }

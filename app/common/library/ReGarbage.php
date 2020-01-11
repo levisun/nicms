@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use app\common\library\DataFilter;
+
 class ReGarbage
 {
 
@@ -28,7 +30,8 @@ class ReGarbage
      */
     public function remove(string $_dir, int $_expire)
     {
-        $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, rtrim($_dir, " \/,._-\t\n\r\0\x0B"));
+        $_dir = DataFilter::filter($_dir);
+        $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_dir);
         $_dir .= DIRECTORY_SEPARATOR;
 
         $day = 0 === $_expire ? $_expire : strtotime('-' . $_expire . ' days');

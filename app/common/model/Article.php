@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS `nc_article` (
     KEY `is_hot` (`is_hot`) USING BTREE,
     KEY `sort_order` (`sort_order`) USING BTREE,
     KEY `show_time` (`show_time`) USING BTREE,
+    KEY `update_time` (`update_time`) USING BTREE,
     KEY `delete_time` (`delete_time`) USING BTREE,
     KEY `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章表';

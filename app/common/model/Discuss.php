@@ -34,7 +34,8 @@ CREATE TABLE IF NOT EXISTS `nc_discuss` (
     KEY `user_id` (`user_id`) USING BTREE,
     KEY `is_pass` (`is_pass`) USING BTREE,
     KEY `is_report` (`is_report`) USING BTREE,
-    KEY `report_time` (`report_time`) USING BTREE
+    KEY `report_time` (`report_time`) USING BTREE,
+    KEY `delete_time` (`delete_time`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评论表';
  */
 

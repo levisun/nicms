@@ -33,7 +33,6 @@ class DataFilter
     public static function filter($_data)
     {
         if (is_string($_data)) {
-            $_data = trim($_data);
             $_data = self::safe($_data);
             $_data = self::funSymbol($_data);
             $_data = self::enter($_data);
@@ -58,7 +57,6 @@ class DataFilter
     public static function content($_data)
     {
         if (is_string($_data)) {
-            $_data = trim($_data);
             $_data = self::safe($_data);
             $_data = self::funSymbol($_data);
             $_data = self::enter($_data);
@@ -114,8 +112,7 @@ class DataFilter
             '┌', '┍', '┎', '┏', '┐', '┑', '┒', '┓', '─', '┄', '┈', '├', '┝', '┞', '┟', '┠', '┡', '┢', '┣', '│', '┆', '┊', '┬', '┭', '┮', '┯', '┰', '┱', '┲', '┳', '┼', '┽', '┾', '┿', '╀', '╁', '╂', '╃', '└', '┕', '┖', '┗', '┘', '┙', '┚', '┛', '━', '┅', '┉', '┤', '┥', '┦', '┧', '┨', '┩', '┪', '┫', '┃', '┇', '┋', '┴', '┵', '┶', '┷', '┸', '┹', '┺', '┻', '╄', '╅', '╆', '╇', '╈', '╉', '╊', '╋',
             '§', '№', '☆', '★', '○', '●', '◎', '◇', '◆', '□', '■', '△', '▲', '※', '→', '←', '↑', '↓', '〓', '＃', '＆', '＠', '＼', '＾', '＿', '￣', '―', '♂', '♀',
         ];
-        $_data = str_replace($pattern, '', $_data);
-        if ($_data = trim($_data)) {
+        if ($_data = str_replace($pattern, '', trim($_data))) {
             // 分词
             @ini_set('memory_limit', '256M');
             $path = app()->getRootPath() . 'vendor/lizhichao/word/Data/dict.json';
@@ -160,31 +157,34 @@ class DataFilter
         return preg_replace_callback('/<(\/)?([a-zA-Z1-6]+)(.*?)>/si', function ($matches) {
             $matches[3] = preg_replace_callback('/([a-zA-Z0-9-_]+)=(.*?)( )/si', function ($ema) {
                 $ema[1] = strtolower($ema[1]);
-                $ema[2] = trim($ema[2], '"\'');
-                $ema[2] = trim($ema[2]);
-                $ema[2] = str_replace(['"', '\'', '<', '>'], '', $ema[2]);
+                $ema[2] = DataFilter::filter($ema[2]);
 
                 // 图片处理
                 if ('src' === $ema[1]) {
+                    // 本地网络地址
+                    if (false !== stripos($ema[2], Request::rootDomain())) {
+                        $ema[2] = preg_replace('/(http(s)?:\/\/)?([a-zA-Z.\/]+)(' . Request::rootDomain() . ')/si', '', $ema[2]);
+                    }
+
                     return $ema[2]
                         ? ' ' . $ema[1] . '="' . $ema[2] . '"'
                         : '';
                 }
 
-                // 过滤外链
+                // 超链接
                 if ('href' === $ema[1]) {
-                    // 本地相对地址
-                    if (0 === stripos($ema[2], Request::rootDomain())) {
-                        return ' ' . $ema[1] . '="' . $ema[2] . '"';
-                    }
-                    // 本地网络地址,移除http和https协议
-                    elseif (false !== stripos($ema[2], Request::rootDomain())) {
-                        return ' ' . $ema[1] . '="' . str_replace(['http:', 'https:'], '', $ema[2]) . '"';
+                    // 本地网络地址
+                    if (false !== stripos($ema[2], Request::rootDomain())) {
+                        $ema[2] = preg_replace('/(http(s)?:\/\/)?([a-zA-Z.\/]+)(' . Request::rootDomain() . ')/si', '', $ema[2]);
                     }
                     // 外链
-                    else {
-                        return ' ' . $ema[1] . '="' . Config::get('app.api_host') . '/go.html?url=' . urlencode(base64_encode($ema[2])) . '"';
+                    elseif (0 === stripos($ema[2], 'http')) {
+                        $ema[2] = Config::get('app.api_host') . '/go.html?url=' . urlencode(base64_encode($ema[2]));
                     }
+
+                    return $ema[2]
+                        ? ' ' . $ema[1] . '="' . $ema[2] . '"'
+                        : '';
                 }
 
                 // 过滤非法属性
@@ -281,6 +281,11 @@ class DataFilter
     private static function safe(string &$_str): string
     {
         libxml_disable_entity_loader(true);
+
+        // 过滤前后字符与空格
+        $_str = trim($_str);
+        $_str = trim(trim($_str, ',_-'));
+        $_str = trim(ltrim($_str, '\/.'));
 
         return (string) preg_replace([
             // XSS跨站脚本攻击

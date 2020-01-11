@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS `nc_model` (
     `table_name` varchar(20) NOT NULL DEFAULT '' COMMENT '表名',
     `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT '状态',
     `remark` varchar(50) NOT NULL DEFAULT '' COMMENT '备注',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `status` (`status`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型表';
 INSERT INTO `nc_model` (`id`, `name`, `table_name`, `remark`, `status`) VALUES
 (1, 'article', 'article_content', '文章模型', 1),

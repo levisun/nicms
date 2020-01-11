@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `nc_link` (
     KEY `type_id` (`type_id`) USING BTREE,
     KEY `is_pass` (`is_pass`) USING BTREE,
     KEY `sort_order` (`sort_order`) USING BTREE,
+    KEY `update_time` (`update_time`) USING BTREE,
     KEY `delete_time` (`delete_time`) USING BTREE,
     KEY `lang` (`lang`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='友链表';

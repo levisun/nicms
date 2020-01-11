@@ -49,7 +49,7 @@ class Cms extends BaseLogic
 
             $value = basename($value);
             $value = Base64::encrypt($value);
-            $value = trim($value, '=');
+            $value = rtrim($value, '=');
             $files[$key] = [
                 'id'          => $value,
                 'img'         => isset($config['img']) ? $config['img'] : '',

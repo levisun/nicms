@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS `nc_feedback` (
     KEY `category_id` (`category_id`),
     KEY `type_id` (`type_id`),
     KEY `is_pass` (`is_pass`),
+    KEY `update_time` (`update_time`),
     KEY `delete_time` (`delete_time`),
     KEY `lang` (`lang`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='反馈表';

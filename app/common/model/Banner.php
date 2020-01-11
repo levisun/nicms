@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS `nc_banner` (
     PRIMARY KEY (`id`),
     KEY `pid` (`pid`) USING BTREE,
     KEY `sort_order` (`sort_order`) USING BTREE,
+    KEY `update_time` (`update_time`) USING BTREE,
     KEY `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='幻灯片表';
  */

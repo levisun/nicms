@@ -16,8 +16,12 @@ use think\facade\Route;
 use think\Response;
 
 Route::group(function () {
-    Route::get('/$', 'Index/index');
-    Route::get('index$', 'Index/index')->ext('html');
+    Route::get('/$', function(){
+        return Response::create(url('account/user/login'), 'redirect', 302);
+    });
+    Route::get('index$', function(){
+        return Response::create(url('account/user/login'), 'redirect', 302);
+    });
 
     Route::get(':logic/:action/:method/[:id]$', 'Index/index')->ext('html');
 

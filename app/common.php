@@ -17,6 +17,7 @@ use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
 use app\common\library\Base64;
+use app\common\library\DataFilter;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -91,11 +92,11 @@ if (!function_exists('miss')) {
      */
     function miss(int $_code, bool $_redirect = true): Response
     {
-        $file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.htm';
+        $file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.html';
         if (is_file($file)) {
             $content = file_get_contents($file);
         } else {
-            $content = '<style type="text/css">*{padding:0; margin:0;}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px;}section{text-align:center;margin-top:50px;}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block;}</style><title>' . $_code . '</title><section><h2>o(╥﹏╥)o ' . $_code . '</h2></section>';
+            $content = '<!DOCTYPE html><html lang="zh-cn"><head><meta charset="UTF-8"><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>' . $_code . '</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2>o(╥﹏╥)o ' . $_code . '</h2></section>{$return_url}</body></html>';
         }
 
         $return_url = true === $_redirect

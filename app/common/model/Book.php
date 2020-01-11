@@ -41,8 +41,10 @@ CREATE TABLE IF NOT EXISTS `nc_book` (
     KEY `is_com` (`is_com`) USING BTREE,
     KEY `is_top` (`is_top`) USING BTREE,
     KEY `is_hot` (`is_hot`) USING BTREE,
-    KEY `delete_time` (`delete_time`) USING BTREE,
     KEY `sort_order` (`sort_order`) USING BTREE,
+    KEY `status` (`status`) USING BTREE,
+    KEY `update_time` (`update_time`) USING BTREE,
+    KEY `delete_time` (`delete_time`) USING BTREE,
     KEY `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='书库表';
  */

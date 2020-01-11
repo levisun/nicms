@@ -53,7 +53,7 @@ class Safe extends BaseLogic
                 'prefix'   => $env->get('database.prefix'),
             ],
             'admin' => [
-                'entry'   => $this->config->get('app.entry'),
+                'entry'   => $this->config->get('app.entry') . '.' . $this->request->rootDomain(),
                 'theme'   => $this->config->get('app.theme'),
             ]
         ];
