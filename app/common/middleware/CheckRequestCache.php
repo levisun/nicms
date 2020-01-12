@@ -19,6 +19,7 @@ namespace app\common\middleware;
 use Closure;
 use think\facade\Cache;
 use think\facade\Cookie;
+use think\facade\Lang;
 use think\facade\Session;
 use think\Request;
 use think\Response;
@@ -39,7 +40,7 @@ class CheckRequestCache
     public function handle(Request $request, Closure $next): Response
     {
         // 获得应用名
-        $this->appName = app('http')->getName();
+        $this->appName = app('http')->getName() . Lang::getLangSet();
         // 缓存KEY
         $this->key = md5($this->appName . $request->baseUrl(true));
 

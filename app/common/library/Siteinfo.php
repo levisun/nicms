@@ -32,7 +32,7 @@ class Siteinfo
     public function query(string $_appname): array
     {
         $this->appName = $_appname;
-        $this->langSet = Lang::getLangSet() ?: Config::get('lang.default_lang');
+        $this->langSet = Lang::getLangSet();
 
         $cache_key = md5($this->appName . $this->langSet);
         if (!Cache::has($cache_key) || !$common = Cache::get($cache_key)) {
