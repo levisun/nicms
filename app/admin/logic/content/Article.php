@@ -144,7 +144,7 @@ class Article extends BaseLogic
             'sort_order'  => $this->request->param('sort_order/d', 0),
             'username'    => $this->request->param('username', ''),
             'access_id'   => $this->request->param('access_id/d', 0),
-            'show_time'   => $this->request->param('show_time/d', date('Y-m-d'), 'strtotime'),
+            'show_time'   => $this->request->param('show_time', date('Y-m-d'), 'strtotime'),
             'update_time' => time(),
             'create_time' => time(),
             'lang'        => $this->lang->getLangSet()
@@ -247,7 +247,7 @@ class Article extends BaseLogic
                 ->find();
 
             if ($result && $result = $result->toArray()) {
-                $result['show_time'] = $result['show_time'] ? date('Y-m-d', $result['show_time']) : '';
+                $result['show_time'] = $result['show_time'] ? date('Y-m-d', $result['show_time']) : date('Y-m-d');
 
                 // table_name
                 $model = \think\helper\Str::studly($result['table_name']);
@@ -334,7 +334,7 @@ class Article extends BaseLogic
             'sort_order'  => $this->request->param('sort_order/d', 0),
             'username'    => $this->request->param('username', ''),
             'access_id'   => $this->request->param('access_id/d', 0),
-            'show_time'   => $this->request->param('show_time/d', date('Y-m-d'), 'strtotime'),
+            'show_time'   => $this->request->param('show_time', date('Y-m-d'), 'strtotime'),
             'update_time' => time(),
         ];
 

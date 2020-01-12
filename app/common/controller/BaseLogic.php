@@ -167,12 +167,14 @@ abstract class BaseLogic
             ]);
 
         // 删除过期日志
-        (new ModelActionLog)
-            ->where([
-                ['create_time', '<=', strtotime('-90 days')]
-            ])
-            ->limit(100)
-            ->delete();
+        if (1 === mt_rand(1, 100)) {
+            (new ModelActionLog)
+                ->where([
+                    ['create_time', '<=', strtotime('-90 days')]
+                ])
+                ->limit(100)
+                ->delete();
+        }
     }
 
     /**

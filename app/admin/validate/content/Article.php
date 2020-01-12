@@ -20,7 +20,7 @@ use think\Validate;
 class Article extends Validate
 {
     protected $rule = [
-        'title'       => ['require', 'length: 2,20'],
+        'title'       => ['require', 'length: 2,50'],
         'keywords'    => ['max: 100'],
         'description' => ['max: 300'],
         'category_id' => ['require', 'integer'],
@@ -34,7 +34,6 @@ class Article extends Validate
         'username'    => ['max: 20'],
         'admin_id'    => ['integer'],
         'user_id'     => ['integer'],
-        'show_time'   => ['integer'],
         'access_id'   => ['integer'],
     ];
 
@@ -56,7 +55,6 @@ class Article extends Validate
         'username.max'        => '{%error username}',
         'admin_id.integer'    => '{%error admin_id}',
         'user_id.integer'     => '{%error user_id}',
-        'show_time.integer'   => '{%error show_time}',
         'access_id.integer'   => '{%error access_id}',
     ];
 }

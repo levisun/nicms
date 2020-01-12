@@ -111,7 +111,8 @@ class Template implements TemplateHandlerInterface
      */
     public function config(array $_config): void
     {
-        $_config = DataFilter::filter($_config);
+        // $_config = DataFilter::content($_config);
+        // $_config = DataFilter::decode($_config);
 
         foreach ($_config as $key => $value) {
             if (is_array($value)) {

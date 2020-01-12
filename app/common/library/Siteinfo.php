@@ -34,8 +34,7 @@ class Siteinfo
         $this->appName = $_appname;
         $this->langSet = Lang::getLangSet() ?: Config::get('lang.default_lang');
 
-        $cache_key = $this->appName . $this->langSet;
-        $cache_key = md5($cache_key);
+        $cache_key = md5($this->appName . $this->langSet);
         if (!Cache::has($cache_key) || !$common = Cache::get($cache_key)) {
             $common = [
                 'theme'     => $this->theme(),
@@ -205,7 +204,7 @@ class Siteinfo
                 ['name', '=', $this->appName . '_beian'],
                 ['lang', '=', $this->langSet]
             ])
-            ->value('value', '');
+            ->value('value');
         $beian = $beian
             ? '<a href="http://www.beian.miit.gov.cn" target="_blank" rel="nofollow">' . strtoupper($beian) . '</a>'
             : '';
