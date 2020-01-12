@@ -27,7 +27,7 @@ class Sitemap
     public function create()
     {
         only_execute('create_sitemap.lock', '-4 hour', function () {
-            Log::record('[生成网站地图]', 'alert');
+            Log::alert('[生成网站地图]');
 
             // 保存网站地图文件
             $this->saveSitemapFile();

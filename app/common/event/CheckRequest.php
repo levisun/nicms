@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
+use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Log;
 use think\facade\Request;
@@ -30,24 +31,11 @@ class CheckRequest
 
     public function handle()
     {
-        // 非域名进入302跳转
-        $domain = Request::subDomain() . '.' . Request::rootDomain();
-        if (false !== filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            $response = Response::create(Config::get('app.app_host'), 'redirect', 302);
-            throw new HttpResponseException($response);
-        }
-
-        // 304缓存
-        if (Request::isGet() && $ms = Request::server('HTTP_IF_MODIFIED_SINCE')) {
-            if (strtotime($ms) >= Request::time()) {
-                $response = Response::create()->code(304);
-                $response->header(array_merge(['X-Powered-By' => 'NICACHE'], $response->getHeader()));
-                throw new HttpResponseException($response);
-            }
-        }
+        $this->_302();
+        $this->_304();
 
         if (1 === mt_rand(1, 999)) {
-            Log::record('[命运]' . htmlspecialchars(Request::url(true)), 'alert')->save();
+            Log::write('[命运]' . htmlspecialchars(Request::url(true)), 'alert');
             $response = miss(503);
             throw new HttpResponseException($response);
         }
@@ -57,9 +45,37 @@ class CheckRequest
 
         $lock  = $path . md5(Request::ip() . date('Ymd')) . '.lock';
         if (is_file($lock)) {
-            Log::record('[锁定]', 'alert')->save();
+            Log::write('[锁定]', 'alert');
             $response = miss(502, false);
             throw new HttpResponseException($response);
+        }
+    }
+
+    /**
+     * 非域名进入302跳转
+     * @return void
+     */
+    private function _302(): void
+    {
+        $domain = Request::subDomain() . '.' . Request::rootDomain();
+        if (false !== filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $response = Response::create(Config::get('app.app_host'), 'redirect', 302);
+            throw new HttpResponseException($response);
+        }
+    }
+
+    /**
+     * 304缓存
+     * @return void
+     */
+    private function _304(): void
+    {
+        if (Request::isGet() && $ms = Request::server('HTTP_IF_MODIFIED_SINCE')) {
+            if (strtotime($ms) >= Request::time()) {
+                $response = Response::create()->code(304);
+                $response->header(array_merge(['X-Powered-By' => 'NICACHE'], $response->getHeader()));
+                throw new HttpResponseException($response);
+            }
         }
     }
 }

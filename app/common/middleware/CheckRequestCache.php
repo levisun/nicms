@@ -38,13 +38,6 @@ class CheckRequestCache
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // 返回304
-        if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
-            if (strtotime($ms) >= $request->time()) {
-                return Response::create()->code(304);
-            }
-        }
-
         // 获得应用名
         $this->appName = app('http')->getName();
         // 缓存KEY
@@ -84,6 +77,7 @@ class CheckRequestCache
             ];
             $content = str_replace(array_keys($pattern), array_values($pattern), $content);
             $response = Response::create($content);
+            $response->header(array_merge(['X-Powered-By' => 'NICACHE'], $response->getHeader()));
             $response = $this->browserCache($response, $_request);
         }
 
@@ -111,7 +105,7 @@ class CheckRequestCache
                     '/<meta name="csrf-token" content="(.*?)">/si' => '<meta name="csrf-token" content="" />',
                 ];
                 $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $content);
-                Cache::tag('request')->set($this->key, $content, mt_rand(27360, 28800));
+                Cache::tag('request')->set($this->key, $content, mt_rand(2736, 2880));
 
                 $_response = $this->browserCache($_response, $_request);
             }

@@ -263,7 +263,7 @@ class Siteinfo
             ])
             ->value('value', 'default');
         if ($result === 'default') {
-            \think\facade\Log::record($this->appName . $this->langSet, 'alert');
+            \think\facade\Log::alert($this->appName . $this->langSet);
         }
 
         return strip_tags(htmlspecialchars_decode($result));

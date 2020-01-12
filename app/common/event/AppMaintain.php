@@ -46,7 +46,7 @@ class AppMaintain
 
             $lock = $app_name . '_remove_garbage.lock';
             only_execute($lock, '-4 hour', function () {
-                Log::record('[REGARBAGE] ' . app('http')->getName() . '应用维护', 'alert');
+                Log::alert('[REGARBAGE] ' . app('http')->getName() . '应用维护');
 
                 // 清除过期缓存文件
                 (new ReGarbage)->remove(app()->getRuntimePath() . 'cache', 1);

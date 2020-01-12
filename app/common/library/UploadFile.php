@@ -26,6 +26,29 @@ use app\common\model\UploadFileLog as ModelUploadFileLog;
 
 class UploadFile
 {
+    /**
+     * 允许上传文件后缀,避免恶意修改配置文件导致的有害文件上传
+     * @var array
+     */
+    private $fileExtension = ['jpg', 'gif', 'png', 'webp', 'mp3', 'mp4', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'zip'];
+    private $fileMime = [
+        'doc'  => 'application/msword',
+        'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'gif'  => 'image/gif',
+        'gz'   => 'application/x-gzip',
+        'jpeg' => 'image/jpeg',
+        'mp3'  => 'audio/mpeg',
+        'mp4'  => 'video/mp4',
+        'pdf'  => 'application/pdf',
+        'png'  => 'image/png',
+        'ppt'  => 'application/vnd.ms-powerpoint',
+        'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'rar'  => 'application/octet-stream',
+        'xls'  => 'application/vnd.ms-excel',
+        'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'zip'  => 'application/zip',
+        '7z'   => 'application/x-7z-compressed'
+    ];
 
     /**
      * 图片规定尺寸
@@ -54,7 +77,8 @@ class UploadFile
      */
     public function getFileInfo(int $_uid, string $_element, array $_thumb, bool $_water): array
     {
-        set_time_limit(600);
+        @ini_set('max_execution_time', '600');
+        @set_time_limit(600);
 
         $files = Request::file($_element);
         $this->thumbSize = [
@@ -94,30 +118,19 @@ class UploadFile
     {
         $size = (int) Config::get('app.upload_size', 1) * 1048576;
         $ext = Config::get('app.upload_type');
-        $mime = [
-            'doc'  => 'application/msword',
-            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'gif'  => 'image/gif',
-            'gz'   => 'application/x-gzip',
-            'jpeg' => 'image/jpeg',
-            'mp3'  => 'audio/mpeg',
-            'mp4'  => 'video/mp4',
-            'pdf'  => 'application/pdf',
-            'png'  => 'image/png',
-            'ppt'  => 'application/vnd.ms-powerpoint',
-            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            'rar'  => 'application/octet-stream',
-            'xls'  => 'application/vnd.ms-excel',
-            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'zip'  => 'application/zip',
-            '7z'   => 'application/x-7z-compressed'
-        ];
+        // 允许上传文件后缀,避免恶意修改配置文件导致的有害文件上传
+        $ext = explode(',', $ext);
+        foreach ($ext as $key => $value) {
+            if (!in_array($value, $this->fileExtension)) {
+                unset($ext[$key]);
+            }
+        }
+        $ext = implode(',', $ext);
 
         $validate = new Validate;
         $error = $validate->rule([
             $_element => [
                 'fileExt'  => $ext,
-                // 'fileMime' => $mime,
                 'fileSize' => $size
             ]
         ])->batch(false)->failException(false)->check([$_element => $_files]);

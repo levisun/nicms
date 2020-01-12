@@ -79,9 +79,9 @@ abstract class BaseController
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\DataFilter::filter');
 
-        @ini_set('memory_limit', '8M');
-        @ini_set('max_execution_time', '30');
         @set_time_limit(30);
+        @ini_set('max_execution_time', '30');
+        @ini_set('memory_limit', '8M');
 
         // 控制器初始化
         $this->initialize();

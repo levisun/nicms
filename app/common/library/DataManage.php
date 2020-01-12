@@ -36,8 +36,9 @@ class DataManage
         $this->lockPath = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'lock' . DIRECTORY_SEPARATOR;
         is_dir($this->lockPath) or mkdir($this->lockPath, 0755, true);
 
+        @set_time_limit(3600);
+        @ini_set('max_execution_time', '3600');
         @ini_set('memory_limit', '64M');
-        set_time_limit(3600);
     }
 
     /**
@@ -56,7 +57,7 @@ class DataManage
                 $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
                 if (false === $result) {
                     $this->DB->query('OPTIMIZE TABLE `' . $name . '`');
-                    Log::record('[AUTO BACKUP] 优化表' . $name, 'alert');
+                    Log::alert('[AUTO BACKUP] 优化表' . $name);
                 }
             }
 
@@ -77,7 +78,7 @@ class DataManage
                 $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
                 if (false === $result) {
                     $this->DB->query('REPAIR TABLE `' . $name . '`');
-                    Log::record('[AUTO BACKUP] 修复表' . $name, 'alert');
+                    Log::alert('[AUTO BACKUP] 修复表' . $name);
                 }
             }
 
@@ -162,7 +163,7 @@ class DataManage
                                 @unlink($sql_file);
                             }
 
-                            Log::record('[AUTO BACKUP] 自动备份数据库' . $num, 'alert');
+                            Log::alert('[AUTO BACKUP] 自动备份数据库' . $num);
                             break;
                         }
                     }

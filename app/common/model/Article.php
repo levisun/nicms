@@ -40,6 +40,8 @@ CREATE TABLE IF NOT EXISTS `nc_article` (
     KEY `title` (`title`) USING BTREE,
     KEY `category_id` (`category_id`) USING BTREE,
     KEY `type_id` (`type_id`) USING BTREE,
+    KEY `admin_id` (`admin_id`) USING BTREE,
+    KEY `user_id` (`user_id`) USING BTREE,
     KEY `is_pass` (`is_pass`) USING BTREE,
     KEY `is_com` (`is_com`) USING BTREE,
     KEY `is_top` (`is_top`) USING BTREE,
@@ -48,6 +50,7 @@ CREATE TABLE IF NOT EXISTS `nc_article` (
     KEY `show_time` (`show_time`) USING BTREE,
     KEY `update_time` (`update_time`) USING BTREE,
     KEY `delete_time` (`delete_time`) USING BTREE,
+    KEY `access_id` (`access_id`) USING BTREE,
     KEY `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章表';
  */

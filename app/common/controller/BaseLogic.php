@@ -117,17 +117,6 @@ abstract class BaseLogic
             $this->urole = (int) $this->session->get($this->authKey . '_role');
         }
 
-        // \think\Facade\Db::event('before_select', function () {
-        //     trace('123');
-        // });
-
-        // \think\Facade\Db::listen(function ($sql, $time, $master) {
-        //     // if (0.1 <= $time && false === strpos($sql, 'CONNECT:')) {
-        // \think\Facade\Log::record('[RunTime:' . $time . 's] ' . $sql . ($master ? ' master' : ' slave'), 'alert');
-        //     // }
-        //     UploadFile::remove($this->uid, $sql);
-        // });
-
         $this->initialize();
     }
 

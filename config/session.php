@@ -28,7 +28,7 @@ return [
     // 存储连接标识 当type使用cache的时候有效
     'store'          => null,
     // 过期时间
-    'expire'         => 14400,
+    'expire'         => 1440,
     // 前缀
     'prefix'         => '',
     // 数据压缩
