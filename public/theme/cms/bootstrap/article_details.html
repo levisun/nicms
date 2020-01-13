@@ -79,22 +79,21 @@
                     success: function (result) {
                         if (result.code == '10000' && result.message != 'error') {
                             details.items = result.data;
+                            jQuery.pjax({
+                                url: NICMS.api.url + '/query.do',
+                                method: 'get',
+                                data: [
+                                    { name: 'method', value: 'article.details.hits' },
+                                    { name: 'id', value: NICMS.api.param.id }
+                                ],
+                                success: function (result) {
+                                    if (result.code == '10000') {
+                                        details.items.hits = result.data.hits;
+                                    }
+                                }
+                            });
                         } else {
                             window.location.href = '/404.html';
-                        }
-                    }
-                });
-
-                jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
-                    method: 'get',
-                    data: [
-                        { name: 'method', value: 'article.details.hits' },
-                        { name: 'id', value: NICMS.api.param.id }
-                    ],
-                    success: function (result) {
-                        if (result.code == '10000') {
-
                         }
                     }
                 });

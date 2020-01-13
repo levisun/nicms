@@ -40,9 +40,9 @@ class CheckRequestCache
     public function handle(Request $request, Closure $next): Response
     {
         // 获得应用名
-        $this->appName = app('http')->getName() . Lang::getLangSet();
+        $this->appName = app('http')->getName();
         // 缓存KEY
-        $this->key = md5($this->appName . $request->baseUrl(true));
+        $this->key = md5($this->appName . Lang::getLangSet() . $request->baseUrl(true));
 
         if ($this->appName && 'api' !== $this->appName) {
             // 生成客户端cookie令牌

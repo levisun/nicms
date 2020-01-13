@@ -1,11 +1,10 @@
 User-agent: *
+Disallow: /static/*
 Disallow: /storage/*
 Disallow: /theme/*
 Disallow: /router.php
 Disallow: /search/*
-Disallow: .do$
+Disallow: /*.do$
 Disallow: /*?*
-Disallow: /404.html
-Disallow: /502.html
-Allow: .html$
+Allow: /*.html$
 Sitemap: https://www.nicms.com/sitemap.xml

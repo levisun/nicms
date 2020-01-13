@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS `nc_config`;
 CREATE TABLE IF NOT EXISTS `nc_config` (
     `id` smallint(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` varchar(30) NOT NULL DEFAULT '' COMMENT '名称',
-    `value` varchar(500) NOT NULL DEFAULT '' COMMENT '值',
+    `value` varchar(3000) NOT NULL DEFAULT '' COMMENT '值',
     `lang` varchar(10) NOT NULL DEFAULT '' COMMENT '语言 niphp为全局设置',
     PRIMARY KEY (`id`),
     KEY `name` (`name`) USING BTREE,

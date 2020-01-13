@@ -19,11 +19,8 @@
                 <template v-for="vo in items.list">
                     <tr>
                         <td>
-                            [<font v-text="vo.role_name"></font>]<br>
-                            <font v-text="vo.username"></font><br>
-
-                            <font v-text="vo.action_ip"></font><br>
-                            <font v-text="vo.create_time"></font>
+                            [<font v-text="vo.role_name"></font>]<font v-text="vo.username"></font><br>
+                            <font v-text="vo.action_ip"></font><font v-text="vo.create_time"></font>
                         </td>
                         <td>
                             <font v-text="vo.action_name"></font><br>

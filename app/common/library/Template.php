@@ -42,7 +42,7 @@ class Template implements TemplateHandlerInterface
         'compile_path'       => '',
         'compile_suffix'     => 'php',                  // 默认模板编译后缀
         'compile_prefix'     => '',                     // 模板编译前缀标识，可以动态改变
-        'compile_time'       => 0,                      // 模板编译有效期 0 为永久，(以数字为值，单位:秒)
+        'compile_time'       => 2880,                   // 模板编译有效期 0 为永久，(以数字为值，单位:秒)
         'compile_id'         => '',                     // 模板编译ID
         'tpl_compile'        => true,                   // 是否开启模板编译,设为false则每次都会重新编译
 
@@ -413,7 +413,7 @@ class Template implements TemplateHandlerInterface
 
         $_content = preg_replace_callback($pattern, function ($matches) {
             $safe_func = [
-                'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'strtolower', 'date', 'lang', 'url', 'current', 'end', 'sprintf', 'token_field', 'token', 'get_img_url',
+                'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'strtolower', 'date', 'lang', 'url', 'current', 'end', 'sprintf',
             ];
             if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
                 return '<?php echo htmlspecialchars(' . $matches[1] . '(' . $matches[2] . '));?>';
