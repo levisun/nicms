@@ -16,8 +16,10 @@
                         <td v-text="vo.date"></td>
                         <td v-text="vo.size"></td>
                         <td>
-                            <a id="open" data-toggle="modal" data-target="#modal-default"
-                                @click="open(vo.id)"><i></i>{:lang('open')}</a>
+                            <a id="open" data-toggle="modal" data-target="#modal-default" @click="open(vo.id)">
+                                <i class="fa fa-eye"></i>
+                                {:lang('open')}
+                            </a>
                         </td>
                     </tr>
                 </template>

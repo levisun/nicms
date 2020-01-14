@@ -61,6 +61,7 @@
                         <td v-text="vo.update_time"></td>
                         <td>
                             <a id="open" data-toggle="modal" data-target="#modal-default" v-on:click="open(vo.id)">
+                                <i class="fa fa-eye"></i>
                                 {:lang('open')}
                             </a>
                             <a class="recover" v-on:click="recover(vo.id)">
