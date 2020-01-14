@@ -1,10 +1,10 @@
-<aside id="sidebar" class="layui-col-md3 layui-hide-xs">
-    <div class="layui-card">
-        <div class="layui-card-header" v-text="sidebar.name"></div>
-        <div class="layui-card-body">
-            <ul v-if="sidebar.child">
-                <template v-for="vo in sidebar.child">
-                <li><a v-bind:href="vo.url" v-text="vo.name"></a></li>
+<aside id="sidebar" class="col-md-3">
+    <div class="card">
+        <div class="card-header" v-text="sideber.name"></div>
+        <div class="card-body">
+            <ul class="list-unstyled">
+                <template v-if="sideber.child" v-for="vo in sideber.child">
+                    <li><a v-bind:href="vo.url" v-text="vo.name"></a></li>
                 </template>
             </ul>
         </div>

@@ -91,7 +91,7 @@ class Article extends BaseLogic
                     // 栏目链接
                     'cat_url' => url('list/' . $value['category_id']),
                     // 文章链接
-                    'url' => url('details/' . $value['category_id'] . '/' . $value['id']),
+                    'url' => $this->config->get('app.app_host') . url('details/' . $value['category_id'] . '/' . $value['id']),
                 ];
 
                 // 时间格式

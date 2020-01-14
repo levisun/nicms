@@ -1,63 +1,97 @@
-{tags:meta /}
+{tags:head /}
 
-<header class="layui-bg-white">
-    <div class="layui-container">
-        <section class="layui-row">
-            <hgroup class="layui-col-md2">
-                <a href="/">__NAME__</a>
-            </hgroup>
-            <nav class="layui-col-md7">
-                <ul id="header-nav" class="layui-nav layui-bg-white" lay-filter="">
-                    <li class="layui-nav-item layui-this">
-                        <a href="/">首页</a>
+<header id="layout-header" class="bg-dark">
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <a class="navbar-brand text-white" href="/">__NAME__</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/">首页</a>
                     </li>
-                    <template v-for="vo in main_nav">
-                    <li class="layui-nav-item">
-                        <a v-text="vo.name" v-bind:href="vo.url"></a>
-                        <template v-if="vo.child">
-                        <dl class="layui-nav-child">
-                            <dd v-for="ch in vo.child">
-                                <a v-text="ch.name" v-bind:href="ch.url"></a>
-                            </dd>
-                        </dl>
+                    <template v-for="vo in nav">
+                        <template v-if="vo.child[0]">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" v-bind:href="vo.url" id="navbarDropdown"
+                                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                    v-text="vo.name"></a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <template v-for="v in vo.child">
+                                        <a class="dropdown-item" v-bind:href="v.url" v-text="v.name"></a>
+                                    </template>
+                                </div>
+                            </li>
                         </template>
-                    </li>
+                        <template v-else>
+                            <li class="nav-item">
+                                <a class="nav-link" v-bind:href="vo.url" v-text="vo.name"></a>
+                            </li>
+                        </template>
                     </template>
                 </ul>
-            </nav>
-            <div class="layui-col-md3 layui-hide-xs header-search">
-                <form action="{:url('search')}" class="layui-form layui-form-pane">
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">
-                            <i class="layui-icon layui-icon-search"></i>
-                        </label>
-                        <div class="layui-input-block">
-                            <input type="text" name="key" placeholder="搜索内容" class="layui-input">
-                        </div>
-                    </div>
-                </form>
+                <div class="form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" id="key" placeholder="Search"
+                        aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" v-on:click="search">Search</button>
+                </div>
             </div>
-        </section>
+        </nav>
     </div>
 </header>
 
-
-<main class="layui-container">
-
-{__CONTENT__}
-
+<main id="layout-main" class="bg-light">
+    <div class="container">
+        {__CONTENT__}
+    </div>
 </main>
 
-
-<footer class="layui-bg-black">
-    <div class="layui-container">
-        <div class="layui-row">
-            <div class="layui-col-md12">
-                <div>__FOOTER_MSG__</div>
-                <div>__COPYRIGHT__</div>
+<footer id="layout-footer" class="bg-dark">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm text-white-50">
+                <p>__FOOTER_MSG__</p>
+                <p>__COPYRIGHT__</p>
             </div>
         </div>
     </div>
 </footer>
 
-{tags:foot /}
+{tags:tpljs /}
+__SCRIPT__
+
+<script>
+    let layout = new Vue({
+        el: '.navbar',
+        data: {
+            nav: [],
+        },
+        methods: {
+            navbar: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.main.query' }
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            layout.nav = result.data;
+                        }
+                    }
+                });
+            },
+            search: function () {
+                let key = jQuery('#key').val();
+                    key = jQuery.filter_str(key);
+                if (key) {
+                    window.location.href = '/search.html?key=' + key;
+                }
+            }
+        }
+    });
+    layout.navbar();
+</script>

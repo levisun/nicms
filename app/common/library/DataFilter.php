@@ -176,19 +176,21 @@ class DataFilter
                     // 本地网络地址
                     if (false !== stripos($ema[2], Request::rootDomain())) {
                         $ema[2] = preg_replace('/(http(s)?:\/\/)?([a-zA-Z.\/]+)(' . Request::rootDomain() . ')/si', '', $ema[2]);
+                        $ema[2] = '"' . $ema[2] . '" target="_blank"';
                     }
                     // 外链
                     elseif (0 === stripos($ema[2], 'http')) {
                         $ema[2] = Config::get('app.api_host') . '/go.html?url=' . urlencode(base64_encode($ema[2]));
+                        $ema[2] = '"' . $ema[2] . '" target="_blank" rel="nofollow"';
                     }
 
                     return $ema[2]
-                        ? ' ' . $ema[1] . '="' . $ema[2] . '"'
+                        ? ' ' . $ema[1] . '=' . $ema[2]
                         : '';
                 }
 
-                // 过滤非法属性
-                $attr = ['alt', 'title', 'target', 'rel', 'height', 'width', 'align'];
+                // 过滤非法属性 target rel
+                $attr = ['alt', 'title', 'height', 'width', 'align'];
                 if (in_array($ema[1], $attr) && $ema[2]) {
                     return ' ' . $ema[1] . '="' . $ema[2] . '"';
                 } else {

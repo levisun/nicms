@@ -38,7 +38,6 @@
                     <th>{:lang('title')}</th>
                     <th>{:lang('category')}</th>
                     <th>{:lang('status')}</th>
-                    <th>{:lang('type name')}</th>
                     <th>{:lang('access name')}</th>
                     <th>{:lang('update time')}</th>
                     <th>{:lang('operation')}</th>
@@ -58,7 +57,6 @@
                             <span class="label label-primary" v-if="vo.is_hot">{:lang('hot')}</span>
                             <span class="label label-primary" v-if="vo.is_top">{:lang('top')}</span>
                         </td>
-                        <td v-text="vo.type_name"></td>
                         <td v-text="vo.access_name"></td>
                         <td v-text="vo.update_time"></td>
                         <td>

@@ -1,73 +1,105 @@
-<div class="layui-row">
-    <div class="layui-col-md8">
-        <div class="layui-carousel" id="index-banner">
-            <div carousel-item>
-                <div>条目1</div>
-                <div>条目2</div>
-                <div>条目3</div>
-                <div>条目4</div>
-                <div>条目5</div>
+<div id="layout-index">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">{:lang('new')}</div>
+                <ul class="list-group list-group-flush">
+                    <template v-for="vo in items1">
+                        <li class="list-group-item">
+                            <h5 class="card-title">
+                                <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="vo.cat_url"
+                                    v-text="vo.cat_name"></a>
+                                <a v-bind:href="vo.url" v-html="vo.title"></a>
+                            </h5>
+                            <p class="text-muted">
+                                <span style="margin-right:10px;">
+                                    <i class="fa fa-calendar-day"></i>
+                                    <font v-text="vo.update_time"></font>
+                                </span>
+                                <span style="margin-right:10px;">
+                                    <i class="fa fa-user"></i>
+                                    <font v-text="vo.author"></font>
+                                </span>
+                                <span style="margin-right:10px;">
+                                    <i class="fa fa-eye"></i>
+                                    <font v-text="vo.hits"></font>
+                                </span>
+                            </p>
+                            <p class="card-text" v-text="vo.description"></p>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </div>
+        <div id="index-aside-right" class="col-md-4">
+            <div class="card">
+                <div class="card-header">{:lang('hot')}</div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <template v-for="vo in items3">
+                            <li>
+                                <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="vo.cat_url"
+                                    v-text="vo.cat_name"></a>
+                                <a v-bind:href="vo.url" v-html="vo.title"></a>
+                                <p class="text-muted" style="margin-bottom:0;">
+                                    <small v-text="vo.update_time"></small>
+                                </p>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">{:lang('new')}</div>
+                <div class="card-body">
+                    <h5 class="card-title">Special title treatment</h5>
+                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="layui-col-md4">
-        sider
-    </div>
 </div>
-{$cookie.PHPSESSID}
-{echo('123')}
-
-
-
-
-
-<font style="font-size: 12px;">font</font>
-<a href="javascript:alert(123)"onclick = " alert(222);">de</a>
-
-
-
-<button type="button" class="layui-btn" id="test1">
-    <i class="layui-icon">&#xe67c;</i>上传图片
-</button>
-
-
-{tag:script}
-
-layui.use(['nicms', 'carousel', 'upload'], function(){
-    var nc = layui.nicms;
-    var carousel = layui.carousel;
-    var upload = layui.upload;
-
-    carousel.render({
-        elem: '#index-banner',
-        width: '100%',
-        arrow: 'hover',
-        anim: 'default'
-    });
-
-    //执行实例
-    var uploadInst = upload.render({
-        elem: '#test1',
-        url: NICMS.api.url + '/upload.do',
-        accept: 'file',
-        exts: 'gif|jpg|png|zip|rar',
-        size: 300,
+<script>
+    let index = new Vue({
+        el: '#layout-index',
         data: {
-            method: 'upload.file.save',
-            input_name: 'file',
-            sign: nc.sign({
-                method: 'upload.file.save'
-            })
+            items1: [],
+            items3: [],
         },
-        headers: nc.reqHeaders(),
-        done: function(res){
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'article.category.query' },
+                        { name: 'limit', value: '20' },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            index.items1 = result.data.list;
+                        }
+                    }
+                });
 
-        },
-        error: function(){
-
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'article.category.query' },
+                        { name: 'sort', value: 'hits desc' },
+                        { name: 'limit', value: '10' },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            index.items3 = result.data.list;
+                        }
+                    }
+                });
+            }
         }
     });
-});
-
-{/tag}
+    index.load();
+</script>

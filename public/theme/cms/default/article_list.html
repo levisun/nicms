@@ -1,48 +1,99 @@
-<div class="layui-row">
-    {include file="sideber"}
-    <div id="lists" class="layui-col-md7">
-        {include file="breadcrumb"}
-
-        <table class="layui-table" lay-even lay-skin="nob">
-            <template v-for="vo in lists">
-                <tr>
-                    <td>
-                        <span class="layui-badge layui-bg-blue" v-text="vo.cat_name"></span>
-                        <a v-bind:href="vo.url" v-text="vo.title"></a>
-                    </td>
-                    <td>
-                        <time v-text="vo.update_time"></time>
-                    </td>
-                </tr>
-            </template>
-        </table>
-    </div>
-    <div class="layui-col-md2">
-        123
+<div id="layout-list">
+    <div class="row">
+        {include file="sideber"}
+        <div id="list" class="col-md-9">
+            {include file="breadcrumb"}
+            <div class="card">
+                <div class="card-header" v-text="sideber.name"></div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <template v-for="vo in items">
+                            <li class="list-group-item">
+                                <h5 class="card-title">
+                                    <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="vo.cat_url"
+                                        v-text="vo.cat_name"></a>
+                                    <a v-bind:href="vo.url" v-html="vo.title"></a>
+                                </h5>
+                                <p class="text-muted">
+                                    <span style="margin-right:10px;">
+                                        <i class="fa fa-calendar-day"></i>
+                                        <font v-text="vo.update_time"></font>
+                                    </span>
+                                    <span style="margin-right:10px;">
+                                        <i class="fa fa-user"></i>
+                                        <font v-text="vo.author"></font>
+                                    </span>
+                                    <span style="margin-right:10px;">
+                                        <i class="fa fa-eye"></i>
+                                        <font v-text="vo.hits"></font>
+                                    </span>
+                                </p>
+                                <p class="card-text" v-text="vo.description"></p>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
+
 <script>
-    layui.use(['jquery', 'nicms', 'table'], function () {
-        var nc = layui.nicms;
-        var table = layui.table;
-        nc.pjax({
-            url: NICMS.api.url + '/query.do',
-            method: 'get',
-            data: [
-                { name: 'method', value: 'article.lists.query' },
-                { name: 'cid', value: NICMS.api.param.cid }
-            ],
-            success: function (result) {
-                if (result.code == 10000) {
-                    new Vue({
-                        el: "#lists",
-                        data: {
-                            lists: result.data.list
+    let list = new Vue({
+        el: '#layout-list',
+        data: {
+            sideber: [],
+            breadcrumb: [],
+            items: [],
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.sidebar.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            list.sideber = result.data;
                         }
-                    });
-                }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.breadcrumb.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            list.breadcrumb = result.data;
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'article.category.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code && result.message != 'error') {
+                            list.items = result.data.list;
+                        } else {
+                            window.location.href = '/404.html';
+                        }
+                    }
+                });
             }
-        });
+        }
     });
+    list.load();
 </script>

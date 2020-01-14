@@ -37,6 +37,18 @@
                 </select>
             </div>
 
+            <div class="form-group">
+                <label>{:lang('pass')}</label>
+                <label>
+                    <input type="radio" name="is_pass" value="1" v-bind:checked="1==items.is_pass ? true : false">
+                    {:lang('yes')}
+                </label>
+                <label>
+                    <input type="radio" name="is_pass" value="0" v-bind:checked="0==items.is_pass ? true : false">
+                    {:lang('no')}
+                </label>
+            </div>
+
             <!-- 模型:文章 -->
             <template v-if="model_id==1">
                 <div class="form-group">
@@ -185,6 +197,7 @@
 <script src="__STATIC__ckeditor5/upload.js"></script>
 
 <script>
+    console.log(uid);
     var article = new Vue({
         el: '.box',
         data: {
