@@ -14,7 +14,7 @@
         <ul class="sidebar-menu" data-widget="tree">
             <li class="header">LABELS</li>
             <li>
-                <a v-on:click="site_home">
+                <a v-bind:href="www_url" target="_blank">
                     <i class="fa fa-circle-o text-red"></i>
                     <span>{:lang('site home')}</span>
                 </a>
@@ -60,6 +60,7 @@
                 book: 'fa fa-book',
                 extend: 'fa fa-plus-circle',
             },
+            www_url: NICMS.rootDomain,
             user_auth: []
         },
         methods: {
@@ -81,9 +82,6 @@
                         }
                     }
                 });
-            },
-            site_home: function () {
-                window.location.href = NICMS.rootDomain;
             },
             remove_cache: function () {
                 jQuery.pjax({

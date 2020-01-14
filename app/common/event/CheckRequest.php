@@ -31,6 +31,7 @@ class CheckRequest
 
     public function handle()
     {
+        $this->lock();
         $this->_302();
         $this->_304();
 
@@ -39,11 +40,16 @@ class CheckRequest
             $response = miss(503);
             throw new HttpResponseException($response);
         }
+    }
 
+     /**
+     * 频繁或非法请求将被锁定
+     * @return void
+     */
+    private function lock()
+    {
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
-        is_dir($path) or mkdir($path, 0755, true);
-
-        $lock  = $path . md5(Request::ip() . date('Ymd')) . '.lock';
+        $lock  = $path . md5(Request::ip()) . '.lock';
         if (is_file($lock)) {
             Log::write('[锁定]', 'alert');
             $response = miss(502, false);

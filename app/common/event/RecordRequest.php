@@ -28,8 +28,7 @@ class RecordRequest
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
 
-        $client_ip = md5(Request::ip() . date('Ymd'));
-
+        $client_ip = md5(Request::ip());
         $log  = $path . $client_ip . '.php';
         $number = is_file($log) ? include $log : '';
 
@@ -53,9 +52,14 @@ class RecordRequest
 
 
 
-        $run_time = number_format(microtime(true) - app()->getBeginTime(), 3);
-        $run_time = $run_time . 's ' .
-            number_format((memory_get_usage() - app()->getBeginMem()) / 1024 / 1024, 3) . 'mb ';
+        $this->recordLog();
+    }
+
+    private function recordLog()
+    {
+        // $run_time = number_format(microtime(true) - app()->getBeginTime(), 3);
+        $run_time = number_format(microtime(true) - Request::time(true), 3);
+        $run_memory = number_format((memory_get_usage() - app()->getBeginMem()) / 1024 / 1024, 3) . 'mb ';
         $url = Request::ip() . ' ' . Request::method(true) . ' ' . Request::baseUrl(true);
         $params = Request::param()
             ? Request::except(['password', 'sign', '__token__', 'timestamp', 'sign_type', 'appid'])
@@ -65,15 +69,15 @@ class RecordRequest
 
         $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec|php/si';
         if (0 !== preg_match($pattern, $params)) {
-            Log::warning('非法请求 ' . $run_time . $url);
+            Log::warning('非法请求 ' . $run_time . 's, ' . $run_memory . $url);
             Log::warning('来源 ' . Request::server('HTTP_REFERER'));
             Log::warning('参数 ' . htmlspecialchars($params) . PHP_EOL);
         } elseif (2 <= $run_time) {
-            Log::warning('长请求 ' . $run_time . $url);
+            Log::warning('长请求 ' . $run_time . 's, ' . $run_memory . $url);
             Log::warning('来源 ' . Request::server('HTTP_REFERER'));
             Log::warning('参数 ' . htmlspecialchars($params) . PHP_EOL);
         } else {
-            Log::info('请求 ' . $run_time . $url);
+            Log::info('请求 ' . $run_time . 's, ' . $run_memory . $url);
             Log::info('来源 ' . Request::server('HTTP_REFERER'));
             Log::info('参数 ' . htmlspecialchars($params) . PHP_EOL);
         }

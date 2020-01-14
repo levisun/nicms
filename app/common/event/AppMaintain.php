@@ -44,8 +44,7 @@ class AppMaintain
                 // (new DataManage)->autoBackup();
             }
 
-            $lock = $app_name . '_remove_garbage.lock';
-            only_execute($lock, '-4 hour', function () {
+            only_execute($app_name . '_remove_garbage.lock', '-4 hour', function () {
                 Log::alert('[REGARBAGE] ' . app('http')->getName() . '应用维护');
 
                 // 清除过期缓存文件
@@ -62,6 +61,7 @@ class AppMaintain
                         continue;
                     } elseif (is_dir($dir . $file) && !in_array($file, ['screen', 'static', 'storage', 'theme'])) {
                         (new ReGarbage)->remove($dir . $file, 0);
+                        @rmdir($dir . $file);
                     } elseif (is_file($dir . $file) && !in_array($file, ['.htaccess', '.nginx', '.user.ini', '404.html', '502.html', 'favicon.ico', 'index.php', 'robots.txt', 'sitemap.xml'])) {
                         @unlink($dir . $file);
                     }

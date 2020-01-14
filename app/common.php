@@ -48,7 +48,7 @@ if (!function_exists('only_execute')) {
     /**
      * 非阻塞模式并发运行
      * @param string       $_lock     锁定文件
-     * @param false|string $_time     锁定文件
+     * @param false|string $_time     执行周期
      * @param callable     $_callback
      * @return void
      */

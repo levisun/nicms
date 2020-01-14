@@ -75,7 +75,7 @@ class Canvas
         } else {
             // 图片不存在
             $_file = 'data:image/svg+xml;base64,' .
-                base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="200" width="200"><rect fill="rgb(221,221,221)" x="0" y="0" width="200" height="200"></rect><text x="100" y="100" font-size="50" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="canvas" alignment-baseline="central">' . Request::rootDomain() . '</text></svg>');
+                base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="100" width="100"><rect fill="rgb(221,221,221)" x="0" y="0" width="100" height="100"></rect><text x="50" y="50" font-size="15" text-copy="fast" fill="#000000" text-anchor="middle" text-rights="canvas" alignment-baseline="central">' . Request::rootDomain() . '</text></svg>');
         }
 
         return $_file;
@@ -104,6 +104,6 @@ class Canvas
         $bg = (intval($length * $salt) % 255) . ',' . (intval($length * $salt * 3) % 255) . ',' . (intval($length * $salt * 9) % 255);
 
         return 'data:image/svg+xml;base64,' .
-            base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="200" width="200"><rect fill="rgb(' . $bg . ')" x="0" y="0" width="200" height="200"></rect><text x="100" y="125" font-size="120" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="admin" alignment-baseline="central">' . mb_strtoupper(mb_substr($_username, 0, 1)) . '</text></svg>');
+            base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="100" width="100"><rect fill="rgb(' . $bg . ')" x="0" y="0" width="100" height="100"></rect><text x="50" y="65" font-size="50" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="admin" alignment-baseline="central">' . mb_strtoupper(mb_substr($_username, 0, 1)) . '</text></svg>');
     }
 }

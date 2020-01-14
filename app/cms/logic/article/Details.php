@@ -32,10 +32,10 @@ class Details extends ArticleBase
         $result = $this->ArticleDetails();
 
         return [
-            'debug'  => false,
-            'cache'  => $result ? true : false,
-            'msg'    => $result ? 'details' : 'error',
-            'data'   => $result ?: []
+            'debug' => false,
+            'cache' => $result ? true     : false,
+            'msg'   => $result ? 'details': 'error',
+            'data'  => $result ?          : []
         ];
     }
 }
