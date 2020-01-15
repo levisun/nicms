@@ -157,7 +157,6 @@ class DataFilter
         return preg_replace_callback('/<(\/)?([a-zA-Z1-6]+)(.*?)>/si', function ($matches) {
             $matches[3] = preg_replace_callback('/([a-zA-Z0-9-_]+)=(.*?)( )/si', function ($ema) {
                 $ema[1] = strtolower($ema[1]);
-                // $ema[2] = DataFilter::filter($ema[2]);
 
                 // 图片处理
                 if ('src' === $ema[1]) {
@@ -316,8 +315,8 @@ class DataFilter
             '/<\?php(.*?)\?>/si',
             '/<\?(.*?)\?>/si',
             '/<\?php/si',
-            '/<\?/si',
-            '/\?>/si',
+            '/<\?/s',
+            '/\?>/s',
 
             // 过滤回车与重复字符
             '/(\s+\n|\r)/s',

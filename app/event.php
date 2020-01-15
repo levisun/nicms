@@ -16,11 +16,11 @@ return [
     'bind'      => [],
     'listen'    => [
         'AppInit'  => [
-            \app\common\event\CheckRequest::class,
+            \app\common\event\CheckRequestCache::class,
         ],
         'HttpRun' => [],
         'HttpEnd' => [
-            \app\common\event\RecordRequest::class,
+            \app\common\event\RecordRequestLog::class,
             \app\common\event\AppMaintain::class,
         ],
         'RouteLoaded' => [],

@@ -2,8 +2,7 @@
 
 /**
  *
- * 记录请求
- * 频繁或非法请求
+ * 请求记录
  *
  * @package   NICMS
  * @category  app\common\event
@@ -20,11 +19,12 @@ namespace app\common\event;
 use think\facade\Log;
 use think\facade\Request;
 
-class RecordRequest
+class RecordRequestLog
 {
 
     public function handle()
     {
+        // 请求频繁创建锁定文件
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
 
@@ -55,6 +55,10 @@ class RecordRequest
         $this->recordLog();
     }
 
+    /**
+     * 请求日志
+     * @return void
+     */
     private function recordLog()
     {
         // $run_time = number_format(microtime(true) - app()->getBeginTime(), 3);
@@ -69,17 +73,23 @@ class RecordRequest
 
         $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec|php/si';
         if (0 !== preg_match($pattern, $params)) {
-            Log::warning('非法请求 ' . $run_time . 's, ' . $run_memory . $url);
-            Log::warning('来源 ' . Request::server('HTTP_REFERER'));
-            Log::warning('参数 ' . htmlspecialchars($params) . PHP_EOL);
+            Log::warning(
+                '非法请求 ' . $run_time . 's, ' . $run_memory . $url . PHP_EOL .
+                '来源 ' . Request::server('HTTP_REFERER') . PHP_EOL .
+                '参数 ' . htmlspecialchars($params) . PHP_EOL
+            );
         } elseif (2 <= $run_time) {
-            Log::warning('长请求 ' . $run_time . 's, ' . $run_memory . $url);
-            Log::warning('来源 ' . Request::server('HTTP_REFERER'));
-            Log::warning('参数 ' . htmlspecialchars($params) . PHP_EOL);
+            Log::warning(
+                '长请求 ' . $run_time . 's, ' . $run_memory . $url . PHP_EOL .
+                '来源 ' . Request::server('HTTP_REFERER') . PHP_EOL .
+                '参数 ' . htmlspecialchars($params) . PHP_EOL
+            );
         } else {
-            Log::info('请求 ' . $run_time . 's, ' . $run_memory . $url);
-            Log::info('来源 ' . Request::server('HTTP_REFERER'));
-            Log::info('参数 ' . htmlspecialchars($params) . PHP_EOL);
+            Log::warning(
+                '请求 ' . $run_time . 's, ' . $run_memory . $url . PHP_EOL .
+                '来源 ' . Request::server('HTTP_REFERER') . PHP_EOL .
+                '参数 ' . htmlspecialchars($params) . PHP_EOL
+            );
         }
     }
 }

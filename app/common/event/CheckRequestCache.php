@@ -2,10 +2,7 @@
 
 /**
  *
- * 检查请求
- * 非域名进入302跳转
- * 304缓存
- * 频繁或非法请求将被锁定
+ * 检查请求缓存
  *
  * @package   NICMS
  * @category  app\common\event
@@ -26,13 +23,16 @@ use think\facade\Request;
 use think\Response;
 use think\exception\HttpResponseException;
 
-class CheckRequest
+class CheckRequestCache
 {
 
     public function handle()
     {
+        // 频繁或非法请求将被锁定
         $this->lock();
+        // 非域名进入302跳转
         $this->_302();
+        // 304缓存
         $this->_304();
 
         if (1 === mt_rand(1, 999)) {
@@ -42,7 +42,7 @@ class CheckRequest
         }
     }
 
-     /**
+    /**
      * 频繁或非法请求将被锁定
      * @return void
      */
