@@ -66,11 +66,10 @@ class Base64
     public static function client_id(): string
     {
         $token  = Request::server('HTTP_USER_AGENT');
-        $token .= date('Ymd');
         $token .= bindec(Request::ip2bin(Request::ip()));
-        $token .= date('His');
-        $token .= number_format(microtime(true) - app()->getBeginTime(), 3);
+        $token .= date('YmdHis');
         $token .= Request::time(true);
+        $token .= number_format(microtime(true) - app()->getBeginTime(), 3);
         $token .= number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3);
 
         return md5(uniqid($token, true));

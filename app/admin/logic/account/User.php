@@ -35,16 +35,6 @@ class User extends BaseLogic
      */
     public function login(): array
     {
-        $lock = $this->app->getRuntimePath() . 'temp' . DIRECTORY_SEPARATOR . md5($this->request->ip() . date('YmdH')) . '.lock';
-        if (is_file($lock)) {
-            // 登录锁定
-            return [
-                'debug' => false,
-                'cache' => false,
-                'msg'   => 'error'
-            ];
-        }
-
         $receive_data = [
             'username' => $this->request->param('username'),
             'password' => $this->request->param('password'),
@@ -53,7 +43,6 @@ class User extends BaseLogic
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
         }
-
 
         $user = (new ModelAdmin)
             ->view('admin', ['id', 'username', 'password', 'salt', 'flag'])
@@ -102,8 +91,13 @@ class User extends BaseLogic
             // 记录登录错误次数
             $login_lock = $this->session->has('login_lock') ? $this->session->get('login_lock') : 0;
             ++$login_lock;
+
+            // 错误次数超过5次锁定IP
+            // 锁定方法在[\app\common\event\CheckRequestCache::lock]
             if ($login_lock >= 5) {
                 $this->session->delete('login_lock');
+                $lock = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
+                $lock .= md5($this->request->ip()) . '.lock';
                 file_put_contents($lock, 'lock');
             } else {
                 $this->session->set('login_lock', $login_lock);

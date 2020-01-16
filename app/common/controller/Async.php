@@ -387,7 +387,7 @@ abstract class Async
 
         // 检查客户端token
         // token由\app\common\middleware\CheckRequestCache::class签发
-        if (!$this->session->has('client_token')) {
+        if (!$this->session->has('client_id')) {
             $this->abort('错误请求', 27003);
         }
 

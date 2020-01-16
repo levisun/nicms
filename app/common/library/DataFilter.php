@@ -35,8 +35,7 @@ class DataFilter
         if (is_string($_data)) {
             $_data = self::safe($_data);
             $_data = strip_tags($_data);
-            $_data = self::funSymbol($_data);
-            $_data = self::enter($_data);
+            $_data = self::symbol($_data);
             $_data = (new Emoji)->clear($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
@@ -59,8 +58,7 @@ class DataFilter
         if (is_string($_data)) {
             $_data = self::safe($_data);
             $_data = self::element($_data);
-            $_data = self::funSymbol($_data);
-            $_data = self::enter($_data);
+            $_data = self::symbol($_data);
             $_data = (new Emoji)->encode($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
@@ -208,22 +206,37 @@ class DataFilter
     }
 
     /**
-     * 过滤回车
+     * 过滤字符与回车等
      * @access private
      * @static
      * @param  string $_str
      * @return string
      */
-    private static function enter(string &$_str): string
+    private static function symbol(string &$_str): string
     {
+        // 过滤空格回车制表符等
         $pattern = [
-            // 过滤空格回车制表符等
             '~>\s+<~'        => '><',
             '~>\s+~'         => '>',
             '~\s+<~'         => '<',
             '/( ){2,}/si'    => ' ',
         ];
-        return (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
+        $_str = (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
+
+        $pattern = [
+            // 全角字符转半角字符
+            '０' => '0', '１' => '1', '２' => '2', '３' => '3', '４' => '4', '５' => '5', '６' => '6', '７' => '7', '８' => '8', '９' => '9',
+            'Ａ' => 'A', 'Ｂ' => 'B', 'Ｃ' => 'C', 'Ｄ' => 'D', 'Ｅ' => 'E', 'Ｆ' => 'F', 'Ｇ' => 'G', 'Ｈ' => 'H', 'Ｉ' => 'I', 'Ｊ' => 'J', 'Ｋ' => 'K', 'Ｌ' => 'L', 'Ｍ' => 'M', 'Ｎ' => 'N', 'Ｏ' => 'O', 'Ｐ' => 'P', 'Ｑ' => 'Q', 'Ｒ' => 'R', 'Ｓ' => 'S', 'Ｔ' => 'T', 'Ｕ' => 'U', 'Ｖ' => 'V', 'Ｗ' => 'W', 'Ｘ' => 'X', 'Ｙ' => 'Y', 'Ｚ' => 'Z',
+            'ａ' => 'a', 'ｂ' => 'b', 'ｃ' => 'c', 'ｄ' => 'd', 'ｅ' => 'e', 'ｆ' => 'f', 'ｇ' => 'g', 'ｈ' => 'h', 'ｉ' => 'i', 'ｊ' => 'j', 'ｋ' => 'k', 'ｌ' => 'l', 'ｍ' => 'm', 'ｎ' => 'n', 'ｏ' => 'o', 'ｐ' => 'p', 'ｑ' => 'q', 'ｒ' => 'r', 'ｓ' => 's', 'ｔ' => 't', 'ｕ' => 'u', 'ｖ' => 'v', 'ｗ' => 'w', 'ｘ' => 'x', 'ｙ' => 'y', 'ｚ' => 'z',
+            '（' => '(', '）' => ')', '〔' => '[', '〕' => ']', '【' => '[', '】' => ']', '〖' => '[', '〗' => ']', '｛' => '{', '｝' => '}', '％' => '%', '＋' => '+', '—' => '-', '－' => '-', '～' => '~', '：' => ':', '？' => '?', '！' => '!', '‖' => '|', '　' => ' ',
+            '｜' => '|', '〃' => '"',
+
+            // 特殊字符转HTML实体
+            '*' => '&lowast;', '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;', '`' => '&acute;',
+            // '“' => '&quot;', '”' => '&quot;', '‘' => '&acute;', '’' => '&acute;',
+        ];
+
+        return str_replace(array_keys($pattern), array_values($pattern), $_str);
     }
 
     /**
@@ -236,38 +249,28 @@ class DataFilter
     private static function funSymbol(string &$_str): string
     {
         $pattern = [
-            // 全角字符转半角字符
-            '０' => '0', '１' => '1', '２' => '2', '３' => '3', '４' => '4', '５' => '5', '６' => '6', '７' => '7', '８' => '8', '９' => '9',
-            'Ａ' => 'A', 'Ｂ' => 'B', 'Ｃ' => 'C', 'Ｄ' => 'D', 'Ｅ' => 'E', 'Ｆ' => 'F', 'Ｇ' => 'G', 'Ｈ' => 'H', 'Ｉ' => 'I', 'Ｊ' => 'J', 'Ｋ' => 'K', 'Ｌ' => 'L', 'Ｍ' => 'M', 'Ｎ' => 'N', 'Ｏ' => 'O', 'Ｐ' => 'P', 'Ｑ' => 'Q', 'Ｒ' => 'R', 'Ｓ' => 'S', 'Ｔ' => 'T', 'Ｕ' => 'U', 'Ｖ' => 'V', 'Ｗ' => 'W', 'Ｘ' => 'X', 'Ｙ' => 'Y', 'Ｚ' => 'Z',
-            'ａ' => 'a', 'ｂ' => 'b', 'ｃ' => 'c', 'ｄ' => 'd', 'ｅ' => 'e', 'ｆ' => 'f', 'ｇ' => 'g', 'ｈ' => 'h', 'ｉ' => 'i', 'ｊ' => 'j', 'ｋ' => 'k', 'ｌ' => 'l', 'ｍ' => 'm', 'ｎ' => 'n', 'ｏ' => 'o', 'ｐ' => 'p', 'ｑ' => 'q', 'ｒ' => 'r', 'ｓ' => 's', 'ｔ' => 't', 'ｕ' => 'u', 'ｖ' => 'v', 'ｗ' => 'w', 'ｘ' => 'x', 'ｙ' => 'y', 'ｚ' => 'z',
-            '（' => '(', '）' => ')', '〔' => '[', '〕' => ']', '【' => '[', '】' => ']', '〖' => '[', '〗' => ']', '｛' => '{', '｝' => '}', '％' => '%', '＋' => '+', '—' => '-', '－' => '-', '～' => '~', '：' => ':', '？' => '?', '！' => '!', '‖' => '|', '　' => ' ',
-            '｜' => '|', '〃' => '"',
-
             // 特殊字符转义
-            'base64_decode'        => 'ba&#115;e64_decode',
-            'call_user_func_array' => 'cal&#108;_user_func_array',
-            'call_user_func'       => 'cal&#108;_user_func',
-            'chown'                => 'ch&#111;wn',
-            'eval'                 => 'ev&#97;l',
-            'exec'                 => 'ex&#101;c',
-            'passthru'             => 'pa&#115;sthru',
-            'phpinfo'              => 'ph&#112;info',
-            'proc_open'            => 'pr&#111;c_open',
-            'popen'                => 'po&#112;en',
-            'shell_exec'           => 'sh&#101;ll_ex&#101;c',
-            'system'               => 'sy&#115;tem',
+            // 'base64_decode'        => 'ba&#115;e64_decode',
+            // 'call_user_func_array' => 'cal&#108;_user_func_array',
+            // 'call_user_func'       => 'cal&#108;_user_func',
+            // 'chown'                => 'ch&#111;wn',
+            // 'eval'                 => 'ev&#97;l',
+            // 'exec'                 => 'ex&#101;c',
+            // 'passthru'             => 'pa&#115;sthru',
+            // 'phpinfo'              => 'ph&#112;info',
+            // 'proc_open'            => 'pr&#111;c_open',
+            // 'popen'                => 'po&#112;en',
+            // 'shell_exec'           => 'sh&#101;ll_ex&#101;c',
+            // 'system'               => 'sy&#115;tem',
 
-            'select'               => '&#115;elect',
-            'drop'                 => 'dro&#112;',
-            'delete'               => 'd&#101;lete',
-            'create'               => 'cr#101;ate',
-            'update'               => 'updat#101;',
-            'insert'               => 'ins#101;rt',
-
-            // 特殊字符转HTML实体
-            '*' => '&lowast;', '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;', '`' => '&acute;',
-            // '“' => '&quot;', '”' => '&quot;', '‘' => '&acute;', '’' => '&acute;',
+            // 'select'               => '&#115;elect',
+            // 'drop'                 => 'dro&#112;',
+            // 'delete'               => 'd&#101;lete',
+            // 'create'               => 'cr#101;ate',
+            // 'update'               => 'updat#101;',
+            // 'insert'               => 'ins#101;rt',
         ];
+
         return str_replace(array_keys($pattern), array_values($pattern), $_str);
     }
 
@@ -286,26 +289,26 @@ class DataFilter
 
         $_str = (string) preg_replace([
             // 过滤有害HTML标签及内容
-            '/<html.*?>.*?<\/html.*?>/si', '/<(\/?html.*?)>/si',
-            '/<head.*?>.*?<\/head.*?>/si', '/<(\/?head)>/si',
-            '/<body.*?>.*?<\/body.*?>/si', '/<(\/?body.*?)>/si',
+            '/<html.*?>.*?<\/html.*?>/si',   '/<(\/?html.*?)>/si',
+            '/<head.*?>.*?<\/head.*?>/si',   '/<(\/?head)>/si',
+            '/<body.*?>.*?<\/body.*?>/si',   '/<(\/?body.*?)>/si',
             '/<title.*?>.*?<\/title.*?>/si', '/<(\/?title.*?)>/si',
             '/<link.*?\/?>/si',
             '/<meta.*?\/?>/si',
             '/<base.*?\/?>/si',
             '/<script.*?>.*?<\/script.*?>/si', '/<(\/?script.*?)>/si',
-            '/<style.*?>.*?<\/style.*?>/si', '/<(\/?style.*?)>/si',
+            '/<style.*?>.*?<\/style.*?>/si',   '/<(\/?style.*?)>/si',
             '/javascript:.*?[);]+/si',
 
-            '/<iframe.*?>.*?<\/iframe.*?>/si', '/<(\/?iframe.*?)>/si',
-            '/<frame.*?>.*?<\/frame.*?>/si', '/<(\/?frame.*?)>/si',
+            '/<iframe.*?>.*?<\/iframe.*?>/si',     '/<(\/?iframe.*?)>/si',
+            '/<frame.*?>.*?<\/frame.*?>/si',       '/<(\/?frame.*?)>/si',
             '/<frameset.*?>.*?<\/frameset.*?>/si', '/<(\/?frameset.*?)>/si',
-            '/<object.*?>.*?<\/object.*?>/si', '/<(\/?object.*?)>/si',
-            '/<xml.*?>.*?<\/xml.*?>/si', '/<(\/?xml.*?)>/si',
-            '/<embed.*?>.*?<\/embed.*?>/si', '/<(\/?embed.*?)>/si',
-            '/<ilayer.*?>.*?<\/ilayer.*?>/si', '/<(\/?ilayer.*?)>/si',
-            '/<layer.*?>.*?<\/layer.*?>/si', '/<(\/?layer.*?)>/si',
-            '/<bgsound.*?>.*?<\/bgsound.*?>/si', '/<(\/?bgsound.*?)>/si',
+            '/<object.*?>.*?<\/object.*?>/si',     '/<(\/?object.*?)>/si',
+            '/<xml.*?>.*?<\/xml.*?>/si',           '/<(\/?xml.*?)>/si',
+            '/<embed.*?>.*?<\/embed.*?>/si',       '/<(\/?embed.*?)>/si',
+            '/<ilayer.*?>.*?<\/ilayer.*?>/si',     '/<(\/?ilayer.*?)>/si',
+            '/<layer.*?>.*?<\/layer.*?>/si',       '/<(\/?layer.*?)>/si',
+            '/<bgsound.*?>.*?<\/bgsound.*?>/si',   '/<(\/?bgsound.*?)>/si',
             '/<\!\-\-.*?\-\->/s',
 
             // JS脚本注入

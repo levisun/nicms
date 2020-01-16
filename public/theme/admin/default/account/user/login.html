@@ -65,7 +65,6 @@
                                     data: data,
                                     success: function (res) {
                                         if (10000 == res.code) {
-                                            // jQuery.set_cookie('')
                                             if ('undefined' == typeof (res.return_url)) {
                                                 window.location.href = '/settings/dashboard/index.html';
                                                 // location.reload();

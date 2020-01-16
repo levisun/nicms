@@ -44,8 +44,8 @@ class CheckRequestCache
 
         if ($this->appName && 'api' !== $this->appName) {
             // 生成客户端cookie令牌
-            Session::has('client_token') or Session::set('client_token', Base64::client_id());
-            Cookie::has('SID') or Cookie::set('SID', Session::get('client_token'));
+            Session::has('client_id') or Session::set('client_id', Base64::client_id());
+            Cookie::has('SID') or Cookie::set('SID', Session::get('client_id'));
         }
 
         // 缓存KEY
@@ -79,7 +79,7 @@ class CheckRequestCache
             ];
             $content = str_replace(array_keys($pattern), array_values($pattern), $content);
             $response = Response::create($content);
-            $response->header(array_merge(['X-Powered-By' => 'NICACHE'], $response->getHeader()));
+            $response->header(array_merge(['X-Powered-By' => 'NI_F_CACHE'], $response->getHeader()));
             $response = $this->browserCache($response, $_request);
         }
 

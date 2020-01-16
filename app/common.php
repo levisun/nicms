@@ -123,7 +123,7 @@ if (!function_exists('authorization_meta')) {
         // 请求时间
         $time = Request::time();
         // 客户端token
-        $uid  = Session::has('client_token') ? Session::get('client_token') : sha1(Request::ip());
+        $uid  = Session::has('client_id') ? Session::get('client_id') : sha1(Request::ip());
         // 密钥
         $key = Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         $key = sha1(Base64::encrypt($key));

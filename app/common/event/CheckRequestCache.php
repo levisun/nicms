@@ -47,11 +47,20 @@ class CheckRequestCache
      */
     private function lock()
     {
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
-        $lock  = $path . md5(Request::ip()) . '.lock';
+        $lock = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
+        $lock .= md5(Request::ip()) . '.lock';
         if (is_file($lock)) {
             Log::write('[锁定]', 'alert');
-            $response = miss(502, false);
+
+            if (Request::isAjax() || Request::isPjax()) {
+                $response = Response::create([
+                    'code' => 444444,
+                    'msg'  => '锁定',
+                ], 'json')->allowCache(false);
+            } else {
+                $response = miss(502, false);
+            }
+
             throw new HttpResponseException($response);
         }
     }
@@ -78,7 +87,7 @@ class CheckRequestCache
         if (Request::isGet() && $ms = Request::server('HTTP_IF_MODIFIED_SINCE')) {
             if (strtotime($ms) >= Request::time()) {
                 $response = Response::create()->code(304);
-                $response->header(array_merge(['X-Powered-By' => 'NICACHE'], $response->getHeader()));
+                $response->header(array_merge(['X-Powered-By' => 'NI_B_CACHE'], $response->getHeader()));
                 throw new HttpResponseException($response);
             }
         }

@@ -63,7 +63,7 @@ class RecordRequestLog
     {
         // $run_time = number_format(microtime(true) - app()->getBeginTime(), 3);
         $run_time = number_format(microtime(true) - Request::time(true), 3);
-        $run_memory = number_format((memory_get_usage() - app()->getBeginMem()) / 1024 / 1024, 3) . 'mb ';
+        $run_memory = number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3) . 'mb ';
         $url = Request::ip() . ' ' . Request::method(true) . ' ' . Request::baseUrl(true);
         $params = Request::param()
             ? Request::except(['password', 'sign', '__token__', 'timestamp', 'sign_type', 'appid'])

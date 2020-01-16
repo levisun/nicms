@@ -59,7 +59,7 @@ API说明文档
 
 > `27002` server POST GET FILES 请求参数错误
 
-> `27003` session client_token 请求客户端令牌为空或错误
+> `27003` session client_id 请求客户端ID为空或错误
 
 > `30001` validate API方法数据校验器不存在
 

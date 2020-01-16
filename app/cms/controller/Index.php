@@ -52,9 +52,7 @@ class Index extends BaseController
      */
     public function index()
     {
-        $str = '<img target="_blank" href=https://mmbiz.weixin.com/mmbiz_png/pIvGTkGLzRLHhbHSib8ndxqs4ib9iaYXwAS0kM91krjdWp8x4N61egwibickSbw3ibvYOjbHUBtAry3CbIic5xgAPsC8A/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1 width="100" />';
-        return \app\common\library\DataFilter::element($str);
-        // return $this->fetch('index');
+        return $this->fetch('index');
     }
 
     /**
