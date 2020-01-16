@@ -47,13 +47,13 @@ class DataFilter
     }
 
     /**
-     * 内容过滤
+     * 内容过滤转义
      * @access public
      * @static
      * @param  string|array $_data
      * @return string|array
      */
-    public static function content($_data)
+    public static function encode($_data)
     {
         if (is_string($_data)) {
             $_data = self::safe($_data);
@@ -63,14 +63,14 @@ class DataFilter
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::content($value);
+                $_data[$key] = self::encode($value);
             }
         }
         return $_data;
     }
 
     /**
-     * 还原内容
+     * 内容解码
      * @access public
      * @static
      * @param  string|array $_data
@@ -79,9 +79,9 @@ class DataFilter
     public static function decode($_data)
     {
         if (is_string($_data)) {
-            $_data = trim($_data);
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
-            $_data = (new Emoji)->decode($_data);
+            $_data = self::element($_data);
+            $_data =  (new Emoji)->decode($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::decode($value);
@@ -158,7 +158,7 @@ class DataFilter
         $allowable_tags = '<a><audio><b><br><blockquote><center><dd><del><div><dl><dt><em><h1><h2><h3><h4><h5><h6><i><img><li><ol><p><pre><section><small><span><strong><table><tbody><td><th><thead><tr><u><ul><video>';
         $_str = strip_tags($_str, $allowable_tags);
 
-        return preg_replace_callback('/<\/?([a-zA-Z1-6]+)(.*?)\/?>/si', function ($matches) {
+        return preg_replace_callback('/<([a-zA-Z1-6]+)(.*?)\/?>/si', function ($matches) {
             $matches[2] = preg_replace_callback('/([a-zA-Z0-9-_]+)=["\']?(.*?)["\']?( )/si', function ($ema) {
                 $ema[1] = strtolower($ema[1]);
 
@@ -201,7 +201,7 @@ class DataFilter
                 }
             }, $matches[2] . ' ');
 
-            return '<' . trim($matches[1]) . ' ' . trim($matches[2]) . '>';
+            return '<' . trim($matches[1]) . rtrim($matches[2]) . '>';
         }, $_str);
     }
 
@@ -336,7 +336,7 @@ class DataFilter
             '/(=){4,}/s',
         ], '', $_str);
 
-        // 过滤前后字符与空格
+        // 过滤前斜杠,反斜杠,点避免非法目录操作
         $_str = trim($_str);
         $_str = trim(trim($_str, ',_-'));
         $_str = trim(ltrim($_str, '\/.'));

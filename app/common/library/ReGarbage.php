@@ -31,11 +31,9 @@ class ReGarbage
     public function remove(string $_dir, int $_expire)
     {
         // 过滤前后字符与空格
-        $_str = trim($_dir);
-        $_dir = trim(trim($_dir, ',_-'));
-        $_dir = trim(ltrim($_dir, '\/.'));
+        $_dir = DataFilter::filter($_dir);
 
-        $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_dir);
+        $_dir = DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_dir);
         $_dir .= DIRECTORY_SEPARATOR;
 
         $day = 0 === $_expire ? $_expire : strtotime('-' . $_expire . ' days');

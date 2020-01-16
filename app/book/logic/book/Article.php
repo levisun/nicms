@@ -61,7 +61,7 @@ class Article extends BaseLogic
                     $uri = $this->request->param('u');
                     $uri = Base64::decrypt($uri, date('Ymd'));
                     if ($sort_order && $title && $uri && $content = (new GatherBook)->getContent($uri)) {
-                        $content = DataFilter::content($content);
+                        $content = DataFilter::encode($content);
                         $ModelBookArticle = new ModelBookArticle;
                         $ModelBookArticle
                             ->data([

@@ -62,7 +62,9 @@ class Index extends BaseController
      */
     protected function authenticate(string &$_logic, string &$_action, string &$_method): void
     {
+        // 登录状态
         if ($this->session->has('admin_auth_key')) {
+            // 校验权限
             $result = (new Rbac)->authenticate(
                 $this->session->get('admin_auth_key'),
                 'admin',
@@ -71,16 +73,23 @@ class Index extends BaseController
                 $_method
             );
 
+            // 无权限重定向后台首页
             if (false === $result) {
                 $this->redirect('settings/dashboard/index');
             }
+
+            // 生成登录指纹[无序的字符权,只用于记录登录状态,无法参与任何业务逻辑操作]
+            $this->cookie->set('symbol', md5('admin_auth_key' . time()), ['httponly' => false]);
         }
 
-        elseif ($this->session->has('admin_auth_key') && $_logic === 'account') {
+        // 登录状态不再进入登录页
+        elseif ($this->session->has('admin_auth_key') && in_array($_method, ['login', 'forget'])) {
             $this->redirect('settings/dashboard/index');
         }
 
+        // 非登录状态只能进入登录页
         elseif (!$this->session->has('admin_auth_key') && !in_array($_method, ['login', 'forget'])) {
+            $this->cookie->delete('symbol');
             $this->redirect('account/user/login');
         }
     }
