@@ -62,8 +62,10 @@ class AppMaintain
                     } elseif (is_dir($dir . $file) && !in_array($file, ['screen', 'static', 'storage', 'theme'])) {
                         (new ReGarbage)->remove($dir . $file, 0);
                         @rmdir($dir . $file);
+                        Log::alert('[rmdir]' . $file);
                     } elseif (is_file($dir . $file) && !in_array($file, ['.htaccess', '.nginx', '.user.ini', '404.html', '502.html', 'favicon.ico', 'index.php', 'robots.txt', 'sitemap.xml'])) {
                         @unlink($dir . $file);
+                        Log::alert('[unlink]' . $file);
                     }
                 }
             });

@@ -37,6 +37,9 @@ Route::group(function () {
     // 详情页
     Route::get('details/:cid/:id$', 'Index/details')->ext('html');
 
+    // 跳转接口
+    Route::get('go$', 'Index/go')->ext('html');
+
     // 老版本兼容
     // Route::get('ipinfo$', '\app\api\controller\Ip@index')->ext('shtml');
 

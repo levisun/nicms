@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
-use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Log;
 use think\facade\Request;

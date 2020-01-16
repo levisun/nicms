@@ -156,7 +156,7 @@ class UploadFile
         $this->writeUploadLog($save_file);   // 记录上传文件日志
 
         if (false !== strpos($_files->getMime(), 'image/')) {
-            @ini_set('memory_limit', '256M');
+            @ini_set('memory_limit', '128M');
 
             $image = Image::open(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
 

@@ -71,25 +71,17 @@ class RecordRequestLog
         $params = array_filter($params);
         $params = !empty($params) ? PHP_EOL . json_encode($params, JSON_UNESCAPED_UNICODE) : '';
 
+        $log = '请求' . $run_time . 's, ' . $run_memory . $url . PHP_EOL;
+        $log .= Request::server('HTTP_REFERER') ? '来源' . Request::server('HTTP_REFERER') . PHP_EOL : '';
+        $log .= $params ? '参数' . trim(htmlspecialchars($params)) . PHP_EOL : '';
+
         $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec|php/si';
         if (0 !== preg_match($pattern, $params)) {
-            Log::warning(
-                '非法请求 ' . $run_time . 's, ' . $run_memory . $url . PHP_EOL .
-                '来源 ' . Request::server('HTTP_REFERER') . PHP_EOL .
-                '参数 ' . htmlspecialchars($params) . PHP_EOL
-            );
-        } elseif (2 <= $run_time) {
-            Log::warning(
-                '长请求 ' . $run_time . 's, ' . $run_memory . $url . PHP_EOL .
-                '来源 ' . Request::server('HTTP_REFERER') . PHP_EOL .
-                '参数 ' . htmlspecialchars($params) . PHP_EOL
-            );
+            Log::warning('非法' . $log);
+        } elseif (1 <= $run_time) {
+            Log::warning('长' . $log);
         } else {
-            Log::warning(
-                '请求 ' . $run_time . 's, ' . $run_memory . $url . PHP_EOL .
-                '来源 ' . Request::server('HTTP_REFERER') . PHP_EOL .
-                '参数 ' . htmlspecialchars($params) . PHP_EOL
-            );
+            Log::info($log);
         }
     }
 }

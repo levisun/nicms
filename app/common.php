@@ -17,7 +17,6 @@ use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
 use app\common\library\Base64;
-use app\common\library\DataFilter;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Hmac\Sha256;

@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
-use app\common\library\DataFilter;
+use think\facade\Log;
 
 class ReGarbage
 {
@@ -30,7 +30,11 @@ class ReGarbage
      */
     public function remove(string $_dir, int $_expire)
     {
-        $_dir = DataFilter::filter($_dir);
+        // 过滤前后字符与空格
+        $_str = trim($_dir);
+        $_dir = trim(trim($_dir, ',_-'));
+        $_dir = trim(ltrim($_dir, '\/.'));
+
         $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_dir);
         $_dir .= DIRECTORY_SEPARATOR;
 
@@ -55,10 +59,13 @@ class ReGarbage
             } elseif (is_dir($_dir . $file)) {
                 $this->clear($_dir . $file . DIRECTORY_SEPARATOR, $_time);
                 @rmdir($_dir . $file);
+                Log::alert('[rmdir] ' . $file);
             } elseif (is_file($_dir . $file) && 0 === $_time) {
                 @unlink($_dir . $file);
+                Log::alert('[unlink] ' . $file);
             } elseif (is_file($_dir . $file) && filemtime($_dir . $file) <= $_time) {
                 @unlink($_dir . $file);
+                Log::alert('[unlink] ' . $file);
             }
         }
 

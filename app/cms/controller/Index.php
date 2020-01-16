@@ -52,7 +52,9 @@ class Index extends BaseController
      */
     public function index()
     {
-        return $this->fetch('index');
+        $str = '<img target="_blank" href=https://mmbiz.weixin.com/mmbiz_png/pIvGTkGLzRLHhbHSib8ndxqs4ib9iaYXwAS0kM91krjdWp8x4N61egwibickSbw3ibvYOjbHUBtAry3CbIic5xgAPsC8A/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1 width="100" />';
+        return \app\common\library\DataFilter::element($str);
+        // return $this->fetch('index');
     }
 
     /**
@@ -68,7 +70,7 @@ class Index extends BaseController
                 ['category.is_show', '=', 1],
                 ['category.id', '=', $this->request->param('cid/d')],
             ])
-            ->cache(28800)
+            ->cache(true)
             ->find();
         if ($result && $result = $result->toArray()) {
             return $this->fetch($result['theme_name'] . '_list');
@@ -90,7 +92,7 @@ class Index extends BaseController
                 ['category.is_show', '=', 1],
                 ['category.id', '=', $this->request->param('cid/d')],
             ])
-            ->cache(28800)
+            ->cache(true)
             ->find();
         if ($result && $result = $result->toArray()) {
             return $this->fetch($result['theme_name'] . '_details');
@@ -107,5 +109,19 @@ class Index extends BaseController
     public function search()
     {
         return $this->fetch('search');
+    }
+
+    /**
+     * 跳转页
+     * @access public
+     * @return
+     */
+    public function go()
+    {
+        if ($url = $this->request->param('url', false)) {
+            return \think\Response::create(base64_decode($url), 'redirect', 302);
+        } else {
+            return miss(404);
+        }
     }
 }

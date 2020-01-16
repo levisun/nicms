@@ -53,7 +53,7 @@ class Canvas
                 // 缩略图不存在
                 // 创建缩略图
                 if (!is_file($path . $_file)) {
-                    @ini_set('memory_limit', '256M');
+                    @ini_set('memory_limit', '128M');
                     $image = Image::open($path . $_file);
                     // 原始尺寸大于指定缩略尺寸
                     if ($image->width() > $_size) {

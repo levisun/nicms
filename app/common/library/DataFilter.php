@@ -101,6 +101,39 @@ class DataFilter
      */
     public static function word(string $_data, int $_length = 0): array
     {
+        $_data = self::filter($_data);
+
+        // 匹配出中文
+        $_data = json_encode($_data);
+        if (false !== preg_match_all('/\\\u[4-9a-f]{1}[0-9a-f]{3}/si', $_data, $matches)) {
+            $matches = !empty($matches[0]) ? implode('', $matches[0]) : '';
+            $_data = $matches ? json_decode('"' . $matches . '"') : '';
+
+            // 分词
+            @ini_set('memory_limit', '128M');
+            $path = app()->getRootPath() . 'vendor/lizhichao/word/Data/dict.json';
+            define('_VIC_WORD_DICT_PATH_', $path);
+            $fc = new \Lizhichao\Word\VicWord('json');
+            $_data = $_data ? $fc->getAutoWord($_data) : [];
+            unset($fc);
+
+            // 取出有效词
+            foreach ($_data as $key => $value) {
+                if (1 < mb_strlen($value[0], 'UTF-8')) {
+                    $_data[$key] = $value[0];
+                } else {
+                    unset($_data[$key]);
+                }
+            }
+            // 过滤重复词
+            $_data = array_unique($_data);
+
+            // 如果设定长度,返回对应长度数组
+            return $_length ? array_slice($_data, 0, $_length) : $_data;
+        } else {
+            return [];
+        }
+
         // 过滤标点
         $pattern = '/[~!@#$%^&\*()_+-={}|\[\]\\\:";\\\'<>\?,.\/]/si';
         $_data = preg_replace($pattern, '', self::filter($_data));
@@ -112,33 +145,6 @@ class DataFilter
             '┌', '┍', '┎', '┏', '┐', '┑', '┒', '┓', '─', '┄', '┈', '├', '┝', '┞', '┟', '┠', '┡', '┢', '┣', '│', '┆', '┊', '┬', '┭', '┮', '┯', '┰', '┱', '┲', '┳', '┼', '┽', '┾', '┿', '╀', '╁', '╂', '╃', '└', '┕', '┖', '┗', '┘', '┙', '┚', '┛', '━', '┅', '┉', '┤', '┥', '┦', '┧', '┨', '┩', '┪', '┫', '┃', '┇', '┋', '┴', '┵', '┶', '┷', '┸', '┹', '┺', '┻', '╄', '╅', '╆', '╇', '╈', '╉', '╊', '╋',
             '§', '№', '☆', '★', '○', '●', '◎', '◇', '◆', '□', '■', '△', '▲', '※', '→', '←', '↑', '↓', '〓', '＃', '＆', '＠', '＼', '＾', '＿', '￣', '―', '♂', '♀',
         ];
-        if ($_data = str_replace($pattern, '', trim($_data))) {
-            // 分词
-            @ini_set('memory_limit', '256M');
-            $path = app()->getRootPath() . 'vendor/lizhichao/word/Data/dict.json';
-            define('_VIC_WORD_DICT_PATH_', $path);
-            $fc = new \Lizhichao\Word\VicWord('json');
-            $_data = $fc->getAutoWord($_data);
-            unset($fc);
-
-            // 过滤有效词
-            foreach ($_data as $key => $value) {
-                if (1 < mb_strlen($value[0], 'utf-8')) {
-                    $_data[$key] = $value[0];
-                } else {
-                    unset($_data[$key]);
-                }
-            }
-            // 过滤重复词
-            $_data = array_unique($_data);
-            // 排序
-            sort($_data);
-
-            // 如果设定长度,返回对应长度数组
-            return $_length ? array_slice($_data, 0, $_length) : $_data;
-        } else {
-            return [];
-        }
     }
 
     /**
@@ -148,21 +154,21 @@ class DataFilter
      * @param  string $_str
      * @return string
      */
-    private static function element(string &$_str): string
+    public static function element(string &$_str): string
     {
         // 保留标签
         $allowable_tags = '<a><audio><b><br><blockquote><center><dd><del><div><dl><dt><em><h1><h2><h3><h4><h5><h6><i><img><li><ol><p><pre><section><small><span><strong><table><tbody><td><th><thead><tr><u><ul><video>';
         $_str = strip_tags($_str, $allowable_tags);
 
-        return preg_replace_callback('/<(\/)?([a-zA-Z1-6]+)(.*?)>/si', function ($matches) {
-            $matches[3] = preg_replace_callback('/([a-zA-Z0-9-_]+)=(.*?)( )/si', function ($ema) {
+        return preg_replace_callback('/<\/?([a-zA-Z1-6]+)(.*?)\/?>/si', function ($matches) {
+            $matches[2] = preg_replace_callback('/([a-zA-Z0-9-_]+)=["\']?(.*?)["\']?( )/si', function ($ema) {
                 $ema[1] = strtolower($ema[1]);
 
                 // 图片处理
                 if ('src' === $ema[1]) {
                     // 本地网络地址
                     if (false !== stripos($ema[2], Request::rootDomain())) {
-                        $ema[2] = preg_replace('/(http(s)?:\/\/)?([a-zA-Z.\/]+)(' . Request::rootDomain() . ')/si', '', $ema[2]);
+                        $ema[2] = parse_url($ema[2], PHP_URL_PATH) . '?' . parse_url($ema[2], PHP_URL_QUERY);
                     }
 
                     return $ema[2]
@@ -174,13 +180,13 @@ class DataFilter
                 if ('href' === $ema[1]) {
                     // 本地网络地址
                     if (false !== stripos($ema[2], Request::rootDomain())) {
-                        $ema[2] = preg_replace('/(http(s)?:\/\/)?([a-zA-Z.\/]+)(' . Request::rootDomain() . ')/si', '', $ema[2]);
+                        $ema[2] = parse_url($ema[2], PHP_URL_PATH) . '?' . parse_url($ema[2], PHP_URL_QUERY);
                         $ema[2] = '"' . $ema[2] . '" target="_blank"';
                     }
                     // 外链
                     elseif (0 === stripos($ema[2], 'http')) {
-                        $ema[2] = Config::get('app.api_host') . '/go.html?url=' . urlencode(base64_encode($ema[2]));
-                        $ema[2] = '"' . $ema[2] . '" target="_blank" rel="nofollow"';
+                        $ema[2] = Config::get('app.app_host') . url('go', ['q' => urlencode(base64_encode($ema[2]))]);
+                        $ema[2] = '"' . $ema[2] . '" rel="nofollow" target="_blank"';
                     }
 
                     return $ema[2]
@@ -195,9 +201,9 @@ class DataFilter
                 } else {
                     return;
                 }
-            }, $matches[3] . ' ');
+            }, $matches[2] . ' ');
 
-            return '<' . trim($matches[1]) . trim($matches[2]) . rtrim($matches[3]) . '>';
+            return '<' . trim($matches[1]) . ' ' . trim($matches[2]) . '>';
         }, $_str);
     }
 
@@ -259,9 +265,8 @@ class DataFilter
             'insert'               => 'ins#101;rt',
 
             // 特殊字符转HTML实体
-            '*' => '&lowast;', '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;',
-            '“' => '&quot;', '”' => '&quot;',
-            '`' => '&acute;', '‘' => '&acute;', '’' => '&acute;',
+            '*' => '&lowast;', '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;', '`' => '&acute;',
+            // '“' => '&quot;', '”' => '&quot;', '‘' => '&acute;', '’' => '&acute;',
         ];
         return str_replace(array_keys($pattern), array_values($pattern), $_str);
     }
@@ -281,25 +286,26 @@ class DataFilter
 
         $_str = (string) preg_replace([
             // 过滤有害HTML标签及内容
-            '/<html.*?>(.*?)<\/html.*?>/si', '/<(\/?html.*?)>/si',
-            '/<head.*?>(.*?)<\/head.*?>/si', '/<(\/?head)>/si',
-            '/<title.*?>(.*?)<\/title.*?>/si', '/<(\/?title.*?)>/si',
+            '/<html.*?>.*?<\/html.*?>/si', '/<(\/?html.*?)>/si',
+            '/<head.*?>.*?<\/head.*?>/si', '/<(\/?head)>/si',
+            '/<body.*?>.*?<\/body.*?>/si', '/<(\/?body.*?)>/si',
+            '/<title.*?>.*?<\/title.*?>/si', '/<(\/?title.*?)>/si',
             '/<link.*?\/?>/si',
             '/<meta.*?\/?>/si',
             '/<base.*?\/?>/si',
-            '/<script.*?>(.*?)<\/script.*?>/si', '/<(\/?script.*?)>/si',
-            '/<style.*?>(.*?)<\/style.*?>/si', '/<(\/?style.*?)>/si',
-            '/<body.*?>(.*?)<\/body.*?>/si', '/<(\/?body.*?)>/si',
-            '/(javascript:)(.*?)(\))/si',
-            '/<iframe.*?>(.*?)<\/iframe.*?>/si',            '/<(\/?iframe.*?)>/si',
-            '/<frame.*?>(.*?)<\/frame.*?>/si',              '/<(\/?frame.*?)>/si',
-            '/<frameset.*?>(.*?)<\/frameset.*?>/si',        '/<(\/?frameset.*?)>/si',
-            '/<object.*?>(.*?)<\/object.*?>/si',            '/<(\/?object.*?)>/si',
-            '/<xml.*?>(.*?)<\/xml.*?>/si',                  '/<(\/?xml.*?)>/si',
-            '/<embed.*?>(.*?)<\/embed.*?>/si',              '/<(\/?embed.*?)>/si',
-            '/<ilayer.*?>(.*?)<\/ilayer.*?>/si',            '/<(\/?ilayer.*?)>/si',
-            '/<layer.*?>(.*?)<\/layer.*?>/si',              '/<(\/?layer.*?)>/si',
-            '/<bgsound.*?>(.*?)<\/bgsound.*?>/si',          '/<(\/?bgsound.*?)>/si',
+            '/<script.*?>.*?<\/script.*?>/si', '/<(\/?script.*?)>/si',
+            '/<style.*?>.*?<\/style.*?>/si', '/<(\/?style.*?)>/si',
+            '/javascript:.*?[);]+/si',
+
+            '/<iframe.*?>.*?<\/iframe.*?>/si', '/<(\/?iframe.*?)>/si',
+            '/<frame.*?>.*?<\/frame.*?>/si', '/<(\/?frame.*?)>/si',
+            '/<frameset.*?>.*?<\/frameset.*?>/si', '/<(\/?frameset.*?)>/si',
+            '/<object.*?>.*?<\/object.*?>/si', '/<(\/?object.*?)>/si',
+            '/<xml.*?>.*?<\/xml.*?>/si', '/<(\/?xml.*?)>/si',
+            '/<embed.*?>.*?<\/embed.*?>/si', '/<(\/?embed.*?)>/si',
+            '/<ilayer.*?>.*?<\/ilayer.*?>/si', '/<(\/?ilayer.*?)>/si',
+            '/<layer.*?>.*?<\/layer.*?>/si', '/<(\/?layer.*?)>/si',
+            '/<bgsound.*?>.*?<\/bgsound.*?>/si', '/<(\/?bgsound.*?)>/si',
             '/<\!\-\-.*?\-\->/s',
 
             // JS脚本注入
@@ -307,13 +313,13 @@ class DataFilter
             // '/on([a-zA-Z0-9 ]+)=([ a-zA-Z0-9_("\']+)(["\');]+)/si',
 
             // 过滤JS结构[ onclick="alert(1)" onload=eval(ssltest.title) ]在做修改时,请保证括号内代码成功过滤!有新结构体,请追加在括号内!
-            '/on[a-zA-z0-9 ]+=["\' ]?[a-zA-Z0-9_.(]+(.*?)\)?["\' ]?/si',
+            '/on[a-zA-z0-9 ]+=["\' ]?[a-zA-Z0-9_.(]+.*?\)?["\'; ]?/si',
             // 同上[ title=alert(1578859217) ]
-            '/=["\' ]?[a-zA-Z0-9_.]+\((.*?)\)/si',
+            '/=["\' ]?[a-zA-Z0-9_.]+\(.*?\)/si',
 
             // 过滤PHP代码
-            '/<\?php(.*?)\?>/si',
-            '/<\?(.*?)\?>/si',
+            '/<\?php.*?\?>/si',
+            '/<\?.*?\?>/si',
             '/<\?php/si',
             '/<\?/s',
             '/\?>/s',

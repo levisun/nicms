@@ -41,14 +41,15 @@ class CheckRequestCache
     {
         // 获得应用名
         $this->appName = app('http')->getName();
-        // 缓存KEY
-        $this->key = md5($this->appName . Lang::getLangSet() . $request->baseUrl(true));
 
         if ($this->appName && 'api' !== $this->appName) {
             // 生成客户端cookie令牌
             Session::has('client_token') or Session::set('client_token', Base64::client_id());
             Cookie::has('SID') or Cookie::set('SID', Session::get('client_token'));
         }
+
+        // 缓存KEY
+        $this->key = md5($this->appName . Lang::getLangSet() . $request->baseUrl(true));
 
         // 返回缓存
         if ($response = $this->readCache($request)) {
@@ -71,7 +72,7 @@ class CheckRequestCache
     private function readCache(Request &$_request)
     {
         $response = false;
-        if (false === app()->isDebug() && $this->appName && 'api' !== $this->appName && $content = Cache::get($this->key)) {
+        if (false === app()->isDebug() && $content = Cache::get($this->key)) {
             $pattern = [
                 '<meta name="csrf-authorization" content="" />' => authorization_meta(),
                 '<meta name="csrf-token" content="" />' => token_meta(),
@@ -100,15 +101,16 @@ class CheckRequestCache
             $_response->header(array_merge(['X-Powered-By' => 'NICMS'], $_response->getHeader()));
 
             if (200 == $_response->getCode() && $_request->isGet() && $_response->isAllowCache()) {
+                $_response = $this->browserCache($_response, $_request);
+
                 $content = $_response->getContent() . '<!-- ' . date('Y-m-d H:i:s') . ' -->';
                 $pattern = [
                     '/<meta name="csrf-authorization" content="(.*?)" \/>/si' => '<meta name="csrf-authorization" content="" />',
                     '/<meta name="csrf-token" content="(.*?)">/si' => '<meta name="csrf-token" content="" />',
                 ];
                 $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $content);
-                Cache::tag('request')->set($this->key, $content, mt_rand(2736, 2880));
 
-                $_response = $this->browserCache($_response, $_request);
+                Cache::tag('request')->set($this->key, $content);
             }
         }
 
