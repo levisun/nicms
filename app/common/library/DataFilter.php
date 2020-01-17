@@ -80,7 +80,6 @@ class DataFilter
     {
         if (is_string($_data)) {
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
-            $_data = self::element($_data);
             $_data =  (new Emoji)->decode($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
@@ -167,6 +166,7 @@ class DataFilter
                     // 本地网络地址
                     if (false !== stripos($ema[2], Request::rootDomain())) {
                         $ema[2] = parse_url($ema[2], PHP_URL_PATH) . '?' . parse_url($ema[2], PHP_URL_QUERY);
+                        $ema[2] = '?' === $ema[2] ? '/' : $ema[2];
                         $ema[2] = '"' . $ema[2] . '" target="_blank"';
                     }
                     // 外链

@@ -83,7 +83,9 @@
             }
         }
     });
-    fields.load(1);
+    let page = jQuery.get_url_query('page');
+        page = page ? page : 1;
+    fields.load(page);
     function paging(_p) {
         fields.load(_p);
     }

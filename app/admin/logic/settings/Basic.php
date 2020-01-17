@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\settings;
 
 use app\common\controller\BaseLogic;
+use app\common\library\DataFilter;
 use app\common\model\Config as ModelConfig;
 
 class Basic extends BaseLogic
@@ -42,7 +43,7 @@ class Basic extends BaseLogic
         $result = $result ? $result->toArray() : [];
 
         foreach ($result as $key => $value) {
-            $value['value'] = htmlspecialchars_decode($value['value']);
+            $value['value'] = DataFilter::decode($value['value']);
             $result[$value['name']] = $value['value'];
             unset($result[$key]);
         }
@@ -71,9 +72,9 @@ class Basic extends BaseLogic
             'cms_keywords'    => $this->request->param('cms_keywords'),
             'cms_description' => $this->request->param('cms_description'),
             'cms_footer'      => $this->request->param('cms_footer'),
-            'cms_copyright'   => $this->request->param('cms_copyright', '', 'trim,htmlspecialchars'),
+            'cms_copyright'   => $this->request->param('cms_copyright', '', '\app\common\library\DataFilter::encode'),
             'cms_beian'       => $this->request->param('cms_beian'),
-            'cms_script'      => $this->request->param('cms_script', '', 'strip_tags,trim,htmlspecialchars'),
+            'cms_script'      => $this->request->param('cms_script', '', '\app\common\library\DataFilter::encode'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;

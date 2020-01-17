@@ -161,6 +161,7 @@ if (!function_exists('url')) {
      */
     function url(string $_url = '', array $_vars = []): string
     {
-        return (string) Route::buildUrl('/' . $_url, $_vars)->suffix(true)->domain(false);
+        $_url = $_url ? '/' . $_url : '';
+        return (string) Route::buildUrl($_url, $_vars)->suffix(true)->domain(false);
     }
 }

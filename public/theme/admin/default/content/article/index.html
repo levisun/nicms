@@ -51,7 +51,7 @@
                             <a v-bind:href="vo.url.url" target="_blank" v-text="vo.title"></a>
                         </td>
                         <td>
-                            <a v-bind:href="vo.url.cat_url" v-text="vo.cat_name"></a>
+                            <a v-bind:href="vo.url.cat_url" target="_blank" v-text="vo.cat_name"></a>
                         </td>
                         <td v-text="vo.model_name"></td>
                         <td>
@@ -82,9 +82,9 @@
         el: '.box',
         data: {
             category_list: [],
-            category_id: typeof (NICMS.api.param.cid) == 'undefined' ? 0 : NICMS.api.param.cid,
+            category_id: 0,
             model_list: [],
-            model_id: typeof (NICMS.api.param.mid) == 'undefined' ? 0 : NICMS.api.param.mid,
+            model_id: 0,
             items: []
         },
         methods: {
@@ -181,7 +181,17 @@
     });
     article.loadCategory();
     article.loadModel();
-    article.load(1);
+
+    let cid = jQuery.get_url_query('cid');
+    article.category_id = cid ? cid : 0;
+
+    let mid = jQuery.get_url_query('mid');
+    article.model_id = mid ? mid : 0;
+
+    let page = jQuery.get_url_query('page');
+        page = page ? page : 1;
+    article.load(page);
+
     function paging(_p) {
         article.load(_p);
     }

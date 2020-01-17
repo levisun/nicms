@@ -200,15 +200,16 @@ class User extends BaseLogic
             if (null !== $result && $result = $result->toArray()) {
                 $result['last_login_time'] = date('Y-m-d H:i:s', (int) $result['last_login_time']);
                 $result['avatar'] = (new Canvas)->avatar('', $result['username']);
-                $result['id'] = Base64::encrypt($result['id']);
-                $result['role_id'] = Base64::encrypt($result['role_id']);
+                $result['id'] = Base64::encrypt((string) $result['id']);
+                $result['role_id'] = Base64::encrypt((string) $result['role_id']);
+                $result['app_debug'] = (int) $this->config->get('app.debug');
                 // unset($result['id'], $result['role_id']);
             }
         }
 
         return [
             'debug'  => false,
-            'cache'  => true,
+            'cache'  => false,
             'msg'    => 'success',
             'data'   => $result
         ];

@@ -198,13 +198,13 @@
         return md5(sign);
     };
 
-    jQuery.get_url_query = function () {
+    jQuery.get_url_query = function (name) {
         var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)');
 
         //search,查询？后面的参数，并匹配正则
-        var result = window.location.search.substr(1).match(reg);
+        var result = window.location.search ? window.location.search.substr(1).match(reg) : null;
         if (result != null) {
-            return unescape(r[2]);
+            return unescape(result[2]);
         } else {
             return null;
         }

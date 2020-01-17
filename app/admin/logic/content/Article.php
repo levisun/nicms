@@ -89,7 +89,7 @@ class Article extends BaseLogic
                     'remove' => url('content/article/remove/' . $value['id']),
 
                     // 栏目链接
-                    'cat_url' => url('list/' . $value['category_id']),
+                    'cat_url' => $this->config->get('app.app_host') . url('list/' . $value['category_id']),
                     // 文章链接
                     'url' => $this->config->get('app.app_host') . url('details/' . $value['category_id'] . '/' . $value['id']),
                 ];

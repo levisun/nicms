@@ -97,7 +97,9 @@
             }
         }
     });
-    admin.load(1);
+    let page = jQuery.get_url_query('page');
+        page = page ? page : 1;
+    admin.load(page);
     function paging(_p) {
         admin.load(_p);
     }

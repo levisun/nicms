@@ -57,7 +57,9 @@
             }
         }
     });
-    visit.load(1);
+    let page = jQuery.get_url_query('page');
+        page = page ? page : 1;
+    visit.load(page);
 
     function paging(_id) {
         visit.load(_id);
