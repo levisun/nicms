@@ -12,8 +12,9 @@
                 <template v-for="vo in items.list">
                     <tr>
                         <td>
-                            <font v-text="vo.ip"></font><br>
-                            [<font v-text="vo.ip_attr"></font>]
+                            <font v-if="vo.name" v-text="vo.name"></font>
+                            <font v-if="vo.ip" v-text="vo.ip"></font><br>
+                            <span v-if="vo.ip_attr">[<font v-text="vo.ip_attr"></font>]</span>
                         </td>
                         <td>
                             <font v-text="vo.count"></font>

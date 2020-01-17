@@ -51,64 +51,46 @@ class AccessLog
         $this->userAgent = DataFilter::filter($this->userAgent);
 
         if ($spider = $this->isSpider()) {
-            $has = (new ModelSearchengine)->where([
+            $has = (new ModelVisit)->where([
                 ['name', '=', $spider],
-                ['user_agent', '=', $this->userAgent],
                 ['date', '=', strtotime(date('Y-m-d'))]
-            ])
-                // ->cache(__METHOD__ . $spider . $this->userAgent)
-                ->value('name');
+            ])->value('name');
 
             if ($has) {
-                (new ModelSearchengine)->where([
+                (new ModelVisit)->where([
                     ['name', '=', $spider],
-                    ['user_agent', '=', $this->userAgent],
                     ['date', '=', strtotime(date('Y-m-d'))]
-                ])
-                    ->inc('count', 1, 60)
-                    ->update();
+                ])->inc('count', 1)->update();
             } else {
-                (new ModelSearchengine)->save([
-                    'name'       => $spider,
-                    'user_agent' => $this->userAgent,
-                    'date'       => strtotime(date('Y-m-d'))
+                (new ModelVisit)->save([
+                    'name' => $spider,
+                    'date' => strtotime(date('Y-m-d'))
                 ]);
             }
         } else {
             $ip = (new Ipinfo)->get(Request::ip());
             $has = (new ModelVisit)->where([
                 ['ip', '=', $ip['ip']],
-                ['user_agent', '=', $this->userAgent],
+                ['user_agent', '=', md5($this->userAgent)],
                 ['date', '=', strtotime(date('Y-m-d'))]
-            ])
-                // ->cache(__METHOD__ . $ip['ip'] . $this->userAgent)
-                ->value('ip');
+            ])->value('ip');
             if ($has) {
                 (new ModelVisit)->where([
                     ['ip', '=', $ip['ip']],
-                    ['user_agent', '=', $this->userAgent],
+                    ['user_agent', '=', md5($this->userAgent)],
                     ['date', '=', strtotime(date('Y-m-d'))]
-                ])
-                    ->inc('count', 1, 60)
-                    ->update();
+                ])->inc('count', 1)->update();
             } else {
                 (new ModelVisit)->save([
                     'ip'         => $ip['ip'],
                     'ip_attr'    => isset($ip['country']) ? $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'] : '',
-                    'user_agent' => $this->userAgent,
+                    'user_agent' => md5($this->userAgent),
                     'date'       => strtotime(date('Y-m-d'))
                 ]);
             }
         }
 
         if (1 === mt_rand(1, 9)) {
-            (new ModelSearchengine)
-                ->where([
-                    ['date', '<=', strtotime('-30 days')]
-                ])
-                ->limit(100)
-                ->delete();
-
             (new ModelVisit)
                 ->where([
                     ['date', '<=', strtotime('-30 days')]

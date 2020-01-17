@@ -275,17 +275,17 @@ class Template implements TemplateHandlerInterface
 
             // GET
             elseif ('GET' === $var_type) {
-                $vars = 'input("' . $var_name . '")';
+                $vars = 'input(\'' . $var_name . '\')';
             }
 
             // POST
             elseif ('POST' === $var_type) {
-                $vars = 'input("post.' . $var_name . '")';
+                $vars = 'input(\'post.' . $var_name . '\')';
             }
 
             // COOKIE
             elseif ('COOKIE' === $var_type) {
-                $vars = 'input("cookie.' . $var_name . '")';
+                $vars = 'input(\'cookie.' . $var_name . '\')';
             }
 
             // SESSION
@@ -315,8 +315,8 @@ class Template implements TemplateHandlerInterface
             }
 
             if (0 === stripos($vars, '$')) {
-                return '<?php echo isset(' . $vars . ') ? htmlspecialchars(' . $vars . ') : "";?>';
-            } else {
+                return '<?php echo isset(' . $vars . ') ? htmlspecialchars(' . $vars . ') : \'\';?>';
+            } elseif ($vars) {
                 return '<?php echo htmlspecialchars(' . $vars . ');?>';
             }
         }, $_content);
@@ -324,7 +324,7 @@ class Template implements TemplateHandlerInterface
         $regex = $this->getReplaceVars();
         $regex = '/(' . implode('|', array_keys($regex)) . ')/si';
         $_content = preg_replace_callback($regex, function ($matches) {
-            return '<?php echo isset($' . $matches[0] . ') ? $' . $matches[0] . ' : "";?>';
+            return '<?php echo isset($' . $matches[0] . ') ? $' . $matches[0] . ' : \'\';?>';
         }, $_content);
     }
 

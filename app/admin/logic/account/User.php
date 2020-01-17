@@ -200,13 +200,15 @@ class User extends BaseLogic
             if (null !== $result && $result = $result->toArray()) {
                 $result['last_login_time'] = date('Y-m-d H:i:s', (int) $result['last_login_time']);
                 $result['avatar'] = (new Canvas)->avatar('', $result['username']);
+                $result['id'] = Base64::encrypt($result['id']);
+                $result['role_id'] = Base64::encrypt($result['role_id']);
                 // unset($result['id'], $result['role_id']);
             }
         }
 
         return [
             'debug'  => false,
-            'cache'  => false,
+            'cache'  => true,
             'msg'    => 'success',
             'data'   => $result
         ];
@@ -236,14 +238,6 @@ class User extends BaseLogic
             ];
         }
 
-        // 错误日志
-        if (is_file($this->app->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR . date('Ymd') . '_error.log')) {
-            $result[] = [
-                'title' => $this->lang->get('program error message'),
-                'url'   => url('expand/elog/index')
-            ];
-        }
-
         // 垃圾信息
         $count = count((array) glob($this->app->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*'));
         if ($count >= 2000) {
@@ -255,7 +249,7 @@ class User extends BaseLogic
 
         return [
             'debug' => false,
-            'cache' => false,
+            'cache' => true,
             'msg'   => 'success',
             'data'  => [
                 'list'  => $result,

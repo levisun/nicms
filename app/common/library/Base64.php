@@ -92,14 +92,29 @@ class Base64
         return substr($_str, 0, $_length);
     }
 
-    public static function hexToId(string $_hex): int
+    /**
+     * 16进制转10进制
+     * @access public
+     * @static
+     * @param  string $_hex
+     * @return int
+     */
+    public static function hexdec(string $_hex): int
     {
-        return hexdec($_hex);
+        $_hex = hexdec($_hex);
+        return $_hex > 1000 ? $_hex - 1000 : $_hex;
     }
 
-    public static function idToHex(int $_id): string
+    /**
+     * 10进制转16进制
+     * @access public
+     * @static
+     * @param  int $_dec
+     * @return string
+     */
+    public static function dechex(int $_dec): string
     {
-        return dechex($_id);
+        return dechex($_dec + 1000);
     }
 
     /**

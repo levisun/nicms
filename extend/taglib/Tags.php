@@ -75,7 +75,7 @@ class Tags
 
         return
             '<!DOCTYPE html>' .
-            '<html lang="<?php echo app("lang")->getLangSet();?>">' .
+            '<html lang="<?php echo app(\'lang\')->getLangSet();?>">' .
             '<head>' .
             '<meta charset="UTF-8" />' .
 
@@ -90,7 +90,7 @@ class Tags
 
             '<meta name="author" content="levisun.mail@gmail.com" />' .
             '<meta name="generator" content="nicms" />' .
-            '<meta name="copyright" content="2013-<?php echo date("Y");?> nicms all rights reserved" />' .
+            '<meta name="copyright" content="2013-<?php echo date(\'Y\');?> nicms all rights reserved" />' .
 
             '<meta http-equiv="Window-target" content="_top">' .
 
@@ -115,20 +115,20 @@ class Tags
             '<meta property="og:image" content="">' .
 
             '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
-            '<link rel="dns-prefetch" href="' . config('app.api_host') . '" />' .
-            '<link rel="dns-prefetch" href="' . config('app.img_host') . '" />' .
-            '<link rel="dns-prefetch" href="' . config('app.cdn_host') . '" />' .
+            '<link rel="dns-prefetch" href="<?php echo config(\'app.api_host\');?>" />' .
+            '<link rel="dns-prefetch" href="<?php echo config(\'app.img_host\');?>" />' .
+            '<link rel="dns-prefetch" href="<?php echo config(\'app.cdn_host\');?>" />' .
 
-            '<link href="' . config('app.cdn_host') . '/favicon.ico" rel="shortcut icon" type="image/x-icon" />' .
+            '<link href="<?php echo config(\'app.img_host\');?>/favicon.ico" rel="shortcut icon" type="image/x-icon" />' .
 
             $head .
             '<script type="text/javascript">var NICMS = {' .
-                'domain:"//' . request()->subDomain() . '.' . request()->rootDomain() . '",' .
-                'rootDomain:"//' . request()->rootDomain() . '",' .
+                'domain:"//<?php echo request()->subDomain() . \'.\' . request()->rootDomain();?>",' .
+                'rootDomain:"//<?php echo request()->rootDomain();?>",' .
                 'url:"<?php echo request()->baseUrl(true);?>",' .
                 'api:{' .
-                    'url:"' . config('app.api_host') . '",' .
-                    'param:<?php echo json_encode(app("request")->param());?>' .
+                    'url:"<?php echo config(\'app.api_host\');?>",' .
+                    'param:<?php echo json_encode(app(\'request\')->param());?>' .
                 '},' .
                 'cdn:{' .
                     'static:"__STATIC__",' .

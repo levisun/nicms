@@ -45,7 +45,7 @@
         },
         methods: {
             load: function () {
-                if (!NICMS.api.param.key) {
+                if (!jQuery.get_url_query('key')) {
                     window.location.href = '/';
                     return;
                 }
@@ -54,7 +54,7 @@
                     method: 'get',
                     data: [
                         { name: 'method', value: 'article.search.query' },
-                        { name: 'key', value: NICMS.api.param.key },
+                        { name: 'key', value: jQuery.get_url_query('key') },
                     ],
                     success: function (result) {
                         if (10000 == result.code) {

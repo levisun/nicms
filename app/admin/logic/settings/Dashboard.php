@@ -113,14 +113,6 @@ class Dashboard extends BaseLogic
             ])
             ->find();
 
-        // 搜索引擎统计
-        $searchengine_total = (new ModelSearchengine)
-            ->field('max(count) as count')
-            ->where([
-                ['date', '=', strtotime(date('Y-m-d'))]
-            ])
-            ->find();
-
         // 文章统计
         $article_total = (new ModelArticle)
             ->where([
@@ -140,7 +132,6 @@ class Dashboard extends BaseLogic
             'ip_total' => $ip_total,
             'session_count' => number_format($session_count),
             'access_total'  => $access_total['count'] ? number_format($access_total['count']) : 0,
-            'searchengine_total' => $searchengine_total['count'] ? number_format($searchengine_total['count']) : 0,
             'article_count' => [
                 'total' => $article_total,
                 'pass' => $article_pass_total,

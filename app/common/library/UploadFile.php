@@ -146,10 +146,17 @@ class UploadFile
      */
     private function save(int &$_uid, \think\File &$_files): array
     {
+        // 文件保存目录
         $_dir = 'uploads' . DIRECTORY_SEPARATOR;
-        $_dir .= $_uid ? dechex($_uid + 1000) . DIRECTORY_SEPARATOR : '';
-        $_dir .= dechex((int) date('Y')) . DIRECTORY_SEPARATOR;
-        $_dir .= dechex((int) date('ym'));
+
+        // 用户目录[删除用户时可删除目录]
+        // 应用名第一个字符作为用户类型标记
+        $_dir .= $_uid
+            ? substr(app('http')->getName(), 0, 1) . Base64::dechex($_uid)
+            : 'guest';
+
+        // 子目录
+        $_dir .= DIRECTORY_SEPARATOR . Base64::dechex((int) date('Ym'));
 
         $save_path = Config::get('filesystem.disks.public.url') . '/';
         $save_file = $save_path . Filesystem::disk('public')->putFile($_dir, $_files, 'uniqid');
