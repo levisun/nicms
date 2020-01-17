@@ -23,6 +23,8 @@ use app\common\library\Rbac;
 class Index extends BaseController
 {
 
+    protected $authKey = 'admin_auth_key';
+
     /**
      * 初始化
      * @access public
@@ -63,10 +65,10 @@ class Index extends BaseController
     protected function authenticate(string &$_logic, string &$_action, string &$_method): void
     {
         // 登录状态
-        if ($this->session->has('admin_auth_key')) {
+        if ($this->session->has($this->authKey)) {
             // 校验权限
             $result = (new Rbac)->authenticate(
-                $this->session->get('admin_auth_key'),
+                $this->session->get($this->authKey),
                 'admin',
                 $_logic,
                 $_action,
@@ -77,19 +79,15 @@ class Index extends BaseController
             if (false === $result) {
                 $this->redirect('settings/dashboard/index');
             }
-
-            // 生成登录指纹[无序的字符权,只用于记录登录状态,无法参与任何业务逻辑操作]
-            $this->cookie->set('symbol', md5('admin_auth_key' . time()), ['httponly' => false]);
         }
 
         // 登录状态不再进入登录页
-        elseif ($this->session->has('admin_auth_key') && in_array($_method, ['login', 'forget'])) {
+        elseif ($this->session->has($this->authKey) && in_array($_method, ['login', 'forget'])) {
             $this->redirect('settings/dashboard/index');
         }
 
         // 非登录状态只能进入登录页
-        elseif (!$this->session->has('admin_auth_key') && !in_array($_method, ['login', 'forget'])) {
-            $this->cookie->delete('symbol');
+        elseif (!$this->session->has($this->authKey) && !in_array($_method, ['login', 'forget'])) {
             $this->redirect('account/user/login');
         }
     }

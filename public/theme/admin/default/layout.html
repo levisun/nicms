@@ -28,11 +28,4 @@ td > a {margin-right:15px;cursor:pointer}
 
     {include file="footer"}
 </div>
-<script>
-    let symbol = jQuery.get_cookie('symbol');
-    if (!symbol) {
-        location.href = NICMS.domain + "{:url('account/user/login')}";
-    }
-    console.log(symbol);
-</script>
 {tags:tpljs /}

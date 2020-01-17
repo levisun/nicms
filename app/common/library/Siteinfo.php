@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Cache;
-use think\facade\Config;
 use think\facade\Lang;
 use think\facade\Request;
 use app\common\model\Config as ModelConfig;
@@ -261,9 +260,6 @@ class Siteinfo
                 ['lang', '=', $this->langSet]
             ])
             ->value('value', 'default');
-        if ($result === 'default') {
-            \think\facade\Log::alert($this->appName . $this->langSet);
-        }
 
         return strip_tags(htmlspecialchars_decode($result));
     }

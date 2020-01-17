@@ -24,12 +24,6 @@ abstract class BaseController
 {
 
     /**
-     * 模板实例化方法
-     * @var object
-     */
-    protected $view = null;
-
-    /**
      * 应用实例
      * @var \think\App
      */
@@ -40,6 +34,12 @@ abstract class BaseController
      * @var \think\Config
      */
     protected $config;
+
+    /**
+     * Cookie实例
+     * @var \think\Cookie
+     */
+    protected $cookie;
 
     /**
      * request实例
@@ -54,6 +54,18 @@ abstract class BaseController
     protected $session;
 
     /**
+     * 模板实例化方法
+     * @var object
+     */
+    protected $view = null;
+
+    /**
+     * 权限认证KEY
+     * @var string
+     */
+    protected $authKey = 'user_auth_key';
+
+    /**
      * 构造方法
      * @access public
      * @param  App  $app  应用对象
@@ -63,9 +75,9 @@ abstract class BaseController
     {
         $this->app      = &$_app;
         $this->config   = &$this->app->config;
+        $this->cookie   = &$this->app->cookie;
         $this->request  = &$this->app->request;
         $this->session  = &$this->app->session;
-        $this->cookie   = &$this->app->cookie;
         $this->view     = &$this->app->view;
 
         // 加载语言包

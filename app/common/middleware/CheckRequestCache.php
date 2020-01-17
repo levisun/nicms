@@ -71,8 +71,17 @@ class CheckRequestCache
      */
     private function readCache(Request &$_request)
     {
-        $response = false;
-        if (false === app()->isDebug() && $content = Cache::get($this->key)) {
+        // 调试模式不读取缓存
+        if (true === app()->isDebug()) {
+            return false;
+        }
+
+        // 校验admin与user的权限
+        if (in_array($this->appName, ['admin', 'user']) && !Session::has($this->appName . '_auth_key')) {
+            return false;
+        }
+
+        if ($content = Cache::get($this->key)) {
             $pattern = [
                 '<meta name="csrf-authorization" content="" />' => authorization_meta(),
                 '<meta name="csrf-token" content="" />' => token_meta(),
@@ -81,9 +90,10 @@ class CheckRequestCache
             $response = Response::create($content);
             $response->header(array_merge(['X-Powered-By' => 'NI_F_CACHE'], $response->getHeader()));
             $response = $this->browserCache($response, $_request);
+            return $response;
         }
 
-        return $response;
+        return false;
     }
 
     /**
@@ -126,12 +136,12 @@ class CheckRequestCache
      */
     private function browserCache(Response &$_response, Request &$_request): Response
     {
-        if ($this->appName && !in_array($this->appName, ['admin', 'api', 'user'])) {
+        // if ($this->appName && !in_array($this->appName, ['admin', 'api', 'user'])) {
             $_response->allowCache(true)
                 ->cacheControl('max-age=1440,must-revalidate')
                 ->expires(gmdate('D, d M Y H:i:s', $_request->time() + 1440) . ' GMT')
                 ->lastModified(gmdate('D, d M Y H:i:s', $_request->time() + 1440) . ' GMT');
-        }
+        // }
 
         return $_response;
     }
