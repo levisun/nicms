@@ -19,7 +19,6 @@ namespace app\common\library;
 use think\facade\Request;
 use app\common\library\DataFilter;
 use app\common\library\Ipinfo;
-use app\common\model\Searchengine as ModelSearchengine;
 use app\common\model\Visit as ModelVisit;
 
 class AccessLog
@@ -55,7 +54,6 @@ class AccessLog
                 ['name', '=', $spider],
                 ['date', '=', strtotime(date('Y-m-d'))]
             ])->value('name');
-
             if ($has) {
                 (new ModelVisit)->where([
                     ['name', '=', $spider],

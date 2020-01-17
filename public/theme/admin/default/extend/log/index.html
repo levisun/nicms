@@ -4,13 +4,11 @@
             <thead>
                 <tr>
                     <th>
-                        {:lang('run user')}
-                        <br>
+                        {:lang('run user')}<br>
                         {:lang('ip')}/{:lang('date')}
                     </th>
                     <th>
-                        {:lang('run action')}
-                        <br>
+                        {:lang('run action')}<br>
                         {:lang('remark')}
                     </th>
                 </tr>
@@ -19,8 +17,9 @@
                 <template v-for="vo in items.list">
                     <tr>
                         <td>
-                            [<font v-text="vo.role_name"></font>]<font v-text="vo.username"></font><br>
-                            <font v-text="vo.action_ip"></font><font v-text="vo.create_time"></font>
+                            <font v-text="vo.username" v-bind:title="vo.role_name"></font><br>
+                            [<font v-text="vo.action_ip"></font>]<br>
+                            <font v-text="vo.create_time"></font>
                         </td>
                         <td>
                             <font v-text="vo.action_name"></font><br>
@@ -50,6 +49,7 @@
                     requestUrl: NICMS.url + '?page=' + _p,
                     data: [
                         { name: 'method', value: 'extend.log.query' },
+                        { name: 'date_format', value: 'm-d H:i:s' },
                         { name: 'page', value: _p }
                     ],
                     success: function (result) {
