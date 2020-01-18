@@ -760,10 +760,11 @@ abstract class Async
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'runtime' => date('Y-m-d H:i:s') . ',' .
-                number_format(microtime(true) - $this->app->getBeginTime(), 3) . 's,' .
-                number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . 'mb,' .
-                count(get_included_files()),
+            'runtime' => date('dHis') . ',' .
+                number_format(microtime(true) - $this->app->getBeginTime(), 3) . ',' .
+                number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . ',' .
+                count(get_included_files()) . ',' .
+                (true === $this->apiCache ? $this->apiExpire : 'no'),
 
             // 返回地址
             'return_url' => $this->session->has('return_url')

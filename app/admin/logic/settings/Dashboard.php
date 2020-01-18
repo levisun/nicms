@@ -51,8 +51,6 @@ class Dashboard extends BaseLogic
                     $this->lang->get('sys GD')        => $gd,
                     $this->lang->get('sys timezone')  => $this->config->get('app.default_timezone'),
                     $this->lang->get('sys timeout')   => ini_get('max_execution_time'),
-                    $this->lang->get('sys api')       => $this->config->get('app.api_host'),
-                    $this->lang->get('sys cdn')       => $this->config->get('app.cdn_host'),
                     $this->lang->get('sys lang')      => $this->config->get('lang.default_lang'),
                     $this->lang->get('sys copyright') => '失眠小枕头 [levisun.mail@gmail.com]',
                     $this->lang->get('sys upgrade')   => '',

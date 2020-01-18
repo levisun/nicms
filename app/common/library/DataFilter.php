@@ -139,7 +139,7 @@ class DataFilter
      * @param  string $_str
      * @return string
      */
-    public static function element(string &$_str): string
+    private static function element(string &$_str): string
     {
         // 保留标签
         $allowable_tags = '<a><audio><b><br><blockquote><center><dd><del><div><dl><dt><em><h1><h2><h3><h4><h5><h6><i><img><li><ol><p><pre><section><small><span><strong><table><tbody><td><th><thead><tr><u><ul><video>';
@@ -165,6 +165,7 @@ class DataFilter
                 if ('href' === $ema[1]) {
                     // 本地网络地址
                     if (false !== stripos($ema[2], Request::rootDomain())) {
+                        $ema[2] = rtrim($ema[2], '/');
                         $ema[2] = parse_url($ema[2], PHP_URL_PATH) . '?' . parse_url($ema[2], PHP_URL_QUERY);
                         $ema[2] = '?' === $ema[2] ? '/' : $ema[2];
                         $ema[2] = '"' . $ema[2] . '" target="_blank"';
@@ -173,6 +174,8 @@ class DataFilter
                     elseif (0 === stripos($ema[2], 'http')) {
                         $ema[2] = Config::get('app.app_host') . url('go', ['q' => urlencode(base64_encode($ema[2]))]);
                         $ema[2] = '"' . $ema[2] . '" rel="nofollow" target="_blank"';
+                    } else {
+                        $ema[2] = '"' . $ema[2] . '"';
                     }
 
                     return $ema[2]
