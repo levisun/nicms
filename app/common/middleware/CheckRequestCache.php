@@ -53,7 +53,7 @@ class CheckRequestCache
         $this->key = $this->appName . Lang::getLangSet() . $request->url(true);
 
         // 返回缓存
-        if ($response = $this->readCache()) {
+        if ($response = $this->readCache($request)) {
             return $response;
         }
 
@@ -67,9 +67,10 @@ class CheckRequestCache
     /**
      * 读取缓存
      * @access private
+     * @param  Request  $_request
      * @return false|Response
      */
-    private function readCache()
+    private function readCache(Request &$_request)
     {
         // 校验admin与user的权限
         if (in_array($this->appName, ['admin', 'user']) && !Session::has($this->appName . '_auth_key')) {
@@ -79,20 +80,25 @@ class CheckRequestCache
         if (Cache::has($this->key)) {
             $data = Cache::get($this->key);
 
-            // 非API应用跨域签名替换
-            if ('api' !== $this->appName) {
+            if ('api' === $this->appName) {
+                $response = Response::create($data['content']);
+                $response->header(array_merge(
+                    $data['header'],
+                    ['X-Powered-By' => 'NI_F_CACHE' . count(get_included_files())]
+                ));
+            } else {
                 $pattern = [
                     '<meta name="csrf-authorization" content="" />' => authorization_meta(),
                     '<meta name="csrf-token" content="" />' => token_meta(),
                 ];
                 $data['content'] = str_replace(array_keys($pattern), array_values($pattern), $data['content']);
+                $response = Response::create($data['content']);
+                $response->header(['X-Powered-By' => 'NI_F_CACHE' . count(get_included_files())]);
+                $response->allowCache(true)
+                    ->cacheControl('max-age=1440,must-revalidate')
+                    ->expires(gmdate('D, d M Y H:i:s', $_request->time() + 1440) . ' GMT')
+                    ->lastModified(gmdate('D, d M Y H:i:s', $_request->time() + 1440) . ' GMT');
             }
-
-            $response = Response::create($data['content']);
-            $response->header(array_merge(
-                $data['header'],
-                ['X-Powered-By' => 'NI_F_CACHE' . count(get_included_files())]
-            ));
 
             return $response;
         }
