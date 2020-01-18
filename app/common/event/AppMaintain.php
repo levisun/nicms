@@ -53,22 +53,63 @@ class AppMaintain
                 // 清除过期临时文件
                 (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1);
 
-                // 删除根目录多余文件
-                $dir = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
-                $files = is_dir($dir) ? scandir($dir) : [];
-                foreach ($files as $file) {
-                    if ('.' === $file || '..' === $file) {
-                        continue;
-                    } elseif (is_dir($dir . $file) && !in_array($file, ['screen', 'static', 'storage', 'theme'])) {
-                        (new ReGarbage)->remove($dir . $file, 0);
-                        @rmdir($dir . $file);
-                        Log::alert('[rmdir]' . $file);
-                    } elseif (is_file($dir . $file) && !in_array($file, ['.htaccess', '.nginx', '.user.ini', '404.html', '502.html', 'favicon.ico', 'index.php', 'robots.txt', 'sitemap.xml'])) {
-                        @unlink($dir . $file);
-                        Log::alert('[unlink]' . $file);
-                    }
-                }
+                $this->reRootDirOrFile();
             });
+        }
+    }
+
+    /**
+     * 保证网站根目录整洁
+     * @access private
+     * @return void
+     */
+    private function reRootDirOrFile(): void
+    {
+        $keep = [
+            '.', '..',
+            'screen', 'static', 'storage', 'theme',
+            '.htaccess', '.nginx', '.user.ini',
+            '404.html', '502.html', 'favicon.ico',
+            'index.php',
+            'robots.txt', 'sitemap.xml',
+        ];
+
+        // 删除根目录多余文件
+        $dir = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+        $files = is_dir($dir) ? scandir($dir) : [];
+        foreach ($files as $dir_file) {
+            // 跳过保留目录
+            if (in_array($dir_file, $keep)) {
+                continue;
+            }
+
+            if (is_dir($dir . $dir_file)) {
+                (new ReGarbage)->remove($dir . $dir_file, 0);
+                @rmdir($dir . $dir_file);
+            } elseif (is_file($dir . $dir_file)) {
+                @unlink($dir . $dir_file);
+            }
+        }
+
+        // 删除screen目录多余文件
+        $dir .= 'screen' . DIRECTORY_SEPARATOR;
+        $files = is_dir($dir) ? scandir($dir) : [];
+        foreach ($files as $dir_file) {
+            // 跳过
+            if (in_array($dir_file, ['.', '..', 'index.html'])) {
+                continue;
+            }
+            // 跳过保留目录
+            if (is_file($dir . $dir_file . DIRECTORY_SEPARATOR . '.keep.ini')) {
+                continue;
+            }
+
+            if (is_dir($dir . $dir_file)) {
+                (new ReGarbage)->remove($dir . $dir_file, 0);
+                @rmdir($dir . $dir_file);
+            } elseif (is_file($dir . $dir_file)) {
+                @unlink($dir . $dir_file);
+            }
         }
     }
 }
