@@ -15,6 +15,5 @@
 return [
     // 跨域
     \app\common\middleware\AllowCrossDomain::class,
-    // 请求缓存在\app\common\event\CheckRequest::class中定义
-    // 请勿使用\app\common\middleware\CheckRequestCache::class中间件
+    \app\common\middleware\CheckRequestCache::class,
 ];

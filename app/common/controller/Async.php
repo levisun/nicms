@@ -787,13 +787,15 @@ abstract class Async
         $result = array_filter($result);
 
         $response = Response::create($result, $this->format)->allowCache(false);
-        $response->header(array_merge(['X-Powered-By' => 'NIAPI'], $response->getHeader()));
+        $response->header(array_merge(
+            $response->getHeader(),
+            ['X-Powered-By' => 'NIAPI' . count(get_included_files())]
+        ));
         if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
-            $time = time() + $this->apiExpire;
             $response->allowCache(true)
                 ->cacheControl('max-age=' . $this->apiExpire . ',must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $time) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $time) . ' GMT')
+                ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + $this->apiExpire) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + $this->apiExpire) . ' GMT')
                 ->eTag(md5($this->method ?: $this->request->ip()));
         }
 

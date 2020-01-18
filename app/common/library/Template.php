@@ -92,15 +92,15 @@ class Template implements TemplateHandlerInterface
     {
         $this->app = &$app;
 
-        // 默认值
-        $this->config['compile_path'] = app()->getRuntimePath() . 'compile' . DIRECTORY_SEPARATOR;
-        $this->config['view_path'] = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR;
-        $this->config['tpl_compile'] = (bool) !env('app_debug', false);
-        $this->config['app_name'] = $this->app->http->getName() . DIRECTORY_SEPARATOR;
-
         // 合并配置
         $_config = DataFilter::filter($_config);
         $this->config = array_merge($this->config, $_config);
+
+        // 系统配置
+        $this->config['compile_path'] = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR . $this->app->http->getName() . DIRECTORY_SEPARATOR;
+        $this->config['view_path'] = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR;
+        $this->config['tpl_compile'] = (bool) !env('app_debug', false);
+        $this->config['app_name'] = $this->app->http->getName() . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -201,8 +201,9 @@ class Template implements TemplateHandlerInterface
         }
 
         // 模板Replace变量
-        $replace = $this->getReplaceVars($_data);
+        $replace = $this->getReplaceVars();
         $_data = !empty($replace) ? array_merge($_data, $replace) : $_data;
+        $_data['__DEBUG__'] = $this->app->config->get('app.debug');
         extract($_data, EXTR_OVERWRITE);
 
         //载入模版缓存文件

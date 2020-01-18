@@ -64,6 +64,7 @@ class RecordRequestLog
         // $run_time = number_format(microtime(true) - app()->getBeginTime(), 3);
         $run_time = number_format(microtime(true) - Request::time(true), 3);
         $run_memory = number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3) . 'mb ';
+        $load_total = count(get_included_files()) . ' ';
         $url = Request::ip() . ' ' . Request::method(true) . ' ' . Request::baseUrl(true);
         $params = Request::param()
             ? Request::except(['password', 'sign', '__token__', 'timestamp', 'sign_type', 'appid'])
@@ -71,7 +72,7 @@ class RecordRequestLog
         $params = array_filter($params);
         $params = !empty($params) ? PHP_EOL . json_encode($params, JSON_UNESCAPED_UNICODE) : '';
 
-        $log = '请求' . $run_time . 's, ' . $run_memory . $url . PHP_EOL;
+        $log = '请求' . $run_time . 's, ' . $run_memory . $load_total . $url . PHP_EOL;
         $log .= Request::server('HTTP_REFERER') ? '来源' . Request::server('HTTP_REFERER') . PHP_EOL : '';
         $log .= $params ? '参数' . trim(htmlspecialchars($params)) . PHP_EOL : '';
 

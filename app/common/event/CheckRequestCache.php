@@ -29,10 +29,10 @@ class CheckRequestCache
     {
         // 频繁或非法请求将被锁定
         $this->lock();
-        // 非域名进入302跳转
-        $this->_302();
+        // IP进入显示空页面
+        $this->ipRequest();
         // 304缓存
-        $this->_304();
+        $this->cache304();
 
         if (1 === mt_rand(1, 999)) {
             Log::write('[命运]' . htmlspecialchars(Request::url(true)), 'alert');
@@ -66,28 +66,41 @@ class CheckRequestCache
     }
 
     /**
-     * 非域名进入302跳转
+     * IP进入显示空页面
      * @return void
      */
-    private function _302(): void
+    private function ipRequest(): void
     {
         $domain = Request::subDomain() . '.' . Request::rootDomain();
         if (false !== filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            $response = Response::create(Config::get('app.app_host'), 'redirect', 302);
+            $response = Response::create();
             throw new HttpResponseException($response);
         }
+    }
+
+    /**
+     * 302跳转
+     * @return void
+     */
+    private function redirect(): void
+    {
+        // $response = Response::create(Config::get('app.app_host'), 'redirect', 302);
+        // throw new HttpResponseException($response);
     }
 
     /**
      * 304缓存
      * @return void
      */
-    private function _304(): void
+    private function cache304(): void
     {
         if (Request::isGet() && $ms = Request::server('HTTP_IF_MODIFIED_SINCE')) {
             if (strtotime($ms) >= Request::time()) {
                 $response = Response::create()->code(304);
-                $response->header(array_merge(['X-Powered-By' => 'NI_B_CACHE'], $response->getHeader()));
+                $response->header(array_merge(
+                    $response->getHeader(),
+                    ['X-Powered-By' => 'NI_B_CACHE' . count(get_included_files())]
+                ));
                 throw new HttpResponseException($response);
             }
         }

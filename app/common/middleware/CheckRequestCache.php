@@ -18,6 +18,7 @@ namespace app\common\middleware;
 
 use Closure;
 use think\facade\Cache;
+use think\facade\Config;
 use think\facade\Cookie;
 use think\facade\Lang;
 use think\facade\Session;
@@ -42,17 +43,17 @@ class CheckRequestCache
         // 获得应用名
         $this->appName = app('http')->getName();
 
-        if ($this->appName && 'api' !== $this->appName) {
+        if ('api' !== $this->appName) {
             // 生成客户端cookie令牌
             Session::has('client_id') or Session::set('client_id', Base64::client_id());
             Cookie::has('SID') or Cookie::set('SID', Session::get('client_id'));
         }
 
         // 缓存KEY
-        $this->key = md5($this->appName . Lang::getLangSet() . $request->baseUrl(true));
+        $this->key = $this->appName . Lang::getLangSet() . $request->url(true);
 
         // 返回缓存
-        if ($response = $this->readCache($request)) {
+        if ($response = $this->readCache()) {
             return $response;
         }
 
@@ -66,30 +67,33 @@ class CheckRequestCache
     /**
      * 读取缓存
      * @access private
-     * @param  Request $_request
      * @return false|Response
      */
-    private function readCache(Request &$_request)
+    private function readCache()
     {
-        // 调试模式不读取缓存
-        if (true === app()->isDebug()) {
-            return false;
-        }
-
         // 校验admin与user的权限
         if (in_array($this->appName, ['admin', 'user']) && !Session::has($this->appName . '_auth_key')) {
             return false;
         }
 
-        if ($content = Cache::get($this->key)) {
-            $pattern = [
-                '<meta name="csrf-authorization" content="" />' => authorization_meta(),
-                '<meta name="csrf-token" content="" />' => token_meta(),
-            ];
-            $content = str_replace(array_keys($pattern), array_values($pattern), $content);
-            $response = Response::create($content);
-            $response->header(array_merge(['X-Powered-By' => 'NI_F_CACHE'], $response->getHeader()));
-            $response = $this->browserCache($response, $_request);
+        if (Cache::has($this->key)) {
+            $data = Cache::get($this->key);
+
+            // 非API应用跨域签名替换
+            if ('api' !== $this->appName) {
+                $pattern = [
+                    '<meta name="csrf-authorization" content="" />' => authorization_meta(),
+                    '<meta name="csrf-token" content="" />' => token_meta(),
+                ];
+                $data['content'] = str_replace(array_keys($pattern), array_values($pattern), $data['content']);
+            }
+
+            $response = Response::create($data['content']);
+            $response->header(array_merge(
+                $data['header'],
+                ['X-Powered-By' => 'NI_F_CACHE' . count(get_included_files())]
+            ));
+
             return $response;
         }
 
@@ -105,43 +109,36 @@ class CheckRequestCache
      */
     private function writeCache(Response &$_response, Request &$_request): Response
     {
-        // API有独立缓存定义,请勿开启缓存
-        if ($this->appName && 'api' !== $this->appName) {
-            $_response->allowCache(!app()->isDebug());
-            $_response->header(array_merge(['X-Powered-By' => 'NICMS'], $_response->getHeader()));
+        if (200 == $_response->getCode() && $_request->isGet() && false === app()->isDebug()) {
+            // 获得缓存时间
+            $expire = Config::get('cache.stores.' . Config::get('cache.default') . '.expire');
 
-            if (200 == $_response->getCode() && $_request->isGet() && $_response->isAllowCache()) {
-                $_response = $this->browserCache($_response, $_request);
+            // API应用判断执行方法是否进行缓存
+            // 非API应用添加浏览器header信息,跨域签名替换
+            if ('api' === $this->appName) {
+                if ($expire = $_response->getHeader('Cache-control')) {
+                    $expire = (int) str_replace(['max-age=', ',must-revalidate'], '', $expire);
+                } else {
+                    return $_response;
+                }
+            } else {
+                $_response->allowCache(true)
+                    ->cacheControl('max-age=' . $expire . ',must-revalidate')
+                    ->expires(gmdate('D, d M Y H:i:s', $_request->time() + $expire) . ' GMT')
+                    ->lastModified(gmdate('D, d M Y H:i:s', $_request->time() + $expire) . ' GMT');
 
-                $content = $_response->getContent() . '<!-- ' . date('Y-m-d H:i:s') . ' -->';
                 $pattern = [
-                    '/<meta name="csrf-authorization" content="(.*?)" \/>/si' => '<meta name="csrf-authorization" content="" />',
-                    '/<meta name="csrf-token" content="(.*?)">/si' => '<meta name="csrf-token" content="" />',
+                    '/<meta name="csrf-authorization" content=".*?" \/>/si' => '<meta name="csrf-authorization" content="" />',
+                    '/<meta name="csrf-token" content=".*?">/si' => '<meta name="csrf-token" content="" />',
                 ];
-                $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $content);
-
-                Cache::tag('request')->set($this->key, $content);
+                $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $_response->getContent());
             }
+
+            Cache::tag('request')->set($this->key, [
+                'content' => isset($content) ? $content : $_response->getContent(),
+                'header' => $_response->getHeader()
+            ], $expire);
         }
-
-        return $_response;
-    }
-
-    /**
-     * 浏览器缓存信息
-     * @access private
-     * @param  Response $_response
-     * @param  Request  $_request
-     * @return Response
-     */
-    private function browserCache(Response &$_response, Request &$_request): Response
-    {
-        // if ($this->appName && !in_array($this->appName, ['admin', 'api', 'user'])) {
-            $_response->allowCache(true)
-                ->cacheControl('max-age=1440,must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $_request->time() + 1440) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $_request->time() + 1440) . ' GMT');
-        // }
 
         return $_response;
     }
