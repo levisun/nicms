@@ -48,7 +48,7 @@ class AppMaintain
                 Log::alert('[REGARBAGE] ' . app('http')->getName() . '应用维护');
 
                 // 清除过期缓存文件
-                (new ReGarbage)->remove(app()->getRuntimePath() . 'cache', 1);
+                (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'cache', 1);
 
                 // 清除过期临时文件
                 (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1);

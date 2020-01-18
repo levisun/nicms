@@ -223,7 +223,7 @@ abstract class BaseLogic
 
     /**
      * 删除文件
-     * @access protected
+     * @access public
      * @param  string $_file
      * @return void
      */
@@ -234,7 +234,7 @@ abstract class BaseLogic
 
     /**
      * 写入日志
-     * @access protected
+     * @access public
      * @param  string $_file
      * @return void
      */
@@ -245,12 +245,14 @@ abstract class BaseLogic
 
     /**
      * 上传文件
-     * @access protected
+     * @access public
      * @param  string $_element 表单名 默认upload
      * @return array
      */
-    protected function uploadFile(): array
+    public function upload(): array
     {
+        $this->actionLog('admin_upload_file', 'admin upload image');
+
         if ($this->request->isPost() && !empty($_FILES) && $this->uid) {
             $element = $this->request->param('element', 'upload');
             $thumb = [

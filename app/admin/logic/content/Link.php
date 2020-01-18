@@ -74,18 +74,4 @@ class Link extends BaseLogic
             ]
         ];
     }
-
-
-
-    /**
-     * 上传图片
-     * @access public
-     * @return array
-     */
-    public function upload(): array
-    {
-        $this->actionLog(__METHOD__, 'admin link upload image');
-
-        return $this->uploadFile();
-    }
 }

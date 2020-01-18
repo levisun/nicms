@@ -500,16 +500,4 @@ class Article extends BaseLogic
             'msg'   => 'success'
         ];
     }
-
-    /**
-     * 上传图片
-     * @access public
-     * @return array
-     */
-    public function upload(): array
-    {
-        $this->actionLog(__METHOD__, 'admin article upload image');
-
-        return $this->uploadFile();
-    }
 }

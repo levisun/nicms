@@ -95,7 +95,7 @@ class MyUploadAdapter {
         data.append('method', 'content.article.upload');
         data.append('width', 100);
         data.append('height', 100);
-        data.append('water', false);
+        data.append('water', 0);
         data.append('typeOption', 'upload_image');
 
         var newData = [];
@@ -104,7 +104,7 @@ class MyUploadAdapter {
         newData.push({ name: 'method', value: 'content.article.upload' });
         newData.push({ name: 'width', value: 100 });
         newData.push({ name: 'height', value: 100 });
-        newData.push({ name: 'water', value: false });
+        newData.push({ name: 'water', value: 0 });
         newData.push({ name: 'typeOption', value: 'upload_image' });
 
         data.append('sign', jQuery.sign(newData));
