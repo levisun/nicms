@@ -123,9 +123,9 @@ class CheckRequestCache
                 }
             } else {
                 $_response->allowCache(true)
-                    ->cacheControl('max-age=' . $expire . ',must-revalidate')
-                    ->expires(gmdate('D, d M Y H:i:s', $_request->time() + $expire) . ' GMT')
-                    ->lastModified(gmdate('D, d M Y H:i:s', $_request->time() + $expire) . ' GMT');
+                    ->cacheControl('max-age=1440,must-revalidate')
+                    ->expires(gmdate('D, d M Y H:i:s', $_request->time() + 1440) . ' GMT')
+                    ->lastModified(gmdate('D, d M Y H:i:s', $_request->time() + 1440) . ' GMT');
 
                 $pattern = [
                     '/<meta name="csrf-authorization" content=".*?" \/>/si' => '<meta name="csrf-authorization" content="" />',
