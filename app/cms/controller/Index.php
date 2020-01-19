@@ -62,16 +62,17 @@ class Index extends BaseController
      */
     public function category()
     {
-        $result = (new ModelCategory)->view('category', ['id'])
+        $model_name = (new ModelCategory)->view('category', ['id'])
             ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
             ->where([
                 ['category.is_show', '=', 1],
                 ['category.id', '=', $this->request->param('cid/d')],
             ])
             ->cache(true)
-            ->find();
-        if ($result && $result = $result->toArray()) {
-            return $this->fetch($result['theme_name'] . '_list');
+            ->value('model.name');
+
+        if ($model_name) {
+            return $this->fetch($model_name . '_list');
         } else {
             return miss(404);
         }
@@ -84,16 +85,17 @@ class Index extends BaseController
      */
     public function details()
     {
-        $result = (new ModelCategory)->view('category', ['id'])
+        $model_name = (new ModelCategory)->view('category', ['id'])
             ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
             ->where([
                 ['category.is_show', '=', 1],
                 ['category.id', '=', $this->request->param('cid/d')],
             ])
             ->cache(true)
-            ->find();
-        if ($result && $result = $result->toArray()) {
-            return $this->fetch($result['theme_name'] . '_details');
+            ->value('model.name');
+
+        if ($model_name) {
+            return $this->fetch($model_name . '_details');
         } else {
             return miss(404);
         }

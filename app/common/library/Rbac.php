@@ -185,7 +185,7 @@ class Rbac
                     ['level', '=', $_level],
                     ['pid', '=', $_pid],
                 ])
-                ->cache('NODE_FOUNDER' . $_uid . $_level . $_pid)
+                ->cache('NODE_FOUNDER' . $_uid . $_level . $_pid, null, 'SYSTEM')
                 ->select();
         } else {
             $result = (new ModelNode)
@@ -198,6 +198,7 @@ class Rbac
                     ['node.level', '=', $_level],
                     ['node.pid', '=', $_pid],
                 ])
+                ->cache('NODE' . $_uid . $_level . $_pid, null, 'SYSTEM')
                 ->select();
         }
 

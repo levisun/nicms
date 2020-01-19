@@ -143,7 +143,7 @@ class CheckRequestCache
             Cache::tag('request')->set($this->key, [
                 'content' => isset($content) ? $content : $_response->getContent(),
                 'header' => $_response->getHeader()
-            ], $expire);
+            ], $expire - 10);
         }
 
         return $_response;

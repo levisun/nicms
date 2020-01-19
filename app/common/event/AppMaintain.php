@@ -87,6 +87,7 @@ class AppMaintain
                 (new ReGarbage)->remove($dir . $dir_file, 0);
                 @rmdir($dir . $dir_file);
             } elseif (is_file($dir . $dir_file)) {
+                Log::alert('[unlink] ' . $dir_file);
                 @unlink($dir . $dir_file);
             }
         }
@@ -108,6 +109,7 @@ class AppMaintain
                 (new ReGarbage)->remove($dir . $dir_file, 0);
                 @rmdir($dir . $dir_file);
             } elseif (is_file($dir . $dir_file)) {
+                Log::alert('[unlink] ' . $dir_file);
                 @unlink($dir . $dir_file);
             }
         }

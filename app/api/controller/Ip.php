@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\api\controller;
 
 use think\Response;
+use think\exception\HttpResponseException;
 use app\common\controller\Async;
 use app\common\library\Ipinfo;
 
@@ -26,6 +27,13 @@ class Ip extends Async
 
     public function index()
     {
+        // 解决没有传IP参数,缓存造成的缓存错误
+        if (!$ip = $this->request->param('ip', false)) {
+            $url = $this->request->baseUrl(true) . '?ip=' . $this->request->ip();
+            $response = Response::create($url, 'redirect', 302);
+            throw new HttpResponseException($response);
+        }
+
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
         if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
             $ip = (new Ipinfo)->get($ip);
