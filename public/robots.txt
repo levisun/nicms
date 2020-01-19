@@ -1,4 +1,5 @@
 User-agent: *
+Disallow: /screen/*
 Disallow: /static/*
 Disallow: /storage/*
 Disallow: /theme/*

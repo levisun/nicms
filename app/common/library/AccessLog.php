@@ -47,7 +47,6 @@ class AccessLog
     public function record(): void
     {
         $this->userAgent = strtolower(Request::server('HTTP_USER_AGENT'));
-        $this->userAgent = DataFilter::filter($this->userAgent);
 
         if ($spider = $this->isSpider()) {
             $has = (new ModelVisit)->where([
