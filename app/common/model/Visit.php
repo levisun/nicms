@@ -46,6 +46,7 @@ class Visit extends Model
     protected $field = [
         'id',
         'date',
+        'name',
         'ip',
         'ip_attr',
         'user_agent',

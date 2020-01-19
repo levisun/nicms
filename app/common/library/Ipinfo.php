@@ -47,7 +47,7 @@ class Ipinfo
             'isp'         => '',
         ];
 
-        if ($_ip && false !== filter_var($_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && $this->validate($_ip)) {
+        if ($_ip && $this->validate($_ip)) {
             $cache_key = md5(__METHOD__ . $_ip);
             if (!Cache::has($cache_key)) {
                 // 查询IP地址库
@@ -85,34 +85,38 @@ class Ipinfo
      */
     private function validate(string $_ip): bool
     {
-        $_ip = explode('.', $_ip);
-        if (count($_ip) == 4) {
-            foreach ($_ip as $key => $value) {
-                if ($value != '') {
-                    $_ip[$key] = (int) $value;
-                } else {
-                    return false;
-                }
-            }
-
-            // 保留IP地址段
-            // a类 10.0.0.0~10.255.255.255
-            // b类 172.16.0.0~172.31.255.255
-            // c类 192.168.0.0~192.168.255.255
-            if ($_ip[0] == 0 || $_ip[0] == 10 || $_ip[0] == 255) {
-                return false;
-            } elseif ($_ip[0] == 172 && $_ip[1] >= 16 && $_ip[1] <= 31) {
-                return false;
-            } elseif ($_ip[0] == 127 && $_ip[1] == 0) {
-                return false;
-            } elseif ($_ip[0] == 192 && $_ip[1] == 168) {
-                return false;
-            } else {
-                return true;
-            }
-        } else {
+        // 判断合法IP
+        if (false === filter_var($_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             return false;
         }
+
+        // 保留IP地址段
+        $_ip = explode('.', $_ip);
+        $_ip = array_map(function ($value) {
+            return (int) $value;
+        }, $_ip);
+
+        // a类 10.0.0.0~10.255.255.255
+        if (10 == $_ip[0]) {
+            return false;
+        }
+
+        // b类 172.16.0.0~172.31.255.255
+        if (172 == $_ip[0] && 16 <= $_ip[0] && 31 >= $_ip[1]) {
+            return false;
+        }
+
+        // c类 192.168.0.0~192.168.255.255
+        if (192 == $_ip[0] && 168 == $_ip[1]) {
+            return false;
+        }
+
+        // d类 224.0.0.0 - 239.255.255.255
+        if (224 <= $_ip[0] && 239 >= $_ip[0]) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

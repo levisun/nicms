@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
-use think\facade\Log;
 use think\facade\Request;
+use app\common\library\AccessLog;
 
 class RecordRequestLog
 {
@@ -52,39 +52,8 @@ class RecordRequestLog
 
 
 
-        $this->recordLog();
-    }
-
-    /**
-     * 请求日志
-     * @return void
-     */
-    private function recordLog()
-    {
-        // $run_time = number_format(microtime(true) - app()->getBeginTime(), 3);
-        $run_time = number_format(microtime(true) - Request::time(true), 3);
-        $run_memory = number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3) . 'mb ';
-        $load_total = count(get_included_files()) . ' ';
-        $url = Request::ip() . ' ' . Request::method(true) . ' ' . Request::url(true);
-        $params = Request::param()
-            ? Request::except(['password', 'sign', '__token__', 'timestamp', 'sign_type', 'appid'])
-            : [];
-        $params = array_filter($params);
-        $params = !empty($params) ? PHP_EOL . json_encode($params, JSON_UNESCAPED_UNICODE) : '';
-
-        $log = '请求' . $run_time . 's, ' . $run_memory . $load_total . PHP_EOL;
-        $log .= $url . PHP_EOL;
-        $log .= Request::server('HTTP_REFERER') ? Request::server('HTTP_REFERER') . PHP_EOL : '';
-        $log .= Request::server('HTTP_USER_AGENT') . PHP_EOL;
-        $log .= $params ? trim(htmlspecialchars($params)) . PHP_EOL : '';
-
-        $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec|php/si';
-        if (0 !== preg_match($pattern, $params)) {
-            Log::warning('非法' . $log);
-        } elseif (1 <= $run_time) {
-            Log::warning('长' . $log);
-        } else {
-            Log::info($log);
-        }
+        // 搜索蜘蛛日志
+        (new AccessLog)->spider();
+        (new AccessLog)->log();
     }
 }

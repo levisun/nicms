@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use think\facade\Log;
 use think\facade\Request;
-use app\common\library\DataFilter;
 use app\common\library\Ipinfo;
 use app\common\model\Visit as ModelVisit;
 
@@ -32,12 +32,10 @@ class AccessLog
         'YAHOO'          => 'yahoo! slurp;',
         'Yahoo China'    => 'yahoo! slurp china;',
         'IASK'           => 'iaskspider',
-        'SOGOU'          => 'sogou web spider',
-        'SOGOU'          => 'sogou push spider',
+        'SOGOU WEB'      => 'sogou web spider',
+        'SOGOU PUSH'     => 'sogou push spider',
         'YISOU'          => 'yisouspider',
-
     ];
-    private $userAgent = '';
 
     /**
      * 记录访问
@@ -46,9 +44,56 @@ class AccessLog
      */
     public function record(): void
     {
-        $this->userAgent = strtolower(Request::server('HTTP_USER_AGENT'));
+        $user_agent = strtolower(Request::server('HTTP_USER_AGENT'));
 
-        if ($spider = $this->isSpider()) {
+        $ip = (new Ipinfo)->get(Request::ip());
+        $has = (new ModelVisit)->where([
+            ['ip', '=', $ip['ip']],
+            ['user_agent', '=', md5($user_agent)],
+            ['date', '=', strtotime(date('Y-m-d'))]
+        ])->value('ip');
+        if ($has) {
+            (new ModelVisit)->where([
+                ['ip', '=', $ip['ip']],
+                ['user_agent', '=', md5($user_agent)],
+                ['date', '=', strtotime(date('Y-m-d'))]
+            ])->inc('count', 1)->update();
+        } else {
+            (new ModelVisit)->save([
+                'ip'         => $ip['ip'],
+                'ip_attr'    => isset($ip['country']) ? $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'] : '',
+                'user_agent' => md5($user_agent),
+                'date'       => strtotime(date('Y-m-d'))
+            ]);
+        }
+
+        if (1 === mt_rand(1, 9)) {
+            (new ModelVisit)
+                ->where([
+                    ['date', '<=', strtotime('-30 days')]
+                ])
+                ->limit(100)
+                ->delete();
+        }
+    }
+
+    /**
+     * 判断搜索引擎蜘蛛
+     * @access public
+     * @return void
+     */
+    public function spider(): void
+    {
+        $user_agent = strtolower(Request::server('HTTP_USER_AGENT'));
+        $spider = false;
+        foreach ($this->searchengine as $key => $value) {
+            if (0 !== preg_match('/(' . $value . ')/si', $user_agent)) {
+                $spider = $key;
+                continue;
+            }
+        }
+
+        if ($spider) {
             $has = (new ModelVisit)->where([
                 ['name', '=', $spider],
                 ['date', '=', strtotime(date('Y-m-d'))]
@@ -64,52 +109,40 @@ class AccessLog
                     'date' => strtotime(date('Y-m-d'))
                 ]);
             }
-        } else {
-            $ip = (new Ipinfo)->get(Request::ip());
-            $has = (new ModelVisit)->where([
-                ['ip', '=', $ip['ip']],
-                ['user_agent', '=', md5($this->userAgent)],
-                ['date', '=', strtotime(date('Y-m-d'))]
-            ])->value('ip');
-            if ($has) {
-                (new ModelVisit)->where([
-                    ['ip', '=', $ip['ip']],
-                    ['user_agent', '=', md5($this->userAgent)],
-                    ['date', '=', strtotime(date('Y-m-d'))]
-                ])->inc('count', 1)->update();
-            } else {
-                (new ModelVisit)->save([
-                    'ip'         => $ip['ip'],
-                    'ip_attr'    => isset($ip['country']) ? $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'] : '',
-                    'user_agent' => md5($this->userAgent),
-                    'date'       => strtotime(date('Y-m-d'))
-                ]);
-            }
-        }
-
-        if (1 === mt_rand(1, 9)) {
-            (new ModelVisit)
-                ->where([
-                    ['date', '<=', strtotime('-30 days')]
-                ])
-                ->limit(100)
-                ->delete();
         }
     }
 
-
     /**
-     * 判断搜索引擎蜘蛛
+     * 请求日志
      * @access public
-     * @return mixed
+     * @return void
      */
-    public function isSpider()
+    public function log(): void
     {
-        foreach ($this->searchengine as $key => $value) {
-            if (preg_match('/(' . $value . ')/si', $this->userAgent)) {
-                return $key;
-            }
+        // $run_time = number_format(microtime(true) - app()->getBeginTime(), 3);
+        $run_time = number_format(microtime(true) - Request::time(true), 3);
+        $run_memory = number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3) . 'mb ';
+        $load_total = count(get_included_files()) . ' ';
+        $url = Request::ip() . ' ' . Request::method(true) . ' ' . Request::url(true);
+        $params = Request::param()
+            ? Request::except(['password', 'sign', '__token__', 'timestamp', 'sign_type', 'appid'])
+            : [];
+        $params = array_filter($params);
+        $params = !empty($params) ? PHP_EOL . json_encode($params, JSON_UNESCAPED_UNICODE) : '';
+
+        $log = '请求' . $run_time . 's, ' . $run_memory . $load_total . PHP_EOL;
+        $log .= $url . PHP_EOL;
+        $log .= Request::server('HTTP_REFERER') ? Request::server('HTTP_REFERER') . PHP_EOL : '';
+        $log .= Request::server('HTTP_USER_AGENT') . PHP_EOL;
+        $log .= $params ? trim(htmlspecialchars($params)) . PHP_EOL : '';
+
+        $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec|php/si';
+        if (0 !== preg_match($pattern, $params)) {
+            Log::warning('非法' . $log);
+        } elseif (1 <= $run_time) {
+            Log::warning('长' . $log);
+        } else {
+            Log::info($log);
         }
-        return false;
     }
 }

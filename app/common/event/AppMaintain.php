@@ -29,20 +29,19 @@ class AppMaintain
 
     public function handle()
     {
-        if ($app_name = app('http')->getName()) {
-            if ('api' !== $app_name) {
-                // 生成网站地图
-                (new Sitemap)->create();
+        $app_name = app('http')->getName();
+        if ('api' !== $app_name) {
+            // 生成网站地图
+            (new Sitemap)->create();
 
-                // 清除上传垃圾文件
-                (new UploadFile)->ReGarbage();
+            // 清除上传垃圾文件
+            (new UploadFile)->ReGarbage();
 
-                // 数据库优化|修复
-                (new DataManage)->optimize();
+            // 数据库优化|修复
+            (new DataManage)->optimize();
 
-                // 数据库备份
-                // (new DataManage)->autoBackup();
-            }
+            // 数据库备份
+            // (new DataManage)->autoBackup();
 
             only_execute($app_name . '_remove_garbage.lock', '-4 hour', function () {
                 Log::alert('[REGARBAGE] ' . app('http')->getName() . '应用维护');

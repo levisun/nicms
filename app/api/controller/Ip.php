@@ -29,15 +29,15 @@ class Ip extends Async
     {
         // 解决没有传IP参数,缓存造成的缓存错误
         if (!$ip = $this->request->param('ip', false)) {
+            $_ip = rand(43, 223) . '.' . rand(1, 255) . '.' . rand(1, 255) . '.' . rand(1, 255);
+            (new Ipinfo)->get($_ip);
             $url = $this->request->baseUrl(true) . '?ip=' . $this->request->ip();
             $response = Response::create($url, 'redirect', 302);
             throw new HttpResponseException($response);
         }
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
-        if (false !== filter_var($ip, FILTER_VALIDATE_IP)) {
-            $ip = (new Ipinfo)->get($ip);
-
+        if ($ip = (new Ipinfo)->get($ip)) {
             if ($this->request->param('json', false)) {
                 return $this->cache(true)->success('IP', $ip);
             } else {

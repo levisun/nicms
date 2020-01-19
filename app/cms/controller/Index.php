@@ -52,7 +52,9 @@ class Index extends BaseController
      */
     public function index()
     {
-        return $this->fetch('index');
+        (new \app\common\library\AccessLog)->record();
+
+        // return $this->fetch('index');
     }
 
     /**

@@ -76,7 +76,7 @@ class Breadcrumb extends BaseLogic
 
         if (null !== $result && $result = $result->toArray()) {
             $result['id'] = (int) $result['id'];
-            $result['image'] = (new Canvas)->image($result['image']);
+            $result['image'] = (new Canvas)->image((string) $result['image']);
             $result['flag'] = Base64::flag($result['id'], 7);
             $result['url'] = url('list/' . $result['id']);
             if ($result['access_id']) {
@@ -86,7 +86,9 @@ class Breadcrumb extends BaseLogic
 
             if ($result['pid']) {
                 $this->parentCate((int) $result['pid']);
-                $this->bread[$result['pid']]['child'] = $result['id'];
+                if (isset($this->bread[$result['pid']])) {
+                    $this->bread[$result['pid']]['child'] = $result['id'];
+                }
             }
             $this->bread[$result['id']] = $result;
         }

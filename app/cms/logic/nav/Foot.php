@@ -51,7 +51,7 @@ class Foot extends BaseLogic
             foreach ($result as $key => $value) {
                 $value['id'] = (int) $value['id'];
                 $value['child'] = $this->child($value['id'], 3);
-                $value['image'] = (new Canvas)->image($value['image']);
+                $value['image'] = (new Canvas)->image((string) $value['image']);
                 $value['flag'] = Base64::flag($value['id'], 7);
                 $value['url'] = url('list/' . $value['id']);
                 if ($value['access_id']) {
@@ -100,7 +100,7 @@ class Foot extends BaseLogic
         foreach ($result as $key => $value) {
             $value['id'] = (int) $value['id'];
             $value['child'] = $this->child($value['id'], 3);
-            $value['image'] = (new Canvas)->image($value['image']);
+            $value['image'] = (new Canvas)->image((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             $value['url'] = url('list/' . $value['id']);
             if ($value['access_id']) {

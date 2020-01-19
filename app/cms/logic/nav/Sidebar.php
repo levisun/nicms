@@ -51,7 +51,7 @@ class Sidebar extends BaseLogic
                 if (null !== $result && $result = $result->toArray()) {
                     $result['id'] = (int) $result['id'];
                     $result['child'] = $this->child($result['id']);
-                    $result['image'] = (new Canvas)->image($result['image']);
+                    $result['image'] = (new Canvas)->image((string) $result['image']);
                     $result['flag'] = Base64::flag($result['id'], 7);
                     $result['url'] = url('list/' . $result['id']);
                     if ($result['access_id']) {
@@ -99,7 +99,7 @@ class Sidebar extends BaseLogic
         foreach ($result as $key => $value) {
             $value['id'] = (int) $value['id'];
             $value['child'] = $this->child($value['id']);
-            $value['image'] = (new Canvas)->image($value['image']);
+            $value['image'] = (new Canvas)->image((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             $value['url'] = url('list/' . $value['action_name'] . '/' . $value['id']);
             if ($value['access_id']) {
