@@ -272,7 +272,7 @@ class Ipinfo
 
         $headers = array('content-type: application/x-www-form-urlencoded;charset=UTF-8');
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curl, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+        curl_setopt($curl, CURLOPT_USERAGENT, Request::server('HTTP_USER_AGENT'));
         $result = curl_exec($curl);
 
         if ($result) {

@@ -43,7 +43,7 @@ class CheckRequestCache
         // 获得应用名
         $this->appName = app('http')->getName();
 
-        if ('api' !== $this->appName) {
+        if ($this->appName && 'api' !== $this->appName) {
             // 生成客户端cookie令牌
             Session::has('client_id') or Session::set('client_id', Base64::client_id());
             Cookie::has('SID') or Cookie::set('SID', Session::get('client_id'));

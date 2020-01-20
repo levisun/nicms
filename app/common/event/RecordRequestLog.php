@@ -50,10 +50,9 @@ class RecordRequestLog
             fclose($fp);
         }
 
-
-
         // 搜索蜘蛛日志
         (new AccessLog)->spider();
+        // (new AccessLog)->api();
         (new AccessLog)->log();
     }
 }

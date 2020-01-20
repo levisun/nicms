@@ -38,7 +38,7 @@ class AccessLog
     ];
 
     /**
-     * 记录访问
+     * 记录访问日志
      * @access public
      * @return void
      */
@@ -78,7 +78,7 @@ class AccessLog
     }
 
     /**
-     * 判断搜索引擎蜘蛛
+     * 搜索引擎蜘蛛日志
      * @access public
      * @return void
      */
@@ -106,6 +106,34 @@ class AccessLog
             } else {
                 (new ModelVisit)->save([
                     'name' => $spider,
+                    'date' => strtotime(date('Y-m-d'))
+                ]);
+            }
+        }
+    }
+
+    /**
+     * API请求日志
+     * @access public
+     * @return void
+     */
+    public function api(): void
+    {
+        $app_name = app('http')->getName();
+        if ($app_name && 'api' === $app_name) {
+            $method = 'API: ' . pathinfo(Request::baseUrl(), PATHINFO_BASENAME);
+            $has = (new ModelVisit)->where([
+                ['name', '=', $method],
+                ['date', '=', strtotime(date('Y-m-d'))]
+            ])->value('name');
+            if ($has) {
+                (new ModelVisit)->where([
+                    ['name', '=', $method],
+                    ['date', '=', strtotime(date('Y-m-d'))]
+                ])->inc('count', 1)->update();
+            } else {
+                (new ModelVisit)->save([
+                    'name' => $method,
                     'date' => strtotime(date('Y-m-d'))
                 ]);
             }

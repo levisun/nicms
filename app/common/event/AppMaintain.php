@@ -30,7 +30,7 @@ class AppMaintain
     public function handle()
     {
         $app_name = app('http')->getName();
-        if ('api' !== $app_name) {
+        if ($app_name && 'api' !== $app_name) {
             // 生成网站地图
             (new Sitemap)->create();
 
