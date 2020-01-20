@@ -70,7 +70,6 @@ class Breadcrumb extends BaseLogic
             ->where([
                 ['category.is_show', '=', 1],
                 ['category.id', '=', $_pid],
-                ['category.lang', '=', $this->lang->getLangSet()]
             ])
             ->find();
 

@@ -229,21 +229,11 @@
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',
                     data: [
-                        { name: 'method', value: 'content.cache.recache' }
+                        { name: 'method', value: 'content.cache.request' }
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
-                        }
-                    }
-                });
-                jQuery.pjax({
-                    url: NICMS.api.url + '/handle.do',
-                    type: 'POST',
-                    data: [
-                        { name: 'method', value: 'content.cache.recompile' }
-                    ],
-                    success: function (result) {
-                        if (result.code == 10000) {
+                            jQuery.uiToast(res.message);
                         }
                     }
                 });

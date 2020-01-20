@@ -29,7 +29,8 @@
             <template v-for="vo in user_auth">
                 <li v-bind:class="NICMS.api.param.logic==vo.name ? 'treeview active' : 'treeview'">
                     <a href="#">
-                        <i v-bind:class="sidebar.icon[vo.name]"></i> <span v-text="vo.lang"></span>
+                        <i v-bind:class="icons[vo.name]"></i>
+                        <span v-text="vo.lang"></span>
                         <span class="pull-right-container">
                             <i class="fa fa-angle-left pull-right"></i>
                         </span>
@@ -50,7 +51,7 @@
     let sidebar = new Vue({
         el: '.main-sidebar',
         data: {
-            icon: {
+            icons: {
                 settings: 'fa fa-gear',
                 theme: 'fa fa-dashboard',
                 category: 'fa fa-navicon',

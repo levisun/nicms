@@ -127,8 +127,8 @@ class ArticleBase extends BaseLogic
                         ->view('fields_extend', ['data'])
                         ->view('fields', ['name' => 'fields_name'], 'fields.id=fields_extend.fields_id')
                         ->where([
-                            ['fields.category_id', '=', $value['category_id']],
                             ['fields_extend.article_id', '=', $value['id']],
+                            ['fields.category_id', '=', $value['category_id']],
                         ])
                         ->select()
                         ->toArray();
@@ -138,10 +138,10 @@ class ArticleBase extends BaseLogic
 
                     // 标签
                     $value['tags'] = (new ModelArticleTags)
-                        ->view('article_tags article', ['tags_id'])
-                        ->view('tags tags', ['name'], 'tags.id=article.tags_id')
+                        ->view('article_tags', ['tags_id'])
+                        ->view('tags tags', ['name'], 'tags.id=article_tags.tags_id')
                         ->where([
-                            ['article.article_id', '=', $value['id']],
+                            ['article_tags.article_id', '=', $value['id']],
                         ])
                         ->select()
                         ->toArray();
@@ -214,8 +214,8 @@ class ArticleBase extends BaseLogic
                         ->view('fields_extend', ['data'])
                         ->view('fields', ['name' => 'fields_name'], 'fields.id=fields_extend.fields_id')
                         ->where([
-                            ['fields.category_id', '=', $result['category_id']],
                             ['fields_extend.article_id', '=', $result['id']],
+                            ['fields.category_id', '=', $result['category_id']],
                         ])
                         ->select()
                         ->toArray();
@@ -306,9 +306,6 @@ class ArticleBase extends BaseLogic
         if ($id = $this->request->param('id/d')) {
             $map = [
                 ['id', '=', $id],
-                ['is_pass', '=', '1'],
-                ['show_time', '<', time()],
-                ['lang', '=', $this->lang->getLangSet()]
             ];
 
             // 更新浏览数
@@ -343,7 +340,7 @@ class ArticleBase extends BaseLogic
                 ['show_time', '<', time()],
                 ['id', '>', $_id]
             ])
-            ->order('is_top, is_hot, is_com, sort_order DESC, id DESC')
+            ->order('is_top, is_hot, is_com, sort_order DESC, update_time DESC')
             ->min('id');
 
         $result = (new ModelArticle)
@@ -380,7 +377,7 @@ class ArticleBase extends BaseLogic
                 ['show_time', '<', time()],
                 ['id', '<', $_id]
             ])
-            ->order('is_top, is_hot, is_com, sort_order DESC, id DESC')
+            ->order('is_top, is_hot, is_com, sort_order DESC, update_time DESC')
             ->max('id');
 
         $result = (new ModelArticle)

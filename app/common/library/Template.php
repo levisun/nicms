@@ -217,7 +217,6 @@ class Template implements TemplateHandlerInterface
      */
     private function getReplaceVars(): array
     {
-        // //cdn.niphp.com/theme/admin/default/////js/
         $path  = $this->app->config->get('app.cdn_host') . '/theme/';
         $path .= $this->config['app_name'] . $this->config['view_theme'];
 
@@ -431,11 +430,32 @@ class Template implements TemplateHandlerInterface
      */
     private function paresScript(string &$_content): void
     {
+        // JS引入
+        foreach ($this->config['tpl_config']['js'] as $js) {
+            // 过滤多余空格
+            $js = preg_replace('/( ){2,}/si', '', $js);
+            // 替换引号
+            $js = str_replace('\'', '"', $js);
+            // 添加defer属性
+            $js = false === stripos($js, 'defer') && false === stripos($js, 'async')
+                ? str_replace('"></', '" defer="defer"></', $js)
+                : $js;
+
+            $_content .= $js;
+        }
+
+        $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.do?ip=' . $this->app->request->ip() . '" async="async" ></script>';
+        if ('admin' !== trim($this->config['app_name'], '\/')) {
+            $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.do?token=' . md5($this->app->request->url(true)) . '" async="async" ></script>';
+        }
+
+        // 解析模板中的JS, 移动到HTML文档底部
         $pattern = '/<script( type="(.*?)")?>(.*?)<\/script>/si';
         $_content = preg_replace_callback($pattern, function ($matches) {
             $pattern = [
                 '/(\/\*)(.*?)(\*\/)/i',
                 '/(\/\/)(.*?)(\n|\r)+/i',
+                '/( ){2,}/s',
                 '/(\s+\n|\r)/s',
                 '/(\t|\n|\r|\0|\x0B)/s',
             ];
@@ -445,14 +465,9 @@ class Template implements TemplateHandlerInterface
         }, $_content);
 
         if ($this->script) {
-            $_content .= '<script type="text/javascript">' . $this->script . '</script>';
+            $_content .= '<script type="text/javascript">window.onload = function(){' . $this->script . '};</script>';
         }
         $this->script = '';
-
-        $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.do?ip=' . $this->app->request->ip() . '" defer ></script>';
-        if ('admin' !== trim($this->config['app_name'], '\/')) {
-            $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.do?token=' . md5($this->app->request->url(true)) . '" defer ></script>';
-        }
     }
 
     /**
@@ -528,9 +543,11 @@ class Template implements TemplateHandlerInterface
         // 解析变量
         $this->parseVars($_content);
 
-        if (false === stripos($_content, '<body')) {
-            $_content = str_replace('</head>', '</head>' . PHP_EOL . '<body>', $_content);
-        }
+        // 判断模板中是否有body头标签
+        $_content = false === stripos($_content, '<body')
+            ? str_replace('</head>', '</head>' . PHP_EOL . '<body>', $_content)
+            : $_content;
+
         $_content .= false === stripos($_content, '</body>') ? '</body>' : '';
         $_content .= false === stripos($_content, '</html>') ? '</html>' : '';
     }
@@ -553,7 +570,7 @@ class Template implements TemplateHandlerInterface
             $pattern = [
                 '~>\s+<~'               => '><',
                 '~>(\s+\n|\r)~'         => '>',
-                '/( ){2,}/s'            => '',
+                '/( ){2,}/s'            => ' ',
                 '/(\s+\n|\r)/s'         => '',
                 '/(\t|\n|\r|\0|\x0B)/s' => '',
             ];
@@ -630,23 +647,15 @@ class Template implements TemplateHandlerInterface
      */
     private function parseTemplateFile(string $_template = ''): string
     {
-        if (empty($this->config['view_path'])) {
-            $this->config['view_path'] = $this->app->getRootPath() . 'public' .
-                DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR;
-        }
-
         $request = $this->app->request;
-
-        // 拼装模板主题
-        $this->config['view_theme'] = $this->config['view_theme']
-            ? $this->config['view_theme']
-            : '';
 
         // 拼装模板文件名
         // 为空默认类方法名作为模板文件名
         $_template = $_template
             ? $_template . '.' . $this->config['view_suffix']
-            : $request->action(true);
+            : $request->action(true) . '.' . $this->config['view_suffix'];
+
+        // 拼接应用名与主题名
         $_template = $this->config['app_name'] . $this->config['view_theme'] . $_template;
 
         // 拼装移动端或微信端模板路径

@@ -44,7 +44,6 @@ class Sidebar extends BaseLogic
                     ->where([
                         ['category.is_show', '=', 1],
                         ['category.id', '=', $id],
-                        ['category.lang', '=', $this->lang->getLangSet()]
                     ])
                     ->find();
 
@@ -90,7 +89,6 @@ class Sidebar extends BaseLogic
             ->where([
                 ['category.is_show', '=', 1],
                 ['category.pid', '=', $_id],
-                ['category.lang', '=', $this->lang->getLangSet()]
             ])
             ->order('category.sort_order ASC, category.id DESC')
             ->select()
@@ -117,7 +115,7 @@ class Sidebar extends BaseLogic
     /**
      * 获得父级导航ID
      * @access private
-     * @param  int    $_id      ID
+     * @param  int    $_id ID
      * @return array
      */
     private function parent(int $_id)

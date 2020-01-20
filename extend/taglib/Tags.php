@@ -35,11 +35,11 @@ class Tags
     {
         $tpljs = '';
 
-        // JS引入
-        foreach ($_config['tpl_config']['js'] as $js) {
-            // defer
-            $tpljs .= str_replace('\'', '"', $js) . PHP_EOL;
-        }
+        // // JS引入
+        // foreach ($_config['tpl_config']['js'] as $js) {
+        //     // defer
+        //     $tpljs .= str_replace('\'', '"', $js) . PHP_EOL;
+        // }
 
         return $tpljs;
     }

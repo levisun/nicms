@@ -50,7 +50,7 @@ class Main extends BaseLogic
 
             foreach ($result as $key => $value) {
                 $value['id'] = (int) $value['id'];
-                $value['child'] = $this->child($value['id'], 2);
+                $value['child'] = $this->child($value['id']);
                 $value['image'] = (new Canvas)->image((string) $value['image']);
                 $value['flag'] = Base64::flag($value['id'], 7);
                 $value['url'] = url('list/' . $value['id']);
@@ -79,19 +79,17 @@ class Main extends BaseLogic
      * 获得子导航
      * @access private
      * @param  int    $_pid     父ID
-     * @param  int    $_type_id 类型
      * @return array
      */
-    private function child(int $_pid, int $_type_id): array
+    private function child(int $_pid): array
     {
         $result = (new ModelCategory)->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
             ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
             ->where([
                 ['category.is_show', '=', 1],
-                ['category.type_id', '=', $_type_id],
+                ['category.type_id', '=', 2],
                 ['category.pid', '=', $_pid],
-                ['category.lang', '=', $this->lang->getLangSet()]
             ])
             ->order('category.sort_order ASC, category.id DESC')
             ->select()
@@ -99,7 +97,7 @@ class Main extends BaseLogic
 
         foreach ($result as $key => $value) {
             $value['id'] = (int) $value['id'];
-            $value['child'] = $this->child($value['id'], 2);
+            $value['child'] = $this->child($value['id']);
             $value['image'] = (new Canvas)->image((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             $value['url'] = url('list/' . $value['id']);

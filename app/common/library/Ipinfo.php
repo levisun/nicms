@@ -268,7 +268,7 @@ class Ipinfo
         curl_setopt($curl, CURLOPT_FAILONERROR, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 1);
 
         $headers = array('content-type: application/x-www-form-urlencoded;charset=UTF-8');
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
