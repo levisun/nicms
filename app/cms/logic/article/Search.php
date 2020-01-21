@@ -34,7 +34,7 @@ class Search extends ArticleBase
 
         return [
             'debug' => false,
-            'cache' => $result ? true : false,
+            'cache' => $result ? 28800 : false,
             'msg'   => $result ? 'search' : 'error',
             'data'  => $result ? [
                 'list'         => $result['data'],

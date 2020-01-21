@@ -61,7 +61,7 @@
         page = page ? page : 1;
     visit.load(page);
 
-    function paging(_id) {
-        visit.load(_id);
-    }
+    window.paging = function (_p) {
+        visit.load(_p);
+    };
 </script>

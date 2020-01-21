@@ -192,7 +192,7 @@
         page = page ? page : 1;
     article.load(page);
 
-    function paging(_p) {
+    window.paging = function (_p) {
         article.load(_p);
-    }
+    };
 </script>

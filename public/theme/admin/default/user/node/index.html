@@ -29,10 +29,6 @@
                                 <i class="fa fa-pencil-square-o"></i>
                                 {:lang('editor')}
                             </a>
-                            <a v-on:click="remove(vo.id)">
-                                <i class="fa fa-trash"></i>
-                                {:lang('remove')}
-                            </a>
                         </td>
                     </tr>
                     <template v-if="vo.child" v-for="controller in vo.child">

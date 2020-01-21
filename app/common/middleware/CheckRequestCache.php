@@ -77,6 +77,10 @@ class CheckRequestCache
             return false;
         }
 
+        if (true === app()->isDebug()) {
+            return false;
+        }
+
         if (Cache::has($this->key)) {
             $data = Cache::get($this->key);
 
@@ -115,7 +119,7 @@ class CheckRequestCache
      */
     private function writeCache(Response &$_response, Request &$_request): Response
     {
-        if (200 == $_response->getCode() && $_request->isGet() && false === app()->isDebug()) {
+        if (false === app()->isDebug() && 200 == $_response->getCode() && $_request->isGet()) {
             // 获得缓存时间
             $expire = Config::get('cache.stores.' . Config::get('cache.default') . '.expire');
 

@@ -97,7 +97,8 @@
     let page = jQuery.get_url_query('page');
         page = page ? page : 1;
     user.load(page);
-    function paging(_p) {
+
+    window.paging = function (_p) {
         user.load(_p);
-    }
+    };
 </script>
