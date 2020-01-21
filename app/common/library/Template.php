@@ -200,10 +200,14 @@ class Template implements TemplateHandlerInterface
             $this->compiler($content, $compile_file);
         }
 
+        // 过滤变量内容
+        $_data = DataFilter::filter($_data);
+
         // 模板Replace变量
         $replace = $this->getReplaceVars();
         $_data = !empty($replace) ? array_merge($_data, $replace) : $_data;
         $_data['__DEBUG__'] = $this->app->config->get('app.debug');
+
         extract($_data, EXTR_OVERWRITE);
 
         //载入模版缓存文件
@@ -444,9 +448,9 @@ class Template implements TemplateHandlerInterface
             $_content .= $js;
         }
 
-        $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.do?ip=' . $this->app->request->ip() . '" async="async" ></script>';
+        $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.do?ip=<?php echo request()->ip();?>" async="async" ></script>';
         if ('admin' !== trim($this->config['app_name'], '\/')) {
-            $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.do?token=' . md5($this->app->request->url(true)) . '" async="async" ></script>';
+            $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.do?token=<?php echo md5(request()->url(true));?>' . '" async="async" ></script>';
         }
 
         // 解析模板中的JS, 移动到HTML文档底部

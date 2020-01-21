@@ -40,7 +40,7 @@
             <div class="form-group">
                 <label>{:lang('pass')}</label>
                 <label>
-                    <input type="radio" name="is_pass" value="1" >
+                    <input type="radio" name="is_pass" value="1">
                     {:lang('yes')}
                 </label>
                 <label>
@@ -181,6 +181,7 @@
         <button class="btn btn-primary" @click="save">{:lang('save')}</button>
     </div>
 </div>
+
 <script src="__STATIC__ckeditor5/ckeditor.js"></script>
 <script src="__STATIC__ckeditor5/translations/zh-cn.js"></script>
 <script src="__STATIC__ckeditor5/upload.js"></script>
@@ -245,20 +246,6 @@
                     }
                 }
                 if (article.model_id == 1) {
-                    ClassicEditor
-                        .create(document.querySelector('#editor'), {
-                            language: 'zh-cn',
-                            extraPlugins: [MyCustomUploadAdapterPlugin],
-                            ckfinder: {
-                                // uploadUrl: NICMS.api.url + '/upload.do?method=content.article.upload&sign='
-                            }
-                        })
-                        .then(editor => {
-                            window.editor = editor;
-                        })
-                        .catch(err => {
-                            console.error(err.stack);
-                        });
                 }
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
@@ -311,6 +298,7 @@
                     success: function (result) {
                         if (10000 == result.code) {
                             jQuery.uiToast(result.message);
+                            jQuery.set_cookie('editor', '');
                             history.back();
                         }
                     }
@@ -328,7 +316,7 @@
                     var height = jQuery('.image_height').val();
                     if (!width || !height) {
                         alert('请输入宽高');
-                        return ;
+                        return;
                     }
                     data.append('width', width);
                     data.append('height', height);
@@ -351,4 +339,25 @@
         }
     });
     article.load();
+
+    ClassicEditor
+        .create(document.querySelector('#editor'), {
+            language: 'zh-cn',
+            extraPlugins: [MyCustomUploadAdapterPlugin],
+        })
+        .then(editor => {
+            window.editor = editor;
+        })
+        .catch(err => {
+            console.error(err.stack);
+        });
+
+    setInterval(function () {
+        if (jQuery.get_cookie('editor')) {
+            window.editor.setData(jQuery.get_cookie('editor'));
+        } else {
+            jQuery.set_cookie('editor', window.editor.getData());
+        }
+    }, 60000);
+
 </script>

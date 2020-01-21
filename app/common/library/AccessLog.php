@@ -170,7 +170,7 @@ class AccessLog
         } elseif (1 <= $run_time) {
             Log::warning('长' . $log);
         } else {
-            Log::info($log);
+            // Log::info($log);
         }
     }
 }

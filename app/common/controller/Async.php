@@ -251,8 +251,8 @@ abstract class Async
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\DataFilter::filter');
         // 请勿更改参数
-        @set_time_limit(10);
-        @ini_set('max_execution_time', '10');
+        @set_time_limit(5);
+        @ini_set('max_execution_time', '5');
         @ini_set('memory_limit', '8M');
     }
 

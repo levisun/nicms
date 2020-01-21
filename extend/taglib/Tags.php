@@ -67,7 +67,17 @@ class Tags
         // link标签
         if (!empty($_config['tpl_config']['link'])) {
             foreach ($_config['tpl_config']['link'] as $link) {
-                $head .= str_replace('\'', '"', $link) . PHP_EOL;
+                // 过滤多余空格
+                $link = preg_replace('/( ){2,}/si', '', $link);
+                // 替换引号
+                $link = str_replace(['\'', '/>'], ['"', '>'], $link);
+                // 添加异步加载属性
+                // $link = false === stripos($link, 'media')
+                //     ? str_replace('">', '" media="none" onload="if(media!=\'all\')media=\'all\'">', $link)
+                //     : $link;
+
+                $head .= $link;
+                // $head .= str_replace('\'', '"', $link) . PHP_EOL;
             }
         }
 
@@ -123,20 +133,20 @@ class Tags
 
             $head .
             '<script type="text/javascript">var NICMS = {' .
-                'domain:"//<?php echo request()->subDomain() . \'.\' . request()->rootDomain();?>",' .
-                'rootDomain:"//<?php echo request()->rootDomain();?>",' .
-                'url:"<?php echo request()->baseUrl(true);?>",' .
-                'api:{' .
-                    'url:"<?php echo config(\'app.api_host\');?>",' .
-                    'param:<?php echo json_encode(app(\'request\')->param());?>' .
-                '},' .
-                'cdn:{' .
-                    'static:"__STATIC__",' .
-                    'theme:"__THEME__",' .
-                    'css:"__CSS__",' .
-                    'img:"__IMG__",' .
-                    'js:"__JS__"' .
-                '}' .
+            'domain:"//<?php echo request()->subDomain() . \'.\' . request()->rootDomain();?>",' .
+            'rootDomain:"//<?php echo request()->rootDomain();?>",' .
+            'url:"<?php echo request()->baseUrl(true);?>",' .
+            'api:{' .
+            'url:"<?php echo config(\'app.api_host\');?>",' .
+            'param:<?php echo json_encode(app(\'request\')->param());?>' .
+            '},' .
+            'cdn:{' .
+            'static:"__STATIC__",' .
+            'theme:"__THEME__",' .
+            'css:"__CSS__",' .
+            'img:"__IMG__",' .
+            'js:"__JS__"' .
+            '}' .
             '}</script></head>';
     }
 }

@@ -210,10 +210,10 @@ class Siteinfo
             ])
             ->value('value');
         $beian = $beian
-            ? '<a href="http://www.beian.miit.gov.cn" rel="nofollow" target="_blank">' . strtoupper($beian) . '</a>'
+            ? '<a href="http://www.beian.miit.gov.cn/" rel="nofollow" target="_blank">' . strtoupper($beian) . '</a>'
             : '';
 
-        return htmlspecialchars_decode($copyright) . $beian . ' Powered by <a href="//www.niphp.com" target="_blank">nicms</a>';
+        return htmlspecialchars_decode($copyright) . $beian . ' Powered by <a href="//www.niphp.com/" target="_blank">NICMS</a>';
     }
 
     /**
@@ -246,6 +246,12 @@ class Siteinfo
                 ['lang', '=', $this->langSet]
             ])
             ->value('value', '');
+
+        $result = preg_replace([
+            '/(\s+\n|\r)/s',
+            '/(\t|\0|\x0B)/s',
+            '/( ){2,}/s',
+        ], '', $result);
 
         return $result
             ? '<script type="text/javascript">' . htmlspecialchars_decode($result) . '</script>'

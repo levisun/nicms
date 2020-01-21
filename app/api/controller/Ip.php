@@ -29,8 +29,6 @@ class Ip extends Async
     {
         // 解决没有传IP参数,缓存造成的缓存错误
         if (!$ip = $this->request->param('ip', false)) {
-            $_ip = rand(43, 223) . '.' . rand(1, 255) . '.' . rand(1, 255) . '.' . rand(1, 255);
-            (new Ipinfo)->get($_ip);
             $url = $this->request->baseUrl(true) . '?ip=' . $this->request->ip();
             $response = Response::create($url, 'redirect', 302);
             throw new HttpResponseException($response);

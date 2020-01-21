@@ -35,7 +35,7 @@ class CheckRequestCache
 
         if (1 === mt_rand(1, 999)) {
             Log::write('[命运]' . htmlspecialchars(Request::url(true)), 'alert');
-            $response = miss(503);
+            $response = miss(403);
             throw new HttpResponseException($response);
         }
     }
@@ -57,7 +57,7 @@ class CheckRequestCache
                     'msg'  => '锁定',
                 ], 'json')->allowCache(false);
             } else {
-                $response = miss(502, false);
+                $response = miss(403, false);
             }
 
             throw new HttpResponseException($response);

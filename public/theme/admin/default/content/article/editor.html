@@ -171,10 +171,12 @@
                 <div class="form-group" v-for="vo in fields_list">
                     <label v-text="vo.name"></label>
                     <template v-if="1==vo.type_id">
-                        <textarea v-bind:name="'fields['+vo.id+']'" class="form-control" v-bind:value="items.fields[vo.id]"></textarea>
+                        <textarea v-bind:name="'fields['+vo.id+']'" class="form-control"
+                            v-bind:value="items.fields[vo.id]"></textarea>
                     </template>
                     <template v-else>
-                        <input type="text" v-bind:name="'fields['+vo.id+']'" class="form-control" v-bind:value="items.fields[vo.id]">
+                        <input type="text" v-bind:name="'fields['+vo.id+']'" class="form-control"
+                            v-bind:value="items.fields[vo.id]">
                     </template>
                 </div>
             </template>
@@ -273,20 +275,6 @@
                     }
                 }
                 if (article.model_id == 1) {
-                    ClassicEditor
-                        .create(document.querySelector('#editor'), {
-                            language: 'zh-cn',
-                            extraPlugins: [MyCustomUploadAdapterPlugin],
-                            ckfinder: {
-                                // uploadUrl: NICMS.api.url + '/upload.do?method=content.article.upload&sign='
-                            }
-                        })
-                        .then(editor => {
-                            window.editor = editor;
-                        })
-                        .catch(err => {
-                            console.error(err.stack);
-                        });
                 }
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
@@ -380,4 +368,24 @@
         }
     });
     article.load();
+
+    ClassicEditor
+        .create(document.querySelector('#editor'), {
+            language: 'zh-cn',
+            extraPlugins: [MyCustomUploadAdapterPlugin],
+        })
+        .then(editor => {
+            window.editor = editor;
+        })
+        .catch(err => {
+            console.error(err.stack);
+        });
+
+    setInterval(function () {
+        if (jQuery.get_cookie('editor')) {
+            window.editor.setData(jQuery.get_cookie('editor'));
+        } else {
+            jQuery.set_cookie('editor', window.editor.getData());
+        }
+    }, 60000);
 </script>

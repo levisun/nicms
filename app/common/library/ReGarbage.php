@@ -57,16 +57,11 @@ class ReGarbage
             } elseif (is_dir($_dir . $file)) {
                 $this->clear($_dir . $file . DIRECTORY_SEPARATOR, $_time);
                 @rmdir($_dir . $file);
-                Log::alert('[rmdir] ' . $file);
             } elseif (is_file($_dir . $file) && 0 === $_time) {
                 @unlink($_dir . $file);
-                Log::alert('[unlink] ' . $file);
             } elseif (is_file($_dir . $file) && filemtime($_dir . $file) <= $_time) {
                 @unlink($_dir . $file);
-                Log::alert('[unlink] ' . $file);
             }
         }
-
-        @rmdir($_dir);
     }
 }

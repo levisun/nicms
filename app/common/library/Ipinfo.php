@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Cache;
+use think\facade\Log;
 use think\facade\Request;
 use app\common\library\DataFilter;
 use app\common\model\IpInfo as ModelIpinfo;
@@ -51,24 +52,19 @@ class Ipinfo
             $cache_key = md5(__METHOD__ . $_ip);
             if (!Cache::has($cache_key)) {
                 // 查询IP地址库
-                $region = $this->query($_ip);
+                if (!$query_region = $this->query($_ip)) {
+                    // 获得信息并录入信息
+                    if ($query_region = $this->added($_ip)) {
+                        unset($query_region['id'], $query_region['update_time']);
+                        $query_region['ip'] = $_ip;
+                        Cache::tag([
+                            'SYSTEM',
+                            'ipinfo'
+                        ])->set($cache_key, $query_region);
 
-                // 存在更新信息
-                if (!empty($region) && $region['update_time'] <= strtotime('-30 days')) {
-                    $this->update($_ip);
-                } else {
-                    if ($result = $this->added($_ip)) {
-                        $region = $result;
+                        $region = $query_region;
                     }
                 }
-
-                unset($region['id'], $region['update_time']);
-                $region['ip'] = $_ip;
-
-                Cache::tag([
-                    'SYSTEM',
-                    'ipinfo'
-                ])->set($cache_key, $region);
             } else {
                 $region = Cache::get($cache_key);
             }
@@ -123,9 +119,9 @@ class Ipinfo
      * 查询IP地址库
      * @access private
      * @param  string  $_ip
-     * @return array
+     * @return array|false
      */
-    private function query(string &$_ip): array
+    private function query(string &$_ip)
     {
         $result = (new ModelIpinfo)
             ->view('ipinfo', ['id', 'ip', 'isp', 'update_time'])
@@ -137,7 +133,14 @@ class Ipinfo
                 ['ipinfo.ip', '=', bindec(Request::ip2bin($_ip))]
             ])
             ->find();
-        return $result ? $result->toArray() : [];
+        $result = $result ? $result->toArray() : false;
+
+        // 更新信息
+        if ($result && $result['update_time'] < strtotime('-90 days')) {
+            $this->update($_ip);
+        }
+
+        return $result;
     }
 
     /**
@@ -172,7 +175,7 @@ class Ipinfo
 
         $result = $result ? json_decode($result, true) : null;
 
-        if (!is_array($result) || empty($result)) {
+        if (!is_array($result) || empty($result) || $result['code'] == 0) {
             return false;
         }
 
@@ -222,6 +225,7 @@ class Ipinfo
         $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
 
         $result = $result ? json_decode($result, true) : null;
+
         if (!is_array($result) || empty($result) || $result['code'] == 0) {
             return false;
         }
@@ -263,15 +267,13 @@ class Ipinfo
 
     private function get_curl(string $_url): string
     {
+        Log::alert('[IP 收录] ' . $_url);
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $_url);
         curl_setopt($curl, CURLOPT_FAILONERROR, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 1);
-
-        $headers = array('content-type: application/x-www-form-urlencoded;charset=UTF-8');
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_USERAGENT, Request::server('HTTP_USER_AGENT'));
         $result = curl_exec($curl);
 
