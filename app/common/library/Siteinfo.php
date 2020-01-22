@@ -19,6 +19,7 @@ namespace app\common\library;
 use think\facade\Cache;
 use think\facade\Lang;
 use think\facade\Request;
+use app\common\library\DataFilter;
 use app\common\model\Config as ModelConfig;
 use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;
@@ -208,12 +209,12 @@ class Siteinfo
                 ['name', '=', $this->appName . '_beian'],
                 ['lang', '=', $this->langSet]
             ])
-            ->value('value');
-        $beian = $beian
-            ? '<a href="http://www.beian.miit.gov.cn/" rel="nofollow" target="_blank">' . strtoupper($beian) . '</a>'
-            : '';
+            ->value('value', '');
+        // $beian = $beian
+        //     ? '<a href="http://www.beian.miit.gov.cn/" rel="nofollow" target="_blank">' . strtoupper($beian) . '</a>'
+        //     : '';
 
-        return htmlspecialchars_decode($copyright) . $beian . ' Powered by <a href="//www.niphp.com/" target="_blank">NICMS</a>';
+        return DataFilter::decode($copyright) . DataFilter::decode($beian) . ' Powered by <a href="https://github.com/levisun/nicms" rel="nofollow" target="_blank">NICMS</a>';
     }
 
     /**

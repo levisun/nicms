@@ -99,7 +99,7 @@ class Template implements TemplateHandlerInterface
 
         // 系统配置
         $this->config['compile_path'] = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR .
-            Base64::flag($this->app->request->rootDomain() . __DIR__ . __LINE__) . DIRECTORY_SEPARATOR .
+            Base64::flag(__DIR__ . __LINE__) . DIRECTORY_SEPARATOR .
             $this->app->http->getName() . DIRECTORY_SEPARATOR;
         $this->config['view_path'] = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR;
         $this->config['tpl_compile'] = (bool) !env('app_debug', false);

@@ -31,7 +31,7 @@ return [
     // 过期时间
     'expire'         => 1440,
     // 前缀
-    'prefix'         => Base64::flag(Request::rootDomain() . __DIR__ . __LINE__),
+    'prefix'         => Base64::flag(__DIR__ . __LINE__),
     // 数据压缩
     'data_compress'  => true,
 ];

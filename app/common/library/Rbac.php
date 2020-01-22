@@ -94,10 +94,10 @@ class Rbac
     /**
      * 检查当前操作是否需要认证
      * @access private
-     * @param  string $_app        应用名
-     * @param  string $_service      业务层名
-     * @param  string $_logic 控制器名
-     * @param  string $_method     方法名
+     * @param  string $_app     应用名
+     * @param  string $_service 业务层名
+     * @param  string $_logic   控制器名
+     * @param  string $_method  方法名
      * @return boolean
      */
     private  function checkAccess(string $_app, string $_service, string $_logic, string $_method): bool
