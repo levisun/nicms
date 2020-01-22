@@ -239,15 +239,6 @@ class User extends BaseLogic
             ];
         }
 
-        // 垃圾信息
-        $count = count((array) glob($this->app->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR . '*'));
-        if ($count >= 2000) {
-            $result[] = [
-                'title' => $this->lang->get('too much junk information'),
-                'url'   => url('content/cache/index')
-            ];
-        }
-
         return [
             'debug' => false,
             'cache' => true,

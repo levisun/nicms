@@ -36,10 +36,10 @@ class Verify extends Async
             $this->session->save();
             $captcha = 'data:image/png;base64,' . base64_encode($captcha->getContent());
             return Response::create($captcha)
-                ->contentType('image/png')
                 ->header([
+                    'Content-Type'   => 'image/png',
+                    'Content-Length' => strlen($captcha),
                     'X-Powered-By'   => 'NIAPI',
-                    'Content-Length' => strlen($captcha)
                 ]);
         }
 

@@ -72,8 +72,11 @@ class Dashboard extends BaseLogic
 
     private function total()
     {
-        $ip = (new ModelIpInfo)->count();
+        $ip = (new ModelIpInfo)->where([
+            ['update_time', '>', strtotime(date('Y-m-d'))]
+        ])->count();
         $session_path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR;
+        $session_path = $this->config->get('session.prefix') . DIRECTORY_SEPARATOR;
         $browse = (new ModelVisit)
             ->field('max(count) as count')->where([
                 ['date', '=', strtotime(date('Y-m-d'))]

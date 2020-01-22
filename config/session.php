@@ -13,6 +13,7 @@
  */
 
 use think\facade\Request;
+use app\common\library\Base64;
 
 return [
     // session name
@@ -30,7 +31,7 @@ return [
     // 过期时间
     'expire'         => 1440,
     // 前缀
-    'prefix'         => '',
+    'prefix'         => Base64::flag(Request::rootDomain() . __DIR__ . __LINE__),
     // 数据压缩
     'data_compress'  => true,
 ];

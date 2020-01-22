@@ -170,7 +170,7 @@ abstract class BaseLogic
         if (1 === mt_rand(1, 100)) {
             (new ModelActionLog)
                 ->where([
-                    ['create_time', '<=', strtotime('-90 days')]
+                    ['create_time', '<', strtotime('-90 days')]
                 ])
                 ->limit(100)
                 ->delete();

@@ -67,10 +67,10 @@ class AccessLog
             ]);
         }
 
-        if (1 === mt_rand(1, 9)) {
+        if (1 === mt_rand(1, 100)) {
             (new ModelVisit)
                 ->where([
-                    ['date', '<=', strtotime('-30 days')]
+                    ['date', '<', strtotime('-30 days')]
                 ])
                 ->limit(100)
                 ->delete();

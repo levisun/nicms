@@ -37,13 +37,13 @@ class Ip extends Async
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
         if ($ip = (new Ipinfo)->get($ip)) {
             if ($this->request->param('json', false)) {
-                return $this->cache(true)->success('IP', $ip);
+                return $this->cache(28800)->success('IP', $ip);
             } else {
                 $data = 'var NICMS_IPINFO=' . json_encode($ip, JSON_UNESCAPED_UNICODE);
                 return Response::create($data)->allowCache(true)
-                    ->cacheControl('max-age=1440,must-revalidate')
-                    ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + 1440) . ' GMT')
-                    ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + 1440) . ' GMT')
+                    ->cacheControl('max-age=28800,must-revalidate')
+                    ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + 28800) . ' GMT')
+                    ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + 28800) . ' GMT')
                     ->contentType('application/javascript');
             }
         }

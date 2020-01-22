@@ -108,7 +108,7 @@ class Ipinfo
             return false;
         }
 
-        // d类 224.0.0.0 - 239.255.255.255
+        // d类 224.0.0.0~239.255.255.255
         if (224 <= $_ip[0] && 239 >= $_ip[0]) {
             return false;
         }
@@ -172,8 +172,8 @@ class Ipinfo
      */
     private function getIpInfo(string &$_ip)
     {
+        Log::alert('[IP 采集] ' . $_ip);
         $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
-
         $result = $result ? json_decode($result, true) : null;
 
         if (!is_array($result) || empty($result) || $result['code'] !== 0) {
@@ -200,6 +200,7 @@ class Ipinfo
             ->value('id');
 
         if (!$has) {
+            Log::alert('[IP 录入] ' . $_ip);
             (new ModelIpinfo)
                 ->save([
                     'ip'          => $binip,
@@ -211,6 +212,21 @@ class Ipinfo
                     'update_time' => time(),
                     'create_time' => time()
                 ]);
+        } else {
+            Log::alert('[IP 更新] ' . $_ip);
+            (new ModelIpinfo)
+                ->where([
+                    ['ip', '=', $binip]
+                ])
+                ->data([
+                    'country_id'  => $country,
+                    'province_id' => $province,
+                    'city_id'     => $city,
+                    'area_id'     => $area,
+                    'isp'         => $isp,
+                    'update_time' => time(),
+                ])
+                ->update();
         }
 
         return $this->query($_ip);
@@ -218,13 +234,12 @@ class Ipinfo
 
     private function get_curl(string $_url): string
     {
-        Log::alert('[IP 收录] ' . $_url);
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $_url);
         curl_setopt($curl, CURLOPT_FAILONERROR, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 1);
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);
         curl_setopt($curl, CURLOPT_USERAGENT, Request::server('HTTP_USER_AGENT'));
         $result = curl_exec($curl);
 

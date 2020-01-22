@@ -13,6 +13,8 @@
  */
 
 use think\facade\Env;
+use think\facade\Request;
+use app\common\library\Base64;
 
 return [
     // 默认缓存驱动
@@ -25,7 +27,7 @@ return [
             // 缓存保存目录
             'path'          => app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR,
             // 缓存前缀
-            'prefix'        => '',
+            'prefix'        => Base64::flag(Request::rootDomain() . __DIR__ . __LINE__),
             // 缓存有效期 0表示永久缓存
             'expire'        => (int) Env::get('cache.expire', 28800) - mt_rand(1, 1440),
             // 关闭子目录

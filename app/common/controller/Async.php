@@ -290,7 +290,6 @@ abstract class Async
         // 缓存时间
         // 返回数据没有指定默认开启
         $this->cache(isset($this->result['cache']) ? $this->result['cache'] : true);
-        //
 
         $this->result['data'] = isset($this->result['data']) ? $this->result['data'] : [];
         $this->result['code'] = isset($this->result['code']) ? $this->result['code'] : 10000;
@@ -319,12 +318,15 @@ abstract class Async
      */
     protected function cache($_cache)
     {
+        // 关闭缓存
         if (false === $_cache || true === $this->apiDebug) {
             $this->apiCache = false;
         } else {
+            // 开启缓存并设置缓存时长
             if (is_numeric($_cache)) {
                 $this->apiExpire = $_cache ? (int) $_cache : $this->apiExpire;
             }
+
             $this->apiCache = true;
         }
         return $this;
@@ -337,11 +339,14 @@ abstract class Async
      */
     protected function loadLang(): void
     {
-        // 加载语言包
+        // 公众语言包
         $common_lang  = $this->app->getBasePath() . 'common' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
         $common_lang .= $this->lang->getLangSet() . '.php';
+
+        // API方法所属应用的语言包
         $lang  = $this->app->getBasePath() . $this->appName . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
         $lang .= $this->lang->getLangSet() . '.php';
+
         $this->lang->load([$common_lang, $lang]);
     }
 
@@ -403,8 +408,7 @@ abstract class Async
     {
         // 需要鉴权应用
         if (in_array($this->appName, ['admin', 'my'])) {
-            // 不需要鉴权方法
-            // 登录 登出 找回密码
+            // 不需要鉴权方法(登录 登出 找回密码)
             if (in_array($this->appMethod['method'], ['login', 'logout', 'forget'])) {
                 return;
             }
@@ -437,26 +441,25 @@ abstract class Async
      */
     private function analysisMethod(): void
     {
-        // 校验API方法
+        // 校验方法名格式
         $this->method = $this->request->param('method');
         if (!$this->method || !preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $this->method)) {
             $this->abort('错误请求', 25001);
         }
 
+        // 解析方法名
         list($logic, $action, $method) = explode('.', $this->method, 3);
-
         $class  = '\app\\' . $this->appName . '\logic\\';
         $class .= $this->openVersion ? 'v' . implode('_', $this->version) . '\\' : '';
         $class .= $logic . '\\' . ucfirst($action);
 
-        // 校验类是否存在
+        // 校验方法是否存在
         if (!class_exists($class)) {
             $this->debugLog['method not found'] = $class;
             $this->log->error('[Async] method not found ' . $class);
             $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 25002);
         }
-        // 校验类方法是否存在
         if (!method_exists($class, $method)) {
             $this->debugLog['action not found'] = $class . '->' . $method . '();';
             $this->log->error('[Async] action not found ' . $class . '->' . $method . '();');
@@ -464,10 +467,15 @@ abstract class Async
             $this->abort('错误请求', 25003);
         }
 
+        // 记录方法
         $this->appMethod = [
+            // 业务层
             'logic'  => $logic,
+            // 方法类
             'action' => $action,
+            // 执行方法
             'method' => $method,
+            // 命名空间
             'class'  => $class,
         ];
     }
@@ -635,7 +643,7 @@ abstract class Async
         // Session初始化并规定sessionID
         $jti = Base64::decrypt($token->getClaim('jti'));
         $jti = DataFilter::filter($jti);
-        if ($jti && is_file($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . 'sess_' . $jti)) {
+        if ($jti && is_file($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . $this->config->get('session.prefix') . DIRECTORY_SEPARATOR . 'sess_' . $jti)) {
             $this->session->setId($jti);
             $this->session->init();
             $this->request->withSession($this->session);
