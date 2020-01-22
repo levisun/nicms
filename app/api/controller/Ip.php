@@ -37,13 +37,14 @@ class Ip extends Async
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
         if ($ip = (new Ipinfo)->get($ip)) {
             if ($this->request->param('json', false)) {
-                return $this->cache(28800)->success('IP', $ip);
+                return $this->cache(1440)->success('IP', $ip);
             } else {
-                $data = 'var NICMS_IPINFO=' . json_encode($ip, JSON_UNESCAPED_UNICODE);
+                $data = 'var NICMS_IPINFO=' . json_encode($ip, JSON_UNESCAPED_UNICODE) . ';';
+                // $data .= 'const xhr = new XMLHttpRequest();let nicms_ip = NICMS_IPINFO.ip.split(".");nicms_ip[3] = 0;let timer = setInterval(function(){if(nicms_ip[3]<255){nicms_ip[3]++;}xhr.open("GET", "https://api.niphp.com/ip.do?json=true&ip=" + nicms_ip.join("."),true);xhr.send();if(nicms_ip[3]>=255){clearInterval(timer);}},15000);';
                 return Response::create($data)->allowCache(true)
-                    ->cacheControl('max-age=28800,must-revalidate')
-                    ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + 28800) . ' GMT')
-                    ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + 28800) . ' GMT')
+                    ->cacheControl('max-age=1440,must-revalidate')
+                    ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + 1440) . ' GMT')
+                    ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + 1440) . ' GMT')
                     ->contentType('application/javascript');
             }
         }

@@ -72,7 +72,8 @@ class Dashboard extends BaseLogic
 
     private function total()
     {
-        $ip = (new ModelIpInfo)->where([
+        $sum_ip = (new ModelIpInfo)->count();
+        $day_ip = (new ModelIpInfo)->where([
             ['update_time', '>', strtotime(date('Y-m-d'))]
         ])->count();
         $session_path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR;
@@ -83,7 +84,7 @@ class Dashboard extends BaseLogic
             ])
             ->value('count', 0);
         return [
-            'ip'      => number_format($ip),
+            'ip'      => number_format($sum_ip) . '/' . number_format($day_ip),
             'session' => number_format(count((array) glob($session_path . '*'))),
             'access'  => [
                 'browse' => number_format($browse),

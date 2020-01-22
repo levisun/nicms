@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script>
+        setInterval(function () {
+            let max = 255;
+            let min = 1;
+            let ip = parseInt(Math.random() * (max - min + 1) + min, 10);
+                ip = ip.toString();
+                ip += "." + parseInt(Math.random() * (max - min + 1) + min, 10);
+            console.log(ip)
+        }, 10000);
+    </script>
+</body>
+
+</html>
