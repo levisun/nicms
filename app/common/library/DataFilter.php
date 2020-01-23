@@ -172,7 +172,6 @@ class DataFilter
                     }
                     // 外链
                     elseif (0 === stripos($ema[2], 'http')) {
-                        $ema[2] = Config::get('app.app_host') . url('go', ['q' => urlencode(base64_encode($ema[2]))]);
                         $ema[2] = '"' . $ema[2] . '" rel="nofollow" target="_blank"';
                     } else {
                         $ema[2] = '"' . $ema[2] . '"';

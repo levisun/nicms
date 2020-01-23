@@ -33,11 +33,11 @@ class CheckRequestCache
         // 304缓存
         $this->cache304();
 
-        if (1 === mt_rand(1, 999)) {
-            Log::write('[命运]' . htmlspecialchars(Request::url(true)), 'alert');
-            $response = miss(403);
-            throw new HttpResponseException($response);
-        }
+        // if (1 === mt_rand(1, 999)) {
+        //     Log::write('[命运]' . htmlspecialchars(Request::url(true)), 'alert');
+        //     $response = miss(403);
+        //     throw new HttpResponseException($response);
+        // }
     }
 
     /**

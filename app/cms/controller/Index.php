@@ -62,20 +62,22 @@ class Index extends BaseController
      */
     public function category()
     {
-        $model_name = (new ModelCategory)->view('category', ['id'])
-            ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
-            ->where([
-                ['category.is_show', '=', 1],
-                ['category.id', '=', $this->request->param('cid/d')],
-            ])
-            ->cache(true)
-            ->value('model.name');
+        if ($cid = $this->request->param('cid/d')) {
+            $model_name = (new ModelCategory)->view('category', ['id'])
+                ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
+                ->where([
+                    ['category.is_show', '=', 1],
+                    ['category.id', '=', $cid],
+                ])
+                ->cache((string) $cid)
+                ->value('model.name');
 
-        if ($model_name) {
-            return $this->fetch($model_name . '_list');
-        } else {
-            return miss(404);
+            if ($model_name) {
+                return $this->fetch($model_name . '_list');
+            }
         }
+
+        return miss(404);
     }
 
     /**
@@ -85,20 +87,22 @@ class Index extends BaseController
      */
     public function details()
     {
-        $model_name = (new ModelCategory)->view('category', ['id'])
-            ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
-            ->where([
-                ['category.is_show', '=', 1],
-                ['category.id', '=', $this->request->param('cid/d')],
-            ])
-            ->cache(true)
-            ->value('model.name');
+        if ($cid = $this->request->param('cid/d')) {
+            $model_name = (new ModelCategory)->view('category', ['id'])
+                ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
+                ->where([
+                    ['category.is_show', '=', 1],
+                    ['category.id', '=', $cid],
+                ])
+                ->cache((string) $cid)
+                ->value('model.name');
 
-        if ($model_name) {
-            return $this->fetch($model_name . '_details');
-        } else {
-            return miss(404);
+            if ($model_name) {
+                return $this->fetch($model_name . '_details');
+            }
         }
+
+        return miss(404);
     }
 
     /**

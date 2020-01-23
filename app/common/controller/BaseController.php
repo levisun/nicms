@@ -30,6 +30,12 @@ abstract class BaseController
     protected $app;
 
     /**
+     * Cache实例
+     * @var \think\Cache
+     */
+    protected $cache;
+
+    /**
      * Config实例
      * @var \think\Config
      */

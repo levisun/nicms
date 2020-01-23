@@ -214,7 +214,7 @@ class Siteinfo
         //     ? '<a href="http://www.beian.miit.gov.cn/" rel="nofollow" target="_blank">' . strtoupper($beian) . '</a>'
         //     : '';
 
-        return DataFilter::decode($copyright) . DataFilter::decode($beian) . ' Powered by <a href="https://github.com/levisun/nicms" rel="nofollow" target="_blank">NICMS</a>';
+        return DataFilter::decode($copyright) . ' ' . DataFilter::decode($beian) . ' Powered by <a href="https://github.com/levisun/nicms" rel="nofollow" target="_blank">NICMS</a>';
     }
 
     /**
