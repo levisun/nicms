@@ -15,16 +15,18 @@ use think\facade\Route;
 use think\Response;
 
 Route::group(function () {
-    Route::get('/$', 'Index/index')->ext('html');
-    Route::get('index$', 'Index/index')->ext('html');
+    Route::get('/$', 'Index/index');
+    Route::get('index$', 'Index/index');
 
-    Route::get(':logic/:action/:method/[:id]$', 'Index/index')->ext('html');
+    Route::get(':logic/:action/:method/[:id]$', 'Index/index');
 
     Route::miss(function () {
         return miss(404);
     });
 })
 ->domain('my')
+->ext('html')
+->https()
 ->pattern([
     'logic'  => '[a-z]+',
     'action' => '[a-z]+',

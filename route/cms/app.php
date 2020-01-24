@@ -27,18 +27,18 @@ Route::domain(['cdn', 'img'], function () {
 Route::group(function () {
     // 首页
     Route::get('/$', 'Index/index');
-    Route::get('index$', 'Index/index')->ext('html');
+    Route::get('index$', 'Index/index');
 
     // 列表页
-    Route::get('list/:cid/[:page]$', 'Index/category')->ext('html');
-    Route::get('tags/:id/[:page]$', 'Index/tags')->ext('html');
-    Route::get('search$', 'Index/search')->ext('html');
+    Route::get('list/:cid/[:page]$', 'Index/category');
+    Route::get('tags/:id/[:page]$', 'Index/tags');
+    Route::get('search$', 'Index/search');
 
     // 详情页
-    Route::get('details/:cid/:id$', 'Index/details')->ext('html');
+    Route::get('details/:cid/:id$', 'Index/details');
 
     // 跳转接口
-    Route::get('go$', 'Index/go')->ext('html');
+    Route::get('go$', 'Index/go');
 
     // 老版本兼容
     // Route::get('ipinfo$', '\app\api\controller\Ip@index')->ext('shtml');
@@ -46,7 +46,9 @@ Route::group(function () {
     Route::miss(function () {
         return miss(404);
     });
-})->pattern([
+})
+->ext('html')
+->pattern([
     'page' => '\d+',
     'cid'  => '\d+',
     'id'   => '\d+',

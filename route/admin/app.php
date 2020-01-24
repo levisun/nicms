@@ -23,13 +23,14 @@ Route::group(function () {
         return Response::create(url('account/user/login'), 'redirect', 302);
     });
 
-    Route::get(':logic/:action/:method/[:id]$', 'Index/index')->ext('html');
+    Route::get(':logic/:action/:method/[:id]$', 'Index/index');
 
     Route::miss(function () {
         return miss(404);
     });
 })
 ->domain(Env::get('admin.entry', 'admin'))
+->ext('html')
 ->pattern([
     'logic'  => '[a-z]+',
     'action' => '[a-z]+',

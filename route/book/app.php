@@ -16,25 +16,26 @@ use think\Response;
 
 Route::group(function () {
     // 首页
-    Route::get('/$', 'Index/index')->ext('html');
-    Route::get('index$', 'Index/index')->ext('html');
+    Route::get('/$', 'Index/index');
+    Route::get('index$', 'Index/index');
 
 
     // 列表页
-    Route::get('list/:tid$', 'Index/category')->ext('html');
-    Route::get('catalog/:id$', 'Index/catalog')->ext('html');
+    Route::get('list/:tid$', 'Index/category');
+    Route::get('catalog/:id$', 'Index/catalog');
 
     // 详情页
-    Route::get('article/:bid/:id$', 'Index/article')->ext('html');
+    Route::get('article/:bid/:id$', 'Index/article');
 
     // 搜索页
-    Route::get('search$', 'Index/search')->ext('html');
+    Route::get('search$', 'Index/search');
 
     Route::miss(function () {
         return miss(404);
     });
 })
 ->domain('book')
+->ext('html')
 ->pattern([
     'tid'  => '\d+',
     'bid'  => '\d+',

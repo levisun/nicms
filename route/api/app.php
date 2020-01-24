@@ -17,42 +17,44 @@ use think\Response;
 
 Route::group(function () {
     // 下载接口
-    Route::get('download$', 'Download/index')->ext('do');
+    Route::get('download$', 'Download/index');
 
     // 操作接口
-    Route::post('handle$', 'Handle/index')->ext('do');
+    Route::post('handle$', 'Handle/index');
 
     // IP信息接口
-    Route::get('ip$', 'Ip/index')->ext('do');
+    Route::get('ip$', 'Ip/index');
 
     // 支付
-    Route::post('pay/order/:method$', 'Pay/index')->ext('do');
-    Route::get('pay/respond/:method$', 'Pay/respond')->ext('do');
-    Route::get('pay/notify/:method$', 'Pay/notify')->ext('do');
+    Route::post('pay/order/:method$', 'Pay/index');
+    Route::get('pay/respond/:method$', 'Pay/respond');
+    Route::get('pay/notify/:method$', 'Pay/notify');
 
     // 请求接口
-    Route::get('query$', 'Query/index')->ext('do');
+    Route::get('query$', 'Query/index');
 
     // 访问日志
-    Route::get('record$', 'Record/index')->ext('do');
+    Route::get('record$', 'Record/index');
 
     // 上传文件接口
-    Route::post('upload$', 'Upload/index')->ext('do');
+    Route::post('upload$', 'Upload/index');
 
     // 验证码接口
-    Route::get('verify/img$', 'Verify/img')->ext('do');
-    Route::post('verify/img_check$', 'Verify/imgCheck')->ext('do');
-    Route::post('verify/sms$', 'Verify/sms')->ext('do');
-    Route::post('verify/sms_check$', 'Verify/smsCheck')->ext('do');
+    Route::get('verify/img$', 'Verify/img');
+    Route::post('verify/img_check$', 'Verify/imgCheck');
+    Route::post('verify/sms$', 'Verify/sms');
+    Route::post('verify/sms_check$', 'Verify/smsCheck');
 
     // 微信接口
-    Route::get('wechat$', 'Wechat/index')->ext('do');
+    Route::get('wechat$', 'Wechat/index');
 
     Route::miss(function () {
         return Response::create(Config::get('app.app_host'), 'redirect', 302);
     });
 })
 ->domain('api')
+->ext('do')
+->https()
 ->pattern([
     'method' => '[a-z]+',
 ]);
