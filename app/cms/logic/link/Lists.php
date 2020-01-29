@@ -17,13 +17,10 @@ declare(strict_types=1);
 
 namespace app\cms\logic\link;
 
-use think\facade\Config;
-use think\facade\Lang;
-use think\facade\Request;
+use app\common\controller\BaseLogic;
 use app\model\Link as ModelLink;
-use app\library\Base64;
 
-class Lists
+class Lists extends BaseLogic
 {
 
     /**

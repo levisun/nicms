@@ -80,6 +80,7 @@ class Dashboard extends BaseLogic
         $session_path = $this->config->get('session.prefix') . DIRECTORY_SEPARATOR;
         $browse = (new ModelVisit)
             ->field('max(count) as count')->where([
+                ['name', '=', ''],
                 ['date', '=', strtotime(date('Y-m-d'))]
             ])
             ->value('count', 0);
