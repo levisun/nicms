@@ -149,6 +149,7 @@
             save: function () {
                 var data = jQuery('#link').serializeArray();
                 data.push({ name: 'method', value: 'content.link.added' });
+                data.push({ name: 'model_id', value: link.model_id });
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',

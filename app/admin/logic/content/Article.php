@@ -126,7 +126,7 @@ class Article extends BaseLogic
      */
     public function added()
     {
-        $this->actionLog(__METHOD__, 'admin category added');
+        $this->actionLog(__METHOD__, 'admin content added');
 
         $receive_data = [
             'title'       => $this->request->param('title'),

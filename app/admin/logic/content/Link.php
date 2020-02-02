@@ -74,4 +74,44 @@ class Link extends BaseLogic
             ]
         ];
     }
+
+    /**
+     * 添加
+     * @access public
+     * @return array
+     */
+    public function added()
+    {
+        $this->actionLog(__METHOD__, 'admin link added');
+
+        $receive_data = [
+            'title'       => $this->request->param('title'),
+            'logo'        => $this->request->param('logo'),
+            'url'         => $this->request->param('url'),
+            'description' => $this->request->param('description'),
+            'category_id' => $this->request->param('category_id/d'),
+            'model_id'    => $this->request->param('model_id/d'),
+            'type_id'     => $this->request->param('type_id/d', 0),
+            'admin_id'    => $this->uid,
+            'is_pass'     => $this->request->param('is_pass/d', 0),
+            'sort_order'  => $this->request->param('sort_order/d', 0),
+            'update_time' => time(),
+            'create_time' => time(),
+            'lang'        => $this->lang->getLangSet()
+        ];
+
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+
+        (new ModelLink)->save($receive_data);
+
+        // $this->cache->tag('cms nav')->clear();
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'success',
+        ];
+    }
 }

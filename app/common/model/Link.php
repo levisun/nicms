@@ -25,7 +25,6 @@ CREATE TABLE IF NOT EXISTS `nc_link` (
     `admin_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '管理员ID',
     `is_pass` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '审核',
     `sort_order` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
-    `hits` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '点击量',
     `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
     `delete_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
     `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',

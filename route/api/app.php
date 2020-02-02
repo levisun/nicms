@@ -54,7 +54,6 @@ Route::group(function () {
 })
 ->domain('api')
 ->ext('do')
-->https()
 ->pattern([
     'method' => '[a-z]+',
 ]);
