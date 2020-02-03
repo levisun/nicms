@@ -152,7 +152,7 @@ class Rbac
                     $access[$app_name['name']][$logic_name['name']][$controller_name['name']] = [
                         'index' => true,
                         'query' => true,
-                        'find' => true,
+                        'find'  => true,
                     ];
 
                     $action_list = $this->getNode($_uid, 4, (int) $controller_name['id']);

@@ -24,8 +24,10 @@
                             <input type="text" class="form-control" v-bind:name="'sort_order['+vo.id+']'"
                                 v-bind:value="vo.sort_order">
                         </td>
-                        <td v-text="vo.name"></td>
-                        <td v-text="vo.logo"></td>
+                        <td v-text="vo.title"></td>
+                        <td>
+                            <img v-if="vo.logo" v-bind:src="vo.logo">
+                        </td>
                         <td>
                             <a class="editor" v-bind:href="vo.url.editor">
                                 <i class="fa fa-pencil-square-o"></i>

@@ -79,7 +79,7 @@
                     <label>{:lang('image')}</label>
                     <input type="text" name="image_url[]" class="form-control image" v-bind:value="items.image_url">
                     <input type="file" name="upload" id="upload" v-on:change="upload('image')" class="form-control">
-                    <img v-bind:src="items.image_url" class="image-box" style="display: none;">
+                    <img v-show="items.image_url" v-bind:src="items.image_url" class="image-box">
                 </div>
             </template>
 
@@ -156,7 +156,7 @@
             <template v-if="has_type">
                 <div class="form-group">
                     <label>{:lang('type')}</label>
-                    <select class="form-control" name="type_id">
+                    <select class="form-control" name="type_id" v-model="type_id">
                         <option value="0">{:lang('select')}</option>
                         <template v-for="vo in type_list">
                             <option v-bind:value="vo.id" v-text="vo.name"
@@ -202,6 +202,7 @@
         el: '.box',
         data: {
             has_type: false,
+            type_id: 0,
             type_list: [],
             has_fields: false,
             fields_list: [],
@@ -252,6 +253,7 @@
                             article.items = result.data;
                             article.category_id = result.data.category_id;
                             article.model_id = result.data.model_id;
+                            article.type_id = result.data.type_id;
                             article.filterType();
                         }
                     }
