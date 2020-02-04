@@ -239,7 +239,8 @@ class Ipinfo
         curl_setopt($curl, CURLOPT_FAILONERROR, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 1);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 2);
         curl_setopt($curl, CURLOPT_USERAGENT, Request::server('HTTP_USER_AGENT'));
         $result = curl_exec($curl);
 

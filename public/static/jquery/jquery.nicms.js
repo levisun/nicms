@@ -11,6 +11,22 @@
     }
 }(function (jQuery) {
 
+    jQuery.scroll_more = function (_flag, _callable) {
+        var bool = "scroll-more-" + _flag + "-bool";
+        jQuery("body").attr(bool, "true");
+
+        jQuery(window).scroll(function () {
+            var is = jQuery("body").attr(bool);
+            if (is == "true" && jQuery(window).scrollTop() >= (jQuery(document).height() - jQuery(window).height()) - 200) {
+                jQuery("body").attr(bool, "false");
+                setTimeout(function(){
+                    jQuery("body").attr(bool, "true");
+                }, 1500);
+                _callable();
+            }
+        });
+    }
+
     jQuery.getParam = function (key) {
         var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)");
         var result = window.location.search.substr(1).match(reg);

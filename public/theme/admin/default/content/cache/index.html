@@ -12,12 +12,12 @@
         <p>请先执行<a v-on:click="rmRequest">清除请求缓存</a>, 如果<b>半个小时后</b>没有修复.</p>
         <p>请依次执行<a v-on:click="rmCompile">清除模板编译缓存</a>和<a v-on:click="rmRequest">清除请求缓存</a>, <b>半个小时后</b>还没有修复, 请联系管理员.</p>
 
-        <p></p>
+        <p>&nbsp;</p>
         <p><b></b>二:</b></p>
         <p>API数据缓存时间最小为<b>半个小时</b>. 非必要情况请勿<a>清除API数据缓存</a>! 清除操作会导致服务器和数据库压力增大, 网站访问变慢等问题.</p>
-        <p>如果一定要执行, 请依次执行<a v-on:click="rmCompile">清除模板编译缓存</a>, <a v-on:click="rmRequest">清除请求缓存</a>, <a v-on:click="rmApi">清除API数据缓存</a></p>
+        <p>如果一定要执行, 请依次执行<a v-on:click="rmCompile">清除模板编译缓存</a>, <a v-on:click="rmApi">清除API数据缓存</a>, <a v-on:click="rmRequest">清除请求缓存</a></p>
 
-        <p></p>
+        <p>&nbsp;</p>
         <p><b></b>三:</b></p>
         <p>如果还未解决问题, 请联系管理员.</p>
     </div>
@@ -35,6 +35,7 @@
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
+                            jQuery.uiToast(res.message);
                         }
                     }
                 });
@@ -48,6 +49,7 @@
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
+                            jQuery.uiToast(res.message);
                         }
                     }
                 });
@@ -61,6 +63,7 @@
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
+                            jQuery.uiToast(res.message);
                         }
                     }
                 });
