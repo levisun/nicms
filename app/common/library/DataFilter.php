@@ -99,34 +99,35 @@ class DataFilter
     public static function word(string $_data, int $_length = 0): array
     {
         $_data = self::filter($_data);
+        $_data = self::decode($_data);
 
-        // 匹配出中文
-        $_data = json_encode($_data);
-        if (false !== preg_match_all('/\\\u[4-9a-f]{1}[0-9a-f]{3}/si', $_data, $matches)) {
-            $matches = !empty($matches[0]) ? implode('', $matches[0]) : '';
-            $_data = $matches ? json_decode('"' . $matches . '"') : '';
+        $str = '';
+        preg_replace_callback('/\\\u[4-9a-f]{1}[0-9a-f]{3}/si', function ($matches) use(&$str) {
+            $str .= json_decode('"' . $matches[0] . '"');
+        }, json_encode($_data));
 
+        if ($str) {
             // 分词
             @ini_set('memory_limit', '128M');
             $path = app()->getRootPath() . 'vendor/lizhichao/word/Data/dict.json';
             define('_VIC_WORD_DICT_PATH_', $path);
             $fc = new \Lizhichao\Word\VicWord('json');
-            $_data = $_data ? $fc->getAutoWord($_data) : [];
+            $str = $fc->getAutoWord($str);
             unset($fc);
 
             // 取出有效词
-            foreach ($_data as $key => $value) {
+            foreach ($str as $key => $value) {
                 if (1 < mb_strlen($value[0], 'UTF-8')) {
-                    $_data[$key] = $value[0];
+                    $str[$key] = $value[0];
                 } else {
-                    unset($_data[$key]);
+                    unset($str[$key]);
                 }
             }
             // 过滤重复词
-            $_data = array_unique($_data);
+            $str = array_unique($str);
 
             // 如果设定长度,返回对应长度数组
-            return $_length ? array_slice($_data, 0, $_length) : $_data;
+            return $_length ? array_slice($str, 0, $_length) : $str;
         } else {
             return [];
         }
@@ -322,7 +323,7 @@ class DataFilter
             '/(\t|\0|\x0B)/s',
             '/( ){2,}/s',
             '/(_){2,}/s',
-            '/(-){2,}/s',
+            '/(-){3,}/s',
             '/(=){4,}/s',
         ], '', $_str);
 

@@ -172,7 +172,7 @@ class Ipinfo
      */
     private function getIpInfo(string &$_ip)
     {
-        Log::alert('[IP 采集] ' . $_ip);
+        // Log::alert('[IP 采集] ' . $_ip);
         $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
         $result = $result ? json_decode($result, true) : null;
 
@@ -180,7 +180,7 @@ class Ipinfo
             return false;
         }
 
-        $result = $result['data'];
+        $result  = $result['data'];
         $isp     = !empty($result['isp']) ? DataFilter::filter($result['isp']) : '';
         $country = !empty($result['country']) ? $this->queryRegion($result['country'], 0) : '';
         if (!$country) {
@@ -200,7 +200,7 @@ class Ipinfo
             ->value('id');
 
         if (!$has) {
-            Log::alert('[IP 录入] ' . $_ip);
+            // Log::alert('[IP 录入] ' . $_ip);
             (new ModelIpinfo)
                 ->save([
                     'ip'          => $binip,
