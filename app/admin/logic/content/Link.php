@@ -207,7 +207,7 @@ class Link extends BaseLogic
     }
 
     /**
-     * 逻辑删除
+     * 删除
      * @access public
      * @return array
      */

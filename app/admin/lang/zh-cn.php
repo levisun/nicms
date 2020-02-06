@@ -33,6 +33,8 @@ return [
     'auth content'  => '内容管理',
     'auth article'  => '文章管理',
     'auth link'     => '友链管理',
+    'auth feedback' => '反馈管理',
+    'auth message'  => '留言管理',
     'auth cache'    => '缓存',
     'auth recycle'  => '文章回收站',
 

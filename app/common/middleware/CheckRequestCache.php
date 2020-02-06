@@ -50,7 +50,7 @@ class CheckRequestCache
         }
 
         // 缓存KEY
-        $this->key = $this->appName . Lang::getLangSet() . $request->url(true);
+        $this->key = $this->appName . Lang::getLangSet() . $request->ip() . $request->url();
 
         // 返回缓存
         if ($response = $this->readCache($request)) {

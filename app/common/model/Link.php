@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS `nc_link` (
     `is_pass` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '审核',
     `sort_order` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
     `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
-    `delete_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
     `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
     `lang` varchar(10) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
     PRIMARY KEY (`id`),
@@ -35,7 +34,6 @@ CREATE TABLE IF NOT EXISTS `nc_link` (
     KEY `is_pass` (`is_pass`) USING BTREE,
     KEY `sort_order` (`sort_order`) USING BTREE,
     KEY `update_time` (`update_time`) USING BTREE,
-    KEY `delete_time` (`delete_time`) USING BTREE,
     KEY `lang` (`lang`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='友链表';
  */
@@ -51,8 +49,6 @@ class Link extends Model
     protected $name = 'link';
     protected $autoWriteTimestamp = true;
     protected $updateTime = 'update_time';
-    protected $deleteTime = 'delete_time';
-    protected $defaultSoftDelete = 0;
     protected $pk = 'id';
     protected $type = [
         'category_id' => 'integer',
@@ -76,7 +72,6 @@ class Link extends Model
         'hits',
         'sort_order',
         'update_time',
-        'delete_time',
         'create_time',
         'lang',
     ];

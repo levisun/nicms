@@ -27,7 +27,6 @@ CREATE TABLE IF NOT EXISTS `nc_message` (
     `ip` varchar(15) NOT NULL DEFAULT '' COMMENT 'IP',
     `ip_attr` varchar(100) NOT NULL DEFAULT '' COMMENT 'IP地区',
     `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
-    `delete_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
     `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
     `lang` varchar(10) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
     PRIMARY KEY (`id`),
@@ -35,7 +34,6 @@ CREATE TABLE IF NOT EXISTS `nc_message` (
     KEY `type_id` (`type_id`) USING BTREE,
     KEY `is_pass` (`is_pass`) USING BTREE,
     KEY `update_time` (`update_time`) USING BTREE,
-    KEY `delete_time` (`delete_time`) USING BTREE,
     KEY `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='留言表';
  */
@@ -49,9 +47,6 @@ class Message extends Model
     protected $name = 'message';
     protected $autoWriteTimestamp = true;
     protected $updateTime = 'update_time';
-    protected $deleteTime = 'delete_time';
-    protected $defaultSoftDelete = 0;
-    protected $dateFormat = false;
     protected $pk = 'id';
     protected $type = [
         'category_id' => 'integer',
@@ -71,7 +66,6 @@ class Message extends Model
         'ip',
         'ip_attr',
         'update_time',
-        'delete_time',
         'create_time',
         'lang',
     ];
