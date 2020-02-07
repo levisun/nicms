@@ -131,21 +131,21 @@ if (!function_exists('authorization_meta')) {
         $key = sha1(Base64::encrypt($key));
 
         $token = (new Builder)
-            // Configures the issuer (iss claim)
+            // 签发者
             ->issuedBy(Request::rootDomain())
-            // Configures the audience (aud claim)
+            // 接收者
             ->permittedFor(parse_url(Request::url(true), PHP_URL_HOST))
-            // Configures the id (jti claim), replicating as a header item
+            // 身份标识(SessionID)
             ->identifiedBy($jti, false)
-            // Configures the time that the token was issue (iat claim)
+            // 签发时间
             ->issuedAt($time)
             // Configures the time that the token can be used (nbf claim)
             ->canOnlyBeUsedAfter($time + 60)
-            // Configures the expiration time of the token (exp claim)
+            // 签发过期时间
             ->expiresAt($time + 28800)
-            // Configures a new claim, called "uid"
+            // 客户端ID
             ->withClaim('uid', $uid)
-            // Retrieves the generated token
+            // 生成token
             ->getToken(new Sha256, new Key($key));
 
         $token = 'Bearer ' . (string) $token;

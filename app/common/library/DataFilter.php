@@ -102,9 +102,15 @@ class DataFilter
         $_data = self::decode($_data);
 
         $str = '';
-        preg_replace_callback('/\\\u[4-9a-f]{1}[0-9a-f]{3}/si', function ($matches) use(&$str) {
+        // 匹配中文
+        preg_replace_callback('/\\\u[4-9a-f]{1}[0-9a-f]{3}/si', function ($matches) use (&$str) {
             $str .= json_decode('"' . $matches[0] . '"');
         }, json_encode($_data));
+        // 匹配英文
+        preg_replace_callback('/[a-zA-Z0-9 ]/si', function ($matches) use (&$str) {
+            $str .= $matches[0];
+        }, $_data);
+        $str = preg_replace('/( ){2,}/', ' ', trim($str));
 
         if ($str) {
             // 分词
@@ -118,7 +124,7 @@ class DataFilter
             // 取出有效词
             foreach ($str as $key => $value) {
                 if (1 < mb_strlen($value[0], 'UTF-8')) {
-                    $str[$key] = $value[0];
+                    $str[$key] = trim($value[0]);
                 } else {
                     unset($str[$key]);
                 }

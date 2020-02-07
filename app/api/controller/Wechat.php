@@ -18,36 +18,44 @@ declare(strict_types=1);
 namespace app\api\controller;
 
 use app\common\controller\Async;
+use app\common\library\DataFilter;
 
 class Wechat extends Async
 {
 
+    public function jssdk()
+    {
+        $h5 = '<script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js" defer="defer"></script>';
+        $h5 = ''
+
+    }
+
     public function index()
     {
-        $wobj = new \Wechat([
+        $wechat = new \Wechat([
             'token' => 'aZbAEA404q12CbZac4db9ne2fa9c12cd',                      // 填写你设定的key
             'encodingaeskey' => 'PFG9wG8bgmb5hAB8gmFpbXFGFB5z28WW5U5pA8bl8GF',  // 填写加密用的EncodingAESKey
             'appid' => 'wxcb66fe334d6c7e0c',                                    // 填写高级调用功能的app id
             'appsecret' => 'cdfec9d36594f85282cf3bf3fa7f4eed'                   // 填写高级调用功能的密钥
         ]);
 
-        // $wobj->valid();
+        // $wechat->valid();
 
         $user = [
-            'type'     => $wobj->getRev()->getRevType(),                    // 请求类型
-            'event'    => $wobj->getRevEvent(),                             // 请求事件类型
-            'formUser' => $wobj->getRevFrom(),                              // 请求用户
-            'userData' => $wobj->getUserInfo($wobj->getRevFrom()),          // 用户个人信息
+            'type'     => $wechat->getRev()->getRevType(),                    // 请求类型
+            'event'    => $wechat->getRevEvent(),                             // 请求事件类型
+            'formUser' => $wechat->getRevFrom(),                              // 请求用户
+            'userData' => $wechat->getUserInfo($wechat->getRevFrom()),          // 用户个人信息
             'key'      => [
-                'sceneId'       => default_filter($wobj->getRevSceneId()),      // 扫公众号二维码返回值
-                'eventLocation' => default_filter($wobj->getRevEventGeo()),     // 获得的地理信息
-                'text'          => default_filter($wobj->getRevContent()),      // 文字信息
-                'image'         => default_filter($wobj->getRevPic()),          // 图片信息
-                'location'      => default_filter($wobj->getRevGeo()),          // 地理信息
-                'link'          => default_filter($wobj->getRevLink()),         // 链接信息
-                'voice'         => default_filter($wobj->getRevVoice()),        // 音频信息
-                'video'         => default_filter($wobj->getRevVideo()),        // 视频信息
-                'result'        => default_filter($wobj->getRevResult())        // 群发或模板信息回复内容
+                'sceneId'       => DataFilter::filter($wechat->getRevSceneId()),      // 扫公众号二维码返回值
+                'eventLocation' => DataFilter::filter($wechat->getRevEventGeo()),     // 获得的地理信息
+                'text'          => DataFilter::filter($wechat->getRevContent()),      // 文字信息
+                'image'         => DataFilter::filter($wechat->getRevPic()),          // 图片信息
+                'location'      => DataFilter::filter($wechat->getRevGeo()),          // 地理信息
+                'link'          => DataFilter::filter($wechat->getRevLink()),         // 链接信息
+                'voice'         => DataFilter::filter($wechat->getRevVoice()),        // 音频信息
+                'video'         => DataFilter::filter($wechat->getRevVideo()),        // 视频信息
+                'result'        => DataFilter::filter($wechat->getRevResult())        // 群发或模板信息回复内容
             ],
         ];
 

@@ -65,8 +65,7 @@ class ArticleBase extends BaseLogic
         // 搜索
         if ($search_key = $this->request->param('key')) {
             $search_key = DataFilter::word($search_key, 3);
-            $search_key = implode('|', $search_key);
-            if (!empty($search_key)) {
+            if ($search_key = implode('|', $search_key)) {
                 $map[] = ['article.title', 'regexp', $search_key];
             }
         }
@@ -106,6 +105,7 @@ class ArticleBase extends BaseLogic
             if ($result) {
                 $list = $result->toArray();
                 $list['render'] = $result->render();
+                $list['search_key'] = $search_key ? : '';
 
                 foreach ($list['data'] as $key => $value) {
                     // 栏目链接

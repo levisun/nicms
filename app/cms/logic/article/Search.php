@@ -43,6 +43,7 @@ class Search extends ArticleBase
                 'current_page' => $result['current_page'],
                 'last_page'    => $result['last_page'],
                 'page'         => $result['render'],
+                'search_key'   => $result['search_key'],
             ] : []
         ];
     }

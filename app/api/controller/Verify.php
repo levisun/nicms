@@ -46,6 +46,11 @@ class Verify extends Async
         return miss(404);
     }
 
+    /**
+     * 验证图片码
+     * @access public
+     * @return
+     */
     public function imgCheck()
     {
         if ($this->analysis()->isReferer()) {
