@@ -167,7 +167,7 @@ class AccessLog
         $pattern = '/dist|base64_decode|call_user_func|chown|eval|exec|passthru|phpinfo|proc_open|popen|shell_exec|php/si';
         if (0 !== preg_match($pattern, $params)) {
             Log::warning('非法' . $log);
-        } elseif (1 <= $run_time) {
+        } elseif (3 <= $run_time) {
             Log::warning('长' . $log);
         } else {
             // Log::info($log);

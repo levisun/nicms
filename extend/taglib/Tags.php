@@ -75,9 +75,7 @@ class Tags
                 // $link = false === stripos($link, 'media')
                 //     ? str_replace('">', '" media="none" onload="if(media!=\'all\')media=\'all\'">', $link)
                 //     : $link;
-
                 $head .= $link;
-                // $head .= str_replace('\'', '"', $link) . PHP_EOL;
             }
         }
 
@@ -133,12 +131,14 @@ class Tags
 
             $head .
             '<script type="text/javascript">var NICMS = {' .
-            'domain:"//<?php echo request()->subDomain() . \'.\' . request()->rootDomain();?>",' .
+            'domain:"//<?php echo request()->subDomain() . "." . request()->rootDomain();?>",' .
             'rootDomain:"//<?php echo request()->rootDomain();?>",' .
             'url:"<?php echo request()->baseUrl(true);?>",' .
+            'iswechat:"<?php echo is_wechat() ? "true" : "false";?>",' .
+            'ismobile:"<?php echo request()->isMobile() ? "true" : "false";?>",' .
             'api:{' .
-            'url:"<?php echo config(\'app.api_host\');?>",' .
-            'param:<?php echo json_encode(app(\'request\')->param());?>' .
+            'url:"<?php echo config("app.api_host");?>",' .
+            'param:<?php echo json_encode(app("request")->param());?>' .
             '},' .
             'cdn:{' .
             'static:"__STATIC__",' .
