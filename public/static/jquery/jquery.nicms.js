@@ -11,7 +11,7 @@
     }
 }(function (jQuery) {
 
-    jQuery.scroll_more = function (_flag, _callable) {
+    jQuery.scrollMore = function (_flag, _callable) {
         var bool = "scroll-more-" + _flag + "-bool";
         jQuery("body").attr(bool, "true");
 
@@ -26,12 +26,6 @@
             }
         });
     }
-
-    jQuery.getParam = function (key) {
-        var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)");
-        var result = window.location.search.substr(1).match(reg);
-        return result ? decodeURIComponent(result[2]) : null;
-    };
 
     jQuery.uiToast = function (_tips, _time = 1.5) {
         var html = '<style type="text/css">.ui-toast-mask{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99;background:rgba(0,0,0,.2);}.ui-toast-tips{transform:translateZ(0) translateY(-500%);background:rgba(0,0,0,.7);color:#fff;font-size:14px;width:30%;line-height:1.5em;margin:0 auto;box-sizing:border-box;padding:10px;text-align:center;border-radius:4px;z-index:100;}</style><div class="ui-toast-mask"></div><div class="ui-toast-tips">' + _tips + "</div>";
@@ -214,18 +208,59 @@
         return md5(sign);
     };
 
+    /**
+     * 获得当前URL地址
+     */
+    jQuery.url = function () {
+        return "\/\/" + window.location.host + window.location.pathname + window.location.search;
+    };
+
+    /**
+     * 判断是否IOS端访问
+     */
+    jQuery.is_ios = function () {
+        return !!navigator.userAgent.match(/(Mac OS)/i);
+    };
+
+    /**
+     * 判断是否安卓端访问
+     */
+    jQuery.is_android = function () {
+        return !!navigator.userAgent.match(/(Android)/i);
+    };
+
+    /**
+     * 判断是否移动端访问
+     */
+    jQuery.is_mobile = function () {
+        return !!navigator.userAgent.match(/(blackberry|configuration\/cldc|hp |hp-|htc |htc_|htc-|iemobile|kindle|midp|mmp|motorola|mobile|nokia|opera mini|opera |Googlebot-Mobile|YahooSeeker\/M1A1-R2D2|android|iphone|ipod|mobi|palm|palmos|pocket|portalmmm|ppc;|smartphone|sonyericsson|sqh|spv|symbian|treo|up.browser|up.link|vodafone|windows ce|xda |xda_)/i);
+    };
+
+    /**
+     * 判断是否微信端访问
+     */
+    jQuery.is_wechat = function () {
+        return !!navigator.userAgent.match(/(MicroMessenger)/i);
+    };
+
+    /**
+     * 获得GET值
+     */
     jQuery.get_url_query = function (name) {
-        let reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)');
+        let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
 
         //search,查询？后面的参数，并匹配正则
         let result = window.location.search ? window.location.search.substr(1).match(reg) : null;
         if (result != null) {
-            return decodeURI(result[2]);
+            return decodeURIComponent(result[2]);
         } else {
             return null;
         }
     };
 
+    /**
+     * 设置COOKIE
+     */
     jQuery.set_cookie = function (cname, cvalue, exdays) {
         var d = new Date();
         d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
@@ -233,6 +268,9 @@
         document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
     };
 
+    /**
+     * 获得COOKIE
+     */
     jQuery.get_cookie = function (cname) {
         var name = cname + '=';
         var decodedCookie = decodeURIComponent(document.cookie);

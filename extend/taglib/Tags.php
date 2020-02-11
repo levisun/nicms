@@ -134,8 +134,6 @@ class Tags
             'domain:"//<?php echo request()->subDomain() . "." . request()->rootDomain();?>",' .
             'rootDomain:"//<?php echo request()->rootDomain();?>",' .
             'url:"<?php echo request()->baseUrl(true);?>",' .
-            'iswechat:"<?php echo is_wechat() ? "true" : "false";?>",' .
-            'ismobile:"<?php echo request()->isMobile() ? "true" : "false";?>",' .
             'api:{' .
             'url:"<?php echo config("app.api_host");?>",' .
             'param:<?php echo json_encode(app("request")->param());?>' .

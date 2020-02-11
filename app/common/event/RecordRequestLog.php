@@ -29,7 +29,7 @@ class RecordRequestLog
         is_dir($path) or mkdir($path, 0755, true);
 
         $client_ip = md5(Request::ip());
-        $log  = $path . $client_ip . '.php';
+        $log = $path . $client_ip . '.php';
         $number = is_file($log) ? include $log : '';
 
         // 非阻塞模式并发

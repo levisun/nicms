@@ -158,7 +158,7 @@ class AccessLog
         $params = array_filter($params);
         $params = !empty($params) ? PHP_EOL . json_encode($params, JSON_UNESCAPED_UNICODE) : '';
 
-        $log = '请求' . $run_time . 's, ' . $run_memory . $load_total . PHP_EOL;
+        $log  = '请求' . $run_time . 's, ' . $run_memory . $load_total . PHP_EOL;
         $log .= $url . PHP_EOL;
         $log .= Request::server('HTTP_REFERER') ? Request::server('HTTP_REFERER') . PHP_EOL : '';
         $log .= Request::server('HTTP_USER_AGENT') . PHP_EOL;
