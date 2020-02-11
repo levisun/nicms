@@ -3,7 +3,7 @@
 /**
  *
  * 验证器
- * 内容 - 文章
+ * 内容 - 友情链接
  *
  * @package   NICMS
  * @category  app\admin\validate\content

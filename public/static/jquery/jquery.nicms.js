@@ -19,7 +19,7 @@
             var is = jQuery("body").attr(bool);
             if (is == "true" && jQuery(window).scrollTop() >= (jQuery(document).height() - jQuery(window).height()) - 200) {
                 jQuery("body").attr(bool, "false");
-                setTimeout(function(){
+                setTimeout(function () {
                     jQuery("body").attr(bool, "true");
                 }, 1500);
                 _callable();
@@ -188,7 +188,7 @@
             }
         }
         _data = _data.sort(compare);
-        // console.log(_data);
+
         var sign = '';
         jQuery.each(_data, function (i, field) {
             // console.log(typeof (field.value));
@@ -203,7 +203,7 @@
         });
         sign = sign.substr(0, sign.length - 1);
         sign += jQuery('meta[name="csrf-appsecret"]').attr('content');
-        // console.log(sign);
+        console.log(sign);
 
         return md5(sign);
     };

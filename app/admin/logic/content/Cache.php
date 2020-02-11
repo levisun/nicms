@@ -32,12 +32,13 @@ class Cache extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content compile reomve');
 
-        $dir = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR;
+        $dir = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR;
+        $dir = $this->app->config->get('view.compile_path');
         $app = $this->app->config->get('app.domain_bind');
         $app = array_values($app);
         $app = array_unique($app);
         foreach ($app as $app_name) {
-            $app_name = $dir . $app_name . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR;
+            $app_name = $dir . $app_name . DIRECTORY_SEPARATOR;
             if (is_dir($app_name)) {
                 $files = scandir($app_name);
                 foreach ($files as $dir_name) {

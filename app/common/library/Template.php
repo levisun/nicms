@@ -20,7 +20,6 @@ use think\App;
 use think\contract\TemplateHandlerInterface;
 use think\exception\HttpResponseException;
 use think\Response;
-use app\common\library\Base64;
 
 class Template implements TemplateHandlerInterface
 {
@@ -93,17 +92,19 @@ class Template implements TemplateHandlerInterface
     {
         $this->app = &$app;
 
-        // 合并配置
-        $_config = DataFilter::filter($_config);
-        $this->config = array_merge($this->config, $_config);
-
         // 系统配置
-        $this->config['compile_path'] = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR .
-            Base64::flag(__DIR__ . __LINE__) . DIRECTORY_SEPARATOR .
-            $this->app->http->getName() . DIRECTORY_SEPARATOR;
+        $this->config['compile_path'] = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR;
         $this->config['view_path'] = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR;
         $this->config['tpl_compile'] = (bool) !env('app_debug', false);
+
+        // 合并配置
+        $this->config = array_merge($this->config, $_config);
+
+        // 当前应用名
         $this->config['app_name'] = $this->app->http->getName() . DIRECTORY_SEPARATOR;
+
+        // 分应用存储
+        $this->config['compile_path'] .= $this->app->http->getName() . DIRECTORY_SEPARATOR;
     }
 
     /**

@@ -16,12 +16,13 @@
 DROP TABLE IF EXISTS `nc_ads`;
 CREATE TABLE IF NOT EXISTS `nc_ads` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `name` varchar(255) NOT NULL DEFAULT '' COMMENT '广告名',
+    `name` varchar(50) NOT NULL DEFAULT '' COMMENT '广告名',
     `width` smallint(4) NOT NULL DEFAULT '0' COMMENT '图片宽',
     `height` smallint(4) NOT NULL DEFAULT '0' COMMENT '图片高',
     `image` varchar(255) NOT NULL DEFAULT '' COMMENT '图片',
     `url` varchar(500) NOT NULL DEFAULT '' COMMENT '跳转链接',
     `description` varchar(300) NOT NULL DEFAULT '' COMMENT '描述',
+    `is_pass` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '审核',
     `hits` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '点击量',
     `start_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '开始时间',
     `end_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '结束时间',
@@ -46,6 +47,7 @@ class Ads extends Model
     protected $updateTime = 'update_time';
     protected $pk = 'id';
     protected $type = [
+        'is_pass'  => 'integer',
         'width'  => 'integer',
         'height' => 'integer',
         'hits'   => 'integer',
@@ -53,6 +55,7 @@ class Ads extends Model
     protected $field = [
         'id',
         'name',
+        'is_pass',
         'width',
         'height',
         'image',
