@@ -64,6 +64,9 @@ class Ipinfo
                         ])->set($cache_key, $query_region);
 
                         $region = $query_region;
+                        $region['up'] = (new ModelIpInfo)->where([
+                            ['update_time', '>', strtotime(date('Y-m-d'))]
+                        ])->count();
                     }
                 }
             } else {
@@ -141,6 +144,7 @@ class Ipinfo
             $this->getIpInfo($_ip);
         }
 
+
         return $result;
     }
 
@@ -200,7 +204,6 @@ class Ipinfo
             ->value('id');
 
         if (!$has) {
-            // Log::alert('[IP 录入] ' . $_ip);
             (new ModelIpinfo)
                 ->save([
                     'ip'          => $binip,
@@ -213,7 +216,6 @@ class Ipinfo
                     'create_time' => time()
                 ]);
         } else {
-            Log::alert('[IP 更新] ' . $_ip);
             (new ModelIpinfo)
                 ->where([
                     ['ip', '=', $binip]

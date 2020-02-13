@@ -18,7 +18,8 @@ declare(strict_types=1);
 namespace app\cms\logic\link;
 
 use app\common\controller\BaseLogic;
-use app\model\Link as ModelLink;
+use app\common\library\Canvas;
+use app\common\model\Link as ModelLink;
 
 class Lists extends BaseLogic
 {
@@ -33,47 +34,46 @@ class Lists extends BaseLogic
     {
         $map = [
             ['link.is_pass', '=', '1'],
-            ['link.show_time', '<=', time()],
-            ['link.lang', '=', Lang::getLangSet()]
+            ['link.lang', '=', $this->lang->getLangSet()]
         ];
 
-        if ($category_id = Request::param('cid/f', null)) {
-            $map[] = ['link.category_id', '=', $category_id];
-        } else {
-            return [
-                'debug' => false,
-                'cache' => false,
-                'msg'   => Lang::get('param error'),
-                'data'  => Request::param('', [], 'trim')
-            ];
+        if ($category_id = $this->request->param('cid/d', 0)) {
+            $map[] = ['article.category_id', '=', $category_id];
         }
 
-        $result =
-            ModelLink::view('link link', ['id', 'category_id', 'title', 'url', 'logo'])
-            ->view('category category', ['name' => 'cat_name'], 'category.id=link.category_id')
-            ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id')
-            ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=link.type_id', 'LEFT')
-            ->where($map)
-            ->order('link.sort_order DESC, link.id DESC')
-            ->cache(__METHOD__ . $category_id, null, 'LISTS')
-            ->select()
-            ->toArray();
+        $cache_key = 'link list' . date('Ymd') . $category_id;
+        $cache_key = md5($cache_key);
 
-        foreach ($result as $key => $value) {
-            $value['logo'] = imgUrl($value['logo'], 100, 50);
+        if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
+            $list = (new ModelLink)
+                ->view('link link', ['id', 'category_id', 'title', 'url', 'logo'])
+                ->view('category category', ['name' => 'cat_name'], 'category.id=link.category_id')
+                ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id')
+                ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=link.type_id', 'LEFT')
+                ->where($map)
+                ->order('link.sort_order DESC, link.id DESC')
+                ->select()
+                ->toArray();
+
+            foreach ($list as $key => $value) {
+                $value['logo'] = (new Canvas)->image($value['logo']);
+
+                $list[$key] = $value;
+            }
+
+            $this->cache->tag([
+                'cms',
+                'cms link list' . $category_id
+            ])->set($cache_key, $list);
         }
 
         return [
             'debug' => false,
             'cache' => false,
-            'msg'   => Lang::get('success'),
+            'msg'   => $list ? 'link' : 'error',
             'data'  => [
-                'list'         => $result,
-                'total'        => count($result),
-                // 'per_page'     => $list['per_page'],
-                // 'current_page' => $list['current_page'],
-                // 'last_page'    => $list['last_page'],
-                // 'page'         => $list['render'],
+                'list'  => $list,
+                'total' => count($list),
             ]
         ];
     }

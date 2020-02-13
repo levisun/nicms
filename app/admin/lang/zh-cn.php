@@ -35,6 +35,7 @@ return [
     'auth link'     => '友链管理',
     'auth feedback' => '反馈管理',
     'auth message'  => '留言管理',
+    'auth ads'      => '广告管理',
     'auth cache'    => '缓存',
     'auth recycle'  => '文章回收站',
 

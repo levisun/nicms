@@ -41,7 +41,7 @@ class Ip extends Async
             } else {
                 $data = 'var NICMS_IPINFO=' . json_encode($ip, JSON_UNESCAPED_UNICODE) . ';';
                 if (false === app()->isDebug()) {
-                    $data .= 'if ("undefined" != typeof (NICMS_IPINFO)) {const xhr = new XMLHttpRequest();let ip = NICMS_IPINFO.ip.split(".");ip[2] = parseInt(Math.random() * 255, 10) + 1;ip[3] = parseInt(Math.random() * 255, 10) + 1;let timer = setInterval(function () {if (ip[3] < 255) {ip[3]++;}xhr.open("GET", "https://api.niphp.com/ip.do?json=true&ip=" + ip.join("."), true);xhr.send();if (ip[3] >= 255) {clearInterval(timer);}}, 65000);}';
+                    $data .= 'if ("undefined" != typeof (NICMS_IPINFO)) {const xhr = new XMLHttpRequest();let ip = NICMS_IPINFO.ip.split(".");ip[2] = parseInt(Math.random() * 255, 10) + 1;ip[3] = parseInt(Math.random() * 255, 10) + 1;let timer = setInterval(function () {if (ip[3] < 255) {ip[3]++;}xhr.open("GET", "https://api.niphp.com/ip.do?json=true&ip=" + ip.join("."), true);xhr.send();if (ip[3] >= 255) {clearInterval(timer);}}, 45000);}';
                 }
 
                 return Response::create($data)->allowCache(true)

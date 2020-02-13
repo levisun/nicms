@@ -231,6 +231,33 @@ class DataFilter
             // 特殊字符转HTML实体
             '*' => '&lowast;', '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;', '`' => '&acute;',
             // '“' => '&quot;', '”' => '&quot;', '‘' => '&acute;', '’' => '&acute;',
+
+            // 危险函数(方法)
+            'base64_decode'        => 'base64-decode',
+            'call_user_func_array' => 'call-user-func-array',
+            'call_user_func'       => 'call-user-unc',
+            'chown'                => 'chown;',
+            'eval'                 => 'eval;',
+            'exec'                 => 'exec;',
+            'file_get_contents'    => 'file-get-contents',
+            'file_put_contents'    => 'file-put-contents',
+            'function'             => 'function;',
+            'invoke'               => 'invoke;',
+            'passthru'             => 'passthru;',
+            'phpinfo'              => 'phpinfo;',
+            'proc_open'            => 'proc-open',
+            'popen'                => 'popen;',
+            'shell_exec'           => 'shell-exec',
+            'system'               => 'system;',
+            '__destruct'           => '__destruct;',
+            '.php'                 => '',
+
+            // 'select'               => '&#115;elect',
+            // 'drop'                 => 'dro&#112;',
+            // 'delete'               => 'd&#101;lete',
+            // 'create'               => 'cr#101;ate',
+            // 'update'               => 'updat#101;',
+            // 'insert'               => 'ins#101;rt',
         ];
 
         return str_replace(array_keys($pattern), array_values($pattern), $_str);
