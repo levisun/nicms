@@ -249,8 +249,8 @@ class DataFilter
             'popen'                => 'popen;',
             'shell_exec'           => 'shell-exec',
             'system'               => 'system;',
-            '__destruct'           => '__destruct;',
-            '.php'                 => '',
+            '__destruct'           => '--destruct',
+            '.php'                 => '-php',
 
             // 'select'               => '&#115;elect',
             // 'drop'                 => 'dro&#112;',

@@ -74,7 +74,7 @@ class Dashboard extends BaseLogic
     {
         $sum_ip = (new ModelIpInfo)->count();
         $day_ip = (new ModelIpInfo)->where([
-            ['update_time', '>', strtotime(date('Y-m-d'))]
+            ['create_time', '>', strtotime(date('Y-m-d'))]
         ])->count();
         $session_path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR;
         $session_path = $this->config->get('session.prefix') . DIRECTORY_SEPARATOR;

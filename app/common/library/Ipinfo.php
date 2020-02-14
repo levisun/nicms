@@ -65,7 +65,7 @@ class Ipinfo
 
                         $region = $query_region;
                         $region['up'] = (new ModelIpInfo)->where([
-                            ['update_time', '>', strtotime(date('Y-m-d'))]
+                            ['create_time', '>', strtotime(date('Y-m-d'))]
                         ])->count();
                     }
                 }
