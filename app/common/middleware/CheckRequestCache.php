@@ -77,12 +77,8 @@ class CheckRequestCache
             return false;
         }
 
-        // 调试模式
-        if (true === app()->isDebug()) {
-            return false;
-        }
-
-        if (Cache::has($this->key)) {
+        // 非调试模式 and 缓存存在
+        if (false === app()->isDebug() && Cache::has($this->key)) {
             $data = Cache::get($this->key);
 
             // API应用缓存

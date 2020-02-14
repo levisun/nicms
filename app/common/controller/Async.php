@@ -798,7 +798,7 @@ abstract class Async
         $response = Response::create($result, $this->format)->allowCache(false);
         $response->header(array_merge(
             $response->getHeader(),
-            ['X-Powered-By' => 'NIAPI' . count(get_included_files())]
+            ['X-Powered-By' => 'NIAPI']
         ));
         if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
             $response->allowCache(true)
