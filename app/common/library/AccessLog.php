@@ -171,7 +171,7 @@ class AccessLog
         $log .= $params ? trim(htmlspecialchars($params)) . PHP_EOL : '';
 
         $pattern = [
-            '__',
+            // '__',
             'apache_setenv',
             'base64_decode',
             'call_user_func',
@@ -179,7 +179,7 @@ class AccessLog
             'chgrp',
             'chown',
             'chroot',
-            'dl',
+            // 'dl',
             'eval',
             'exec',
             'file_get_contents',

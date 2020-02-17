@@ -26,19 +26,19 @@ Route::domain(['cdn', 'img'], function () {
 
 Route::group(function () {
     // 首页
-    Route::get('/$', 'Index/index');
-    Route::get('index$', 'Index/index');
+    Route::get('/$', 'index');
+    Route::get('index$', 'index');
 
     // 列表页
-    Route::get('list/:cid/[:page]$', 'Index/category');
-    Route::get('tags/:id/[:page]$', 'Index/tags');
-    Route::get('search$', 'Index/search');
+    Route::get('list/:cid/[:page]$', 'category');
+    Route::get('tags/:id/[:page]$', 'tags');
+    Route::get('search$', 'search');
 
     // 详情页
-    Route::get('details/:cid/:id$', 'Index/details');
+    Route::get('details/:cid/:id$', 'details');
 
     // 跳转接口
-    Route::get('go$', 'Index/go');
+    Route::get('go$', 'go');
 
     // 老版本兼容
     // Route::get('ipinfo$', '\app\api\controller\Ip@index')->ext('shtml');
@@ -47,6 +47,7 @@ Route::group(function () {
         return miss(404);
     });
 })
+->prefix('Index/')
 ->ext('html')
 ->pattern([
     'page' => '\d+',
