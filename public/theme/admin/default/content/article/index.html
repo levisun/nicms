@@ -15,7 +15,7 @@
                 </select>
             </div>
         </div>
-        <div class="no-margin pull-left">
+        <div class="pull-left" style="margin-right: 15px;">
             <div class="form-inline">
                 <label>{:lang('model')}</label>
                 <select class="form-control" v-model="model_id" v-on:change="filter">
@@ -24,6 +24,16 @@
                         <optgroup v-if="vo.id>=5" v-bind:label="vo.name"></optgroup>
                         <option v-else v-bind:value="vo.id" v-text="vo.name"></option>
                     </template>
+                </select>
+            </div>
+        </div>
+        <div class="no-margin pull-left">
+            <div class="form-inline">
+                <label>{:lang('pass')}</label>
+                <select class="form-control" v-model="is_pass" v-on:change="filter">
+                    <option value="0">{:lang('select')}</option>
+                    <option value="1">{:lang('is_pass')}</option>
+                    <option value="2">{:lang('not_pass')}</option>
                 </select>
             </div>
         </div>
@@ -55,6 +65,8 @@
                         </td>
                         <td v-text="vo.model_name"></td>
                         <td>
+                            <span class="label label-primary" v-if="vo.is_pass">{:lang('is_pass')}</span>
+                            <span class="label label-primary" v-else>{:lang('not_pass')}</span>
                             <span class="label label-primary" v-if="vo.is_com">{:lang('commend')}</span>
                             <span class="label label-primary" v-if="vo.is_hot">{:lang('hot')}</span>
                             <span class="label label-primary" v-if="vo.is_top">{:lang('top')}</span>
@@ -85,6 +97,7 @@
             category_id: 0,
             model_list: [],
             model_id: 0,
+            is_pass: 0,
             items: []
         },
         methods: {
@@ -124,6 +137,9 @@
                 if (this.model_id != 0) {
                     filter += '&mid=' + this.model_id;
                 }
+                if (this.is_pass != 0) {
+                    filter += '&pass=' + this.is_pass;
+                }
 
                 if (filter) {
                     window.location.href = '?filter' + filter;
@@ -139,6 +155,9 @@
                 if (this.model_id != 0) {
                     request += '&mid=' + this.model_id;
                 }
+                if (this.is_pass != 0) {
+                    request += '&pass=' + this.is_pass;
+                }
 
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
@@ -151,6 +170,7 @@
                         { name: 'page', value: _p },
                         { name: 'cid', value: article.category_id },
                         { name: 'mid', value: article.model_id },
+                        { name: 'pass', value: article.is_pass },
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
@@ -187,6 +207,9 @@
 
     let mid = jQuery.get_url_query('mid');
     article.model_id = mid ? mid : 0;
+
+    let pass = jQuery.get_url_query('pass');
+    article.is_pass = pass ? pass : 0;
 
     let page = jQuery.get_url_query('page');
         page = page ? page : 1;

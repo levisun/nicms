@@ -312,6 +312,18 @@
                             article.has_fields = false;
                             article.fields_list = [];
                         }
+
+                        ClassicEditor
+                            .create(document.querySelector('#editor'), {
+                                language: 'zh-cn',
+                                extraPlugins: [MyCustomUploadAdapterPlugin],
+                            })
+                            .then(editor => {
+                                window.editor = editor;
+                            })
+                            .catch(err => {
+                                console.error(err.stack);
+                            });
                     }
                 });
             },
@@ -370,19 +382,9 @@
     });
     article.load();
 
-    ClassicEditor
-        .create(document.querySelector('#editor'), {
-            language: 'zh-cn',
-            extraPlugins: [MyCustomUploadAdapterPlugin],
-        })
-        .then(editor => {
-            window.editor = editor;
-        })
-        .catch(err => {
-            console.error(err.stack);
-        });
-
     setInterval(function () {
+        console.log('cookie');
+        console.log(!!jQuery.get_cookie('editor'));
         if (jQuery.get_cookie('editor')) {
             window.editor.setData(jQuery.get_cookie('editor'));
         } else {

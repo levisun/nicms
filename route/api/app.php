@@ -36,7 +36,7 @@ Route::group(function () {
     // 访问日志
     Route::get('record$', 'Record/index');
 
-    // 上传文件接口
+    // 上传接口
     Route::post('upload$', 'Upload/index');
 
     // 验证码接口

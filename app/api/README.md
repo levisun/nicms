@@ -7,6 +7,30 @@ API说明文档
 模板中必须使用`{tags:head /}`标签添加头部,否则API请求无法通过.
 ~~~
 
+## API接口
+
+> `//api.xxx.com/download.do` `GET请求` 下载接口
+
+> `//api.xxx.com/handle.do` `POST请求` 操作接口
+
+> `//api.xxx.com/ip.do` `GET请求` IP地址信息
+
+> `//api.xxx.com/query.do` `GET请求` 查询接口
+
+> `//api.xxx.com/record.do` `GET请求` 访问日志接口
+
+> `//api.xxx.com/upload.do` `POST请求 $_FEILS变量` 上传接口
+
+> `//api.xxx.com/verify/img.do` `GET请求` 验证码接口
+
+> `//api.xxx.com/verify/img_check.do` `POST请求` 校验验证码接口
+
+> `//api.xxx.com/verify/sms.do` `GET请求` 验证码接口
+
+> `//api.xxx.com/verify/sms_check.do` `POST请求` 校验验证码接口
+
+
+
 ## API请求系统参数
 
 | 参数 | 类型 | 必填 | 作用 | 示例 |

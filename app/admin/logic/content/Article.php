@@ -54,6 +54,12 @@ class Article extends BaseLogic
             $map[] = ['model_id', '=', $model_id];
         }
 
+        // 安审核条件查询,为空查询所有
+        if ($is_pass = $this->request->param('pass/d', 0)) {
+            $is_pass = 1 == $is_pass ? 1 : 0;
+            $map[] = ['article.is_pass', '=', $is_pass];
+        }
+
         // 搜索
         if ($search_key = $this->request->param('key')) {
             $search_key = DataFilter::word($search_key, 3);
@@ -66,7 +72,7 @@ class Article extends BaseLogic
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
         $result = (new ModelArticle)
-            ->view('article', ['id', 'category_id', 'title', 'is_com', 'is_hot', 'is_top', 'username', 'access_id', 'hits', 'update_time'])
+            ->view('article', ['id', 'category_id', 'title', 'is_pass', 'is_com', 'is_hot', 'is_top', 'username', 'access_id', 'hits', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id')
             ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
