@@ -83,22 +83,25 @@ class RequestCache
 
             if ($cache) {
                 if (is_array($cache)) {
-                    [$key, $expire, $tag] = $cache;
+                    list($key, $expire, $tag) = $cache;
                 } else {
                     $key    = str_replace('|', '/', $request->url());
                     $expire = $cache;
                     $tag    = null;
                 }
 
-                if (Cache::has($key)) {
-                    $hit = Cache::get($key);
+                if (Cache::has($key) && $hit = Cache::get($key)) {
                     list($content, $header, $when) = $hit;
                     if (null === $expire || $when + $expire > $request->server('REQUEST_TIME')) {
-                        $pattern = [
-                            '<meta name="csrf-authorization" content="" />' => authorization_meta(),
-                            '<meta name="csrf-token" content="" />' => token_meta(),
-                        ];
-                        $content = str_replace(array_keys($pattern), array_values($pattern), $content);
+                        // 非API请求刷新签名等信息
+                        if ('api' !== $this->appName) {
+                            $pattern = [
+                                '<meta name="csrf-authorization" content="" />' => authorization_meta(),
+                                '<meta name="csrf-token" content="" />' => token_meta(),
+                            ];
+                            $content = str_replace(array_keys($pattern), array_values($pattern), $content);
+                        }
+
                         return Response::create($content)->header($header);
                     }
                 }
@@ -106,8 +109,6 @@ class RequestCache
         }
 
         $response = $next($request);
-
-        return $response;
 
         // API应用不进行请求缓存
         // 因业务不同缓存的开启和时长由方法中定义
@@ -125,13 +126,19 @@ class RequestCache
             $header['Cache-Control'] = 'max-age=' . $expire . ',must-revalidate';
             $header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
             $header['Expires']       = gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT';
-            $header['X-Powered-By']  = 'NI_F_CACHE' . count(get_included_files());
+            $header['X-Powered-By']  = 'NI_F_CACHE';
+            $response->header($header);
 
-            $pattern = [
-                '/<meta name="csrf-authorization" content=".*?" \/>/si' => '<meta name="csrf-authorization" content="" />',
-                '/<meta name="csrf-token" content=".*?">/si' => '<meta name="csrf-token" content="" />',
-            ];
-            $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $response->getContent());
+            $content = $response->getContent();
+
+            // 非API请求刷新签名等信息
+            if ('api' !== $this->appName) {
+                $pattern = [
+                    '/<meta name="csrf-authorization" content=".*?" \/>/si' => '<meta name="csrf-authorization" content="" />',
+                    '/<meta name="csrf-token" content=".*?">/si' => '<meta name="csrf-token" content="" />',
+                ];
+                $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $content);
+            }
 
             Cache::tag(['request', $tag])->set($key, [$content, $header, time()], $expire);
         }
@@ -145,7 +152,7 @@ class RequestCache
      * @param Request $request
      * @return mixed
      */
-    protected function getRequestCache(Request &$request)
+    protected function getRequestCache(Request $request)
     {
         $key    = $this->config['request_cache_key'];
         $expire = $this->config['request_cache_expire'];
@@ -173,7 +180,6 @@ class RequestCache
         } elseif (strpos($key, '|')) {
             [$key, $fun] = explode('|', $key);
         }
-
 
         // 特殊规则替换
         if (false !== strpos($key, '__')) {
