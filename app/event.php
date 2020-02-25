@@ -16,7 +16,7 @@ return [
     'bind'      => [],
     'listen'    => [
         'AppInit'  => [
-            \app\common\event\CheckRequestCache::class,
+            \app\common\event\CheckRequest::class,
         ],
         'HttpRun' => [],
         'HttpEnd' => [

@@ -100,7 +100,7 @@ if (!function_exists('miss')) {
             $content .= '<!DOCTYPE html><html lang="zh-cn"><head><meta charset="UTF-8"><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>' . $_code . '</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2>o(╥﹏╥)o ' . $_code . '</h2></section>{$return_url}</body></html>';
         }
 
-        $return_url = true === $_redirect
+        $return_url = (true === $_redirect)
             ? '<script type="text/javascript">setTimeout(function(){location.href = "//www.' . Request::rootDomain() . '";},3000);</script>'
             : '';
 

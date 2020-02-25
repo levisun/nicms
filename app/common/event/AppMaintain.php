@@ -48,7 +48,7 @@ class AppMaintain
 
                 // 清除过期缓存文件
                 $path = app('config')->get('cache.stores.' . app('config')->get('cache.default') . '.path') .
-                        app('config')->get('cache.stores.' . app('config')->get('cache.default') . '.prefix');
+                    app('config')->get('cache.stores.' . app('config')->get('cache.default') . '.prefix');
                 (new ReGarbage)->remove($path, 1);
 
                 // 清除过期临时文件
@@ -102,11 +102,11 @@ class AppMaintain
                 continue;
             }
             // 跳过保留目录
-            if (is_file($dir . $dir_file . DIRECTORY_SEPARATOR . '.keep.ini')) {
-                continue;
-            }
-
             if (is_dir($dir . $dir_file)) {
+                if (is_file($dir . $dir_file . DIRECTORY_SEPARATOR . '.keep.ini')) {
+                    continue;
+                }
+
                 (new ReGarbage)->remove($dir . $dir_file, 0);
                 @rmdir($dir . $dir_file);
             } elseif (is_file($dir . $dir_file)) {

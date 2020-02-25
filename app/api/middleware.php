@@ -15,5 +15,5 @@
 return [
     // 跨域
     \app\common\middleware\AllowCrossDomain::class,
-    \app\common\middleware\CheckRequestCache::class,
+    \app\common\middleware\RequestCache::class,
 ];

@@ -99,9 +99,9 @@ class CheckRequestCache
                 $response = Response::create($data['content']);
                 $response->header(['X-Powered-By' => 'NI_F_CACHE' . count(get_included_files())]);
                 $response->allowCache(true)
-                    ->cacheControl('max-age=1440,must-revalidate')
-                    ->expires(gmdate('D, d M Y H:i:s', $_request->time() + 1440) . ' GMT')
-                    ->lastModified(gmdate('D, d M Y H:i:s', $_request->time() + 1440) . ' GMT');
+                    ->cacheControl('max-age=144,must-revalidate')
+                    ->expires(gmdate('D, d M Y H:i:s', $_request->time() + 144) . ' GMT')
+                    ->lastModified(gmdate('D, d M Y H:i:s', $_request->time() + 144) . ' GMT');
             }
 
             return $response;
@@ -137,9 +137,9 @@ class CheckRequestCache
             // 其他应用 添加浏览器header缓存信息, 替换跨域签名保证有效请求
             else {
                 $_response->allowCache(true)
-                    ->cacheControl('max-age=1440,must-revalidate')
-                    ->expires(gmdate('D, d M Y H:i:s', $_request->time() + 1440) . ' GMT')
-                    ->lastModified(gmdate('D, d M Y H:i:s', $_request->time() + 1440) . ' GMT');
+                    ->cacheControl('max-age=144,must-revalidate')
+                    ->expires(gmdate('D, d M Y H:i:s', $_request->time() + 144) . ' GMT')
+                    ->lastModified(gmdate('D, d M Y H:i:s', $_request->time() + 144) . ' GMT');
 
                 $pattern = [
                     '/<meta name="csrf-authorization" content=".*?" \/>/si' => '<meta name="csrf-authorization" content="" />',

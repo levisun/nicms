@@ -21,7 +21,7 @@ use think\facade\Request;
 use think\Response;
 use think\exception\HttpResponseException;
 
-class CheckRequestCache
+class CheckRequest
 {
 
     public function handle()
@@ -31,7 +31,7 @@ class CheckRequestCache
         // IP进入显示空页面
         $this->ipRequest();
         // 304缓存
-        $this->cache304();
+        // $this->cache304();
 
         // if (1 === mt_rand(1, 999)) {
         //     Log::write('[命运]' . htmlspecialchars(Request::url(true)), 'alert');
@@ -49,7 +49,7 @@ class CheckRequestCache
         $lock = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
         $lock .= md5(Request::ip()) . '.lock';
         if (is_file($lock)) {
-            Log::write('[锁定]', 'alert');
+            Log::write('[锁定 ' . Request::ip() . Request::url(true) . ']', 'alert');
 
             if (Request::isAjax() || Request::isPjax()) {
                 $response = Response::create([
@@ -94,7 +94,7 @@ class CheckRequestCache
     private function cache304(): void
     {
         if (Request::isGet() && $ms = Request::server('HTTP_IF_MODIFIED_SINCE')) {
-            if (strtotime($ms) >= Request::time()) {
+            if (strtotime($ms) + 8 * 3600 >= Request::time()) {
                 $response = Response::create()->code(304);
                 $response->header(array_merge(
                     $response->getHeader(),
