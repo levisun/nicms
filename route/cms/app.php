@@ -32,6 +32,7 @@ Route::group(function () {
     // 列表页
     Route::get('list/:cid/[:page]$', 'category');
     Route::get('tags/:id/[:page]$', 'tags');
+    Route::get('page/:cid$', 'page');
     Route::get('search$', 'search');
 
     // 详情页

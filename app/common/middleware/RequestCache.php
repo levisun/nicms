@@ -17,9 +17,9 @@ declare(strict_types=1);
 namespace app\common\middleware;
 
 use Closure;
-use think\facade\Cache;
 use think\facade\Cookie;
 use think\facade\Session;
+use think\Cache;
 use think\Config;
 use think\Request;
 use think\Response;
@@ -54,9 +54,9 @@ class RequestCache
         'request_cache_tag'    => '',
     ];
 
-    public function __construct(Config $config)
+    public function __construct(Cache $cache, Config $config)
     {
-        // $this->cache  = $cache;
+        $this->cache  = $cache;
         $this->config = array_merge($this->config, $config->get('route'));
 
         $this->appName = app('http')->getName();
@@ -90,7 +90,7 @@ class RequestCache
                     $tag    = null;
                 }
 
-                if (Cache::has($key) && $hit = Cache::get($key)) {
+                if ($this->cache->has($key) && $hit = $this->cache->get($key)) {
                     list($content, $header, $when) = $hit;
                     if (null === $expire || $when + $expire > $request->server('REQUEST_TIME')) {
                         // 非API请求刷新签名等信息
@@ -140,7 +140,7 @@ class RequestCache
                 $content = (string) preg_replace(array_keys($pattern), array_values($pattern), $content);
             }
 
-            Cache::tag(['request', $tag])->set($key, [$content, $header, time()], $expire);
+            $this->cache->tag(['request', $tag])->set($key, [$content, $header, time()], 28800);
         }
 
         return $response;

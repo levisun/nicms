@@ -106,6 +106,16 @@ class Index extends BaseController
     }
 
     /**
+     * 单页
+     * @access public
+     * @return
+     */
+    public function page()
+    {
+        return $this->fetch('page');
+    }
+
+    /**
      * 搜索页
      * @access public
      * @return

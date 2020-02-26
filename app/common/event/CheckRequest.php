@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
+use think\facade\Config;
 use think\facade\Log;
 use think\facade\Request;
 use think\Response;
@@ -31,7 +32,7 @@ class CheckRequest
         // IP进入显示空页面
         $this->ipRequest();
         // 304缓存
-        // $this->cache304();
+        $this->cache304();
 
         // if (1 === mt_rand(1, 999)) {
         //     Log::write('[命运]' . htmlspecialchars(Request::url(true)), 'alert');
@@ -94,12 +95,16 @@ class CheckRequest
     private function cache304(): void
     {
         if (Request::isGet() && $ms = Request::server('HTTP_IF_MODIFIED_SINCE')) {
-            if (strtotime($ms) + 8 * 3600 >= Request::time()) {
+            $config = Config::get('route');
+            if ($config['request_cache_expire'] && strtotime($ms) + $config['request_cache_expire'] > Request::server('REQUEST_TIME')) {
                 $response = Response::create()->code(304);
-                $response->header(array_merge(
-                    $response->getHeader(),
-                    ['X-Powered-By' => 'NI_B_CACHE' . count(get_included_files())]
-                ));
+                $response->header([
+                    'X-Powered-By' => 'NI_B_CACHE'
+                ]);
+                // $response->header(array_merge(
+                //     $response->getHeader(),
+                //     ['X-Powered-By' => 'NI_B_CACHE' . count(get_included_files())]
+                // ));
                 throw new HttpResponseException($response);
             }
         }

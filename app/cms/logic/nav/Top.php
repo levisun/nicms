@@ -53,7 +53,11 @@ class Top extends BaseLogic
                 $value['child'] = $this->child($value['id']);
                 $value['image'] = (new Canvas)->image((string) $value['image']);
                 $value['flag'] = Base64::flag($value['id'], 7);
-                $value['url'] = url('list/' . $value['id']);
+                if (in_array($value['action_name'], ['article', 'picture', 'download'])) {
+                    $value['url'] = url('list/' . $value['id']);
+                } else {
+                    $value['url'] = url($value['action_name'] . '/' . $value['id']);
+                }
                 if ($value['access_id']) {
                     $value['url'] = url('channel/' . $value['id']);
                 }
@@ -100,7 +104,11 @@ class Top extends BaseLogic
             $value['child'] = $this->child($value['id']);
             $value['image'] = (new Canvas)->image((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
-            $value['url'] = url('list/' . $value['id']);
+            if (in_array($value['action_name'], ['article', 'picture', 'download'])) {
+                $value['url'] = url('list/' . $value['id']);
+            } else {
+                $value['url'] = url($value['action_name'] . '/' . $value['id']);
+            }
             if ($value['access_id']) {
                 $value['url'] = url('channel/' . $value['id']);
             }

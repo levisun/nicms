@@ -81,7 +81,7 @@ class ArticleBase extends BaseLogic
         $query_page = $this->request->param('page/d', 1);
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
-        $cache_key = 'article list' . date('Ymd') . $category_id .
+        $cache_key = 'article list' . $category_id .
             $com . $top . $hot . $type_id . $sort_order . $search_key .
             $query_limit . $query_page . $date_format;
         $cache_key = md5($cache_key);
@@ -153,10 +153,7 @@ class ArticleBase extends BaseLogic
                     $list['data'][$key] = $value;
                 }
 
-                $this->cache->tag([
-                    'cms',
-                    'cms article list' . $category_id
-                ])->set($cache_key, $list);
+                $this->cache->tag(['cms','cms article list' . $category_id])->set($cache_key, $list);
             }
         }
 
@@ -286,9 +283,7 @@ class ArticleBase extends BaseLogic
                         }
                     }
 
-                    $this->cache->tag([
-                        'cms'
-                    ])->set($cache_key, $result);
+                    $this->cache->tag(['cms', 'cms article details'])->set($cache_key, $result);
                 }
             }
         }
