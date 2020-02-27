@@ -49,7 +49,7 @@ class AppMaintain
                 // 清除过期缓存文件
                 $path = app('config')->get('cache.stores.' . app('config')->get('cache.default') . '.path') .
                     app('config')->get('cache.stores.' . app('config')->get('cache.default') . '.prefix');
-                // (new ReGarbage)->remove($path, 1);
+                (new ReGarbage)->remove($path, 1);
 
                 // 清除过期临时文件
                 (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1);

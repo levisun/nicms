@@ -101,10 +101,6 @@ class CheckRequest
                 $response->header([
                     'X-Powered-By' => 'NI_B_CACHE'
                 ]);
-                // $response->header(array_merge(
-                //     $response->getHeader(),
-                //     ['X-Powered-By' => 'NI_B_CACHE' . count(get_included_files())]
-                // ));
                 throw new HttpResponseException($response);
             }
         }
