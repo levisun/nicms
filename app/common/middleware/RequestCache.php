@@ -129,7 +129,7 @@ class RequestCache
             $header['X-Powered-By']  = 'NI_F_CACHE';
             $response->header($header);
 
-            $content = $response->getContent() . '<!-- static ' . date('Y-m-d H:i:s') . ' -->';
+            $content = $response->getContent();
 
             // 非API请求刷新签名等信息
             if ('api' !== $this->appName) {

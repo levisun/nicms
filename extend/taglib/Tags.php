@@ -87,8 +87,20 @@ class Tags
             '<head>' .
             '<meta charset="UTF-8" />' .
 
+            // 网站标题 关键词 描述
+            '<title>__TITLE__</title>' .
+            '<meta name="keywords" content="__KEYWORDS__" />' .
+            '<meta name="description" content="__DESCRIPTION__" />' .
+
+            '<meta property="og:title" content="__NAME__">' .
+            '<meta property="og:type" content="website">' .
+            '<meta property="og:url" content="<?php echo request()->baseUrl(true);?>">' .
+            '<meta property="og:image" content="">' .
+
             '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
             '<meta name="robots" content="all" />' .                                // 蜘蛛抓取
+            '<meta name="googlebot" content="all" />' .
+            '<meta name="baiduspider" content="all" />' .
             '<meta name="revisit-after" content="1 days" />' .                      // 蜘蛛重访
 
             '<meta name="renderer" content="webkit" />' .                           // 强制使用webkit渲染
@@ -111,16 +123,6 @@ class Tags
             '<meta name="csrf-version" content="' . $_config['tpl_config']['api_version'] . '" />' .
             '<?php echo authorization_meta();?>' .
             '<?php echo token_meta();?>' .
-
-            // 网站标题 关键词 描述
-            '<title>__TITLE__</title>' .
-            '<meta name="keywords" content="__KEYWORDS__" />' .
-            '<meta name="description" content="__DESCRIPTION__" />' .
-
-            '<meta property="og:title" content="__NAME__">' .
-            '<meta property="og:type" content="website">' .
-            '<meta property="og:url" content="<?php echo request()->baseUrl(true);?>">' .
-            '<meta property="og:image" content="">' .
 
             '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
             '<link rel="dns-prefetch" href="<?php echo config(\'app.api_host\');?>" />' .
