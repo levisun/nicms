@@ -50,27 +50,24 @@ class Ipinfo
 
         if ($_ip && $this->validate($_ip)) {
             $cache_key = md5(__METHOD__ . $_ip);
-            if (!Cache::has($cache_key)) {
-                // 查询IP地址库
-                if (!$query_region = $this->query($_ip)) {
-                    // 获得信息并录入信息
-                    if ($query_region = $this->getIpInfo($_ip)) {
-                        unset($query_region['id'], $query_region['update_time']);
-                        $query_region['ip'] = $_ip;
+            if (Cache::has($cache_key) && $region = Cache::get($cache_key)) {
+                return $region;
+            }
 
-                        Cache::tag([
-                            'SYSTEM',
-                            'ipinfo'
-                        ])->set($cache_key, $query_region);
+            // 查询IP地址库
+            if (!$query_region = $this->query($_ip)) {
+                // 获得信息并录入信息
+                if ($query_region = $this->getIpInfo($_ip)) {
+                    unset($query_region['id'], $query_region['update_time']);
+                    $query_region['ip'] = $_ip;
 
-                        $region = $query_region;
-                        $region['up'] = (new ModelIpInfo)->where([
-                            ['create_time', '>', strtotime(date('Y-m-d'))]
-                        ])->count();
-                    }
+                    Cache::tag(['SYSTEM', 'ipinfo'])->set($cache_key, $query_region);
+
+                    $region = $query_region;
+                    $region['up'] = (new ModelIpInfo)->where([
+                        ['create_time', '>', strtotime(date('Y-m-d'))]
+                    ])->count();
                 }
-            } else {
-                $region = Cache::get($cache_key);
             }
         }
 
