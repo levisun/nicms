@@ -24,7 +24,7 @@ class Handle extends Async
 
     public function index()
     {
-        if ($this->analysis()->isReferer()) {
+        if ($this->request->isPost() && $this->analysis()->isReferer()) {
             return $this->run()->cache(false)->response(
                 $this->result['msg'],
                 $this->result['data'],

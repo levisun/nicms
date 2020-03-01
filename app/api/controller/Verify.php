@@ -53,7 +53,7 @@ class Verify extends Async
      */
     public function imgCheck()
     {
-        if ($this->analysis()->isReferer()) {
+        if ($this->request->isPost() && $this->analysis()->isReferer()) {
             $captcha = (string) $this->request->param('captcha', false);
             if ($captcha && true === Captcha::check($captcha)) {
                 return $this->cache(false)->success('验证成功');
@@ -72,7 +72,7 @@ class Verify extends Async
      */
     public function sms()
     {
-        if ($this->analysis()->isReferer()) {
+        if ($this->request->isPost() && $this->analysis()->isReferer()) {
             $phone = $this->request->param('phone', false);
             if ($phone && preg_match('/^1[3-9]\d{9}$/', $phone)) {
                 $key = md5('sms_' . $phone);
@@ -112,7 +112,7 @@ class Verify extends Async
 
     public function smsCheck()
     {
-        if ($this->analysis()->isReferer()) {
+        if ($this->request->isPost() && $this->analysis()->isReferer()) {
             $phone = $this->request->param('phone', false);
             $verify = $this->request->param('verify/d', false);
             if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone) && $verify) {

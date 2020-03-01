@@ -21,8 +21,6 @@ use app\common\controller\Async;
 
 class Pay extends Async
 {
-    private $notify_url = '';
-    private $respond_url = '';
     private $pay = null;
     private $payConfig = [
         // 支付宝
@@ -60,15 +58,15 @@ class Pay extends Async
                 $type = $this->request->param('type', 'h5');
                 // 公众号支付
                 if ('js' === $type) {
-                    $result = $this->pay->jsPay($this->wechatParam());
+                    $result = $this->pay->jsPay($this->payParam());
                 }
                 // H5支付
                 elseif ('h5' === $type) {
-                    $result = $this->pay->H5Pay($this->wechatParam());
+                    $result = $this->pay->H5Pay($this->payParam());
                 }
                 // 二维码支付
                 elseif ('qrcode' === $type) {
-                    $result = $this->pay->qrcodePay($this->wechatParam());
+                    $result = $this->pay->qrcodePay($this->payParam());
                 }
             }
 
@@ -144,11 +142,33 @@ class Pay extends Async
             'out_trade_no' => $order_no,                                                        // 商户订单号 32位 数字
             'total_fee'    => $this->request->param('total_fee/f') * 100,                       // 单位分
             'goods_tag'    => mb_substr($this->request->param('goods_tag'), 0, 32, 'UTF-8'),    // 商品标记 32位
-            'notify_url'   => $this->app->config['api_host'] . 'pay/notify/wechat.html',
-            'respond_url'  => $this->app->config['api_host'] . 'pay/respond/wechat.html' . '?out_trade_no=' . $order_no,
             'product_id'   => mb_substr($this->request->param('product_id'), 0, 32, 'UTF-8'),   // 商品ID 32位
             'openid'       => $this->request->param('openid'),                                  // 请求微信OPENID JS必填
         ];
+    }
+
+    /**
+     * 支付参数
+     * @access private
+     * @return array
+     */
+    private function payParam(): array
+    {
+        $order_no = $this->orderNo();
+        $common = [
+            // 商户订单号
+            'out_trade_no' => $order_no,
+            // 异步通知回调地址
+            'notify_url'   => $this->app->config['api_host'] . 'pay/notify/wechat.html',
+            // 同步通知回调地址
+            'respond_url'  => $this->app->config['api_host'] . 'pay/respond/wechat.html' .
+                '?out_trade_no=' . $order_no,
+        ];
+
+        // 支付参数
+        // 不同支付类型参数不同
+        $param = $this->request->param('pay_param/a');
+        return array_merge($param, $common);
     }
 
     /**
