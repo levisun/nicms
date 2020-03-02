@@ -95,11 +95,13 @@ class CheckRequest
     private function cache304(): void
     {
         if (Request::isGet() && $ms = Request::server('HTTP_IF_MODIFIED_SINCE')) {
+            // halt(date('Y-m-d H:i:s', strtotime($ms) + 28800));
+
             $config = Config::get('route');
             if ($config['request_cache_expire'] && strtotime($ms) + $config['request_cache_expire'] > Request::server('REQUEST_TIME')) {
                 $response = Response::create()->code(304);
                 $response->header([
-                    'X-Powered-By' => 'NI_B_CACHE'
+                    'X-Powered-By' => 'NI_CACHE'
                 ]);
                 throw new HttpResponseException($response);
             }

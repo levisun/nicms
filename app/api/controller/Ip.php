@@ -19,6 +19,7 @@ namespace app\api\controller;
 
 use think\Response;
 use think\exception\HttpResponseException;
+use think\facade\Log;
 use app\common\controller\Async;
 use app\common\library\Ipinfo;
 
@@ -35,6 +36,7 @@ class Ip extends Async
         }
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
+        Log::info('[IP:' . $ip . ']' . $this->request->server('HTTP_REFERER'));
         if ($ip = (new Ipinfo)->get($ip)) {
             if ($this->request->param('json', false)) {
                 return $this->cache(1440)->success('IP', $ip);

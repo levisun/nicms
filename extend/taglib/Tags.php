@@ -147,8 +147,9 @@ class Tags
             'img:"__IMG__",' .
             'js:"__JS__"' .
             '}' .
-            '}</script><style type="text/css">*{moz-user-select:-moz-none;-moz-user-select:none; -o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none; user-select:none;}</style></head>';
+            '}</script></head>';
 
+            // <style type="text/css">*{moz-user-select:-moz-none;-moz-user-select:none; -o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none; user-select:none;}</style>
             // -webkit-filter: grayscale(100%);
     }
 }
