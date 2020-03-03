@@ -201,6 +201,7 @@
     });
     article.loadCategory();
     article.loadModel();
+    jQuery.set_cookie('editor', '', -1);
 
     let cid = jQuery.get_url_query('cid');
     article.category_id = cid ? cid : 0;

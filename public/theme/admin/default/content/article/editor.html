@@ -341,6 +341,7 @@
                     success: function (result) {
                         if (10000 == result.code) {
                             jQuery.uiToast(result.message);
+                            jQuery.set_cookie('editor', '');
                             history.back();
                         }
                     }
@@ -381,14 +382,10 @@
         }
     });
     article.load();
-
+    if (jQuery.get_cookie('editor')) {
+        window.editor.setData(jQuery.get_cookie('editor'));
+    }
     setInterval(function () {
-        console.log('cookie');
-        console.log(!!jQuery.get_cookie('editor'));
-        if (jQuery.get_cookie('editor')) {
-            window.editor.setData(jQuery.get_cookie('editor'));
-        } else {
-            jQuery.set_cookie('editor', window.editor.getData());
-        }
+        jQuery.set_cookie('editor', window.editor.getData());
     }, 60000);
 </script>
