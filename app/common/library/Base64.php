@@ -100,8 +100,7 @@ class Base64
      */
     public static function hexdec(string $_hex): int
     {
-        $_hex = hexdec($_hex);
-        return $_hex > 1000 ? $_hex - 1000 : $_hex;
+        return (int) hexdec($_hex) - 1000;
     }
 
     /**
@@ -127,7 +126,8 @@ class Base64
     public static function encrypt($_data, string $_salt = '')
     {
         if (is_string($_data)) {
-            $secretkey = md5(__DIR__ . Request::header('user_agent') . $_salt);
+            $_salt = $_salt ?: Request::header('user_agent');
+            $secretkey = md5(__DIR__ . $_salt);
             $secretkey = hash_hmac('sha256', $secretkey, Config::get('app.secretkey', __DIR__));
             $iv = substr(sha1($secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
             $_data = base64_encode(openssl_encrypt((string) $_data, 'AES-256-CBC', $secretkey, OPENSSL_RAW_DATA, $iv));
@@ -151,7 +151,8 @@ class Base64
     public static function decrypt($_data, string $_salt = '')
     {
         if (is_string($_data)) {
-            $secretkey = md5(__DIR__ . Request::header('user_agent') . $_salt);
+            $_salt = $_salt ?: Request::header('user_agent');
+            $secretkey = md5(__DIR__ . $_salt);
             $secretkey = hash_hmac('sha256', $secretkey, Config::get('app.secretkey', __DIR__));
             $iv = substr(sha1($secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
             $_data = openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $secretkey, OPENSSL_RAW_DATA, $iv);
