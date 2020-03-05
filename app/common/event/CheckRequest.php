@@ -27,12 +27,12 @@ class CheckRequest
 
     public function handle()
     {
-        // 频繁或非法请求将被锁定
-        $this->lock();
-        // IP进入显示空页面
-        $this->ipRequest();
         // 304缓存
         $this->cache304();
+        // IP进入显示空页面
+        $this->ipRequest();
+        // 频繁或非法请求将被锁定
+        $this->lock();
 
         // if (1 === mt_rand(1, 999)) {
         //     Log::write('[命运]' . htmlspecialchars(Request::url(true)), 'alert');

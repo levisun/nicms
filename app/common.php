@@ -107,6 +107,9 @@ if (!function_exists('miss')) {
         $content = str_replace('{$return_url}', $return_url, $content);
         return Response::create($content, 'html', $_code)
             ->header([
+                'Cache-Control'  => 'max-age=1440,must-revalidate',
+                'Last-Modified'  => gmdate('D, d M Y H:i:s') . ' GMT',
+                'Expires'        => gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT',
                 'X-Powered-By'   => 'NICMS',
                 'Content-Length' => strlen($content)
             ]);
