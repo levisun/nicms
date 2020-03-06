@@ -47,12 +47,15 @@ class AppMaintain
                 Log::alert('[REGARBAGE] 应用维护');
 
                 // 清除过期缓存文件
-                $path = app('config')->get('cache.stores.' . app('config')->get('cache.default') . '.path') .
-                    app('config')->get('cache.stores.' . app('config')->get('cache.default') . '.prefix');
+                $config_name = 'cache.stores.' . app('config')->get('cache.default') . '.';
+                $path = app('config')->get($config_name . 'path') . app('config')->get($config_name . 'prefix');
                 (new ReGarbage)->remove($path, 1);
 
                 // 清除过期临时文件
                 (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1);
+
+                // 清除游客上传的文件
+                (new ReGarbage)->remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'guest', 60);
 
                 $this->reRootDirOrFile();
             });

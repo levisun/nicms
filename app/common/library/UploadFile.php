@@ -151,17 +151,20 @@ class UploadFile
      */
     private function save(int &$_uid, \think\File &$_files): array
     {
-        // 文件保存目录
-        $_dir = 'uploads' . DIRECTORY_SEPARATOR;
 
         // 用户目录[删除用户时可删除目录]
         // 应用名第一个字符作为用户类型标记
-        $_dir .= $_uid
-            ? substr(app('http')->getName(), 0, 1) . Base64::dechex($_uid)
-            : 'guest';
+        if ($_uid) {
+            // 文件保存目录
+            $_dir = 'uploads' . DIRECTORY_SEPARATOR .
+                substr(app('http')->getName(), 0, 1) . Base64::dechex($_uid) .
+                DIRECTORY_SEPARATOR . Base64::dechex((int) date('Y') + $_uid);
+        } else {
+            $_dir = 'guest';
+        }
 
         // 子目录
-        $_dir .= DIRECTORY_SEPARATOR . Base64::dechex((int) date('Ym'));
+        // $_dir .= DIRECTORY_SEPARATOR . Base64::dechex((int) date('Ym'));
 
         $save_path = Config::get('filesystem.disks.public.url') . '/';
         $save_file = $save_path . Filesystem::disk('public')->putFile($_dir, $_files, 'uniqid');
@@ -187,8 +190,8 @@ class UploadFile
                 $image->text(Request::rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9));
             }
 
+            // 转换webp格式
             if (function_exists('imagewebp')) {
-                // 转换webp格式
                 $webp_file = str_replace('.' . $_files->extension(), '.webp', $save_file);
                 $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $webp_file, 'webp');
                 $this->writeUploadLog($webp_file);   // 记录上传文件日志
@@ -197,8 +200,10 @@ class UploadFile
                     unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
                 }
                 $save_file = $webp_file;
-            } elseif ('gif' !== $_files->extension()) {
-                // 转换jpg格式
+            }
+
+            // 转换jpg格式
+            elseif ('gif' !== $_files->extension()) {
                 $jpg_file = str_replace('.' . $_files->extension(), '.jpg', $save_file);
                 $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $jpg_file, 'jpg');
                 $this->writeUploadLog($jpg_file);   // 记录上传文件日志
