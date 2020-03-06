@@ -30,7 +30,12 @@ class UploadFile
      * 允许上传文件后缀,避免恶意修改配置文件导致的有害文件上传
      * @var array
      */
-    private $fileExtension = ['jpg', 'gif', 'png', 'webp', 'mp3', 'mp4', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'zip'];
+    private $fileExtension = [
+        'jpg', 'gif', 'png', 'webp',
+        'mp3', 'mp4',
+        'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf',
+        'zip'
+    ];
     private $fileMime = [
         'doc'  => 'application/msword',
         'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -55,9 +60,9 @@ class UploadFile
      * @var array
      */
     private $thumbSize = [
-        'width' => 0,
+        'width'  => 0,
         'height' => 0,
-        'type' => false,
+        'type'   => false,
     ];
 
     /**
