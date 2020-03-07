@@ -25,9 +25,30 @@ use app\common\library\Download;
 use app\common\model\Article as ModelArticle;
 use app\common\model\ArticleTags as ModelArticleTags;
 use app\common\model\FieldsExtend as ModelFieldsExtend;
+use app\common\model\Category as ModelCategory;
 
 class ArticleBase extends BaseLogic
 {
+
+    private function child(int $_id)
+    {
+        $child = [];
+
+        $result = (new ModelCategory)
+            ->field('id')
+            ->where([
+                ['pid', '=', $_id]
+            ])
+            ->select();
+
+        $result = $result ? $result->toArray() : [];
+        foreach ($result as $value) {
+            $arr = $this->child((int) $value['id']);
+            $child = array_merge($child, $arr);
+        }
+
+        return $child;
+    }
 
     /**
      * 查询列表
@@ -45,7 +66,11 @@ class ArticleBase extends BaseLogic
 
         // 安栏目查询,为空查询所有
         if ($category_id = $this->request->param('cid/d', 0)) {
-            $map[] = ['article.category_id', '=', $category_id];
+            $log = $this->child((int) $category_id);
+            $log[] = $category_id;
+            Log::alert(json_encode($log));
+
+            $map[] = ['article.category_id', 'in', $category_id];
         }
 
         // 推荐置顶最热,三选一
@@ -105,8 +130,7 @@ class ArticleBase extends BaseLogic
             if ($result) {
                 $list = $result->toArray();
                 $list['render'] = $result->render();
-                $list['search_key'] = $search_key ? : '';
-
+                $list['search_key'] = $search_key ?: '';
                 foreach ($list['data'] as $key => $value) {
                     // 栏目链接
                     $value['cat_url'] = url('list/' . $value['category_id']);
@@ -153,7 +177,7 @@ class ArticleBase extends BaseLogic
                     $list['data'][$key] = $value;
                 }
 
-                $this->cache->tag(['cms','cms article list' . $category_id])->set($cache_key, $list);
+                $this->cache->tag(['cms', 'cms article list' . $category_id])->set($cache_key, $list);
             }
         }
 
