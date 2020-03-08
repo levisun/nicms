@@ -68,9 +68,9 @@ class ArticleBase extends BaseLogic
         if ($category_id = $this->request->param('cid/d', 0)) {
             $log = $this->child((int) $category_id);
             $log[] = $category_id;
-            Log::alert(json_encode($log));
+            $log = array_unique($log);
 
-            $map[] = ['article.category_id', 'in', $category_id];
+            $map[] = ['article.category_id', 'in', $log];
         }
 
         // 推荐置顶最热,三选一
