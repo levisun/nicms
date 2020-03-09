@@ -21,6 +21,24 @@ use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 
+if (!function_exists('format_hits')) {
+    /**
+     * 格式化浏览与评论量
+     * @param  int $_file_size
+     * @return string
+     */
+    function format_hits(int $_hits): string
+    {
+        if ($_hits > 10000) {
+            $_hits = number_format($_hits / 10000, 2) . 'W+';
+        } elseif ($_hits > 1000) {
+            $_hits = number_format($_hits / 1000, 2) . 'K+';
+        }
+
+        return $_hits;
+    }
+}
+
 if (!function_exists('format_size')) {
     /**
      * 格式化文件大小

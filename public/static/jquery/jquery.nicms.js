@@ -302,6 +302,6 @@
         for (let i = 0; i < str.length; i++) {
             specialStr += str.substr(i, 1).replace(pattern, '');
         }
-        return specialStr;
+        return encodeURI(specialStr);
     }
 }));

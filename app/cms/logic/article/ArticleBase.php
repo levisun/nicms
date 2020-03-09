@@ -30,6 +30,11 @@ use app\common\model\Category as ModelCategory;
 class ArticleBase extends BaseLogic
 {
 
+    /**
+     * 查询当前栏目的所有子栏目
+     * @access protected
+     * @return array|false
+     */
     private function child(int $_id)
     {
         $child = [];
@@ -69,7 +74,6 @@ class ArticleBase extends BaseLogic
             $log = $this->child((int) $category_id);
             $log[] = $category_id;
             $log = array_unique($log);
-
             $map[] = ['article.category_id', 'in', $log];
         }
 
@@ -89,7 +93,8 @@ class ArticleBase extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
-            $search_key = DataFilter::word($search_key, 3);
+            // 搜索5个词
+            $search_key = DataFilter::word($search_key, 5);
             if ($search_key = implode('|', $search_key)) {
                 $map[] = ['article.title', 'regexp', $search_key];
             }

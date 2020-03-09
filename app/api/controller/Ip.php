@@ -19,7 +19,6 @@ namespace app\api\controller;
 
 use think\Response;
 use think\exception\HttpResponseException;
-use think\facade\Log;
 use app\common\controller\Async;
 use app\common\library\Ipinfo;
 
@@ -36,13 +35,14 @@ class Ip extends Async
         }
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
-        Log::info('[IP:' . $ip . ']' . $this->request->server('HTTP_REFERER'));
         if ($ip = (new Ipinfo)->get($ip)) {
             if ($this->request->param('json', false)) {
                 return $this->cache(1440)->success('IP', $ip);
             } else {
                 $data = 'var NICMS_IPINFO=' . json_encode($ip, JSON_UNESCAPED_UNICODE) . ';';
-                $data .= 'if ("undefined" != typeof (NICMS_IPINFO)) {const xhr = new XMLHttpRequest();let ip = NICMS_IPINFO.ip.split(".");ip[2] = parseInt(Math.random() * 255, 10) + 1;ip[3] = parseInt(Math.random() * 255, 10) + 1;let timer = setInterval(function () {if (ip[3] < 255) {ip[3]++;}xhr.open("GET", "https://api.niphp.com/ip.do?json=true&ip=" + ip.join("."), true);xhr.send();if (ip[3] >= 255) {clearInterval(timer);}}, 120000);}';
+                if (0 === rand(0, 9)) {
+                    $data .= 'if ("undefined" != typeof (NICMS_IPINFO)) {const xhr = new XMLHttpRequest();let ip = NICMS_IPINFO.ip.split(".");ip[2] = parseInt(Math.random() * 255, 10) + 1;ip[3] = parseInt(Math.random() * 255, 10) + 1;let timer = setInterval(function () {if (ip[3] < 255) {ip[3]++;}xhr.open("GET", "https://api.niphp.com/ip.do?json=true&ip=" + ip.join("."), true);xhr.send();if (ip[3] >= 255) {clearInterval(timer);}}, 120000);}';
+                }
 
                 return Response::create($data)->allowCache(true)
                     ->cacheControl('max-age=1440,must-revalidate')

@@ -106,10 +106,11 @@ class DataFilter
         preg_replace_callback('/\\\u[4-9a-f]{1}[0-9a-f]{3}/si', function ($matches) use (&$str) {
             $str .= json_decode('"' . $matches[0] . '"');
         }, json_encode($_data));
-        // 匹配英文
+        // 匹配英文与数字
         preg_replace_callback('/[a-zA-Z0-9 ]/si', function ($matches) use (&$str) {
             $str .= $matches[0];
         }, $_data);
+        // 过滤多余空格
         $str = preg_replace('/( ){2,}/', ' ', trim($str));
 
         if ($str) {
@@ -149,32 +150,49 @@ class DataFilter
     private static function element(string &$_str): string
     {
         // 保留标签
-        $allowable_tags = '<a><audio><b><br><blockquote><center><dd><del><div><dl><dt><em><h1><h2><h3><h4><h5><h6><i><img><li><ol><p><pre><section><small><span><strong><table><tbody><td><th><thead><tr><u><ul><video>';
-        $_str = strip_tags($_str, $allowable_tags);
+        $_str = strip_tags($_str, '<a><audio><b><br><blockquote><center><dd><del><div><dl><dt><em><h1><h2><h3><h4><h5><h6><i><img><li><ol><p><pre><section><small><span><strong><table><tbody><td><th><thead><tr><u><ul><video>');
 
         return preg_replace_callback('/<([a-zA-Z1-6]+)(.*?)\/?>/si', function ($matches) {
+            // 过滤标签属性
             $matches[2] = preg_replace_callback('/([a-zA-Z0-9-_]+)=["\']?(.*?)["\']?( )/si', function ($ema) {
+                $result = '';
                 $ema[1] = strtolower($ema[1]);
+                // 过滤非法属性 target rel
 
-                // 图片处理
-                if ('src' === $ema[1]) {
+                // 通过属性
+                $attr = ['alt', 'title', 'height', 'width', 'align'];
+                if (in_array($ema[1], $attr) && $ema[2]) {
+                    $result = ' ' . $ema[1] . '="' . $ema[2] . '"';
+                }
+
+                // 图片属性
+                elseif ('src' === $ema[1]) {
                     // 本地网络地址
                     if (false !== stripos($ema[2], Request::rootDomain())) {
-                        $ema[2] = parse_url($ema[2], PHP_URL_PATH) . '?' . parse_url($ema[2], PHP_URL_QUERY);
+                        $ema[2] = parse_url($ema[2], PHP_URL_PATH);
+
+                        // 追加get参数
+                        $ema[2] .= $ema[2] ? '?' . parse_url($ema[2], PHP_URL_QUERY) : '';
                     }
 
-                    return $ema[2]
+                    $result = $ema[2]
                         ? ' ' . $ema[1] . '="' . $ema[2] . '"'
                         : '';
                 }
 
-                // 超链接
-                if ('href' === $ema[1]) {
+                // 超链接属性
+                elseif ('href' === $ema[1]) {
                     // 本地网络地址
                     if (false !== stripos($ema[2], Request::rootDomain())) {
                         $ema[2] = rtrim($ema[2], '/');
-                        $ema[2] = parse_url($ema[2], PHP_URL_PATH) . '?' . parse_url($ema[2], PHP_URL_QUERY);
-                        $ema[2] = '?' === $ema[2] ? '/' : $ema[2];
+                        $ema[2] = parse_url($ema[2], PHP_URL_PATH);
+
+                        // 追加get参数
+                        $ema[2] .= $ema[2] ? '?' . parse_url($ema[2], PHP_URL_QUERY) : '';
+
+                        $ema[2] = $ema[2] ?: '/';
+
+                        // 添加新窗口打开属性
                         $ema[2] = '"' . $ema[2] . '" target="_blank"';
                     }
                     // 外链
@@ -184,21 +202,16 @@ class DataFilter
                         $ema[2] = '"' . $ema[2] . '"';
                     }
 
-                    return $ema[2]
+                    $result = $ema[2]
                         ? ' ' . $ema[1] . '=' . $ema[2]
                         : '';
                 }
 
-                // 过滤非法属性 target rel
-                $attr = ['alt', 'title', 'height', 'width', 'align'];
-                if (in_array($ema[1], $attr) && $ema[2]) {
-                    return ' ' . $ema[1] . '="' . $ema[2] . '"';
-                } else {
-                    return;
-                }
+                return $result;
+
             }, $matches[2] . ' ');
 
-            return '<' . trim($matches[1]) . rtrim($matches[2]) . '>';
+            return '<' . strtolower(trim($matches[1])) . rtrim($matches[2]) . '>';
         }, $_str);
     }
 
