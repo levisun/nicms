@@ -373,7 +373,7 @@ class DataFilter
             '/(=){4,}/s',
         ], '', $_str);
 
-        // 过滤前斜杠,反斜杠,点避免非法目录操作
+        // 过滤斜杠,反斜杠,点避免非法目录操作
         $_str = trim($_str);
         $_str = trim(trim($_str, ',_-'));
         $_str = trim(ltrim($_str, '\/.'));

@@ -771,7 +771,6 @@ abstract class Async
             'runtime' =>
                 number_format(microtime(true) - $this->app->getBeginTime(), 3) . ', ' .
                 number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . ', ' .
-                // count(get_included_files()) . ', ' .
                 (true === $this->apiCache ? $this->apiExpire : 'no'),
 
             // 返回地址
