@@ -69,7 +69,7 @@ class Index extends BaseController
                     ['category.is_show', '=', 1],
                     ['category.id', '=', $cid],
                 ])
-                ->cache((string) $cid)
+                ->cache('theme_' . (string) $cid)
                 ->value('model.name');
 
             if ($model_name) {
@@ -94,7 +94,7 @@ class Index extends BaseController
                     ['category.is_show', '=', 1],
                     ['category.id', '=', $cid],
                 ])
-                ->cache((string) $cid)
+                ->cache('theme_' . (string) $cid)
                 ->value('model.name');
 
             if ($model_name) {
