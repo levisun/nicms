@@ -1,0 +1,104 @@
+<div id="layout-details">
+    <div class="row">
+        {include file="sideber"}
+        <div id="list" class="col-md-9">
+            {include file="breadcrumb"}
+            <div class="card">
+                <div class="card-body">
+                    <h3><a v-bind:href="items.url" v-html="items.title"></a></h3>
+                    <p class="text-muted">
+                        <span style="margin-right:10px;">
+                            <i class="fa fa-calendar-day"></i>
+                            <font v-text="items.update_time"></font>
+                        </span>
+                        <span style="margin-right:10px;">
+                            <i class="fa fa-calendar-day"></i>
+                            <a v-bind:href="items.cat_url" v-text="items.cat_name"></a>
+                        </span>
+                        <span style="margin-right:10px;">
+                            <i class="fa fa-user"></i>
+                            <font v-text="items.author"></font>
+                        </span>
+                        <span style="margin-right:10px;">
+                            <i class="fa fa-eye"></i>
+                            <font v-text="items.hits"></font>
+                        </span>
+                    </p>
+                    <div class="details" v-html="items.content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let = details = new Vue({
+        el: '#layout-details',
+        data: {
+            sideber: [],
+            breadcrumb: [],
+            items: [],
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.sidebar.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            details.sideber = result.data;
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.breadcrumb.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            details.breadcrumb = result.data;
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'article.details.query' },
+                        { name: 'page_id', value: NICMS.api.param.cid }
+                    ],
+                    success: function (result) {
+                        if (result.code == '10000' && result.message != 'error') {
+                            details.items = result.data;
+                            jQuery.pjax({
+                                url: NICMS.api.url + '/query.do',
+                                method: 'get',
+                                data: [
+                                    { name: 'method', value: 'article.details.hits' },
+                                    { name: 'id', value: NICMS.api.param.id }
+                                ],
+                                success: function (result) {
+                                    if (result.code == '10000') {
+                                        details.items.hits = result.data.hits;
+                                    }
+                                }
+                            });
+                        } else {
+                            window.location.href = '/404.html';
+                        }
+                    }
+                });
+            }
+        }
+    });
+    details.load();
+</script>

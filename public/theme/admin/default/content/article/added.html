@@ -27,10 +27,10 @@
                 <select class="form-control" name="category_id" v-model="category_id" v-on:change="filterType">
                     <option value="0">{:lang('select')}</option>
                     <template v-for="vo in category_list">
-                        <optgroup v-if="vo.child || vo.model_id>=4" v-bind:label="vo.name"></optgroup>
+                        <optgroup v-if="vo.child || vo.model_id>=5" v-bind:label="vo.name"></optgroup>
                         <option v-else v-bind:value="vo.id" v-text="vo.name"></option>
                         <template v-for="v in vo.child">
-                            <optgroup v-if="v.child || v.model_id>=4" v-bind:label="v.name"></optgroup>
+                            <optgroup v-if="v.child || v.model_id>=5" v-bind:label="v.name"></optgroup>
                             <option v-else v-bind:value="v.id" v-text="v.name"></option>
                         </template>
                     </template>

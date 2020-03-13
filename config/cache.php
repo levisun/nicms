@@ -13,7 +13,6 @@
  */
 
 use think\facade\Env;
-use think\facade\Request;
 use app\common\library\Base64;
 
 return [

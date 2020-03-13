@@ -61,7 +61,7 @@ class Tags
         // meta标签
         if (!empty($_config['tpl_config']['meta'])) {
             foreach ($_config['tpl_config']['meta'] as $meta) {
-                $head .= str_replace('\'', '"', $meta) . PHP_EOL;
+                $head .= str_replace('\'', '"', $meta);
             }
         }
         // link标签
@@ -71,6 +71,12 @@ class Tags
                 $link = preg_replace('/( ){2,}/si', '', $link);
                 // 替换引号
                 $link = str_replace(['\'', '/>'], ['"', '>'], $link);
+
+                $link = false === stripos($link, 'preload') && false === stripos($link, 'prefetch')
+                    ? str_replace('rel="', 'rel="preload ', $link)
+                    : $link;
+
+
                 // 添加异步加载属性
                 // $link = false === stripos($link, 'media')
                 //     ? str_replace('">', '" media="none" onload="if(media!=\'all\')media=\'all\'">', $link)
@@ -149,7 +155,7 @@ class Tags
             '}' .
             '}</script></head>';
 
-            // <style type="text/css">*{moz-user-select:-moz-none;-moz-user-select:none; -o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none; user-select:none;}</style>
-            // -webkit-filter: grayscale(100%);
+        // <style type="text/css">*{moz-user-select:-moz-none;-moz-user-select:none; -o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none; user-select:none;}</style>
+        // -webkit-filter: grayscale(100%);
     }
 }

@@ -12,6 +12,8 @@
  * @since     2019
  */
 
+use think\facade\Env;
+
 return [
     // pathinfo分隔符
     'pathinfo_depr'         => '/',
@@ -36,7 +38,7 @@ return [
     // 默认的路由变量规则
     'default_route_pattern' => '[\w\.]+',
     // 是否开启请求缓存 true自动缓存 支持设置请求缓存规则
-    'request_cache_key'     => true,
+    'request_cache_key'     => !(bool) Env::get('app_debug', false),
     // 请求缓存有效期
     'request_cache_expire'  => 1440,
     // 全局请求缓存排除规则

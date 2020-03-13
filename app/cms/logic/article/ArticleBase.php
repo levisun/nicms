@@ -196,6 +196,7 @@ class ArticleBase extends BaseLogic
      */
     protected function ArticleDetails()
     {
+        $id = $page_id = false;
         if ($id = $this->request->param('id/d')) {
             $map = [
                 ['article.id', '=', $id],
@@ -203,6 +204,18 @@ class ArticleBase extends BaseLogic
                 ['article.delete_time', '=', '0'],
                 ['article.show_time', '<', time()],
             ];
+        }
+        // 单页
+        elseif ($page_id = $this->request->param('page_id/d')) {
+            $map = [
+                ['article.category_id', '=', $page_id],
+                ['article.is_pass', '=', '1'],
+                ['article.delete_time', '=', '0'],
+                ['article.show_time', '<', time()],
+            ];
+        }
+
+        if ($id || $page_id) {
             $cache_key = md5('article details' . $id);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $result = (new ModelArticle)
@@ -231,8 +244,8 @@ class ArticleBase extends BaseLogic
 
                     // 上一篇 下一篇
                     if ($result['model_id'] <= 3) {
-                        $result['next'] = $this->next((int) $result['id']);
-                        $result['prev'] = $this->prev((int) $result['id']);
+                        $result['next'] = $this->next((int) $result['id'], (int) $result['category_id']);
+                        $result['prev'] = $this->prev((int) $result['id'], (int) $result['category_id']);
                     }
 
                     // 附加字段数据
@@ -268,7 +281,7 @@ class ArticleBase extends BaseLogic
                     unset($result['table_name']);
                     $content = $this->app->make('\app\common\model\\' . $model);
                     $content = $content->where([
-                        ['article_id', '=', $id]
+                        ['article_id', '=', $result['id']]
                     ])->find();
                     if ($content && $content = $content->toArray()) {
                         unset($content['id'], $content['article_id']);
@@ -354,13 +367,15 @@ class ArticleBase extends BaseLogic
      * 下一篇
      * @access protected
      * @param  int      $_id
+     * @param  int      $_category_id
      * @return array
      */
-    protected function next(int $_id)
+    protected function next(int $_id, int $_category_id)
     {
         $next_id = (new ModelArticle)
             ->where([
                 ['is_pass', '=', 1],
+                ['category_id', '=', $_category_id],
                 ['show_time', '<', time()],
                 ['id', '>', $_id]
             ])
@@ -391,13 +406,15 @@ class ArticleBase extends BaseLogic
      * 上一篇
      * @access protected
      * @param  int      $_id
+     * @param  int      $_category_id
      * @return array
      */
-    protected function prev(int $_id)
+    protected function prev(int $_id, int $_category_id)
     {
         $prev_id = (new ModelArticle)
             ->where([
                 ['is_pass', '=', 1],
+                ['category_id', '=', $_category_id],
                 ['show_time', '<', time()],
                 ['id', '<', $_id]
             ])
