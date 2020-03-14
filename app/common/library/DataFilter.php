@@ -47,7 +47,7 @@ class DataFilter
     }
 
     /**
-     * 内容过滤转义
+     * 内容编码(转义)
      * @access public
      * @static
      * @param  string|array $_data
@@ -60,6 +60,7 @@ class DataFilter
             $_data = self::element($_data);
             $_data = self::symbol($_data);
             $_data = (new Emoji)->encode($_data);
+            $_data = str_replace('<p>&nbsp;</p>', '', $_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
@@ -208,7 +209,6 @@ class DataFilter
                 }
 
                 return $result;
-
             }, $matches[2] . ' ');
 
             return '<' . strtolower(trim($matches[1])) . rtrim($matches[2]) . '>';
@@ -287,18 +287,18 @@ class DataFilter
     {
         $pattern = [
             // 特殊字符转义
-            // 'base64_decode'        => 'ba&#115;e64_decode',
-            // 'call_user_func_array' => 'cal&#108;_user_func_array',
-            // 'call_user_func'       => 'cal&#108;_user_func',
-            // 'chown'                => 'ch&#111;wn',
-            // 'eval'                 => 'ev&#97;l',
-            // 'exec'                 => 'ex&#101;c',
-            // 'passthru'             => 'pa&#115;sthru',
-            // 'phpinfo'              => 'ph&#112;info',
-            // 'proc_open'            => 'pr&#111;c_open',
-            // 'popen'                => 'po&#112;en',
-            // 'shell_exec'           => 'sh&#101;ll_ex&#101;c',
-            // 'system'               => 'sy&#115;tem',
+            'base64_decode'        => 'ba&#115;e64_decode',
+            'call_user_func_array' => 'cal&#108;_user_func_array',
+            'call_user_func'       => 'cal&#108;_user_func',
+            'chown'                => 'ch&#111;wn',
+            'eval'                 => 'ev&#97;l',
+            'exec'                 => 'ex&#101;c',
+            'passthru'             => 'pa&#115;sthru',
+            'phpinfo'              => 'ph&#112;info',
+            'proc_open'            => 'pr&#111;c_open',
+            'popen'                => 'po&#112;en',
+            'shell_exec'           => 'sh&#101;ll_ex&#101;c',
+            'system'               => 'sy&#115;tem',
 
             // 'select'               => '&#115;elect',
             // 'drop'                 => 'dro&#112;',
