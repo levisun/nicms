@@ -53,6 +53,7 @@ class Link extends BaseLogic
         $list['render'] = $result->render();
 
         foreach ($list['data'] as $key => $value) {
+            $value['logo'] = '/' . $value['logo'];
             $value['url'] = [
                 'editor' => url('content/link/editor/' . $value['id']),
                 'remove' => url('content/link/remove/' . $value['id']),

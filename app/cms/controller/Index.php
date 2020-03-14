@@ -116,6 +116,16 @@ class Index extends BaseController
     }
 
     /**
+     * 友链
+     * @access public
+     * @return
+     */
+    public function link()
+    {
+        return $this->fetch('link');
+    }
+
+    /**
      * 搜索页
      * @access public
      * @return

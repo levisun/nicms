@@ -33,6 +33,7 @@ Route::group(function () {
     Route::get('list/:cid/[:page]$', 'category');
     Route::get('tags/:id/[:page]$', 'tags');
     Route::get('page/:cid$', 'page');
+    Route::get('link/:cid$', 'link');
     Route::get('search$', 'search');
 
     // 详情页

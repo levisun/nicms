@@ -41,11 +41,9 @@ CREATE TABLE IF NOT EXISTS `nc_link` (
 namespace app\common\model;
 
 use think\Model;
-use think\model\concern\SoftDelete;
 
 class Link extends Model
 {
-    use SoftDelete;
     protected $name = 'link';
     protected $autoWriteTimestamp = true;
     protected $updateTime = 'update_time';
