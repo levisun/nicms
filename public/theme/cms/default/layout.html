@@ -53,6 +53,11 @@
     <div class="container">
         <div class="row">
             <div class="col-sm text-white-50">
+                <p>
+                    <template v-for="vo in foot_nav">
+                        <a v-bind:href="vo.url" v-text="vo.name"></a>
+                    </template>
+                </p>
                 <p>__FOOTER_MSG__</p>
                 <p>__COPYRIGHT__</p>
             </div>
@@ -63,10 +68,11 @@
 __SCRIPT__
 
 <script>
-    let layout = new Vue({
-        el: '.navbar',
+    let layout_header = new Vue({
+        el: '#layout-header',
         data: {
             nav: [],
+            foot_nav: [],
         },
         methods: {
             navbar: function () {
@@ -78,7 +84,19 @@ __SCRIPT__
                     ],
                     success: function (result) {
                         if (10000 == result.code) {
-                            layout.nav = result.data;
+                            layout_header.nav = result.data;
+                        }
+                    }
+                });
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.foot.query' }
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            layout_header.foot_nav = result.data;
                         }
                     }
                 });
@@ -92,5 +110,29 @@ __SCRIPT__
             }
         }
     });
-    layout.navbar();
+    layout_header.navbar();
+
+    let layout_footer = new Vue({
+        el: '#layout-footer',
+        data: {
+            foot_nav: [],
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.foot.query' }
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            layout_footer.foot_nav = result.data;
+                        }
+                    }
+                });
+            },
+        }
+    });
+    layout_footer.load();
 </script>

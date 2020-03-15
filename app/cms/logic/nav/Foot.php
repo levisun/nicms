@@ -114,6 +114,6 @@ class Foot extends BaseLogic
             $result[$key] = $value;
         }
 
-        return $result ? $result : false;
+        return $result ? $result : [];
     }
 }

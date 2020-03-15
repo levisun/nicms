@@ -5,7 +5,11 @@
             {include file="breadcrumb"}
             <div class="card">
                 <div class="card-body">
-
+                    <template v-for="vo in items">
+                        <p>
+                            <a v-bind:href="vo.url" rel="nofollow" target="_blank" v-text="vo.title"></a>
+                        </p>
+                    </template>
                 </div>
             </div>
         </div>
@@ -59,7 +63,7 @@
                     ],
                     success: function (result) {
                         if (result.code == '10000' && result.message != 'error') {
-                            link.items = result.data;
+                            link.items = result.data.list;
                         } else {
                             window.location.href = '/404.html';
                         }

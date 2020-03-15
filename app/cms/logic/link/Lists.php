@@ -57,7 +57,6 @@ class Lists extends BaseLogic
 
             foreach ($list as $key => $value) {
                 $value['logo'] = (new Canvas)->image($value['logo']);
-
                 $list[$key] = $value;
             }
 
@@ -69,11 +68,12 @@ class Lists extends BaseLogic
 
         return [
             'debug' => false,
-            'cache' => false,
+            'cache' => true,
             'msg'   => $list ? 'link' : 'error',
             'data'  => [
                 'list'  => $list,
                 'total' => count($list),
+                'url_format' => 'rel="nofollow" target="_blank"',
             ]
         ];
     }
