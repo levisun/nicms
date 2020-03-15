@@ -34,6 +34,8 @@ Route::group(function () {
     Route::get('tags/:id/[:page]$', 'tags');
     Route::get('page/:cid$', 'page');
     Route::get('link/:cid$', 'link');
+    Route::get('feedback/:cid$', 'feedback');
+    Route::get('message/:cid$', 'message');
     Route::get('search$', 'search');
 
     // 详情页

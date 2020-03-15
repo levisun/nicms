@@ -331,4 +331,40 @@ class Category extends BaseLogic
             'msg'   => 'success'
         ];
     }
+
+    /**
+     * 排序
+     * @access public
+     * @return array
+     */
+    public function sort(): array
+    {
+        $this->actionLog(__METHOD__, 'admin category sort');
+
+        $sort_order = $this->request->param('sort_order/a');
+        if (empty($sort_order)) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40001,
+                'msg'   => 'error'
+            ];
+        }
+
+        $list = [];
+        foreach ($sort_order as $key => $value) {
+            if ($value) {
+                $list[] = ['id' => (int) $key, 'sort_order' => (int) $value];
+            }
+        }
+        if (!empty($list)) {
+            (new ModelCategory)->saveAll($list);
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'success'
+        ];
+    }
 }

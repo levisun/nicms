@@ -51,7 +51,7 @@ class Lists extends BaseLogic
                 ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id')
                 ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=link.type_id', 'LEFT')
                 ->where($map)
-                ->order('link.sort_order DESC, link.id DESC')
+                ->order('link.type_id DESC, link.sort_order DESC, link.id DESC')
                 ->select()
                 ->toArray();
 

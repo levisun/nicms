@@ -1,0 +1,72 @@
+<div id="layout-link">
+    <div class="row">
+        {include file="sideber"}
+        <div id="list" class="col-md-9">
+            {include file="breadcrumb"}
+            <div class="card">
+                <div class="card-body">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let = link = new Vue({
+        el: '#layout-link',
+        data: {
+            sideber: [],
+            breadcrumb: [],
+            items: [],
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.sidebar.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            link.sideber = result.data;
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.breadcrumb.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            link.breadcrumb = result.data;
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'link.lists.query' },
+                        { name: 'id', value: NICMS.api.param.cid }
+                    ],
+                    success: function (result) {
+                        if (result.code == '10000' && result.message != 'error') {
+                            link.items = result.data;
+                        } else {
+                            window.location.href = '/404.html';
+                        }
+                    }
+                });
+            }
+        }
+    });
+    link.load();
+</script>

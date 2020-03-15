@@ -42,51 +42,61 @@
         </div>
     </div>
     <div class="box-body">
-        <table class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>{:lang('title')}</th>
-                    <th>{:lang('category')}</th>
-                    <th>{:lang('model name')}</th>
-                    <th>{:lang('status')}</th>
-                    <th>{:lang('access name')}</th>
-                    <th>{:lang('update time')}</th>
-                    <th>{:lang('operation')}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <template v-for="vo in items.list">
+        <form id="article">
+            <table class="table table-bordered table-striped">
+                <thead>
                     <tr>
-                        <td>
-                            <a v-bind:href="vo.url.url" target="_blank" v-text="vo.title"></a>
-                        </td>
-                        <td>
-                            <a v-bind:href="vo.url.cat_url" target="_blank" v-text="vo.cat_name"></a>
-                        </td>
-                        <td v-text="vo.model_name"></td>
-                        <td>
-                            <span class="label label-primary" v-if="vo.is_pass">{:lang('is_pass')}</span>
-                            <span class="label label-primary" v-else>{:lang('not_pass')}</span>
-                            <span class="label label-primary" v-if="vo.is_com">{:lang('commend')}</span>
-                            <span class="label label-primary" v-if="vo.is_hot">{:lang('hot')}</span>
-                            <span class="label label-primary" v-if="vo.is_top">{:lang('top')}</span>
-                        </td>
-                        <td v-text="vo.access_name"></td>
-                        <td v-text="vo.update_time"></td>
-                        <td>
-                            <a class="editor" v-if="model_id<=4" v-bind:href="vo.url.editor">
-                                <i class="fa fa-pencil-square-o"></i>
-                                {:lang('editor')}
-                            </a>
-                            <a class="remove" v-on:click="remove(vo.id)" v-bind:data="vo.id">
-                                <i class="fa fa-trash"></i>
-                                {:lang('remove')}
-                            </a>
-                        </td>
+                        <th width="5%">{:lang('sort')}</th>
+                        <th>{:lang('title')}</th>
+                        <th>{:lang('category')}</th>
+                        <th>{:lang('model name')}</th>
+                        <th>{:lang('status')}</th>
+                        <th>{:lang('access name')}</th>
+                        <th>{:lang('update time')}</th>
+                        <th>{:lang('operation')}</th>
                     </tr>
-                </template>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <template v-for="vo in items.list">
+                        <tr>
+                            <td>
+                                <input type="text" class="form-control" v-bind:name="'sort_order['+vo.id+']'"
+                                    v-bind:value="vo.sort_order">
+                            </td>
+                            <td>
+                                <a v-bind:href="vo.url.url" target="_blank" v-text="vo.title"></a>
+                            </td>
+                            <td>
+                                <a v-bind:href="vo.url.cat_url" target="_blank" v-text="vo.cat_name"></a>
+                            </td>
+                            <td v-text="vo.model_name"></td>
+                            <td>
+                                <span class="label label-primary" v-if="vo.is_pass">{:lang('is_pass')}</span>
+                                <span class="label label-primary" v-else>{:lang('not_pass')}</span>
+                                <span class="label label-primary" v-if="vo.is_com">{:lang('commend')}</span>
+                                <span class="label label-primary" v-if="vo.is_hot">{:lang('hot')}</span>
+                                <span class="label label-primary" v-if="vo.is_top">{:lang('top')}</span>
+                            </td>
+                            <td v-text="vo.access_name"></td>
+                            <td v-text="vo.update_time"></td>
+                            <td>
+                                <a class="editor" v-if="model_id<=4" v-bind:href="vo.url.editor">
+                                    <i class="fa fa-pencil-square-o"></i>
+                                    {:lang('editor')}
+                                </a>
+                                <a class="remove" v-on:click="remove(vo.id)" v-bind:data="vo.id">
+                                    <i class="fa fa-trash"></i>
+                                    {:lang('remove')}
+                                </a>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <div class="box-footer">
+        <button class="btn btn-primary" v-on:click="sort">{:lang('sort')}</button>
     </div>
 </div>
 <script type="text/javascript">
@@ -182,6 +192,20 @@
             added: function () {
                 window.location.href = NICMS.domain + '/content/article/added.html';
             },
+            sort: function () {
+                var data = jQuery('#article').serializeArray();
+                data.push({ name: 'method', value: 'content.article.sort' });
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: data,
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            // category.load();
+                        }
+                    }
+                });
+            },
             remove: function (id) {
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
@@ -213,7 +237,7 @@
     article.is_pass = pass ? pass : 0;
 
     let page = jQuery.get_url_query('page');
-        page = page ? page : 1;
+    page = page ? page : 1;
     article.load(page);
 
     window.paging = function (_p) {

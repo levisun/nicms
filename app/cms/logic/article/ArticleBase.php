@@ -176,7 +176,7 @@ class ArticleBase extends BaseLogic
                         ->toArray();
                     foreach ($value['tags'] as $k => $tag) {
                         $tag['url'] = url('tags/' . $tag['tags_id']);
-                        $result['tags'][$k] = $tag;
+                        $value['tags'][$k] = $tag;
                     }
 
                     $list['data'][$key] = $value;

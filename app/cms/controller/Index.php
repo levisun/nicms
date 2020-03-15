@@ -126,6 +126,26 @@ class Index extends BaseController
     }
 
     /**
+     * 反馈
+     * @access public
+     * @return
+     */
+    public function feedback()
+    {
+        return $this->fetch('feedback');
+    }
+
+    /**
+     * 留言
+     * @access public
+     * @return
+     */
+    public function message()
+    {
+        return $this->fetch('message');
+    }
+
+    /**
      * 搜索页
      * @access public
      * @return

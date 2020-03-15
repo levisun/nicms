@@ -72,7 +72,7 @@ class Article extends BaseLogic
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
         $result = (new ModelArticle)
-            ->view('article', ['id', 'category_id', 'title', 'is_pass', 'is_com', 'is_hot', 'is_top', 'username', 'access_id', 'hits', 'update_time'])
+            ->view('article', ['id', 'category_id', 'title', 'is_pass', 'is_com', 'is_hot', 'is_top', 'username', 'access_id', 'hits', 'sort_order', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id')
             ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
@@ -498,6 +498,42 @@ class Article extends BaseLogic
             // 清除缓存
             $this->cache->tag('cms article list' . $category_id)->clear();
             $this->cache->delete(md5('article details' . $id));
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'success'
+        ];
+    }
+
+    /**
+     * 排序
+     * @access public
+     * @return array
+     */
+    public function sort(): array
+    {
+        $this->actionLog(__METHOD__, 'admin content sort');
+
+        $sort_order = $this->request->param('sort_order/a');
+        if (empty($sort_order)) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40001,
+                'msg'   => 'error'
+            ];
+        }
+
+        $list = [];
+        foreach ($sort_order as $key => $value) {
+            if ($value) {
+                $list[] = ['id' => (int) $key, 'sort_order' => (int) $value];
+            }
+        }
+        if (!empty($list)) {
+            (new ModelArticle)->saveAll($list);
         }
 
         return [
