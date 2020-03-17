@@ -95,7 +95,11 @@ class RequestCache
                     if (null === $expire || $when + $expire > $request->server('REQUEST_TIME')) {
                         // 非API请求刷新签名等信息
                         if ('api' !== $this->appName) {
+                            preg_match('/name="csrf-appid" content="([0-9]+)"/si', $content, $matches);
+                            $app_id = (int) $matches[1];
+                            // halt($content);
                             $pattern = [
+                                '<meta name="csrf-appsecret" content="" />' => app_secret($app_id),
                                 '<meta name="csrf-authorization" content="" />' => authorization_meta(),
                                 '<meta name="csrf-token" content="" />' => token_meta(),
                             ];
@@ -134,6 +138,7 @@ class RequestCache
             // 非API请求刷新签名等信息
             if ('api' !== $this->appName) {
                 $pattern = [
+                    '/<meta name="csrf-appsecret" content=".*?" \/>/si' => '<meta name="csrf-appsecret" content="" />',
                     '/<meta name="csrf-authorization" content=".*?" \/>/si' => '<meta name="csrf-authorization" content="" />',
                     '/<meta name="csrf-token" content=".*?">/si' => '<meta name="csrf-token" content="" />',
                 ];

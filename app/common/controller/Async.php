@@ -247,7 +247,7 @@ abstract class Async
         $this->session = &$this->app->session;
 
         // 请勿开启调试模式
-        $this->app->debug(false);
+        $this->app->debug(true);
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\DataFilter::filter');
         // 请勿更改参数
@@ -554,7 +554,7 @@ abstract class Async
             }
         }
         $str = rtrim($str, '&');
-        $str .= $this->appSecret;
+        $str .= md5($this->appSecret . $this->request->server('HTTP_USER_AGENT') . $this->request->ip());
 
         if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
             $this->debugLog['sign_str'] = $str;
@@ -585,7 +585,7 @@ abstract class Async
             ->where([
                 ['id', '=', $this->appId]
             ])
-            ->cache('APPID' . $this->appId)
+            ->cache('ASYNCAPPID' . $this->appId)
             ->find();
 
         if (null !== $result && $result = $result->toArray()) {

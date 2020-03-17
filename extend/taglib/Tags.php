@@ -124,7 +124,7 @@ class Tags
             '<meta http-equiv="Cache-Control" content="no-transform" />' .
 
             '<meta name="csrf-appid" content="' . $_config['tpl_config']['api_appid'] . '" />' .
-            '<meta name="csrf-appsecret" content="' . $_config['tpl_config']['api_appsecret'] . '" />' .
+            '<?php echo app_secret(' . $_config['tpl_config']['api_appid'] . ');?>' .
             '<meta name="csrf-root" content="' . $root . '" />' .
             '<meta name="csrf-version" content="' . $_config['tpl_config']['api_version'] . '" />' .
             '<?php echo authorization_meta();?>' .

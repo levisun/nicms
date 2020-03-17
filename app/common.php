@@ -134,6 +134,25 @@ if (!function_exists('miss')) {
     }
 }
 
+if (!function_exists('app_secret')) {
+    function app_secret(int $_app_id): string
+    {
+        if ($_app_id > 1000001) {
+            $_app_id -= 1000000;
+            $result = (new \app\common\model\ApiApp)
+                ->field('name, secret')
+                ->where([
+                    ['id', '=', $_app_id]
+                ])
+                ->cache('APPID' . $_app_id)
+                ->find();
+
+            return '<meta name="csrf-appsecret" content="' . md5($result['secret'] . request()->server('HTTP_USER_AGENT') . request()->ip()) . '" />';
+        }
+        return '';
+    }
+}
+
 if (!function_exists('authorization_meta')) {
     /**
      * API授权字符串
