@@ -1,0 +1,72 @@
+<div id="layout-message">
+    <div class="row">
+        {include file="sideber"}
+        <div id="list" class="col-md-9">
+            {include file="breadcrumb"}
+            <div class="card">
+                <div class="card-body">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let = message = new Vue({
+        el: '#layout-message',
+        data: {
+            sideber: [],
+            breadcrumb: [],
+            items: [],
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.sidebar.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            message.sideber = result.data;
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.breadcrumb.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            message.breadcrumb = result.data;
+                        }
+                    }
+                });
+
+                // jQuery.pjax({
+                //     url: NICMS.api.url + '/query.do',
+                //     method: 'get',
+                //     data: [
+                //         { name: 'method', value: 'link.lists.query' },
+                //         { name: 'id', value: NICMS.api.param.cid }
+                //     ],
+                //     success: function (result) {
+                //         if (result.code == '10000' && result.message != 'error') {
+                //             message.items = result.data.list;
+                //         } else {
+                //             window.location.href = '/404.html';
+                //         }
+                //     }
+                // });
+            }
+        }
+    });
+    message.load();
+</script>
