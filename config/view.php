@@ -12,12 +12,11 @@
  * @since     2019
  */
 
-use app\common\library\Base64;
+use think\facade\Request;
 
 return [
     // 模板引擎类型使用Think
     'type' => \app\common\library\Template::class,
 
-    'compile_path' => app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR .
-        Base64::flag(__DIR__ . __LINE__) . DIRECTORY_SEPARATOR,
+    'compile_path' => app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR . substr(sha1(__DIR__ . Request::rootDomain()), 7, 7) . DIRECTORY_SEPARATOR,
 ];

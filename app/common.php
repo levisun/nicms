@@ -147,7 +147,7 @@ if (!function_exists('app_secret')) {
                 ->cache('APPID' . $_app_id)
                 ->find();
 
-            return '<meta name="csrf-appsecret" content="' . md5($result['secret'] . request()->server('HTTP_USER_AGENT') . request()->ip()) . '" />';
+            return '<meta name="csrf-appsecret" content="' . md5($result['secret'] . request()->server('HTTP_USER_AGENT', date('Ymd')) . request()->ip()) . '" />';
         }
         return '';
     }

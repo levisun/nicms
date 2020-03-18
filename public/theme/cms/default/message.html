@@ -5,7 +5,11 @@
             {include file="breadcrumb"}
             <div class="card">
                 <div class="card-body">
+                    <form id="message">
+                        <template>
 
+                        </template>
+                    </form>
                 </div>
             </div>
         </div>
@@ -50,21 +54,23 @@
                     }
                 });
 
-                // jQuery.pjax({
-                //     url: NICMS.api.url + '/query.do',
-                //     method: 'get',
-                //     data: [
-                //         { name: 'method', value: 'link.lists.query' },
-                //         { name: 'id', value: NICMS.api.param.cid }
-                //     ],
-                //     success: function (result) {
-                //         if (result.code == '10000' && result.message != 'error') {
-                //             message.items = result.data.list;
-                //         } else {
-                //             window.location.href = '/404.html';
-                //         }
-                //     }
-                // });
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'message.form.query' },
+                        { name: 'cid', value: NICMS.api.param.cid }
+                    ],
+                    success: function (result) {
+                        if (result.code == '10000' && result.message != 'error') {
+                            message.items = result.data;
+                        }
+                        //     message.items = result.data.list;
+                        // } else {
+                        //     window.location.href = '/404.html';
+                        // }
+                    }
+                });
             }
         }
     });
