@@ -137,7 +137,7 @@ if (!function_exists('miss')) {
 if (!function_exists('app_secret')) {
     function app_secret(int $_app_id): string
     {
-        if ($_app_id > 1000001) {
+        if ($_app_id > 1000000) {
             $_app_id -= 1000000;
             $result = (new \app\common\model\ApiApp)
                 ->field('name, secret')
@@ -149,7 +149,7 @@ if (!function_exists('app_secret')) {
 
             return '<meta name="csrf-appsecret" content="' . md5($result['secret'] . request()->server('HTTP_USER_AGENT', date('Ymd')) . request()->ip()) . '" />';
         }
-        return '';
+        return '1';
     }
 }
 

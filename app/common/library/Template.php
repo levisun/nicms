@@ -98,6 +98,7 @@ class Template implements TemplateHandlerInterface
         $this->config['tpl_compile'] = (bool) !env('app_debug', false);
 
         // 合并配置
+        $_config = array_filter($_config);
         $this->config = array_merge($this->config, $_config);
 
         // 当前应用名

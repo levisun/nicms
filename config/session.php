@@ -30,7 +30,7 @@ return [
     // 过期时间
     'expire'         => 1440,
     // 前缀
-    'prefix'         => substr(sha1(__DIR__ . Request::rootDomain()), 7, 7),
+    'prefix'         => '',
     // 数据压缩
     'data_compress'  => true,
 ];
