@@ -268,7 +268,7 @@ abstract class Async
         // 解析method参数
         $this->analysisMethod();
         // 验证method权限
-        $this->checkAuth();
+        $this->checkRBAC();
         // 加载语言包
         $this->loadLang();
 
@@ -404,7 +404,7 @@ abstract class Async
      * @access private
      * @return void
      */
-    private function checkAuth(): void
+    private function checkRBAC(): void
     {
         // 需要鉴权应用
         if (in_array($this->appName, ['admin', 'my'])) {

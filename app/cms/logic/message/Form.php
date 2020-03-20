@@ -18,19 +18,18 @@ declare(strict_types=1);
 namespace app\cms\logic\message;
 
 use app\common\controller\BaseLogic;
-use app\common\model\FieldsExtend as ModelFieldsExtend;
 use app\common\model\Fields as ModelFields;
 
 class Form extends BaseLogic
 {
 
     /**
-     * 查询列表
+     * 查询表单
      * @access public
      * @param
      * @return array
      */
-    public function query()
+    public function query(): array
     {
         $result = false;
         if ($category_id = $this->request->param('cid/d', 0)) {
@@ -76,6 +75,45 @@ class Form extends BaseLogic
             'cache' => $result ? true : false,
             'msg'   => $result ? 'message' : 'error',
             'data'  => $result ?: []
+        ];
+    }
+
+    public function record()
+    {
+        $result = false;
+        if ($category_id = $this->request->param('cid/d', 0)) {
+            $receive_data = [
+                'title'       => $this->request->param('title'),
+                'username'    => $this->request->param('username'),
+                'content'     => $this->request->param('content'),
+                'category_id' => $category_id,
+            ];
+
+            if ($result = $this->validate(__METHOD__, $receive_data)) {
+                return $result;
+            }
+
+            // 附加字段数据
+            $fields = (new ModelFields)
+                ->view('fields', ['id'])
+                ->view('fields_extend', ['data'], 'fields_extend.fields_id=fields.id')
+                // ->view('fields_type', ['name' => 'fields_type'])
+                ->where([
+                    ['fields.category_id', '=', $category_id],
+                ])
+                ->select()
+                ->toArray();
+            foreach ($fields as $value) {
+                $receive_data[$value['fields_name']] = $this->request->param($value['fields_name']);
+            }
+
+            halt($receive_data);
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => $result ? 'success' : 'error',
         ];
     }
 }

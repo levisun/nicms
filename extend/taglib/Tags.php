@@ -123,10 +123,10 @@ class Tags
             '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
             '<meta http-equiv="Cache-Control" content="no-transform" />' .
 
-            '<meta name="csrf-appid" content="' . $_config['tpl_config']['api_appid'] . '" />' .
-            '<?php echo app_secret(' . $_config['tpl_config']['api_appid'] . ');?>' .
             '<meta name="csrf-root" content="' . $root . '" />' .
             '<meta name="csrf-version" content="' . $_config['tpl_config']['api_version'] . '" />' .
+            '<meta name="csrf-appid" content="' . $_config['tpl_config']['api_appid'] . '" />' .
+            '<?php echo app_secret(' . $_config['tpl_config']['api_appid'] . ');?>' .
             '<?php echo authorization_meta();?>' .
             '<?php echo token_meta();?>' .
 
