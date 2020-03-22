@@ -18,18 +18,19 @@ use think\Validate;
 class User extends Validate
 {
     protected $rule = [
-        // 'captcha'  => ['require', 'length:6', 'captcha'],
+        'captcha'  => ['require', 'captcha'],
         'username' => ['require', 'length:4,20'],
         'password' => ['require', 'max:20'],
     ];
 
     protected $message = [
+        'captcha.require'  => '{%error captcha require}',
+        'captcha.captcha'  => '{%error captcha}',
+
         'username.require' => '{%error username require}',
         'username.length'  => '{%error username length not}',
         'password.require' => '{%error password require}',
         'password.length'  => '{%error password length not}',
         'captcha.require'  => '{%error captcha require}',
-        'captcha.length'   => '{%error captcha length}',
-        'captcha.captcha'  => '{%error captcha}',
     ];
 }

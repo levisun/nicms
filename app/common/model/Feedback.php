@@ -46,6 +46,7 @@ class Feedback extends Model
     protected $name = 'feedback';
     protected $autoWriteTimestamp = true;
     protected $updateTime = 'update_time';
+    protected $dateFormat = false;
     protected $pk = 'id';
     protected $type = [
         'category_id' => 'integer',

@@ -9,17 +9,23 @@
                         <template v-for="vo in items">
                             <div>
                                 <template v-if="vo.input_type=='text'">
-                                    <input type="text" v-bind:name="vo.input_name" v-bind:class="vo.input_name" v-bind:placeholder="vo.text_name"
-                                        class="form-control" />
+                                    <input type="text" v-bind:name="vo.input_name" v-bind:class="vo.input_name"
+                                        v-bind:placeholder="vo.text_name" class="form-control" />
                                 </template>
                                 <template v-if="vo.input_type=='textarea'">
-                                    <textarea v-bind:name="vo.input_name" v-bind:class="vo.input_name" v-bind:placeholder="vo.text_name"
-                                        class="form-control"></textarea>
+                                    <textarea v-bind:name="vo.input_name" v-bind:class="vo.input_name"
+                                        v-bind:placeholder="vo.text_name" class="form-control"></textarea>
                                 </template>
                             </div>
                         </template>
                         <div>
-                            <input type="botton" class="btn btn-outline-success" v-on:click="record" value="{:lang('submit')}">
+                            <input type="text" id="verify" name="captcha" class="form-control"
+                                placeholder="{:lang('verify')}">
+                            <img id="img-verify" v-on:click="verify">
+                        </div>
+                        <div>
+                            <input type="botton" class="btn btn-outline-success" v-on:click="record"
+                                value="{:lang('submit')}">
                         </div>
                     </form>
                 </div>
@@ -37,6 +43,18 @@
             items: [],
         },
         methods: {
+            verify: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/verify/img.do',
+                    type: 'get',
+                    data: [
+                        { name: 'timestamp', value: jQuery.timestamp() }
+                    ],
+                    success: function (result) {
+                        jQuery('#img-verify').attr('src', result);
+                    }
+                });
+            },
             load: function () {
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
@@ -70,6 +88,20 @@
                     url: NICMS.api.url + '/query.do',
                     type: 'get',
                     data: [
+                        { name: 'method', value: 'message.catalog.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            message.breadcrumb = result.data;
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'get',
+                    data: [
                         { name: 'method', value: 'message.form.query' },
                         { name: 'cid', value: NICMS.api.param.cid }
                     ],
@@ -83,11 +115,14 @@
                         // }
                     }
                 });
+
+                this.verify();
             },
             record: function () {
                 let title = jQuery(".title").val();
                 let username = jQuery(".username").val();
                 let content = jQuery(".content").val();
+                let captcha = jQuery("#verify").val();
                 if (!title || !content) {
                     alert("请输入标题与内容!");
                     return false;
@@ -102,9 +137,12 @@
                         { name: 'title', value: title },
                         { name: 'username', value: username },
                         { name: 'content', value: content },
+                        { name: 'captcha', value: captcha },
                     ],
                     success: function (result) {
                         if (10000 == result.code) {
+                            alert("提交成功");
+                            message.verify();
                         }
                     }
                 });

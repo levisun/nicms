@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
-use think\facade\Config;
 use think\facade\Request;
 use app\common\library\Emoji;
 
@@ -160,7 +159,7 @@ class DataFilter
                 $ema[1] = strtolower($ema[1]);
                 // 过滤非法属性 target rel
 
-                // 通过属性
+                // 保留属性
                 $attr = ['alt', 'title', 'height', 'width', 'align'];
                 if (in_array($ema[1], $attr) && $ema[2]) {
                     $result = ' ' . $ema[1] . '="' . $ema[2] . '"';

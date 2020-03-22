@@ -36,6 +36,7 @@ class User extends BaseLogic
     public function login(): array
     {
         $receive_data = [
+            'captcha'  => (string) $this->request->param('captcha'),
             'username' => $this->request->param('username'),
             'password' => $this->request->param('password'),
         ];

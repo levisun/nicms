@@ -49,37 +49,24 @@
                     });
                 },
                 login: function () {
+                    var data = jQuery('#login-form').serializeArray();
+                        data.push({ name: 'method', value: 'account.user.login' });
                     jQuery.pjax({
-                        url: NICMS.api.url + '/verify/img_check.do',
+                        url: NICMS.api.url + '/handle.do',
                         type: 'POST',
-                        data: [
-                            { name: 'captcha', value: jQuery('#verify').val() },
-                        ],
-                        success: function (result) {
-                            if (10000 == result.code) {
-                                var data = jQuery('#login-form').serializeArray();
-                                data.push({ name: 'method', value: 'account.user.login' });
-                                jQuery.pjax({
-                                    url: NICMS.api.url + '/handle.do',
-                                    type: 'POST',
-                                    data: data,
-                                    success: function (res) {
-                                        if (10000 == res.code) {
-                                            if ('undefined' == typeof (res.return_url)) {
-                                                window.location.href = '/settings/dashboard/index.html';
-                                                // location.reload();
-                                            } else {
-                                                window.location.href = res.return_url;
-                                            }
-                                        } else {
-                                            login.verify();
-                                        }
-                                        jQuery.uiToast(res.message);
-                                    }
-                                });
+                        data: data,
+                        success: function (res) {
+                            if (10000 == res.code) {
+                                if ('undefined' == typeof (res.return_url)) {
+                                    window.location.href = '/settings/dashboard/index.html';
+                                    // location.reload();
+                                } else {
+                                    window.location.href = res.return_url;
+                                }
                             } else {
-                                jQuery.uiToast(result.message);
+                                login.verify();
                             }
+                            jQuery.uiToast(res.message);
                         }
                     });
                 }

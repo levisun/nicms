@@ -47,6 +47,7 @@ class Message extends Model
     protected $name = 'message';
     protected $autoWriteTimestamp = true;
     protected $updateTime = 'update_time';
+    protected $dateFormat = false;
     protected $pk = 'id';
     protected $type = [
         'category_id' => 'integer',

@@ -22,6 +22,9 @@ class Form extends Validate
         'username'    => ['require', 'length: 4,20'],
         'content'     => ['require', 'max: 300'],
         'category_id' => ['require', 'integer'],
+
+        'captcha'  => ['require', 'captcha'],
+
     ];
 
     protected $message = [
@@ -33,5 +36,9 @@ class Form extends Validate
         'content.length'      => '{%error content length}',
         'category_id.require' => '{%error cid}',
         'category_id.integer' => '{%error cid}',
+
+
+        'captcha.require' => '{%error captcha}',
+
     ];
 }
