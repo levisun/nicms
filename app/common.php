@@ -30,7 +30,7 @@ if (!function_exists('format_hits')) {
     function format_hits(int $_hits): string
     {
         if ($_hits > 10000) {
-            $_hits = number_format($_hits / 10000, 2) . 'W+';
+            $_hits = number_format($_hits / 10000, 2) . 'M+';
         } elseif ($_hits > 1000) {
             $_hits = number_format($_hits / 1000, 2) . 'K+';
         }

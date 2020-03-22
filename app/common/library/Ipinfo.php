@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Cache;
-use think\facade\Log;
 use think\facade\Request;
 use app\common\library\DataFilter;
 use app\common\model\IpInfo as ModelIpinfo;
