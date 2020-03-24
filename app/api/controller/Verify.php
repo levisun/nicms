@@ -51,19 +51,19 @@ class Verify extends Async
      * @access public
      * @return
      */
-    public function imgCheck()
-    {
-        if ($this->request->isPost() && $this->analysis()->isReferer()) {
-            $captcha = (string) $this->request->param('captcha', false);
-            if ($captcha && true === Captcha::check($captcha)) {
-                return $this->cache(false)->success('验证成功');
-            } else {
-                return $this->error('验证码错误', 40009);
-            }
-        }
+    // public function imgCheck()
+    // {
+    //     if ($this->request->isPost() && $this->analysis()->isReferer()) {
+    //         $captcha = (string) $this->request->param('captcha', false);
+    //         if ($captcha && true === Captcha::check($captcha)) {
+    //             return $this->cache(false)->success('验证成功');
+    //         } else {
+    //             return $this->error('验证码错误', 40009);
+    //         }
+    //     }
 
-        return miss(404);
-    }
+    //     return miss(404);
+    // }
 
     /**
      * 短信验证码

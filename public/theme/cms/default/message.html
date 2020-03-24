@@ -93,7 +93,6 @@
                     ],
                     success: function (result) {
                         if (10000 == result.code) {
-                            message.breadcrumb = result.data;
                         }
                     }
                 });
@@ -109,10 +108,6 @@
                         if (result.code == '10000' && result.message != 'error') {
                             message.items = result.data;
                         }
-                        //     message.items = result.data.list;
-                        // } else {
-                        //     window.location.href = '/404.html';
-                        // }
                     }
                 });
 

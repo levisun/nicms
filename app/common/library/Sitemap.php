@@ -69,14 +69,14 @@ class Sitemap
                 ->limit(100)
                 ->select()
                 ->toArray();
-            if (!empty($article)) {
-                $sitemap_xml[]['url'] = [
-                    'loc'        => $domain . url('list/' . $vo_cate['id']),
-                    'lastmod'    => date('Y-m-d'),
-                    'changefreq' => 'daily',
-                    'priority'   => '1.0',
-                ];
-            }
+            // if (!empty($article)) {
+            //     $sitemap_xml[]['url'] = [
+            //         'loc'        => $domain . url('list/' . $vo_cate['id']),
+            //         'lastmod'    => date('Y-m-d'),
+            //         'changefreq' => 'daily',
+            //         'priority'   => '1.0',
+            //     ];
+            // }
 
             foreach ($article as $vo_art) {
                 $sitemap_xml[]['url'] = [
