@@ -171,50 +171,7 @@ class UploadFile
         $this->writeUploadLog($save_file);   // 记录上传文件日志
 
         if (false !== strpos($_files->getMime(), 'image/')) {
-            @ini_set('memory_limit', '128M');
-
-            $image = Image::open(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
-
-            // 缩放图片到指定尺寸
-            if ($this->thumbSize['width'] && $this->thumbSize['height']) {
-                $image->thumb($this->thumbSize['width'], $this->thumbSize['height'], $this->thumbSize['type']);
-            }
-            // 规定图片最大尺寸
-            elseif ($image->width() > 800) {
-                $image->thumb(800, 800, Image::THUMB_SCALING);
-            }
-
-            // 添加水印
-            if (true === $this->imgWater) {
-                $ttf = app()->getRootPath() . 'extend' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf';
-                $image->text(Request::rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9));
-            }
-
-            // 转换webp格式
-            if (function_exists('imagewebp')) {
-                $webp_file = str_replace('.' . $_files->extension(), '.webp', $save_file);
-                $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $webp_file, 'webp');
-                $this->writeUploadLog($webp_file);   // 记录上传文件日志
-                // 删除非webp格式图片
-                if ('webp' !== $_files->extension()) {
-                    unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
-                }
-                $save_file = $webp_file;
-            }
-
-            // 转换jpg格式
-            elseif ('gif' !== $_files->extension()) {
-                $jpg_file = str_replace('.' . $_files->extension(), '.jpg', $save_file);
-                $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $jpg_file, 'jpg');
-                $this->writeUploadLog($jpg_file);   // 记录上传文件日志
-                // 删除非jpg格式图片
-                if ('jpg' !== $_files->extension()) {
-                    unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file);
-                }
-                $save_file = $jpg_file;
-            }
-
-            unset($image);
+            $save_file = $this->thumbAndWater($_files, $save_file);
         }
 
         $save_file = str_replace(DIRECTORY_SEPARATOR, '/', $save_file);
@@ -232,13 +189,70 @@ class UploadFile
     }
 
     /**
+     * 图片缩略图和水印
+     * @access private
+     * @param  string $_file 文件
+     * @param  string $_save_file 文件名
+     * @return void
+     */
+    private function thumbAndWater(\think\File &$_files, string $_save_file): string
+    {
+        @ini_set('memory_limit', '128M');
+
+        $image = Image::open(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_save_file);
+
+        // 缩放图片到指定尺寸
+        if ($this->thumbSize['width'] && $this->thumbSize['height']) {
+            $image->thumb($this->thumbSize['width'], $this->thumbSize['height'], $this->thumbSize['type']);
+        }
+        // 规定图片最大尺寸
+        elseif ($image->width() >= 800) {
+            $image->thumb(800, 800, Image::THUMB_SCALING);
+        }
+
+        // 添加水印
+        if (true === $this->imgWater) {
+            $ttf = app()->getRootPath() . 'extend' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf';
+            $image->text(Request::rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9));
+        }
+
+        // 转换webp格式
+        if (function_exists('imagewebp')) {
+            $webp_file = str_replace('.' . $_files->extension(), '.webp', $_save_file);
+            $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $webp_file, 'webp');
+            $this->writeUploadLog($webp_file);   // 记录上传文件日志
+            // 删除非webp格式图片
+            if ('webp' !== $_files->extension()) {
+                unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_save_file);
+            }
+            $_save_file = $webp_file;
+        }
+
+        // 转换jpg格式
+        elseif ('gif' !== $_files->extension()) {
+            $jpg_file = str_replace('.' . $_files->extension(), '.jpg', $_save_file);
+            $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $jpg_file, 'jpg');
+            $this->writeUploadLog($jpg_file);   // 记录上传文件日志
+            // 删除非jpg格式图片
+            if ('jpg' !== $_files->extension()) {
+                unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_save_file);
+            }
+            $_save_file = $jpg_file;
+        }
+
+        unset($image);
+
+        return $_save_file;
+    }
+
+    /**
      * 记录上传文件
-     * @access public
+     * @access private
      * @param  string $_file 文件
      * @param  int    $_type
      * @return void
      */
-    public function writeUploadLog(string $_file, int $_type = 0): void
+    private function writeUploadLog(string $_file, int $_type = 0): void
     {
         if (!$_file) {
             return;
