@@ -453,7 +453,7 @@ class Template implements TemplateHandlerInterface
             $_content .= $js;
         }
 
-        $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.do?ip=<?php echo request()->ip();?>" async="async" ></script>';
+        $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/ip.do" async="async" ></script>';
         if ('admin' !== trim($this->config['app_name'], '\/')) {
             $_content .= '<script src="' . $this->app->config->get('app.api_host') . '/record.do?token=<?php echo md5(request()->url(true));?>' . '" async="async" ></script>';
         }

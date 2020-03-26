@@ -46,9 +46,8 @@ Temporary Items
 .vscode
 *.code-workspace
 
-/public/screen/*
-/public/storage/*
-/public/sitemaps
+/public/screen/
+/public/storage/
 /runtime
 /vendor
 .env

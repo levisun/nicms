@@ -36,7 +36,7 @@ class Download
     }
 
     /**
-     * 下载地址
+     * 获得文件下载地址
      * @access public
      * @param  string $_filename
      * @return string
@@ -51,7 +51,7 @@ class Download
     }
 
     /**
-     * 文件下载
+     * 下载文件
      * @access public
      * @param  string $_filename
      * @return void

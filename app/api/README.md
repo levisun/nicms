@@ -23,8 +23,6 @@ API说明文档
 
 > `//api.xxx.com/verify/img.do` `GET请求` 验证码接口
 
-> `//api.xxx.com/verify/img_check.do` `POST请求` 校验验证码接口
-
 > `//api.xxx.com/verify/sms.do` `GET请求` 验证码接口
 
 > `//api.xxx.com/verify/sms_check.do` `POST请求` 校验验证码接口
