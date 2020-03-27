@@ -25,6 +25,14 @@
                         </span>
                     </p>
                     <div class="details" v-html="items.content"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a v-if="items.prev" v-bind:href="items.prev.url" v-text="items.prev.title"></a>
+                        </div>
+                        <div class="col-md-6">
+                            <a v-if="items.next" v-bind:href="items.next.url" v-text="items.prev.title"></a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

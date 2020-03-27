@@ -31,31 +31,6 @@ class ArticleBase extends BaseLogic
 {
 
     /**
-     * 查询当前栏目的所有子栏目
-     * @access protected
-     * @return array|false
-     */
-    private function child(int $_id)
-    {
-        $child = [];
-
-        $result = (new ModelCategory)
-            ->field('id')
-            ->where([
-                ['pid', '=', $_id]
-            ])
-            ->select();
-
-        $result = $result ? $result->toArray() : [];
-        foreach ($result as $value) {
-            $arr = $this->child((int) $value['id']);
-            $child = array_merge($child, $arr);
-        }
-
-        return $child;
-    }
-
-    /**
      * 查询列表
      * @access protected
      * @return array|false
@@ -370,14 +345,17 @@ class ArticleBase extends BaseLogic
      * @param  int      $_category_id
      * @return array
      */
-    protected function next(int $_id, int $_category_id)
+    protected function next(int $_article_id, int $_category_id)
     {
+        $_category_id = $this->child($_category_id);
+
         $next_id = (new ModelArticle)
             ->where([
                 ['is_pass', '=', 1],
-                ['category_id', '=', $_category_id],
+                // ['category_id', '=', $_category_id],
+                ['category_id', 'in', $_category_id],
                 ['show_time', '<', time()],
-                ['id', '>', $_id]
+                ['id', '>', $_article_id]
             ])
             ->order('is_top, is_hot, is_com, sort_order DESC, update_time DESC')
             ->min('id');
@@ -411,10 +389,13 @@ class ArticleBase extends BaseLogic
      */
     protected function prev(int $_id, int $_category_id)
     {
+        $_category_id = $this->child($_category_id);
+
         $prev_id = (new ModelArticle)
             ->where([
                 ['is_pass', '=', 1],
-                ['category_id', '=', $_category_id],
+                // ['category_id', '=', $_category_id],
+                ['category_id', 'in', $_category_id],
                 ['show_time', '<', time()],
                 ['id', '<', $_id]
             ])
@@ -439,5 +420,36 @@ class ArticleBase extends BaseLogic
         }
 
         return $result;
+    }
+
+    /**
+     * 查询当前栏目下的所有子栏目
+     * @access protected
+     * @return array
+     */
+    private function child(int $_id): array
+    {
+        $category = [];
+
+        $result = (new ModelCategory)
+            ->field('id')
+            ->where([
+                ['pid', '=', $_id]
+            ])
+            ->select();
+
+        $result = $result ? $result->toArray() : [];
+        foreach ($result as $value) {
+            // 递归查询子类
+            $child = $this->child((int) $value['id']);
+            $category = array_merge($category, $child);
+        }
+
+        // 追加当前栏目ID
+        $category[] = $_id;
+        // 去重
+        $category = array_unique($category);
+
+        return $category;
     }
 }
