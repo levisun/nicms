@@ -33,9 +33,7 @@ class Node extends BaseLogic
     {
         $result = ModelNode::where([
             ['pid', '=', 0],
-        ])
-            ->order('sort_order ASC, id ASC')
-            ->select();
+        ])->order('sort_order ASC, id ASC')->select();
 
         $result = $result ? $result->toArray() : [];
 
@@ -152,22 +150,19 @@ class Node extends BaseLogic
         if ($id = $this->request->param('id/d')) {
             $result = ModelNode::where([
                 ['id', '=', $id],
-            ])
-                ->find();
+            ])->find();
 
             if (null !== $result && $result = $result->toArray()) {
                 $result['parent'] = ModelNode::where([
                     ['id', '=', $result['pid']]
-                ])
-                    ->value('name as parent');
+                ])->value('name as parent');
             }
         } else {
             if ($pid = $this->request->param('pid/d', 0)) {
                 $result['pid'] = $pid;
                 $result['parent'] = ModelNode::where([
                     ['id', '=', $pid]
-                ])
-                    ->value('name as parent');
+                ])->value('name as parent');
             }
         }
 
@@ -247,8 +242,7 @@ class Node extends BaseLogic
 
         ModelNode::where([
             ['id', '=', $id]
-        ])
-            ->delete();
+        ])->delete();
 
         return [
             'debug' => false,

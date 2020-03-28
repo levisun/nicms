@@ -342,9 +342,7 @@ class ArticleBase extends BaseLogic
             ['category_id', 'in', $this->child($_category_id)],
             ['show_time', '<', time()],
             ['id', '>', $_article_id]
-        ])
-            ->order('is_top, is_hot, is_com, sort_order DESC, update_time DESC')
-            ->min('id');
+        ])->order('is_top, is_hot, is_com, sort_order DESC, update_time DESC')->min('id');
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
@@ -380,9 +378,7 @@ class ArticleBase extends BaseLogic
             ['category_id', 'in', $this->child($_category_id)],
             ['show_time', '<', time()],
             ['id', '<', $_id]
-        ])
-            ->order('is_top, is_hot, is_com, sort_order DESC, update_time DESC')
-            ->max('id');
+        ])->order('is_top, is_hot, is_com, sort_order DESC, update_time DESC')->max('id');
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')

@@ -31,8 +31,7 @@ class Model extends BaseLogic
      */
     public function query(): array
     {
-        $result = ModelModel::order('id ASC')
-            ->select()->toArray();
+        $result = ModelModel::order('id ASC')->select()->toArray();
 
         foreach ($result as $key => $value) {
             $value['url'] = [

@@ -36,12 +36,10 @@ class Role extends BaseLogic
 
         $result = ModelRole::where([
             ['id', '<>', 1]
-        ])
-            ->order('id DESC')
-            ->paginate([
-                'list_rows' => $query_limit,
-                'path' => 'javascript:paging([PAGE]);',
-            ]);
+        ])->order('id DESC')->paginate([
+            'list_rows' => $query_limit,
+            'path' => 'javascript:paging([PAGE]);',
+        ]);
 
         $list = $result->toArray();
         $list['render'] = $result->render();
@@ -120,8 +118,7 @@ class Role extends BaseLogic
         if ($id = $this->request->param('id/d')) {
             $result = ModelRole::where([
                 ['id', '=', $id],
-            ])
-                ->find();
+            ])->find();
             $result = $result ? $result->toArray() : [];
 
             $node = ModelRoleAccess::field('node_id')
@@ -219,8 +216,7 @@ class Role extends BaseLogic
         ModelRole::transaction(function () use ($id) {
             ModelRole::where([
                 ['id', '=', $id]
-            ])
-                ->delete();
+            ])->delete();
 
             ModelRoleAccess::where([
                 ['role_id', '=', $id]

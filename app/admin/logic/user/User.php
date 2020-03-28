@@ -115,18 +115,15 @@ class User extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d')) {
-            $result = ModelUser::field('id, username, phone, email, level_id, status')
-                ->where([
-                    ['id', '=', $id],
-                ])
-                ->find();
+            $result = ModelUser::field('id, username, phone, email, level_id, status')->where([
+                ['id', '=', $id],
+            ])->find();
             $result = $result ? $result->toArray() : [];
         }
 
         $level = ModelLevel::where([
             ['status', '=', 1]
-        ])
-            ->select();
+        ])->select();
         $result['level_list'] = $level ? $level->toArray() : [];
 
         return [

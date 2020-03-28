@@ -24,22 +24,23 @@ use app\common\model\Category as ModelCategory;
 class Sitemap
 {
 
-    public function create()
+    public static function create()
     {
         only_execute('create_sitemap.lock', '-12 hour', function () {
             Log::alert('[生成网站地图]');
 
             // 保存网站地图文件
-            $this->saveSitemapFile();
+            self::saveSitemapFile();
         });
     }
 
     /**
      * 保存Sitemap文件
      * @access private
+     * @static
      * @return void
      */
-    private function saveSitemapFile(): void
+    private static function saveSitemapFile(): void
     {
         $category = ModelCategory::view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
@@ -86,20 +87,21 @@ class Sitemap
             }
         }
 
-        $this->saveXml($sitemap_xml, 'sitemap.xml');
+        self::saveXml($sitemap_xml, 'sitemap.xml');
     }
 
     /**
      * 保存XML文件
      * @access private
+     * @static
      * @param  array  $_data
      * @return void
      */
-    private function saveXml(array &$_data, string $_path): void
+    private static function saveXml(array &$_data, string $_path): void
     {
         $xml  = '<?xml version="1.0" encoding="UTF-8" ?>' . PHP_EOL;
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
-        $xml .= $this->toXml($_data) . PHP_EOL;
+        $xml .= self::toXml($_data) . PHP_EOL;
         $xml .= '</urlset>';
 
         $filename = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_path;
@@ -112,10 +114,11 @@ class Sitemap
     /**
      * 数组转XML
      * @access private
+     * @static
      * @param  array  $_data
      * @return string
      */
-    private function toXml(array &$_data): string
+    private static function toXml(array &$_data): string
     {
         $xml = '';
         foreach ($_data as $key => $value) {
@@ -124,7 +127,7 @@ class Sitemap
             }
 
             if (is_array($value)) {
-                $xml .= PHP_EOL . $this->toXml($value);
+                $xml .= PHP_EOL . self::toXml($value);
             } else {
                 $xml .= $value;
             }

@@ -32,7 +32,7 @@ class AppMaintain
         $app_name = app('http')->getName();
         if ($app_name && 'api' !== $app_name) {
             // 生成网站地图
-            (new Sitemap)->create();
+            Sitemap::create();
 
             // 清除上传垃圾文件
             (new UploadFile)->ReGarbage();

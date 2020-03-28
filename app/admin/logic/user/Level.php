@@ -104,8 +104,7 @@ class Level extends BaseLogic
         if ($id = $this->request->param('id/d')) {
             $result = ModelLevel::where([
                 ['id', '=', $id],
-            ])
-                ->find();
+            ])->find();
             $result = $result ? $result->toArray() : [];
         }
 
@@ -174,8 +173,7 @@ class Level extends BaseLogic
 
         ModelLevel::where([
             ['id', '=', $id]
-        ])
-            ->delete();
+        ])->delete();
 
         return [
             'debug' => false,

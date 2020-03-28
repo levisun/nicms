@@ -140,8 +140,7 @@ class Admin extends BaseLogic
         $role = ModelRole::where([
             ['id', '<>', 1],
             ['status', '=', 1]
-        ])
-            ->select();
+        ])->select();
         $result['role_list'] = $role ? $role->toArray() : [];
 
         return [
@@ -229,8 +228,7 @@ class Admin extends BaseLogic
         ModelAdmin::transaction(function () use ($id) {
             ModelAdmin::where([
                 ['id', '=', $id]
-            ])
-                ->delete();
+            ])->delete();
 
             ModelRoleAdmin::where([
                 ['user_id', '=', $id]
