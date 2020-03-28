@@ -45,8 +45,7 @@ class User extends BaseLogic
             return $result;
         }
 
-        $user = (new ModelAdmin)
-            ->view('admin', ['id', 'username', 'password', 'salt', 'flag'])
+        $user = ModelAdmin::view('admin', ['id', 'username', 'password', 'salt', 'flag'])
             ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
             ->view('role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
             ->where([
@@ -63,17 +62,12 @@ class User extends BaseLogic
         if (!is_null($user) && $new_pw = Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {
             // 更新登录信息
             $info = (new Ipinfo)->get($this->request->ip());
-            (new ModelAdmin)
-                ->where([
-                    ['id', '=', $user['id']]
-                ])
-                ->data([
-                    'flag'               => $this->session->getId(false),
-                    'last_login_time'    => time(),
-                    'last_login_ip'      => $info['ip'],
-                    'last_login_ip_attr' => isset($info['country_id']) ? $info['region'] . $info['city'] . $info['area'] : ''
-                ])
-                ->update();
+            ModelAdmin::update([
+                'flag'               => $this->session->getId(false),
+                'last_login_time'    => time(),
+                'last_login_ip'      => $info['ip'],
+                'last_login_ip_attr' => isset($info['country_id']) ? $info['region'] . $info['city'] . $info['area'] : ''
+            ], ['id' => $user['id']]);
 
             // 唯一登录
             if ($user['flag'] && $user['flag'] !== $this->session->getId(false)) {
@@ -188,8 +182,7 @@ class User extends BaseLogic
         $result = null;
 
         if ($this->uid) {
-            $result = (new ModelAdmin)
-                ->view('admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
+            $result = ModelAdmin::view('admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
                 ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
                 ->view('role role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
                 ->where([
@@ -200,7 +193,7 @@ class User extends BaseLogic
 
             if (null !== $result && $result = $result->toArray()) {
                 $result['last_login_time'] = date('Y-m-d H:i:s', (int) $result['last_login_time']);
-                $result['avatar'] = (new Canvas)->avatar('', $result['username']);
+                $result['avatar'] = Canvas::avatar('', $result['username']);
                 $result['id'] = Base64::encrypt((string) $result['id'], 'uid');
                 $result['role_id'] = Base64::encrypt((string) $result['role_id'], 'roleid');
                 $result['app_debug'] = (int) $this->config->get('app.debug');

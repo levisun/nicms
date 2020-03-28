@@ -61,7 +61,7 @@ class Breadcrumb extends BaseLogic
      */
     private function parentCate(int $_pid)
     {
-        $result = (new ModelCategory)->view('category', ['id', 'name', 'pid', 'aliases', 'image', 'is_channel', 'access_id'])
+        $result = ModelCategory::view('category', ['id', 'name', 'pid', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
             ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
             ->where([
@@ -72,7 +72,7 @@ class Breadcrumb extends BaseLogic
 
         if (null !== $result && $result = $result->toArray()) {
             $result['id'] = (int) $result['id'];
-            $result['image'] = (new Canvas)->image((string) $result['image']);
+            $result['image'] = Canvas::image((string) $result['image']);
             $result['flag'] = Base64::flag($result['id'], 7);
             if (in_array($result['action_name'], ['article', 'picture', 'download'])) {
                 $result['url'] = url('list/' . $result['id']);

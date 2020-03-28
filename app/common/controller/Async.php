@@ -580,8 +580,7 @@ abstract class Async
         }
 
         $this->appId -= 1000000;
-        $result = (new ModelApiApp)
-            ->field('name, secret, authkey')
+        $result = ModelApiApp::field('name, secret, authkey')
             ->where([
                 ['id', '=', $this->appId]
             ])

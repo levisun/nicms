@@ -37,8 +37,7 @@ class Sidebar extends BaseLogic
             $cache_key = md5(__METHOD__ . $cid);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $id = $this->parent((int) $cid);
-                $result = (new ModelCategory)
-                    ->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+                $result = ModelCategory::view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
                     ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
                     ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
                     ->where([
@@ -50,7 +49,7 @@ class Sidebar extends BaseLogic
                 if (null !== $result && $result = $result->toArray()) {
                     $result['id'] = (int) $result['id'];
                     $result['child'] = $this->child($result['id']);
-                    $result['image'] = (new Canvas)->image((string) $result['image']);
+                    $result['image'] = Canvas::image((string) $result['image']);
                     $result['flag'] = Base64::flag($result['id'], 7);
                     if (in_array($result['action_name'], ['article', 'picture', 'download'])) {
                         $result['url'] = url('list/' . $result['id']);
@@ -83,8 +82,7 @@ class Sidebar extends BaseLogic
      */
     private function child(int $_id): array
     {
-        $result = (new ModelCategory)
-            ->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+        $result = ModelCategory::view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
             ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
             ->where([
@@ -98,7 +96,7 @@ class Sidebar extends BaseLogic
         foreach ($result as $key => $value) {
             $value['id'] = (int) $value['id'];
             $value['child'] = $this->child($value['id']);
-            $value['image'] = (new Canvas)->image((string) $value['image']);
+            $value['image'] = Canvas::image((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             if (in_array($value['action_name'], ['article', 'picture', 'download'])) {
                 $value['url'] = url('list/' . $value['id']);
@@ -125,11 +123,9 @@ class Sidebar extends BaseLogic
      */
     private function parent(int $_id)
     {
-        $result = (new ModelCategory)
-            ->where([
-                ['id', '=', $_id],
-            ])
-            ->value('pid', 0);
+        $result = ModelCategory::where([
+            ['id', '=', $_id],
+        ])->value('pid', 0);
 
         return $result ? $this->parent((int) $result) : $_id;
     }

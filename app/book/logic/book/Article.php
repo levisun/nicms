@@ -63,16 +63,14 @@ class Article extends BaseLogic
                     if ($sort_order && $title && $uri && $content = (new GatherBook)->getContent($uri)) {
                         $content = DataFilter::encode($content);
                         $ModelBookArticle = new ModelBookArticle;
-                        $ModelBookArticle
-                            ->data([
-                                'book_id'    => $bid,
-                                'is_pass'    => 1,
-                                'title'      => $title,
-                                'content'    => $content,
-                                'sort_order' => $sort_order,
-                                'show_time'  => time(),
-                            ])
-                            ->save();
+                        $ModelBookArticle->data([
+                            'book_id'    => $bid,
+                            'is_pass'    => 1,
+                            'title'      => $title,
+                            'content'    => $content,
+                            'sort_order' => $sort_order,
+                            'show_time'  => time(),
+                        ])->save();
 
                         $result = [
                             'id'      => $ModelBookArticle->id,

@@ -70,28 +70,22 @@ class Siteinfo
     private function description(): string
     {
         // 默认
-        $result = (new ModelConfig)
-            ->where([
-                ['name', '=', $this->appName . '_description'],
-                ['lang', '=', $this->langSet]
-            ])
-            ->value('value', '');
+        $result = ModelConfig::where([
+            ['name', '=', $this->appName . '_description'],
+            ['lang', '=', $this->langSet]
+        ])->value('value', '');
 
         // 文章描述
         if ($id = Request::param('id/d', null)) {
-            $result = (new ModelArticle)
-                ->where([
-                    ['id', '=', $id]
-                ])
-                ->value('description', '');
+            $result = ModelArticle::where([
+                ['id', '=', $id]
+            ])->value('description', '');
         }
         // 栏目描述
         elseif ($cid = Request::param('cid/d', null)) {
-            $result = (new ModelCategory)
-                ->where([
-                    ['id', '=', $cid]
-                ])
-                ->value('description', '');
+            $result = ModelCategory::where([
+                ['id', '=', $cid]
+            ])->value('description', '');
         }
 
         return strip_tags(htmlspecialchars_decode($result));
@@ -105,28 +99,22 @@ class Siteinfo
     private function keywords(): string
     {
         // 默认
-        $result = (new ModelConfig)
-            ->where([
-                ['name', '=', $this->appName . '_keywords'],
-                ['lang', '=', $this->langSet]
-            ])
-            ->value('value', '');
+        $result = ModelConfig::where([
+            ['name', '=', $this->appName . '_keywords'],
+            ['lang', '=', $this->langSet]
+        ])->value('value', '');
 
         // 文章关键词
         if ($id = Request::param('id/d', null)) {
-            $result = (new ModelArticle)
-                ->where([
-                    ['id', '=', $id]
-                ])
-                ->value('keywords', '');
+            $result = ModelArticle::where([
+                ['id', '=', $id]
+            ])->value('keywords', '');
         }
         // 栏目关键词
         elseif ($cid = Request::param('cid/d', null)) {
-            $result = (new ModelCategory)
-                ->where([
-                    ['id', '=', $cid]
-                ])
-                ->value('keywords', '');
+            $result = ModelCategory::where([
+                ['id', '=', $cid]
+            ])->value('keywords', '');
         }
 
         return strip_tags(htmlspecialchars_decode($result));
@@ -143,21 +131,17 @@ class Siteinfo
 
         // 文章名
         if ($id = Request::param('id/d', null)) {
-            $article = (new ModelArticle)
-                ->where([
-                    ['id', '=', $id]
-                ])
-                ->value('title', '');
+            $article = ModelArticle::where([
+                ['id', '=', $id]
+            ])->value('title', '');
             $result .= $article ? $article . '_' : '';
         }
 
         // 栏目名
         if ($cid = Request::param('cid/d', null)) {
-            $category = (new ModelCategory)
-                ->where([
-                    ['id', '=', $cid]
-                ])
-                ->value('name', '');
+            $category = ModelCategory::where([
+                ['id', '=', $cid]
+            ])->value('name', '');
             $result .= $category ? $category . '_' : '';
         }
 
@@ -174,12 +158,10 @@ class Siteinfo
      */
     private function name(): string
     {
-        $result = (new ModelConfig)
-            ->where([
-                ['name', '=', $this->appName . '_sitename'],
-                ['lang', '=', $this->langSet]
-            ])
-            ->value('value', 'NICMS');
+        $result = ModelConfig::where([
+            ['name', '=', $this->appName . '_sitename'],
+            ['lang', '=', $this->langSet]
+        ])->value('value', 'NICMS');
 
         return strip_tags(htmlspecialchars_decode($result));
     }
@@ -191,19 +173,16 @@ class Siteinfo
      */
     private function copyright(): string
     {
-        $copyright = (new ModelConfig)
-            ->where([
-                ['name', '=', $this->appName . '_copyright'],
-                ['lang', '=', $this->langSet]
-            ])
-            ->value('value', '');
+        $copyright = ModelConfig::where([
+            ['name', '=', $this->appName . '_copyright'],
+            ['lang', '=', $this->langSet]
+        ])->value('value', '');
 
-        $beian = (new ModelConfig)
-            ->where([
-                ['name', '=', $this->appName . '_beian'],
-                ['lang', '=', $this->langSet]
-            ])
-            ->value('value', '');
+        $beian = ModelConfig::where([
+            ['name', '=', $this->appName . '_beian'],
+            ['lang', '=', $this->langSet]
+        ])->value('value', '');
+
         // $beian = $beian
         //     ? '<a href="http://www.beian.miit.gov.cn/" rel="nofollow" target="_blank">' . strtoupper($beian) . '</a>'
         //     : '';
@@ -222,12 +201,10 @@ class Siteinfo
      */
     private function footer(): string
     {
-        $result = (new ModelConfig)
-            ->where([
-                ['name', '=', $this->appName . '_footer'],
-                ['lang', '=', $this->langSet]
-            ])
-            ->value('value', '');
+        $result = ModelConfig::where([
+            ['name', '=', $this->appName . '_footer'],
+            ['lang', '=', $this->langSet]
+        ])->value('value', '');
 
         return htmlspecialchars_decode($result);
     }
@@ -239,12 +216,10 @@ class Siteinfo
      */
     private function script(): string
     {
-        $result = (new ModelConfig)
-            ->where([
-                ['name', '=', $this->appName . '_script'],
-                ['lang', '=', $this->langSet]
-            ])
-            ->value('value', '');
+        $result = ModelConfig::where([
+            ['name', '=', $this->appName . '_script'],
+            ['lang', '=', $this->langSet]
+        ])->value('value', '');
 
         $result = preg_replace([
             '/(\s+\n|\r)/s',
@@ -264,12 +239,10 @@ class Siteinfo
      */
     private function theme(): string
     {
-        $result = (new ModelConfig)
-            ->where([
-                ['name', '=', $this->appName . '_theme'],
-                ['lang', '=', $this->langSet]
-            ])
-            ->value('value', 'default');
+        $result = ModelConfig::where([
+            ['name', '=', $this->appName . '_theme'],
+            ['lang', '=', $this->langSet]
+        ])->value('value', 'default');
 
         return strip_tags(htmlspecialchars_decode($result));
     }

@@ -46,10 +46,7 @@ class ArticleBase extends BaseLogic
 
         // 安栏目查询,为空查询所有
         if ($category_id = $this->request->param('cid/d', 0)) {
-            $log = $this->child((int) $category_id);
-            $log[] = $category_id;
-            $log = array_unique($log);
-            $map[] = ['article.category_id', 'in', $log];
+            $map[] = ['article.category_id', 'in', $this->child((int) $category_id)];
         }
 
         // 推荐置顶最热,三选一
@@ -92,8 +89,7 @@ class ArticleBase extends BaseLogic
         $cache_key = md5($cache_key);
 
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
-            $result = (new ModelArticle)
-                ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'username', 'access_id', 'hits', 'update_time'])
+            $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'username', 'access_id', 'hits', 'update_time'])
                 ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                 ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id and model.id<=3')
                 ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
@@ -119,7 +115,7 @@ class ArticleBase extends BaseLogic
                     // 标识符
                     $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
                     // 缩略图
-                    $value['thumb'] = (new Canvas)->image($value['thumb'], 300);
+                    $value['thumb'] = Canvas::image($value['thumb'], 300);
                     // 时间格式
                     $value['update_time'] = date($date_format, (int) $value['update_time']);
                     // 作者
@@ -127,8 +123,7 @@ class ArticleBase extends BaseLogic
                     unset($value['username']);
 
                     // 附加字段数据
-                    $fields = (new ModelFieldsExtend)
-                        ->view('fields_extend', ['data'])
+                    $fields = ModelFieldsExtend::view('fields_extend', ['data'])
                         ->view('fields', ['name' => 'fields_name'], 'fields.id=fields_extend.fields_id')
                         ->where([
                             ['fields_extend.article_id', '=', $value['id']],
@@ -141,8 +136,7 @@ class ArticleBase extends BaseLogic
                     }
 
                     // 标签
-                    $value['tags'] = (new ModelArticleTags)
-                        ->view('article_tags', ['tags_id'])
+                    $value['tags'] = ModelArticleTags::view('article_tags', ['tags_id'])
                         ->view('tags tags', ['name'], 'tags.id=article_tags.tags_id')
                         ->where([
                             ['article_tags.article_id', '=', $value['id']],
@@ -193,8 +187,7 @@ class ArticleBase extends BaseLogic
         if ($id || $page_id) {
             $cache_key = md5('article details' . $id);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
-                $result = (new ModelArticle)
-                    ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'username', 'access_id', 'hits', 'update_time'])
+                $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'username', 'access_id', 'hits', 'update_time'])
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                     ->view('model', ['id' => 'model_id', 'name' => 'model_name', 'table_name'], 'model.id=category.model_id')
                     ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
@@ -224,8 +217,7 @@ class ArticleBase extends BaseLogic
                     }
 
                     // 附加字段数据
-                    $fields = (new ModelFieldsExtend)
-                        ->view('fields_extend', ['data'])
+                    $fields = ModelFieldsExtend::view('fields_extend', ['data'])
                         ->view('fields', ['name' => 'fields_name'], 'fields.id=fields_extend.fields_id')
                         ->where([
                             ['fields_extend.article_id', '=', $result['id']],
@@ -238,8 +230,7 @@ class ArticleBase extends BaseLogic
                     }
 
                     // 标签
-                    $result['tags'] = (new ModelArticleTags)
-                        ->view('article_tags', ['tags_id'])
+                    $result['tags'] = ModelArticleTags::view('article_tags', ['tags_id'])
                         ->view('tags', ['name'], 'tags.id=article_tags.tags_id')
                         ->where([
                             ['article_tags.article_id', '=', $result['id']],
@@ -264,14 +255,14 @@ class ArticleBase extends BaseLogic
                             switch ($key) {
                                     // 缩略图
                                 case 'thumb':
-                                    $result[$key] = (new Canvas)->image($value);
+                                    $result[$key] = Canvas::image($value);
                                     break;
 
                                     // 图片
                                 case 'image_url':
                                     $value = unserialize($value);
                                     foreach ($value as $v) {
-                                        $result[$key][] = $v ? (new Canvas)->image($v) : '';
+                                        $result[$key][] = $v ? Canvas::image($v) : '';
                                     }
                                     $result[$key] = array_unique($result[$key]);
                                     $result[$key] = array_filter($result[$key]);
@@ -282,7 +273,7 @@ class ArticleBase extends BaseLogic
                                     $value = DataFilter::decode($value);
                                     $value = preg_replace_callback('/(src=")([a-zA-Z0-9&=#,_:?.\/]+)(")/si', function ($matches) {
                                         return $matches[2]
-                                            ? 'src="' . (new Canvas)->image($matches[2]) . '"'
+                                            ? 'src="' . Canvas::image($matches[2]) . '"'
                                             : '';
                                     }, $value);
                                     $result[$key] = $value;
@@ -321,13 +312,11 @@ class ArticleBase extends BaseLogic
             ];
 
             // 更新浏览数
-            (new ModelArticle)->where($map)
+            ModelArticle::where($map)
                 ->inc('hits', 1, 60)
                 ->update();
 
-            $result = (new ModelArticle)
-                ->where($map)
-                ->value('hits', 0);
+            $result = ModelArticle::where($map)->value('hits', 0);
         }
 
         return [
@@ -347,21 +336,17 @@ class ArticleBase extends BaseLogic
      */
     protected function next(int $_article_id, int $_category_id)
     {
-        $_category_id = $this->child($_category_id);
-
-        $next_id = (new ModelArticle)
-            ->where([
-                ['is_pass', '=', 1],
-                // ['category_id', '=', $_category_id],
-                ['category_id', 'in', $_category_id],
-                ['show_time', '<', time()],
-                ['id', '>', $_article_id]
-            ])
+        $next_id = ModelArticle::where([
+            ['is_pass', '=', 1],
+            // ['category_id', '=', $_category_id],
+            ['category_id', 'in', $this->child($_category_id)],
+            ['show_time', '<', time()],
+            ['id', '>', $_article_id]
+        ])
             ->order('is_top, is_hot, is_com, sort_order DESC, update_time DESC')
             ->min('id');
 
-        $result = (new ModelArticle)
-            ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+        $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
             ->where([
@@ -389,21 +374,17 @@ class ArticleBase extends BaseLogic
      */
     protected function prev(int $_id, int $_category_id)
     {
-        $_category_id = $this->child($_category_id);
-
-        $prev_id = (new ModelArticle)
-            ->where([
-                ['is_pass', '=', 1],
-                // ['category_id', '=', $_category_id],
-                ['category_id', 'in', $_category_id],
-                ['show_time', '<', time()],
-                ['id', '<', $_id]
-            ])
+        $prev_id = ModelArticle::where([
+            ['is_pass', '=', 1],
+            // ['category_id', '=', $_category_id],
+            ['category_id', 'in', $this->child($_category_id)],
+            ['show_time', '<', time()],
+            ['id', '<', $_id]
+        ])
             ->order('is_top, is_hot, is_com, sort_order DESC, update_time DESC')
             ->max('id');
 
-        $result = (new ModelArticle)
-            ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+        $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
             ->where([
@@ -431,8 +412,7 @@ class ArticleBase extends BaseLogic
     {
         $category = [];
 
-        $result = (new ModelCategory)
-            ->field('id')
+        $result = ModelCategory::field('id')
             ->where([
                 ['pid', '=', $_id]
             ])

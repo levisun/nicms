@@ -33,15 +33,14 @@ class Log extends BaseLogic
     {
         $query_limit = $this->request->param('limit/d', 10);
 
-        $result = (new ModelActionLog)
-            ->view('action_log', ['action_id', 'user_id', 'action_ip', 'module', 'remark', 'create_time'])
+        $result = ModelActionLog::view('action_log', ['action_id', 'user_id', 'action_ip', 'module', 'remark', 'create_time'])
             ->view('action', ['name' => 'action_name'], 'action.id=action_log.action_id')
             ->view('admin', ['username'], 'admin.id=action_log.user_id')
             ->view('role_admin', [], 'role_admin.user_id=admin.id')
             ->view('role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
             ->order('action_log.create_time DESC')
             ->paginate([
-                'list_rows'=> $query_limit,
+                'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
             ]);
 

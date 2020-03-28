@@ -32,8 +32,7 @@ class Basic extends BaseLogic
      */
     public function query(): array
     {
-        $result = (new ModelConfig)
-            ->field(['name', 'value'])
+        $result = ModelConfig::field(['name', 'value'])
             ->where([
                 ['lang', '=', $this->lang->getLangSet()],
                 ['name', 'in', 'cms_sitename,cms_keywords,cms_description,cms_footer,cms_copyright,cms_beian,cms_script']
@@ -81,15 +80,9 @@ class Basic extends BaseLogic
         }
 
         foreach ($receive_data as $key => $value) {
-            (new ModelConfig)
-                ->where([
-                    ['name', '=', $key],
-                    ['lang', '=', $this->lang->getLangSet()],
-                ])
-                ->data([
-                    'value' => $value
-                ])
-                ->update();
+            ModelConfig::update([
+                'value' => $value
+            ], ['name' => $key, 'lang' => $this->lang->getLangSet()]);
         }
 
         $this->cache->tag('SYSTEM')->clear();

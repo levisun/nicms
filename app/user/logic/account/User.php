@@ -73,7 +73,7 @@ class User extends BaseLogic
 
         $receive_data['salt'] = Base64::flag(md5(microtime(true) . $receive_data['password']), 6);
         $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
-        (new ModelUser)->save($receive_data);
+        ModelUser::create($receive_data);
 
         return [
             'debug' => false,

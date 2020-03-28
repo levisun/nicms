@@ -65,8 +65,7 @@ class Recycle extends BaseLogic
         $query_limit = $this->request->param('limit/d', 10);
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
-        $result = (new ModelArticle)
-            ->view('article', ['id', 'category_id', 'title', 'is_com', 'is_hot', 'is_top', 'username', 'access_id', 'hits', 'update_time'])
+        $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'is_com', 'is_hot', 'is_top', 'username', 'access_id', 'hits', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id')
             ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
@@ -132,16 +131,14 @@ class Recycle extends BaseLogic
             ];
         }
 
-        $category_id = (new ModelArticle)->where([
+        $category_id = ModelArticle::where([
             ['id', '=', $id]
         ])->value('category_id');
 
         if ($category_id) {
-            (new ModelArticle)->where([
-                ['id', '=', $id]
-            ])->data([
+            ModelArticle::update([
                 'delete_time' => 0
-            ])->update();
+            ], ['id' => $id]);
 
             // 清除缓存
             $this->cache->tag('cms article list' . $category_id)->clear();
@@ -173,56 +170,56 @@ class Recycle extends BaseLogic
             ];
         }
 
-        (new ModelArticle)->transaction(function () use ($id) {
-            (new ModelArticle)->where([
+        ModelArticle::transaction(function () use ($id) {
+            ModelArticle::where([
                 ['id', '=', $id]
             ])->delete();
 
             // 删除文章模块数据
-            $content = (new ModelArticleContent)->where([
+            $content = ModelArticleContent::where([
                 ['article_id', '=', $id]
             ])->column('thumb', 'content');
             !empty($content['thumb']) and $this->removeFile($content['thumb']);
-            (new ModelArticleContent)->where([
+            ModelArticleContent::where([
                 ['article_id', '=', $id]
             ])->delete();
 
 
             // 删除下载模块数据
-            $file_url = (new ModelArticleFile)->where([
+            $file_url = ModelArticleFile::where([
                 ['article_id', '=', $id]
             ])->value('file_url');
             $file_url and $this->removeFile($file_url);
-            (new ModelArticleFile)->where([
+            ModelArticleFile::where([
                 ['article_id', '=', $id]
             ])->delete();
 
 
             // 删除相册模块数据
-            $image_url = (new ModelArticleImage)->where([
+            $image_url = ModelArticleImage::where([
                 ['article_id', '=', $id]
             ])->value('image_url');
             $image_url = unserialize($image_url);
             foreach ($image_url as $value) {
                 $this->removeFile($value);
             }
-            (new ModelArticleImage)->where([
+            ModelArticleImage::where([
                 ['article_id', '=', $id]
             ])->delete();
 
 
             // 删除标签数据
-            (new ModelArticleTags)->where([
+            ModelArticleTags::where([
                 ['article_id', '=', $id]
             ])->delete();
 
             // 删除评论
-            (new ModelDiscuss)->where([
+            ModelDiscuss::where([
                 ['article_id', '=', $id]
             ])->delete();
 
             // 删除自定义字段数据
-            (new ModelFieldsExtend)->where([
+            ModelFieldsExtend::where([
                 ['article_id', '=', $id]
             ])->delete();
         });

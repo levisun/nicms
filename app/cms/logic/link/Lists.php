@@ -45,8 +45,7 @@ class Lists extends BaseLogic
         $cache_key = md5($cache_key);
 
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
-            $list = (new ModelLink)
-                ->view('link link', ['id', 'category_id', 'title', 'url', 'logo'])
+            $list = ModelLink::view('link link', ['id', 'category_id', 'title', 'url', 'logo'])
                 ->view('category category', ['name' => 'cat_name'], 'category.id=link.category_id')
                 ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id')
                 ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=link.type_id', 'LEFT')
@@ -56,7 +55,7 @@ class Lists extends BaseLogic
                 ->toArray();
 
             foreach ($list as $key => $value) {
-                $value['logo'] = (new Canvas)->image($value['logo']);
+                $value['logo'] = Canvas::image($value['logo']);
                 $list[$key] = $value;
             }
 

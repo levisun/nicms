@@ -28,12 +28,13 @@ class Canvas
      * 拼接图片地址
      * 生成缩略图
      * @access public
+     * @static
      * @param  string      $_file   图片路径
      * @param  int|integer $_size   缩略图宽高
      * @param  bool        $_base64 缩略图宽高
      * @return string
      */
-    public function image(string $_file, int $_size = 0,  bool $_base64 = false): string
+    public static function image(string $_file, int $_size = 0,  bool $_base64 = false): string
     {
         if (0 === stripos($_file, 'http')) {
             return $_file;
@@ -85,11 +86,12 @@ class Canvas
      * 首字符头像
      * 用户未上传头像时,根据用户名生成头像
      * @access public
+     * @static
      * @param  string $_img      头像地址
      * @param  string $_username 用户名
      * @return string
      */
-    public function avatar(string $_img, string $_username = 'avatar'): string
+    public static function avatar(string $_img, string $_username = 'avatar'): string
     {
         $path = app()->getRootPath() . Config::get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
         $_img = DataFilter::filter($_img);

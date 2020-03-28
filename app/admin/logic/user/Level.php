@@ -33,8 +33,7 @@ class Level extends BaseLogic
     {
         $query_limit = $this->request->param('limit/d', 10);
 
-        $result = (new ModelLevel)
-            ->order('id DESC')
+        $result = ModelLevel::order('id DESC')
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
@@ -85,7 +84,7 @@ class Level extends BaseLogic
             return $result;
         }
 
-        (new ModelLevel)->save($receive_data);
+        ModelLevel::create($receive_data);
 
         return [
             'debug' => false,
@@ -103,10 +102,9 @@ class Level extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d')) {
-            $result = (new ModelLevel)
-                ->where([
-                    ['id', '=', $id],
-                ])
+            $result = ModelLevel::where([
+                ['id', '=', $id],
+            ])
                 ->find();
             $result = $result ? $result->toArray() : [];
         }
@@ -147,11 +145,7 @@ class Level extends BaseLogic
             return $result;
         }
 
-        (new ModelLevel)->where([
-            ['id', '=', $id]
-        ])
-            ->data($receive_data)
-            ->update();
+        ModelLevel::update($receive_data, ['id' => $id]);
 
         return [
             'debug' => false,
@@ -178,7 +172,7 @@ class Level extends BaseLogic
             ];
         }
 
-        (new ModelLevel)->where([
+        ModelLevel::where([
             ['id', '=', $id]
         ])
             ->delete();

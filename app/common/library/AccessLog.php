@@ -47,19 +47,19 @@ class AccessLog
         $user_agent = strtolower(Request::server('HTTP_USER_AGENT'));
 
         $ip = (new Ipinfo)->get(Request::ip());
-        $has = (new ModelVisit)->where([
+        $has = ModelVisit::where([
             ['ip', '=', $ip['ip']],
             ['user_agent', '=', md5($user_agent)],
             ['date', '=', strtotime(date('Y-m-d'))]
         ])->value('ip');
         if ($has) {
-            (new ModelVisit)->where([
+            ModelVisit::where([
                 ['ip', '=', $ip['ip']],
                 ['user_agent', '=', md5($user_agent)],
                 ['date', '=', strtotime(date('Y-m-d'))]
             ])->inc('count', 1)->update();
         } else {
-            (new ModelVisit)->save([
+            ModelVisit::create([
                 'ip'         => $ip['ip'],
                 'ip_attr'    => isset($ip['country']) ? $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'] : '',
                 'user_agent' => md5($user_agent),
@@ -68,8 +68,7 @@ class AccessLog
         }
 
         if (1 === mt_rand(1, 100)) {
-            (new ModelVisit)
-                ->where([
+            ModelVisit::where([
                     ['date', '<', strtotime('-30 days')]
                 ])
                 ->limit(100)
@@ -94,17 +93,17 @@ class AccessLog
         }
 
         if ($spider) {
-            $has = (new ModelVisit)->where([
+            $has = ModelVisit::where([
                 ['name', '=', $spider],
                 ['date', '=', strtotime(date('Y-m-d'))]
             ])->value('name');
             if ($has) {
-                (new ModelVisit)->where([
+                ModelVisit::where([
                     ['name', '=', $spider],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])->inc('count', 1)->update();
             } else {
-                (new ModelVisit)->save([
+                ModelVisit::create([
                     'name' => $spider,
                     'date' => strtotime(date('Y-m-d'))
                 ]);
@@ -126,17 +125,17 @@ class AccessLog
                 ? str_replace('.', '_', Request::param('method'))
                 : pathinfo(Request::baseUrl(), PATHINFO_BASENAME);
 
-            $has = (new ModelVisit)->where([
+            $has = ModelVisit::where([
                 ['name', '=', $method],
                 ['date', '=', strtotime(date('Y-m-d'))]
             ])->value('name');
             if ($has) {
-                (new ModelVisit)->where([
+                ModelVisit::where([
                     ['name', '=', $method],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])->inc('count', 1)->update();
             } else {
-                (new ModelVisit)->save([
+                ModelVisit::create([
                     'name' => $method,
                     'date' => strtotime(date('Y-m-d'))
                 ]);

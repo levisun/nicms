@@ -35,7 +35,7 @@ class DataFilter
             $_data = self::safe($_data);
             $_data = strip_tags($_data);
             $_data = self::symbol($_data);
-            $_data = (new Emoji)->clear($_data);
+            $_data = Emoji::clear($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
@@ -58,7 +58,7 @@ class DataFilter
             $_data = self::safe($_data);
             $_data = self::element($_data);
             $_data = self::symbol($_data);
-            $_data = (new Emoji)->encode($_data);
+            $_data = Emoji::encode($_data);
             $_data = str_replace('<p>&nbsp;</p>', '', $_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
@@ -80,7 +80,7 @@ class DataFilter
     {
         if (is_string($_data)) {
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
-            $_data =  (new Emoji)->decode($_data);
+            $_data =  Emoji::decode($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::decode($value);
@@ -253,7 +253,7 @@ class DataFilter
             'exec'                 => 'exec&nbsp;',
             'file_get_contents'    => 'file-get-contents&nbsp;',
             'file_put_contents'    => 'file-put-contents&nbsp;',
-            'function'             => 'function&nbsp;',
+            // 'function'             => 'function&nbsp;',
             'invoke'               => 'invoke&nbsp;',
             'passthru'             => 'passthru&nbsp;',
             'phpinfo'              => 'phpinfo&nbsp;',

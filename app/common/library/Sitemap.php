@@ -41,8 +41,7 @@ class Sitemap
      */
     private function saveSitemapFile(): void
     {
-        $category = (new ModelCategory)
-            ->view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+        $category = ModelCategory::view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
             ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
             ->where([
@@ -56,8 +55,7 @@ class Sitemap
         $sitemap_xml = [];
         $domain = Request::scheme() . '://www.' . Request::rootDomain();
         foreach ($category as $vo_cate) {
-            $article = (new ModelArticle)
-                ->view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+            $article = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
                 ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                 ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
                 ->where([

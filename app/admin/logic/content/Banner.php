@@ -33,8 +33,7 @@ class Banner extends BaseLogic
     {
         $query_limit = $this->request->param('limit/d', 10);
 
-        $result = (new ModelBanner)
-            ->view('banner', ['id', 'name', 'width', 'height'])
+        $result = ModelBanner::view('banner', ['id', 'name', 'width', 'height'])
             ->order('banner.update_time DESC')
             ->paginate([
                 'list_rows' => $query_limit,
@@ -45,8 +44,7 @@ class Banner extends BaseLogic
         $list['render'] = $result->render();
 
         foreach ($list['data'] as $key => $value) {
-            $child = (new ModelBanner)
-                ->field(['id', 'title', 'description', 'image', 'url'])
+            $child = ModelBanner::field(['id', 'title', 'description', 'image', 'url'])
                 ->where([
                     ['id', '=', $value['id']]
                 ])

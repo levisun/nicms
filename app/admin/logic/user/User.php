@@ -35,8 +35,7 @@ class User extends BaseLogic
     {
         $query_limit = $this->request->param('limit/d', 10);
 
-        $result = (new ModelUser)
-            ->view('user', ['id', 'username', 'realname', 'nickname', 'email', 'phone', 'status', 'create_time'])
+        $result = ModelUser::view('user', ['id', 'username', 'realname', 'nickname', 'email', 'phone', 'status', 'create_time'])
             ->view('level', ['name' => 'level_name'], 'level.id=user.level_id')
             ->order('user.create_time DESC')
             ->paginate([
@@ -98,7 +97,7 @@ class User extends BaseLogic
 
         $receive_data['salt'] = Base64::flag(md5(microtime(true) . $receive_data['password']), 6);
         $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
-        (new ModelUser)->save($receive_data);
+        ModelUser::create($receive_data);
 
         return [
             'debug' => false,
@@ -116,8 +115,7 @@ class User extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d')) {
-            $result = (new ModelUser)
-                ->field('id, username, phone, email, level_id, status')
+            $result = ModelUser::field('id, username, phone, email, level_id, status')
                 ->where([
                     ['id', '=', $id],
                 ])
@@ -125,10 +123,9 @@ class User extends BaseLogic
             $result = $result ? $result->toArray() : [];
         }
 
-        $level = (new ModelLevel)
-            ->where([
-                ['status', '=', 1]
-            ])
+        $level = ModelLevel::where([
+            ['status', '=', 1]
+        ])
             ->select();
         $result['level_list'] = $level ? $level->toArray() : [];
 
@@ -173,16 +170,14 @@ class User extends BaseLogic
         $receive_data['salt'] = Base64::flag(md5(microtime(true) . $receive_data['password']), 6);
         $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
 
-        (new ModelUser)->where([
-            ['id', '=', $id]
-        ])->data([
+        ModelUser::update([
             'username' => $receive_data['username'],
             'password' => $receive_data['password'],
             'phone'    => $receive_data['phone'],
             'email'    => $receive_data['email'],
             'level_id' => $receive_data['level_id'],
             'status'   => $receive_data['status'],
-        ])->update();
+        ], ['id' => $id]);
 
         return [
             'debug' => false,
@@ -209,7 +204,7 @@ class User extends BaseLogic
             ];
         }
 
-        (new ModelUser)->where([
+        ModelUser::where([
             ['id', '=', $id]
         ])->delete();
 

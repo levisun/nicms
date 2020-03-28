@@ -40,8 +40,7 @@ class Fields extends BaseLogic
             $map[] = ['fields.category_id', '=', $category_id];
         }
 
-        $result = (new ModelFields)
-            ->view('fields', ['id', 'name', 'is_require', 'remark'])
+        $result = ModelFields::view('fields', ['id', 'name', 'is_require', 'remark'])
             ->view('category', ['name' => 'cat_name'], 'category.id=fields.category_id')
             ->view('fields_type', ['id' => 'type_id', 'name' => 'type_name'], 'fields_type.id=fields.type_id')
             ->where($map)
@@ -99,7 +98,7 @@ class Fields extends BaseLogic
             return $result;
         }
 
-        (new ModelFields)->save($receive_data);
+        ModelFields::create($receive_data);
 
         return [
             'debug' => false,
@@ -116,16 +115,13 @@ class Fields extends BaseLogic
     public function find(): array
     {
         if ($id = $this->request->param('id/d')) {
-            $result = (new ModelFields)
-                ->where([
-                    ['id', '=', $id],
-                ])
-                ->find();
+            $result = ModelFields::where([
+                ['id', '=', $id],
+            ])->find();
             $result = $result ? $result->toArray() : [];
         }
 
-        $result['fields_type'] = (new ModelFieldsType)
-            ->field('id, name')
+        $result['fields_type'] = ModelFieldsType::field('id, name')
             ->order('id DESC')
             ->select()
             ->toArray();
@@ -169,12 +165,7 @@ class Fields extends BaseLogic
             return $result;
         }
 
-        (new ModelFields)
-            ->where([
-                ['id', '=', $id]
-            ])
-            ->data($receive_data)
-            ->update();
+        ModelFields::update($receive_data, ['id' => $id]);
 
         return [
             'debug' => false,
@@ -201,17 +192,13 @@ class Fields extends BaseLogic
             ];
         }
 
-        (new ModelFields)
-            ->where([
-                ['id', '=', $id]
-            ])
-            ->delete();
+        ModelFields::where([
+            ['id', '=', $id]
+        ])->delete();
 
-        (new ModelFieldsExtend)
-            ->where([
-                ['fields_id', '=', $id]
-            ])
-            ->delete();
+        ModelFieldsExtend::where([
+            ['fields_id', '=', $id]
+        ])->delete();
 
         return [
             'debug' => false,

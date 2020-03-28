@@ -140,8 +140,7 @@ abstract class BaseLogic
     {
         $_method = str_replace(['app\\', 'logic\\', '\\', '::'], ['', '', '_', '_'], $_method);
         // 查询操作方法
-        $has = (new ModelAction)
-            ->where([
+        $has = ModelAction::where([
                 ['name', '=', $_method]
             ])
             ->find();
@@ -157,8 +156,7 @@ abstract class BaseLogic
         }
 
         // 写入操作日志
-        (new ModelActionLog)
-            ->save([
+        ModelActionLog::create([
                 'action_id' => $has['id'],
                 'user_id'   => $this->uid,
                 'action_ip' => $this->request->ip(),
@@ -168,8 +166,7 @@ abstract class BaseLogic
 
         // 删除过期日志
         if (1 === mt_rand(1, 100)) {
-            (new ModelActionLog)
-                ->where([
+            ModelActionLog::where([
                     ['create_time', '<', strtotime('-90 days')]
                 ])
                 ->limit(100)

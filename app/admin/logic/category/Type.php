@@ -38,8 +38,7 @@ class Type extends BaseLogic
             $map[] = ['type.category_id', '=', $category_id];
         }
 
-        $result = (new ModelType)
-            ->view('type', ['id', 'name', 'remark'])
+        $result = ModelType::view('type', ['id', 'name', 'remark'])
             ->view('category', ['name' => 'cat_name'], 'category.id=type.category_id')
             ->where($map)
             ->order('category.id DESC, type.id')
@@ -92,7 +91,7 @@ class Type extends BaseLogic
             return $result;
         }
 
-        (new ModelType)->save($receive_data);
+        ModelType::create($receive_data);
 
         return [
             'debug' => false,
@@ -109,10 +108,9 @@ class Type extends BaseLogic
     public function find(): array
     {
         if ($id = $this->request->param('id/d')) {
-            $result = (new ModelType)
-                ->where([
-                    ['id', '=', $id],
-                ])
+            $result = ModelType::where([
+                ['id', '=', $id],
+            ])
                 ->find();
             $result = $result ? $result->toArray() : [];
         }
@@ -152,12 +150,7 @@ class Type extends BaseLogic
             return $result;
         }
 
-        (new ModelType)
-            ->where([
-                ['id', '=', $id]
-            ])
-            ->data($receive_data)
-            ->update();
+        ModelType::update($receive_data, ['id' => $id]);
 
         return [
             'debug' => false,
@@ -184,11 +177,9 @@ class Type extends BaseLogic
             ];
         }
 
-        (new ModelType)
-            ->where([
-                ['id', '=', $id]
-            ])
-            ->delete();
+        ModelType::where([
+            ['id', '=', $id]
+        ])->delete();
 
         return [
             'debug' => false,

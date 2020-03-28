@@ -33,8 +33,7 @@ class Feedback extends BaseLogic
     {
         $query_limit = $this->request->param('limit/d', 10);
 
-        $result = (new ModelFeedback)
-            ->view('feedback', ['id', 'title', 'username', 'content', 'category_id', 'type_id'])
+        $result = ModelFeedback::view('feedback', ['id', 'title', 'username', 'content', 'category_id', 'type_id'])
             ->view('category', ['name' => 'cat_name'], 'category.id=feedback.category_id', 'LEFT')
             ->view('type', ['name' => 'type_name'], 'type.id=feedback.type_id', 'LEFT')
             ->view('user', ['username' => 'author'], 'user.id=feedback.user_id', 'LEFT')
@@ -79,11 +78,10 @@ class Feedback extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d')) {
-            $result = (new ModelFeedback)
-            ->view('feedback', ['id', 'title', 'username', 'content', 'category_id', 'type_id'])
-            ->view('category', ['name' => 'cat_name'], 'category.id=feedback.category_id', 'LEFT')
-            ->view('type', ['name' => 'type_name'], 'type.id=feedback.type_id', 'LEFT')
-            ->view('user', ['username' => 'author'], 'user.id=feedback.user_id', 'LEFT')
+            $result = ModelFeedback::view('feedback', ['id', 'title', 'username', 'content', 'category_id', 'type_id'])
+                ->view('category', ['name' => 'cat_name'], 'category.id=feedback.category_id', 'LEFT')
+                ->view('type', ['name' => 'type_name'], 'type.id=feedback.type_id', 'LEFT')
+                ->view('user', ['username' => 'author'], 'user.id=feedback.user_id', 'LEFT')
                 ->where([
                     ['feedback.id', '=', $id],
                 ])
@@ -123,11 +121,9 @@ class Feedback extends BaseLogic
             'update_time' => time(),
         ];
 
-        (new ModelFeedback)->where([
-            ['id', '=', $id]
-        ])->data($receive_data)->update();
+        ModelFeedback::update($receive_data, ['id' => $id]);
 
-        $category_id = (new ModelFeedback)->where([
+        $category_id = ModelFeedback::where([
             ['id', '=', $id]
         ])->value('category_id');
 
@@ -159,15 +155,13 @@ class Feedback extends BaseLogic
             ];
         }
 
-        $category_id = (new ModelFeedback)->where([
+        $category_id = ModelFeedback::where([
             ['id', '=', $id]
         ])->value('category_id');
 
-        (new ModelFeedback)
-            ->where([
-                ['id', '=', $id]
-            ])
-            ->delete();
+        ModelFeedback::where([
+            ['id', '=', $id]
+        ])->delete();
 
         // 清除缓存
         $this->cache->tag('cms feedback list' . $category_id)->clear();

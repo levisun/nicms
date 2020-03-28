@@ -16,19 +16,18 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
-use think\facade\Log;
-
 class ReGarbage
 {
 
     /**
      * 清理目录中的垃圾信息
      * @access public
+     * @static
      * @param  string $_dir
      * @param  int    $_expire
      * @return $this
      */
-    public function remove(string $_dir, int $_expire)
+    public static function remove(string $_dir, int $_expire)
     {
         // 过滤前后字符与空格
         $_dir = DataFilter::filter($_dir);
@@ -42,11 +41,12 @@ class ReGarbage
     /**
      * 删除文件
      * @access private
+     * @static
      * @param  string $_dir
      * @param  int    $_time
      * @return void
      */
-    private function clear(string $_dir, int $_time): void
+    private static function clear(string $_dir, int $_time): void
     {
         $files = is_dir($_dir) ? scandir($_dir) : [];
 

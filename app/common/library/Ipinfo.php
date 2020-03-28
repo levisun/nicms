@@ -63,7 +63,7 @@ class Ipinfo
                     Cache::tag(['SYSTEM', 'ipinfo'])->set($cache_key, $query_region);
 
                     $region = $query_region;
-                    $region['up'] = (new ModelIpInfo)->where([
+                    $region['up'] = ModelIpInfo::where([
                         ['create_time', '>', strtotime(date('Y-m-d'))]
                     ])->count();
                 }
@@ -123,8 +123,7 @@ class Ipinfo
      */
     private function query(string &$_ip)
     {
-        $result = (new ModelIpinfo)
-            ->view('ipinfo', ['id', 'ip', 'isp', 'update_time'])
+        $result = ModelIpinfo::view('ipinfo', ['id', 'ip', 'isp', 'update_time'])
             ->view('region country', ['id' => 'country_id', 'name' => 'country'], 'country.id=ipinfo.country_id')
             ->view('region region', ['id' => 'region_id', 'name' => 'region'], 'region.id=ipinfo.province_id')
             ->view('region city', ['id' => 'city_id', 'name' => 'city'], 'city.id=ipinfo.city_id')
@@ -155,12 +154,10 @@ class Ipinfo
     {
         $_name = DataFilter::filter($_name);
 
-        $result = (new ModelRegion)
-            ->where([
-                ['pid', '=', $_pid],
-                ['name', 'LIKE', $_name . '%']
-            ])
-            ->value('id');
+        $result = ModelRegion::where([
+            ['pid', '=', $_pid],
+            ['name', 'LIKE', $_name . '%']
+        ])->value('id');
 
         return $result ? (int) $result : 0;
     }
@@ -193,38 +190,30 @@ class Ipinfo
 
         $binip = bindec(Request::ip2bin($_ip));
 
-        $has = (new ModelIpinfo)
-            ->where([
-                ['ip', '=', $binip]
-            ])
-            ->value('id');
+        $has = ModelIpinfo::where([
+            ['ip', '=', $binip]
+        ])->value('id');
 
         if (!$has) {
-            (new ModelIpinfo)
-                ->save([
-                    'ip'          => $binip,
-                    'country_id'  => $country,
-                    'province_id' => $province,
-                    'city_id'     => $city,
-                    'area_id'     => $area,
-                    'isp'         => $isp,
-                    'update_time' => time(),
-                    'create_time' => time()
-                ]);
+            ModelIpinfo::create([
+                'ip'          => $binip,
+                'country_id'  => $country,
+                'province_id' => $province,
+                'city_id'     => $city,
+                'area_id'     => $area,
+                'isp'         => $isp,
+                'update_time' => time(),
+                'create_time' => time()
+            ]);
         } else {
-            (new ModelIpinfo)
-                ->where([
-                    ['ip', '=', $binip]
-                ])
-                ->data([
-                    'country_id'  => $country,
-                    'province_id' => $province,
-                    'city_id'     => $city,
-                    'area_id'     => $area,
-                    'isp'         => $isp,
-                    'update_time' => time(),
-                ])
-                ->update();
+            ModelIpinfo::update([
+                'country_id'  => $country,
+                'province_id' => $province,
+                'city_id'     => $city,
+                'area_id'     => $area,
+                'isp'         => $isp,
+                'update_time' => time(),
+            ], ['ip' => $binip]);
         }
 
         return $this->query($_ip);

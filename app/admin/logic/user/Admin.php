@@ -36,8 +36,7 @@ class Admin extends BaseLogic
     {
         $query_limit = $this->request->param('limit/d', 10);
 
-        $result = (new ModelAdmin)
-            ->view('admin', ['id', 'username', 'email', 'status', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
+        $result = ModelAdmin::view('admin', ['id', 'username', 'email', 'status', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
             ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
             ->view('role role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
             ->where([
@@ -100,14 +99,14 @@ class Admin extends BaseLogic
             return $result;
         }
 
-        (new ModelAdmin)->transaction(function () use ($receive_data) {
+        ModelAdmin::transaction(function () use ($receive_data) {
             $receive_data['salt'] = Base64::flag(md5(microtime(true) . $receive_data['password']), 6);
             $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
 
             $admin = new ModelAdmin;
             $admin->save($receive_data);
 
-            (new ModelRoleAdmin)->save([
+            ModelRoleAdmin::create([
                 'user_id' => $admin->id,
                 'role_id' => $receive_data['role_id']
             ]);
@@ -129,8 +128,7 @@ class Admin extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d')) {
-            $result = (new ModelAdmin)
-                ->view('admin', ['id', 'username', 'phone', 'email', 'status'])
+            $result = ModelAdmin::view('admin', ['id', 'username', 'phone', 'email', 'status'])
                 ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
                 ->where([
                     ['admin.id', '=', $id],
@@ -139,11 +137,10 @@ class Admin extends BaseLogic
             $result = $result ? $result->toArray() : [];
         }
 
-        $role = (new ModelRole)
-            ->where([
-                ['id', '<>', 1],
-                ['status', '=', 1]
-            ])
+        $role = ModelRole::where([
+            ['id', '<>', 1],
+            ['status', '=', 1]
+        ])
             ->select();
         $result['role_list'] = $role ? $role->toArray() : [];
 
@@ -186,26 +183,22 @@ class Admin extends BaseLogic
             return $result;
         }
 
-        (new ModelAdmin)->transaction(function () use ($receive_data, $id) {
+        ModelAdmin::transaction(function () use ($receive_data, $id) {
             $receive_data['salt'] = Base64::flag(md5(microtime(true) . $receive_data['password']), 6);
             $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
 
-            (new ModelAdmin)->where([
-                ['id', '=', $id]
-            ])->data([
+            ModelAdmin::update([
                 'username' => $receive_data['username'],
                 'password' => $receive_data['password'],
                 'salt' => $receive_data['salt'],
                 'phone' => $receive_data['phone'],
                 'email' => $receive_data['email'],
                 'status' => $receive_data['status']
-            ])->update();
+            ], ['id' => $id]);
 
-            (new ModelRoleAdmin)->where([
-                ['user_id', '=', $id]
-            ])->data([
+            ModelRoleAdmin::update([
                 'role_id' => $receive_data['role_id']
-            ])->update();
+            ], ['user_id' => $id]);
         });
 
         return [
@@ -233,12 +226,13 @@ class Admin extends BaseLogic
             ];
         }
 
-        (new ModelAdmin)->transaction(function () use ($id) {
-            (new ModelAdmin)->where([
+        ModelAdmin::transaction(function () use ($id) {
+            ModelAdmin::where([
                 ['id', '=', $id]
             ])
                 ->delete();
-            (new ModelRoleAdmin)->where([
+
+            ModelRoleAdmin::where([
                 ['user_id', '=', $id]
             ])->delete();
         });

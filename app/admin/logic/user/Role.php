@@ -34,10 +34,9 @@ class Role extends BaseLogic
     {
         $query_limit = $this->request->param('limit/d', 10);
 
-        $result = (new ModelRole)
-            ->where([
-                ['id', '<>', 1]
-            ])
+        $result = ModelRole::where([
+            ['id', '<>', 1]
+        ])
             ->order('id DESC')
             ->paginate([
                 'list_rows' => $query_limit,
@@ -88,10 +87,11 @@ class Role extends BaseLogic
             return $result;
         }
 
-        (new ModelRole)->transaction(function () use ($receive_data) {
+        ModelRole::transaction(function () use ($receive_data) {
             $role = new ModelRole;
             $role->save($receive_data);
             $list = [];
+
             $node = $this->request->param('node/a');
             foreach ($node as $value) {
                 $list[] = [
@@ -118,15 +118,13 @@ class Role extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d')) {
-            $result = (new ModelRole)
-                ->where([
-                    ['id', '=', $id],
-                ])
+            $result = ModelRole::where([
+                ['id', '=', $id],
+            ])
                 ->find();
             $result = $result ? $result->toArray() : [];
 
-            $node = (new ModelRoleAccess)
-                ->field('node_id')
+            $node = ModelRoleAccess::field('node_id')
                 ->where([
                     ['role_id', '=', $id]
                 ])
@@ -174,16 +172,14 @@ class Role extends BaseLogic
             return $result;
         }
 
-        (new ModelRole)->transaction(function () use ($receive_data, $id) {
-            (new ModelRole)->where([
-                ['id', '=', $id]
-            ])
-            ->data($receive_data)
-            ->update();
+        ModelRole::transaction(function () use ($receive_data, $id) {
+            ModelRole::update($receive_data, ['id' => $id]);
+
             // 删除旧数据
-            (new ModelRoleAccess)->where([
+            ModelRoleAccess::where([
                 ['role_id', '=', $id]
             ])->delete();
+
             $list = [];
             $node = $this->request->param('node/a');
             foreach ($node as $value) {
@@ -220,12 +216,13 @@ class Role extends BaseLogic
             ];
         }
 
-        (new ModelRole)->transaction(function () use ($id) {
-            (new ModelRole)->where([
+        ModelRole::transaction(function () use ($id) {
+            ModelRole::where([
                 ['id', '=', $id]
             ])
-            ->delete();
-            (new ModelRoleAccess)->where([
+                ->delete();
+
+            ModelRoleAccess::where([
                 ['role_id', '=', $id]
             ])->delete();
         });

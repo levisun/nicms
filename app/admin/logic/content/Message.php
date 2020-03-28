@@ -33,8 +33,7 @@ class Message extends BaseLogic
     {
         $query_limit = $this->request->param('limit/d', 10);
 
-        $result = (new ModelMessage)
-            ->view('message', ['id', 'title', 'username', 'content', 'category_id', 'type_id'])
+        $result = ModelMessage::view('message', ['id', 'title', 'username', 'content', 'category_id', 'type_id'])
             ->view('category', ['name' => 'cat_name'], 'category.id=message.category_id', 'LEFT')
             ->view('type', ['name' => 'type_name'], 'type.id=message.type_id', 'LEFT')
             ->view('user', ['username' => 'author'], 'user.id=message.user_id', 'LEFT')
@@ -79,11 +78,10 @@ class Message extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d')) {
-            $result = (new ModelMessage)
-            ->view('message', ['id', 'title', 'username', 'content', 'category_id', 'type_id'])
-            ->view('category', ['name' => 'cat_name'], 'category.id=message.category_id', 'LEFT')
-            ->view('type', ['name' => 'type_name'], 'type.id=message.type_id', 'LEFT')
-            ->view('user', ['username' => 'author'], 'user.id=message.user_id', 'LEFT')
+            $result = ModelMessage::view('message', ['id', 'title', 'username', 'content', 'category_id', 'type_id'])
+                ->view('category', ['name' => 'cat_name'], 'category.id=message.category_id', 'LEFT')
+                ->view('type', ['name' => 'type_name'], 'type.id=message.type_id', 'LEFT')
+                ->view('user', ['username' => 'author'], 'user.id=message.user_id', 'LEFT')
                 ->where([
                     ['message.id', '=', $id],
                 ])
@@ -124,11 +122,9 @@ class Message extends BaseLogic
             'update_time' => time(),
         ];
 
-        (new ModelMessage)->where([
-            ['id', '=', $id]
-        ])->data($receive_data)->update();
+        ModelMessage::update($receive_data, ['id' => $id]);
 
-        $category_id = (new ModelMessage)->where([
+        $category_id = ModelMessage::where([
             ['id', '=', $id]
         ])->value('category_id');
 
@@ -160,15 +156,13 @@ class Message extends BaseLogic
             ];
         }
 
-        $category_id = (new ModelMessage)->where([
+        $category_id = ModelMessage::where([
             ['id', '=', $id]
         ])->value('category_id');
 
-        (new ModelMessage)
-            ->where([
-                ['id', '=', $id]
-            ])
-            ->delete();
+        ModelMessage::where([
+            ['id', '=', $id]
+        ])->delete();
 
         // 清除缓存
         $this->cache->tag('cms message list' . $category_id)->clear();

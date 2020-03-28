@@ -35,7 +35,7 @@ class Top extends BaseLogic
     {
         $cache_key = md5(__METHOD__ . $this->lang->getLangSet());
         if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
-            $result = (new ModelCategory)->view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+            $result = ModelCategory::view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
                 ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
                 ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
                 ->where([
@@ -51,7 +51,7 @@ class Top extends BaseLogic
             foreach ($result as $key => $value) {
                 $value['id'] = (int) $value['id'];
                 $value['child'] = $this->child($value['id']);
-                $value['image'] = (new Canvas)->image((string) $value['image']);
+                $value['image'] = Canvas::image((string) $value['image']);
                 $value['flag'] = Base64::flag($value['id'], 7);
                 if (in_array($value['action_name'], ['article', 'picture', 'download'])) {
                     $value['url'] = url('list/' . $value['id']);
@@ -84,7 +84,7 @@ class Top extends BaseLogic
      */
     private function child(int $_pid)
     {
-        $result = (new ModelCategory)->view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
+        $result = ModelCategory::view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
             ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
             ->where([
@@ -99,7 +99,7 @@ class Top extends BaseLogic
         foreach ($result as $key => $value) {
             $value['id'] = (int) $value['id'];
             $value['child'] = $this->child($value['id']);
-            $value['image'] = (new Canvas)->image((string) $value['image']);
+            $value['image'] = Canvas::image((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             if (in_array($value['action_name'], ['article', 'picture', 'download'])) {
                 $value['url'] = url('list/' . $value['id']);

@@ -31,10 +31,9 @@ class Node extends BaseLogic
      */
     public function query(): array
     {
-        $result = (new ModelNode)
-            ->where([
-                ['pid', '=', 0],
-            ])
+        $result = ModelNode::where([
+            ['pid', '=', 0],
+        ])
             ->order('sort_order ASC, id ASC')
             ->select();
 
@@ -70,10 +69,9 @@ class Node extends BaseLogic
      */
     private function child(int $_pid)
     {
-        $result = (new ModelNode)
-            ->where([
-                ['pid', '=', $_pid],
-            ])
+        $result = ModelNode::where([
+            ['pid', '=', $_pid],
+        ])
             ->order('sort_order ASC, id ASC')
             ->select();
 
@@ -134,7 +132,7 @@ class Node extends BaseLogic
             return $result;
         }
 
-        (new ModelNode)->save($receive_data);
+        ModelNode::create($receive_data);
 
         return [
             'debug' => false,
@@ -152,26 +150,23 @@ class Node extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d')) {
-            $result = (new ModelNode)
-                ->where([
-                    ['id', '=', $id],
-                ])
+            $result = ModelNode::where([
+                ['id', '=', $id],
+            ])
                 ->find();
 
             if (null !== $result && $result = $result->toArray()) {
-                $result['parent'] = (new ModelNode)
-                    ->where([
-                        ['id', '=', $result['pid']]
-                    ])
+                $result['parent'] = ModelNode::where([
+                    ['id', '=', $result['pid']]
+                ])
                     ->value('name as parent');
             }
         } else {
             if ($pid = $this->request->param('pid/d', 0)) {
                 $result['pid'] = $pid;
-                $result['parent'] = (new ModelNode)
-                    ->where([
-                        ['id', '=', $pid]
-                    ])
+                $result['parent'] = ModelNode::where([
+                    ['id', '=', $pid]
+                ])
                     ->value('name as parent');
             }
         }
@@ -223,12 +218,7 @@ class Node extends BaseLogic
             return $result;
         }
 
-        (new ModelNode)
-            ->where([
-                ['id', '=', $id]
-            ])
-            ->data($receive_data)
-            ->update();
+        ModelNode::update($receive_data, ['id' => $id]);
 
         return [
             'debug' => false,
@@ -255,10 +245,9 @@ class Node extends BaseLogic
             ];
         }
 
-        (new ModelNode)
-            ->where([
-                ['id', '=', $id]
-            ])
+        ModelNode::where([
+            ['id', '=', $id]
+        ])
             ->delete();
 
         return [

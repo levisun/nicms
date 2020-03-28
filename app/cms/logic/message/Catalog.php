@@ -42,8 +42,7 @@ class Catalog extends BaseLogic
             $cache_key = md5($cache_key);
 
             if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
-                $result = (new ModelMessage)
-                    ->where([
+                $result = ModelMessage::where([
                         ['is_pass', '=', 1],
                         ['category_id', '=', $category_id],
                     ])
@@ -62,8 +61,7 @@ class Catalog extends BaseLogic
                         $value['update_time'] = date($date_format, (int) $value['update_time']);
 
                         // 附加字段数据
-                        $fields = (new ModelFields)
-                            ->view('fields', ['id'])
+                        $fields = ModelFields::view('fields', ['id'])
                             ->view('fields_extend', ['data'], 'fields_extend.fields_id=fields.id')
                             // ->view('fields_type', ['name' => 'fields_type'])
                             ->where([

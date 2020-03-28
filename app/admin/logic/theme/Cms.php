@@ -78,14 +78,9 @@ class Cms extends BaseLogic
         if ($id && $id = Base64::decrypt($id)) {
             $path = $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . 'cms' . DIRECTORY_SEPARATOR;
             if (is_dir($path . $id)) {
-                (new ModelConfig)
-                    ->where([
-                        ['name', '=', 'cms_theme']
-                    ])
-                    ->data([
-                        'value' => $id
-                    ])
-                    ->update();
+                ModelConfig::update([
+                    'value' => $id
+                ], ['name' => 'cms_theme']);
             }
         }
 

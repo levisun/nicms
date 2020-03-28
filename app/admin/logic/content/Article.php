@@ -71,8 +71,7 @@ class Article extends BaseLogic
         $query_limit = $this->request->param('limit/d', 10);
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
-        $result = (new ModelArticle)
-            ->view('article', ['id', 'category_id', 'title', 'is_pass', 'is_com', 'is_hot', 'is_top', 'username', 'access_id', 'hits', 'sort_order', 'update_time'])
+        $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'is_pass', 'is_com', 'is_hot', 'is_top', 'username', 'access_id', 'hits', 'sort_order', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id')
             ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
@@ -160,7 +159,7 @@ class Article extends BaseLogic
             return $result;
         }
 
-        (new ModelArticle)->transaction(function () use ($receive_data) {
+        ModelArticle::transaction(function () use ($receive_data) {
             $model_id = $receive_data['model_id'];
             unset($receive_data['model_id']);
 
@@ -186,7 +185,7 @@ class Article extends BaseLogic
             if (1 === $receive_data['model_id'] || 4 === $receive_data['model_id']) {
                 $thumb = $this->request->param('thumb', '');
                 $this->writeFileLog($thumb);
-                (new ModelArticleContent)->save([
+                ModelArticleContent::create([
                     'article_id' => $article->id,
                     'thumb'      => $thumb,
                     'origin'     => $this->request->param('origin', ''),
@@ -199,7 +198,7 @@ class Article extends BaseLogic
                 foreach ($image_url as $key => $value) {
                     $this->writeFileLog($value);
                 }
-                (new ModelArticleImage)->save([
+                ModelArticleImage::create([
                     'article_id'   => $article->id,
                     'image_url'    => serialize($image_url),
                     'image_width'  => $this->request->param('image_width/d', 0),
@@ -208,7 +207,7 @@ class Article extends BaseLogic
             }
             // 下载
             elseif (3 === $receive_data['model_id']) {
-                (new ModelArticleFile)->save([
+                ModelArticleFile::create([
                     'article_id' => $article->id,
                     'file_url'   => $this->request->param('file_url'),
                     'file_size'  => $this->request->param('file_size'),
@@ -240,8 +239,7 @@ class Article extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d')) {
-            $result = (new ModelArticle)
-                ->view('article', ['id', 'title', 'keywords', 'description', 'category_id', 'type_id', 'is_pass', 'is_com', 'is_top', 'is_hot', 'sort_order', 'hits', 'username', 'admin_id', 'user_id', 'show_time', 'create_time', 'update_time', 'delete_time', 'access_id', 'lang'])
+            $result = ModelArticle::view('article', ['id', 'title', 'keywords', 'description', 'category_id', 'type_id', 'is_pass', 'is_com', 'is_top', 'is_hot', 'sort_order', 'hits', 'username', 'admin_id', 'user_id', 'show_time', 'create_time', 'update_time', 'delete_time', 'access_id', 'lang'])
                 ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                 ->view('model', ['id' => 'model_id', 'name' => 'model_name', 'table_name'], 'model.id=category.model_id')
                 ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
@@ -273,8 +271,7 @@ class Article extends BaseLogic
                 }
 
                 // 附加字段数据
-                $fields = (new ModelFieldsExtend)
-                    ->view('fields_extend', ['data'])
+                $fields = ModelFieldsExtend::view('fields_extend', ['data'])
                     ->view('fields', ['id'], 'fields.id=fields_extend.fields_id')
                     ->where([
                         ['fields.category_id', '=', $result['category_id']],
@@ -287,8 +284,7 @@ class Article extends BaseLogic
                 }
 
                 // 标签
-                $result['tags'] = (new ModelArticleTags)
-                    ->view('article_tags', ['tags_id'])
+                $result['tags'] = ModelArticleTags::view('article_tags', ['tags_id'])
                     ->view('tags', ['name'], 'tags.id=article_tags.tags_id')
                     ->where([
                         ['article_tags.article_id', '=', $result['id']],
@@ -348,14 +344,11 @@ class Article extends BaseLogic
             return $result;
         }
 
-        (new ModelArticle)->transaction(function () use ($receive_data, $id) {
+        ModelArticle::transaction(function () use ($receive_data, $id) {
             $model_id = $receive_data['model_id'];
             unset($receive_data['model_id']);
 
-            $article = new ModelArticle;
-            $article->where([
-                ['id', '=', $id]
-            ])->data($receive_data)->update();
+            ModelArticle::update($receive_data, ['id' => $id]);
 
             $receive_data['model_id'] = $model_id;
             unset($model);
@@ -363,19 +356,16 @@ class Article extends BaseLogic
             // 自定义字段
             if ($fiels = $this->request->param('fields/a', false)) {
                 foreach ($fiels as $key => $value) {
-                    $has = (new ModelFieldsExtend)->where([
+                    $has = ModelFieldsExtend::where([
                         ['article_id', '=', $id],
                         ['fields_id', '=', $key]
                     ])->value('id');
                     if ($has) {
-                        (new ModelFieldsExtend)->where([
-                            ['article_id', '=', $id],
-                            ['fields_id', '=', $key]
-                        ])->data([
+                        ModelFieldsExtend::update([
                             'data' => $value
-                        ])->update();
+                        ], ['article_id' => $id, 'fields_id' => $key]);
                     } else {
-                        (new ModelFieldsExtend)->save([
+                        ModelFieldsExtend::create([
                             'article_id' => $id,
                             'fields_id'  => $key,
                             'data'       => $value,
@@ -387,7 +377,7 @@ class Article extends BaseLogic
             // 文章,单页
             if (1 === $receive_data['model_id'] || 4 === $receive_data['model_id']) {
                 // 删除旧图片
-                $old_thumb = (new ModelArticleContent)->where([
+                $old_thumb = ModelArticleContent::where([
                     ['article_id', '=', $id]
                 ])->value('thumb');
                 $thumb = $this->request->param('thumb', '');
@@ -396,18 +386,16 @@ class Article extends BaseLogic
                     $this->writeFileLog($thumb);
                 }
 
-                (new ModelArticleContent)->where([
-                    ['article_id', '=', $id]
-                ])->data([
+                ModelArticleContent::update([
                     'thumb'   => $thumb,
                     'origin'  => $this->request->param('origin', ''),
                     'content' => $this->request->param('content', '', '\app\common\library\DataFilter::encode')
-                ])->update();
+                ], ['article_id' => $id]);
             }
             // 相册
             elseif (2 === $receive_data['model_id']) {
                 // 删除旧图片
-                $old_img = (new ModelArticleImage)->where([
+                $old_img = ModelArticleImage::where([
                     ['article_id', '=', $id]
                 ])->value('image_url');
                 $old_img = unserialize($old_img);
@@ -421,18 +409,16 @@ class Article extends BaseLogic
                     $this->writeFileLog($value);
                 }
 
-                (new ModelArticleImage)->where([
-                    ['article_id', '=', $id]
-                ])->data([
+                ModelArticleImage::update([
                     'image_url'    => serialize($this->request->param('image_url/a', '')),
                     'image_width'  => $this->request->param('image_width/d', 0),
                     'image_height' => $this->request->param('image_height/d', 0),
-                ])->update();
+                ], ['article_id' => $id]);
             }
             // 下载
             elseif (3 === $receive_data['model_id']) {
                 // 删除旧文件
-                $old_file_url = (new ModelArticleFile)->where([
+                $old_file_url = ModelArticleFile::where([
                     ['article_id', '=', $id]
                 ])->value('file_url');
                 $file_url = $this->request->param('file_url', '');
@@ -441,9 +427,7 @@ class Article extends BaseLogic
                     $this->writeFileLog($file_url);
                 }
 
-                (new ModelArticleFile)->where([
-                    ['article_id', '=', $id]
-                ])->data([
+                ModelArticleFile::update([
                     'file_url'   => $file_url,
                     'file_size'  => $this->request->param('file_size', ''),
                     'file_ext'   => $this->request->param('file_ext', ''),
@@ -451,7 +435,7 @@ class Article extends BaseLogic
                     'file_mime'  => $this->request->param('file_mime', ''),
                     'uhash'      => $this->request->param('uhash', ''),
                     'md5file'    => $this->request->param('md5file', ''),
-                ])->update();
+                ], ['article_id' => $id]);
             }
 
             // 清除缓存
@@ -484,16 +468,14 @@ class Article extends BaseLogic
             ];
         }
 
-        $category_id = (new ModelArticle)->where([
+        $category_id = ModelArticle::where([
             ['id', '=', $id]
         ])->value('category_id');
 
         if ($category_id) {
-            (new ModelArticle)->where([
-                ['id', '=', $id]
-            ])->data([
+            ModelArticle::update([
                 'delete_time' => time()
-            ])->update();
+            ], ['id' => $id]);
 
             // 清除缓存
             $this->cache->tag('cms article list' . $category_id)->clear();

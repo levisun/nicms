@@ -35,8 +35,7 @@ class Ads extends BaseLogic
         $query_limit = $this->request->param('limit/d', 10);
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
-        $result = (new ModelAds)
-            ->order('update_time DESC')
+        $result = ModelAds::order('update_time DESC')
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
@@ -49,7 +48,7 @@ class Ads extends BaseLogic
             $value['start_time'] = date($date_format, $value['start_time']);
             $value['end_time'] = date($date_format, $value['end_time']);
 
-            $value['image'] = (new Canvas)->image($value['image']);
+            $value['image'] = Canvas::image($value['image']);
 
             $value['url'] = [
                 'editor' => url('content/ads/editor/' . $value['id']),
@@ -101,7 +100,7 @@ class Ads extends BaseLogic
             return $result;
         }
 
-        (new ModelAds)->save($receive_data);
+        ModelAds::create($receive_data);
 
         $this->cache->tag('cms ads')->clear();
 
@@ -121,11 +120,10 @@ class Ads extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d')) {
-            $result = (new ModelAds)
-                ->where([
-                    ['id', '=', $id],
-                ])
-                ->find();
+            $result = ModelAds::where([
+                ['id', '=', $id],
+            ])->find();
+
             if ($result && $result = $result->toArray()) {
                 $result['start_time'] = $result['start_time'] ? date('Y-m-d', $result['start_time']) : date('Y-m-d');
                 $result['end_time'] = $result['end_time'] ? date('Y-m-d', $result['end_time']) : date('Y-m-d');
@@ -176,19 +174,16 @@ class Ads extends BaseLogic
         }
 
         // 删除旧图片
-        $image = (new ModelAds)
-            ->where([
-                ['id', '=', $id],
-            ])
-            ->value('image');
+        $image = ModelAds::where([
+            ['id', '=', $id],
+        ])->value('image');
+
         if ($image !== $receive_data['image']) {
             $this->removeFile($image);
             $this->writeFileLog($receive_data['image']);
         }
 
-        (new ModelAds)->where([
-            ['id', '=', $id]
-        ])->data($receive_data)->update();
+        ModelAds::update($receive_data, ['id' => $id]);
 
         // 清除缓存
         $this->cache->tag('cms ads')->clear();
@@ -218,7 +213,7 @@ class Ads extends BaseLogic
             ];
         }
 
-        $image = (new ModelAds)->where([
+        $image = ModelAds::where([
             ['id', '=', $id]
         ])->value('image');
 
@@ -226,11 +221,9 @@ class Ads extends BaseLogic
             $this->removeFile($image);
         }
 
-        (new ModelAds)
-            ->where([
-                ['id', '=', $id]
-            ])
-            ->delete();
+        ModelAds::where([
+            ['id', '=', $id]
+        ])->delete();
 
         // 清除缓存
         $this->cache->tag('cms ads')->clear();

@@ -47,13 +47,13 @@ class AppMaintain
                 Log::alert('[REGARBAGE] 应用维护');
 
                 // 清除过期缓存文件
-                (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'cache', 1);
+                ReGarbage::remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'cache', 1);
 
                 // 清除过期临时文件
-                (new ReGarbage)->remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1);
+                ReGarbage::remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1);
 
                 // 清除游客上传的文件
-                (new ReGarbage)->remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'guest', 60);
+                ReGarbage::remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'guest', 60);
 
                 $this->reRootDirOrFile();
             });
@@ -86,7 +86,7 @@ class AppMaintain
             }
 
             if (is_dir($dir . $dir_file)) {
-                (new ReGarbage)->remove($dir . $dir_file, 0);
+                ReGarbage::remove($dir . $dir_file, 0);
                 @rmdir($dir . $dir_file);
             } elseif (is_file($dir . $dir_file)) {
                 Log::alert('[unlink] ' . $dir_file);
@@ -108,7 +108,7 @@ class AppMaintain
                     continue;
                 }
 
-                (new ReGarbage)->remove($dir . $dir_file, 0);
+                ReGarbage::remove($dir . $dir_file, 0);
                 @rmdir($dir . $dir_file);
             } elseif (is_file($dir . $dir_file)) {
                 Log::alert('[unlink] ' . $dir_file);

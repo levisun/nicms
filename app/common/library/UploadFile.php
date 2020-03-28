@@ -260,23 +260,16 @@ class UploadFile
 
         $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
 
-        $has = (new ModelUploadFileLog)
-            ->where([
-                ['file', '=', $_file]
-            ])
-            ->value('file');
+        $has = ModelUploadFileLog::where([
+            ['file', '=', $_file]
+        ])->value('file');
 
         if ($has) {
-            (new ModelUploadFileLog)
-                ->where([
-                    ['file', '=', $_file]
-                ])
-                ->data([
-                    'type' => $_type
-                ])
-                ->update();
+            ModelUploadFileLog::update([
+                'type' => $_type
+            ], ['file' => $_file]);
         } else {
-            (new ModelUploadFileLog)->save([
+            ModelUploadFileLog::create([
                 'file' => $_file,
                 'type' => $_type
             ]);
@@ -294,8 +287,7 @@ class UploadFile
             $sort_order = mt_rand(0, 1) ? 'upload_file_log.id DESC' : 'upload_file_log.id ASC';
 
             // 查询文件记录
-            $result = (new ModelUploadFileLog)
-                ->view('upload_file_log', ['id', 'file'])
+            $result = ModelUploadFileLog::view('upload_file_log', ['id', 'file'])
                 ->view('upload_file_log log', ['id' => 'log_id'], 'log.type=1 and log.file=upload_file_log.file', 'LEFT')
                 ->where([
                     ['upload_file_log.type', '=', '0'],
@@ -338,11 +330,9 @@ class UploadFile
             }
 
             if (!empty($id) && 0 < count($id)) {
-                (new ModelUploadFileLog)
-                    ->where([
-                        ['id', 'in', $id]
-                    ])
-                    ->delete();
+                ModelUploadFileLog::where([
+                    ['id', 'in', $id]
+                ])->delete();
             }
         });
     }
@@ -379,10 +369,8 @@ class UploadFile
             @unlink($abs_file);
         }
 
-        (new ModelUploadFileLog)
-            ->where([
-                ['file', '=', $_file]
-            ])
-            ->delete();
+        ModelUploadFileLog::where([
+            ['file', '=', $_file]
+        ])->delete();
     }
 }

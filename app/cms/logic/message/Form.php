@@ -53,8 +53,7 @@ class Form extends BaseLogic
             ];
 
             // 附加字段数据
-            $fields = (new ModelFields)
-                ->view('fields', ['id'])
+            $fields = ModelFields::view('fields', ['id'])
                 ->view('fields_extend', ['data'], 'fields_extend.fields_id=fields.id')
                 // ->view('fields_type', ['name' => 'fields_type'])
                 ->where([
@@ -102,8 +101,7 @@ class Form extends BaseLogic
             }
 
             // 附加字段数据
-            $fields = (new ModelFields)
-                ->view('fields', ['id'])
+            $fields = ModelFields::view('fields', ['id'])
                 ->view('fields_extend', ['data'], 'fields_extend.fields_id=fields.id')
                 // ->view('fields_type', ['name' => 'fields_type'])
                 ->where([
@@ -117,7 +115,7 @@ class Form extends BaseLogic
 
             unset($receive_data['captcha']);
 
-            $result = (new ModelMessage)->save($receive_data);
+            $result = ModelMessage::create($receive_data);
         }
 
         return [

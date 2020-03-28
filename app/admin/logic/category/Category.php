@@ -34,8 +34,7 @@ class Category extends BaseLogic
      */
     public function query(): array
     {
-        $result = (new ModelCategory)
-            ->view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
+        $result = ModelCategory::view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
             ->where([
                 ['category.pid', '=', 0],
@@ -79,8 +78,7 @@ class Category extends BaseLogic
     {
         $this->layer++;
 
-        $result = (new ModelCategory)
-            ->view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
+        $result = ModelCategory::view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
             ->where([
                 ['category.pid', '=', $_pid],
@@ -162,7 +160,7 @@ class Category extends BaseLogic
             return $result;
         }
 
-        (new ModelCategory)->save($receive_data);
+        ModelCategory::create($receive_data);
 
         $this->cache->tag('cms nav')->clear();
 
@@ -181,8 +179,7 @@ class Category extends BaseLogic
     public function find(): array
     {
         if ($id = $this->request->param('id/d')) {
-            $result = (new ModelCategory)
-                ->view('category')
+            $result = ModelCategory::view('category')
                 ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
                 ->where([
                     ['category.id', '=', $id],
@@ -190,20 +187,16 @@ class Category extends BaseLogic
                 ->find();
 
             if (null !== $result && $result = $result->toArray()) {
-                $result['parent'] = (new ModelCategory)
-                    ->where([
-                        ['id', '=', $result['pid']]
-                    ])
-                    ->value('name as parent');
+                $result['parent'] = ModelCategory::where([
+                    ['id', '=', $result['pid']]
+                ])->value('name as parent');
             }
         } else {
             $result = [];
             if ($pid = $this->request->param('pid/d', '0')) {
-                $result['parent'] = (new ModelCategory)
-                    ->where([
-                        ['id', '=', $pid]
-                    ])
-                    ->value('name as parent');
+                $result['parent'] = ModelCategory::where([
+                    ['id', '=', $pid]
+                ])->value('name as parent');
             }
         }
 
@@ -262,22 +255,15 @@ class Category extends BaseLogic
         }
 
         // 删除旧图片
-        $image = (new ModelCategory)
-            ->where([
-                ['id', '=', $id],
-            ])
-            ->value('image');
+        $image = ModelCategory::where([
+            ['id', '=', $id],
+        ])->value('image');
         if ($image !== $receive_data['image']) {
             $this->removeFile($image);
             $this->writeFileLog($receive_data['image']);
         }
 
-        (new ModelCategory)
-            ->where([
-                ['id', '=', $id]
-            ])
-            ->data($receive_data)
-            ->update();
+        ModelCategory::update($receive_data, ['id' => $id]);
 
         $this->cache->tag('cms nav')->clear();
 
@@ -306,22 +292,19 @@ class Category extends BaseLogic
             ];
         }
 
-        $image = (new ModelCategory)
-            ->where([
+        $image =
+            ModelCategory::where([
                 ['id', '=', $id],
                 ['lang', '=', $this->lang->getLangSet()]
-            ])
-            ->value('image');
+            ])->value('image');
 
         if (null !== $image && $image) {
             $this->removeFile($image);
         }
 
-        (new ModelCategory)
-            ->where([
-                ['id', '=', $id]
-            ])
-            ->delete();
+        ModelCategory::where([
+            ['id', '=', $id]
+        ])->delete();
 
         $this->cache->tag('cms nav')->clear();
 
