@@ -17,6 +17,7 @@ use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
 use app\common\library\Base64;
+use app\common\model\ApiApp as ModelApiApp;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -139,8 +140,7 @@ if (!function_exists('app_secret')) {
     {
         if ($_app_id > 1000000) {
             $_app_id -= 1000000;
-            $result = (new \app\common\model\ApiApp)
-                ->field('name, secret')
+            $result = ModelApiApp::field('name, secret')
                 ->where([
                     ['id', '=', $_app_id]
                 ])

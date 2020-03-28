@@ -22,7 +22,7 @@ return [
     // cookie 有效域名
     'domain'    => '.' . Request::rootDomain(),
     // cookie 启用安全传输
-    'secure'    => true,
+    'secure'    => false,
     // httponly设置
     'httponly'  => true,
     // 是否使用 setcookie
