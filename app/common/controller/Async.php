@@ -420,7 +420,7 @@ abstract class Async
             }
 
             // 验证权限
-            $result = (new Rbac)->authenticate(
+            $result = Rbac::authenticate(
                 $this->uid,
                 $this->appName,
                 $this->appMethod['logic'],

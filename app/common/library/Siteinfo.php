@@ -26,37 +26,37 @@ use app\common\model\Category as ModelCategory;
 
 class Siteinfo
 {
-    private $appName = '';
-    private $langSet = '';
+    private static $appName = '';
+    private static $langSet = '';
 
-    public function query(string $_appname): array
+    public static function query(string $_appname): array
     {
-        $this->appName = $_appname;
-        $this->langSet = Lang::getLangSet();
+        self::$appName = $_appname;
+        self::$langSet = Lang::getLangSet();
 
-        $cache_key = md5($this->appName . $this->langSet);
+        $cache_key = md5(self::$appName . self::$langSet);
         if (!Cache::has($cache_key) || !$common = Cache::get($cache_key)) {
             $common = [
-                'theme'     => $this->theme(),
-                'script'    => $this->script(),
-                'footer'    => $this->footer(),
-                'copyright' => $this->copyright(),
-                'name'      => $this->name(),
+                'theme'     => self::theme(),
+                'script'    => self::script(),
+                'footer'    => self::footer(),
+                'copyright' => self::copyright(),
+                'name'      => self::name(),
             ];
 
-            Cache::tag(['SYSTEM', $this->appName])->set($cache_key, $common);
+            Cache::tag(['SYSTEM', self::$appName])->set($cache_key, $common);
         }
 
         $cache_key .= Request::param('id/f', null) . Request::param('cid/f', null);
         $cache_key = md5($cache_key);
         if (!Cache::has($cache_key) || !$result = Cache::get($cache_key)) {
             $result = [
-                'title'       => $this->title(),
-                'keywords'    => $this->keywords(),
-                'description' => $this->description(),
+                'title'       => self::title(),
+                'keywords'    => self::keywords(),
+                'description' => self::description(),
             ];
 
-            Cache::tag(['SYSTEM', $this->appName])->set($cache_key, $result);
+            Cache::tag(['SYSTEM', self::$appName])->set($cache_key, $result);
         }
 
         return array_merge($common, $result);
@@ -65,14 +65,15 @@ class Siteinfo
     /**
      * 网站描述
      * @access private
+     * @static
      * @return string
      */
-    private function description(): string
+    private static function description(): string
     {
         // 默认
         $result = ModelConfig::where([
-            ['name', '=', $this->appName . '_description'],
-            ['lang', '=', $this->langSet]
+            ['name', '=', self::$appName . '_description'],
+            ['lang', '=', self::$langSet]
         ])->value('value', '');
 
         // 文章描述
@@ -94,14 +95,15 @@ class Siteinfo
     /**
      * 网站关键词
      * @access private
+     * @static
      * @return string
      */
-    private function keywords(): string
+    private static function keywords(): string
     {
         // 默认
         $result = ModelConfig::where([
-            ['name', '=', $this->appName . '_keywords'],
-            ['lang', '=', $this->langSet]
+            ['name', '=', self::$appName . '_keywords'],
+            ['lang', '=', self::$langSet]
         ])->value('value', '');
 
         // 文章关键词
@@ -123,9 +125,10 @@ class Siteinfo
     /**
      * 网站标题
      * @access private
+     * @static
      * @return string
      */
-    private function title(): string
+    private static function title(): string
     {
         $result = '';
 
@@ -146,7 +149,7 @@ class Siteinfo
         }
 
         // 默认
-        $result .= $this->name();
+        $result .= self::name();
 
         return strip_tags(htmlspecialchars_decode($result));
     }
@@ -154,13 +157,14 @@ class Siteinfo
     /**
      * 网站名称
      * @access private
+     * @static
      * @return string
      */
-    private function name(): string
+    private static function name(): string
     {
         $result = ModelConfig::where([
-            ['name', '=', $this->appName . '_sitename'],
-            ['lang', '=', $this->langSet]
+            ['name', '=', self::$appName . '_sitename'],
+            ['lang', '=', self::$langSet]
         ])->value('value', 'NICMS');
 
         return strip_tags(htmlspecialchars_decode($result));
@@ -169,18 +173,19 @@ class Siteinfo
     /**
      * 网站版权
      * @access private
+     * @static
      * @return string
      */
-    private function copyright(): string
+    private static function copyright(): string
     {
         $copyright = ModelConfig::where([
-            ['name', '=', $this->appName . '_copyright'],
-            ['lang', '=', $this->langSet]
+            ['name', '=', self::$appName . '_copyright'],
+            ['lang', '=', self::$langSet]
         ])->value('value', '');
 
         $beian = ModelConfig::where([
-            ['name', '=', $this->appName . '_beian'],
-            ['lang', '=', $this->langSet]
+            ['name', '=', self::$appName . '_beian'],
+            ['lang', '=', self::$langSet]
         ])->value('value', '');
 
         // $beian = $beian
@@ -197,13 +202,14 @@ class Siteinfo
     /**
      * 网站底部
      * @access private
+     * @static
      * @return string
      */
-    private function footer(): string
+    private static function footer(): string
     {
         $result = ModelConfig::where([
-            ['name', '=', $this->appName . '_footer'],
-            ['lang', '=', $this->langSet]
+            ['name', '=', self::$appName . '_footer'],
+            ['lang', '=', self::$langSet]
         ])->value('value', '');
 
         return htmlspecialchars_decode($result);
@@ -212,13 +218,14 @@ class Siteinfo
     /**
      * JS脚本
      * @access private
+     * @static
      * @return string
      */
-    private function script(): string
+    private static function script(): string
     {
         $result = ModelConfig::where([
-            ['name', '=', $this->appName . '_script'],
-            ['lang', '=', $this->langSet]
+            ['name', '=', self::$appName . '_script'],
+            ['lang', '=', self::$langSet]
         ])->value('value', '');
 
         $result = preg_replace([
@@ -235,13 +242,14 @@ class Siteinfo
     /**
      * 主题
      * @access private
+     * @static
      * @return string
      */
-    private function theme(): string
+    private static function theme(): string
     {
         $result = ModelConfig::where([
-            ['name', '=', $this->appName . '_theme'],
-            ['lang', '=', $this->langSet]
+            ['name', '=', self::$appName . '_theme'],
+            ['lang', '=', self::$langSet]
         ])->value('value', 'default');
 
         return strip_tags(htmlspecialchars_decode($result));

@@ -28,7 +28,7 @@ class Ip extends Async
     public function index()
     {
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
-        if ($ip = (new Ipinfo)->get($ip)) {
+        if ($ip = Ipinfo::get($ip)) {
             $refere = $this->request->server('HTTP_REFERER');
             if ($refere && false !== stripos($refere, $this->request->rootDomain())) {
                 return $this->cache(1440)->success('IP', $ip);
@@ -59,7 +59,7 @@ class Ip extends Async
         }
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
-        if ($ip = (new Ipinfo)->get($ip)) {
+        if ($ip = Ipinfo::get($ip)) {
             if ($this->request->param('json', false)) {
                 return $this->cache(1440)->success('IP', $ip);
             } else {

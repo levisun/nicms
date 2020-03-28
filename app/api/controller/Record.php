@@ -27,7 +27,7 @@ class Record extends Async
     public function index()
     {
         if ($this->isReferer()) {
-            (new AccessLog)->record();
+            AccessLog::record();
 
             return Response::create()->allowCache(true)
                 ->cacheControl('max-age=30,must-revalidate')

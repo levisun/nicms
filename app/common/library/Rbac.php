@@ -20,7 +20,7 @@ use app\common\model\Node as ModelNode;
 
 class Rbac
 {
-    private $config = [
+    private static $config = [
         'auth_founder'     => 1,        // 超级管理员ID
         'auth_type'        => false,    // 实时验证方式
         'not_auth_app'     => [],
@@ -32,6 +32,7 @@ class Rbac
     /**
      * 审核用户操作权限
      * @access public
+     * @static
      * @param  int    $_uid     用户ID
      * @param  string $_app     应用名
      * @param  string $_logic   业务层名
@@ -39,19 +40,19 @@ class Rbac
      * @param  string $_method  方法名
      * @return boolean
      */
-    public function authenticate(int $_uid, string $_app, string $_logic, string $_action, string $_method, array $_config = []): bool
+    public static function authenticate(int $_uid, string $_app, string $_logic, string $_action, string $_method, array $_config = []): bool
     {
         if (!empty($_config)) {
-            $this->config = array_merge($this->config, $_config);
+            self::$config = array_merge(self::$config, $_config);
         }
 
         $_uid = (int) $_uid;
 
         // 登录并请求方法需要审核
-        if ($_uid && $this->checkAccess($_app, $_logic, $_action, $_method)) {
+        if ($_uid && self::checkAccess($_app, $_logic, $_action, $_method)) {
             // 实时检验权限
-            if (true === $this->config['auth_type']) {
-                $__authenticate_list = $this->accessDecision($_uid);
+            if (true === self::$config['auth_type']) {
+                $__authenticate_list = self::accessDecision($_uid);
             }
 
             // 非实时校验
@@ -60,7 +61,7 @@ class Rbac
                 if (session('?__authenticate_list')) {
                     $__authenticate_list = session('__authenticate_list');
                 } else {
-                    $__authenticate_list = $this->accessDecision($_uid);
+                    $__authenticate_list = self::accessDecision($_uid);
                     session('__authenticate_list', $__authenticate_list);
                 }
             }
@@ -74,18 +75,19 @@ class Rbac
     /**
      * 获得用户权限
      * @access public
+     * @static
      * @param  int   $_uid
      * @return array
      */
-    public function getAuth(int $_uid): array
+    public static function getAuth(int $_uid): array
     {
         $_uid = (int) $_uid;
-        if (true === $this->config['auth_type']) {
-            $result = $this->accessDecision($_uid);
+        if (true === self::$config['auth_type']) {
+            $result = self::accessDecision($_uid);
         } elseif (session('?__authenticate_list')) {
             $result = session('__authenticate_list');
         } else {
-            $result = $this->accessDecision($_uid);
+            $result = self::accessDecision($_uid);
             session('__authenticate_list', $result);
         }
         return $result;
@@ -94,32 +96,33 @@ class Rbac
     /**
      * 检查当前操作是否需要认证
      * @access private
+     * @static
      * @param  string $_app     应用名
      * @param  string $_service 业务层名
      * @param  string $_logic   控制器名
      * @param  string $_method  方法名
      * @return boolean
      */
-    private  function checkAccess(string $_app, string $_service, string $_logic, string $_method): bool
+    private static function checkAccess(string $_app, string $_service, string $_logic, string $_method): bool
     {
-        if (!empty($this->config['not_auth_app'])) {
-            $this->config['not_auth_app'] = array_map('strtolower', $this->config['not_auth_app']);
-            if (in_array($_app, $this->config['not_auth_app'])) {
+        if (!empty(self::$config['not_auth_app'])) {
+            self::$config['not_auth_app'] = array_map('strtolower', self::$config['not_auth_app']);
+            if (in_array($_app, self::$config['not_auth_app'])) {
                 return false;
             }
-        } elseif (!empty($this->config['not_auth_service'])) {
-            $this->config['not_auth_service'] = array_map('strtolower', $this->config['not_auth_service']);
-            if (in_array($_service, $this->config['not_auth_service'])) {
+        } elseif (!empty(self::$config['not_auth_service'])) {
+            self::$config['not_auth_service'] = array_map('strtolower', self::$config['not_auth_service']);
+            if (in_array($_service, self::$config['not_auth_service'])) {
                 return false;
             }
-        } elseif (!empty($this->config['not_auth_logic'])) {
-            $this->config['not_auth_logic'] = array_map('strtolower', $this->config['not_auth_logic']);
-            if (in_array($_logic, $this->config['not_auth_logic'])) {
+        } elseif (!empty(self::$config['not_auth_logic'])) {
+            self::$config['not_auth_logic'] = array_map('strtolower', self::$config['not_auth_logic']);
+            if (in_array($_logic, self::$config['not_auth_logic'])) {
                 return false;
             }
-        } elseif (!empty($this->config['not_auth_action'])) {
-            $this->config['not_auth_action'] = array_map('strtolower', $this->config['not_auth_action']);
-            if (in_array($_method, $this->config['not_auth_action'])) {
+        } elseif (!empty(self::$config['not_auth_action'])) {
+            self::$config['not_auth_action'] = array_map('strtolower', self::$config['not_auth_action']);
+            if (in_array($_method, self::$config['not_auth_action'])) {
                 return false;
             }
         }
@@ -130,22 +133,23 @@ class Rbac
     /**
      * 检查当前操作是否需要认证
      * @access private
+     * @static
      * @param  int    $_uid 用户ID
      * @return array
      */
-    private function accessDecision(int $_uid): array
+    private static function accessDecision(int $_uid): array
     {
         $access = [];
 
-        $app_list = $this->getNode($_uid);
+        $app_list = self::getNode($_uid);
         foreach ($app_list as $app_name) {
             $app_name['name'] = strtolower($app_name['name']);
 
-            $logic_list = $this->getNode($_uid, 2, (int) $app_name['id']);
+            $logic_list = self::getNode($_uid, 2, (int) $app_name['id']);
             foreach ($logic_list as $logic_name) {
                 $logic_name['name'] = strtolower($logic_name['name']);
 
-                $controller_list = $this->getNode($_uid, 3, (int) $logic_name['id']);
+                $controller_list = self::getNode($_uid, 3, (int) $logic_name['id']);
                 foreach ($controller_list as $controller_name) {
                     $controller_name['name'] = strtolower($controller_name['name']);
 
@@ -155,7 +159,7 @@ class Rbac
                         'find'  => true,
                     ];
 
-                    $action_list = $this->getNode($_uid, 4, (int) $controller_name['id']);
+                    $action_list = self::getNode($_uid, 4, (int) $controller_name['id']);
                     foreach ($action_list as $action_name) {
                         $action_name['name'] = strtolower($action_name['name']);
                         $access[$app_name['name']][$logic_name['name']][$controller_name['name']][$action_name['name']] = true;
@@ -170,14 +174,15 @@ class Rbac
     /**
      * 获得当前认证号对应权限
      * @access private
+     * @static
      * @param  int $_uid
      * @param  int $_level
      * @param  int $_pid
      * @return array
      */
-    private function getNode(int $_uid, int $_level = 1, int $_pid = 0): array
+    private static function getNode(int $_uid, int $_level = 1, int $_pid = 0): array
     {
-        if ($this->config['auth_founder'] == $_uid) {
+        if (self::$config['auth_founder'] == $_uid) {
             $result = ModelNode::field(['id', 'name'])
                 ->where([
                     ['status', '=', 1],

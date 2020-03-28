@@ -28,10 +28,11 @@ class Ipinfo
     /**
      * 查询IP地址信息
      * @access public
+     * @static
      * @param  string 请求IP地址
      * @return array
      */
-    public function get(string $_ip = ''): array
+    public static function get(string $_ip = ''): array
     {
         $region = [
             'ip'          => $_ip,
@@ -47,16 +48,16 @@ class Ipinfo
             'isp'         => '',
         ];
 
-        if ($_ip && $this->validate($_ip)) {
+        if ($_ip && self::validate($_ip)) {
             $cache_key = md5(__METHOD__ . $_ip);
             if (Cache::has($cache_key) && $region = Cache::get($cache_key)) {
                 return $region;
             }
 
             // 查询IP地址库
-            if (!$query_region = $this->query($_ip)) {
+            if (!$query_region = self::query($_ip)) {
                 // 获得信息并录入信息
-                if ($query_region = $this->getIpInfo($_ip)) {
+                if ($query_region = self::getIpInfo($_ip)) {
                     unset($query_region['id'], $query_region['update_time']);
                     $query_region['ip'] = $_ip;
 
@@ -76,10 +77,11 @@ class Ipinfo
     /**
      * 验证IP
      * @access private
+     * @static
      * @param  string  $_ip
      * @return bool
      */
-    private function validate(string $_ip): bool
+    private static function validate(string $_ip): bool
     {
         // 判断合法IP
         if (false === filter_var($_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
@@ -118,10 +120,11 @@ class Ipinfo
     /**
      * 查询IP地址库
      * @access private
+     * @static
      * @param  string  $_ip
      * @return array|false
      */
-    private function query(string &$_ip)
+    private static function query(string &$_ip)
     {
         $result = ModelIpinfo::view('ipinfo', ['id', 'ip', 'isp', 'update_time'])
             ->view('region country', ['id' => 'country_id', 'name' => 'country'], 'country.id=ipinfo.country_id')
@@ -136,7 +139,7 @@ class Ipinfo
 
         // 更新信息
         if ($result && $result['update_time'] < strtotime('-90 days')) {
-            $this->getIpInfo($_ip);
+            self::getIpInfo($_ip);
         }
 
 
@@ -146,11 +149,12 @@ class Ipinfo
     /**
      * 查询地址ID
      * @access private
+     * @static
      * @param  string  $_name
      * @param  int     $_pid
      * @return int
      */
-    private function queryRegion(string &$_name, int $_pid): int
+    private static function queryRegion(string &$_name, int $_pid): int
     {
         $_name = DataFilter::filter($_name);
 
@@ -165,12 +169,13 @@ class Ipinfo
     /**
      * 写入IP地址库
      * @access private
+     * @static
      * @return array|false
      */
-    private function getIpInfo(string &$_ip)
+    private static function getIpInfo(string &$_ip)
     {
         // Log::alert('[IP 采集] ' . $_ip);
-        $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
+        $result = self::get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
         $result = $result ? json_decode($result, true) : null;
 
         if (!is_array($result) || empty($result) || $result['code'] !== 0) {
@@ -179,14 +184,14 @@ class Ipinfo
 
         $result  = $result['data'];
         $isp     = !empty($result['isp']) ? DataFilter::filter($result['isp']) : '';
-        $country = !empty($result['country']) ? $this->queryRegion($result['country'], 0) : '';
+        $country = !empty($result['country']) ? self::queryRegion($result['country'], 0) : '';
         if (!$country) {
             return false;
         }
 
-        $province = $this->queryRegion($result['region'], $country);
-        $city     = $this->queryRegion($result['city'], $province);
-        $area     = !empty($result['area']) ? $this->queryRegion($result['area'], $city) : 0;
+        $province = self::queryRegion($result['region'], $country);
+        $city     = self::queryRegion($result['city'], $province);
+        $area     = !empty($result['area']) ? self::queryRegion($result['area'], $city) : 0;
 
         $binip = bindec(Request::ip2bin($_ip));
 
@@ -216,10 +221,10 @@ class Ipinfo
             ], ['ip' => $binip]);
         }
 
-        return $this->query($_ip);
+        return self::query($_ip);
     }
 
-    private function get_curl(string $_url): string
+    private static function get_curl(string $_url): string
     {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $_url);

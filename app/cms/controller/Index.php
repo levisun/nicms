@@ -30,7 +30,7 @@ class Index extends BaseController
      */
     public function initialize()
     {
-        $result = (new Siteinfo)->query('cms');
+        $result = Siteinfo::query('cms');
         $this->view->config([
             'view_theme' => $result['theme'],
             'tpl_replace_string' => [

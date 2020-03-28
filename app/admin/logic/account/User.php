@@ -61,7 +61,7 @@ class User extends BaseLogic
             ->find();
         if (!is_null($user) && $new_pw = Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {
             // 更新登录信息
-            $info = (new Ipinfo)->get($this->request->ip());
+            $info = Ipinfo::get($this->request->ip());
             ModelAdmin::update([
                 'flag'               => $this->session->getId(false),
                 'last_login_time'    => time(),
@@ -146,7 +146,7 @@ class User extends BaseLogic
     public function auth(): array
     {
         if (!$this->cache->has('AUTH' . $this->uid) || !$result = $this->cache->get('AUTH' . $this->uid)) {
-            $result = (new Rbac)->getAuth($this->uid);
+            $result = Rbac::getAuth($this->uid);
             $result = $result['admin'];
             foreach ($result as $key => $value) {
                 $result[$key] = [

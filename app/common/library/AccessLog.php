@@ -23,7 +23,7 @@ use app\common\model\Visit as ModelVisit;
 
 class AccessLog
 {
-    private $searchengine = [
+    private static $searchengine = [
         'GOOGLE'         => 'googlebot',
         'GOOGLE ADSENSE' => 'mediapartners-google',
         'BAIDU'          => 'baiduspider',
@@ -40,13 +40,14 @@ class AccessLog
     /**
      * 记录访问日志
      * @access public
+     * @static
      * @return void
      */
-    public function record(): void
+    public static function record(): void
     {
         $user_agent = strtolower(Request::server('HTTP_USER_AGENT'));
 
-        $ip = (new Ipinfo)->get(Request::ip());
+        $ip = Ipinfo::get(Request::ip());
         $has = ModelVisit::where([
             ['ip', '=', $ip['ip']],
             ['user_agent', '=', md5($user_agent)],
@@ -79,13 +80,14 @@ class AccessLog
     /**
      * 搜索引擎蜘蛛日志
      * @access public
+     * @static
      * @return void
      */
-    public function spider(): void
+    public static function spider(): void
     {
         $user_agent = strtolower(Request::server('HTTP_USER_AGENT'));
         $spider = false;
-        foreach ($this->searchengine as $key => $value) {
+        foreach (self::$searchengine as $key => $value) {
             if (0 !== preg_match('/(' . $value . ')/si', $user_agent)) {
                 $spider = $key;
                 continue;
@@ -114,9 +116,10 @@ class AccessLog
     /**
      * API请求日志
      * @access public
+     * @static
      * @return void
      */
-    public function api(): void
+    public static function api(): void
     {
         $app_name = app('http')->getName();
         if ($app_name && 'api' === $app_name) {
@@ -146,9 +149,10 @@ class AccessLog
     /**
      * 请求日志
      * @access public
+     * @static
      * @return void
      */
-    public function log(): void
+    public static function log(): void
     {
         // 请求参数
         $params = Request::param()
