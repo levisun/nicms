@@ -178,8 +178,6 @@ class Template implements TemplateHandlerInterface
     public function fetch(string $_template, array $_data = []): void
     {
         $_template = DataFilter::filter($_template);
-        $_data = DataFilter::filter($_data);
-
         if ('' == pathinfo($_template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
             $_template = $this->parseTemplateFile($_template);
@@ -211,7 +209,7 @@ class Template implements TemplateHandlerInterface
         // 模板Replace变量
         $replace = $this->getReplaceVars();
         $_data = !empty($replace) ? array_merge($_data, $replace) : $_data;
-        $_data['__DEBUG__'] = $this->app->config->get('app.debug');
+        // $_data['__DEBUG__'] = $this->app->config->get('app.debug');
 
         extract($_data, EXTR_OVERWRITE);
 

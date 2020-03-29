@@ -259,10 +259,18 @@ class DataFilter
             'phpinfo'              => 'phpinfo&nbsp;',
             'proc_open'            => 'proc-open&nbsp;',
             'popen'                => 'popen&nbsp;',
+            'sleep'                => 'sleep&nbsp;',
             'shell_exec'           => 'shell-exec&nbsp;',
             'system'               => 'system&nbsp;',
             '__destruct'           => '--destruct&nbsp;',
             '.php'                 => '-php&nbsp;',
+
+            'select' => 'select&nbsp;',
+            'drop'   => 'drop&nbsp;',
+            'delete' => 'delete&nbsp;',
+            'create' => 'create&nbsp;',
+            'update' => 'update&nbsp;',
+            'insert' => 'insert&nbsp;',
 
             // 'select'               => '&#115;elect',
             // 'drop'                 => 'dro&#112;',

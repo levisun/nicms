@@ -133,6 +133,18 @@ abstract class BaseController
      * @param  array  $_data     模板变量
      * @return string
      */
+    protected function assign($name, $value = null)
+    {
+        return $this->view->assign($name, $value);
+    }
+
+    /**
+     * 渲染模板文件
+     * @access protected
+     * @param  string $_template 模板文件
+     * @param  array  $_data     模板变量
+     * @return string
+     */
     protected function fetch(string $_template, array $_data = []): string
     {
         return $this->view->assign($_data)->fetch($_template);
