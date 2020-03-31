@@ -17,7 +17,7 @@
 
         jQuery(window).scroll(function () {
             var is = jQuery("body").attr(bool);
-            if (is == "true" && jQuery(window).scrollTop() >= (jQuery(document).height() - jQuery(window).height()) - 200) {
+            if (is == "true" && jQuery(window).scrollTop() >= (jQuery(document).height() - jQuery(window).height()) - 100) {
                 jQuery("body").attr(bool, "false");
                 setTimeout(function () {
                     jQuery("body").attr(bool, "true");

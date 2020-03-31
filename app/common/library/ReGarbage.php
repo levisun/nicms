@@ -35,7 +35,7 @@ class ReGarbage
         $_dir = DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_dir) . DIRECTORY_SEPARATOR;
 
         $day = 0 === $_expire ? $_expire : strtotime('-' . $_expire . ' days');
-        $this->clear($_dir, $day);
+        self::clear($_dir, $day);
     }
 
     /**
@@ -54,7 +54,7 @@ class ReGarbage
             if ('.' === $file || '..' === $file) {
                 continue;
             } elseif (is_dir($_dir . $file)) {
-                $this->clear($_dir . $file . DIRECTORY_SEPARATOR, $_time);
+                self::clear($_dir . $file . DIRECTORY_SEPARATOR, $_time);
                 @rmdir($_dir . $file);
             } elseif (is_file($_dir . $file) && 0 === $_time) {
                 @unlink($_dir . $file);
