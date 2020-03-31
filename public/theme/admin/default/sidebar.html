@@ -85,18 +85,7 @@
                 });
             },
             remove_cache: function () {
-                jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
-                    type: 'GET',
-                    data: [
-                        { name: 'method', value: 'content.cache.recache' }
-                    ],
-                    success: function (result) {
-                        if (result.code == 10000) {
-                            jQuery.uiToast(result.message);
-                        }
-                    }
-                });
+                window.location.href = '/content/cache/index.html';
             }
         }
     });

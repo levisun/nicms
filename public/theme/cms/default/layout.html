@@ -139,7 +139,7 @@ __SCRIPT__
                     method: 'get',
                     success: function (result) {
                         if (10000 == result.code) {
-                            layout_footer.ip = result.data.ip + result.data.province + result.data.city;
+                            layout_footer.ip = result.data.ip + result.data.region + result.data.city;
                         }
                     }
                 });

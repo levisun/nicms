@@ -225,18 +225,7 @@
                 });
             },
             remove_cache: function () {
-                jQuery.pjax({
-                    url: NICMS.api.url + '/handle.do',
-                    type: 'POST',
-                    data: [
-                        { name: 'method', value: 'content.cache.request' }
-                    ],
-                    success: function (result) {
-                        if (result.code == 10000) {
-                            jQuery.uiToast(res.message);
-                        }
-                    }
-                });
+                window.location.href = '/content/cache/index.html';
             }
         }
     });

@@ -61,6 +61,7 @@ return [
         'book' => 'book',
         'my'   => 'user',
         'www'  => 'cms',
+        'm'    => 'cms',
         'cdn'  => 'cms',
         'img'  => 'cms',
     ],
