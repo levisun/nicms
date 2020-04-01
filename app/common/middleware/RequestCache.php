@@ -99,7 +99,7 @@ class RequestCache
                             $app_id = (int) $matches[1];
                             // halt($content);
                             $pattern = [
-                                '<meta name="csrf-appsecret" content="" />' => app_secret($app_id),
+                                '<meta name="csrf-appsecret" content="" />' => app_secret_meta($app_id),
                                 '<meta name="csrf-authorization" content="" />' => authorization_meta(),
                                 '<meta name="csrf-token" content="" />' => token_meta(),
                             ];

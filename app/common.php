@@ -102,6 +102,85 @@ if (!function_exists('is_wechat')) {
     }
 }
 
+if (!function_exists('app_secret_meta')) {
+    function app_secret_meta(int $_app_id): string
+    {
+        return '<meta name="csrf-appsecret" content="' . app_secret($_app_id) . '" />';
+    }
+}
+
+if (!function_exists('app_secret')) {
+    function app_secret(int $_app_id): string
+    {
+        if ($_app_id > 1000000) {
+            $_app_id -= 1000000;
+            $result = ModelApiApp::field('name, secret')
+                ->where([
+                    ['id', '=', $_app_id]
+                ])
+                ->cache('APPID' . $_app_id)
+                ->find();
+
+            $secret = $result['name'] . $result['secret'] .
+                request()->server('HTTP_USER_AGENT', request()->ip()) .
+                request()->ip();
+
+            return md5($secret);
+        }
+        return '';
+    }
+}
+
+if (!function_exists('authorization_meta')) {
+    /**
+     * API授权字符串
+     * @return string
+     */
+    function authorization_meta(): string
+    {
+        return '<meta name="csrf-authorization" content="' . authorization() . '" />';
+    }
+}
+
+if (!function_exists('authorization')) {
+    /**
+     * API授权字符串
+     * @return string
+     */
+    function authorization(): string
+    {
+        // 会话ID(SessionID)
+        $jti  = Base64::encrypt(Session::getId(false));
+        // 请求时间
+        $time = Request::time();
+        // 客户端token
+        $uid  = Session::has('client_id') ? Session::get('client_id') : sha1(Request::ip());
+        // 密钥
+        $key = Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $key = sha1(Base64::encrypt($key));
+
+        $token = (new Builder)
+            // 签发者
+            ->issuedBy(Request::rootDomain())
+            // 接收者
+            ->permittedFor(parse_url(Request::url(true), PHP_URL_HOST))
+            // 身份标识(SessionID)
+            ->identifiedBy($jti, false)
+            // 签发时间
+            ->issuedAt($time)
+            // Configures the time that the token can be used (nbf claim)
+            ->canOnlyBeUsedAfter($time + 60)
+            // 签发过期时间
+            ->expiresAt($time + 28800)
+            // 客户端ID
+            ->withClaim('uid', $uid)
+            // 生成token
+            ->getToken(new Sha256, new Key($key));
+
+        return 'Bearer ' . (string) $token;
+    }
+}
+
 if (!function_exists('miss')) {
     /**
      * miss
@@ -132,69 +211,6 @@ if (!function_exists('miss')) {
                 'X-Powered-By'   => 'NICMS',
                 'Content-Length' => strlen($content)
             ]);
-    }
-}
-
-if (!function_exists('app_secret')) {
-    function app_secret(int $_app_id): string
-    {
-        if ($_app_id > 1000000) {
-            $_app_id -= 1000000;
-            $result = ModelApiApp::field('name, secret')
-                ->where([
-                    ['id', '=', $_app_id]
-                ])
-                ->cache('APPID' . $_app_id)
-                ->find();
-
-            $secret = $result['name'] . $result['secret'] .
-                request()->server('HTTP_USER_AGENT', request()->ip()) .
-                request()->ip();
-
-            return '<meta name="csrf-appsecret" content="' . md5($secret) . '" />';
-        }
-        return '';
-    }
-}
-
-if (!function_exists('authorization_meta')) {
-    /**
-     * API授权字符串
-     * @return string
-     */
-    function authorization_meta(): string
-    {
-        // 会话ID(SessionID)
-        $jti  = Base64::encrypt(Session::getId(false));
-        // 请求时间
-        $time = Request::time();
-        // 客户端token
-        $uid  = Session::has('client_id') ? Session::get('client_id') : sha1(Request::ip());
-        // 密钥
-        $key = Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
-        $key = sha1(Base64::encrypt($key));
-
-        $token = (new Builder)
-            // 签发者
-            ->issuedBy(Request::rootDomain())
-            // 接收者
-            ->permittedFor(parse_url(Request::url(true), PHP_URL_HOST))
-            // 身份标识(SessionID)
-            ->identifiedBy($jti, false)
-            // 签发时间
-            ->issuedAt($time)
-            // Configures the time that the token can be used (nbf claim)
-            ->canOnlyBeUsedAfter($time + 60)
-            // 签发过期时间
-            ->expiresAt($time + 28800)
-            // 客户端ID
-            ->withClaim('uid', $uid)
-            // 生成token
-            ->getToken(new Sha256, new Key($key));
-
-        $token = 'Bearer ' . (string) $token;
-
-        return '<meta name="csrf-authorization" content="' . $token . '" />';
     }
 }
 

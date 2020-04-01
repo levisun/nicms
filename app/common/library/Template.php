@@ -373,33 +373,38 @@ class Template implements TemplateHandlerInterface
         }
 
         // 闭合标签解析
-        $pattern = '/' . $this->config['tpl_begin'] .
-            '([a-zA-Z]+):([a-zA-Z0-9]+)([a-zA-Z0-9 $.=>"\'_]+)' .
-            $this->config['tpl_end'] . '(.*?)' .
-            $this->config['tpl_begin'] . '\/([a-zA-Z]+)' . $this->config['tpl_end'] . '/si';
-
+        $pattern = '/' . $this->config['tpl_begin'] . '[a-zA-Z]+:([a-zA-Z0-9]+)/si';
         if (false !== preg_match_all($pattern, $_content, $matches, PREG_SET_ORDER)) {
-            foreach ($matches as $match) {
-                $tags = '\taglib\\' . ucfirst($match[1]);
-                $action = strtolower($match[2]);
-                $tags_content = trim($match[4]);
+            foreach ($matches as $value) {
+                $pattern = '/' . $this->config['tpl_begin'] .
+                '([a-zA-Z]+):(' . $value[1] . ')([a-zA-Z0-9 $.=>"\'_\[\]]+)' .
+                $this->config['tpl_end'] . '(.*?)' .
+                $this->config['tpl_begin'] . '\/' . $value[1] . $this->config['tpl_end'] . '/si';
+                if (false !== preg_match_all($pattern, $_content, $match, PREG_SET_ORDER)) {
+                    foreach ($match as $vo) {
+                        $tags = '\taglib\\' . ucfirst($vo[1]);
+                        $action = strtolower($vo[2]);
+                        $tags_content = trim($vo[4]);
 
-                $match[3] = $match[3] ? trim($match[3]) : null;
-                if ($match[3]) {
-                    $params = str_replace(['"', "'", '=>', ' = ', ' '], ['', '', '', '=', '&'], $match[3]);
-                    parse_str($params, $params);
-                    $params['expression'] = trim($match[3]);
-                } else {
-                    $params = [];
+                        $vo[3] = $vo[3] ? trim($vo[3]) : null;
+                        if ($vo[3]) {
+                            $params = str_replace(['"', "'", '=>', ' = ', ' '], ['', '', '', '=', '&'], $vo[3]);
+                            parse_str($params, $params);
+                            $params['expression'] = str_replace(['[', ']'], ['[\'', '\']'], trim($vo[3]));
+                        } else {
+                            $params = [];
+                        }
+
+
+                        if (!class_exists($tags) || !method_exists($tags, $action)) {
+                            $str = '<!-- 无法解析:' . htmlspecialchars_decode($vo[0]) . ' -->';
+                        } else {
+                            $str = call_user_func([$tags, $action], $params, $tags_content, $this->config);
+                        }
+
+                        $_content = str_replace($vo[0], $str, $_content);
+                    }
                 }
-
-                if (!class_exists($tags) || !method_exists($tags, $action)) {
-                    $str = '<!-- 无法解析:' . htmlspecialchars_decode($match[0]) . ' -->';
-                } else {
-                    $str = call_user_func([$tags, $action], $params, $tags_content, $this->config);
-                }
-
-                $_content = str_replace($match[0], $str, $_content);
             }
         }
     }

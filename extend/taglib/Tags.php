@@ -44,6 +44,95 @@ class Tags
         return $tpljs;
     }
 
+    public static function foreach(array $_attr, string $_tags_content, array $_config): string
+    {
+        $parseStr  = '<?php ';
+        $parseStr .= 'foreach (' . $_attr['expression'] . ') { ?>';
+        $parseStr .= $_tags_content;
+        $parseStr .= '<?php } ?>';
+        return $parseStr;
+
+        var_dump($_attr);
+        die();
+
+
+        $parseStr .= 'if (!is_null($result[\'data\'])) {';
+        $parseStr .= '$nav = $result[\'data\'];';
+        $parseStr .= '$count = count($nav);';
+        $parseStr .= 'foreach ($nav as $key => $vo) { ?>';
+        $parseStr .= $_tags_content;
+        $parseStr .= '<?php } unset($result, $nav, $count, $key, $vo); } ?>';
+
+        return $parseStr;
+    }
+
+    /**
+     * nav标签解析
+     * 输出导航内容
+     * 格式
+     * {tags:nav type=main}
+     * {/nav}
+     * @access public
+     * @static
+     * @param  array $_attr   标签属性
+     * @param  array $_config 模板配置
+     * @return string
+     */
+    public static function nav(array $_attr, string $_tags_content, array $_config): string
+    {
+        $_attr['type'] = empty($_attr['type']) ? $_attr['type'] : 'main';
+
+        switch ($_attr['type']) {
+            case 'breadcrumb':
+            case 'Breadcrumb':
+                $_attr['type'] = '\app\cms\logic\nav\Breadcrumb';
+                break;
+
+            case 'foot':
+            case 'Foot':
+                $_attr['type'] = '\app\cms\logic\nav\Foot';
+                break;
+
+            case 'other':
+            case 'Other':
+                $_attr['type'] = '\app\cms\logic\nav\Other';
+                break;
+
+            case 'sidebar':
+            case 'Sidebar':
+                $_attr['type'] = '\app\cms\logic\nav\Sidebar';
+                break;
+
+            case 'top':
+            case 'Top':
+                $_attr['type'] = '\app\cms\logic\nav\Top';
+                break;
+
+            default:
+                $_attr['type'] = '\app\cms\logic\nav\Main';
+                break;
+        }
+
+        $parseStr  = '<?php $result = app(\'' . $_attr['type'] . '\')->query();';
+        $parseStr .= 'if (!is_null($result[\'data\'])) {';
+        $parseStr .= '$nav = $result[\'data\'];';
+        $parseStr .= '$count = count($nav);';
+        $parseStr .= 'foreach ($nav as $key => $vo) { ?>';
+        $parseStr .= $_tags_content;
+        $parseStr .= '<?php } unset($result, $nav, $count, $key, $vo); } ?>';
+
+        return $parseStr;
+    }
+
+    public static function isset(array $_attr, string $_tags_content, array $_config)
+    {
+        $parseStr  = '<?php ';
+        $parseStr .= 'if (isset(' . $_attr['expression'] . ') && !empty(' . $_attr['expression'] . ')) { ?>';
+        $parseStr .= $_tags_content;
+        $parseStr .= '<?php } ?>';
+        return $parseStr;
+    }
+
     /**
      * meta标签解析
      * 输出HTML头部内容
@@ -126,7 +215,7 @@ class Tags
             '<meta name="csrf-root" content="' . $root . '" />' .
             '<meta name="csrf-version" content="' . $_config['tpl_config']['api_version'] . '" />' .
             '<meta name="csrf-appid" content="' . $_config['tpl_config']['api_appid'] . '" />' .
-            '<?php echo app_secret(' . $_config['tpl_config']['api_appid'] . ');?>' .
+            '<?php echo app_secret_meta(' . $_config['tpl_config']['api_appid'] . ');?>' .
             '<?php echo authorization_meta();?>' .
             '<?php echo token_meta();?>' .
 

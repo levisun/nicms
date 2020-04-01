@@ -247,12 +247,12 @@ class UploadFile
 
     /**
      * 记录上传文件
-     * @access private
+     * @access public
      * @param  string $_file 文件
      * @param  int    $_type
      * @return void
      */
-    private function writeUploadLog(string $_file, int $_type = 0): void
+    public function writeUploadLog(string $_file, int $_type = 0): void
     {
         if (!$_file) {
             return;
