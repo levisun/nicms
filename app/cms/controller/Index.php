@@ -77,7 +77,7 @@ class Index extends BaseController
     public function category()
     {
         if ($cid = $this->request->param('cid/d')) {
-            $model_name = (new ModelCategory)->view('category', ['id'])
+            $model_name = ModelCategory::view('category', ['id'])
                 ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
                 ->where([
                     ['category.is_show', '=', 1],
@@ -106,7 +106,7 @@ class Index extends BaseController
     public function details()
     {
         if ($cid = $this->request->param('cid/d')) {
-            $model_name = (new ModelCategory)->view('category', ['id'])
+            $model_name = ModelCategory::view('category', ['id'])
                 ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
                 ->where([
                     ['category.is_show', '=', 1],
@@ -137,7 +137,26 @@ class Index extends BaseController
      */
     public function link()
     {
-        return $this->fetch('link');
+        if ($cid = $this->request->param('cid/d')) {
+            $model_name = ModelCategory::view('category', ['id'])
+                ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
+                ->where([
+                    ['category.is_show', '=', 1],
+                    ['category.id', '=', $cid],
+                ])
+                ->cache('theme_' . (string) $cid)
+                ->value('model.name');
+
+            if ($model_name) {
+                $result = call_user_func([
+                    $this->app->make('\app\cms\logic\link\Catalog'),
+                    'query'
+                ]);
+                return $this->fetch('link', $result['data']);
+            }
+        }
+
+        return miss(404);
     }
 
     /**

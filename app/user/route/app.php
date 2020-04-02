@@ -12,7 +12,6 @@
  */
 
 use think\facade\Route;
-use think\Response;
 
 Route::group(function () {
     Route::get('/$', 'Index/index');
@@ -26,7 +25,6 @@ Route::group(function () {
 })
 ->domain('my')
 ->ext('html')
-->https()
 ->pattern([
     'logic'  => '[a-z]+',
     'action' => '[a-z]+',

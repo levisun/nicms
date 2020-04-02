@@ -22,6 +22,8 @@ use app\common\library\Siteinfo;
 class Index extends BaseController
 {
 
+    protected $authKey = 'user_auth_key';
+
     /**
      * 初始化
      * @access public
@@ -70,15 +72,18 @@ class Index extends BaseController
      */
     protected function authenticate(string &$_logic, string &$_action, string &$_method): void
     {
-        if ($this->session->has('user_auth_key')) {
-            // $this->redirect('settings/dashboard/index');
+        // 登录状态
+        if ($this->session->has($this->authKey)) {
+
         }
 
-        elseif ($this->session->has('user_auth_key') && $_logic === 'account') {
-            // $this->redirect('settings/dashboard/index');
+        // 登录状态不再进入登录页
+        elseif ($this->session->has($this->authKey) && in_array($_method, ['login', 'reg', 'forget'])) {
+            $this->redirect('account/user/profile');
         }
 
-        elseif (!$this->session->has('user_auth_key') && !in_array($_method, ['login', 'reg', 'forget'])) {
+        // 非登录状态只能进入登录页
+        elseif (!$this->session->has($this->authKey) && !in_array($_method, ['login',  'reg', 'forget'])) {
             $this->redirect('account/user/login');
         }
     }

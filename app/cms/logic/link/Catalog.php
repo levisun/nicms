@@ -3,7 +3,7 @@
 /**
  *
  * API接口层
- * 文章列表
+ * 友情链接列表
  *
  * @package   NICMS
  * @category  app\cms\logic\link
@@ -21,7 +21,7 @@ use app\common\controller\BaseLogic;
 use app\common\library\Canvas;
 use app\common\model\Link as ModelLink;
 
-class Lists extends BaseLogic
+class Catalog extends BaseLogic
 {
 
     /**
@@ -38,7 +38,7 @@ class Lists extends BaseLogic
         ];
 
         if ($category_id = $this->request->param('cid/d', 0)) {
-            $map[] = ['article.category_id', '=', $category_id];
+            $map[] = ['link.category_id', '=', $category_id];
         }
 
         $cache_key = 'link list' . date('Ymd') . $category_id;

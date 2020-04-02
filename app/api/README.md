@@ -55,27 +55,27 @@ API说明文档
 
 > `20005` Header accept 域名校验或解析失败
 
-> `20006` Header accept 解析版本与数据类型失败
+> `20006` Header accept 解析版本与返回数据类型失败
 
 > `20007` Header accept 校验返回数据类型失败
 
-> `21001` param appid 解析错误
+> `21001` 参数 appid 解析错误
 
-> `21002` param appid 校验错误
+> `21002` 参数 appid 校验错误
 
-> `22001` param sign_type 校验错误
+> `22001` 参数 sign_type 校验错误(只支持md5与sha1)
 
-> `22002` param sign 为空或格式错误
+> `22002` 参数 sign 为空或格式错误
 
-> `22003` param sign 校验错误
+> `22003` 参数 sign 校验错误
 
-> `24001` param token 表单令牌校验错误
+> `24001` 参数 token 表单令牌校验错误
 
-> `25001` param method API方法为空或格式错误
+> `25001` 参数 method API方法为空或格式错误
 
-> `25002-25003` param method API方法不存在
+> `25002-25003` 参数 method API方法不存在
 
-> `26001` param method API方法权限错误
+> `26001` 参数 method API方法权限错误
 
 > `27001` server HTTP_REFERER 请求来源错误
 

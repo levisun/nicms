@@ -36,33 +36,3 @@
         </div>
     </div>
 </div>
-
-
-<script>
-    let list = new Vue({
-        el: '#layout-list',
-        data: {
-            sideber: [],
-            breadcrumb: [],
-            items: [],
-        },
-        methods: {
-            load: function () {
-                jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
-                    method: 'get',
-                    data: [
-                        { name: 'method', value: 'nav.sidebar.query' },
-                        { name: 'cid', value: NICMS.api.param.cid },
-                    ],
-                    success: function (result) {
-                        if (10000 == result.code) {
-                            list.sideber = result.data;
-                        }
-                    }
-                });
-            }
-        }
-    });
-    list.load();
-</script>
