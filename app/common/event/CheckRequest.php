@@ -73,7 +73,7 @@ class CheckRequest
     {
         $domain = Request::subDomain() . '.' . Request::rootDomain();
         if (false !== filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            $response = Response::create();
+            $response = miss(403, false);
             throw new HttpResponseException($response);
         }
     }
