@@ -43,6 +43,20 @@ class Index extends BaseController
                 '__SCRIPT__'      => $result['script'],
             ]
         ]);
+
+        if ($this->request->param('cid/d')) {
+            $breadcrumb = call_user_func([
+                $this->app->make('\app\cms\logic\nav\Breadcrumb'),
+                'query'
+            ]);
+            $this->assign('breadcrumb', $breadcrumb['data']);
+
+            $sidebar = call_user_func([
+                $this->app->make('\app\cms\logic\nav\Sidebar'),
+                'query'
+            ]);
+            $this->assign('sidebar', $sidebar['data']);
+        }
     }
 
     /**
@@ -73,7 +87,11 @@ class Index extends BaseController
                 ->value('model.name');
 
             if ($model_name) {
-                return $this->fetch($model_name . '_list');
+                $result = call_user_func([
+                    $this->app->make('\app\cms\logic\article\Category'),
+                    'query'
+                ]);
+                return $this->fetch($model_name . '_list', $result['data']);
             }
         }
 
@@ -98,21 +116,18 @@ class Index extends BaseController
                 ->value('model.name');
 
             if ($model_name) {
-                return $this->fetch($model_name . '_details');
+                $result = call_user_func([
+                    $this->app->make('\app\cms\logic\article\Details'),
+                    'query'
+                ]);
+                if (empty($result['data'])) {
+                    return miss(404);
+                }
+                return $this->fetch($model_name . '_details', $result['data']);
             }
         }
 
         return miss(404);
-    }
-
-    /**
-     * 单页
-     * @access public
-     * @return
-     */
-    public function page()
-    {
-        return $this->fetch('page');
     }
 
     /**

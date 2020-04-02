@@ -3,15 +3,10 @@
         <li class="breadcrumb-item" aria-current="page">
             <a href="/">{:lang('home')}</a>
         </li>
-        <template v-for="vo in breadcrumb">
-            <template v-if="vo.child">
-                <li class="breadcrumb-item" aria-current="page" v-text="vo.name"></li>
-            </template>
-            <template v-else>
-                <li class="breadcrumb-item">
-                    <a v-bind:href="vo.url" v-text="vo.name"></a>
-                </li>
-            </template>
-        </template>
+        {tags:foreach $breadcrumb as $key => $vo}
+        <li class="breadcrumb-item">
+            <a href={$vo.url}>{$vo.name}</a>
+        </li>
+        {/foreach}
     </ol>
 </nav>

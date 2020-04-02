@@ -1,11 +1,11 @@
 <aside id="sidebar" class="col-md-3">
     <div class="card">
-        <div class="card-header" v-text="sideber.name"></div>
+        <div class="card-header">{$sidebar.name}</div>
         <div class="card-body">
             <ul class="list-unstyled">
-                <template v-if="sideber.child" v-for="vo in sideber.child">
-                    <li><a v-bind:href="vo.url" v-text="vo.name"></a></li>
-                </template>
+                {tags:foreach $sidebar[child] as $key => $vo}
+                <li><a href="{$vo.url}">{$vo.name}</a></li>
+                {/foreach}
             </ul>
         </div>
     </div>

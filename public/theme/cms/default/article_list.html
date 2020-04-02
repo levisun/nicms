@@ -7,30 +7,29 @@
                 <div class="card-header" v-text="sideber.name"></div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        <template v-for="vo in items">
+                        {tags:foreach $list as $key => $vo}
                             <li class="list-group-item">
                                 <h5 class="card-title">
-                                    <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="vo.cat_url"
-                                        v-text="vo.cat_name"></a>
-                                    <a v-bind:href="vo.url" v-html="vo.title"></a>
+                                    <a class="badge badge-primary" style="margin-right:10px;" href="{$vo.cat_url}" >{$vo.cat_name}</a>
+                                    <a href="{$vo.url}">{$vo.title}</a>
                                 </h5>
                                 <p class="text-muted">
                                     <span style="margin-right:10px;">
                                         <i class="fa fa-calendar-day"></i>
-                                        <font v-text="vo.update_time"></font>
+                                        <font>{$vo.update_time}</font>
                                     </span>
                                     <span style="margin-right:10px;">
                                         <i class="fa fa-user"></i>
-                                        <font v-text="vo.author"></font>
+                                        <font>{$vo.author}</font>
                                     </span>
                                     <span style="margin-right:10px;">
                                         <i class="fa fa-eye"></i>
-                                        <font v-text="vo.hits"></font>
+                                        <font>{$vo.hits}</font>
                                     </span>
                                 </p>
-                                <p class="card-text" v-text="vo.description"></p>
+                                <p class="card-text">{$vo.description}</p>
                             </li>
-                        </template>
+                        {/foreach}
                     </ul>
                 </div>
             </div>
@@ -59,36 +58,6 @@
                     success: function (result) {
                         if (10000 == result.code) {
                             list.sideber = result.data;
-                        }
-                    }
-                });
-
-                jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
-                    method: 'get',
-                    data: [
-                        { name: 'method', value: 'nav.breadcrumb.query' },
-                        { name: 'cid', value: NICMS.api.param.cid },
-                    ],
-                    success: function (result) {
-                        if (10000 == result.code) {
-                            list.breadcrumb = result.data;
-                        }
-                    }
-                });
-
-                jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
-                    method: 'get',
-                    data: [
-                        { name: 'method', value: 'article.category.query' },
-                        { name: 'cid', value: NICMS.api.param.cid },
-                    ],
-                    success: function (result) {
-                        if (10000 == result.code && result.message != 'error') {
-                            list.items = result.data.list;
-                        } else {
-                            window.location.href = '/404.html';
                         }
                     }
                 });

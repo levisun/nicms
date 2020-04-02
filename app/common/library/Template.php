@@ -82,6 +82,12 @@ class Template implements TemplateHandlerInterface
     private $script = '';
 
     /**
+     * 模板变量
+     * @var array
+     */
+    private $var_data = [];
+
+    /**
      * 架构函数
      * @access public
      * @param  \think\App $_app
@@ -169,6 +175,24 @@ class Template implements TemplateHandlerInterface
     }
 
     /**
+     * 模板变量赋值
+     * @access public
+     * @param string|array $name  模板变量
+     * @param mixed        $value 变量值
+     * @return $this
+     */
+    public function assign($name, $value = null)
+    {
+        if (is_array($name)) {
+            $this->var_data = array_merge($this->var_data, $name);
+        } else {
+            $this->var_data[$name] = $value;
+        }
+
+        return $this;
+    }
+
+    /**
      * 渲染模板文件
      * @access public
      * @param  string $_template 模板文件
@@ -204,14 +228,16 @@ class Template implements TemplateHandlerInterface
         }
 
         // 过滤变量内容
-        $_data = DataFilter::filter($_data);
+        // $_data = DataFilter::encode($_data);
+        // $_data = DataFilter::decode($_data);
 
         // 模板Replace变量
         $replace = $this->getReplaceVars();
         $_data = !empty($replace) ? array_merge($_data, $replace) : $_data;
         // $_data['__DEBUG__'] = $this->app->config->get('app.debug');
 
-        extract($_data, EXTR_OVERWRITE);
+        $this->var_data = array_merge($this->var_data, $_data);
+        extract($this->var_data, EXTR_OVERWRITE);
 
         //载入模版缓存文件
         include $compile_file;
@@ -322,9 +348,9 @@ class Template implements TemplateHandlerInterface
             }
 
             if (0 === stripos($vars, '$')) {
-                return '<?php echo isset(' . $vars . ') ? htmlspecialchars(' . $vars . ') : \'\';?>';
+                return '<?php echo isset(' . $vars . ') ? ' . $vars . ' : \'\';?>';
             } elseif ($vars) {
-                return '<?php echo htmlspecialchars(' . $vars . ');?>';
+                return '<?php echo ' . $vars . ';?>';
             }
         }, $_content);
 
@@ -427,7 +453,7 @@ class Template implements TemplateHandlerInterface
                 'str_replace', 'strlen', 'mb_strlen', 'strtoupper', 'strtolower', 'date', 'lang', 'url', 'current', 'end', 'sprintf',
             ];
             if (in_array($matches[1], $safe_func) && function_exists($matches[1])) {
-                return '<?php echo htmlspecialchars(' . $matches[1] . '(' . $matches[2] . '));?>';
+                return '<?php echo ' . $matches[1] . '(' . $matches[2] . ');?>';
             } else {
                 return '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
             }

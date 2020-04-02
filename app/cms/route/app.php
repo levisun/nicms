@@ -32,7 +32,6 @@ Route::group(function () {
     // 列表页
     Route::get('list/:cid/[:page]$', 'category');
     Route::get('tags/:id/[:page]$', 'tags');
-    Route::get('page/:cid$', 'page');
     Route::get('link/:cid$', 'link');
     Route::get('feedback/:cid$', 'feedback');
     Route::get('message/:cid$', 'message');
@@ -40,6 +39,8 @@ Route::group(function () {
 
     // 详情页
     Route::get('details/:cid/:id$', 'details');
+    // 单页
+    Route::get('page/:cid$', 'details');
 
     // 跳转接口
     Route::get('go$', 'go');

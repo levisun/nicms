@@ -165,27 +165,29 @@ class ArticleBase extends BaseLogic
      */
     protected function ArticleDetails()
     {
-        $id = $page_id = false;
+        $id = $cid = false;
         if ($id = $this->request->param('id/d')) {
             $map = [
                 ['article.id', '=', $id],
                 ['article.is_pass', '=', '1'],
                 ['article.delete_time', '=', '0'],
                 ['article.show_time', '<', time()],
+                ['article.lang', '=', $this->lang->getLangSet()]
             ];
         }
         // 单页
-        elseif ($page_id = $this->request->param('page_id/d')) {
+        elseif ($cid = $this->request->param('cid/d')) {
             $map = [
-                ['article.category_id', '=', $page_id],
+                ['article.category_id', '=', $cid],
                 ['article.is_pass', '=', '1'],
                 ['article.delete_time', '=', '0'],
                 ['article.show_time', '<', time()],
+                ['article.lang', '=', $this->lang->getLangSet()]
             ];
         }
 
-        if ($id || $page_id) {
-            $cache_key = md5('article details' . $id);
+        if ($id || $cid) {
+            $cache_key = md5('article details' . $id . $cid);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'username', 'access_id', 'hits', 'update_time'])
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
@@ -330,7 +332,7 @@ class ArticleBase extends BaseLogic
     /**
      * 下一篇
      * @access protected
-     * @param  int      $_id
+     * @param  int      $_article_id
      * @param  int      $_category_id
      * @return array
      */
@@ -341,7 +343,8 @@ class ArticleBase extends BaseLogic
             // ['category_id', '=', $_category_id],
             ['category_id', 'in', $this->child($_category_id)],
             ['show_time', '<', time()],
-            ['id', '>', $_article_id]
+            ['id', '>', $_article_id],
+            ['lang', '=', $this->lang->getLangSet()]
         ])->order('is_top, is_hot, is_com, sort_order DESC, update_time DESC')->min('id');
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
@@ -358,6 +361,12 @@ class ArticleBase extends BaseLogic
             $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
             $result['url'] = url('details/' . $result['category_id'] . '/' . $result['id']);
             $result['cat_url'] = url('list/' . $result['category_id']);
+        } else {
+            $result = [
+                'title'   => $this->lang->get('not next'),
+                'url'     => url('details/' . $_category_id . '/' . $_article_id),
+                'cat_url' => url('list/' . $_category_id),
+            ];
         }
 
         return $result;
@@ -366,18 +375,19 @@ class ArticleBase extends BaseLogic
     /**
      * 上一篇
      * @access protected
-     * @param  int      $_id
+     * @param  int      $_article_id
      * @param  int      $_category_id
      * @return array
      */
-    protected function prev(int $_id, int $_category_id)
+    protected function prev(int $_article_id, int $_category_id)
     {
         $prev_id = ModelArticle::where([
             ['is_pass', '=', 1],
             // ['category_id', '=', $_category_id],
             ['category_id', 'in', $this->child($_category_id)],
             ['show_time', '<', time()],
-            ['id', '<', $_id]
+            ['id', '<', $_article_id],
+            ['lang', '=', $this->lang->getLangSet()]
         ])->order('is_top, is_hot, is_com, sort_order DESC, update_time DESC')->max('id');
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
@@ -394,6 +404,12 @@ class ArticleBase extends BaseLogic
             $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
             $result['url'] = url('details/' . $result['category_id'] . '/' . $result['id']);
             $result['cat_url'] = url('list/' . $result['category_id']);
+        } else {
+            $result = [
+                'title'   => $this->lang->get('not prev'),
+                'url'     => url('details/' . $_category_id . '/' . $_article_id),
+                'cat_url' => url('list/' . $_category_id),
+            ];
         }
 
         return $result;
