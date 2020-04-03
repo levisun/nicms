@@ -158,9 +158,9 @@ class UploadFile
             // 文件保存目录
             $_dir = 'uploads' . DIRECTORY_SEPARATOR .
                 substr(app('http')->getName(), 0, 1) . Base64::dechex($_uid) .
-                DIRECTORY_SEPARATOR . Base64::dechex((int) date('Y') + $_uid);
+                DIRECTORY_SEPARATOR . Base64::dechex((int) date('Ym') + $_uid);
         } else {
-            $_dir = 'guest';
+            $_dir = 'uploads' . DIRECTORY_SEPARATOR .'guest';
         }
 
         // 子目录

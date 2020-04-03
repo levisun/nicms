@@ -49,18 +49,18 @@ class Canvas
             if (100 <= $_size && 800 >= $_size) {
                 $_size = intval($_size / 100) * 100;
                 $extension = '.' . pathinfo($_file, PATHINFO_EXTENSION);
-                $_file = str_replace($extension, '_' . $_size . $extension, $_file);
+                $new_file = str_replace($extension, '_' . $_size . $extension, $_file);
 
                 // 缩略图不存在
                 // 创建缩略图
-                if (!is_file($path . $_file)) {
+                if (!is_file($path . $new_file)) {
                     @ini_set('memory_limit', '128M');
                     $image = Image::open($path . $_file);
                     // 原始尺寸大于指定缩略尺寸
                     if ($image->width() > $_size) {
                         $image->thumb($_size, $_size, Image::THUMB_SCALING);
                     }
-                    $image->save($path . $_file);
+                    $image->save($path . $new_file);
                     unset($image);
                 }
             }

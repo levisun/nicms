@@ -130,7 +130,7 @@ class RequestCache
             $header['Cache-Control'] = 'max-age=' . $expire . ',must-revalidate';
             $header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
             $header['Expires']       = gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT';
-            $header['X-Powered-By']  = 'NI_F_CACHE';
+            $header['X-Powered-By']  = 'NIFCACHE';
             $response->header($header);
 
             $content = $response->getContent();

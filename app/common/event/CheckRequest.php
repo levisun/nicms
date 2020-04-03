@@ -101,7 +101,7 @@ class CheckRequest
             if ($config['request_cache_expire'] && strtotime($ms) + $config['request_cache_expire'] > Request::server('REQUEST_TIME')) {
                 $response = Response::create()->code(304);
                 $response->header([
-                    'X-Powered-By' => 'NI_CACHE'
+                    'X-Powered-By' => 'NICACHE'
                 ]);
                 throw new HttpResponseException($response);
             }

@@ -16,12 +16,14 @@ declare(strict_types=1);
 
 namespace app\cms\controller;
 
+use think\exception\HttpResponseException;
 use app\common\controller\BaseController;
 use app\common\library\Siteinfo;
 use app\common\model\Category as ModelCategory;
 
 class Index extends BaseController
 {
+    private $model_name = '';
 
     /**
      * 初始化
@@ -44,13 +46,30 @@ class Index extends BaseController
             ]
         ]);
 
-        if ($this->request->param('cid/d')) {
+        if ($cid = $this->request->param('cid/d')) {
+            // 获得栏目对应模板
+            $this->model_name = ModelCategory::view('category', ['id'])
+                ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
+                ->where([
+                    ['category.is_show', '=', 1],
+                    ['category.id', '=', $cid],
+                ])
+                ->cache('theme_' . (string) $cid)
+                ->value('model.name');
+            // 栏目不存在抛出404错误
+            if (!$this->model_name) {
+                $response = miss(404);
+                throw new HttpResponseException($response);
+            }
+
+            // 获得面包屑
             $breadcrumb = call_user_func([
                 $this->app->make('\app\cms\logic\nav\Breadcrumb'),
                 'query'
             ]);
             $this->assign('breadcrumb', $breadcrumb['data']);
 
+            // 获得侧导航
             $sidebar = call_user_func([
                 $this->app->make('\app\cms\logic\nav\Sidebar'),
                 'query'
@@ -76,26 +95,11 @@ class Index extends BaseController
      */
     public function category()
     {
-        if ($cid = $this->request->param('cid/d')) {
-            $model_name = ModelCategory::view('category', ['id'])
-                ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
-                ->where([
-                    ['category.is_show', '=', 1],
-                    ['category.id', '=', $cid],
-                ])
-                ->cache('theme_' . (string) $cid)
-                ->value('model.name');
-
-            if ($model_name) {
-                $result = call_user_func([
-                    $this->app->make('\app\cms\logic\article\Category'),
-                    'query'
-                ]);
-                return $this->fetch($model_name . '_list', $result['data']);
-            }
-        }
-
-        return miss(404);
+        $result = call_user_func([
+            $this->app->make('\app\cms\logic\article\Category'),
+            'query'
+        ]);
+        return $this->fetch($this->model_name . '_list', $result['data']);
     }
 
     /**
@@ -105,29 +109,14 @@ class Index extends BaseController
      */
     public function details()
     {
-        if ($cid = $this->request->param('cid/d')) {
-            $model_name = ModelCategory::view('category', ['id'])
-                ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
-                ->where([
-                    ['category.is_show', '=', 1],
-                    ['category.id', '=', $cid],
-                ])
-                ->cache('theme_' . (string) $cid)
-                ->value('model.name');
-
-            if ($model_name) {
-                $result = call_user_func([
-                    $this->app->make('\app\cms\logic\article\Details'),
-                    'query'
-                ]);
-                if (empty($result['data'])) {
-                    return miss(404);
-                }
-                return $this->fetch($model_name . '_details', $result['data']);
-            }
+        $result = call_user_func([
+            $this->app->make('\app\cms\logic\article\Details'),
+            'query'
+        ]);
+        if (empty($result['data'])) {
+            return miss(404);
         }
-
-        return miss(404);
+        return $this->fetch($this->model_name . '_details', $result['data']);
     }
 
     /**
@@ -137,26 +126,11 @@ class Index extends BaseController
      */
     public function link()
     {
-        if ($cid = $this->request->param('cid/d')) {
-            $model_name = ModelCategory::view('category', ['id'])
-                ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
-                ->where([
-                    ['category.is_show', '=', 1],
-                    ['category.id', '=', $cid],
-                ])
-                ->cache('theme_' . (string) $cid)
-                ->value('model.name');
-
-            if ($model_name) {
-                $result = call_user_func([
-                    $this->app->make('\app\cms\logic\link\Catalog'),
-                    'query'
-                ]);
-                return $this->fetch('link', $result['data']);
-            }
-        }
-
-        return miss(404);
+        $result = call_user_func([
+            $this->app->make('\app\cms\logic\link\Catalog'),
+            'query'
+        ]);
+        return $this->fetch($this->model_name, $result['data']);
     }
 
     /**
@@ -166,7 +140,7 @@ class Index extends BaseController
      */
     public function feedback()
     {
-        return $this->fetch('feedback');
+        return $this->fetch($this->model_name);
     }
 
     /**
@@ -176,7 +150,7 @@ class Index extends BaseController
      */
     public function message()
     {
-        return $this->fetch('message');
+        return $this->fetch($this->model_name);
     }
 
     /**

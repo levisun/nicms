@@ -75,6 +75,7 @@ abstract class Async
     /**
      * HEADER 指定接收类型
      * 包含[域名 版本 返回类型]
+     * application/vnd.域名.v版本+返回类型
      * application/vnd.nicms.v1.0.1+json
      * @var string
      */
@@ -82,6 +83,7 @@ abstract class Async
 
     /**
      * 开启版本控制
+     * 默认关闭
      * @var bool
      */
     protected $openVersion = false;
@@ -114,6 +116,7 @@ abstract class Async
 
     /**
      * 签名类型
+     * 只支持md5和sha1
      * @var string
      */
     protected $signType;
