@@ -37,7 +37,7 @@ class RecordRequestLog
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 $time = (int) date('dHi');   // 以分钟统计请求量
                 $number = !empty($number) ? (array) $number : [$time => 1];
-                if (isset($number[$time]) && $number[$time] > 30) {
+                if (isset($number[$time]) && $number[$time] > 55) {
                     file_put_contents($path . $client_ip . '.lock', '请求锁定' . date('Y-m-d H:i:s'));
                 } else {
                     $number[$time] = isset($number[$time]) ? ++$number[$time] : 1;
