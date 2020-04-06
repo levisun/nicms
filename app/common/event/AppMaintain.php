@@ -43,7 +43,7 @@ class AppMaintain
             // 数据库备份
             // (new DataManage)->autoBackup();
 
-            only_execute($app_name . '_remove_garbage.lock', '-12 hour', function () {
+            only_execute($app_name . '_remove_garbage.lock', '-4 hour', function () {
                 Log::alert('[REGARBAGE] 应用维护');
 
                 // 清除过期缓存文件

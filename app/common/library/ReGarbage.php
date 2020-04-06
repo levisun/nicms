@@ -29,10 +29,7 @@ class ReGarbage
      */
     public static function remove(string $_dir, int $_expire)
     {
-        // 过滤前后字符与空格
-        $_dir = DataFilter::filter($_dir);
-
-        $_dir = DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_dir) . DIRECTORY_SEPARATOR;
+        $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_dir) . DIRECTORY_SEPARATOR;
 
         $day = 0 === $_expire ? $_expire : strtotime('-' . $_expire . ' days');
         self::clear($_dir, $day);

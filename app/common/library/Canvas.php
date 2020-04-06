@@ -47,8 +47,12 @@ class Canvas
         if (is_file($path . $_file)) {
             // 缩略图
             if (100 <= $_size && 800 >= $_size) {
-                $_size = intval($_size / 100) * 100;
                 $extension = '.' . pathinfo($_file, PATHINFO_EXTENSION);
+
+                $_size = intval($_size / 100) * 100;
+                $_size = '_x' . $_size;
+
+                $new_file = str_replace($_size, '', $_file);
                 $new_file = str_replace($extension, '_' . $_size . $extension, $_file);
 
                 // 缩略图不存在

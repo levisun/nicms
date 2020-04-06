@@ -27,10 +27,18 @@ class Ip extends Async
 
     public function index()
     {
+        // 解决没有传IP参数,缓存造成的缓存错误
+        if (!$ip = $this->request->param('ip', false)) {
+            $url = $this->request->baseUrl(true) . '?ip=' . $this->request->ip();
+            $response = Response::create($url, 'redirect', 302);
+            throw new HttpResponseException($response);
+        }
+
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
         if ($ip = Ipinfo::get($ip)) {
             $refere = $this->request->server('HTTP_REFERER');
-            if ($refere && false !== stripos($refere, $this->request->rootDomain())) {
+            $refere = $refere && false !== stripos($refere, $this->request->rootDomain());
+            if ($refere || $this->request->param('json', false)) {
                 return $this->cache(1440)->success('IP', $ip);
             } else {
                 $data = 'var NICMS_IPINFO=' . json_encode($ip, JSON_UNESCAPED_UNICODE) . ';';
