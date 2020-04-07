@@ -176,7 +176,7 @@ class ArticleBase extends BaseLogic
             ];
         }
         // 单页
-        elseif ($cid = $this->request->param('cid/d')) {
+        elseif ($cid = $this->request->param('cid/d', 0)) {
             $map = [
                 ['article.category_id', '=', $cid],
                 ['article.is_pass', '=', '1'],

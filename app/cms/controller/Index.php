@@ -47,8 +47,7 @@ class Index extends BaseController
             ]
         ]);
 
-        if ($cid = $this->request->param('cid')) {
-            $cid = Base64::hexdec($cid);
+        if ($cid = $this->request->param('cid/d', 0)) {
             // 获得栏目对应模板
             $this->model_name = ModelCategory::view('category', ['id'])
                 ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
