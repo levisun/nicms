@@ -47,22 +47,9 @@ class Tags
     public static function foreach(array $_attr, string $_tags_content, array $_config): string
     {
         $parseStr  = '<?php ';
-        $parseStr .= 'foreach (' . $_attr['expression'] . ') { ?>';
+        $parseStr .= 'foreach (' . $_attr['expression'] . '): ?>';
         $parseStr .= $_tags_content;
-        $parseStr .= '<?php } ?>';
-        return $parseStr;
-
-        var_dump($_attr);
-        die();
-
-
-        $parseStr .= 'if (!is_null($result[\'data\'])) {';
-        $parseStr .= '$nav = $result[\'data\'];';
-        $parseStr .= '$count = count($nav);';
-        $parseStr .= 'foreach ($nav as $key => $vo) { ?>';
-        $parseStr .= $_tags_content;
-        $parseStr .= '<?php } unset($result, $nav, $count, $key, $vo); } ?>';
-
+        $parseStr .= '<?php endforeach; ?>';
         return $parseStr;
     }
 
@@ -114,12 +101,12 @@ class Tags
         }
 
         $parseStr  = '<?php $result = app(\'' . $_attr['type'] . '\')->query();';
-        $parseStr .= 'if (!is_null($result[\'data\'])) {';
+        $parseStr .= 'if (!is_null($result[\'data\'])):';
         $parseStr .= '$nav = $result[\'data\'];';
         $parseStr .= '$count = count($nav);';
-        $parseStr .= 'foreach ($nav as $key => $vo) { ?>';
+        $parseStr .= 'foreach ($nav as $key => $vo): ?>';
         $parseStr .= $_tags_content;
-        $parseStr .= '<?php } unset($result, $nav, $count, $key, $vo); } ?>';
+        $parseStr .= '<?php endforeach; endif; ?>';
 
         return $parseStr;
     }
@@ -136,7 +123,7 @@ class Tags
     /**
      * meta标签解析
      * 输出HTML头部内容
-     * 格式： {tags:meta /}
+     * 格式： {tags:head /}
      * @access public
      * @static
      * @param  array $_attr   标签属性
@@ -164,12 +151,6 @@ class Tags
                 $link = false === stripos($link, 'preload') && false === stripos($link, 'prefetch')
                     ? str_replace('rel="', 'rel="preload ', $link)
                     : $link;
-
-
-                // 添加异步加载属性
-                // $link = false === stripos($link, 'media')
-                //     ? str_replace('">', '" media="none" onload="if(media!=\'all\')media=\'all\'">', $link)
-                //     : $link;
                 $head .= $link;
             }
         }
@@ -231,6 +212,7 @@ class Tags
             'domain:"//<?php echo request()->subDomain() . "." . request()->rootDomain();?>",' .
             'rootDomain:"//<?php echo request()->rootDomain();?>",' .
             'url:"<?php echo request()->baseUrl(true);?>",' .
+            'ip:"<?php echo request()->ip();?>",' .
             'api:{' .
             'url:"<?php echo config("app.api_host");?>",' .
             'param:<?php echo json_encode(app("request")->param());?>' .

@@ -41,7 +41,7 @@ class Siteinfo
                 'script'    => self::script(),
                 'footer'    => self::footer(),
                 'copyright' => self::copyright(),
-                'name'      => self::name(),
+                'name'      => self::sitename(),
             ];
 
             Cache::tag(['SYSTEM', self::$appName])->set($cache_key, $common);
@@ -71,7 +71,7 @@ class Siteinfo
     private static function description(): string
     {
         // 默认
-        $result = ModelConfig::where([
+        $description = ModelConfig::where([
             ['name', '=', self::$appName . '_description'],
             ['lang', '=', self::$langSet]
         ])->value('value', '');
@@ -81,15 +81,17 @@ class Siteinfo
             $result = ModelArticle::where([
                 ['id', '=', $id]
             ])->value('description', '');
+            $description = $result ?: $description;
         }
         // 栏目描述
         elseif ($cid = Request::param('cid/d', null)) {
             $result = ModelCategory::where([
                 ['id', '=', $cid]
             ])->value('description', '');
+            $description = $result ?: $description;
         }
 
-        return strip_tags(htmlspecialchars_decode($result));
+        return strip_tags(htmlspecialchars_decode($description));
     }
 
     /**
@@ -101,7 +103,7 @@ class Siteinfo
     private static function keywords(): string
     {
         // 默认
-        $result = ModelConfig::where([
+        $keywords = ModelConfig::where([
             ['name', '=', self::$appName . '_keywords'],
             ['lang', '=', self::$langSet]
         ])->value('value', '');
@@ -111,15 +113,17 @@ class Siteinfo
             $result = ModelArticle::where([
                 ['id', '=', $id]
             ])->value('keywords', '');
+            $keywords = $result ?: $keywords;
         }
         // 栏目关键词
         elseif ($cid = Request::param('cid/d', null)) {
             $result = ModelCategory::where([
                 ['id', '=', $cid]
             ])->value('keywords', '');
+            $keywords = $result ?: $keywords;
         }
 
-        return strip_tags(htmlspecialchars_decode($result));
+        return strip_tags(htmlspecialchars_decode($keywords));
     }
 
     /**
@@ -130,14 +134,14 @@ class Siteinfo
      */
     private static function title(): string
     {
-        $result = '';
+        $title = '';
 
         // 文章名
         if ($id = Request::param('id/d', null)) {
             $article = ModelArticle::where([
                 ['id', '=', $id]
             ])->value('title', '');
-            $result .= $article ? $article . '_' : '';
+            $title .= $article ? $article . '_' : '';
         }
 
         // 栏目名
@@ -145,13 +149,13 @@ class Siteinfo
             $category = ModelCategory::where([
                 ['id', '=', $cid]
             ])->value('name', '');
-            $result .= $category ? $category . '_' : '';
+            $title .= $category ? $category . '_' : '';
         }
 
         // 默认
-        $result .= self::name();
+        $title .= self::sitename();
 
-        return strip_tags(htmlspecialchars_decode($result));
+        return strip_tags(htmlspecialchars_decode($title));
     }
 
     /**
@@ -160,14 +164,14 @@ class Siteinfo
      * @static
      * @return string
      */
-    private static function name(): string
+    private static function sitename(): string
     {
-        $result = ModelConfig::where([
+        $sitename = ModelConfig::where([
             ['name', '=', self::$appName . '_sitename'],
             ['lang', '=', self::$langSet]
         ])->value('value', 'NICMS');
 
-        return strip_tags(htmlspecialchars_decode($result));
+        return strip_tags(htmlspecialchars_decode($sitename));
     }
 
     /**
@@ -207,12 +211,12 @@ class Siteinfo
      */
     private static function footer(): string
     {
-        $result = ModelConfig::where([
+        $footer = ModelConfig::where([
             ['name', '=', self::$appName . '_footer'],
             ['lang', '=', self::$langSet]
         ])->value('value', '');
 
-        return htmlspecialchars_decode($result);
+        return htmlspecialchars_decode($footer);
     }
 
     /**
@@ -247,11 +251,11 @@ class Siteinfo
      */
     private static function theme(): string
     {
-        $result = ModelConfig::where([
+        $theme = ModelConfig::where([
             ['name', '=', self::$appName . '_theme'],
             ['lang', '=', self::$langSet]
         ])->value('value', 'default');
 
-        return strip_tags(htmlspecialchars_decode($result));
+        return strip_tags(htmlspecialchars_decode($theme));
     }
 }

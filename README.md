@@ -17,13 +17,13 @@ nicms1.x 未完成项目,正在拼命中...
 
 > 基于[AdminLTE](https://adminlte.io) 二次开发
 
-> 基于[CKEditor](https://ckeditor.com) 开发
-
-> 基于[wangEditor](http://www.wangeditor.com) 开发
-
 > 基于[Bootstrap](http://getbootstrap.com) 开发，自适应手机、平板、PC
 
 > 基于[jQuery](http://jquery.com)
+
+> 基于[CKEditor](https://ckeditor.com) 开发
+
+> 基于[wangEditor](http://www.wangeditor.com) 开发
 
 > 多语言支持 未完成
 
@@ -38,18 +38,22 @@ composer create-project topthink/think nicms
 composer update topthink/framework
 
 依赖
-composer require topthink/think-orm
 composer require topthink/think-multi-app
-composer require topthink/think-trace
 composer require topthink/think-image
 composer require topthink/think-captcha
+composer require topthink/think-view
 composer require lcobucci/jwt
+composer require lizhichao/word
+
+
+
 
 composer require guzzlehttp/guzzle
-composer require lizhichao/word
 
 composer require overtrue/pinyin
 composer require overtrue/wechat
+composer require overtrue/easy-sms
+composer require overtrue/socialite
 composer require phpmailer/phpmailer
 ~~~
 

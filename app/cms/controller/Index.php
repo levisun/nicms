@@ -18,6 +18,7 @@ namespace app\cms\controller;
 
 use think\exception\HttpResponseException;
 use app\common\controller\BaseController;
+use app\common\library\Base64;
 use app\common\library\Siteinfo;
 use app\common\model\Category as ModelCategory;
 
@@ -46,7 +47,8 @@ class Index extends BaseController
             ]
         ]);
 
-        if ($cid = $this->request->param('cid/d')) {
+        if ($cid = $this->request->param('cid')) {
+            $cid = Base64::hexdec($cid);
             // 获得栏目对应模板
             $this->model_name = ModelCategory::view('category', ['id'])
                 ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
@@ -113,9 +115,6 @@ class Index extends BaseController
             $this->app->make('\app\cms\logic\article\Details'),
             'query'
         ]);
-        if (empty($result['data'])) {
-            return miss(404);
-        }
         return $this->fetch($this->model_name . '_details', $result['data']);
     }
 

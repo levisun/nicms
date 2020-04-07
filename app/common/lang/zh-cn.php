@@ -38,6 +38,7 @@ return [
     'yes'          => '是',
     'no'           => '否',
     'added'        => '添加',
+    'update time'  => '修改时间',
 
     'article'  => '文章',
     'picture'  => '图片',
@@ -65,4 +66,7 @@ return [
 
     'last login ip' => '登录IP',
     'last login time' => '登录时间',
+
+    'is_pass' => '已审核',
+    'not_pass' => '未审核',
 ];
