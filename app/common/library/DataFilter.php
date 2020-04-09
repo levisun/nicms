@@ -154,7 +154,7 @@ class DataFilter
 
         return preg_replace_callback('/<([a-zA-Z1-6]+)(.*?)\/?>/si', function ($matches) {
             // 过滤标签属性
-            $matches[2] = preg_replace_callback('/([a-zA-Z0-9-_]+)=["\']?(.*?)["\']?( )/si', function ($ema) {
+            $matches[2] = preg_replace_callback('/([a-zA-Z0-9-_]+)=["\']+(.*?)["\']+( )/si', function ($ema) {
                 $result = '';
                 $ema[1] = strtolower($ema[1]);
                 // 过滤非法属性 target rel
@@ -225,10 +225,10 @@ class DataFilter
     {
         // 过滤空格回车制表符等
         $pattern = [
-            '~>\s+<~'        => '><',
-            '~>\s+~'         => '>',
-            '~\s+<~'         => '<',
-            '/( ){2,}/si'    => ' ',
+            '~>\s+<~'     => '><',
+            '~>\s+~'      => '>',
+            '~\s+<~'      => '<',
+            '/( ){2,}/si' => ' ',
         ];
         $_str = (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
 

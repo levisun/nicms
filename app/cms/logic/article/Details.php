@@ -222,7 +222,7 @@ class Details extends BaseLogic
             ['show_time', '<', time()],
             ['id', '>', $_article_id],
             ['lang', '=', $this->lang->getLangSet()]
-        ])->order('is_top, is_hot, is_com, sort_order DESC, update_time DESC')->min('id');
+        ])->order('is_top DESC, is_hot DESC, is_com DESC, sort_order DESC, update_time DESC')->min('id');
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
@@ -265,7 +265,7 @@ class Details extends BaseLogic
             ['show_time', '<', time()],
             ['id', '<', $_article_id],
             ['lang', '=', $this->lang->getLangSet()]
-        ])->order('is_top, is_hot, is_com, sort_order DESC, update_time DESC')->max('id');
+        ])->order('is_top DESC, is_hot DESC, is_com DESC, sort_order DESC, update_time DESC')->max('id');
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')

@@ -60,7 +60,6 @@
                 </p>
                 <p>__FOOTER_MSG__</p>
                 <p>__COPYRIGHT__</p>
-                <p>访客IP: <font v-text="ip"></font></p>
             </div>
         </div>
     </div>
@@ -130,16 +129,6 @@ __SCRIPT__
                     success: function (result) {
                         if (10000 == result.code) {
                             layout_footer.foot_nav = result.data;
-                        }
-                    }
-                });
-
-                jQuery.pjax({
-                    url: NICMS.api.url + '/ip.do',
-                    method: 'get',
-                    success: function (result) {
-                        if (10000 == result.code) {
-                            layout_footer.ip = result.data.ip + result.data.region + result.data.city;
                         }
                     }
                 });
