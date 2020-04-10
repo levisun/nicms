@@ -45,7 +45,7 @@ class Pay extends Async
 
     public function index(string $method)
     {
-        if ($this->analysis()->isReferer()) {
+        if ($this->isReferer() && $this->analysis()) {
             // 支付宝支付
             if ('ali' === $method) {
                 # code...

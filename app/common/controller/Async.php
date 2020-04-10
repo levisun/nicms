@@ -253,7 +253,7 @@ abstract class Async
         $this->app->debug(false);
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\DataFilter::filter');
-        // 请勿更改参数
+        // 请勿更改参数(超时,执行内存)
         @set_time_limit(5);
         @ini_set('max_execution_time', '5');
         @ini_set('memory_limit', '8M');
@@ -275,7 +275,7 @@ abstract class Async
         // 加载语言包
         $this->loadLang();
 
-        // 执行METHOD
+        // 执行METHOD获得返回数据
         $this->result = call_user_func([
             $this->app->make($this->appMethod['class']),
             $this->appMethod['method']
@@ -289,8 +289,8 @@ abstract class Async
         // 调试模式
         // 返回数据没有指定默认关闭
         $this->debug(isset($this->result['debug']) ? $this->result['debug'] : false);
-        // 缓存
-        // 缓存时间
+
+        // 缓存(缓存时间) true or int 单位秒
         // 返回数据没有指定默认开启
         $this->cache(isset($this->result['cache']) ? $this->result['cache'] : true);
 
@@ -301,7 +301,7 @@ abstract class Async
     }
 
     /**
-     * 开启调试
+     * 开启或关闭调试
      * @access protected
      * @param  bool $_debug 开启或关闭调试模式
      * @return $this
@@ -313,24 +313,25 @@ abstract class Async
     }
 
     /**
-     * 开启缓存
-     * 缓存时间
+     * 开启或关闭缓存
+     * 当调试模式开启时,缓存一律关闭
      * @access protected
      * @param  int|false $_cache
      * @return $this
      */
     protected function cache($_cache)
     {
-        // 关闭缓存
-        if (false === $_cache || true === $this->apiDebug) {
+        // 调试模式开启时关闭缓存
+        if (true === $this->apiDebug) {
             $this->apiCache = false;
-        } else {
-            // 开启缓存并设置缓存时长
-            if (is_numeric($_cache)) {
-                $this->apiExpire = $_cache ? (int) $_cache : $this->apiExpire;
-            }
-
-            $this->apiCache = true;
+        }
+        // 指定缓存时间(int类型)
+        elseif (is_numeric($_cache)) {
+            $this->apiExpire = $_cache ? (int) $_cache : $this->apiExpire;
+        }
+        // 开启或关闭缓存
+        else {
+            $this->apiCache = $_cache;
         }
         return $this;
     }
@@ -382,7 +383,7 @@ abstract class Async
      * @access protected
      * @return $this
      */
-    protected function analysis()
+    protected function analysis(): bool
     {
         // 解析header数据
         $this->analysisHeader();
@@ -394,12 +395,12 @@ abstract class Async
         $this->checkTimestamp();
 
         // 检查客户端token
-        // token由\app\common\middleware\CheckRequestCache::class签发
+        // token由\app\common\middleware\RequestCache::class签发
         if (!$this->session->has('client_id')) {
             $this->abort('错误请求', 27003);
         }
 
-        return $this;
+        return true;
     }
 
     /**
@@ -451,7 +452,7 @@ abstract class Async
         }
 
         // 解析方法名
-        list($logic, $action, $method) = explode('.', $this->method, 3);
+        list($logic, $action, $method) = explode('.', strtolower($this->method), 3);
         $class  = '\app\\' . $this->appName . '\logic\\';
         $class .= $this->openVersion ? 'v' . implode('_', $this->version) . '\\' : '';
         $class .= $logic . '\\' . ucfirst($action);
@@ -770,10 +771,9 @@ abstract class Async
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'runtime' =>
-                number_format(microtime(true) - $this->app->getBeginTime(), 3) . ', ' .
+            'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 3) . ', ' .
                 number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . ', ' .
-                (true === $this->apiCache ? $this->apiExpire : 'no'),
+                (true === $this->apiCache ? $this->apiExpire : 'off'),
 
             // 返回地址
             'return_url' => $this->session->has('return_url')

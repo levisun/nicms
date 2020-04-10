@@ -217,12 +217,12 @@ class Details extends BaseLogic
     {
         $next_id = ModelArticle::where([
             ['is_pass', '=', 1],
-            // ['category_id', '=', $_category_id],
             ['category_id', 'in', $this->child($_category_id)],
             ['show_time', '<', time()],
             ['id', '>', $_article_id],
             ['lang', '=', $this->lang->getLangSet()]
-        ])->order('is_top DESC, is_hot DESC, is_com DESC, sort_order DESC, update_time DESC')->min('id');
+        ])->min('id');
+        // ->order('is_top DESC, is_hot DESC, is_com DESC, sort_order DESC, update_time DESC')
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
@@ -260,12 +260,11 @@ class Details extends BaseLogic
     {
         $prev_id = ModelArticle::where([
             ['is_pass', '=', 1],
-            // ['category_id', '=', $_category_id],
             ['category_id', 'in', $this->child($_category_id)],
             ['show_time', '<', time()],
             ['id', '<', $_article_id],
             ['lang', '=', $this->lang->getLangSet()]
-        ])->order('is_top DESC, is_hot DESC, is_com DESC, sort_order DESC, update_time DESC')->max('id');
+        ])->max('id');
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
