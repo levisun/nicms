@@ -76,7 +76,7 @@ if (!function_exists('only_execute')) {
         is_dir($path) or mkdir($path, 0755, true);
 
         clearstatcache();
-        if (!is_file($path . $_lock) || false === $_time || filemtime($path . $_lock) <= strtotime($_time)) {
+        if (false === $_time || filemtime($path . $_lock) <= strtotime($_time)) {
             if ($resource = @fopen($path . $_lock, 'w+')) {
                 if (flock($resource, LOCK_EX | LOCK_NB)) {
                     fwrite($resource, 'runtime:' . date('Y-m-d H:i:s'));

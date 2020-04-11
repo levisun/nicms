@@ -188,7 +188,7 @@ class User extends BaseLogic
                 ->where([
                     ['admin.id', '=', $this->uid]
                 ])
-                ->cache('PROFILE' . $this->uid, 300, 'admin')
+                ->cache('ADMIN PROFILE' . $this->uid, 300, 'admin')
                 ->find();
 
             if (null !== $result && $result = $result->toArray()) {
