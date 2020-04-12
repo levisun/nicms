@@ -12,13 +12,11 @@
  * @since     2019
  */
 
-use think\facade\Request;
-
 return [
     // session name
     'name'           => substr(strtoupper(hash_hmac(
         'sha256',
-        Request::rootDomain() . __DIR__ . Request::server('HTTP_USER_AGENT', Request::ip()),
+        request()->rootDomain() . __DIR__ . request()->server('HTTP_USER_AGENT', request()->ip()),
         sha1(__DIR__)
     )), 7, 7),
     // SESSION_ID的提交变量,解决flash上传跨域

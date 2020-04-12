@@ -12,38 +12,35 @@
  * @since     2019
  */
 
-use think\facade\Env;
-use think\facade\Request;
-
 return [
     // CB|Alpha 内测版, RC|Beta  正式候选版, Demo 演示版, Stable 稳定版, Release 正式版
-    'version'          => '1.0.1CB200106',
+    'version'          => '1.0.1RC200412',
 
     // 后台模板
-    'theme'            => Env::get('admin.theme', 'default'),
+    'theme'            => env('admin.theme', 'default'),
     // 后台入口域名
-    'entry'            => Env::get('admin.entry', 'admin'),
+    'entry'            => env('admin.entry', 'admin'),
 
     // 调试
-    'debug'            => (bool) Env::get('app_debug', false),
+    'debug'            => env('app_debug', false),
     // 加密密钥
-    'secretkey'        => hash_hmac('sha256', Env::get('app.secretkey', 'nicms'), __DIR__),
+    'secretkey'        => hash_hmac('sha256', env('app.secretkey', 'nicms'), __DIR__),
     // 上传文件大小,单位MB
-    'upload_size'      => (int) Env::get('app.upload_size', 1),
+    'upload_size'      => env('app.upload_size', 1),
     // 上传文件类型(扩展名)
-    'upload_type'      => Env::get('app.upload_type', 'jpg,gif,png,webp,mp3,mp4,doc,docx,xls,xlsx,ppt,pptx,pdf,zip'),
+    'upload_type'      => env('app.upload_type', 'jpg,gif,png,webp,mp3,mp4,doc,docx,xls,xlsx,ppt,pptx,pdf,zip'),
 
     // API地址
-    'api_host'         => '//api.' . Request::rootDomain(),
+    'api_host'         => '//api.' . request()->rootDomain(),
     // CDN地址
-    'cdn_host'         => '//cdn.' . Request::rootDomain(),
+    'cdn_host'         => '//cdn.' . request()->rootDomain(),
     // IMG地址
-    'img_host'         => '//img.' . Request::rootDomain(),
+    'img_host'         => '//img.' . request()->rootDomain(),
 
 
 
     // 应用地址
-    'app_host'         => Env::get('app.host', '//www.' . Request::rootDomain()),
+    'app_host'         => env('app.host', '//www.' . request()->rootDomain()),
     // 应用的命名空间
     'app_namespace'    => '',
     // 是否启用路由
@@ -56,7 +53,7 @@ return [
     'app_map'          => [],
     // 域名绑定（自动多应用模式有效）
     'domain_bind'      => [
-        Env::get('admin.entry', 'admin') => 'admin',
+        env('admin.entry', 'admin') => 'admin',
         'api'  => 'api',
         'book' => 'book',
         'my'   => 'user',
@@ -72,7 +69,7 @@ return [
     // 默认时区
     'default_timezone' => 'Asia/Shanghai',
     // 异常页面的模板文件
-    'exception_tmpl'   => Env::get('app_debug', false)
+    'exception_tmpl'   => env('app_debug', false)
         ? app()->getThinkPath() . 'tpl/think_exception.tpl'
         : app()->getRootPath() . 'public/404.html',
     // 错误显示信息,非调试模式有效

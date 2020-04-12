@@ -12,11 +12,9 @@
  * @since     2019
  */
 
-use think\facade\Env;
-
 return [
     // 默认磁盘
-    'default' => Env::get('filesystem.driver', 'local'),
+    'default' => env('filesystem.driver', 'local'),
     // 磁盘列表
     'disks'   => [
         'local'  => [

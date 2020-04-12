@@ -12,11 +12,9 @@
  * @since     2019
  */
 
-use think\facade\Env;
-
 return [
     // 默认日志记录通道
-    'default'      => Env::get('log.channel', 'file'),
+    'default'      => env('log.channel', 'file'),
     // 日志记录级别
     'level'        => [],
     // 日志类型记录的通道 ['error'=>'email',...]

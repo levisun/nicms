@@ -12,11 +12,9 @@
  * @since     2019
  */
 
-use think\facade\Env;
-
 return [
     // 默认语言
-    'default_lang'    => Env::get('lang.default_lang', 'zh-cn'),
+    'default_lang'    => env('lang.default_lang', 'zh-cn'),
     // 允许的语言列表
     'allow_lang_list' => [
         'zh-cn',
