@@ -11,16 +11,14 @@
  * @since     2019
  */
 
-use think\facade\Env;
 use think\facade\Route;
-use think\Response;
 
 Route::group(function () {
     Route::get('/$', function(){
-        return Response::create(url('account/user/login'), 'redirect', 302);
+        return redirect(url('account/user/login'));
     });
     Route::get('index$', function(){
-        return Response::create(url('account/user/login'), 'redirect', 302);
+        return redirect(url('account/user/login'));
     });
 
     Route::get(':logic/:action/:method/[:id]$', 'Index/index');
@@ -29,7 +27,7 @@ Route::group(function () {
         return miss(404);
     });
 })
-->domain(Env::get('admin.entry', 'admin'))
+->domain(env('admin.entry', 'admin'))
 ->ext('html')
 ->pattern([
     'logic'  => '[a-z]+',

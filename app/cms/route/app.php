@@ -11,16 +11,14 @@
  * @since     2019
  */
 
-use think\facade\Config;
 use think\facade\Route;
-use think\Response;
 
 /**
  * CDN IMG
  */
 Route::domain(['cdn', 'img'], function () {
     Route::miss(function () {
-        return Response::create(Config::get('app.app_host'), 'redirect', 302);
+        return miss(404, false);
     });
 });
 
