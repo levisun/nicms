@@ -200,7 +200,7 @@ class Details extends BaseLogic
 
         return [
             'debug'  => false,
-            'cache'  => false,
+            'cache'  => 60,
             'msg'    => isset($result) ? 'article hits' : 'article hits error',
             'data'   => isset($result) ? ['hits' => $result] : []
         ];

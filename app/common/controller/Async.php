@@ -328,6 +328,7 @@ abstract class Async
         // 指定缓存时间(int类型)
         elseif (is_numeric($_cache)) {
             $this->apiExpire = $_cache ? (int) $_cache : $this->apiExpire;
+            $this->apiCache = true;
         }
         // 开启或关闭缓存
         else {
