@@ -31,7 +31,7 @@ class Feedback extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 10);
+        $query_limit = $this->request->param('limit/d', 20);
 
         $result = ModelFeedback::view('feedback', ['id', 'title', 'username', 'content', 'category_id', 'type_id'])
             ->view('category', ['name' => 'cat_name'], 'category.id=feedback.category_id', 'LEFT')

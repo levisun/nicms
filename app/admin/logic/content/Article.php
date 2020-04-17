@@ -68,7 +68,7 @@ class Article extends BaseLogic
             }
         }
 
-        $query_limit = $this->request->param('limit/d', 10);
+        $query_limit = $this->request->param('limit/d', 20);
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'is_pass', 'is_com', 'is_hot', 'is_top', 'username', 'access_id', 'hits', 'sort_order', 'update_time'])

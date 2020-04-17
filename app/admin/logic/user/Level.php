@@ -31,7 +31,7 @@ class Level extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 10);
+        $query_limit = $this->request->param('limit/d', 20);
 
         $result = ModelLevel::order('id DESC')
             ->paginate([

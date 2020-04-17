@@ -33,7 +33,7 @@ class Fields extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 10);
+        $query_limit = $this->request->param('limit/d', 20);
 
         $map = [];
         if ($category_id = $this->request->param('category_id/d')) {

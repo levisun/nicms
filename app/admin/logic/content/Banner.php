@@ -31,7 +31,7 @@ class Banner extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 10);
+        $query_limit = $this->request->param('limit/d', 20);
 
         $result = ModelBanner::view('banner', ['id', 'name', 'width', 'height'])
             ->order('banner.update_time DESC')

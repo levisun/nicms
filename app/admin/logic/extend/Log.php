@@ -31,7 +31,7 @@ class Log extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 10);
+        $query_limit = $this->request->param('limit/d', 20);
 
         $result = ModelActionLog::view('action_log', ['action_id', 'user_id', 'action_ip', 'module', 'remark', 'create_time'])
             ->view('action', ['name' => 'action_name'], 'action.id=action_log.action_id')

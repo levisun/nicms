@@ -32,7 +32,7 @@ class Ads extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 10);
+        $query_limit = $this->request->param('limit/d', 20);
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
         $result = ModelAds::order('update_time DESC')
