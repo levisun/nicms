@@ -103,7 +103,6 @@ class Tags
         $parseStr  = '<?php $result = app(\'' . $_attr['type'] . '\')->query();';
         $parseStr .= 'if (!is_null($result[\'data\'])):';
         $parseStr .= '$nav = $result[\'data\'];';
-        $parseStr .= '$count = count($nav);';
         $parseStr .= 'foreach ($nav as $key => $vo): ?>';
         $parseStr .= $_tags_content;
         $parseStr .= '<?php endforeach; endif; ?>';
@@ -111,12 +110,154 @@ class Tags
         return $parseStr;
     }
 
-    public static function isset(array $_attr, string $_tags_content, array $_config)
+    public function details(array $_attr, string $_tags_content, array $_config)
     {
-        $parseStr  = '<?php ';
-        $parseStr .= 'if (isset(' . $_attr['expression'] . ') && !empty(' . $_attr['expression'] . ')) { ?>';
+        $_attr['id'] = !empty($_attr['id']) ? $_attr['id'] : request()->param('id/d', 0);
+        $_attr['cid'] = !empty($_attr['cid']) ? $_attr['cid'] : request()->param('cid/d', 0);
+        $_attr['date_format'] = !empty($_attr['date_format']) ? $_attr['date_format'] : 'Y-m-d';
+        $parseStr = '<?php
+        $map = [
+            ["article.is_pass", "=", "1"],
+            ["article.delete_time", "=", "0"],
+            ["article.show_time", "<", time()],
+            ["article.lang", "=", app("lang")->getLangSet()]
+        ];
+        if (boolval("' . $_attr['id'] . '")) {
+            $map[] = ["article.id", "=", $id];
+        } elseif (boolval("' . $_attr['cid'] . '")) {
+            $map[] = ["article.category_id", "=", $cid];
+        }
+        if (boolval("' . $_attr['id'] . '") || boolval("' . $_attr['cid'] . '")) {
+            $cache_key = md5("tags article details' . $_attr['id'] .  $_attr['cid'] . '";
+            if (!cache("?".$cache_key) || !$result = cache($cache_key)) {
+                $result = \app\common\model\Article::view("article", ["id", "category_id", "title", "keywords", "description", "username", "access_id", "hits", "update_time"])
+                    ->view("category", ["name" => "cat_name"], "category.id=article.category_id")
+                    ->view("model", ["id" => "model_id", "name" => "model_name", "table_name"], "model.id=category.model_id")
+                    ->view("type", ["id" => "type_id", "name" => "type_name"], "type.id=article.type_id", "LEFT")
+                    ->view("level", ["name" => "access_name"], "level.id=article.access_id", "LEFT")
+                    ->view("user", ["username" => "author"], "user.id=article.user_id", "LEFT")
+                    ->where($map)
+                    ->find();
+                if ($result && $result = $result->toArray()) {
+                    $result["cat_url"] = url("list/" . $result["category_id"]);
+                    $result["url"] = url("details/" . $result["category_id"] . "/" . $result["id"]);
+                    $result["flag"] = \app\common\library\Base64::flag($result["category_id"] . $result["id"], 7);
+                    $result["update_time"] = date("' . $_attr['date_format'] . '", (int) $result["update_time"]);
+                    $result["author"] = $result["author"] ?: $result["username"];
+                    unset($result["username"]);
+                }
+            }
+        }
+        ';
+
+    }
+
+    public static function catalog(array $_attr, string $_tags_content, array $_config)
+    {
+        $_attr['cid'] = !empty($_attr['cid']) ? $_attr['cid'] : request()->param('cid/d', 0);
+        $_attr['com'] = !empty($_attr['com']) ? $_attr['com'] : 0;
+        $_attr['top'] = !empty($_attr['top']) ? $_attr['top'] : 0;
+        $_attr['hot'] = !empty($_attr['hot']) ? $_attr['hot'] : 0;
+        $_attr['tid'] = !empty($_attr['tid']) ? $_attr['tid'] : 0;
+        $_attr['sort'] = !empty($_attr['sort']) ? $_attr['sort'] : 0;
+        $_attr['limit'] = !empty($_attr['limit']) ? $_attr['limit'] : 10;
+        $_attr['page'] = !empty($_attr['page']) ? $_attr['page'] : 1;
+        $_attr['date_format'] = !empty($_attr['date_format']) ? $_attr['date_format'] : 'Y-m-d';
+
+        $parseStr = '<?php
+        $map = [
+            ["article.is_pass", "=", "1"],
+            ["article.delete_time", "=", "0"],
+            ["article.show_time", "<", time()],
+            ["article.lang", "=", app("lang")->getLangSet()]
+        ];
+        if (boolval("' . $_attr['cid'] . '")) {
+            $map[] = ["article.category_id", "in", app("\app\cms\logic\article\Category")->child(intval(' . $_attr['cid'] . '))];
+        }
+        if (boolval("' . $_attr['com'] . '")) {
+            $map[] = ["article.is_com", "=", "1"];
+        } elseif (boolval("' . $_attr['top'] . '")) {
+            $map[] = ["article.is_top", "=", "1"];
+        } elseif (boolval("' . $_attr['hot'] . '")) {
+            $map[] = ["article.is_hot", "=", "1"];
+        }
+        if (boolval("' . $_attr['tid'] . '")) {
+            $map[] = ["article.type_id", "=", ' . $_attr['tid'] . '];
+        }
+        if (boolval("' . $_attr['sort'] . '")) {
+            $sort_order = "article.' . $_attr['sort'] . '";
+        } else {
+            $sort_order = "article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.update_time DESC";
+        }
+        $cache_key = md5("tags article list' . $_attr['cid'] . $_attr['com'] . $_attr['top'] . $_attr['hot'] . $_attr['tid'] . $_attr['sort'] . $_attr['limit'] . $_attr['page'] . $_attr['date_format'] . '");
+        if (!cache("?".$cache_key) || !$list = cache($cache_key)) {
+            $result = \app\common\model\Article::view("article", ["id", "category_id", "title", "keywords", "description", "username", "access_id", "hits", "update_time"])
+                ->view("category", ["name" => "cat_name"], "category.id=article.category_id")
+                ->view("model", ["id" => "model_id", "name" => "model_name"], "model.id=category.model_id and model.id<=3")
+                ->view("article_content", ["thumb"], "article_content.article_id=article.id", "LEFT")
+                ->view("type", ["id" => "type_id", "name" => "type_name"], "type.id=article.type_id", "LEFT")
+                ->view("level", ["name" => "access_name"], "level.id=article.access_id", "LEFT")
+                ->view("user", ["username" => "author"], "user.id=article.user_id", "LEFT")
+                ->where($map)
+                ->order($sort_order)
+                ->paginate([
+                    "list_rows" => ' . $_attr['limit'] . ',
+                    "path" => "javascript:paging([PAGE]);",
+                ]);
+
+            if ($result) {
+                $list = $result->toArray();
+                $list["render"] = $result->render();
+                foreach ($list["data"] as $key => $value) {
+                    $value["cat_url"] = url("list/" . $value["category_id"]);
+                    $value["url"] = url("details/" . $value["category_id"] . "/" . $value["id"]);
+                    $value["flag"] = \app\common\library\Base64::flag($value["category_id"] . $value["id"], 7);
+                    $value["thumb"] = \app\common\library\Canvas::image($value["thumb"], 300);
+                    $value["update_time"] = date("' . $_attr['date_format'] . '", (int) $value["update_time"]);
+                    $value["author"] = $value["author"] ?: $value["username"];
+                    unset($value["username"]);
+
+                    $fields = \app\common\model\FieldsExtend::view("fields_extend", ["data"])
+                        ->view("fields", ["name" => "fields_name"], "fields.id=fields_extend.fields_id")
+                        ->where([
+                            ["fields_extend.article_id", "=", $value["id"]],
+                            ["fields.category_id", "=", $value["category_id"]],
+                        ])
+                        ->select()
+                        ->toArray();
+                    foreach ($fields as $val) {
+                        $value[$val["fields_name"]] = $val["data"];
+                    }
+
+                    $value["tags"] = \app\common\model\ArticleTags::view("article_tags", ["tags_id"])
+                        ->view("tags tags", ["name"], "tags.id=article_tags.tags_id")
+                        ->where([
+                            ["article_tags.article_id", "=", $value["id"]],
+                        ])
+                        ->select()
+                        ->toArray();
+                    foreach ($value["tags"] as $k => $tag) {
+                        $tag["url"] = url("tags/" . $tag["tags_id"]);
+                        $value["tags"][$k] = $tag;
+                    }
+
+                    $list["data"][$key] = $value;
+                }
+
+                cache($cache_key, $list);
+            }
+        }
+        if (!empty($list)):
+        $total = &$list["total"];
+        $per_page = $list["per_page"];
+        $current_page = $list["current_page"];
+        $last_page = $list["last_page"];
+        $page = $list["render"];
+        $items = $list["data"];
+        foreach ($items as $key => $item): ?>';
         $parseStr .= $_tags_content;
-        $parseStr .= '<?php } ?>';
+        $parseStr .= '<?php endforeach; endif; ?>';
+
         return $parseStr;
     }
 

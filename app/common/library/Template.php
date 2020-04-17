@@ -403,18 +403,27 @@ class Template implements TemplateHandlerInterface
         if (false !== preg_match_all($pattern, $_content, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $value) {
                 $pattern = '/' . $this->config['tpl_begin'] .
-                '([a-zA-Z]+):(' . $value[1] . ')([a-zA-Z0-9 $.=>"\'_\[\]]+)' .
-                $this->config['tpl_end'] . '(.*?)' .
-                $this->config['tpl_begin'] . '\/' . $value[1] . $this->config['tpl_end'] . '/si';
+                    '([a-zA-Z]+):(' . $value[1] . ')([a-zA-Z0-9 $.=>"\'_\[\]]+)?' .
+                    $this->config['tpl_end'] . '(.*?)' .
+                    $this->config['tpl_begin'] . '\/' . $value[1] . $this->config['tpl_end'] . '/si';
                 if (false !== preg_match_all($pattern, $_content, $match, PREG_SET_ORDER)) {
                     foreach ($match as $vo) {
                         $tags = '\taglib\\' . ucfirst($vo[1]);
                         $action = strtolower($vo[2]);
                         $tags_content = trim($vo[4]);
 
-                        $vo[3] = $vo[3] ? trim($vo[3]) : null;
+                        $vo[3] = $vo[3] ? preg_replace('/( ){2,}/', ' ', trim($vo[3])) : null;
+
                         if ($vo[3]) {
-                            $params = str_replace(['"', "'", '=>', ' = ', ' '], ['', '', '', '=', '&'], $vo[3]);
+                            $params = str_replace(
+                                ['" ', "' ", ' = '],
+                                ['"&', "'&", '='],
+                                $vo[3]
+                            );
+                            $params = str_replace(['$', '=>', '"', "'"], '', $vo[3]);
+
+
+                            // $params = str_replace(['"', "'", '=>', ' = ', ' '], ['', '', '', '=', '&'], $vo[3]);
                             parse_str($params, $params);
                             $params['expression'] = str_replace(['[', ']'], ['[\'', '\']'], trim($vo[3]));
                         } else {

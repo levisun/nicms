@@ -158,10 +158,11 @@ class Category extends BaseLogic
 
     /**
      * 查询当前栏目下的所有子栏目
-     * @access protected
+     * @access public
+     * @param  int $_id
      * @return array
      */
-    private function child(int $_id): array
+    public function child(int $_id): array
     {
         $category = [];
 
