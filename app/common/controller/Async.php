@@ -559,7 +559,7 @@ abstract class Async
             }
         }
         $str = rtrim($str, '&');
-        $str .= md5($this->appName . $this->appSecret . $this->request->server('HTTP_USER_AGENT', date('Ymd')) . $this->request->ip());
+        $str .= $this->appSecret;
 
         if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
             $this->debugLog['sign_str'] = $str;

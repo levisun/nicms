@@ -25,8 +25,10 @@ use app\common\library\DataFilter;
 class Download
 {
     private static $extension = [
-        'doc', 'docx', 'gif', 'gz', 'jpeg', 'mp4', 'pdf', 'png', 'ppt', 'pptx', 'rar', 'xls', 'xlsx', 'zip', '7z',
-        'webp',
+        'doc', 'docx', 'pdf', 'ppt', 'pptx', 'xls', 'xlsx',
+        'gz', 'rar', 'zip', '7z',
+        'gif', 'jpg', 'jpeg', 'png', 'webp',
+        'mp4',
     ];
 
     /**

@@ -114,18 +114,11 @@ if (!function_exists('app_secret')) {
     {
         if ($_app_id > 1000000) {
             $_app_id -= 1000000;
-            $result = ModelApiApp::field('name, secret')
-                ->where([
+            return ModelApiApp::where([
                     ['id', '=', $_app_id]
                 ])
                 ->cache('APPID' . $_app_id)
-                ->find();
-
-            $secret = $result['name'] . $result['secret'] .
-                request()->server('HTTP_USER_AGENT', request()->ip()) .
-                request()->ip();
-
-            return md5($secret);
+                ->value('secret', '');
         }
         return '';
     }
