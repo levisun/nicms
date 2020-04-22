@@ -192,15 +192,11 @@ class Siteinfo
             ['lang', '=', self::$langSet]
         ])->value('value', '');
 
-        // $beian = $beian
-        //     ? '<a href="http://www.beian.miit.gov.cn/" rel="nofollow" target="_blank">' . strtoupper($beian) . '</a>'
-        //     : '';
-
         return
-            DataFilter::decode($copyright) . ' ' .
+            DataFilter::decode($copyright) . '&nbsp;' .
             DataFilter::decode($beian) .
-            ' <a href="/sitemap.xml" target="_blank">sitemap</a> ' .
-            ' Powered by <a href="https://github.com/levisun/nicms" rel="nofollow" target="_blank">NICMS</a>';
+            '&nbsp;<a href="/sitemap.xml" target="_blank">sitemap</a>&nbsp;' .
+            '&nbsp;Powered&nbsp;by&nbsp;<a href="https://github.com/levisun/nicms" rel="nofollow" target="_blank">NICMS</a>';
     }
 
     /**

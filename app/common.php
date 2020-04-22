@@ -42,23 +42,17 @@ if (!function_exists('format_hits')) {
 
 if (!function_exists('format_size')) {
     /**
-     * 格式化文件大小
+     * 格式化文件大小单位
      * @param  int $_file_size
      * @return string
      */
     function format_size(int $_file_size): string
     {
-        if ($_file_size >= 1073741824) {
-            $_file_size = round($_file_size / 1073741824 * 100) / 100 . ' GB';
-        } elseif ($_file_size >= 1048576) {
-            $_file_size = round($_file_size / 1048576 * 100) / 100 . ' MB';
-        } elseif ($_file_size >= 1024) {
-            $_file_size = round($_file_size / 1024 * 100) / 100 . ' KB';
-        } else {
-            $_file_size = $_file_size . ' bit';
+        $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+        for ($i = 0; $_file_size >= 1024 && $i < 5; $i++) {
+            $size /= 1024;
         }
-
-        return $_file_size;
+        return round($size, 2) . $units[$i];
     }
 }
 
@@ -115,8 +109,8 @@ if (!function_exists('app_secret')) {
         if ($_app_id > 1000000) {
             $_app_id -= 1000000;
             return ModelApiApp::where([
-                    ['id', '=', $_app_id]
-                ])
+                ['id', '=', $_app_id]
+            ])
                 ->cache('APPID' . $_app_id)
                 ->value('secret', '');
         }

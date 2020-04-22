@@ -512,7 +512,7 @@ class Template implements TemplateHandlerInterface
         }, $_content);
 
         if ($this->script) {
-            $_content .= '<script type="text/javascript">window.onload = function(){' . $this->script . '};</script>';
+            $_content .= '<script type="text/javascript">window.onload=function(){' . $this->script . '};</script>';
         }
         $this->script = '';
     }

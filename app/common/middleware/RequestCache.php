@@ -71,9 +71,9 @@ class RequestCache
     /**
      * 设置当前地址的请求缓存
      * @access public
-     * @param Request $request
-     * @param Closure $next
-     * @param mixed   $cache
+     * @param  Request $request
+     * @param  Closure $next
+     * @param  mixed   $cache
      * @return Response
      */
     public function handle(Request $request, Closure $next, $cache = null)
@@ -97,7 +97,6 @@ class RequestCache
                         if ('api' !== $this->appName) {
                             preg_match('/name="csrf-appid" content="([0-9]+)"/si', $content, $matches);
                             $app_id = (int) $matches[1];
-                            // halt($content);
                             $pattern = [
                                 '<meta name="csrf-appsecret" content="" />' => app_secret_meta($app_id),
                                 '<meta name="csrf-authorization" content="" />' => authorization_meta(),
