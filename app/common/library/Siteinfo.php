@@ -247,10 +247,14 @@ class Siteinfo
      */
     private static function theme(): string
     {
-        $theme = ModelConfig::where([
-            ['name', '=', self::$appName . '_theme'],
-            ['lang', '=', self::$langSet]
-        ])->value('value', 'default');
+        if ('admin' === self::$appName) {
+            $theme = env('admin.theme', 'default');
+        } else {
+            $theme = ModelConfig::where([
+                ['name', '=', self::$appName . '_theme'],
+                ['lang', '=', self::$langSet]
+            ])->value('value', 'default');
+        }
 
         return strip_tags(htmlspecialchars_decode($theme));
     }

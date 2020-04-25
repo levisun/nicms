@@ -349,7 +349,7 @@ class Tags
             '<link href="<?php echo config(\'app.img_host\');?>/favicon.ico" rel="shortcut icon" type="image/x-icon" />' .
 
             $head .
-            '<script type="text/javascript">var NICMS = {' .
+            '<script type="text/javascript">const NICMS = {' .
             'domain:"//<?php echo request()->subDomain() . "." . request()->rootDomain();?>",' .
             'rootDomain:"//<?php echo request()->rootDomain();?>",' .
             'url:"<?php echo request()->baseUrl(true);?>",' .
