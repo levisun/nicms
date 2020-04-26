@@ -25,28 +25,6 @@ class Index extends BaseController
     protected $authKey = 'user_auth_key';
 
     /**
-     * 初始化
-     * @access public
-     * @return void
-     */
-    public function initialize()
-    {
-        $result = Siteinfo::query('user');
-        $this->view->config([
-            'view_theme' => $result['theme'],
-            'tpl_replace_string' => [
-                '__NAME__'        => $result['name'],
-                '__TITLE__'       => $result['title'],
-                '__KEYWORDS__'    => $result['keywords'],
-                '__DESCRIPTION__' => $result['description'],
-                '__FOOTER_MSG__'  => $result['footer'],
-                '__COPYRIGHT__'   => $result['copyright'],
-                '__SCRIPT__'      => $result['script'],
-            ]
-        ]);
-    }
-
-    /**
      * 主页
      * @access public
      * @param  string $service

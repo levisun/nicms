@@ -26,19 +26,6 @@ class Index extends BaseController
     protected $authKey = 'admin_auth_key';
 
     /**
-     * 初始化
-     * @access public
-     * @param
-     * @return void
-     */
-    public function initialize()
-    {
-        $this->view->config([
-            'view_theme' => $this->app->env->get('admin.theme', 'default')
-        ]);
-    }
-
-    /**
      * 主页
      * @access public
      * @param  string $service

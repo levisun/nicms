@@ -18,8 +18,6 @@ namespace app\cms\controller;
 
 use think\exception\HttpResponseException;
 use app\common\controller\BaseController;
-use app\common\library\Base64;
-use app\common\library\Siteinfo;
 use app\common\model\Category as ModelCategory;
 
 class Index extends BaseController
@@ -100,6 +98,9 @@ class Index extends BaseController
             $this->app->make('\app\cms\logic\article\Details'),
             'query'
         ]);
+        // 文章不存在返回404页面
+        if (empty($result['data'])) return miss(404);
+
         return $this->fetch($this->model_name . '_details', $result['data']);
     }
 

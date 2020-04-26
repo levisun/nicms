@@ -59,7 +59,6 @@ class DataFilter
             $_data = self::element($_data);
             $_data = self::symbol($_data);
             $_data = Emoji::encode($_data);
-            $_data = str_replace('<p>&nbsp;</p>', '', $_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {

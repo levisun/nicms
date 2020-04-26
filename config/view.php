@@ -19,9 +19,9 @@ return [
     'compile_path' => '',
 
     // 模板引擎类型
-    'type'         => 'Think',
+    // 'type'         => 'Think',
     // 模板路径
-    'view_path'    => './theme/',
+    // 'view_path'    => './theme/',
     // 模板后缀
     // 'view_suffix'  => 'html',
     // 模板文件名分隔符

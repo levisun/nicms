@@ -106,7 +106,6 @@ abstract class BaseController
         $result = Siteinfo::query($app_name);
         $this->view->config([
             'view_theme' => $result['theme'],
-            'view_path'  => './theme/' . $app_name . '/' . $result['theme'] . '/',
             'tpl_replace_string' => [
                 '__NAME__'        => $result['name'],
                 '__TITLE__'       => $result['title'],
