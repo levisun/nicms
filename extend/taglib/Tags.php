@@ -53,62 +53,7 @@ class Tags
         return $parseStr;
     }
 
-    /**
-     * nav标签解析
-     * 输出导航内容
-     * 格式
-     * {tags:nav type=main}
-     * {/nav}
-     * @access public
-     * @static
-     * @param  array $_attr   标签属性
-     * @param  array $_config 模板配置
-     * @return string
-     */
-    public static function nav(array $_attr, string $_tags_content, array $_config): string
-    {
-        $_attr['type'] = empty($_attr['type']) ? $_attr['type'] : 'main';
 
-        switch ($_attr['type']) {
-            case 'breadcrumb':
-            case 'Breadcrumb':
-                $_attr['type'] = '\app\cms\logic\nav\Breadcrumb';
-                break;
-
-            case 'foot':
-            case 'Foot':
-                $_attr['type'] = '\app\cms\logic\nav\Foot';
-                break;
-
-            case 'other':
-            case 'Other':
-                $_attr['type'] = '\app\cms\logic\nav\Other';
-                break;
-
-            case 'sidebar':
-            case 'Sidebar':
-                $_attr['type'] = '\app\cms\logic\nav\Sidebar';
-                break;
-
-            case 'top':
-            case 'Top':
-                $_attr['type'] = '\app\cms\logic\nav\Top';
-                break;
-
-            default:
-                $_attr['type'] = '\app\cms\logic\nav\Main';
-                break;
-        }
-
-        $parseStr  = '<?php $result = app(\'' . $_attr['type'] . '\')->query();';
-        $parseStr .= 'if (!is_null($result[\'data\'])):';
-        $parseStr .= '$nav = $result[\'data\'];';
-        $parseStr .= 'foreach ($nav as $key => $vo): ?>';
-        $parseStr .= $_tags_content;
-        $parseStr .= '<?php endforeach; endif; ?>';
-
-        return $parseStr;
-    }
 
     public function details(array $_attr, string $_tags_content, array $_config)
     {
@@ -122,12 +67,12 @@ class Tags
             ["article.show_time", "<", time()],
             ["article.lang", "=", app("lang")->getLangSet()]
         ];
-        if (boolval("' . $_attr['id'] . '")) {
+        if ("' . $_attr['id'] . '") {
             $map[] = ["article.id", "=", $id];
-        } elseif (boolval("' . $_attr['cid'] . '")) {
+        } elseif ("' . $_attr['cid'] . '") {
             $map[] = ["article.category_id", "=", $cid];
         }
-        if (boolval("' . $_attr['id'] . '") || boolval("' . $_attr['cid'] . '")) {
+        if ("' . $_attr['id'] . '" || "' . $_attr['cid'] . '") {
             $cache_key = md5("tags article details' . $_attr['id'] .  $_attr['cid'] . '";
             if (!cache("?".$cache_key) || !$result = cache($cache_key)) {
                 $result = \app\common\model\Article::view("article", ["id", "category_id", "title", "keywords", "description", "username", "access_id", "hits", "update_time"])
@@ -171,20 +116,20 @@ class Tags
             ["article.show_time", "<", time()],
             ["article.lang", "=", app("lang")->getLangSet()]
         ];
-        if (boolval("' . $_attr['cid'] . '")) {
+        if ("' . $_attr['cid'] . '") {
             $map[] = ["article.category_id", "in", app("\app\cms\logic\article\Category")->child(intval(' . $_attr['cid'] . '))];
         }
-        if (boolval("' . $_attr['com'] . '")) {
+        if ("' . $_attr['com'] . '") {
             $map[] = ["article.is_com", "=", "1"];
-        } elseif (boolval("' . $_attr['top'] . '")) {
+        } elseif ("' . $_attr['top'] . '") {
             $map[] = ["article.is_top", "=", "1"];
-        } elseif (boolval("' . $_attr['hot'] . '")) {
+        } elseif ("' . $_attr['hot'] . '") {
             $map[] = ["article.is_hot", "=", "1"];
         }
-        if (boolval("' . $_attr['tid'] . '")) {
+        if ("' . $_attr['tid'] . '") {
             $map[] = ["article.type_id", "=", ' . $_attr['tid'] . '];
         }
-        if (boolval("' . $_attr['sort'] . '")) {
+        if ("' . $_attr['sort'] . '") {
             $sort_order = "article.' . $_attr['sort'] . '";
         } else {
             $sort_order = "article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.update_time DESC";
@@ -255,6 +200,66 @@ class Tags
         $page = $list["render"];
         $items = $list["data"];
         foreach ($items as $key => $item): ?>';
+        $parseStr .= $_tags_content;
+        $parseStr .= '<?php endforeach; endif; ?>';
+
+        return $parseStr;
+    }
+
+    public static function not_empty(array $_attr, string $_tags_content, array $_config)
+    {
+        $parseStr = '<?php if(empty($' . $_attr['expression'] . ')): ?>';
+        $parseStr .= $_tags_content;
+        $parseStr .= '<?php endif; ?>';
+        return $parseStr;
+    }
+
+    /**
+     * nav标签解析
+     * 输出导航内容
+     * 格式
+     * {tags:nav type=main}
+     * {/nav}
+     * @access public
+     * @static
+     * @param  array $_attr   标签属性
+     * @param  array $_config 模板配置
+     * @return string
+     */
+    public static function nav(array $_attr, string $_tags_content, array $_config): string
+    {
+        $_attr['type'] = empty($_attr['type']) ? strtolower($_attr['type']) : 'main';
+
+        switch ($_attr['type']) {
+            case 'breadcrumb':
+                $_attr['type'] = '\app\cms\logic\nav\Breadcrumb';
+                break;
+
+            case 'foot':
+                $_attr['type'] = '\app\cms\logic\nav\Foot';
+                break;
+
+            case 'other':
+                $_attr['type'] = '\app\cms\logic\nav\Other';
+                break;
+
+            case 'sidebar':
+                $_attr['type'] = '\app\cms\logic\nav\Sidebar';
+                break;
+
+            case 'top':
+                $_attr['type'] = '\app\cms\logic\nav\Top';
+                break;
+
+            default:
+                $_attr['type'] = '\app\cms\logic\nav\Main';
+                break;
+        }
+
+        $parseStr  = '<?php $__TAGS__NAV_RESULT = app(\'' . $_attr['type'] . '\')->query();';
+        $parseStr .= 'if (!is_null($__TAGS__NAV_RESULT[\'data\'])):';
+        $parseStr .= '$__TAGS__NAV_RESULT = $__TAGS__NAV_RESULT[\'data\'];';
+        $parseStr .= 'foreach ($__TAGS__NAV_RESULT as $key => $nav): ?>';
         $parseStr .= $_tags_content;
         $parseStr .= '<?php endforeach; endif; ?>';
 
