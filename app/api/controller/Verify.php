@@ -47,25 +47,6 @@ class Verify extends Async
     }
 
     /**
-     * 验证图片码
-     * @access public
-     * @return
-     */
-    // public function imgCheck()
-    // {
-    //     if ($this->request->isPost() && $this->analysis()->isReferer()) {
-    //         $captcha = (string) $this->request->param('captcha', false);
-    //         if ($captcha && true === Captcha::check($captcha)) {
-    //             return $this->cache(false)->success('验证成功');
-    //         } else {
-    //             return $this->error('验证码错误', 40009);
-    //         }
-    //     }
-
-    //     return miss(404);
-    // }
-
-    /**
      * 短信验证码
      * @access public
      * @return
