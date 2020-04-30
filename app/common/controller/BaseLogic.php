@@ -253,8 +253,8 @@ abstract class BaseLogic
         if ($this->request->isPost() && !empty($_FILES) && $this->uid) {
             $element = $this->request->param('element', 'upload');
             $thumb = [
-                'width'  => $this->request->param('width/d', 0),
-                'height' => $this->request->param('height/d', 0),
+                'width'  => $this->request->param('width/d', 0, 'abs'),
+                'height' => $this->request->param('height/d', 0, 'abs'),
                 'type'   => $this->request->param('type/b', false),
             ];
             $water = $this->request->param('water/b', true);

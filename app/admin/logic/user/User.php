@@ -33,7 +33,7 @@ class User extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 20);
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
 
         $result = ModelUser::view('user', ['id', 'username', 'realname', 'nickname', 'email', 'phone', 'status', 'create_time'])
             ->view('level', ['name' => 'level_name'], 'level.id=user.level_id')
@@ -88,8 +88,8 @@ class User extends BaseLogic
             'password_confirm' => $this->request->param('password_confirm'),
             'phone'            => $this->request->param('phone'),
             'email'            => $this->request->param('email'),
-            'level_id'         => $this->request->param('level_id/d'),
-            'status'           => $this->request->param('status/d'),
+            'level_id'         => $this->request->param('level_id/d', 0, 'abs'),
+            'status'           => $this->request->param('status/d', 0, 'abs'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -114,7 +114,7 @@ class User extends BaseLogic
     public function find(): array
     {
         $result = [];
-        if ($id = $this->request->param('id/d')) {
+        if ($id = $this->request->param('id/d', 0, 'abs')) {
             $result = ModelUser::field('id, username, phone, email, level_id, status')->where([
                 ['id', '=', $id],
             ])->find();
@@ -143,7 +143,7 @@ class User extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin user editor');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -158,8 +158,8 @@ class User extends BaseLogic
             'password_confirm' => $this->request->param('password_confirm'),
             'phone'            => $this->request->param('phone'),
             'email'            => $this->request->param('email'),
-            'level_id'         => $this->request->param('level_id/d'),
-            'status'           => $this->request->param('status/d'),
+            'level_id'         => $this->request->param('level_id/d', 0, 'abs'),
+            'status'           => $this->request->param('status/d', 0, 'abs'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -192,7 +192,7 @@ class User extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin user remove');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,

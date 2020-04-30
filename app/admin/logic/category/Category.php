@@ -135,7 +135,7 @@ class Category extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin category added');
 
-        $pid = $this->request->param('pid/d', 0);
+        $pid = $this->request->param('pid/d', 0, 'abs');
 
         $receive_data = [
             'pid'         => $pid,
@@ -145,12 +145,12 @@ class Category extends BaseLogic
             'keywords'    => $this->request->param('keywords'),
             'description' => $this->request->param('description'),
             'image'       => $this->request->param('image'),
-            'model_id'    => $this->request->param('model_id/d', 1),
-            'type_id'     => $this->request->param('type_id/d', 1),
-            'is_show'     => $this->request->param('is_show/d', 1),
-            'is_channel'  => $this->request->param('is_channel/d', 0),
-            'sort_order'  => $this->request->param('sort_order/d', 0),
-            'access_id'   => $this->request->param('access_id/d', 0),
+            'model_id'    => $this->request->param('model_id/d', 1, 'abs'),
+            'type_id'     => $this->request->param('type_id/d', 1, 'abs'),
+            'is_show'     => $this->request->param('is_show/d', 1, 'abs'),
+            'is_channel'  => $this->request->param('is_channel/d', 0, 'abs'),
+            'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
+            'access_id'   => $this->request->param('access_id/d', 0, 'abs'),
             'url'         => $this->request->param('url'),
             'update_time' => time(),
             'create_time' => time(),
@@ -178,7 +178,7 @@ class Category extends BaseLogic
      */
     public function find(): array
     {
-        if ($id = $this->request->param('id/d')) {
+        if ($id = $this->request->param('id/d', 0, 'abs')) {
             $result = ModelCategory::view('category')
                 ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
                 ->where([
@@ -193,7 +193,7 @@ class Category extends BaseLogic
             }
         } else {
             $result = [];
-            if ($pid = $this->request->param('pid/d', '0')) {
+            if ($pid = $this->request->param('pid/d', 0, 'abs')) {
                 $result['parent'] = ModelCategory::where([
                     ['id', '=', $pid]
                 ])->value('name as parent');
@@ -224,7 +224,7 @@ class Category extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin category editor');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -240,12 +240,12 @@ class Category extends BaseLogic
             'keywords'    => $this->request->param('keywords'),
             'description' => $this->request->param('description'),
             'image'       => $this->request->param('image'),
-            'model_id'    => $this->request->param('model_id/d', 1),
-            'type_id'     => $this->request->param('type_id/d', 1),
-            'is_show'     => $this->request->param('is_show/d', 1),
-            'is_channel'  => $this->request->param('is_channel/d', 0),
-            'sort_order'  => $this->request->param('sort_order/d', 0),
-            'access_id'   => $this->request->param('access_id/d', 0),
+            'model_id'    => $this->request->param('model_id/d', 1, 'abs'),
+            'type_id'     => $this->request->param('type_id/d', 1, 'abs'),
+            'is_show'     => $this->request->param('is_show/d', 1, 'abs'),
+            'is_channel'  => $this->request->param('is_channel/d', 0, 'abs'),
+            'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
+            'access_id'   => $this->request->param('access_id/d', 0, 'abs'),
             'url'         => $this->request->param('url'),
             'update_time' => time(),
             'lang'        => $this->lang->getLangSet()
@@ -283,7 +283,7 @@ class Category extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin category remove');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,

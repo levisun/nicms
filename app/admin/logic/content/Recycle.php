@@ -45,12 +45,12 @@ class Recycle extends BaseLogic
         ];
 
         // 安栏目查询,为空查询所有
-        if ($category_id = $this->request->param('cid/d', 0)) {
+        if ($category_id = $this->request->param('cid/d', 0, 'abs')) {
             $map[] = ['article.category_id', '=', $category_id];
         }
 
         // 安模型查询,为空查询所有
-        if ($model_id = $this->request->param('mid/d', 0)) {
+        if ($model_id = $this->request->param('mid/d', 0, 'abs')) {
             $map[] = ['model_id', '=', $model_id];
         }
 
@@ -62,7 +62,10 @@ class Recycle extends BaseLogic
             }
         }
 
-        $query_limit = $this->request->param('limit/d', 20);
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
+        $query_limit = $query_limit <= 0 ? 20 : $query_limit;
+        $query_limit = $query_limit > 100 ? 20 : $query_limit;
+
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'is_com', 'is_hot', 'is_top', 'username', 'access_id', 'hits', 'update_time'])
@@ -122,7 +125,7 @@ class Recycle extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content remove');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -161,7 +164,7 @@ class Recycle extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content remove');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,

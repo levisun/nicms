@@ -33,7 +33,7 @@ class Form extends BaseLogic
     public function query(): array
     {
         $result = false;
-        if ($category_id = $this->request->param('cid/d', 0)) {
+        if ($category_id = $this->request->param('cid/d', 0, 'abs')) {
             $result = [
                 [
                     'input_name' => 'title',
@@ -87,7 +87,7 @@ class Form extends BaseLogic
     public function record(): array
     {
         $result = false;
-        if ($category_id = $this->request->param('cid/d', 0)) {
+        if ($category_id = $this->request->param('cid/d', 0, 'abs')) {
             $receive_data = [
                 'captcha'     => (string) $this->request->param('captcha'),
                 'title'       => $this->request->param('title'),

@@ -34,7 +34,7 @@ class Admin extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 20);
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
 
         $result = ModelAdmin::view('admin', ['id', 'username', 'email', 'status', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
             ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
@@ -92,8 +92,8 @@ class Admin extends BaseLogic
             'password_confirm' => $this->request->param('password_confirm'),
             'phone'            => $this->request->param('phone'),
             'email'            => $this->request->param('email'),
-            'role_id'          => $this->request->param('role_id/d'),
-            'status'           => $this->request->param('status/d'),
+            'role_id'          => $this->request->param('role_id/d', 0, 'abs'),
+            'status'           => $this->request->param('status/d', 0, 'abs'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -127,7 +127,7 @@ class Admin extends BaseLogic
     public function find()
     {
         $result = [];
-        if ($id = $this->request->param('id/d')) {
+        if ($id = $this->request->param('id/d', 0, 'abs')) {
             $result = ModelAdmin::view('admin', ['id', 'username', 'phone', 'email', 'status'])
                 ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
                 ->where([
@@ -160,7 +160,7 @@ class Admin extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin admin editor');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -175,8 +175,8 @@ class Admin extends BaseLogic
             'password_confirm' => $this->request->param('password_confirm'),
             'phone'            => $this->request->param('phone'),
             'email'            => $this->request->param('email'),
-            'role_id'          => $this->request->param('role_id/d'),
-            'status'           => $this->request->param('status/d'),
+            'role_id'          => $this->request->param('role_id/d', 0, 'abs'),
+            'status'           => $this->request->param('status/d', 0, 'abs'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -216,7 +216,7 @@ class Admin extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin admin remove');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,

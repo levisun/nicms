@@ -510,7 +510,7 @@ abstract class Async
      */
     private function checkTimestamp(): void
     {
-        $this->timestamp = $this->request->param('timestamp/d', $this->request->time());
+        $this->timestamp = $this->request->param('timestamp/d', $this->request->time(), 'abs');
         if (!$this->timestamp || $this->timestamp <= strtotime('-10 minute')) {
             $this->abort('错误请求', 23001);
         }
@@ -577,7 +577,7 @@ abstract class Async
      */
     private function checkAppId(): void
     {
-        $this->appId = $this->request->param('appid/d');
+        $this->appId = $this->request->param('appid/d', 0, 'abs');
         if (!$this->appId || $this->appId < 1000001) {
             $this->log->error('[Async] auth-appid not');
             $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));

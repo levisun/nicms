@@ -30,7 +30,7 @@ class Form extends BaseLogic
      */
     public function query()
     {
-        if ($category_id = $this->request->param('cid/d', 0)) {
+        if ($category_id = $this->request->param('cid/d', 0, 'abs')) {
             // 附加字段数据
             $fields = (new ModelFieldsExtend)
                 ->view('fields_extend', ['data'])

@@ -31,10 +31,10 @@ class Type extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 20);
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
 
         $map = [];
-        if ($category_id = $this->request->param('category_id/d')) {
+        if ($category_id = $this->request->param('category_id/d', 0, 'abs')) {
             $map[] = ['type.category_id', '=', $category_id];
         }
 
@@ -85,7 +85,7 @@ class Type extends BaseLogic
         $receive_data = [
             'name'        => $this->request->param('name'),
             'remark'      => $this->request->param('remark'),
-            'category_id' => $this->request->param('category_id/d'),
+            'category_id' => $this->request->param('category_id/d', 0, 'abs'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -107,7 +107,7 @@ class Type extends BaseLogic
      */
     public function find(): array
     {
-        if ($id = $this->request->param('id/d')) {
+        if ($id = $this->request->param('id/d', 0, 'abs')) {
             $result = ModelType::where([
                 ['id', '=', $id],
             ])
@@ -132,7 +132,7 @@ class Type extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin type editor');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -144,7 +144,7 @@ class Type extends BaseLogic
         $receive_data = [
             'name'        => $this->request->param('name'),
             'remark'      => $this->request->param('remark'),
-            'category_id' => $this->request->param('category_id/d'),
+            'category_id' => $this->request->param('category_id/d', 0, 'abs'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -168,7 +168,7 @@ class Type extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin category remove');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,

@@ -31,7 +31,8 @@ class Visit extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 20);
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
+
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
         $result = ModelVisit::order('date DESC, name DESC')

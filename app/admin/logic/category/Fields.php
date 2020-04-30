@@ -33,10 +33,10 @@ class Fields extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 20);
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
 
         $map = [];
-        if ($category_id = $this->request->param('category_id/d')) {
+        if ($category_id = $this->request->param('category_id/d', 0, 'abs')) {
             $map[] = ['fields.category_id', '=', $category_id];
         }
 
@@ -86,12 +86,12 @@ class Fields extends BaseLogic
         $this->actionLog(__METHOD__, 'admin fields added');
 
         $receive_data = [
-            'category_id' => $this->request->param('category_id/d'),
-            'type_id'     => $this->request->param('type_id/d'),
+            'category_id' => $this->request->param('category_id/d', 0, 'abs'),
+            'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
             'name'        => $this->request->param('name'),
-            'maxlength'   => $this->request->param('maxlength/d'),
-            'is_require'  => $this->request->param('is_require/d'),
-            'sort_order'  => $this->request->param('sort_order/d'),
+            'maxlength'   => $this->request->param('maxlength/d', 0, 'abs'),
+            'is_require'  => $this->request->param('is_require/d', 0, 'abs'),
+            'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'remark'      => $this->request->param('remark'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
@@ -114,7 +114,7 @@ class Fields extends BaseLogic
      */
     public function find(): array
     {
-        if ($id = $this->request->param('id/d')) {
+        if ($id = $this->request->param('id/d', 0, 'abs')) {
             $result = ModelFields::where([
                 ['id', '=', $id],
             ])->find();
@@ -143,7 +143,7 @@ class Fields extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin fields editor');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -153,12 +153,12 @@ class Fields extends BaseLogic
         }
 
         $receive_data = [
-            'category_id' => $this->request->param('category_id/d'),
-            'type_id'     => $this->request->param('type_id/d'),
+            'category_id' => $this->request->param('category_id/d', 0, 'abs'),
+            'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
             'name'        => $this->request->param('name'),
-            'maxlength'   => $this->request->param('maxlength/d'),
-            'is_require'  => $this->request->param('is_require/d'),
-            'sort_order'  => $this->request->param('sort_order/d'),
+            'maxlength'   => $this->request->param('maxlength/d', 0, 'abs'),
+            'is_require'  => $this->request->param('is_require/d', 0, 'abs'),
+            'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'remark'      => $this->request->param('remark'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
@@ -183,7 +183,7 @@ class Fields extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin fields remove');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,

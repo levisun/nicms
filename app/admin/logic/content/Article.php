@@ -45,18 +45,18 @@ class Article extends BaseLogic
         ];
 
         // 安栏目查询,为空查询所有
-        if ($category_id = $this->request->param('cid/d', 0)) {
+        if ($category_id = $this->request->param('cid/d', 0, 'abs')) {
             $map[] = ['article.category_id', '=', $category_id];
         }
 
         // 安模型查询,为空查询所有
-        if ($model_id = $this->request->param('mid/d', 0)) {
+        if ($model_id = $this->request->param('mid/d', 0, 'abs')) {
             $map[] = ['model_id', '=', $model_id];
         }
 
         // 安审核条件查询,为空查询所有
-        if ($is_pass = $this->request->param('pass/d', 0)) {
-            $is_pass = 1 == $is_pass ? 1 : 0;
+        if ($is_pass = $this->request->param('pass/d', 0, 'abs')) {
+            $is_pass = $is_pass >= 1 ? 1 : 0;
             $map[] = ['article.is_pass', '=', $is_pass];
         }
 
@@ -68,7 +68,10 @@ class Article extends BaseLogic
             }
         }
 
-        $query_limit = $this->request->param('limit/d', 20);
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
+        $query_limit = $query_limit <= 0 ? 20 : $query_limit;
+        $query_limit = $query_limit > 100 ? 20 : $query_limit;
+
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'is_pass', 'is_com', 'is_hot', 'is_top', 'username', 'access_id', 'hits', 'sort_order', 'update_time'])
@@ -139,16 +142,16 @@ class Article extends BaseLogic
             'description' => $this->request->param('description'),
             'category_id' => $this->request->param('category_id/d'),
             'model_id'    => $this->request->param('model_id/d'),
-            'type_id'     => $this->request->param('type_id/d', 0),
+            'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
             'admin_id'    => $this->uid,
-            'user_id'     => $this->request->param('user_id/d', 0),
-            'is_pass'     => $this->request->param('is_pass/d', 0),
-            'is_com'      => $this->request->param('is_com/d', 0),
-            'is_top'      => $this->request->param('is_top/d', 0),
-            'is_hot'      => $this->request->param('is_hot/d', 0),
-            'sort_order'  => $this->request->param('sort_order/d', 0),
+            'user_id'     => $this->request->param('user_id/d', 0, 'abs'),
+            'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
+            'is_com'      => $this->request->param('is_com/d', 0, 'abs'),
+            'is_top'      => $this->request->param('is_top/d', 0, 'abs'),
+            'is_hot'      => $this->request->param('is_hot/d', 0, 'abs'),
+            'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'username'    => $this->request->param('username', ''),
-            'access_id'   => $this->request->param('access_id/d', 0),
+            'access_id'   => $this->request->param('access_id/d', 0, 'abs'),
             'show_time'   => $this->request->param('show_time', date('Y-m-d'), 'strtotime'),
             'update_time' => time(),
             'create_time' => time(),
@@ -201,8 +204,8 @@ class Article extends BaseLogic
                 ModelArticleImage::create([
                     'article_id'   => $article->id,
                     'image_url'    => serialize($image_url),
-                    'image_width'  => $this->request->param('image_width/d', 0),
-                    'image_height' => $this->request->param('image_height/d', 0),
+                    'image_width'  => $this->request->param('image_width/d', 0, 'abs'),
+                    'image_height' => $this->request->param('image_height/d', 0, 'abs'),
                 ]);
             }
             // 下载
@@ -238,7 +241,7 @@ class Article extends BaseLogic
     public function find(): array
     {
         $result = [];
-        if ($id = $this->request->param('id/d')) {
+        if ($id = $this->request->param('id/d', 0, 'abs')) {
             $result = ModelArticle::view('article', ['id', 'title', 'keywords', 'description', 'category_id', 'type_id', 'is_pass', 'is_com', 'is_top', 'is_hot', 'sort_order', 'hits', 'username', 'admin_id', 'user_id', 'show_time', 'create_time', 'update_time', 'delete_time', 'access_id', 'lang'])
                 ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                 ->view('model', ['id' => 'model_id', 'name' => 'model_name', 'table_name'], 'model.id=category.model_id')
@@ -311,7 +314,7 @@ class Article extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content editor');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -326,16 +329,16 @@ class Article extends BaseLogic
             'description' => $this->request->param('description'),
             'category_id' => $this->request->param('category_id/d'),
             'model_id'    => $this->request->param('model_id/d'),
-            'type_id'     => $this->request->param('type_id/d', 0),
+            'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
             'admin_id'    => $this->uid,
-            'user_id'     => $this->request->param('user_id/d', 0),
-            'is_pass'     => $this->request->param('is_pass/d', 0),
-            'is_com'      => $this->request->param('is_com/d', 0),
-            'is_top'      => $this->request->param('is_top/d', 0),
-            'is_hot'      => $this->request->param('is_hot/d', 0),
-            'sort_order'  => $this->request->param('sort_order/d', 0),
+            'user_id'     => $this->request->param('user_id/d', 0, 'abs'),
+            'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
+            'is_com'      => $this->request->param('is_com/d', 0, 'abs'),
+            'is_top'      => $this->request->param('is_top/d', 0, 'abs'),
+            'is_hot'      => $this->request->param('is_hot/d', 0, 'abs'),
+            'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'username'    => $this->request->param('username', ''),
-            'access_id'   => $this->request->param('access_id/d', 0),
+            'access_id'   => $this->request->param('access_id/d', 0, 'abs'),
             'show_time'   => $this->request->param('show_time', date('Y-m-d'), 'strtotime'),
             'update_time' => time(),
         ];
@@ -411,8 +414,8 @@ class Article extends BaseLogic
 
                 ModelArticleImage::update([
                     'image_url'    => serialize($this->request->param('image_url/a', '')),
-                    'image_width'  => $this->request->param('image_width/d', 0),
-                    'image_height' => $this->request->param('image_height/d', 0),
+                    'image_width'  => $this->request->param('image_width/d', 0, 'abs'),
+                    'image_height' => $this->request->param('image_height/d', 0, 'abs'),
                 ], ['article_id' => $id]);
             }
             // 下载
@@ -459,7 +462,7 @@ class Article extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content recycle');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,

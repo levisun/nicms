@@ -31,10 +31,10 @@ class Link extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 20);
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
 
         $map = [];
-        if ($category_id = $this->request->param('category_id/d')) {
+        if ($category_id = $this->request->param('category_id/d', 0, 'abs')) {
             $map[] = ['link.category_id', '=', $category_id];
         }
 
@@ -89,12 +89,12 @@ class Link extends BaseLogic
             'logo'        => $this->request->param('logo'),
             'url'         => $this->request->param('url'),
             'description' => $this->request->param('description'),
-            'category_id' => $this->request->param('category_id/d'),
-            // 'model_id'    => $this->request->param('model_id/d'),
-            'type_id'     => $this->request->param('type_id/d', 0),
+            'category_id' => $this->request->param('category_id/d', 0, 'abs'),
+            // 'model_id'    => $this->request->param('model_id/d', 0, 'abs'),
+            'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
             'admin_id'    => $this->uid,
-            'is_pass'     => $this->request->param('is_pass/d', 0),
-            'sort_order'  => $this->request->param('sort_order/d', 0),
+            'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
+            'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'update_time' => time(),
             'create_time' => time(),
             'lang'        => $this->lang->getLangSet()
@@ -123,7 +123,7 @@ class Link extends BaseLogic
     public function find(): array
     {
         $result = [];
-        if ($id = $this->request->param('id/d')) {
+        if ($id = $this->request->param('id/d', 0, 'abs')) {
             $result = ModelLink::view('link', ['id', 'title', 'logo', 'url', 'category_id', 'type_id', 'sort_order'])
                 ->view('category', ['name' => 'cat_name'], 'category.id=link.category_id')
                 ->view('model', ['id' => 'model_id', 'name' => 'model_name', 'table_name'], 'model.id=category.model_id')
@@ -153,7 +153,7 @@ class Link extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content editor');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -167,12 +167,12 @@ class Link extends BaseLogic
             'logo'        => $this->request->param('logo'),
             'url'         => $this->request->param('url'),
             'description' => $this->request->param('description'),
-            'category_id' => $this->request->param('category_id/d'),
-            // 'model_id'    => $this->request->param('model_id/d'),
-            'type_id'     => $this->request->param('type_id/d', 0),
+            'category_id' => $this->request->param('category_id/d', 0, 'abs'),
+            // 'model_id'    => $this->request->param('model_id/d', 0, 'abs'),
+            'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
             'admin_id'    => $this->uid,
-            'is_pass'     => $this->request->param('is_pass/d', 0),
-            'sort_order'  => $this->request->param('sort_order/d', 0),
+            'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
+            'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'update_time' => time(),
         ];
 
@@ -210,7 +210,7 @@ class Link extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content recycle');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,

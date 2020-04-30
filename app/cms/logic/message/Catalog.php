@@ -33,9 +33,9 @@ class Catalog extends BaseLogic
     public function query()
     {
         $list = false;
-        if ($category_id = $this->request->param('cid/d', 0)) {
-            $query_limit = $this->request->param('limit/d', 10);
-            $query_page = $this->request->param('page/d', 1);
+        if ($category_id = $this->request->param('cid/d', 0, 'abs')) {
+            $query_limit = $this->request->param('limit/d', 20, 'abs');
+            $query_page = $this->request->param('page/d', 1, 'abs');
             $date_format = $this->request->param('date_format', 'Y-m-d');
 
             $cache_key = 'cms message list' . $category_id . $query_limit . $query_page . $date_format;
@@ -43,9 +43,9 @@ class Catalog extends BaseLogic
 
             if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
                 $result = ModelMessage::where([
-                        ['is_pass', '=', 1],
-                        ['category_id', '=', $category_id],
-                    ])
+                    ['is_pass', '=', 1],
+                    ['category_id', '=', $category_id],
+                ])
                     ->order('id DESC')
                     ->paginate([
                         'list_rows' => $query_limit,

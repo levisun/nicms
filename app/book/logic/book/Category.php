@@ -36,20 +36,21 @@ class Category extends BaseLogic
             ['book.lang', '=', $this->lang->getLangSet()]
         ];
 
-        if ($com = $this->request->param('com/d', 0)) {
+        if ($com = $this->request->param('com/d', 0, 'abs')) {
             $map[] = ['book.is_com', '=', '1'];
-        } elseif ($top = $this->request->param('top/d', 0)) {
+        } elseif ($top = $this->request->param('top/d', 0, 'abs')) {
             $map[] = ['book.is_top', '=', '1'];
-        } elseif ($hot = $this->request->param('hot/d', 0)) {
+        } elseif ($hot = $this->request->param('hot/d', 0, 'abs')) {
             $map[] = ['book.is_hot', '=', '1'];
         }
 
-        if ($type_id = $this->request->param('tid/d', 0)) {
+        if ($type_id = $this->request->param('tid/d', 0, 'abs')) {
             $map[] = ['book.type_id', '=', $type_id];
         }
 
-        $query_limit = $this->request->param('limit/d', 10);
-        $query_page = $this->request->param('page/d', 1);
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
+
+        $query_page = $this->request->param('page/d', 1, 'abs');
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
         $cache_key = __METHOD__ . date('Ymd') .

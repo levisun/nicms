@@ -31,7 +31,7 @@ class Level extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 20);
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
 
         $result = ModelLevel::order('id DESC')
             ->paginate([
@@ -76,9 +76,9 @@ class Level extends BaseLogic
 
         $receive_data = [
             'name'       => $this->request->param('name'),
-            'credit'     => $this->request->param('credit/d'),
+            'credit'     => $this->request->param('credit/d', 0, 'abs'),
             'remark'     => $this->request->param('remark'),
-            'status'     => $this->request->param('status/d'),
+            'status'     => $this->request->param('status/d', 0, 'abs'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -101,7 +101,7 @@ class Level extends BaseLogic
     public function find()
     {
         $result = [];
-        if ($id = $this->request->param('id/d')) {
+        if ($id = $this->request->param('id/d', 0, 'abs')) {
             $result = ModelLevel::where([
                 ['id', '=', $id],
             ])->find();
@@ -125,7 +125,7 @@ class Level extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin role editor');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -136,9 +136,9 @@ class Level extends BaseLogic
 
         $receive_data = [
             'name'       => $this->request->param('name'),
-            'credit'     => $this->request->param('credit/d'),
+            'credit'     => $this->request->param('credit/d', 0, 'abs'),
             'remark'     => $this->request->param('remark'),
-            'status'     => $this->request->param('status/d'),
+            'status'     => $this->request->param('status/d', 0, 'abs'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -162,7 +162,7 @@ class Level extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin role remove');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,

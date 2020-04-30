@@ -31,7 +31,7 @@ class Feedback extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 20);
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
 
         $result = ModelFeedback::view('feedback', ['id', 'title', 'username', 'content', 'category_id', 'type_id'])
             ->view('category', ['name' => 'cat_name'], 'category.id=feedback.category_id', 'LEFT')
@@ -77,7 +77,7 @@ class Feedback extends BaseLogic
     public function find(): array
     {
         $result = [];
-        if ($id = $this->request->param('id/d')) {
+        if ($id = $this->request->param('id/d', 0, 'abs')) {
             $result = ModelFeedback::view('feedback', ['id', 'title', 'username', 'content', 'category_id', 'type_id'])
                 ->view('category', ['name' => 'cat_name'], 'category.id=feedback.category_id', 'LEFT')
                 ->view('type', ['name' => 'type_name'], 'type.id=feedback.type_id', 'LEFT')
@@ -107,7 +107,7 @@ class Feedback extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin feedback editor');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -117,7 +117,7 @@ class Feedback extends BaseLogic
         }
 
         $receive_data = [
-            'is_pass'     => $this->request->param('is_pass/d', 0),
+            'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
             'update_time' => time(),
         ];
 
@@ -146,7 +146,7 @@ class Feedback extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content recycle');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,

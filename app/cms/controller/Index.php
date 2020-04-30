@@ -31,7 +31,7 @@ class Index extends BaseController
      */
     public function initialize()
     {
-        if ($cid = $this->request->param('cid/d', 0)) {
+        if ($cid = $this->request->param('cid/d', 0, 'abs')) {
             // 获得栏目对应模板
             $this->model_name = ModelCategory::view('category', ['id'])
                 ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')

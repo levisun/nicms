@@ -38,7 +38,7 @@ class Details extends BaseLogic
     public function query(): array
     {
         $id = $cid = false;
-        if ($id = $this->request->param('id/d')) {
+        if ($id = $this->request->param('id/d', 0, 'abs')) {
             $map = [
                 ['article.id', '=', $id],
                 ['article.is_pass', '=', '1'],
@@ -48,7 +48,7 @@ class Details extends BaseLogic
             ];
         }
         // 单页
-        elseif ($cid = $this->request->param('cid/d', 0)) {
+        elseif ($cid = $this->request->param('cid/d', 0, 'abs')) {
             $map = [
                 ['article.category_id', '=', $cid],
                 ['article.is_pass', '=', '1'],
@@ -185,7 +185,7 @@ class Details extends BaseLogic
      */
     public function hits(): array
     {
-        if ($id = $this->request->param('id/d')) {
+        if ($id = $this->request->param('id/d', 0, 'abs')) {
             $map = [
                 ['id', '=', $id],
             ];

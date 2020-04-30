@@ -45,21 +45,21 @@ class Search extends BaseLogic
         ];
 
         // 安栏目查询,为空查询所有
-        if ($category_id = $this->request->param('cid/d', 0)) {
-            $map[] = ['article.category_id', 'in', $this->child((int) $category_id)];
+        if ($category_id = $this->request->param('cid/d', 0, 'abs')) {
+            $map[] = ['article.category_id', 'in', $this->child($category_id)];
         }
 
         // 推荐置顶最热,三选一
-        if ($com = $this->request->param('com/d', 0)) {
+        if ($com = $this->request->param('com/d', 0, 'abs')) {
             $map[] = ['article.is_com', '=', '1'];
-        } elseif ($top = $this->request->param('top/d', 0)) {
+        } elseif ($top = $this->request->param('top/d', 0, 'abs')) {
             $map[] = ['article.is_top', '=', '1'];
-        } elseif ($hot = $this->request->param('hot/d', 0)) {
+        } elseif ($hot = $this->request->param('hot/d', 0, 'abs')) {
             $map[] = ['article.is_hot', '=', '1'];
         }
 
         // 安类别查询,为空查询所有
-        if ($type_id = $this->request->param('tid/d', 0)) {
+        if ($type_id = $this->request->param('tid/d', 0, 'abs')) {
             $map[] = ['article.type_id', '=', $type_id];
         }
 
@@ -79,8 +79,8 @@ class Search extends BaseLogic
             $sort_order = 'article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.update_time DESC';
         }
 
-        $query_limit = $this->request->param('limit/d', 10);
-        $query_page = $this->request->param('page/d', 1);
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
+        $query_page = $this->request->param('page/d', 1, 'abs');
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
         $cache_key = 'article list' . $category_id .

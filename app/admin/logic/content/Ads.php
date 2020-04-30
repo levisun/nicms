@@ -32,7 +32,8 @@ class Ads extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 20);
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
+
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
         $result = ModelAds::order('update_time DESC')
@@ -83,12 +84,12 @@ class Ads extends BaseLogic
 
         $receive_data = [
             'name'        => $this->request->param('name'),
-            'width'       => $this->request->param('width/d'),
-            'height'      => $this->request->param('height/d'),
+            'width'       => $this->request->param('width/d', 0, 'abs'),
+            'height'      => $this->request->param('height/d', 0, 'abs'),
             'image'       => $this->request->param('image'),
             'url'         => $this->request->param('url'),
             'description' => $this->request->param('description', ''),
-            'is_pass'     => $this->request->param('is_pass/d', 0),
+            'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
             'start_time'  => $this->request->param('start_time', date('Y-m-d'), 'strtotime'),
             'end_time'    => $this->request->param('end_time', date('Y-m-d'), 'strtotime'),
             'update_time' => time(),
@@ -119,7 +120,7 @@ class Ads extends BaseLogic
     public function find(): array
     {
         $result = [];
-        if ($id = $this->request->param('id/d')) {
+        if ($id = $this->request->param('id/d', 0, 'abs')) {
             $result = ModelAds::where([
                 ['id', '=', $id],
             ])->find();
@@ -147,7 +148,7 @@ class Ads extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content editor');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -158,12 +159,12 @@ class Ads extends BaseLogic
 
         $receive_data = [
             'name'        => $this->request->param('name'),
-            'width'       => $this->request->param('width/d'),
-            'height'      => $this->request->param('height/d'),
+            'width'       => $this->request->param('width/d', 0, 'abs'),
+            'height'      => $this->request->param('height/d', 0, 'abs'),
             'image'       => $this->request->param('image'),
             'url'         => $this->request->param('url'),
             'description' => $this->request->param('description', ''),
-            'is_pass'     => $this->request->param('is_pass/d', 0),
+            'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
             'start_time'  => $this->request->param('start_time', date('Y-m-d'), 'strtotime'),
             'end_time'    => $this->request->param('end_time', date('Y-m-d'), 'strtotime'),
             'update_time' => time(),
@@ -204,7 +205,7 @@ class Ads extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content recycle');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,

@@ -121,10 +121,10 @@ class Node extends BaseLogic
             'name'       => $this->request->param('name'),
             'title'      => $this->request->param('title'),
             'remark'     => $this->request->param('remark'),
-            'pid'        => $this->request->param('pid/d'),
-            'level'      => $this->request->param('level/d'),
-            'status'     => $this->request->param('status/d'),
-            'sort_order' => $this->request->param('sort_order/d'),
+            'pid'        => $this->request->param('pid/d', 0, 'abs'),
+            'level'      => $this->request->param('level/d', 0, 'abs'),
+            'status'     => $this->request->param('status/d', 0, 'abs'),
+            'sort_order' => $this->request->param('sort_order/d', 0, 'abs'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -147,7 +147,7 @@ class Node extends BaseLogic
     public function find(): array
     {
         $result = [];
-        if ($id = $this->request->param('id/d')) {
+        if ($id = $this->request->param('id/d', 0, 'abs')) {
             $result = ModelNode::where([
                 ['id', '=', $id],
             ])->find();
@@ -158,7 +158,7 @@ class Node extends BaseLogic
                 ])->value('name as parent');
             }
         } else {
-            if ($pid = $this->request->param('pid/d', 0)) {
+            if ($pid = $this->request->param('pid/d', 0, 'abs')) {
                 $result['pid'] = $pid;
                 $result['parent'] = ModelNode::where([
                     ['id', '=', $pid]
@@ -190,7 +190,7 @@ class Node extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin node editor');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,
@@ -203,11 +203,11 @@ class Node extends BaseLogic
             'name'       => $this->request->param('name'),
             'title'      => $this->request->param('title'),
             'remark'     => $this->request->param('remark'),
-            'id'         => $this->request->param('id/d'),
-            'pid'        => $this->request->param('pid/d'),
-            'level'      => $this->request->param('level/d'),
-            'status'     => $this->request->param('status/d'),
-            'sort_order' => $this->request->param('sort_order/d'),
+            'id'         => $this->request->param('id/d', 0, 'abs'),
+            'pid'        => $this->request->param('pid/d', 0, 'abs'),
+            'level'      => $this->request->param('level/d', 0, 'abs'),
+            'status'     => $this->request->param('status/d', 0, 'abs'),
+            'sort_order' => $this->request->param('sort_order/d', 0, 'abs'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {
             return $result;
@@ -231,7 +231,7 @@ class Node extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin node remove');
 
-        if (!$id = $this->request->param('id/d')) {
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
                 'cache' => false,
