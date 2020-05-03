@@ -461,14 +461,14 @@ abstract class Async
         // 校验方法是否存在
         if (!class_exists($class)) {
             $this->debugLog['method not found'] = $class;
-            $this->log->error('[Async] method not found ' . $class);
-            $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
+            $this->log->alert('[Async] method not found ' . $class);
+            $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 25002);
         }
         if (!method_exists($class, $method)) {
             $this->debugLog['action not found'] = $class . '->' . $method . '();';
-            $this->log->error('[Async] action not found ' . $class . '->' . $method . '();');
-            $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
+            $this->log->alert('[Async] action not found ' . $class . '->' . $method . '();');
+            $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 25003);
         }
 
@@ -527,8 +527,8 @@ abstract class Async
         $this->signType = $this->request->param('sign_type', 'md5');
         if (!function_exists($this->signType)) {
             $this->debugLog['sign_type'] = $this->signType;
-            $this->log->error('[Async] params-sign_type error');
-            $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
+            $this->log->alert('[Async] params-sign_type error');
+            $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 22001);
         }
 
@@ -536,8 +536,8 @@ abstract class Async
         $this->sign = $this->request->param('sign');
         if (!$this->sign || !preg_match('/^[A-Za-z0-9]+$/u', $this->sign)) {
             $this->debugLog['sign'] = $this->sign;
-            $this->log->error('[Async] params-sign error');
-            $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
+            $this->log->alert('[Async] params-sign error');
+            $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 22002);
         }
 
@@ -564,8 +564,8 @@ abstract class Async
         if (!hash_equals(call_user_func($this->signType, $str), $this->sign)) {
             $this->debugLog['sign_str'] = $str;
             $this->debugLog['sign'] = call_user_func($this->signType, $str);
-            $this->log->error('[Async] params-sign error:' . $str);
-            $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
+            $this->log->alert('[Async] params-sign error:' . $str);
+            $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 22003);
         }
     }
@@ -579,8 +579,8 @@ abstract class Async
     {
         $this->appId = $this->request->param('appid/d', 0, 'abs');
         if (!$this->appId || $this->appId < 1000001) {
-            $this->log->error('[Async] auth-appid not');
-            $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
+            $this->log->alert('[Async] auth-appid not');
+            $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 21001);
         }
 
@@ -597,8 +597,8 @@ abstract class Async
             $this->appSecret = $result['secret'];
             $this->appAuthKey = $result['authkey'];
         } else {
-            $this->log->error('[Async] auth-appid error');
-            $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
+            $this->log->alert('[Async] auth-appid error');
+            $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 21002);
         }
     }
@@ -618,8 +618,8 @@ abstract class Async
         $this->authorization = str_replace('&#43;', '+', $this->authorization);
         $this->authorization = str_replace('Bearer ', '', $this->authorization);
         if (!$this->authorization) {
-            $this->log->error('[Async] header-authorization params error');
-            $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
+            $this->log->alert('[Async] header-authorization params error');
+            $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 20001);
         }
 
@@ -636,8 +636,8 @@ abstract class Async
         $data->setCurrentTime($this->request->time() + 60);
 
         if (false === $token->verify(new Sha256, $key) || false === $token->validate($data)) {
-            $this->log->error('[Async] header-authorization params error');
-            $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
+            $this->log->alert('[Async] header-authorization params error');
+            $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 20002);
         }
 
@@ -652,8 +652,8 @@ abstract class Async
             $this->session->init();
             $this->request->withSession($this->session);
         } else {
-            $this->log->error('[Async] header-authorization params error');
-            $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
+            $this->log->alert('[Async] header-authorization params error');
+            $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 20003);
         }
 
@@ -664,8 +664,8 @@ abstract class Async
         $pattern = '/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[a-zA-Z0-9]+\+[A-Za-z]{3,5}+$/u';
         if (!$this->accept || !preg_match($pattern, $this->accept)) {
             $this->debugLog['accept'] = $this->accept;
-            $this->log->error('[Async] header-accept error');
-            $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
+            $this->log->alert('[Async] header-accept error');
+            $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 20004);
         }
 
@@ -678,8 +678,8 @@ abstract class Async
         list($domain, $accept) = explode('.', $accept, 2);
         list($root) = explode('.', $this->request->rootDomain(), 2);
         if (!hash_equals($domain, $root)) {
-            $this->log->error('[Async] header-accept domain error');
-            $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
+            $this->log->alert('[Async] header-accept domain error');
+            $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 20005);
         }
         unset($doamin, $root);
@@ -690,8 +690,8 @@ abstract class Async
         list($version, $this->format) = explode('+', $accept, 2);
         if (!$version || !preg_match('/^[a-zA-Z0-9.]+$/u', $version)) {
             $this->debugLog['version'] = $version;
-            $this->log->error('[Async] header-accept version error');
-            $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
+            $this->log->alert('[Async] header-accept version error');
+            $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 20006);
         }
         // 去掉"v"
@@ -709,8 +709,8 @@ abstract class Async
         // 校验返回数据类型
         if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
             $this->debugLog['format'] = $this->format;
-            $this->log->error('[Async] header-accept format error');
-            $this->log->error('[Referer]' . $this->request->server('HTTP_REFERER'));
+            $this->log->alert('[Async] header-accept format error');
+            $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 20007);
         }
     }
@@ -754,6 +754,7 @@ abstract class Async
      */
     protected function abort(string $_msg, int $_code = 40001): void
     {
+        $this->log->alert('[Async] abort error ' . $_msg);
         $response = $this->response($_msg, [], $_code);
         throw new HttpResponseException($response);
     }
