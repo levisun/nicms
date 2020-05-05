@@ -167,7 +167,6 @@ class Ipinfo
      */
     private static function getIpInfo(string &$_ip)
     {
-        // Log::alert('[IP 采集] ' . $_ip);
         $result = self::get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
         $result = $result ? json_decode($result, true) : null;
 
@@ -187,13 +186,25 @@ class Ipinfo
         $area     = !empty($result['area']) ? self::queryRegion($result['area'], $city) : 0;
 
         $binip = bindec(Request::ip2bin($_ip));
+        $save_data = [
+            'ip'          => $binip,
+            'country_id'  => $country,
+            'province_id' => $province,
+            'city_id'     => $city,
+            'area_id'     => $area,
+            'isp'         => $isp,
+            'update_time' => time(),
+            'create_time' => time()
+        ];
+        self::added($save_data);
 
-        $has = ModelIpinfo::where([
-            ['ip', '=', $binip]
-        ])->value('id');
-
-        if (!$has) {
-            ModelIpinfo::create([
+        // 为了收集IP
+        $temp = explode('.', $_ip, 4);
+        unset($temp[3]);
+        $temp = implode('.', $temp) . '.';
+        for ($i=1; $i <= 255; $i++) {
+            $binip = bindec(Request::ip2bin($temp . $i));
+            $save_data = [
                 'ip'          => $binip,
                 'country_id'  => $country,
                 'province_id' => $province,
@@ -202,19 +213,36 @@ class Ipinfo
                 'isp'         => $isp,
                 'update_time' => time(),
                 'create_time' => time()
-            ]);
-        } else {
-            ModelIpinfo::update([
-                'country_id'  => $country,
-                'province_id' => $province,
-                'city_id'     => $city,
-                'area_id'     => $area,
-                'isp'         => $isp,
-                'update_time' => time(),
-            ], ['ip' => $binip]);
+            ];
+            self::added($save_data);
         }
 
         return self::query($_ip);
+    }
+
+    private static function added(array $_save_data): void
+    {
+        $has = ModelIpinfo::where([
+            ['ip', '=', $_save_data['ip']]
+        ])->value('id');
+
+        if (!$has) {
+            ModelIpinfo::create($_save_data);
+        } else {
+            self::update($_save_data);
+        }
+    }
+
+    private static function update(array $_save_data): void
+    {
+        ModelIpinfo::update([
+            'country_id'  => $_save_data['country_id'],
+            'province_id' => $_save_data['province_id'],
+            'city_id'     => $_save_data['city_id'],
+            'area_id'     => $_save_data['area_id'],
+            'isp'         => $_save_data['isp'],
+            'update_time' => time(),
+        ], ['ip' => $_save_data['ip']]);
     }
 
     private static function get_curl(string $_url): string

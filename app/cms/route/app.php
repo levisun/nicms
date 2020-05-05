@@ -54,6 +54,6 @@ Route::group(function () {
 ->ext('html')
 ->pattern([
     'page' => '\d+',
-    // 'cid'  => '\d+',
-    // 'id'   => '\d+',
+    'cid'  => '\d+',
+    'id'   => '\d+',
 ]);

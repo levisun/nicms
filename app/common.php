@@ -25,34 +25,34 @@ use Lcobucci\JWT\Signer\Hmac\Sha256;
 if (!function_exists('format_hits')) {
     /**
      * 格式化浏览与评论量
-     * @param  int $_file_size
+     * @param  int    $_hits
+     * @param  string $_delimiter 分隔符
      * @return string
      */
-    function format_hits(int $_hits): string
+    function format_hits(int $_hits, string $_delimiter = ''): string
     {
-        if ($_hits > 10000) {
-            $_hits = number_format($_hits / 10000, 2) . 'M+';
-        } elseif ($_hits > 1000) {
-            $_hits = number_format($_hits / 1000, 2) . 'K+';
+        $units = ['K+', 'W+'];
+        for ($i = 0; $_hits >= 1000 && $i < 4; $i++) {
+            $_hits /= 1000;
         }
-
-        return $_hits;
+        return round($_hits, 2) . $_delimiter . $units[$i];
     }
 }
 
 if (!function_exists('format_size')) {
     /**
      * 格式化文件大小单位
-     * @param  int $_file_size
+     * @param  int    $_file_size
+     * @param  string $_delimiter 分隔符
      * @return string
      */
-    function format_size(int $_file_size): string
+    function format_size(int $_file_size, string $_delimiter = ''): string
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
         for ($i = 0; $_file_size >= 1024 && $i < 5; $i++) {
-            $size /= 1024;
+            $_file_size /= 1024;
         }
-        return round($size, 2) . $units[$i];
+        return round($_file_size, 2) . $_delimiter . $units[$i];
     }
 }
 
@@ -97,6 +97,10 @@ if (!function_exists('is_wechat')) {
 }
 
 if (!function_exists('app_secret_meta')) {
+    /**
+     * APP密钥
+     * @return string
+     */
     function app_secret_meta(int $_app_id): string
     {
         return '<meta name="csrf-appsecret" content="' . app_secret($_app_id) . '" />';
@@ -104,6 +108,10 @@ if (!function_exists('app_secret_meta')) {
 }
 
 if (!function_exists('app_secret')) {
+    /**
+     * APP密钥
+     * @return string
+     */
     function app_secret(int $_app_id): string
     {
         if ($_app_id > 1000000) {
