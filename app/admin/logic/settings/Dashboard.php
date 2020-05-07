@@ -83,7 +83,7 @@ class Dashboard extends BaseLogic
             ])
             ->value('count', 0);
         return [
-            'ip'      => number_format($sum_ip) . '/' . number_format($day_ip),
+            'ip'      => format_hits($sum_ip) . '/' . format_hits($day_ip),
             'session' => number_format(count((array) glob($session_path . '*'))),
             'access'  => [
                 'browse' => number_format($browse),

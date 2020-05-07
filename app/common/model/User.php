@@ -3,7 +3,7 @@
 /**
  *
  * 数据层
- * 会员等级表
+ * 会员表
  *
  * @package   NICMS
  * @category  app\common\model
