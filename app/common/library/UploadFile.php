@@ -87,8 +87,8 @@ class UploadFile
 
         $files = Request::file($_element);
         $this->thumbSize = [
-            'width'  => !empty($_thumb['width']) ? $_thumb['width'] : 0,
-            'height' => !empty($_thumb['height']) ? $_thumb['height'] : 0,
+            'width'  => !empty($_thumb['width']) ? (int) abs($_thumb['width']) : 0,
+            'height' => !empty($_thumb['height']) ? (int) abs($_thumb['height']) : 0,
             // THUMB_SCALING:等比例缩放
             // THUMB_FIXED:固定尺寸缩放
             'type'   => !empty($_thumb['type']) ? Image::THUMB_SCALING : Image::THUMB_FIXED,
@@ -122,8 +122,9 @@ class UploadFile
     private function validate(string &$_element, \think\File &$_files)
     {
         $size = (int) Config::get('app.upload_size', 1) * 1048576;
-        $ext = Config::get('app.upload_type');
+
         // 允许上传文件后缀,避免恶意修改配置文件导致的有害文件上传
+        $ext = Config::get('app.upload_type');
         $ext = explode(',', $ext);
         foreach ($ext as $key => $value) {
             if (!in_array($value, $this->fileExtension)) {
@@ -151,16 +152,15 @@ class UploadFile
      */
     private function save(int &$_uid, \think\File &$_files): array
     {
+        $_dir = 'uploads' . DIRECTORY_SEPARATOR;
 
         // 用户目录[删除用户时可删除目录]
         // 应用名第一个字符作为用户类型标记
         if ($_uid) {
             // 文件保存目录
-            $_dir = 'uploads' . DIRECTORY_SEPARATOR .
-                substr(app('http')->getName(), 0, 1) . Base64::dechex($_uid) .
-                DIRECTORY_SEPARATOR . Base64::dechex((int) date('Ym') + $_uid);
+            $_dir .= Base64::dechex($_uid) . DIRECTORY_SEPARATOR . Base64::dechex((int) date('Ym') + $_uid);
         } else {
-            $_dir = 'uploads' . DIRECTORY_SEPARATOR .'guest';
+            $_dir .= 'guest';
         }
 
         // 子目录

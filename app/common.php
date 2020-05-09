@@ -31,7 +31,7 @@ if (!function_exists('format_hits')) {
      */
     function format_hits(int $_hits, string $_delimiter = ''): string
     {
-        $units = ['K+', 'M+', 'B+'];
+        $units = ['', 'K+', 'M+', 'B+'];
         for ($i = 0; $_hits >= 1000 && $i < 4; $i++) {
             $_hits /= 1000;
         }
