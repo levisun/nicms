@@ -101,14 +101,11 @@ class DataFilter
         $_data = self::decode($_data);
 
         $str = '';
-        // 匹配中文
-        preg_replace_callback('/\\\u[4-9a-f]{1}[0-9a-f]{3}/si', function ($matches) use (&$str) {
-            $str .= json_decode('"' . $matches[0] . '"');
-        }, json_encode($_data));
-        // 匹配英文与数字
-        preg_replace_callback('/[a-zA-Z0-9 ]/si', function ($matches) use (&$str) {
+        // 匹配中英文与数字
+        preg_replace_callback('/[\x{4e00}-\x{9fa5}a-zA-Z0-9 ]+/u', function ($matches) use (&$str) {
             $str .= $matches[0];
         }, $_data);
+
         // 过滤多余空格
         $str = preg_replace('/( ){2,}/', ' ', trim($str));
 
@@ -123,8 +120,12 @@ class DataFilter
 
             // 取出有效词
             foreach ($str as $key => $value) {
+                $value[0] = trim($value[0]);
+
                 if (1 < mb_strlen($value[0], 'UTF-8')) {
                     $str[$key] = trim($value[0]);
+                } elseif (intval($value[0])) {
+                    unset($str[$key]);
                 } else {
                     unset($str[$key]);
                 }

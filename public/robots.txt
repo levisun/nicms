@@ -1,11 +1,13 @@
 User-agent: *
-Disallow: /screen/*
-Disallow: /static/*
-Disallow: /storage/*
-Disallow: /theme/*
+Disallow: /screen/
+Disallow: /static/
+Disallow: /storage/
+Disallow: /theme/
 Disallow: /router.php
-Disallow: /search/*
+Disallow: /search/
 Disallow: /404.html
 Disallow: /502.html
 Disallow: /*.do$
+
+Allow: .htm$
 Sitemap: https://www.niphp.com/sitemap.xml
