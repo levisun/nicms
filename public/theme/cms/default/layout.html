@@ -13,12 +13,14 @@
                     <li class="nav-item active">
                         <a class="nav-link" href="/">首页</a>
                     </li>
+
                     {tags:nav type="main"}
-                        <p>1</p>
-                        {tags:nav type="top"}
-                        <p>2</p>
-                        {tags:/nav}
+
                     {tags:/nav}
+                    {tags:if isset($nav) and $nav >= 1}
+                    {tags:elseif isset($n)}
+                    {tags:else /}
+                    {tags:/if}
                     <template v-for="vo in nav">
                         <template v-if="vo.child[0]">
                             <li class="nav-item dropdown">

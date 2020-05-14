@@ -6,10 +6,10 @@ namespace view\taglib;
 
 use view\Taglib;
 
-class Nav extends Taglib
+class TagsNav extends Taglib
 {
 
-    public function handle(): string
+    public function closed(): string
     {
         $type = isset($this->params['type']) ? strtolower($this->params['type']) : 'main';
 

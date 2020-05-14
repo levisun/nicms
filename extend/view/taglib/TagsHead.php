@@ -6,10 +6,10 @@ namespace view\taglib;
 
 use view\Taglib;
 
-class Head extends Taglib
+class TagsHead extends Taglib
 {
 
-    public function handle(): string
+    public function alone(): string
     {
         list($root) = explode('.', request()->rootDomain(), 2);
 

@@ -54,18 +54,26 @@ class Replace
         $this->vars($_content);
     }
 
+    /**
+     * 闭合标签
+     * 格式{tags:方法 参数名=值}{tags:/标签名}
+     * @access private
+     * @param  string $content 要解析的模板内容
+     * @return void
+     */
     private function TRepClosedTags(string &$_content): void
     {
-        $regex = str_replace('__REGEX__', '([a-zA-Z]+)([a-zA-Z0-9 $.="\'_]+)', $this->pattern);
+        $regex = str_replace('__REGEX__', '([a-zA-Z]+)([a-zA-Z0-9 $.=>\(\)"\'_]+)', $this->pattern);
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
-            $class = '\view\taglib\\' . ucfirst($matches[1]);
+            $class = '\view\taglib\\Tags' . ucfirst($matches[1]);
             $matches[2] = str_replace(['"', "'", ' '], ['', '', '&'], $matches[2]);
             parse_str($matches[2], $params);
+            $params['expression'] = str_replace('&', ' ', $matches[2]);
             if (class_exists($class) && method_exists($class, 'handle')) {
                 $object = new $class($params, $this->config);
-                $str = $object->handle();
+                $str = $object->closed();
             } else {
                 $str = '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
             }
@@ -76,7 +84,7 @@ class Replace
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
-            $class = '\view\taglib\\' . ucfirst($matches[1]);
+            $class = '\view\taglib\\Tags' . ucfirst($matches[1]);
             if (class_exists($class) && method_exists($class, 'handle')) {
                 $object = new $class([], $this->config);
                 $str = $object->end();
@@ -89,7 +97,7 @@ class Replace
 
     /**
      * 单标签解析
-     * 格式{标签名:方法 参数名=值}{/标签名}
+     * 格式{tags:方法 参数名=值 /}
      * @access private
      * @param  string $content 要解析的模板内容
      * @return void
@@ -100,12 +108,12 @@ class Replace
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
-            $class = '\view\taglib\\' . ucfirst($matches[1]);
+            $class = '\view\taglib\\Tags' . ucfirst($matches[1]);
             $matches[2] = str_replace(['"', "'", ' '], ['', '', '&'], $matches[2]);
             parse_str($matches[2], $params);
             if (class_exists($class) && method_exists($class, 'handle')) {
                 $object = new $class($params, $this->config);
-                $str = $object->handle();
+                $str = $object->alone();
             } else {
                 $str = '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
             }
