@@ -1,0 +1,74 @@
+<?php
+
+/**
+ *
+ * 模板文件
+ *
+ * @package   NICMS
+ * @category  view
+ * @author    失眠小枕头 [levisun.mail@gmail.com]
+ * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
+ * @link      www.NiPHP.com
+ * @since     2019
+ */
+
+declare(strict_types=1);
+
+namespace view;
+
+use think\Response;
+use think\exception\HttpResponseException;
+use think\facade\Request;
+
+class File
+{
+    private static $includeFile = [];
+
+    public static function getIncludeFile(): array
+    {
+        return self::$includeFile;
+    }
+
+    /**
+     * 获得模板(包含路径)
+     * @access public
+     * @static
+     * @return string
+     */
+    public static function getTheme(string &$_view_path, string &$_template = ''): string
+    {
+        if (is_file($_view_path . self::getMobilePath($_view_path) . $_template)) {
+            $path = $_view_path . self::getMobilePath($_view_path) . $_template;
+            self::$includeFile[] = $path;
+            return $path;
+        } else {
+            var_dump($_view_path . self::getMobilePath($_view_path) . $_template);
+        die();
+            if (app()->isDebug()) {
+                $error = 'template not exists:' . $_template;
+                $response = Response::create($error, 'html', 200);
+            } else {
+                $response = miss(403);
+            }
+            throw new HttpResponseException($response);
+        }
+    }
+
+    /**
+     * 判断移动端, 返回移动目录与微信目录
+     * @access private
+     * @static
+     * @return string
+     */
+    private static function getMobilePath(string &$_view_path)
+    {
+        if (Request::isMobile()) {
+            // 微信端模板
+            if (is_wechat() && is_dir($_view_path . 'wechat' . DIRECTORY_SEPARATOR)) {
+                return 'wechat' . DIRECTORY_SEPARATOR;
+            } elseif (is_dir($_view_path . 'mobile' . DIRECTORY_SEPARATOR)) {
+                return 'mobile' . DIRECTORY_SEPARATOR;
+            }
+        }
+    }
+}

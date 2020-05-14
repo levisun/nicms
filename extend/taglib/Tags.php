@@ -44,14 +44,7 @@ class Tags
         return $tpljs;
     }
 
-    public static function foreach(array $_attr, string $_tags_content, array $_config): string
-    {
-        $parseStr  = '<?php ';
-        $parseStr .= 'foreach (' . $_attr['expression'] . '): ?>';
-        $parseStr .= $_tags_content;
-        $parseStr .= '<?php endforeach; ?>';
-        return $parseStr;
-    }
+
 
 
 
@@ -263,6 +256,40 @@ class Tags
         $parseStr .= $_tags_content;
         $parseStr .= '<?php endforeach; endif; ?>';
 
+        return $parseStr;
+    }
+
+
+
+    public static function else(array $_attr, array $_config): string
+    {
+        return '<?php else ?>';
+    }
+
+    public static function elseif(array $_attr, string $_tags_content, array $_config): string
+    {
+        $parseStr  = '<?php ';
+        $parseStr .= 'elseif (' . $_attr['expression'] . '): ?>';
+        $parseStr .= $_tags_content;
+        $parseStr .= '<?php endelseif; ?>';
+        return $parseStr;
+    }
+
+    public static function if(array $_attr, string $_tags_content, array $_config): string
+    {
+        $parseStr  = '<?php ';
+        $parseStr .= 'if (' . $_attr['expression'] . '): ?>';
+        $parseStr .= $_tags_content;
+        $parseStr .= '<?php endif; ?>';
+        return $parseStr;
+    }
+
+    public static function foreach(array $_attr, string $_tags_content, array $_config): string
+    {
+        $parseStr  = '<?php ';
+        $parseStr .= 'foreach (' . $_attr['expression'] . '): ?>';
+        $parseStr .= $_tags_content;
+        $parseStr .= '<?php endforeach; ?>';
         return $parseStr;
     }
 

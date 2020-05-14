@@ -1,0 +1,11 @@
+body {
+    color: #595959;
+    cursor: default;
+    overflow: hidden;
+    overflow-y: auto;
+    font-family: Raleway,Arial,"Microsoft YaHei",sans-serif;
+    letter-spacing: 1px;
+    word-spacing: .1em;
+    word-wrap: break-word;
+    word-break: break-all;
+}

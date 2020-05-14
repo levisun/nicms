@@ -15,8 +15,8 @@
 return [
     // 模板引擎类型使用Think
     'type' => \app\common\library\Template::class,
+    'type' => \view\View::class,
 
-    'compile_path' => '',
 
     // 模板引擎类型
     // 'type'         => 'Think',
