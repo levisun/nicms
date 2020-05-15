@@ -11,12 +11,7 @@ class TagsEach extends Taglib
 
     public function closed(): string
     {
-        $parseStr  = '<?php ' . key($this->params);
-        $parseStr .= ' = isset(' . key($this->params) . ') && is_array(' . key($this->params) . ')';
-        $parseStr .= ' ? ' . key($this->params) . ' : []; ';
-        $parseStr .= 'foreach (' . $this->params['expression'] . '): ?>';
-
-        return $parseStr;
+        return '<?php foreach (' . $this->params['expression'] . '): ?>';
     }
 
     public function end()

@@ -1,35 +1,36 @@
 <div id="layout-list">
     <div class="row">
-        {include file="sideber"}
+        {include file="sidebar.html"}
         <div id="list" class="col-md-9">
-            {include file="breadcrumb"}
+            {include file="breadcrumb.html"}
             <div class="card">
                 <div class="card-header" v-text="sideber.name"></div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        {tags:foreach $list as $key => $vo}
-                            <li class="list-group-item">
-                                <h5 class="card-title">
-                                    <a class="badge badge-primary" style="margin-right:10px;" href="{$vo.cat_url}" >{$vo.cat_name}</a>
-                                    <a href="{$vo.url}">{$vo.title}</a>
-                                </h5>
-                                <p class="text-muted">
-                                    <span style="margin-right:10px;">
-                                        <i class="fa fa-calendar-day"></i>
-                                        <font>{$vo.update_time}</font>
-                                    </span>
-                                    <span style="margin-right:10px;">
-                                        <i class="fa fa-user"></i>
-                                        <font>{$vo.author}</font>
-                                    </span>
-                                    <span style="margin-right:10px;">
-                                        <i class="fa fa-eye"></i>
-                                        <font>{$vo.hits}</font>
-                                    </span>
-                                </p>
-                                <p class="card-text">{$vo.description}</p>
-                            </li>
-                        {/foreach}
+                        {tags:list cid="0"}
+                        <li class="list-group-item">
+                            <h5 class="card-title">
+                                <a class="badge badge-primary" style="margin-right:10px;"
+                                    href="{$vo.cat_url}">{$vo.cat_name}</a>
+                                <a href="{$vo.url}">{$vo.title}</a>
+                            </h5>
+                            <p class="text-muted">
+                                <span style="margin-right:10px;">
+                                    <i class="fa fa-calendar-day"></i>
+                                    <font>{$vo.update_time}</font>
+                                </span>
+                                <span style="margin-right:10px;">
+                                    <i class="fa fa-user"></i>
+                                    <font>{$vo.author}</font>
+                                </span>
+                                <span style="margin-right:10px;">
+                                    <i class="fa fa-eye"></i>
+                                    <font>{$vo.hits}</font>
+                                </span>
+                            </p>
+                            <p class="card-text">{$vo.description}</p>
+                        </li>
+                        {tags:/list}
                     </ul>
                 </div>
             </div>

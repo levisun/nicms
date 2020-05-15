@@ -3,9 +3,9 @@
         <div class="card-header">{$sidebar.name}</div>
         <div class="card-body">
             <ul class="list-unstyled">
-                {tags:foreach $sidebar[child] as $key => $vo}
+                {tags:each $sidebar['child'] as $key => $vo}
                 <li><a href="{$vo.url}">{$vo.name}</a></li>
-                {/foreach}
+                {tags:/each}
             </ul>
         </div>
     </div>

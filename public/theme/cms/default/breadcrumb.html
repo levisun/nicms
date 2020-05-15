@@ -3,10 +3,10 @@
         <li class="breadcrumb-item" aria-current="page">
             <a href="/">{:lang('home')}</a>
         </li>
-        {tags:foreach $breadcrumb as $key => $vo}
+        {tags:each $breadcrumb as $key => $vo}
         <li class="breadcrumb-item">
             <a href={$vo.url}>{$vo.name}</a>
         </li>
-        {/foreach}
+        {tags:/each}
     </ol>
 </nav>

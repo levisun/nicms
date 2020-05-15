@@ -63,13 +63,14 @@ class Replace
      */
     private function TRepClosedTags(string &$_content): void
     {
-        $regex = str_replace('__REGEX__', '([a-zA-Z]+)([a-zA-Z0-9 $.=>\(\)"\'_]+)', $this->pattern);
+        $regex = str_replace('__REGEX__', '([a-zA-Z]+)([a-zA-Z0-9 $.=>\(\)\[\]"\'_]+)', $this->pattern);
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
             $class = '\view\taglib\\Tags' . ucfirst($matches[1]);
-            $matches[2] = str_replace(['"', "'", ' '], ['', '', '&'], $matches[2]);
-            parse_str($matches[2], $params);
+            $params = str_replace(['"', '"', ' as', ' =>'], '', $matches[2]);
+            $params = str_replace(' ', '&', $params);
+            parse_str($params, $params);
             $params['expression'] = str_replace('&', ' ', $matches[2]);
             if (class_exists($class) && method_exists($class, 'handle')) {
                 $object = new $class($params, $this->config);
@@ -162,7 +163,7 @@ class Replace
                 default:
                     $vars = '$';
                     $vars .= $var_type ?: '';
-                    if (false !== stripos($var_name, '.')) {
+                    if ($var_type) {
                         $arr = explode('.', $var_name);
                         foreach ($arr as $name) {
                             $vars .= '[\'' . $name . '\']';
@@ -190,7 +191,7 @@ class Replace
     private function TRepVars(string &$_content): void
     {
         $path  = Config::get('app.cdn_host') . '/theme/';
-        $path .= $this->config['app_name'] . $this->config['view_theme'];
+        $path .= $this->config['app_name'] . $this->config['view_theme'] . '/';
 
         // 拼装移动端模板路径
         if (Request::isMobile()) {
@@ -305,11 +306,11 @@ class Replace
     private function include(string &$_content): void
     {
         $pattern = '/' . $this->tpl_begin .
-            'include file=["|\']+([a-zA-Z_]+)["|\']+' .
+            'include file=["\']+([a-zA-Z_\.]+)["\']+' .
             $this->tpl_end . '/si';
 
         $_content = preg_replace_callback($pattern, function ($matches) {
-            if ($matches[1] && $template = File::getTheme($matches[1])) {
+            if ($matches[1] && $template = File::getTheme($this->config['view_path'], $matches[1])) {
                 return file_get_contents($template);
             }
 

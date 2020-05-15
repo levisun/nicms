@@ -16,67 +16,110 @@ class TagsList extends Taglib
         $this->params['top'] = !empty($this->params['top']) ? (int) $this->params['top'] : 0;
         $this->params['hot'] = !empty($this->params['hot']) ? (int) $this->params['hot'] : 0;
         $this->params['tid'] = !empty($this->params['tid']) ? (int) $this->params['tid'] : 0;
-        $this->params['sort'] = !empty($this->params['sort']) ? $this->params['sort'] : null;
+        $this->params['sort'] = !empty($this->params['sort']) ? $this->params['sort'] : '';
         $this->params['limit'] = !empty($this->params['limit']) ? (int) $this->params['limit'] : 10;
         $this->params['page'] = !empty($this->params['page']) ? (int) $this->params['page'] : 1;
         $this->params['date_format'] = !empty($this->params['date_format']) ? $this->params['date_format'] : 'Y-m-d';
 
-
-        $map = [
-            ['article.is_pass', '=', '1'],
-            ['article.delete_time', '=', '0'],
-            ['article.show_time', '<', time()],
-            ['article.lang', '=', app('lang')->getLangSet()]
-        ];
-        if ($this->params['cid']) {
-            $map[] = ['article.category_id', 'in', app('\app\cms\logic\article\Category')->child($this->params['cid'])];
+        if ($this->params['sort']) {
+            $sort_order = 'article.' . $this->params['sort'];
+        } else {
+            $sort_order = 'article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.update_time DESC';
         }
 
+        $cache_key = md5('taglib tablist::article list' . $this->params['cid'] . $this->params['com'] . $this->params['top'] . $this->params['hot'] . $this->params['tid'] . $this->params['sort'] . $this->params['limit'] . $this->params['page'] . $this->params['date_format']);
+
+        $parseStr  = '<?php
+        if (!cache("?' . $cache_key . '") || !$list = cache("' . $cache_key . '")):
+            $result = \app\common\model\Article::view("article", ["id", "category_id", "title", "keywords", "description", "username", "access_id", "hits", "update_time"])
+            ->view("category", ["name" => "cat_name"], "category.id=article.category_id")
+            ->view("model", ["id" => "model_id", "name" => "model_name"], "model.id=category.model_id and model.id<=3")
+            ->view("article_content", ["thumb"], "article_content.article_id=article.id", "LEFT")
+            ->view("type", ["id" => "type_id", "name" => "type_name"], "type.id=article.type_id", "LEFT")
+            ->view("level", ["name" => "access_name"], "level.id=article.access_id", "LEFT")
+            ->view("user", ["username" => "author"], "user.id=article.user_id", "LEFT")
+            ->where([
+                ["article.is_pass", "=", "1"],
+                ["article.delete_time", "=", "0"],
+                ["article.show_time", "<", time()],
+                ["article.lang", "=", app("lang")->getLangSet()],';
+        if ($this->params['cid']) {
+            $child = app('\app\cms\logic\article\Category')->child($this->params["cid"]);
+            $parseStr .= '["article.category_id", "in", "' . implode(',', $child) . '"],';
+        }
         if ($this->params['com']) {
-            $map[] = ['article.is_com', '=', 1];
+            $parseStr .= '["article.is_com", "=", 1],';
         } elseif ($this->params['top']) {
-            $map[] = ['article.is_top', '=', 1];
+            $parseStr .= '["article.is_top", "=", 1],';
         } elseif ($this->params['hot']) {
-            $map[] = ['article.is_hot', '=', 1];
+            $parseStr .= '["article.is_hot", "=", 1],';
         }
 
         if ($this->params['tid']) {
-            $map[] = ['article.type_id', '=', $this->params['tid']];
+            $parseStr .= '["article.type_id", "=", ' . $this->params['tid'] . '],';
         }
+        $parseStr .= '
+            ])
+            ->order("' . $sort_order . '")
+            ->paginate([
+                "list_rows" => ' . $this->params['limit'] . ',
+                "path" => "javascript:paging([PAGE]);",
+            ]);
+            if ($result):
+                $list = $result->toArray();
+                $list["render"] = $result->render();
+                foreach ($list["data"] as $key => $value):
+                    $value["cat_url"] = url("list/" . $value["category_id"]);
+                    $value["url"] = url("details/" . $value["category_id"] . "/" . $value["id"]);
+                    $value["flag"] = \app\common\library\Base64::flag($value["category_id"] . $value["id"], 7);
+                    $value["thumb"] = \app\common\library\Canvas::image($value["thumb"], 300);
+                    $value["update_time"] = date("' . $this->params['date_format'] . '", (int) $value["update_time"]);
+                    $value["author"] = $value["author"] ?: $value["username"];
+                    unset($value["username"]);
 
-        if ($this->params['sort']) {
-            $sort_order = "article.' . $this->params['sort'] . '";
-        } else {
-            $sort_order = "article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.update_time DESC";
-        }
+                    $fields = \app\common\model\FieldsExtend::view("fields_extend", ["data"])
+                        ->view("fields", ["name" => "fields_name"], "fields.id=fields_extend.fields_id")
+                        ->where([
+                            ["fields_extend.article_id", "=", $value["id"]],
+                            ["fields.category_id", "=", $value["category_id"]],
+                        ])
+                        ->select()
+                        ->toArray();
+                    foreach ($fields as $val):
+                        $value[$val["fields_name"]] = $val["data"];
+                    endforeach;
 
-        $cache_key = md5('tagslib tagslist::article list' . $this->params['cid'] . $this->params['com'] . $this->params['top'] . $this->params['hot'] . $this->params['tid'] . $this->params['sort'] . $this->params['limit'] . $this->params['page'] . $this->params['date_format']);
+                    $value["tags"] = \app\common\model\ArticleTags::view("article_tags", ["tags_id"])
+                        ->view("tags tags", ["name"], "tags.id=article_tags.tags_id")
+                        ->where([
+                            ["article_tags.article_id", "=", $value["id"]],
+                        ])
+                        ->select()
+                        ->toArray();
+                    foreach ($value["tags"] as $k => $tag):
+                        $tag["url"] = url("tags/" . $tag["tags_id"]);
+                        $value["tags"][$k] = $tag;
+                    endforeach;
 
-        $parseStr  = '';
-        $parseStr .= 'if (!cache("?' . $cache_key . '") || !$list = cache("' . $cache_key . '")):';
-        $parseStr .= '$result = \app\common\model\Article::view("article", ["id", "category_id", "title", "keywords", "description", "username", "access_id", "hits", "update_time"])
-        ->view("category", ["name" => "cat_name"], "category.id=article.category_id")
-        ->view("model", ["id" => "model_id", "name" => "model_name"], "model.id=category.model_id and model.id<=3")
-        ->view("article_content", ["thumb"], "article_content.article_id=article.id", "LEFT")
-        ->view("type", ["id" => "type_id", "name" => "type_name"], "type.id=article.type_id", "LEFT")
-        ->view("level", ["name" => "access_name"], "level.id=article.access_id", "LEFT")
-        ->view("user", ["username" => "author"], "user.id=article.user_id", "LEFT")
-        ->where(' . var_export($map, true) . ')
-        ->order(' . $sort_order . ')
-        ->paginate([
-            "list_rows" => ' . $this->params['limit'] . ',
-            "path" => "javascript:paging([PAGE]);",
-        ]);';
-
-        echo $parseStr;
-        print_r($this->params);
-        die();
+                    $list["data"][$key] = $value;
+                endforeach;
+                cache("' . $cache_key . '", $list);
+            endif;
+        endif;
+        if (!empty($list)):
+            $total = $list["total"];
+            $per_page = $list["per_page"];
+            $current_page = $list["current_page"];
+            $last_page = $list["last_page"];
+            $page = $list["render"];
+            $items = $list["data"];
+            foreach ($items as $key => $item): ?>';
 
         return $parseStr;
     }
 
     public function end()
     {
-        return '<?php endif; ?>';
+        return '<?php endforeach; endif; ?>';
     }
 }
