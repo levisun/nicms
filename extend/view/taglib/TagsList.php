@@ -106,7 +106,9 @@ class TagsList extends Taglib
                 cache("' . $cache_key . '", $list);
             endif;
         endif;
-        if (!empty($list)):
+        if (empty($list)):
+            miss(404, true, true);
+        else:
             $total = $list["total"];
             $per_page = $list["per_page"];
             $current_page = $list["current_page"];
@@ -118,7 +120,7 @@ class TagsList extends Taglib
         return $parseStr;
     }
 
-    public function end()
+    public function end(): string
     {
         return '<?php endforeach; endif; ?>';
     }

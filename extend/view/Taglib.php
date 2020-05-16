@@ -33,9 +33,4 @@ class Taglib
         $this->params = $_params;
         $this->config = $_config;
     }
-
-    public function handle(): string
-    {
-        return '';
-    }
 }

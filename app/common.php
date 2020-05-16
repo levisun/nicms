@@ -13,6 +13,7 @@
  */
 
 use think\Response;
+use think\exception\HttpResponseException;
 use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
@@ -183,7 +184,7 @@ if (!function_exists('miss')) {
      * @param  bool $_redirect
      * @return Response
      */
-    function miss(int $_code, bool $_redirect = true): Response
+    function miss(int $_code, bool $_redirect = true, bool $_abort = false): Response
     {
         $content = '<!-- miss -->';
         $file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.html';
@@ -198,7 +199,7 @@ if (!function_exists('miss')) {
             : '';
 
         $content = str_replace('{$return_url}', $return_url, $content);
-        return Response::create($content, 'html', $_code)
+        $response = Response::create($content, 'html', $_code)
             ->header([
                 'Cache-Control'  => 'max-age=1440,must-revalidate',
                 'Last-Modified'  => gmdate('D, d M Y H:i:s') . ' GMT',
@@ -206,6 +207,12 @@ if (!function_exists('miss')) {
                 'X-Powered-By'   => 'NICMS',
                 'Content-Length' => strlen($content)
             ]);
+
+        if ($_abort === true) {
+            throw new HttpResponseException($response);
+        }
+
+        return $response;
     }
 }
 

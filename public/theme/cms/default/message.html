@@ -38,8 +38,6 @@
     let = message = new Vue({
         el: '#layout-message',
         data: {
-            sideber: [],
-            breadcrumb: [],
             items: [],
         },
         methods: {
@@ -56,34 +54,6 @@
                 });
             },
             load: function () {
-                jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
-                    type: 'get',
-                    data: [
-                        { name: 'method', value: 'nav.sidebar.query' },
-                        { name: 'cid', value: NICMS.api.param.cid },
-                    ],
-                    success: function (result) {
-                        if (10000 == result.code) {
-                            message.sideber = result.data;
-                        }
-                    }
-                });
-
-                jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
-                    type: 'get',
-                    data: [
-                        { name: 'method', value: 'nav.breadcrumb.query' },
-                        { name: 'cid', value: NICMS.api.param.cid },
-                    ],
-                    success: function (result) {
-                        if (10000 == result.code) {
-                            message.breadcrumb = result.data;
-                        }
-                    }
-                });
-
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'get',

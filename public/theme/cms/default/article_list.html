@@ -4,31 +4,31 @@
         <div id="list" class="col-md-9">
             {include file="breadcrumb.html"}
             <div class="card">
-                <div class="card-header" v-text="sideber.name"></div>
+                <div class="card-header">{$sidebar.name}</div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        {tags:list cid="0"}
+                        {tags:list}
                         <li class="list-group-item">
                             <h5 class="card-title">
                                 <a class="badge badge-primary" style="margin-right:10px;"
-                                    href="{$vo.cat_url}">{$vo.cat_name}</a>
-                                <a href="{$vo.url}">{$vo.title}</a>
+                                    href="{$item.cat_url}">{$item.cat_name}</a>
+                                <a href="{$item.url}">{$item.title}</a>
                             </h5>
                             <p class="text-muted">
                                 <span style="margin-right:10px;">
                                     <i class="fa fa-calendar-day"></i>
-                                    <font>{$vo.update_time}</font>
+                                    <font>{$item.update_time}</font>
                                 </span>
                                 <span style="margin-right:10px;">
                                     <i class="fa fa-user"></i>
-                                    <font>{$vo.author}</font>
+                                    <font>{$item.author}</font>
                                 </span>
                                 <span style="margin-right:10px;">
                                     <i class="fa fa-eye"></i>
-                                    <font>{$vo.hits}</font>
+                                    <font>{$item.hits}</font>
                                 </span>
                             </p>
-                            <p class="card-text">{$vo.description}</p>
+                            <p class="card-text">{$item.description}</p>
                         </li>
                         {tags:/list}
                     </ul>

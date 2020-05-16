@@ -9,9 +9,8 @@ use view\Taglib;
 class TagsElse extends Taglib
 {
 
-    public function alone()
+    public function alone(): string
     {
         return '<?php else: ?>';
     }
 }
-

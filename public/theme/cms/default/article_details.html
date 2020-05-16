@@ -4,33 +4,34 @@
         <div id="list" class="col-md-9">
             {include file="breadcrumb.html"}
             <div class="card">
+                {tags:article /}
                 <div class="card-body">
-                    <h3><a href="{$url}">{$title}</a></h3>
+                    <h3><a href="{$article.url}">{$article.title}</a></h3>
                     <p class="text-muted">
                         <span style="margin-right:10px;">
                             <i class="fa fa-calendar-day"></i>
-                            <font>{$update_time}</font>
+                            <font>{$article.update_time}</font>
                         </span>
                         <span style="margin-right:10px;">
                             <i class="fa fa-calendar-day"></i>
-                            <a href="{$cat_url}">{$cat_name}</a>
+                            <a href="{$article.cat_url}">{$article.cat_name}</a>
                         </span>
                         <span style="margin-right:10px;">
                             <i class="fa fa-user"></i>
-                            <font>{$author}</font>
+                            <font>{$article.author}</font>
                         </span>
                         <span style="margin-right:10px;">
                             <i class="fa fa-eye"></i>
-                            <font>{$hits}</font>
+                            <font>{$article.hits}</font>
                         </span>
                     </p>
-                    <div class="details">{$content}</div>
+                    <div class="details">{$article.content}</div>
                     <div class="row">
                         <div class="col-md-6">
-                            <a href="{$prev.url}">{$prev.title}</a>
+                            <a href="{$article.prev.url}">{$article.prev.title}</a>
                         </div>
                         <div class="col-md-6">
-                            <a href="{$next.url}">{$next.title}</a>
+                            <a href="{$article.next.url}">{$article.next.title}</a>
                         </div>
                     </div>
                 </div>
@@ -43,8 +44,6 @@
     let = details = new Vue({
         el: '#layout-details',
         data: {
-            sideber: [],
-            breadcrumb: [],
             items: [],
         },
         methods: {

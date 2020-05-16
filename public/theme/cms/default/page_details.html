@@ -4,71 +4,30 @@
         <div id="list" class="col-md-9">
             {include file="breadcrumb.html"}
             <div class="card">
+                {tags:article /}
                 <div class="card-body">
-                    <h3><a href="{$url}">{$title}</a></h3>
+                    <h3><a href="{$article.url}">{$article.title}</a></h3>
                     <p class="text-muted">
                         <span style="margin-right:10px;">
                             <i class="fa fa-calendar-day"></i>
-                            <font>{$update_time}</font>
+                            <font>{$article.update_time}</font>
                         </span>
                         <span style="margin-right:10px;">
                             <i class="fa fa-calendar-day"></i>
-                            <a href="{$cat_url}">{$cat_name}</a>
+                            <a href="{$article.cat_url}">{$article.cat_name}</a>
                         </span>
                         <span style="margin-right:10px;">
                             <i class="fa fa-user"></i>
-                            <font>{$author}</font>
+                            <font>{$article.author}</font>
                         </span>
                         <span style="margin-right:10px;">
                             <i class="fa fa-eye"></i>
-                            <font>{$hits}</font>
+                            <font>{$article.hits}</font>
                         </span>
                     </p>
-                    <div class="details">{$content}</div>
+                    <div class="details">{$article.content}</div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    let = details = new Vue({
-        el: '#layout-details',
-        data: {
-            sideber: [],
-            breadcrumb: [],
-        },
-        methods: {
-            load: function () {
-                jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
-                    method: 'get',
-                    data: [
-                        { name: 'method', value: 'nav.sidebar.query' },
-                        { name: 'cid', value: NICMS.api.param.cid },
-                    ],
-                    success: function (result) {
-                        if (10000 == result.code) {
-                            details.sideber = result.data;
-                        }
-                    }
-                });
-
-                jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
-                    method: 'get',
-                    data: [
-                        { name: 'method', value: 'nav.breadcrumb.query' },
-                        { name: 'cid', value: NICMS.api.param.cid },
-                    ],
-                    success: function (result) {
-                        if (10000 == result.code) {
-                            details.breadcrumb = result.data;
-                        }
-                    }
-                });
-            }
-        }
-    });
-    details.load();
-</script>

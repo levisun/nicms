@@ -1,15 +1,13 @@
 <div id="layout-link">
     <div class="row">
-        {include file="sideber"}
+        {include file="sidebar.html"}
         <div id="list" class="col-md-9">
-            {include file="breadcrumb"}
+            {include file="breadcrumb.html"}
             <div class="card">
                 <div class="card-body">
-                    {tags:foreach $list as $key => $vo}
-                        <p>
-                            <a href="{$vo.url}" rel="nofollow" target="_blank">{$vo.title}</a>
-                        </p>
-                    {/foreach}
+                    {tags:link}
+                        <p><a href="{$item.url}" rel="nofollow" target="_blank">{$item.title}</a></p>
+                    {tags:/link}
                 </div>
             </div>
         </div>

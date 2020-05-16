@@ -14,7 +14,7 @@ class TagsIf extends Taglib
         return '<?php if (' . $this->params['expression'] . '): ?>';
     }
 
-    public function end()
+    public function end(): string
     {
         return '<?php endif; ?>';
     }

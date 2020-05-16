@@ -14,7 +14,7 @@ class TagsEach extends Taglib
         return '<?php foreach (' . $this->params['expression'] . '): ?>';
     }
 
-    public function end()
+    public function end(): string
     {
         return '<?php endforeach; ?>';
     }

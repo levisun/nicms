@@ -43,23 +43,8 @@ class Index extends BaseController
                 ->value('model.name');
             // 栏目不存在抛出404错误
             if (!$this->model_name) {
-                $response = miss(404);
-                throw new HttpResponseException($response);
+                miss(404, true, true);
             }
-
-            // 获得面包屑
-            $breadcrumb = call_user_func([
-                $this->app->make('\app\cms\logic\nav\Breadcrumb'),
-                'query'
-            ]);
-            $this->assign('breadcrumb', $breadcrumb['data']);
-
-            // 获得侧导航
-            $sidebar = call_user_func([
-                $this->app->make('\app\cms\logic\nav\Sidebar'),
-                'query'
-            ]);
-            $this->assign('sidebar', $sidebar['data']);
         }
     }
 
@@ -80,11 +65,7 @@ class Index extends BaseController
      */
     public function category()
     {
-        $result = call_user_func([
-            $this->app->make('\app\cms\logic\article\Category'),
-            'query'
-        ]);
-        return $this->fetch($this->model_name . '_list', $result['data']);
+        return $this->fetch($this->model_name . '_list');
     }
 
     /**
@@ -94,14 +75,7 @@ class Index extends BaseController
      */
     public function details()
     {
-        $result = call_user_func([
-            $this->app->make('\app\cms\logic\article\Details'),
-            'query'
-        ]);
-        // 文章不存在返回404页面
-        if (empty($result['data'])) return miss(404);
-
-        return $this->fetch($this->model_name . '_details', $result['data']);
+        return $this->fetch($this->model_name . '_details');
     }
 
     /**
@@ -111,11 +85,7 @@ class Index extends BaseController
      */
     public function link()
     {
-        $result = call_user_func([
-            $this->app->make('\app\cms\logic\link\Catalog'),
-            'query'
-        ]);
-        return $this->fetch($this->model_name, $result['data']);
+        return $this->fetch($this->model_name);
     }
 
     /**

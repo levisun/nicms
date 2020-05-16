@@ -63,7 +63,7 @@ class Replace
      */
     private function TRepClosedTags(string &$_content): void
     {
-        $regex = str_replace('__REGEX__', '([a-zA-Z]+)([a-zA-Z0-9 $.=>\(\)\[\]"\'_]+)', $this->pattern);
+        $regex = str_replace('__REGEX__', '([a-zA-Z]+)([a-zA-Z0-9 $.=>\(\)\[\]"\'_]{0,})', $this->pattern);
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
@@ -72,7 +72,7 @@ class Replace
             $params = str_replace(' ', '&', $params);
             parse_str($params, $params);
             $params['expression'] = str_replace('&', ' ', $matches[2]);
-            if (class_exists($class) && method_exists($class, 'handle')) {
+            if (class_exists($class) && method_exists($class, 'closed')) {
                 $object = new $class($params, $this->config);
                 $str = $object->closed();
             } else {
@@ -86,7 +86,7 @@ class Replace
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
             $class = '\view\taglib\\Tags' . ucfirst($matches[1]);
-            if (class_exists($class) && method_exists($class, 'handle')) {
+            if (class_exists($class) && method_exists($class, 'end')) {
                 $object = new $class([], $this->config);
                 $str = $object->end();
             } else {
@@ -112,7 +112,7 @@ class Replace
             $class = '\view\taglib\\Tags' . ucfirst($matches[1]);
             $matches[2] = str_replace(['"', "'", ' '], ['', '', '&'], $matches[2]);
             parse_str($matches[2], $params);
-            if (class_exists($class) && method_exists($class, 'handle')) {
+            if (class_exists($class) && method_exists($class, 'alone')) {
                 $object = new $class($params, $this->config);
                 $str = $object->alone();
             } else {

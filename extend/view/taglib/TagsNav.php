@@ -41,14 +41,13 @@ class TagsNav extends Taglib
 
         $tpl_var = '$__TAGS_' . strtoupper($type) . '_NAV_RESULT';
         $parseStr  = '<?php ' . $tpl_var . ' = app(\'\app\cms\logic\nav\\' . $type . '\')->query();';
-        $parseStr .= 'if (!is_null(' . $tpl_var . '[\'data\'])):';
-        $parseStr .= '' . $tpl_var . ' = ' . $tpl_var . '[\'data\'];';
+        $parseStr .= $tpl_var . ' = !empty(' . $tpl_var . '[\'data\']) ? ' . $tpl_var . '[\'data\'] : [];';
         $parseStr .= 'foreach (' . $tpl_var . ' as $key => $nav): ?>';
         return $parseStr;
     }
 
-    public function end()
+    public function end(): string
     {
-        return '<?php endforeach; endif; ?>';
+        return '<?php endforeach; ?>';
     }
 }
