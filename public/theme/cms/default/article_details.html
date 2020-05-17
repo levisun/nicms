@@ -4,34 +4,34 @@
         <div id="list" class="col-md-9">
             {include file="breadcrumb.html"}
             <div class="card">
-                {tags:article /}
+                {tags:details /}
                 <div class="card-body">
-                    <h3><a href="{$article.url}">{$article.title}</a></h3>
+                    <h3><a href="{$details.url}">{$details.title}</a></h3>
                     <p class="text-muted">
                         <span style="margin-right:10px;">
                             <i class="fa fa-calendar-day"></i>
-                            <font>{$article.update_time}</font>
+                            <font>{$details.update_time}</font>
                         </span>
                         <span style="margin-right:10px;">
                             <i class="fa fa-calendar-day"></i>
-                            <a href="{$article.cat_url}">{$article.cat_name}</a>
+                            <a href="{$details.cat_url}">{$details.cat_name}</a>
                         </span>
                         <span style="margin-right:10px;">
                             <i class="fa fa-user"></i>
-                            <font>{$article.author}</font>
+                            <font>{$details.author}</font>
                         </span>
                         <span style="margin-right:10px;">
                             <i class="fa fa-eye"></i>
-                            <font>{$article.hits}</font>
+                            <font>{$details.hits}</font>
                         </span>
                     </p>
-                    <div class="details">{$article.content}</div>
+                    <div class="details">{$details.content}</div>
                     <div class="row">
                         <div class="col-md-6">
-                            <a href="{$article.prev.url}">{$article.prev.title}</a>
+                            <a href="{$details.prev.url}">{$details.prev.title}</a>
                         </div>
                         <div class="col-md-6">
-                            <a href="{$article.next.url}">{$article.next.title}</a>
+                            <a href="{$details.next.url}">{$details.next.title}</a>
                         </div>
                     </div>
                 </div>

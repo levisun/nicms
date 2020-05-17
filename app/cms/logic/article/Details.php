@@ -41,8 +41,8 @@ class Details extends BaseLogic
         if ($id = $this->request->param('id/d', 0, 'abs')) {
             $map = [
                 ['article.id', '=', $id],
-                ['article.is_pass', '=', '1'],
-                ['article.delete_time', '=', '0'],
+                ['article.is_pass', '=', 1],
+                ['article.delete_time', '=', 0],
                 ['article.show_time', '<', time()],
                 ['article.lang', '=', $this->lang->getLangSet()]
             ];
@@ -51,8 +51,8 @@ class Details extends BaseLogic
         elseif ($cid = $this->request->param('cid/d', 0, 'abs')) {
             $map = [
                 ['article.category_id', '=', $cid],
-                ['article.is_pass', '=', '1'],
-                ['article.delete_time', '=', '0'],
+                ['article.is_pass', '=', 1],
+                ['article.delete_time', '=', 0],
                 ['article.show_time', '<', time()],
                 ['article.lang', '=', $this->lang->getLangSet()]
             ];
@@ -100,7 +100,7 @@ class Details extends BaseLogic
                         ->select()
                         ->toArray();
                     foreach ($fields as $value) {
-                        $fields[$value['fields_name']] = $value['data'];
+                        $result[$value['fields_name']] = $value['data'];
                     }
 
                     // 标签

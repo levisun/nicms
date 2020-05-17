@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace app\cms\controller;
 
-use think\exception\HttpResponseException;
 use app\common\controller\BaseController;
 use app\common\model\Category as ModelCategory;
 
@@ -29,7 +28,7 @@ class Index extends BaseController
      * @access public
      * @return void
      */
-    public function initialize()
+    public function initialize(): void
     {
         if ($cid = $this->request->param('cid/d', 0, 'abs')) {
             // 获得栏目对应模板
