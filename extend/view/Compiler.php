@@ -89,7 +89,7 @@ class Compiler
     public function check(string &$_compiler_file): bool
     {
         if (false === $this->tpl_compile) {
-            return false;
+            // return false;
         }
 
         if (!is_file($_compiler_file)) {

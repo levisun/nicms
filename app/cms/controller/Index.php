@@ -28,7 +28,7 @@ class Index extends BaseController
      * @access public
      * @return void
      */
-    public function initialize(): void
+    public function initialize()
     {
         if ($cid = $this->request->param('cid/d', 0, 'abs')) {
             // 获得栏目对应模板

@@ -14,13 +14,7 @@
                         <a class="nav-link" href="/">首页</a>
                     </li>
 
-                    {tags:nav type="main"}
 
-                    {tags:/nav}
-                    {tags:if isset($nav) and $nav >= 1}
-                    {tags:elseif isset($n)}
-                    {tags:else /}
-                    {tags:/if}
                     <template v-for="vo in nav">
                         <template v-if="vo.child[0]">
                             <li class="nav-item dropdown">
@@ -145,3 +139,5 @@ __SCRIPT__
     });
     layout_footer.load();
 </script>
+</body>
+</html>

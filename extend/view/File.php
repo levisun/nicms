@@ -39,7 +39,7 @@ class File
     {
         if (is_file($_view_path . self::getMobilePath($_view_path) . $_template)) {
             $path = $_view_path . self::getMobilePath($_view_path) . $_template;
-            self::$includeFile[] = $path;
+            self::$includeFile[$path] = time();
             return $path;
         } else {
             var_dump($_view_path . self::getMobilePath($_view_path) . $_template);
