@@ -18,10 +18,12 @@ use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
 use app\common\library\Base64;
+use app\common\library\DataFilter;
 use app\common\model\ApiApp as ModelApiApp;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lizhichao\Word\VicWord;
 
 if (!function_exists('format_hits')) {
     /**
@@ -54,6 +56,46 @@ if (!function_exists('format_size')) {
             $_file_size /= 1024;
         }
         return round($_file_size, 2) . $_delimiter . $units[$i];
+    }
+}
+
+if (!function_exists('word')) {
+    /**
+     * 分词
+     * @param  string $_str
+     * @param  int    $_length 返回词语数量
+     * @return array
+     */
+    function word(string $_str, int $_length): array
+    {
+        if ($_str = DataFilter::chs_alpha($_str)) {
+            @ini_set('memory_limit', '128M');
+            $path = app()->getRootPath() . 'vendor/lizhichao/word/Data/dict.json';
+            define('_VIC_WORD_DICT_PATH_', $path);
+            $fc = new VicWord('json');
+            $_str = $fc->getAutoWord($_str);
+            unset($fc);
+
+            // 取出有效词
+            foreach ($_str as $key => $value) {
+                $value[0] = trim($value[0]);
+
+                if (1 < mb_strlen($value[0], 'UTF-8')) {
+                    $_str[$key] = trim($value[0]);
+                } elseif (intval($value[0])) {
+                    unset($_str[$key]);
+                } else {
+                    unset($_str[$key]);
+                }
+            }
+            // 过滤重复词
+            $_str = array_unique($_str);
+
+            // 如果设定长度,返回对应长度数组
+            return $_length ? array_slice($_str, 0, $_length) : $_str;
+        } else {
+            return [];
+        }
     }
 }
 

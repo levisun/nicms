@@ -62,7 +62,7 @@ class Article extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
-            $search_key = DataFilter::word($search_key, 3);
+            $search_key = word($search_key, 3);
             if (!empty($search_key)) {
                 $map[] = ['article.title', 'regexp', implode('|', $search_key)];
             }

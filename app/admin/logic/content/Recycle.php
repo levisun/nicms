@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
-use app\common\library\DataFilter;
 use app\common\model\Article as ModelArticle;
 use app\common\model\ArticleContent as ModelArticleContent;
 use app\common\model\ArticleFile as ModelArticleFile;
@@ -56,7 +55,7 @@ class Recycle extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
-            $search_key = DataFilter::word($search_key, 3);
+            $search_key = word($search_key, 3);
             if (!empty($search_key)) {
                 $map[] = ['article.title', 'regexp', implode('|', $search_key)];
             }

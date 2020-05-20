@@ -16,11 +16,12 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
-use think\facade\Request;
 use app\common\library\Emoji;
 
 class DataFilter
 {
+    private static $elements = ['a', 'audio', 'b', 'br', 'blockquote', 'center', 'dd', 'del', 'div', 'dl', 'dt', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'img', 'li', 'ol', 'p', 'pre', 'section', 'small', 'span', 'strong', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul', 'video'];
+    private static $attr = ['alt', 'align', 'class', 'height', 'href', 'id', 'rel', 'src', 'style', 'target', 'title', 'width'];
 
     /**
      * 默认过滤
@@ -33,9 +34,9 @@ class DataFilter
     {
         if (is_string($_data)) {
             $_data = self::safe($_data);
-            $_data = strip_tags($_data);
             $_data = self::symbol($_data);
             $_data = Emoji::clear($_data);
+            $_data = strip_tags($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
@@ -56,7 +57,6 @@ class DataFilter
     {
         if (is_string($_data)) {
             $_data = self::safe($_data);
-            $_data = self::element($_data);
             $_data = self::symbol($_data);
             $_data = Emoji::encode($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
@@ -89,13 +89,13 @@ class DataFilter
     }
 
     /**
-     * 过滤并分词
+     * 过滤非汉字与字母
      * @access public
      * @static
      * @param  string $_data
-     * @return array
+     * @return string
      */
-    public static function word(string $_data, int $_length = 0): array
+    public static function chs_alpha(string $_data): string
     {
         $_data = self::filter($_data);
         $_data = self::decode($_data);
@@ -107,111 +107,7 @@ class DataFilter
         }, $_data);
 
         // 过滤多余空格
-        $str = preg_replace('/( ){2,}/', ' ', trim($str));
-
-        if ($str) {
-            // 分词
-            @ini_set('memory_limit', '128M');
-            $path = app()->getRootPath() . 'vendor/lizhichao/word/Data/dict.json';
-            define('_VIC_WORD_DICT_PATH_', $path);
-            $fc = new \Lizhichao\Word\VicWord('json');
-            $str = $fc->getAutoWord($str);
-            unset($fc);
-
-            // 取出有效词
-            foreach ($str as $key => $value) {
-                $value[0] = trim($value[0]);
-
-                if (1 < mb_strlen($value[0], 'UTF-8')) {
-                    $str[$key] = trim($value[0]);
-                } elseif (intval($value[0])) {
-                    unset($str[$key]);
-                } else {
-                    unset($str[$key]);
-                }
-            }
-            // 过滤重复词
-            $str = array_unique($str);
-
-            // 如果设定长度,返回对应长度数组
-            return $_length ? array_slice($str, 0, $_length) : $str;
-        } else {
-            return [];
-        }
-    }
-
-    /**
-     * 过滤标签
-     * @access private
-     * @static
-     * @param  string $_str
-     * @return string
-     */
-    private static function element(string &$_str): string
-    {
-        // 保留标签
-        $_str = strip_tags($_str, '<a><audio><b><br><blockquote><center><dd><del><div><dl><dt><em><h1><h2><h3><h4><h5><h6><i><img><li><ol><p><pre><section><small><span><strong><table><tbody><td><th><thead><tr><u><ul><video>');
-
-        return preg_replace_callback('/<([a-zA-Z1-6]+)(.*?)\/?>/si', function ($matches) {
-            // 过滤标签属性
-            $matches[2] = preg_replace_callback('/([a-zA-Z0-9-_]+)=["\']+(.*?)["\']+( )/si', function ($ema) {
-                $result = '';
-                $ema[1] = strtolower($ema[1]);
-                // 过滤非法属性 target rel
-
-                // 保留属性
-                $attr = ['alt', 'title', 'height', 'width', 'align'];
-                if (in_array($ema[1], $attr) && $ema[2]) {
-                    $result = ' ' . $ema[1] . '="' . $ema[2] . '"';
-                }
-
-                // 图片属性
-                elseif ('src' === $ema[1]) {
-                    // 本地网络地址
-                    if (false !== stripos($ema[2], Request::rootDomain())) {
-                        $ema[2] = parse_url($ema[2], PHP_URL_PATH);
-
-                        // 追加get参数
-                        $ema[2] .= $ema[2] ? '?' . parse_url($ema[2], PHP_URL_QUERY) : '';
-                    }
-
-                    $result = $ema[2]
-                        ? ' ' . $ema[1] . '="' . $ema[2] . '"'
-                        : '';
-                }
-
-                // 超链接属性
-                elseif ('href' === $ema[1]) {
-                    // 本地网络地址
-                    if (false !== stripos($ema[2], Request::rootDomain())) {
-                        $ema[2] = rtrim($ema[2], '/');
-                        $ema[2] = parse_url($ema[2], PHP_URL_PATH);
-
-                        // 追加get参数
-                        $ema[2] .= $ema[2] ? '?' . parse_url($ema[2], PHP_URL_QUERY) : '';
-
-                        $ema[2] = $ema[2] ?: '/';
-
-                        // 添加新窗口打开属性
-                        $ema[2] = '"' . $ema[2] . '" target="_blank"';
-                    }
-                    // 外链
-                    elseif (0 === stripos($ema[2], 'http')) {
-                        $ema[2] = '"' . $ema[2] . '" rel="nofollow" target="_blank"';
-                    } else {
-                        $ema[2] = '"' . $ema[2] . '"';
-                    }
-
-                    $result = $ema[2]
-                        ? ' ' . $ema[1] . '=' . $ema[2]
-                        : '';
-                }
-
-                return $result;
-            }, $matches[2] . ' ');
-
-            return '<' . strtolower(trim($matches[1])) . rtrim($matches[2]) . '>';
-        }, $_str);
+        return preg_replace('/( ){2,}/', ' ', trim($str));
     }
 
     /**
@@ -242,27 +138,25 @@ class DataFilter
 
             // 特殊字符转HTML实体
             '*' => '&lowast;', '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;', '`' => '&acute;',
-            // '“' => '&quot;', '”' => '&quot;', '‘' => '&acute;', '’' => '&acute;',
 
             // 危险函数(方法)
-            'base64_decode'        => 'base64-decode&nbsp;',
-            'call_user_func_array' => 'call-user-func-array&nbsp;',
-            'call_user_func'       => 'call-user-unc&nbsp;',
+            'base64_decode'        => 'base64_decode&nbsp;',
+            'call_user_func_array' => 'call_user_func_array&nbsp;',
+            'call_user_func'       => 'call_user_func&nbsp;',
             'chown'                => 'chown&nbsp;',
             'eval'                 => 'eval&nbsp;',
             'exec'                 => 'exec&nbsp;',
-            'file_get_contents'    => 'file-get-contents&nbsp;',
-            'file_put_contents'    => 'file-put-contents&nbsp;',
-            // 'function'             => 'function&nbsp;',
+            'file_get_contents'    => 'file_get_contents&nbsp;',
+            'file_put_contents'    => 'file_put_contents&nbsp;',
             'invoke'               => 'invoke&nbsp;',
             'passthru'             => 'passthru&nbsp;',
             'phpinfo'              => 'phpinfo&nbsp;',
-            'proc_open'            => 'proc-open&nbsp;',
+            'proc_open'            => 'proc_open&nbsp;',
             'popen'                => 'popen&nbsp;',
             'sleep'                => 'sleep&nbsp;',
-            'shell_exec'           => 'shell-exec&nbsp;',
+            'shell_exec'           => 'shell_exec&nbsp;',
             'system'               => 'system&nbsp;',
-            '__destruct'           => '--destruct&nbsp;',
+            '__destruct'           => '__destruct&nbsp;',
             '.php'                 => '-php&nbsp;',
 
             'select' => 'select&nbsp;',
@@ -271,48 +165,6 @@ class DataFilter
             'create' => 'create&nbsp;',
             'update' => 'update&nbsp;',
             'insert' => 'insert&nbsp;',
-
-            // 'select'               => '&#115;elect',
-            // 'drop'                 => 'dro&#112;',
-            // 'delete'               => 'd&#101;lete',
-            // 'create'               => 'cr#101;ate',
-            // 'update'               => 'updat#101;',
-            // 'insert'               => 'ins#101;rt',
-        ];
-
-        return str_replace(array_keys($pattern), array_values($pattern), $_str);
-    }
-
-    /**
-     * 过滤PHP危害函数方法
-     * @access private
-     * @static
-     * @param  string $_str
-     * @return string
-     */
-    private static function funSymbol(string &$_str): string
-    {
-        $pattern = [
-            // 特殊字符转义
-            'base64_decode'        => 'ba&#115;e64_decode',
-            'call_user_func_array' => 'cal&#108;_user_func_array',
-            'call_user_func'       => 'cal&#108;_user_func',
-            'chown'                => 'ch&#111;wn',
-            'eval'                 => 'ev&#97;l',
-            'exec'                 => 'ex&#101;c',
-            'passthru'             => 'pa&#115;sthru',
-            'phpinfo'              => 'ph&#112;info',
-            'proc_open'            => 'pr&#111;c_open',
-            'popen'                => 'po&#112;en',
-            'shell_exec'           => 'sh&#101;ll_ex&#101;c',
-            'system'               => 'sy&#115;tem',
-
-            // 'select'               => '&#115;elect',
-            // 'drop'                 => 'dro&#112;',
-            // 'delete'               => 'd&#101;lete',
-            // 'create'               => 'cr#101;ate',
-            // 'update'               => 'updat#101;',
-            // 'insert'               => 'ins#101;rt',
         ];
 
         return str_replace(array_keys($pattern), array_values($pattern), $_str);
@@ -331,38 +183,53 @@ class DataFilter
     {
         libxml_disable_entity_loader(true);
 
-        $_str = (string) preg_replace([
-            // 过滤有害HTML标签及内容
-            '/<html.*?>.*?<\/html.*?>/si',   '/<(\/?html.*?)>/si',
-            '/<head.*?>.*?<\/head.*?>/si',   '/<(\/?head)>/si',
-            '/<body.*?>.*?<\/body.*?>/si',   '/<(\/?body.*?)>/si',
-            '/<title.*?>.*?<\/title.*?>/si', '/<(\/?title.*?)>/si',
-            '/<link.*?\/?>/si',
-            '/<meta.*?\/?>/si',
-            '/<base.*?\/?>/si',
-            '/<script.*?>.*?<\/script.*?>/si', '/<(\/?script.*?)>/si',
-            '/<style.*?>.*?<\/style.*?>/si',   '/<(\/?style.*?)>/si',
-            '/javascript:.*?[);]+/si',
+        // 过滤闭合标签
+        $_str = preg_replace_callback('/<([a-zA-Z1-6]+).*?>.*?<\/.*?>/si', function ($matches) {
+            $matches = array_map('strtolower', $matches);
+            $matches = array_map('trim', $matches);
+            $matches[1] = trim($matches[1], '/ ');
 
-            '/<iframe.*?>.*?<\/iframe.*?>/si',     '/<(\/?iframe.*?)>/si',
-            '/<frame.*?>.*?<\/frame.*?>/si',       '/<(\/?frame.*?)>/si',
-            '/<frameset.*?>.*?<\/frameset.*?>/si', '/<(\/?frameset.*?)>/si',
-            '/<object.*?>.*?<\/object.*?>/si',     '/<(\/?object.*?)>/si',
-            '/<xml.*?>.*?<\/xml.*?>/si',           '/<(\/?xml.*?)>/si',
-            '/<embed.*?>.*?<\/embed.*?>/si',       '/<(\/?embed.*?)>/si',
-            '/<ilayer.*?>.*?<\/ilayer.*?>/si',     '/<(\/?ilayer.*?)>/si',
-            '/<layer.*?>.*?<\/layer.*?>/si',       '/<(\/?layer.*?)>/si',
-            '/<bgsound.*?>.*?<\/bgsound.*?>/si',   '/<(\/?bgsound.*?)>/si',
+            if (in_array($matches[1], self::$elements)) {
+                return $matches[0];
+            }
+        }, $_str);
+
+
+
+        // 过滤不闭合标签
+        $_str = preg_replace_callback('/<([a-zA-Z1-6]+).*?\/?>/si', function ($matches) {
+            $matches = array_map('strtolower', $matches);
+            $matches = array_map('trim', $matches);
+            $matches[1] = trim($matches[1], '/ ');
+
+            if (in_array($matches[1], self::$elements)) {
+                return $matches[0];
+            }
+        }, $_str);
+
+
+
+        // 过滤属性和JS事件
+        // [ onclick="alert(1)" onload=eval(ssltest.title) ]在做修改时,请保证括号内代码成功过滤!有新结构体,请追加在括号内!
+        $_str = preg_replace_callback('/(<\/?[a-zA-Z1-6]+)(.*?)(\/?>)/si', function ($matches) {
+            $matches = array_map('strtolower', $matches);
+            $matches = array_map('trim', $matches);
+            $matches[2] .= ' ';
+            $matches[2] = preg_replace_callback('/(.*?)=(.*?) /si', function ($ele_attr) {
+                if (in_array($ele_attr[1], self::$attr) && false === stripos($ele_attr[2], 'javascript')) {
+                    return $ele_attr[0];
+                }
+            }, $matches[2]);
+            $matches[2] = $matches[2] ? ' ' . trim($matches[2]) : '';
+            return $matches[1] . $matches[2] . $matches[3];
+        }, $_str);
+
+
+
+        // 过滤代码
+        $_str = preg_replace([
+            // 过滤HTML注释
             '/<\!\-\-.*?\-\->/s',
-
-            // JS脚本注入
-            // '/on([a-zA-Z0-9]+)([ ]*?=[ ]*?)(["\'])(.*?)(["\'])/si',
-            // '/on([a-zA-Z0-9 ]+)=([ a-zA-Z0-9_("\']+)(["\');]+)/si',
-
-            // 过滤JS结构[ onclick="alert(1)" onload=eval(ssltest.title) ]在做修改时,请保证括号内代码成功过滤!有新结构体,请追加在括号内!
-            '/on[a-zA-z0-9 ]+=["\' ]?[a-zA-Z0-9_.(]+.*?\)?["\'; ]?/si',
-            // 同上[ title=alert(1578859217) ]
-            '/=["\' ]?[a-zA-Z0-9_.]+\(.*?\)/si',
 
             // 过滤PHP代码
             '/<\?php.*?\?>/si',
@@ -379,6 +246,8 @@ class DataFilter
             '/(-){4,}/s',
             '/(=){4,}/s',
         ], '', $_str);
+
+
 
         // 过滤斜杠,反斜杠,点避免非法目录操作
         $_str = trim($_str);

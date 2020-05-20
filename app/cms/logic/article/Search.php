@@ -20,7 +20,6 @@ namespace app\cms\logic\article;
 use app\common\controller\BaseLogic;
 use app\common\library\Base64;
 use app\common\library\Canvas;
-use app\common\library\DataFilter;
 use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;
 use app\common\model\ArticleTags as ModelArticleTags;
@@ -66,7 +65,7 @@ class Search extends BaseLogic
         // 搜索
         if ($search_key = $this->request->param('key')) {
             // 搜索5个词
-            $search_key = DataFilter::word($search_key, 5);
+            $search_key = word($search_key, 5);
             if ($search_key = implode('|', $search_key)) {
                 $map[] = ['article.title', 'regexp', $search_key];
             }
