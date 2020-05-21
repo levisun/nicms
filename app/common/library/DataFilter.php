@@ -21,6 +21,7 @@ use app\common\library\Emoji;
 class DataFilter
 {
     private static $elements = ['a', 'audio', 'b', 'br', 'blockquote', 'center', 'dd', 'del', 'div', 'dl', 'dt', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'img', 'li', 'ol', 'p', 'pre', 'section', 'small', 'span', 'strong', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul', 'video'];
+
     private static $attr = ['alt', 'align', 'class', 'height', 'href', 'id', 'rel', 'src', 'style', 'target', 'title', 'width'];
 
     /**
@@ -79,7 +80,7 @@ class DataFilter
     {
         if (is_string($_data)) {
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
-            $_data =  Emoji::decode($_data);
+            $_data = Emoji::decode($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::decode($value);

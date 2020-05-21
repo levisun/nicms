@@ -34,7 +34,7 @@ class Canvas
      * @param  bool        $_base64 缩略图宽高
      * @return string
      */
-    public static function image(string $_file, int $_size = 0,  bool $_base64 = false): string
+    public static function thumb(string $_file, int $_size = 0,  bool $_base64 = false): string
     {
         if (0 === stripos($_file, 'http')) {
             return $_file;
@@ -84,6 +84,15 @@ class Canvas
         }
 
         return $_file;
+    }
+
+    public static function image(string $_file)
+    {
+        if (0 === stripos($_file, 'http')) {
+            return $_file;
+        }
+
+        return Config::get('app.img_host') . '/' . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
     }
 
     /**

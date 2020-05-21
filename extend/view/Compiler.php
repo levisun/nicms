@@ -89,7 +89,7 @@ class Compiler
     public function check(string &$_compiler_file): bool
     {
         if (false === $this->tpl_compile) {
-            // return false;
+            return false;
         }
 
         if (!is_file($_compiler_file)) {
@@ -122,7 +122,14 @@ class Compiler
         return true;
     }
 
-    public function create(string &$_content, string &$_compiler_file)
+    /**
+     * 生成编译文件
+     * @access public
+     * @param  string  $_content
+     * @param  string  $_compiler_file
+     * @return void
+     */
+    public function create(string &$_content, string &$_compiler_file): void
     {
         /* 去除html空格与换行 */
         $pattern = [
@@ -131,8 +138,10 @@ class Compiler
             '/( ){2,}/s'            => ' ',
             '/(\s+\n|\r)/s'         => '',
             '/(\t|\n|\r|\0|\x0B)/s' => '',
+            '/<\/(body|html)>/s'    => '',
         ];
         $compiler = preg_replace(array_keys($pattern), array_values($pattern), $_content);
+        $compiler .= '</body></html>';
 
         // 优化生成的php代码
         $compiler = preg_replace([

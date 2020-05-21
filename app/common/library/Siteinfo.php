@@ -29,9 +29,9 @@ class Siteinfo
     private static $appName = '';
     private static $langSet = '';
 
-    public static function query(string $_appname): array
+    public static function query(string $_app_name): array
     {
-        self::$appName = $_appname;
+        self::$appName = $_app_name;
         self::$langSet = Lang::getLangSet();
 
         $cache_key = md5(self::$appName . self::$langSet);
@@ -41,7 +41,7 @@ class Siteinfo
                 'script'    => self::script(),
                 'footer'    => self::footer(),
                 'copyright' => self::copyright(),
-                'name'      => self::sitename(),
+                'name'      => self::siteName(),
             ];
 
             Cache::tag(['SYSTEM', self::$appName])->set($cache_key, $common);
@@ -153,7 +153,7 @@ class Siteinfo
         }
 
         // 默认
-        $title .= self::sitename();
+        $title .= self::siteName();
 
         return strip_tags(htmlspecialchars_decode($title));
     }
@@ -164,14 +164,14 @@ class Siteinfo
      * @static
      * @return string
      */
-    private static function sitename(): string
+    private static function siteName(): string
     {
-        $sitename = ModelConfig::where([
+        $site = ModelConfig::where([
             ['name', '=', self::$appName . '_sitename'],
             ['lang', '=', self::$langSet]
         ])->value('value', 'NICMS');
 
-        return strip_tags(htmlspecialchars_decode($sitename));
+        return strip_tags(htmlspecialchars_decode($site));
     }
 
     /**

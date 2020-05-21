@@ -188,6 +188,22 @@ class UploadFile
         ];
     }
 
+    public function thumb(\think\File &$_files, string $_save_file)
+    {
+        @ini_set('memory_limit', '128M');
+
+        $image = Image::open(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_save_file);
+
+        // 缩放图片到指定尺寸
+        if ($this->thumbSize['width'] && $this->thumbSize['height']) {
+            $image->thumb($this->thumbSize['width'], $this->thumbSize['height'], $this->thumbSize['type']);
+        }
+        // 规定图片最大尺寸
+        elseif ($image->width() >= 800) {
+            $image->thumb(800, 800, Image::THUMB_SCALING);
+        }
+    }
+
     /**
      * 图片缩略图和水印
      * @access private

@@ -101,7 +101,7 @@ class Category extends BaseLogic
                     // 标识符
                     $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
                     // 缩略图
-                    $value['thumb'] = Canvas::image($value['thumb'], 300);
+                    $value['thumb'] = Canvas::image($value['thumb']);
                     // 时间格式
                     $value['update_time'] = date($date_format, (int) $value['update_time']);
                     // 作者

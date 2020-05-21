@@ -18,8 +18,6 @@ namespace view;
 
 use think\App;
 use think\contract\TemplateHandlerInterface;
-use think\exception\HttpResponseException;
-use think\Response;
 use app\common\library\DataFilter;
 use view\Compiler;
 use view\File;

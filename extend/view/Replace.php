@@ -263,8 +263,11 @@ class Replace
             $js = str_replace('\'', '"', $js);
             // 添加defer属性
             $js = false === stripos($js, 'defer') && false === stripos($js, 'async')
-                ? str_replace('"></', '" defer="defer"></', $js)
+                ? str_replace('></', ' defer="defer"></', $js)
                 : $js;
+
+            // 添加版本参数
+            $js = str_replace('.js"', '.js?v=' . date('YmdHis') . '"', $js);
 
             $_content .= $js;
         }
@@ -276,11 +279,15 @@ class Replace
 
         // 解析模板中的JS, 移动到HTML文档底部
         $script = '';
-        $pattern = '/<script( type="(.*?)")?>(.*?)<\/script>/si';
+        $pattern = '/<script( type=["\']+(.*?)["\']+)?>(.*?)<\/script>/si';
         $_content = preg_replace_callback($pattern, function ($matches) use (&$script) {
             $pattern = [
-                '/(\/\*)(.*?)(\*\/)/i',
-                '/(\/\/)(.*?)(\n|\r)+/i',
+                '/\/\/.*?(\r|\n)+/i',
+                '/\/\*.*?\*\//i',
+
+                // '/(\/\*)(.*?)(\*\/)/i',
+                // '/(\/\/)(.*?)(\n|\r)+/i',
+
                 '/( ){2,}/s',
                 '/(\s+\n|\r)/s',
                 '/(\t|\n|\r|\0|\x0B)/s',

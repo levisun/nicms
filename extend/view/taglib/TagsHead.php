@@ -1,5 +1,17 @@
 <?php
 
+/**
+ *
+ * HTML头信息标签
+ *
+ * @package   NICMS
+ * @category  view\taglib
+ * @author    失眠小枕头 [levisun.mail@gmail.com]
+ * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
+ * @link      www.NiPHP.com
+ * @since     2019
+ */
+
 declare(strict_types=1);
 
 namespace view\taglib;
@@ -20,9 +32,9 @@ class TagsHead extends Taglib
             '<meta charset="UTF-8" />' .
 
             // 网站标题 关键词 描述
-            '<title>__TITLE__</title>' .
-            '<meta name="keywords" content="__KEYWORDS__" />' .
-            '<meta name="description" content="__DESCRIPTION__" />' .
+            '<title>{$web_title}</title>' .
+            '<meta name="keywords" content="{$web_keywords}" />' .
+            '<meta name="description" content="{$web_description}" />' .
 
             '<meta property="og:title" content="__NAME__">' .
             '<meta property="og:type" content="website">' .
@@ -101,6 +113,10 @@ class TagsHead extends Taglib
                 $value = false === stripos($value, 'preload') && false === stripos($value, 'prefetch')
                     ? str_replace('rel="', 'rel="preload ', $value)
                     : $value;
+
+                // 添加版本参数
+                $value = str_replace('.css', '.css?v=' . date('YmdHis'), $value);
+
                 $link .= $value;
             }
         }

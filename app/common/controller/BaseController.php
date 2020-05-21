@@ -117,6 +117,12 @@ abstract class BaseController
             ]
         ]);
 
+        $this->view->assign([
+            'web_title' => $result['title'],
+            'web_keywords' => $result['keywords'],
+            'web_description' => $result['description'],
+        ]);
+
         // 控制器初始化
         $this->initialize();
     }
