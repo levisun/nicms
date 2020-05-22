@@ -19,7 +19,7 @@ namespace app\cms\logic\nav;
 
 use app\common\controller\BaseLogic;
 use app\common\library\Base64;
-use app\common\library\Canvas;
+use app\common\library\Image;
 use app\common\model\Category as ModelCategory;
 
 class Other extends BaseLogic
@@ -51,7 +51,7 @@ class Other extends BaseLogic
             foreach ($result as $key => $value) {
                 $value['id'] = (int) $value['id'];
                 $value['child'] = $this->child($value['id']);
-                $value['image'] = Canvas::image((string) $value['image']);
+                $value['image'] = Image::path((string) $value['image']);
                 $value['flag'] = Base64::flag($value['id'], 7);
                 if (in_array($value['action_name'], ['article', 'picture', 'download'])) {
                     $value['url'] = url('list/' . $value['id']);
@@ -99,7 +99,7 @@ class Other extends BaseLogic
         foreach ($result as $key => $value) {
             $value['id'] = (int) $value['id'];
             $value['child'] = $this->child($value['id']);
-            $value['image'] = Canvas::image((string) $value['image']);
+            $value['image'] = Image::path((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             if (in_array($value['action_name'], ['article', 'picture', 'download'])) {
                 $value['url'] = url('list/' . $value['id']);

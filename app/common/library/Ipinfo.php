@@ -58,7 +58,7 @@ class Ipinfo
                         unset($query_region['id'], $query_region['update_time']);
                         $query_region['ip'] = $_ip;
 
-                        Cache::tag(['SYSTEM', 'ipinfo'])->set($cache_key, $query_region);
+                        Cache::tag('system')->set($cache_key, $query_region);
                     }
                 }
             }

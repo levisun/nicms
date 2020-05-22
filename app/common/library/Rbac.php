@@ -189,7 +189,7 @@ class Rbac
                     ['level', '=', $_level],
                     ['pid', '=', $_pid],
                 ])
-                ->cache('NODE_FOUNDER' . $_uid . $_level . $_pid, null, 'SYSTEM')
+                ->cache('NODE_FOUNDER' . $_uid . $_level . $_pid, null, 'system')
                 ->select();
         } else {
             $result = ModelNode::view('node', ['id', 'name'])
@@ -201,7 +201,7 @@ class Rbac
                     ['node.level', '=', $_level],
                     ['node.pid', '=', $_pid],
                 ])
-                ->cache('NODE' . $_uid . $_level . $_pid, null, 'SYSTEM')
+                ->cache('NODE' . $_uid . $_level . $_pid, null, 'system')
                 ->select();
         }
 

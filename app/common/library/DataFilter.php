@@ -185,7 +185,7 @@ class DataFilter
         libxml_disable_entity_loader(true);
 
         // 过滤闭合标签
-        $_str = preg_replace_callback('/<([a-zA-Z1-6]+).*?>.*?<\/.*?>/si', function ($matches) {
+        $_str = preg_replace_callback('/<([a-zA-Z0-9]+).*?>.*?<\/.*?>/si', function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
             $matches[1] = trim($matches[1], '/ ');
@@ -198,7 +198,7 @@ class DataFilter
 
 
         // 过滤不闭合标签
-        $_str = preg_replace_callback('/<([a-zA-Z1-6]+).*?\/?>/si', function ($matches) {
+        $_str = preg_replace_callback('/<([a-zA-Z0-9]+).*?\/?>/si', function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
             $matches[1] = trim($matches[1], '/ ');
@@ -212,7 +212,7 @@ class DataFilter
 
         // 过滤属性和JS事件
         // [ onclick="alert(1)" onload=eval(ssltest.title) ]在做修改时,请保证括号内代码成功过滤!有新结构体,请追加在括号内!
-        $_str = preg_replace_callback('/(<\/?[a-zA-Z1-6]+)(.*?)(\/?>)/si', function ($matches) {
+        $_str = preg_replace_callback('/(<\/?[a-zA-Z0-9]+)(.*?)(\/?>)/si', function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
             $matches[2] .= ' ';

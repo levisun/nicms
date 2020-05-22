@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\cms\logic\link;
 
 use app\common\controller\BaseLogic;
-use app\common\library\Canvas;
+use app\common\library\Image;
 use app\common\model\Link as ModelLink;
 
 class Catalog extends BaseLogic
@@ -55,7 +55,7 @@ class Catalog extends BaseLogic
                 ->toArray();
 
             foreach ($list as $key => $value) {
-                $value['logo'] = Canvas::image($value['logo']);
+                $value['logo'] = Image::path($value['logo']);
                 $list[$key] = $value;
             }
 

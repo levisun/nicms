@@ -19,7 +19,7 @@ namespace app\cms\logic\nav;
 
 use app\common\controller\BaseLogic;
 use app\common\library\Base64;
-use app\common\library\Canvas;
+use app\common\library\Image;
 use app\common\model\Category as ModelCategory;
 
 class Sidebar extends BaseLogic
@@ -49,7 +49,7 @@ class Sidebar extends BaseLogic
                 if (null !== $result && $result = $result->toArray()) {
                     $result['id'] = (int) $result['id'];
                     $result['child'] = $this->child($result['id']);
-                    $result['image'] = Canvas::image((string) $result['image']);
+                    $result['image'] = Image::path((string) $result['image']);
                     $result['flag'] = Base64::flag($result['id'], 7);
                     if (in_array($result['action_name'], ['article', 'picture', 'download'])) {
                         $result['url'] = url('list/' . $result['id']);
@@ -96,7 +96,7 @@ class Sidebar extends BaseLogic
         foreach ($result as $key => $value) {
             $value['id'] = (int) $value['id'];
             $value['child'] = $this->child($value['id']);
-            $value['image'] = Canvas::image((string) $value['image']);
+            $value['image'] = Image::path((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             if (in_array($value['action_name'], ['article', 'picture', 'download'])) {
                 $value['url'] = url('list/' . $value['id']);

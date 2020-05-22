@@ -77,6 +77,7 @@ abstract class BaseLogic
      */
     protected $uid = 0;
     protected $urole = 0;
+    protected $type = 'guest';
 
     /**
      * 不用验证
@@ -115,6 +116,7 @@ abstract class BaseLogic
         if ($this->session->has($this->authKey) && $this->session->has($this->authKey . '_role')) {
             $this->uid = (int) $this->session->get($this->authKey);
             $this->urole = (int) $this->session->get($this->authKey . '_role');
+            $this->type = $this->authKey == 'user_auth_key' ? 'user' : 'admin';
         }
 
         $this->initialize();
@@ -259,7 +261,10 @@ abstract class BaseLogic
             ];
             $water = $this->request->param('water/b', true);
 
-            $result = (new UploadFile)->getFileInfo($this->uid, $element, $thumb, $water);
+            $result = (new UploadFile)->getFileInfo([
+                'user_id'   => $this->uid,
+                'user_type' => $this->type
+            ], $element, $thumb, $water);
         } else {
             $result = 'upload error';
         }

@@ -26,6 +26,13 @@ use app\common\model\UploadFileLog as ModelUploadFileLog;
 
 class UploadFile
 {
+
+    /**
+     * 图片根目录地址
+     * @var string
+     */
+    private $root_path = '';
+
     /**
      * 允许上传文件后缀,避免恶意修改配置文件导致的有害文件上传
      * @var array
@@ -71,6 +78,15 @@ class UploadFile
      */
     private $imgWater = true;
 
+    public function __construct()
+    {
+        @ini_set('memory_limit', '128M');
+        @ini_set('max_execution_time', '600');
+        @set_time_limit(600);
+
+        $this->root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+    }
+
     /**
      * 获得上传文件信息
      * @access public
@@ -78,13 +94,10 @@ class UploadFile
      * @param  string $_element 表单名
      * @param  array  $_thumb 缩略图宽高,缩放比例
      * @param  bool   $_water 添加水印
-     * @retuen array
+     * @return array
      */
-    public function getFileInfo(int $_uid, string $_element, array $_thumb, bool $_water): array
+    public function getFileInfo(array $_user, string $_element, array $_thumb, bool $_water): array
     {
-        @ini_set('max_execution_time', '600');
-        @set_time_limit(600);
-
         $files = Request::file($_element);
         $this->thumbSize = [
             'width'  => !empty($_thumb['width']) ? (int) abs($_thumb['width']) : 0,
@@ -99,14 +112,14 @@ class UploadFile
         if (!$result = $this->validate($_element, $files)) {
             // 单文件
             if (is_string($_FILES[$_element]['name'])) {
-                $result = $this->save($_uid, $files);
+                $result = $this->save($_user, $files);
             }
 
             // 多文件
             elseif (is_array($_FILES[$_element]['name'])) {
                 $result = [];
                 foreach ($files as $file) {
-                    $result[] = $this->save($_uid, $file);
+                    $result[] = $this->save($_user, $file);
                 }
             }
         }
@@ -150,28 +163,28 @@ class UploadFile
      * @param  \think\File $_files 文件
      * @return array
      */
-    private function save(int &$_uid, \think\File &$_files): array
+    private function save(array &$_user, \think\File &$_files): array
     {
         $_dir = 'uploads' . DIRECTORY_SEPARATOR;
 
         // 用户目录[删除用户时可删除目录]
-        // 应用名第一个字符作为用户类型标记
-        if ($_uid) {
-            // 文件保存目录
-            $_dir .= Base64::dechex($_uid) . DIRECTORY_SEPARATOR . Base64::dechex((int) date('Ym') + $_uid);
+        if ($_user['user_id']) {
+            $_dir .= Base64::flag($_user['user_type'], 7) . DIRECTORY_SEPARATOR .
+                Base64::dechex((int) date('Ym')) . DIRECTORY_SEPARATOR .
+                Base64::dechex($_user['user_id']);
         } else {
-            $_dir .= 'guest';
+            $_dir .= 'guest' . DIRECTORY_SEPARATOR . Base64::dechex((int) date('Ym'));
         }
 
-        // 子目录
-        // $_dir .= DIRECTORY_SEPARATOR . Base64::dechex((int) date('Ym'));
 
         $save_path = Config::get('filesystem.disks.public.url') . '/';
         $save_file = $save_path . Filesystem::disk('public')->putFile($_dir, $_files, 'uniqid');
         $this->writeUploadLog($save_file);   // 记录上传文件日志
 
         if (false !== strpos($_files->getMime(), 'image/')) {
-            $save_file = $this->thumbAndWater($_files, $save_file);
+            $save_file = $this->thumb($_files, $save_file);
+            $save_file = $this->water($_files, $save_file);
+            $save_file = $this->toExt($_files, $save_file);
         }
 
         $save_file = str_replace(DIRECTORY_SEPARATOR, '/', $save_file);
@@ -182,17 +195,82 @@ class UploadFile
             'extension' => pathinfo($save_file, PATHINFO_EXTENSION),
             'name'      => pathinfo($save_file, PATHINFO_BASENAME),
             'save_path' => $save_file,
-            'size'      => filesize(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file),
-            'type'      => finfo_file($finfo, app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $save_file),
+            'size'      => filesize($this->root_path . $save_file),
+            'type'      => finfo_file($finfo, $this->root_path . $save_file),
             'url'       => Config::get('app.img_host') . $save_file,
         ];
     }
 
-    public function thumb(\think\File &$_files, string $_save_file)
+    /**
+     * 转换图片格式
+     * @access private
+     * @param  string $_file 文件
+     * @param  string $_save_file 文件名
+     * @return void
+     */
+    private function toExt(\think\File &$_files, string $_save_file): string
     {
-        @ini_set('memory_limit', '128M');
+        $image = Image::open($this->root_path . $_save_file);
 
-        $image = Image::open(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_save_file);
+        // 转换webp格式
+        if (function_exists('imagewebp')) {
+            $webp_file = str_replace('.' . $_files->extension(), '.webp', $_save_file);
+            $image->save($this->root_path . $webp_file, 'webp');
+            $this->writeUploadLog($webp_file);   // 记录上传文件日志
+            // 删除非webp格式图片
+            if ('webp' !== $_files->extension()) {
+                unlink($this->root_path . $_save_file);
+            }
+            $_save_file = $webp_file;
+        }
+
+        // 转换jpg格式
+        elseif ('gif' !== $_files->extension()) {
+            $jpg_file = str_replace('.' . $_files->extension(), '.jpg', $_save_file);
+            $image->save($this->root_path . $jpg_file, 'jpg');
+            $this->writeUploadLog($jpg_file);   // 记录上传文件日志
+            // 删除非jpg格式图片
+            if ('jpg' !== $_files->extension()) {
+                unlink($this->root_path . $_save_file);
+            }
+            $_save_file = $jpg_file;
+        }
+
+        return $_save_file;
+    }
+
+    /**
+     * 添加水印
+     * @access private
+     * @param  string $_file 文件
+     * @param  string $_save_file 文件名
+     * @return void
+     */
+    private function water(\think\File &$_files, string $_save_file): string
+    {
+        $image = Image::open($this->root_path . $_save_file);
+
+        // 添加水印
+        if (true === $this->imgWater) {
+            $ttf = app()->getRootPath() . 'extend' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf';
+            $image->text(Request::rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9));
+        }
+
+        $image->save($this->root_path . $_save_file);
+
+        return $_save_file;
+    }
+
+    /**
+     * 生成缩略图
+     * @access private
+     * @param  string $_file 文件
+     * @param  string $_save_file 文件名
+     * @return void
+     */
+    private function thumb(\think\File &$_files, string $_save_file): string
+    {
+        $image = Image::open($this->root_path . $_save_file);
 
         // 缩放图片到指定尺寸
         if ($this->thumbSize['width'] && $this->thumbSize['height']) {
@@ -202,6 +280,10 @@ class UploadFile
         elseif ($image->width() >= 800) {
             $image->thumb(800, 800, Image::THUMB_SCALING);
         }
+
+        $image->save($this->root_path . $_save_file);
+
+        return $_save_file;
     }
 
     /**

@@ -53,7 +53,10 @@ class AppMaintain
                 ReGarbage::remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1);
 
                 // 清除游客上传的文件
-                ReGarbage::remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'guest', 60);
+                ReGarbage::remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'guest', 60);
+
+                // 清除上传的缩略图文件
+                ReGarbage::remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'thumb', 60);
 
                 $this->reRootDirOrFile();
             });

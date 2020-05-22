@@ -217,6 +217,12 @@ abstract class Async
     protected $urole = 0;
 
     /**
+     * 用户类型(用户和管理员)
+     * @var string
+     */
+    protected $type = 'guest';
+
+    /**
      * logic层返回数据
      * @var array
      */
@@ -363,11 +369,11 @@ abstract class Async
     protected function isReferer(): bool
     {
         // 验证请求来源
-        $refere = $this->request->server('HTTP_REFERER');
-        if (!$refere || false === stripos($refere, $this->request->rootDomain())) {
+        $referer = $this->request->server('HTTP_REFERER');
+        if (!$referer || false === stripos($referer, $this->request->rootDomain())) {
             $this->abort('错误请求', 27001);
         }
-        unset($refere);
+        unset($referer);
 
         // 验证请求参数
         $max_input_vars = (int) ini_get('max_input_vars');
@@ -422,6 +428,7 @@ abstract class Async
             if ($this->session->has($this->appAuthKey) && $this->session->has($this->appAuthKey . '_role')) {
                 $this->uid = (int) $this->session->get($this->appAuthKey);
                 $this->urole = (int) $this->session->get($this->appAuthKey . '_role');
+                $this->type = $this->appAuthKey == 'user_auth_key' ? 'user' : 'admin';
             }
 
             // 验证权限

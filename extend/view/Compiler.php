@@ -60,12 +60,14 @@ class Compiler
      * @param  array  $_config
      * @return void
      */
-    public function __construct(array $_config)
+    public function __construct(array $_config = [])
     {
         $this->layout_on = isset($_config['layout_on']) ? $_config['layout_on'] : false;
         $this->layout_name = isset($_config['layout_name']) ? $_config['layout_name'] : 'layout.html';
         $this->suffix = isset($_config['suffix']) ? $_config['suffix'] : 'php';
-        $this->path = isset($_config['path']) ? $_config['path'] : '';
+        $this->path = isset($_config['path'])
+            ? $_config['path']
+            : app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR;
         $this->tpl_compile = isset($_config['tpl_compile']) ? $_config['tpl_compile'] : false;
     }
 
@@ -160,5 +162,30 @@ class Compiler
         is_dir($dir) or mkdir($dir, 0755, true);
 
         file_put_contents($_compiler_file, $compiler);
+    }
+
+    /**
+     * 清空编译文件
+     * @access public
+     * @param  string $_path
+     * @return void
+     */
+    public function clear(string $_path = ''): void
+    {
+        $_path = $_path ?: $this->path;
+
+        if (is_dir($_path)) {
+            $files = scandir($_path);
+            foreach ($files as $dir_name) {
+                if ('.' == $dir_name || '..' == $dir_name) {
+                    continue;
+                } elseif (is_dir($_path . $dir_name)) {
+                    $this->clear($_path . $dir_name . DIRECTORY_SEPARATOR);
+                    rmdir($_path . $dir_name);
+                } elseif (is_file($_path . $dir_name)) {
+                    unlink($_path . $dir_name);
+                }
+            }
+        }
     }
 }

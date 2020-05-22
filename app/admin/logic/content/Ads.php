@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
-use app\common\library\Canvas;
+use app\common\library\Image;
 use app\common\model\Ads as ModelAds;
 
 class Ads extends BaseLogic
@@ -49,7 +49,7 @@ class Ads extends BaseLogic
             $value['start_time'] = date($date_format, $value['start_time']);
             $value['end_time'] = date($date_format, $value['end_time']);
 
-            $value['image'] = Canvas::image($value['image']);
+            $value['image'] = Image::path($value['image']);
 
             $value['url'] = [
                 'editor' => url('content/ads/editor/' . $value['id']),

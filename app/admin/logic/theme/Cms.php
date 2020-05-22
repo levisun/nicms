@@ -84,16 +84,11 @@ class Cms extends BaseLogic
             }
         }
 
-        $this->cache->tag('siteinfo')->clear();
+        $this->cache->tag('system')->clear();
 
-        $this->result = call_user_func([
-            $this->app->make('\app\admin\logic\content\Cache'),
-            'request'
-        ]);
-        $this->result = call_user_func([
-            $this->app->make('\app\admin\logic\content\Cache'),
-            'compile'
-        ]);
+        $this->cache->tag('request')->clear();
+
+        (new \view\Compiler)->clear();
 
         return [
             'debug' => false,

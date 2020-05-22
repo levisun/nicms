@@ -44,7 +44,7 @@ class Siteinfo
                 'name'      => self::siteName(),
             ];
 
-            Cache::tag(['SYSTEM', self::$appName])->set($cache_key, $common);
+            Cache::tag('system')->set($cache_key, $common);
         }
 
         $cache_key .= Request::param('id/f', null) . Request::param('cid/f', null);
@@ -56,7 +56,7 @@ class Siteinfo
                 'description' => self::description(),
             ];
 
-            Cache::tag(['SYSTEM', self::$appName])->set($cache_key, $result);
+            Cache::tag('system')->set($cache_key, $result);
         }
 
         return array_merge($common, $result);

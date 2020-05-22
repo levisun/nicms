@@ -19,7 +19,7 @@ namespace app\cms\logic\article;
 
 use app\common\controller\BaseLogic;
 use app\common\library\Base64;
-use app\common\library\Canvas;
+use app\common\library\Image;
 use app\common\library\DataFilter;
 use app\common\library\Download;
 use app\common\model\Article as ModelArticle;
@@ -129,14 +129,14 @@ class Details extends BaseLogic
                             switch ($key) {
                                     // 缩略图
                                 case 'thumb':
-                                    $result[$key] = Canvas::image($value);
+                                    $result[$key] = Image::path($value);
                                     break;
 
                                     // 图片
                                 case 'image_url':
                                     $value = unserialize($value);
                                     foreach ($value as $v) {
-                                        $result[$key][] = $v ? Canvas::image($v) : '';
+                                        $result[$key][] = $v ? Image::path($v) : '';
                                     }
                                     $result[$key] = array_unique($result[$key]);
                                     $result[$key] = array_filter($result[$key]);
@@ -147,7 +147,7 @@ class Details extends BaseLogic
                                     $value = DataFilter::decode($value);
                                     $value = preg_replace_callback('/(src=")([a-zA-Z0-9&=#,_:?.\/]+)(")/si', function ($matches) {
                                         return $matches[2]
-                                            ? 'src="' . Canvas::image($matches[2]) . '"'
+                                            ? 'src="' . Image::path($matches[2]) . '"'
                                             : '';
                                     }, $value);
                                     $result[$key] = $value;
