@@ -1,13 +1,13 @@
 <div class="row theme">
     <template v-for="vo in items">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="box box-solid">
                 <div class="box-header with-border">
                     <i class="fa fa-dashboard"></i>
                     <h3 class="box-title" v-text="vo.name"></h3>
                 </div>
                 <div class="box-body">
-                    <div><img v-bind:src="vo.img"></div>
+                    <div><img v-if="vo.img" v-bind:src="vo.img"></div>
                 </div>
                 <div class="box-footer">
                     <button class="btn btn-primary" @click="editor(vo.id)">{:lang('use')}</button>
@@ -39,7 +39,6 @@
                 });
             },
             editor(_id) {
-                console.log(_id);
                 jQuery.pjax({
                     url: NICMS.api.url + '/handle.do',
                     type: 'POST',
@@ -47,9 +46,9 @@
                         { name: 'method', value: 'theme.cms.editor' },
                         { name: 'id', value: _id }
                     ],
-                    success: function (res) {
-                        if (10000 == res.code) {
-
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            jQuery.uiToast(result.message);
                         }
                     }
                 });

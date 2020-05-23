@@ -216,14 +216,23 @@ class DataManage
                 'backup' . DIRECTORY_SEPARATOR .
                 pathinfo($this->savePath, PATHINFO_BASENAME) . '.zip';
             if (true === $zip->open($path, \ZipArchive::CREATE)) {
-                $dir = (array) glob($this->savePath . '*');
-                foreach ($dir as $name) {
-                    $zip->addFile($name, pathinfo($name, PATHINFO_BASENAME));
+                if ($dir = glob($this->savePath . '*')) {
+                    foreach ($dir as $name) {
+                        $zip->addFile($name, pathinfo($name, PATHINFO_BASENAME));
+                    }
+                    $zip->close();
+                    foreach ($dir as $name) {
+                        unlink($name);
+                    }
                 }
-                $zip->close();
-                foreach ($dir as $name) {
-                    unlink($name);
-                }
+                // $dir = (array) glob($this->savePath . '*');
+                // foreach ($dir as $name) {
+                //     $zip->addFile($name, pathinfo($name, PATHINFO_BASENAME));
+                // }
+                // $zip->close();
+                // foreach ($dir as $name) {
+                //     unlink($name);
+                // }
                 rmdir($this->savePath);
             }
 

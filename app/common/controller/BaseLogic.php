@@ -102,12 +102,12 @@ abstract class BaseLogic
      */
     public function __construct(App $_app)
     {
-        $this->app      = &$_app;
-        $this->cache    = &$this->app->cache;
-        $this->config   = &$this->app->config;
-        $this->lang     = &$this->app->lang;
-        $this->request  = &$this->app->request;
-        $this->session  = &$this->app->session;
+        $this->app     = &$_app;
+        $this->cache   = &$this->app->cache;
+        $this->config  = &$this->app->config;
+        $this->lang    = &$this->app->lang;
+        $this->request = &$this->app->request;
+        $this->session = &$this->app->session;
 
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\DataFilter::filter');
@@ -187,10 +187,9 @@ abstract class BaseLogic
     {
         $pattern = '/app\\\([a-zA-Z]+)\\\logic\\\([a-zA-Z]+)\\\([a-zA-Z]+)::([a-zA-Z]+)/si';
         $_validate = preg_replace_callback($pattern, function ($matches) {
-            return is_array($matches)
-                ? strtolower($matches[1] . '.' . $matches[2] . '.' . $matches[3] . '.' . $matches[4])
-                : '';
+            return strtolower($matches[1] . '.' . $matches[2] . '.' . $matches[3] . '.' . $matches[4]);
         }, $_validate);
+
         list($app, $logic, $method) = explode('.', $_validate, 4);
 
         $class = '\app\\' . $app . '\validate\\' . $logic . '\\' . ucfirst($method);
@@ -221,7 +220,7 @@ abstract class BaseLogic
     }
 
     /**
-     * 删除文件
+     * 删除上传文件
      * @access public
      * @param  string $_file
      * @return void
@@ -232,6 +231,7 @@ abstract class BaseLogic
     }
 
     /**
+     * 上传文件
      * 写入日志
      * @access public
      * @param  string $_file

@@ -689,7 +689,7 @@ abstract class Async
             $this->log->alert('[Referer]' . $this->request->server('HTTP_REFERER'));
             $this->abort('错误请求', 20005);
         }
-        unset($doamin, $root);
+        unset($domain, $root);
 
 
 
@@ -761,7 +761,6 @@ abstract class Async
      */
     protected function abort(string $_msg, int $_code = 40001): void
     {
-        $this->log->alert('[Async] abort error ' . $_msg);
         $response = $this->response($_msg, [], $_code);
         throw new HttpResponseException($response);
     }

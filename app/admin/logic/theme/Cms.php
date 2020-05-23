@@ -32,31 +32,37 @@ class Cms extends BaseLogic
      */
     public function query()
     {
-        $files = (array) glob($this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . 'cms' . DIRECTORY_SEPARATOR . '*');
-        rsort($files);
-        foreach ($files as $key => $value) {
-            if (is_file($value . DIRECTORY_SEPARATOR . 'config.json')) {
-                $config = file_get_contents($value . DIRECTORY_SEPARATOR . 'config.json');
-                $config = json_decode($config, true);
-                if (!is_array($config)) {
+        $path = $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . 'cms' . DIRECTORY_SEPARATOR;
+
+        if ($files = glob($path . '*')) {
+            rsort($files);
+
+            foreach ($files as $key => $value) {
+                if (is_file($value . DIRECTORY_SEPARATOR . 'config.json')) {
+                    $config = file_get_contents($value . DIRECTORY_SEPARATOR . 'config.json');
+                    $config = json_decode($config, true);
+                    if (!is_array($config)) {
+                        unset($files[$key]);
+                        continue;
+                    }
+                } else {
                     unset($files[$key]);
                     continue;
                 }
-            } else {
-                unset($files[$key]);
-                continue;
-            }
 
-            $value = basename($value);
-            $value = Base64::encrypt($value);
-            $value = rtrim($value, '=');
-            $files[$key] = [
-                'id'          => $value,
-                'img'         => isset($config['img']) ? $config['img'] : '',
-                'name'        => $config['theme'],
-                'version'     => $config['theme_version'],
-                'api_version' => $config['api_version'],
-            ];
+                $value = basename($value);
+                $value = Base64::encrypt($value);
+                $value = rtrim($value, '=');
+                $files[$key] = [
+                    'id'          => $value,
+                    'img'         => isset($config['img']) ? $config['img'] : '',
+                    'name'        => $config['theme'],
+                    'version'     => $config['theme_version'],
+                    'api_version' => $config['api_version'],
+                ];
+            }
+        } else {
+            $files = [];
         }
 
         return [

@@ -31,33 +31,37 @@ class Elog extends BaseLogic
      */
     public function query(): array
     {
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR;
-        $file = (array) glob($path . '*');
-        rsort($file);
-
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR;
 
-        foreach ($file as $key => $value) {
-            $date = date($date_format, filectime($value));
+        if ($files = glob($path . '*')) {
+            rsort($files);
 
-            $size = filesize($value);
-            $size = number_format($size / 1024, 2) . 'KB';
+            foreach ($files as $key => $value) {
+                $date = date($date_format, filectime($value));
 
-            $file[$key] = [
-                'id'   => Base64::encrypt(basename($value), date('Ymd')),
-                'name' => pathinfo($value, PATHINFO_FILENAME),
-                'date' => $date,
-                'size' => $size,
-            ];
+                $size = filesize($value);
+                $size = number_format($size / 1024, 2) . 'KB';
+
+                $files[$key] = [
+                    'id'   => Base64::encrypt(basename($value), date('Ymd')),
+                    'name' => pathinfo($value, PATHINFO_FILENAME),
+                    'date' => $date,
+                    'size' => $size,
+                ];
+            }
+        } else {
+            $files = [];
         }
+
 
         return [
             'debug' => false,
             'cache' => true,
             'msg'   => 'success',
             'data'  => [
-                'list'  => $file,
-                'total' => count($file)
+                'list'  => $files,
+                'total' => count($files)
             ]
         ];
     }

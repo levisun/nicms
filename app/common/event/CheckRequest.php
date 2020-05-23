@@ -28,17 +28,11 @@ class CheckRequest
     public function handle()
     {
         // 304缓存
-        $this->cache304();
+        $this->_304();
         // IP进入显示空页面
         $this->ipRequest();
         // 频繁或非法请求将被锁定
         $this->lock();
-
-        // if (1 === mt_rand(1, 999)) {
-        //     Log::write('[命运]' . htmlspecialchars(Request::url(true)), 'alert');
-        //     $response = miss(403);
-        //     throw new HttpResponseException($response);
-        // }
     }
 
     /**
@@ -79,20 +73,10 @@ class CheckRequest
     }
 
     /**
-     * 302跳转
-     * @return void
-     */
-    private function redirect(): void
-    {
-        // $response = Response::create(Config::get('app.app_host'), 'redirect', 302);
-        // throw new HttpResponseException($response);
-    }
-
-    /**
      * 304缓存
      * @return void
      */
-    private function cache304(): void
+    private function _304(): void
     {
         if (Request::isGet() && $ms = Request::server('HTTP_IF_MODIFIED_SINCE')) {
             // halt(date('Y-m-d H:i:s', strtotime($ms) + 28800));
@@ -101,7 +85,7 @@ class CheckRequest
             if ($config['request_cache_expire'] && strtotime($ms) + $config['request_cache_expire'] > Request::server('REQUEST_TIME')) {
                 $response = Response::create()->code(304);
                 $response->header([
-                    'X-Powered-By' => 'NICACHE'
+                    'X-Powered-By' => 'NI CACHE'
                 ]);
                 throw new HttpResponseException($response);
             }

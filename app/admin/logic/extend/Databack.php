@@ -32,24 +32,27 @@ class Databack extends BaseLogic
      */
     public function query(): array
     {
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR;
-
-        $file = (array) glob($path . '*');
-        rsort($file);
-
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
-        foreach ($file as $key => $value) {
-            if (basename($value) == 'sys_auto') {
-                unset($file[$key]);
-            } else {
-                $file[$key] = [
-                    'id'   => Base64::encrypt(basename($value), date('Ymd')),
-                    'name' => basename($value),
-                    'date' => date($date_format, filectime($value)),
-                    'size' => number_format(filesize($value) / 1024 / 1024, 2) . 'MB',
-                ];
+        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR;
+
+        if ($file = glob($path . '*')) {
+            rsort($file);
+
+            foreach ($file as $key => $value) {
+                if (basename($value) == 'sys_auto') {
+                    unset($file[$key]);
+                } else {
+                    $file[$key] = [
+                        'id'   => Base64::encrypt(basename($value), date('Ymd')),
+                        'name' => basename($value),
+                        'date' => date($date_format, filectime($value)),
+                        'size' => number_format(filesize($value) / 1024 / 1024, 2) . 'MB',
+                    ];
+                }
             }
+        } else {
+            $file = [];
         }
 
         return [

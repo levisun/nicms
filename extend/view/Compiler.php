@@ -49,6 +49,12 @@ class Compiler
     private $tpl_compile = true;
 
     /**
+     * 编译有效期
+     * @var bool
+     */
+    private $compile_time = 28800;
+
+    /**
      * 引入文件
      * @var array
      */
@@ -95,6 +101,10 @@ class Compiler
         }
 
         if (!is_file($_compiler_file)) {
+            return false;
+        }
+
+        if (filemtime($_compiler_file) + $this->compile_time < time()) {
             return false;
         }
 

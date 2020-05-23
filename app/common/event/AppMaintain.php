@@ -44,8 +44,6 @@ class AppMaintain
             // (new DataManage)->autoBackup();
 
             only_execute($app_name . '_remove_garbage.lock', '-4 hour', function () {
-                Log::alert('[REGARBAGE] 应用维护');
-
                 // 清除过期缓存文件
                 ReGarbage::remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'cache', 1);
 

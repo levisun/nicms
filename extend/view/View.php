@@ -44,6 +44,7 @@ class View implements TemplateHandlerInterface
         'compile_path'       => '',
         'compile_suffix'     => 'php',                  // 默认模板编译后缀
         'tpl_compile'        => true,                   // 是否开启模板编译,设为false则每次都会重新编译
+        'compile_time'       => 28800,                  // 模板编译有效期 0 为永久，(以数字为值，单位:秒)
 
         'tpl_begin'          => '{',                    // 模板引擎普通标签开始标记
         'tpl_end'            => '}',                    // 模板引擎普通标签结束标记
@@ -223,11 +224,12 @@ class View implements TemplateHandlerInterface
 
         // 编译
         $compiler = new Compiler([
-            'layout_on'   => $this->config['layout_on'],
-            'layout_name' => $this->config['layout_name'],
-            'suffix'      => $this->config['compile_suffix'],
-            'path'        => $this->config['compile_path'],
-            'tpl_compile' => $this->config['tpl_compile'],
+            'layout_on'    => $this->config['layout_on'],
+            'layout_name'  => $this->config['layout_name'],
+            'suffix'       => $this->config['compile_suffix'],
+            'path'         => $this->config['compile_path'],
+            'tpl_compile'  => $this->config['tpl_compile'],
+            'compile_time' => $this->config['compile_time'],
         ]);
 
 
