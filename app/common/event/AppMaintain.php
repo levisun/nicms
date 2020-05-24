@@ -44,17 +44,20 @@ class AppMaintain
             // (new DataManage)->autoBackup();
 
             only_execute($app_name . '_remove_garbage.lock', '-4 hour', function () {
+                $runtime_path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR;
+                $uploads_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
+
                 // 清除过期缓存文件
-                ReGarbage::remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'cache', 1);
+                ReGarbage::remove($runtime_path . 'cache', 1);
 
                 // 清除过期临时文件
-                ReGarbage::remove(app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp', 1);
+                ReGarbage::remove($runtime_path . 'temp', 1);
 
                 // 清除游客上传的文件
-                ReGarbage::remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'guest', 60);
+                ReGarbage::remove($uploads_path . 'guest', 60);
 
                 // 清除上传的缩略图文件
-                ReGarbage::remove(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'thumb', 60);
+                ReGarbage::remove($uploads_path . 'thumb', 60);
 
                 $this->reRootDirOrFile();
             });

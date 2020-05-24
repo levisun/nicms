@@ -270,7 +270,7 @@ abstract class Async
      * @access protected
      * @return $this
      */
-    protected function run()
+    protected function exec()
     {
         // 验证表单令牌
         $this->checkFromToken();
@@ -282,28 +282,28 @@ abstract class Async
         $this->loadLang();
 
         // 执行METHOD获得返回数据
-        $this->result = call_user_func([
+        $result = call_user_func([
             $this->app->make($this->appMethod['class']),
             $this->appMethod['method']
         ]);
 
         // 校验返回数据
-        if (!is_array($this->result) && array_key_exists('msg', $this->result)) {
+        if (!is_array($result) && array_key_exists('msg', $result)) {
             $this->abort('返回数据格式错误', 28001);
         }
 
         // 调试模式
         // 返回数据没有指定默认关闭
-        $this->debug(isset($this->result['debug']) ? $this->result['debug'] : false);
+        $this->debug(isset($result['debug']) ? $result['debug'] : false);
 
         // 缓存(缓存时间) true or int 单位秒
         // 返回数据没有指定默认开启
-        $this->cache(isset($this->result['cache']) ? $this->result['cache'] : true);
+        $this->cache(isset($result['cache']) ? $result['cache'] : true);
 
-        $this->result['data'] = isset($this->result['data']) ? $this->result['data'] : [];
-        $this->result['code'] = isset($this->result['code']) ? $this->result['code'] : 10000;
+        $result['data'] = isset($result['data']) ? $result['data'] : [];
+        $result['code'] = isset($result['code']) ? $result['code'] : 10000;
 
-        return $this;
+        return $result;
     }
 
     /**
@@ -596,7 +596,7 @@ abstract class Async
             ->where([
                 ['id', '=', $this->appId]
             ])
-            ->cache('ASYNCAPPID' . $this->appId)
+            ->cache('asyncappid' . $this->appId)
             ->find();
 
         if (null !== $result && $result = $result->toArray()) {
@@ -807,7 +807,7 @@ abstract class Async
         $response = Response::create($result, $this->format)->allowCache(false);
         $response->header(array_merge(
             $response->getHeader(),
-            ['X-Powered-By' => 'NIAPI']
+            ['X-Powered-By' => 'NI API']
         ));
         if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
             $response->allowCache(true)

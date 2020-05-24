@@ -27,10 +27,12 @@ class Query extends Async
         if ($this->request->isGet() && $this->isReferer() && $this->analysis()) {
             // 请勿开启缓存
             // 如要开启缓存请在方法中单独定义
-            return $this->run()->response(
-                $this->result['msg'],
-                $this->result['data'],
-                $this->result['code']
+            $result = $this->exec();
+            // 请勿开启缓存
+            return $this->response(
+                $result['msg'],
+                $result['data'],
+                $result['code']
             );
         }
 

@@ -67,15 +67,6 @@ class Verify extends Async
                 $captcha = mt_rand(100000, 999999);
 
                 # TODO
-                // $alidy = new \sms\Alidy([
-                //    'AccessKeyId' => 'LTAIXSdAPLSmsECt'
-                // ]);
-                // $alidy->send([
-                //     'SignName'      => '学霸无忧',
-                //     'TemplateCode'  => 'SMS_163530537',
-                //     'PhoneNumbers'  => $phone,
-                //     'TemplateParam' => '{"code":"' . $captcha . '"}'
-                // ]);
 
                 $this->session->set($key, [
                     'captcha' => $captcha,
