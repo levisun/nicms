@@ -3,7 +3,7 @@
 /**
  *
  * 数据层
- * 文章表
+ * 书
  *
  * @package   NICMS
  * @category  app\common\model
@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS `nc_book` (
     `title` varchar(50) NOT NULL COMMENT '书名',
     `keywords` varchar(100) NOT NULL DEFAULT '' COMMENT '关键词',
     `description` varchar(300) NOT NULL DEFAULT '' COMMENT '描述',
-    `image` varchar(255) NOT NULL DEFAULT '' COMMENT '封面',
+    `image` varchar(200) NOT NULL DEFAULT '' COMMENT '封面',
+    `origin` varchar(200) NOT NULL DEFAULT '' COMMENT '来源',
     `author_id` int(6) unsigned NOT NULL DEFAULT '0' COMMENT '作者ID',
     `type_id` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '类型ID',
     `is_pass` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '审核',
@@ -78,6 +79,7 @@ class Book extends Model
         'title',
         'keywords',
         'description',
+        'origin',
         'author_id',
         'type_id',
         'is_pass',

@@ -3,7 +3,7 @@
 /**
  *
  * 数据层
- * 文章表
+ * 书 文章表
  *
  * @package   NICMS
  * @category  app\common\model

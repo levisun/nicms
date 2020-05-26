@@ -12,7 +12,6 @@
  */
 
 use think\facade\Route;
-use think\Response;
 
 Route::group(function () {
     // 首页
@@ -21,8 +20,8 @@ Route::group(function () {
 
 
     // 列表页
-    Route::get('list/:tid$', 'Index/category');
-    Route::get('catalog/:id$', 'Index/catalog');
+    Route::get('category/:tid$', 'Index/category');
+    Route::get('list/:id$', 'Index/catalog');
 
     // 详情页
     Route::get('article/:bid/:id$', 'Index/article');

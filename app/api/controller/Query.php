@@ -25,10 +25,9 @@ class Query extends Async
     public function index()
     {
         if ($this->request->isGet() && $this->isReferer() && $this->analysis()) {
-            // 请勿开启缓存
-            // 如要开启缓存请在方法中单独定义
             $result = $this->exec();
             // 请勿开启缓存
+            // 如要开启缓存请在方法中单独定义
             return $this->response(
                 $result['msg'],
                 $result['data'],
