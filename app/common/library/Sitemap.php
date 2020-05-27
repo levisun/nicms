@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
-use think\facade\Log;
 use think\facade\Request;
 use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;

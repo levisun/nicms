@@ -1,10 +1,71 @@
 <?php
 
+declare(strict_types=1);
+
+namespace app\common\library;
+
 use GuzzleHttp\Client;
 
 class Spider
 {
     private $baseURI = '';
+
+    private $preg = '';
+
+    public function __construct(string $_base_uri)
+    {
+        $this->baseURI = $_base_uri;
+    }
+
+    public function fetch(string $_uri)
+    {
+        $html = $this->request($_uri);
+        if ($this->preg && preg_match_all($this->preg, $html, $matches)) {
+            foreach ($matches as $key => $item) {
+                $matches[$key] = array_map(function ($value) {
+                    return preg_replace([
+                        // 过滤HTML注释
+                        '/<\!\-\-.*?\-\->/s',
+
+                        // 过滤回车与重复字符
+                        '/(\s+\n|\r)/s',
+                        '/(\t|\0|\x0B)/s',
+                        '/( ){2,}/s',
+                    ], '', $value);
+                }, $item);
+            }
+            return $matches;
+        } else {
+            return $html;
+        }
+    }
+
+    public function filter(string $_pattern)
+    {
+        if (strpos($_pattern, '#')) {
+            list($element, $attr) = explode('#', $_pattern, 2);
+            $attr = 'id=["\']+' . $attr . '["\']+';
+        } elseif (strpos($_pattern, '.')) {
+            list($element, $attr) = explode('.', $_pattern, 2);
+            $attr = 'class=["\']+' . $attr . '["\']+';
+        } elseif ($_pattern === 'a') {
+            $element = 'a';
+            $attr = 'href=["\']+(.*?)["\']+';
+        } else {
+            $element = $_pattern;
+            $attr = '';
+        }
+
+        $this->preg = '/<' . $element . '.*?' . $attr . '.*?>(.*?)<\/' . $element . '.*?>/si';
+
+        if ($_pattern === 'img') {
+            $element = 'img';
+            $attr = 'src=["\']+(.*?)["\']+';
+            $this->preg = '/<' . $element . '.*?' . $attr . '.*?>/si';
+        }
+
+        return $this;
+    }
 
     /**
      * 获得响应数据

@@ -34,8 +34,8 @@ if (!function_exists('format_hits')) {
      */
     function format_hits(int $_hits, string $_delimiter = ''): string
     {
-        $units = ['', '', '', 'K+', 'M+', 'B+'];
-        for ($i = 0; $_hits >= 10 && $i < 6; $i++) {
+        $units = ['', '', '', 'K+', 'M+'];
+        for ($i = 0; $_hits >= 10 && $i < 4; $i++) {
             $_hits /= 10;
         }
         return round($_hits, 2) . $_delimiter . $units[$i];
@@ -111,6 +111,8 @@ if (!function_exists('only_execute')) {
     {
         $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'lock' . DIRECTORY_SEPARATOR;
         is_dir($path) or mkdir($path, 0755, true);
+
+        is_file($path . $_lock) or file_put_contents($path . $_lock, '');
 
         clearstatcache();
         if (false === $_time || filemtime($path . $_lock) <= strtotime($_time)) {
