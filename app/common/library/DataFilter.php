@@ -217,6 +217,8 @@ class DataFilter
             $matches = array_map('trim', $matches);
             $matches[2] .= ' ';
             $matches[2] = preg_replace_callback('/(.*?)=(.*?) /si', function ($ele_attr) {
+                $ele_attr = array_map('strtolower', $ele_attr);
+                $ele_attr = array_map('trim', $ele_attr);
                 if (in_array($ele_attr[1], self::$attr) && false === stripos($ele_attr[2], 'javascript')) {
                     return $ele_attr[0];
                 }
