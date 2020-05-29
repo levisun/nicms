@@ -43,9 +43,6 @@ Route::group(function () {
     // 跳转接口
     Route::get('go$', 'go');
 
-    // 老版本兼容
-    // Route::get('ipinfo$', '\app\api\controller\Ip@index')->ext('shtml');
-
     Route::miss(function () {
         return miss(404);
     });

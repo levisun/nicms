@@ -34,11 +34,16 @@ if (!function_exists('format_hits')) {
      */
     function format_hits(int $_hits, string $_delimiter = ''): string
     {
-        $units = ['', '', '', 'K+', 'M+'];
-        for ($i = 0; $_hits >= 10 && $i < 4; $i++) {
-            $_hits /= 10;
+        if ($_hits >= 10000) {
+            $_hits /= 10000;
+            $units = 'M+';
+        } elseif ($_hits >= 1000) {
+            $_hits /= 1000;
+            $units = 'K+';
+        } else {
+            $units = '';
         }
-        return round($_hits, 2) . $_delimiter . $units[$i];
+        return round($_hits, 2) . $_delimiter . $units;
     }
 }
 

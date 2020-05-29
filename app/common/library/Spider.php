@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use app\common\library\DataFilter;
 use GuzzleHttp\Client;
 
 class Spider
@@ -17,29 +18,31 @@ class Spider
         $this->baseURI = $_base_uri;
     }
 
-    public function fetch(string $_uri)
+
+    public function fetch(string $_uri, bool $_filter = true)
     {
         $html = $this->request($_uri);
+
         if ($this->preg && preg_match_all($this->preg, $html, $matches)) {
             foreach ($matches as $key => $item) {
-                $matches[$key] = array_map(function ($value) {
-                    return preg_replace([
-                        // 过滤HTML注释
-                        '/<\!\-\-.*?\-\->/s',
-
-                        // 过滤回车与重复字符
-                        '/(\s+\n|\r)/s',
-                        '/(\t|\0|\x0B)/s',
-                        '/( ){2,}/s',
-                    ], '', $value);
+                $matches[$key] = array_map(function ($value) use ($_filter) {
+                    return $_filter ? DataFilter::decode(DataFilter::encode($value)) : $value;
                 }, $item);
             }
+
             return $matches;
         } else {
             return $html;
         }
     }
 
+    /**
+     * 设定过滤规则
+     * 过滤出指定数据
+     * @access private
+     * @param  string  $_pattern
+     * @return
+     */
     public function filter(string $_pattern)
     {
         if (strpos($_pattern, '#')) {
@@ -72,6 +75,7 @@ class Spider
      * @access private
      * @param  string  $_uri      请求URI
      * @param  string  $_method   请求类型
+     * @return string
      */
     private function request(string &$_uri, string &$_method = 'GET'): string
     {

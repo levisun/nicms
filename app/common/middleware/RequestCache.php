@@ -129,7 +129,7 @@ class RequestCache
             $header['Cache-Control'] = 'max-age=' . $expire . ',must-revalidate';
             $header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
             $header['Expires']       = gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT';
-            $header['X-Powered-By']  = 'NIFCACHE';
+            $header['X-Powered-By']  = 'NI F CACHE';
             $response->header($header);
 
             $content = $response->getContent();
@@ -187,7 +187,15 @@ class RequestCache
 
         // 特殊规则替换
         if (false !== strpos($key, '__')) {
-            $key = str_replace(['__CONTROLLER__', '__ACTION__', '__URL__'], [$request->controller(), $request->action(), md5($request->url(true))], $key);
+            $key = str_replace([
+                '__CONTROLLER__',
+                '__ACTION__',
+                '__URL__'
+            ], [
+                $request->controller(),
+                $request->action(),
+                md5($request->url(true))
+            ], $key);
         }
 
         if (false !== strpos($key, ':')) {

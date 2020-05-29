@@ -33,7 +33,7 @@ class Foot extends BaseLogic
      */
     public function query(): array
     {
-        $cache_key = md5(__METHOD__ . $this->lang->getLangSet());
+        $cache_key = md5('nav foot' . $this->lang->getLangSet());
         if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
             $result = ModelCategory::view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
                 ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')

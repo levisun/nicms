@@ -90,7 +90,7 @@ class DataFilter
     }
 
     /**
-     * 过滤非汉字与字母
+     * 过滤非汉字英文与数字
      * @access public
      * @static
      * @param  string $_data
