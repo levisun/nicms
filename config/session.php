@@ -14,11 +14,7 @@
 
 return [
     // session name
-    'name'           => substr(strtoupper(hash_hmac(
-        'sha256',
-        request()->rootDomain() . __DIR__ . request()->server('HTTP_USER_AGENT', request()->ip()),
-        sha1(__DIR__)
-    )), 7, 7),
+    'name'           => 'SID',
     // SESSION_ID的提交变量,解决flash上传跨域
     'var_session_id' => '',
     // 驱动方式 支持file cache

@@ -194,12 +194,6 @@ if (!function_exists('authorization')) {
      */
     function authorization(): string
     {
-        // 会话ID(SessionID)
-        $jti  = Base64::encrypt(Session::getId(false));
-        // 请求时间
-        $time = Request::time();
-        // 客户端token
-        $uid  = Session::has('client_id') ? Session::get('client_id') : sha1(Request::ip());
         // 密钥
         $key = Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         $key = sha1(Base64::encrypt($key));
@@ -210,15 +204,15 @@ if (!function_exists('authorization')) {
             // 接收者
             ->permittedFor(parse_url(Request::url(true), PHP_URL_HOST))
             // 身份标识(SessionID)
-            ->identifiedBy($jti, false)
+            ->identifiedBy(Base64::encrypt(Session::getId(false)), false)
             // 签发时间
-            ->issuedAt($time)
+            ->issuedAt(Request::time())
             // Configures the time that the token can be used (nbf claim)
-            ->canOnlyBeUsedAfter($time + 60)
+            ->canOnlyBeUsedAfter(Request::time() + 60)
             // 签发过期时间
-            ->expiresAt($time + 28800)
+            ->expiresAt(Request::time() + 28800)
             // 客户端ID
-            ->withClaim('uid', $uid)
+            ->withClaim('uid', sha1(Base64::client_id() . Request::ip()))
             // 生成token
             ->getToken(new Sha256, new Key($key));
 
@@ -235,7 +229,7 @@ if (!function_exists('miss')) {
      */
     function miss(int $_code, bool $_redirect = true, bool $_abort = false): Response
     {
-        $content = '<!-- miss -->';
+        $content = '';
         $file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.html';
         if (is_file($file)) {
             $content .= file_get_contents($file);

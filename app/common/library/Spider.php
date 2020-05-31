@@ -45,6 +45,8 @@ class Spider
      */
     public function filter(string $_pattern)
     {
+        $_pattern = str_replace(['"', '\''], '', $_pattern);
+        $_pattern = str_replace('-', '\-', $_pattern);
         if (strpos($_pattern, '#')) {
             list($element, $attr) = explode('#', $_pattern, 2);
             $attr = 'id=["\']+' . $attr . '["\']+';

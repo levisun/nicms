@@ -17,7 +17,9 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Config;
+use think\facade\Cookie;
 use think\facade\Request;
+use think\facade\Session;
 
 class Base64
 {
@@ -59,20 +61,34 @@ class Base64
 
     /**
      * 客户端唯一ID
+     * 请勿在API或logic层中调用
      * @access public
      * @static
      * @return string
      */
     public static function client_id(): string
     {
-        $token  = Request::server('HTTP_USER_AGENT');
-        $token .= bindec(Request::ip2bin(Request::ip()));
-        $token .= date('YmdHis');
-        $token .= Request::time(true);
-        $token .= number_format(microtime(true) - app()->getBeginTime(), 3);
-        $token .= number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3);
+        if (!Session::has('client_id') || !$token = Session::get('client_id')) {
+            $token  = Request::server('HTTP_USER_AGENT');
+            $token .= __DIR__;
+            $token .= bindec(Request::ip2bin(Request::ip()));
+            $token .= date('YmdHis');
+            $token .= Request::time(true);
+            $token .= number_format(microtime(true) - app()->getBeginTime(), 3);
+            $token .= number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3);
 
-        return md5(uniqid($token, true));
+            $token = hash_hmac('sha256', $token, uniqid($token, true));
+            $token = sha1(uniqid($token, true));
+
+            Session::set('client_id', $token);
+        }
+
+        Cookie::has('client_id') or Cookie::set('client_id', $token);
+
+        Cookie::has('client_token')
+            or Cookie::set('client_token', Base64::encrypt($token . Session::getId(false)));
+
+        return $token;
     }
 
     /**

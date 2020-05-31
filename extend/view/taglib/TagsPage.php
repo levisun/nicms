@@ -93,8 +93,8 @@ class TagsPage extends Taglib
                     ])->find();
                     if ($content && $content = $content->toArray()):
                         unset($content["id"], $content["article_id"]);
-                        $result["thumb"] = \app\common\library\Canvas::image($content["thumb"]);
-                        $result["content"] = \app\common\library\Canvas::image($content["content"]);
+                        $result["thumb"] = \app\common\library\Image::path($content["thumb"]);
+                        $result["content"] = \app\common\library\Image::path($content["content"]);
                     endif;
 
                     cache("' . $cache_key . '", $result);

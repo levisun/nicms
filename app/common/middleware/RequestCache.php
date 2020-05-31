@@ -17,13 +17,10 @@ declare(strict_types=1);
 namespace app\common\middleware;
 
 use Closure;
-use think\facade\Cookie;
-use think\facade\Session;
 use think\Cache;
 use think\Config;
 use think\Request;
 use think\Response;
-use app\common\library\Base64;
 
 class RequestCache
 {
@@ -60,12 +57,6 @@ class RequestCache
         $this->config = array_merge($this->config, $config->get('route'));
 
         $this->appName = app('http')->getName();
-
-        // 生成客户端cookieID与sessionID
-        if ($this->appName && 'api' !== $this->appName) {
-            Session::has('client_id') or Session::set('client_id', Base64::client_id());
-            Cookie::has('SID') or Cookie::set('SID', Session::get('client_id'));
-        }
     }
 
     /**
