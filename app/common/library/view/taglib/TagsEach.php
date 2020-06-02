@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace view\taglib;
+namespace app\common\library\view\taglib;
 
-use view\Taglib;
+use app\common\library\view\Taglib;
 
 class TagsEach extends Taglib
 {

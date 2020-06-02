@@ -17,15 +17,15 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\common\controller\Async;
+// use app\common\controller\Async;
+use app\api\logic\Async;
 
 class Query extends Async
 {
 
     public function index()
     {
-        if ($this->request->isGet() && $this->isReferer() && $this->analysis()) {
-            $result = $this->exec();
+        if ($this->request->isGet() && $result = $this->exec()) {
             // 请勿开启缓存
             // 如要开启缓存请在方法中单独定义
             return $this->response(
@@ -34,6 +34,16 @@ class Query extends Async
                 $result['code']
             );
         }
+        // if ($this->request->isGet() && $this->isReferer() && $this->analysis()) {
+        //     $result = $this->exec();
+        //     // 请勿开启缓存
+        //     // 如要开启缓存请在方法中单独定义
+        //     return $this->response(
+        //         $result['msg'],
+        //         $result['data'],
+        //         $result['code']
+        //     );
+        // }
 
         return miss(404);
     }

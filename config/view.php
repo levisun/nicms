@@ -14,8 +14,7 @@
 
 return [
     // 模板引擎类型使用Think
-    'type' => \app\common\library\Template::class,
-    'type' => \view\View::class,
+    'type' => \app\common\library\view\View::class,
 
 
     // 模板引擎类型

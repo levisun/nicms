@@ -5,7 +5,7 @@
  * 内容页详情标签
  *
  * @package   NICMS
- * @category  view\taglib
+ * @category  app\common\library\view\taglib
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -14,9 +14,9 @@
 
 declare(strict_types=1);
 
-namespace view\taglib;
+namespace app\common\library\view\taglib;
 
-use view\Taglib;
+use app\common\library\view\Taglib;
 
 class TagsDetails extends Taglib
 {

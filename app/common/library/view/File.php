@@ -5,7 +5,7 @@
  * 模板文件
  *
  * @package   NICMS
- * @category  view
+ * @category  app\common\library\view
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace view;
+namespace app\common\library\view;
 
 use think\Response;
 use think\exception\HttpResponseException;

@@ -5,7 +5,7 @@
  * 解析模板
  *
  * @package   NICMS
- * @category  view
+ * @category  app\common\library\view
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace view;
+namespace app\common\library\view;
 
 use view\File;
 use think\facade\Config;
@@ -67,7 +67,7 @@ class Replace
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
-            $class = '\view\taglib\\Tags' . ucfirst($matches[1]);
+            $class = '\app\common\library\view\taglib\\Tags' . ucfirst($matches[1]);
             $params = str_replace(['"', '"', ' as', ' =>'], '', $matches[2]);
             $params = str_replace(' ', '&', $params);
             parse_str($params, $params);
@@ -85,7 +85,7 @@ class Replace
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
-            $class = '\view\taglib\\Tags' . ucfirst($matches[1]);
+            $class = '\app\common\library\view\taglib\\Tags' . ucfirst($matches[1]);
             if (class_exists($class) && method_exists($class, 'end')) {
                 $object = new $class([], $this->config);
                 $str = $object->end();
@@ -109,7 +109,7 @@ class Replace
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
-            $class = '\view\taglib\\Tags' . ucfirst($matches[1]);
+            $class = '\app\common\library\view\taglib\\Tags' . ucfirst($matches[1]);
             $matches[2] = str_replace(['"', "'", ' '], ['', '', '&'], $matches[2]);
             parse_str($matches[2], $params);
             if (class_exists($class) && method_exists($class, 'alone')) {

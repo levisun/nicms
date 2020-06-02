@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace app\book\controller;
 
 use app\common\controller\BaseController;
-use app\common\library\Siteinfo;
 
 class Index extends BaseController
 {
@@ -39,7 +38,10 @@ class Index extends BaseController
      */
     public function index()
     {
-        return $this->fetch('index');
+        $spider = new \app\common\library\Spider('https://www.jx.la/');
+        $html = $spider->filter('div#content')->fetch('/book/3792/2295763.html');
+        halt($html);
+        // return $this->fetch('index');
     }
 
     /**

@@ -203,6 +203,7 @@
         });
         sign = sign.substr(0, sign.length - 1);
         sign += jQuery('meta[name="csrf-appsecret"]').attr('content');
+        sign += navigator.userAgent;
         // console.log(sign);
 
         return md5(sign);
