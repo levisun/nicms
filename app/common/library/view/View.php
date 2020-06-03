@@ -19,9 +19,9 @@ namespace app\common\library\view;
 use think\App;
 use think\contract\TemplateHandlerInterface;
 use app\common\library\DataFilter;
-use view\Compiler;
-use view\File;
-use view\Replace;
+use app\common\library\view\Compiler;
+use app\common\library\view\File;
+use app\common\library\view\Replace;
 
 class View implements TemplateHandlerInterface
 {

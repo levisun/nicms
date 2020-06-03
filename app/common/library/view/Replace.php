@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library\view;
 
-use view\File;
+use app\common\library\view\File;
 use think\facade\Config;
 use think\facade\Request;
 
