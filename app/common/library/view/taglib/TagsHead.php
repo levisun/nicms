@@ -82,7 +82,7 @@ class TagsHead extends Taglib
             'domain:"//<?php echo request()->subDomain() . "." . request()->rootDomain();?>",' .
             'rootDomain:"//<?php echo request()->rootDomain();?>",' .
             'url:"<?php echo request()->baseUrl(true);?>",' .
-            'ip:"<?php echo request()->ip();?>",' .
+            /* 'ip:"<?php echo request()->ip();?>",' . */
             'api:{' .
             'url:"<?php echo config("app.api_host");?>",' .
             'param:<?php echo json_encode(app("request")->param());?>' .

@@ -19,7 +19,7 @@ namespace app\api\controller;
 
 use think\Response;
 use think\exception\HttpResponseException;
-use app\common\controller\Async;
+use app\api\logic\Async;
 use app\common\library\Ipinfo;
 
 class Ip extends Async

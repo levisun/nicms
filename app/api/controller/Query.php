@@ -17,8 +17,7 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-// use app\common\controller\Async;
-use app\api\lib\Async;
+use app\api\logic\Async;
 
 class Query extends Async
 {
@@ -26,16 +25,6 @@ class Query extends Async
     public function index()
     {
         if ($this->request->isGet() && $result = $this->exec()) {
-            // 请勿开启缓存
-            // 如要开启缓存请在方法中单独定义
-            // return $this->response(
-            //     $result['msg'],
-            //     $result['data'],
-            //     $result['code']
-            // );
-        }die();
-        if ($this->request->isGet() && $this->isReferer() && $this->analysis()) {
-            $result = $this->exec();
             // 请勿开启缓存
             // 如要开启缓存请在方法中单独定义
             return $this->response(

@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\api\controller;
 
 use think\Response;
-use app\common\controller\Async;
+use app\api\logic\Async;
 use app\common\library\AccessLog;
 
 class Record extends Async
@@ -26,7 +26,7 @@ class Record extends Async
 
     public function index()
     {
-        if ($this->isReferer()) {
+        if ($this->request->isGet() && $this->validate->referer()) {
             AccessLog::record();
 
             return Response::create()->allowCache(true)

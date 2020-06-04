@@ -164,15 +164,14 @@ if (!function_exists('app_secret')) {
      */
     function app_secret(int $_app_id): string
     {
+        $app_secret = '';
         if ($_app_id > 1000000) {
             $_app_id -= 1000000;
-            return ModelApiApp::where([
+            $app_secret = ModelApiApp::where([
                 ['id', '=', $_app_id]
-            ])
-                ->cache('APPID' . $_app_id)
-                ->value('secret', '');
+            ])->cache('app secret' . $_app_id)->value('secret', '');
         }
-        return '';
+        return sha1($app_secret . date('Ymd'));
     }
 }
 

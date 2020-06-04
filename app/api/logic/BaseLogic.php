@@ -5,7 +5,7 @@
  * 异步请求实现
  *
  * @package   NICMS
- * @category  app\api\lib
+ * @category  app\api\logic
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace app\api\lib;
+namespace app\api\logic;
 
 use think\App;
 use think\Response;
@@ -65,12 +65,6 @@ abstract class BaseLogic
     protected $session;
 
     /**
-     * 调试信息
-     * @var array
-     */
-    protected $debugLog = [];
-
-    /**
      * 构造方法
      * @access public
      * @return void
@@ -93,6 +87,8 @@ abstract class BaseLogic
         @set_time_limit(5);
         @ini_set('max_execution_time', '5');
         @ini_set('memory_limit', '8M');
+
+        $this->initialize();
     }
 
     public function __get(string $_name)
@@ -103,6 +99,15 @@ abstract class BaseLogic
     public function __set(string $_name, string $_value)
     {
         $this->$_name = $_value;
+    }
+
+    /**
+     * 初始化
+     * @access protected
+     * @return void
+     */
+    protected function initialize()
+    {
     }
 
     /**

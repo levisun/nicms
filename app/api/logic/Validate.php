@@ -2,10 +2,10 @@
 
 /**
  *
- * 验证
+ * 解析
  *
  * @package   NICMS
- * @category  app\common\async
+ * @category  app\api\logic
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -16,14 +16,11 @@ declare(strict_types=1);
 
 namespace app\api\logic;
 
-use think\Response;
-use think\exception\HttpResponseException;
-use think\facade\Request;
+use app\api\logic\BaseLogic;
 use app\common\library\Rbac;
 
-class Validate
+class Validate extends BaseLogic
 {
-
     /**
      * 不用验证
      * @var array
@@ -44,28 +41,25 @@ class Validate
     public function sign(string $_app_secret): void
     {
         // 校验签名类型
-        $signType = Request::param('sign_type', 'md5');
-        if (!function_exists($signType)) {
-            $response = Response::create(['code' => 22001, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
+        $sign_type = $this->request->param('sign_type', 'md5');
+        if (!function_exists($sign_type)) {
+            $this->abort('错误请求', 22001);
         }
 
         // 校验签名合法性
-        $sign = Request::param('sign');
-        if (!$sign || !preg_match('/^[A-Za-z0-9]+$/u', $sign)) {
-            $response = Response::create(['code' => 22002, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
+        $sign = $this->request->param('sign');
+        if (!$sign || false === preg_match('/^[A-Za-z0-9]+$/u', $sign)) {
+            $this->abort('错误请求', 22002);
         }
 
         // 请求时间
-        $timestamp = Request::param('timestamp/d', Request::time(), 'abs');
+        $timestamp = $this->request->param('timestamp/d', $this->request->time(), 'abs');
         if (!$timestamp || $timestamp <= strtotime('-1 days')) {
-            $response = Response::create(['code' => 23001, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
+            $this->abort('错误请求', 23001);
         }
 
         // 获得原始数据
-        $params = Request::param('', '', 'trim');
+        $params = $this->request->param('', '', 'trim');
         $params = array_merge($params, $_FILES);
         ksort($params);
 
@@ -79,14 +73,45 @@ class Validate
                 $str .= $key . '=' . $value . '&';
             }
         }
-        $str = rtrim($str, '&');
-        $str .= $_app_secret;
-        // $str .= Request::server('HTTP_USER_AGENT') . Request::server('HTTP_REFERER') . Request::ip();
+        $str  = rtrim($str, '&');
+        $str .= sha1($_app_secret . date('Ymd'));
+        $str .= $this->request->server('HTTP_USER_AGENT');
+        // $str .= $this->request->server('HTTP_USER_AGENT') . $this->request->server('HTTP_REFERER') . $this->request->ip();
 
-        if (!hash_equals(call_user_func($signType, $str), $sign)) {
-            $response = Response::create(['code' => 22003, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
+        if (!hash_equals(call_user_func($sign_type, $str), $sign)) {
+            $this->abort('错误请求', 22003);
         }
+    }
+
+    /**
+     * 验证表单令牌
+     * @access public
+     * @return void
+     */
+    public function fromToken(): bool
+    {
+        if ($this->request->isPost()) {
+            if (false === $this->request->checkToken()) {
+                $this->abort('错误请求', 24002);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 验证请求来源
+     * @access public
+     * @return bool
+     */
+    public function referer(): bool
+    {
+        $referer = $this->request->server('HTTP_REFERER');
+        if (!$referer || false === stripos($referer, $this->request->rootDomain())) {
+            $this->abort('错误请求', 24001);
+        }
+
+        return true;
     }
 
     /**
@@ -110,8 +135,7 @@ class Validate
                     $this->notAuth
                 );
                 if (false === $result) {
-                    $response = Response::create(['code' => 26001, 'message' => '错误请求'], 'json');
-                    throw new HttpResponseException($response);
+                    $this->abort('错误请求', 26001);
                 }
             }
         }

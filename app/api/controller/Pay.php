@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\common\controller\Async;
+use app\api\logic\Async;
 
 class Pay extends Async
 {
@@ -45,7 +45,7 @@ class Pay extends Async
 
     public function index(string $method)
     {
-        if ($this->isReferer() && $this->analysis()) {
+        if ($this->request->isPost() && $this->validate->referer() && $this->validate->fromToken()) {
             // 支付宝支付
             if ('ali' === $method) {
                 # code...

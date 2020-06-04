@@ -17,15 +17,14 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\common\controller\Async;
+use app\api\logic\Async;
 
 class Handle extends Async
 {
 
     public function index()
     {
-        if ($this->request->isPost() && $this->isReferer() && $this->analysis()) {
-            $result = $this->exec();
+        if ($this->request->isPost() && $result = $this->exec()) {
             // 请勿开启缓存
             return $this->cache(false)->response(
                 $result['msg'],

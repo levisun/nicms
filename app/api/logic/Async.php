@@ -5,7 +5,7 @@
  * 异步请求实现
  *
  * @package   NICMS
- * @category  app\common\async
+ * @category  app\api\logic
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -16,61 +16,24 @@ declare(strict_types=1);
 
 namespace app\api\logic;
 
-use think\App;
 use think\Response;
-use think\exception\HttpResponseException;
+use app\api\logic\BaseLogic;
 use app\api\logic\Analytical;
 use app\api\logic\Validate;
 
-abstract class Async
+class Async extends BaseLogic
 {
     /**
-     * 应用实例
-     * @var \think\App
+     * 解析器
+     * @var object
      */
-    protected $app;
+    protected $analytical;
 
     /**
-     * Cache实例
-     * @var \think\Cache
+     * 验证器
+     * @var object
      */
-    protected $cache;
-
-    /**
-     * Config实例
-     * @var \think\Config
-     */
-    protected $config;
-
-    /**
-     * Lang实例
-     * @var \think\Lang
-     */
-    protected $lang;
-
-    /**
-     * log实例
-     * @var \think\Log
-     */
-    protected $log;
-
-    /**
-     * request实例
-     * @var \think\Request
-     */
-    protected $request;
-
-    /**
-     * session实例
-     * @var \think\Session
-     */
-    protected $session;
-
-    /**
-     * 调试开关
-     * @var bool
-     */
-    protected $apiDebug = false;
+    protected $validate;
 
     /**
      * 浏览器数据缓存开关
@@ -85,53 +48,14 @@ abstract class Async
     protected $apiExpire = 1440;
 
     /**
-     * 返回表单令牌
-     * @var bool
-     */
-    protected $apiRetFromToken = false;
-
-    /**
-     * 版本号
-     * 解析[accept]获得
-     * @var array
-     */
-    protected $version = [
-        // 'paradigm' => '1',
-        'major'    => '1',
-        'minor'    => '0',
-        'revision' => '',
-    ];
-
-    /**
-     * 返回数据类型
-     * 解析[accept]获得
-     * @var string
-     */
-    protected $format = 'json';
-
-    /**
-     * 构造方法
-     * @access public
+     * 初始化
+     * @access protected
      * @return void
      */
-    public function __construct(App $_app)
+    protected function initialize()
     {
-        $this->app     = &$_app;
-        $this->cache   = &$this->app->cache;
-        $this->config  = &$this->app->config;
-        $this->lang    = &$this->app->lang;
-        $this->log     = &$this->app->log;
-        $this->request = &$this->app->request;
-        $this->session = &$this->app->session;
-
-        // 请勿开启调试模式
-        $this->app->debug(false);
-        // 设置请求默认过滤方法
-        $this->request->filter('\app\common\library\DataFilter::filter');
-        // 请勿更改参数(超时,执行内存)
-        @set_time_limit(5);
-        @ini_set('max_execution_time', '5');
-        @ini_set('memory_limit', '8M');
+        $this->analytical = new Analytical($this->app);
+        $this->validate = new Validate($this->app);
     }
 
     /**
@@ -139,40 +63,30 @@ abstract class Async
      * @access protected
      * @return $this
      */
-    protected function exec()
+    protected function exec(): array
     {
-        $analytical = new Analytical;
-        $analytical->authorization();
-        $analytical->accept();
-        $analytical->appId();
+        $this->analytical->openVersion = false;
+        $this->analytical->authorization();
+        $this->analytical->accept();
+        $this->analytical->appId();
+        $this->analytical->loadLang();
+        $this->analytical->method();
 
-
-        $validate = new Validate;
-        $validate->sign($analytical->appSecret);
-        $validate->RBAC($analytical->appName, $analytical->appMethod, $analytical->uid);
-
-
-        $analytical->openVersion = false;
-        $analytical->method();
-
-
-        // 加载语言包
-        $this->loadLang($analytical->appName);
+        $this->validate->sign($this->analytical->appSecret);
+        $this->validate->fromToken();
+        $this->validate->referer();
+        $this->validate->RBAC($this->analytical->appName, $this->analytical->appMethod, $this->analytical->uid);
 
         // 执行METHOD获得返回数据
         $result = call_user_func([
-            $this->app->make($analytical->appMethod['class']),
-            $analytical->appMethod['method']
+            $this->app->make($this->analytical->appMethod['class']),
+            $this->analytical->appMethod['method']
         ]);
 
         // 校验返回数据
         if (!is_array($result) && array_key_exists('msg', $result)) {
             $this->abort('返回数据格式错误', 28001);
         }
-
-        // 调试模式
-        // 返回数据没有指定默认关闭
-        $this->debug(isset($result['debug']) ? $result['debug'] : false);
 
         // 缓存(缓存时间) true or int 单位秒
         // 返回数据没有指定默认开启
@@ -185,58 +99,27 @@ abstract class Async
     }
 
     /**
-     * 开启或关闭调试
-     * @access protected
-     * @param  bool $_debug 开启或关闭调试模式
-     * @return $this
-     */
-    protected function debug(bool $_debug)
-    {
-        $this->apiDebug = $_debug;
-        return $this;
-    }
-
-    /**
      * 开启或关闭缓存
      * 当调试模式开启时,缓存一律关闭
      * @access protected
      * @param  int|false $_cache
      * @return $this
      */
-    protected function cache($_cache)
+    protected function cache($_expire)
     {
-        // 调试模式开启时关闭缓存
-        if (true === $this->apiDebug) {
-            $this->apiCache = false;
+        // 开启或关闭缓存
+        if (is_bool($_expire)) {
+            $this->apiCache = $_expire;
         }
+
         // 指定缓存时间(int类型)
-        elseif (is_numeric($_cache)) {
-            $this->apiExpire = $_cache ? (int) $_cache : $this->apiExpire;
+        elseif (is_numeric($_expire)) {
+            $_expire = (int) $_expire;
+            $this->apiExpire = $_expire ? (int) $_expire : $this->apiExpire;
             $this->apiCache = true;
         }
-        // 开启或关闭缓存
-        else {
-            $this->apiCache = $_cache;
-        }
+
         return $this;
-    }
-
-    /**
-     * 加载语言包
-     * @access protected
-     * @return void
-     */
-    protected function loadLang(string $_app_name): void
-    {
-        // 公众语言包
-        $common_lang  = $this->app->getBasePath() . 'common' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
-        $common_lang .= $this->lang->getLangSet() . '.php';
-
-        // API方法所属应用的语言包
-        $lang  = $this->app->getBasePath() . $_app_name . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
-        $lang .= $this->lang->getLangSet() . '.php';
-
-        $this->lang->load([$common_lang, $lang]);
     }
 
     /**
@@ -270,19 +153,6 @@ abstract class Async
     }
 
     /**
-     * 抛出异常
-     * @access protected
-     * @param  string  $msg  提示信息
-     * @param  integer $code 错误码，默认为40001
-     * @return void
-     */
-    protected function abort(string $_msg, int $_code = 40001): void
-    {
-        $response = $this->response($_msg, [], $_code);
-        throw new HttpResponseException($response);
-    }
-
-    /**
      * 返回封装后的 API 数据到客户端
      * @access protected
      * @param  string $msg    提示信息
@@ -306,19 +176,13 @@ abstract class Async
                 : '',
 
             // 新表单令牌
-            'token' => $this->apiRetFromToken
+            'token' => $this->request->isPost()
                 ? $this->request->buildToken('__token__', 'md5')
                 : '',
-
-            // 调试数据
-            'debug' => true === $this->apiDebug ? [
-                'query'   => $this->app->db->getQueryTimes(),
-                'cache'   => $this->app->cache->getReadTimes(),
-            ] : '',
         ];
         $result = array_filter($result);
 
-        $response = Response::create($result, $this->format)->allowCache(false);
+        $response = Response::create($result, $this->analytical->format)->allowCache(false);
         $response->header(array_merge(
             $response->getHeader(),
             ['X-Powered-By' => 'NI API']
@@ -328,7 +192,7 @@ abstract class Async
                 ->cacheControl('max-age=' . $this->apiExpire . ',must-revalidate')
                 ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + $this->apiExpire) . ' GMT')
                 ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + $this->apiExpire) . ' GMT')
-                ->eTag(md5($this->request->ip()));
+                ->eTag(md5($this->request->server('HTTP_USER_AGENT') . $this->request->ip()));
         }
 
         $this->log->save();

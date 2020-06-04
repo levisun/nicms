@@ -16,33 +16,31 @@ declare(strict_types=1);
 
 namespace app\api\logic;
 
-use think\Response;
-use think\exception\HttpResponseException;
-use think\facade\Config;
-use think\facade\Request;
+use app\api\logic\BaseLogic;
+
 use app\common\library\Base64;
 use app\common\library\DataFilter;
+use app\common\model\ApiApp as ModelApiApp;
+
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\ValidationData;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
-use app\common\model\ApiApp as ModelApiApp;
 
-
-class Analytical
+class Analytical extends BaseLogic
 {
     /**
      * 开启版本控制
      * 默认关闭
      * @var bool
      */
-    public $openVersion = false;
+    protected $openVersion = false;
 
     /**
      * 版本号
      * 解析[accept]获得
      * @var array
      */
-    public $version = [
+    protected $version = [
         // 'paradigm' => '1',
         'major'    => '1',
         'minor'    => '0',
@@ -54,31 +52,13 @@ class Analytical
      * 解析[accept]获得
      * @var string
      */
-    public $format = 'json';
-
-    /**
-     * 应用名
-     * @var string
-     */
-    public $appName = '';
-
-    /**
-     * APP密钥
-     * @var string
-     */
-    public $appSecret;
-
-    /**
-     * 权限认证KEY
-     * @var string
-     */
-    public $appAuthKey = 'user_auth_key';
+    protected $format = 'json';
 
     /**
      * 应用方法
      * @var array
      */
-    public $appMethod = [
+    protected $appMethod = [
         'logic'  => null,
         'method' => null,
         'action' => null,
@@ -86,53 +66,40 @@ class Analytical
     ];
 
     /**
+     * 应用名
+     * @var string
+     */
+    protected $appName = '';
+
+    /**
+     * APP密钥
+     * @var string
+     */
+    protected $appSecret;
+
+    /**
+     * APP密钥
+     * @var string
+     */
+    protected $appAuthKey = 'user_auth_key';
+
+    /**
      * 用户ID
      * @var int
      */
-    public $uid = 0;
+    protected $uid = 0;
 
     /**
      * 用户组ID
      * @var int
      */
-    public $u_role = 0;
+    protected $urole = 0;
 
     /**
      * 用户类型(用户和管理员)
      * @var string
      */
-    public $type = 'guest';
-
-    /**
-     * 验证APPID
-     * @access public
-     * @return void
-     */
-    public function appId(): void
-    {
-        $appId = Request::param('appid/d', 0, 'abs');
-        if (!$appId || $appId < 1000001) {
-            $response = Response::create(['code' => 21001, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
-        }
-
-        $appId -= 1000000;
-        $result = ModelApiApp::field('name, secret, authkey')
-            ->where([
-                ['id', '=', $appId]
-            ])
-            ->cache('asyncappid' . $appId)
-            ->find();
-
-        if (null !== $result && $result = $result->toArray()) {
-            $this->appName = $result['name'];
-            $this->appSecret = $result['secret'];
-            $this->appAuthKey = $result['authkey'];
-        } else {
-            $response = Response::create(['code' => 21002, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
-        }
-    }
+    protected $type = 'guest';
 
     /**
      * 解析method参数
@@ -142,10 +109,10 @@ class Analytical
     public function method(): void
     {
         // 校验方法名格式
-        $method = Request::param('method');
-        if (!$method || !preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $method)) {
-            $response = Response::create(['code' => 25001, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
+        $method = $this->request->param('method');
+        if (!$method || false === preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $method)) {
+            $this->log->alert('[Async] ' . $method);
+            $this->abort('错误请求', 25001);
         }
 
         // 解析方法名
@@ -156,12 +123,12 @@ class Analytical
 
         // 校验方法是否存在
         if (!class_exists($class)) {
-            $response = Response::create(['code' => 25002, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
+            $this->log->alert('[Async] method not found ' . $class);
+            $this->abort('错误请求', 25002);
         }
         if (!method_exists($class, $method)) {
-            $response = Response::create(['code' => 25003, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
+            $this->log->alert('[Async] action not found ' . $class . '->' . $method . '();');
+            $this->abort('错误请求', 25003);
         }
 
         // 记录方法
@@ -178,6 +145,62 @@ class Analytical
     }
 
     /**
+     * 加载语言包
+     * @access public
+     * @return void
+     */
+    public function loadLang(): void
+    {
+        // 公众语言包
+        $common_lang  = $this->app->getBasePath() . 'common' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
+        $common_lang .= $this->lang->getLangSet() . '.php';
+
+        // API方法所属应用的语言包
+        $lang  = $this->app->getBasePath() . $this->appName . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
+        $lang .= $this->lang->getLangSet() . '.php';
+
+        $this->lang->load([$common_lang, $lang]);
+    }
+
+    /**
+     * 验证APPID
+     * @access public
+     * @return void
+     */
+    public function appId(): void
+    {
+        $app_id = $this->request->param('appid/d', 0, 'abs');
+        if (!$app_id || $app_id < 1000001) {
+            $this->log->alert('[Async] auth-appid not');
+            $this->abort('错误请求', 21001);
+        }
+
+        $app_id -= 1000000;
+        $result = ModelApiApp::field('name, secret, authkey')
+            ->where([
+                ['id', '=', $app_id]
+            ])
+            ->cache('asyncappid' . $app_id)
+            ->find();
+
+        if (null !== $result && $result = $result->toArray()) {
+            $this->appName = $result['name'];
+            $this->appSecret = $result['secret'];
+            $this->appAuthKey = $result['authkey'];
+
+            // 设置会话信息(用户ID,用户组)
+            if ($this->session->has($this->appAuthKey) && $this->session->has($this->appAuthKey . '_role')) {
+                $this->uid = (int) $this->session->get($this->appAuthKey);
+                $this->urole = (int) $this->session->get($this->appAuthKey . '_role');
+                $this->type = $this->appAuthKey == 'user_auth_key' ? 'user' : 'admin';
+            }
+        } else {
+            $this->log->alert('[Async] auth-appid error');
+            $this->abort('错误请求', 21002);
+        }
+    }
+
+    /**
      * 解析accept信息
      * version与format解析
      * @access public
@@ -185,11 +208,11 @@ class Analytical
      */
     public function accept(): void
     {
-        $accept = Request::header('accept');
+        $accept = $this->request->header('accept');
         $pattern = '/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[a-zA-Z0-9]+\+[A-Za-z]{3,5}+$/u';
-        if (!$accept || !preg_match($pattern, $accept)) {
-            $response = Response::create(['code' => 20004, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
+        if (!$accept || false === preg_match($pattern, $accept)) {
+            $this->log->alert('[Async] header-accept error');
+            $this->abort('错误请求', 20004);
         }
 
 
@@ -199,10 +222,10 @@ class Analytical
         $accept = str_replace('application/vnd.', '', $accept);
         // 校验域名合法性
         list($domain, $accept) = explode('.', $accept, 2);
-        list($root) = explode('.', Request::rootDomain(), 2);
+        list($root) = explode('.', $this->request->rootDomain(), 2);
         if (!hash_equals($domain, $root)) {
-            $response = Response::create(['code' => 20005, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
+            $this->log->alert('[Async] header-accept domain error');
+            $this->abort('错误请求', 20005);
         }
         unset($domain, $root);
 
@@ -210,9 +233,9 @@ class Analytical
 
         // 取得版本与数据类型
         list($version, $this->format) = explode('+', $accept, 2);
-        if (!$version || !preg_match('/^[a-zA-Z0-9.]+$/u', $version)) {
-            $response = Response::create(['code' => 20006, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
+        if (!$version || false === preg_match('/^[a-zA-Z0-9.]+$/u', $version)) {
+            $this->log->alert('[Async] header-accept version error');
+            $this->abort('错误请求', 20006);
         }
         // 去掉"v"
         $version = substr($version, 1);
@@ -228,8 +251,9 @@ class Analytical
 
         // 校验返回数据类型
         if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
-            $response = Response::create(['code' => 20007, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
+            $this->log->alert('[Async] header-accept format error');
+            $this->log->alert('[Async]' . $this->format);
+            $this->abort('错误请求', 20007);
         }
     }
 
@@ -242,29 +266,29 @@ class Analytical
      */
     public function authorization(): void
     {
-        $authorization = Request::header('authorization');
+        $authorization = $this->request->header('authorization');
         $authorization = str_replace('&#43;', '+', $authorization);
         $authorization = str_replace('Bearer ', '', $authorization);
         if (!$authorization) {
-            $response = Response::create(['code' => 20001, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
+            $this->log->alert('[Async] header-authorization params error');
+            $this->abort('错误请求', 20001);
         }
 
         // 校验authorization合法性
         $token = (new Parser)->parse($authorization);
         // 密钥
-        $key  = Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $key  = $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
         $key = sha1(Base64::encrypt($key));
 
         $data = new ValidationData;
-        $data->setIssuer(Request::rootDomain());
-        $data->setAudience(parse_url(Request::server('HTTP_REFERER'), PHP_URL_HOST));
+        $data->setIssuer($this->request->rootDomain());
+        $data->setAudience(parse_url($this->request->server('HTTP_REFERER'), PHP_URL_HOST));
         $data->setId($token->getClaim('jti'));
-        $data->setCurrentTime(Request::time() + 60);
+        $data->setCurrentTime($this->request->time() + 60);
 
         if (false === $token->verify(new Sha256, $key) || false === $token->validate($data)) {
-            $response = Response::create(['code' => 20002, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
+            $this->log->alert('[Async] header-authorization params error');
+            $this->abort('错误请求', 20002);
         }
 
 
@@ -273,14 +297,13 @@ class Analytical
         // Session初始化并规定sessionID
         $jti = Base64::decrypt($token->getClaim('jti'));
         $jti = DataFilter::filter($jti);
-        if ($jti && is_file(root_path() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . Config::get('session.prefix') . DIRECTORY_SEPARATOR . 'sess_' . $jti)) {
-            $session = app('session');
-            $session->setId($jti);
-            $session->init();
-            Request::withSession($session);
+        if ($jti && is_file($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . $this->config->get('session.prefix') . DIRECTORY_SEPARATOR . 'sess_' . $jti)) {
+            $this->session->setId($jti);
+            $this->session->init();
+            $this->request->withSession($this->session);
         } else {
-            $response = Response::create(['code' => 20003, 'message' => '错误请求'], 'json');
-            throw new HttpResponseException($response);
+            $this->log->alert('[Async] header-authorization params error');
+            $this->abort('错误请求', 20003);
         }
     }
 }

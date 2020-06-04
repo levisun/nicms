@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\common\controller\Async;
+use app\api\logic\Async;
 use app\common\library\Download as DownloadFile;
 
 class Download extends Async
@@ -25,7 +25,7 @@ class Download extends Async
 
     public function index()
     {
-        if ($this->isReferer()) {
+        if ($this->validate->referer()) {
             if ($file = $this->request->param('file', false)) {
                 return DownloadFile::file($file);
             }
