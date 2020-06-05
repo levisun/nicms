@@ -84,22 +84,10 @@ class Analytical extends BaseLogic
     protected $appAuthKey = 'user_auth_key';
 
     /**
-     * 用户ID
-     * @var int
-     */
-    protected $uid = 0;
-
-    /**
-     * 用户组ID
-     * @var int
-     */
-    protected $urole = 0;
-
-    /**
-     * 用户类型(用户和管理员)
+     * session id
      * @var string
      */
-    protected $type = 'guest';
+    protected $sessionId;
 
     /**
      * 解析method参数
@@ -187,13 +175,6 @@ class Analytical extends BaseLogic
             $this->appName = $result['name'];
             $this->appSecret = $result['secret'];
             $this->appAuthKey = $result['authkey'];
-
-            // 设置会话信息(用户ID,用户组)
-            if ($this->session->has($this->appAuthKey) && $this->session->has($this->appAuthKey . '_role')) {
-                $this->uid = (int) $this->session->get($this->appAuthKey);
-                $this->urole = (int) $this->session->get($this->appAuthKey . '_role');
-                $this->type = $this->appAuthKey == 'user_auth_key' ? 'user' : 'admin';
-            }
         } else {
             $this->log->alert('[Async] auth-appid error');
             $this->abort('错误请求', 21002);
@@ -298,9 +279,7 @@ class Analytical extends BaseLogic
         $jti = Base64::decrypt($token->getClaim('jti'));
         $jti = DataFilter::filter($jti);
         if ($jti && is_file($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . $this->config->get('session.prefix') . DIRECTORY_SEPARATOR . 'sess_' . $jti)) {
-            $this->session->setId($jti);
-            $this->session->init();
-            $this->request->withSession($this->session);
+            $this->sessionId = $jti;
         } else {
             $this->log->alert('[Async] header-authorization params error');
             $this->abort('错误请求', 20003);

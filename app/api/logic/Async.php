@@ -48,6 +48,24 @@ class Async extends BaseLogic
     protected $apiExpire = 1440;
 
     /**
+     * 用户ID
+     * @var int
+     */
+    protected $uid = 0;
+
+    /**
+     * 用户组ID
+     * @var int
+     */
+    protected $urole = 0;
+
+    /**
+     * 用户类型(用户和管理员)
+     * @var string
+     */
+    protected $type = 'guest';
+
+    /**
      * 初始化
      * @access protected
      * @return void
@@ -65,17 +83,9 @@ class Async extends BaseLogic
      */
     protected function exec(): array
     {
-        $this->analytical->openVersion = false;
-        $this->analytical->authorization();
-        $this->analytical->accept();
-        $this->analytical->appId();
-        $this->analytical->loadLang();
+        $this->ApiInit();
         $this->analytical->method();
-
-        $this->validate->sign($this->analytical->appSecret);
-        $this->validate->fromToken();
-        $this->validate->referer();
-        $this->validate->RBAC($this->analytical->appName, $this->analytical->appMethod, $this->analytical->uid);
+        $this->validate->RBAC($this->analytical->appName, $this->analytical->appMethod, $this->uid);
 
         // 执行METHOD获得返回数据
         $result = call_user_func([
@@ -120,6 +130,34 @@ class Async extends BaseLogic
         }
 
         return $this;
+    }
+
+    /**
+     * API初始化
+     * @access protected
+     * @return void
+     */
+    protected function ApiInit(): void
+    {
+        $this->analytical->openVersion = false;
+        $this->analytical->authorization();
+        $this->analytical->accept();
+        $this->analytical->appId();
+        $this->analytical->loadLang();
+
+        $this->session->setId($this->analytical->sessionId);
+        $this->session->init();
+        $this->request->withSession($this->session);
+        // 设置会话信息(用户ID,用户组)
+        if ($this->session->has($this->analytical->appAuthKey)) {
+            $this->uid = (int) $this->session->get($this->analytical->appAuthKey);
+            $this->urole = (int) $this->session->get($this->analytical->appAuthKey . '_role');
+            $this->type = $this->analytical->appAuthKey == 'user_auth_key' ? 'user' : 'admin';
+        }
+
+        $this->validate->sign($this->analytical->appSecret);
+        $this->validate->referer();
+        $this->validate->fromToken();
     }
 
     /**

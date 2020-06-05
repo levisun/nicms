@@ -32,6 +32,7 @@ class Verify extends Async
     public function img()
     {
         if ($this->request->isGet() && $this->validate->referer()) {
+            $this->ApiInit();
             $captcha = Captcha::create();
             $this->session->save();
             $captcha = 'data:image/png;base64,' . base64_encode($captcha->getContent());

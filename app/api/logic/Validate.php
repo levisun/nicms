@@ -90,10 +90,8 @@ class Validate extends BaseLogic
      */
     public function fromToken(): bool
     {
-        if ($this->request->isPost()) {
-            if (false === $this->request->checkToken()) {
-                $this->abort('错误请求', 24002);
-            }
+        if ($this->request->isPost() && false === $this->request->checkToken()) {
+            $this->abort('错误请求', 24002);
         }
 
         return true;
@@ -122,7 +120,7 @@ class Validate extends BaseLogic
     public function RBAC(string $_app_name, array $_app_method, int $_uid): void
     {
         // 需要鉴权应用
-        if (in_array($_app_name, ['admin', 'my'])) {
+        if (in_array($_app_name, ['admin', 'user'])) {
             // 不需要鉴权方法(登录 登出 找回密码)
             if (!in_array($_app_method['method'], ['login', 'logout', 'forget'])) {
                 // 验证权限

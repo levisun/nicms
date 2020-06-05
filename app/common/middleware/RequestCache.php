@@ -104,8 +104,7 @@ class RequestCache
 
         $response = $next($request);
 
-        // API应用不进行请求缓存
-        // 因业务不同缓存的开启和时长由方法中定义
+        // API应用因业务不同缓存的开启和时长由方法中定义
         if ('api' === $this->appName) {
             // 获得API执行方法设置的缓存时长
             if ($expire = $response->getHeader('Cache-control')) {
