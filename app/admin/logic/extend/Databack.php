@@ -34,7 +34,7 @@ class Databack extends BaseLogic
     {
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR;
+        $path = runtime_path('backup');
 
         if ($file = glob($path . '*')) {
             rsort($file);
@@ -101,7 +101,7 @@ class Databack extends BaseLogic
         $msg = 'error';
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id, date('Ymd'))) {
-            $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR . $id;
+            $path = runtime_path('backup') . $id;
             if (is_file($path)) {
                 unlink($path);
                 $msg = 'success';

@@ -88,8 +88,8 @@ class RequestCache
                         if ('api' !== $this->appName) {
                             preg_match('/name="csrf-appid" content="([0-9]+)"/si', $content, $matches);
                             $app_id = (int) $matches[1];
+                            app_secret($app_id);
                             $pattern = [
-                                '<meta name="csrf-appsecret" content="" />' => app_secret_meta($app_id),
                                 '<meta name="csrf-authorization" content="" />' => authorization_meta(),
                                 '<meta name="csrf-token" content="" />' => token_meta(),
                             ];

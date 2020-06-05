@@ -64,7 +64,7 @@ class TagsHead extends Taglib
             '<meta name="csrf-root" content="' . $root . '" />' .
             '<meta name="csrf-version" content="' . $this->config['tpl_config']['api_version'] . '" />' .
             '<meta name="csrf-appid" content="' . $this->config['tpl_config']['api_appid'] . '" />' .
-            '<?php echo app_secret_meta(' . $this->config['tpl_config']['api_appid'] . ');?>' .
+            '<?php app_secret(' . $this->config['tpl_config']['api_appid'] . ');?>' .
             '<?php echo authorization_meta();?>' .
             '<?php echo token_meta();?>' .
 

@@ -44,15 +44,12 @@ class Image
 
             $new_file = md5($_img) . '_s' . $_size . $extension;
 
-            $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR .
-                'storage' . DIRECTORY_SEPARATOR .
-                'uploads' . DIRECTORY_SEPARATOR .
-                'thumb' . DIRECTORY_SEPARATOR;
+            $path = public_path('storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR .'thumb');
             is_dir($path) or mkdir($path, 0755, true);
 
             if (!is_file($path . $new_file)) {
                 @ini_set('memory_limit', '128M');
-                $origin = app()->getRootPath() . Config::get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
+                $origin = root_path() . Config::get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
                 $image = ThinkImage::open($origin . $_img);
                 if ($image->width() > $_size) {
                     $image->thumb($_size, $_size, ThinkImage::THUMB_SCALING);
@@ -124,7 +121,7 @@ class Image
             return $_img;
         }
 
-        $path = app()->getRootPath() . Config::get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
+        $path = root_path() . Config::get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
 
         $_img = DataFilter::filter($_img);
         $_img = str_replace(DIRECTORY_SEPARATOR, '/', $_img);

@@ -30,10 +30,10 @@ class DataManage
     {
         $this->DB = app('think\DbManager');
 
-        $this->savePath = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR;
+        $this->savePath = runtime_path('backup');
         is_dir($this->savePath) or mkdir($this->savePath, 0755, true);
 
-        $this->lockPath = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'lock' . DIRECTORY_SEPARATOR;
+        $this->lockPath = runtime_path('lock');
         is_dir($this->lockPath) or mkdir($this->lockPath, 0755, true);
 
         @set_time_limit(3600);
@@ -212,9 +212,7 @@ class DataManage
             }
 
             $zip = new \ZipArchive;
-            $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR .
-                'backup' . DIRECTORY_SEPARATOR .
-                pathinfo($this->savePath, PATHINFO_BASENAME) . '.zip';
+            $path = runtime_path('backup') . pathinfo($this->savePath, PATHINFO_BASENAME) . '.zip';
             if (true === $zip->open($path, \ZipArchive::CREATE)) {
                 if ($dir = glob($this->savePath . '*')) {
                     foreach ($dir as $name) {

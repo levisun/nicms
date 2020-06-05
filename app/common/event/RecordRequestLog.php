@@ -25,7 +25,7 @@ class RecordRequestLog
     public function handle()
     {
         // 请求频繁创建锁定文件
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
+        $path = runtime_path('temp');
         is_dir($path) or mkdir($path, 0755, true);
 
         $client_ip = md5(Request::ip());

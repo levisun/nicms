@@ -73,7 +73,7 @@ class Compiler
         $this->suffix = isset($_config['suffix']) ? $_config['suffix'] : 'php';
         $this->path = isset($_config['path'])
             ? $_config['path']
-            : app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR;
+            : runtime_path('compile');
         $this->tpl_compile = isset($_config['tpl_compile']) ? $_config['tpl_compile'] : false;
     }
 

@@ -32,7 +32,7 @@ class Elog extends BaseLogic
     public function query(): array
     {
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR;
+        $path = runtime_path('log');
 
         if ($files = glob($path . '*')) {
             rsort($files);
@@ -78,7 +78,7 @@ class Elog extends BaseLogic
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id, date('Ymd'))) {
 
-            $file = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . $id;
+            $file = runtime_path('log') . $id;
             if (is_file($file)) {
                 $data = file_get_contents($file);
                 $data = str_replace(['<', '>'], ['[', ']'], $data);

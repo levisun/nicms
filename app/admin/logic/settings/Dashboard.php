@@ -76,7 +76,7 @@ class Dashboard extends BaseLogic
         $day_ip = ModelIpInfo::where([
             ['create_time', '>', strtotime(date('Y-m-d'))]
         ])->count();
-        $session_path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR;
+        $session_path = runtime_path('session');
         $browse = ModelVisit::field('max(count) as count')->where([
                 ['name', '=', ''],
                 ['date', '=', strtotime(date('Y-m-d'))]

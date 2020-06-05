@@ -68,7 +68,7 @@ class Base64
      */
     public static function client_id(): string
     {
-        if (!Session::has('client_id') || !$token = Session::get('client_id')) {
+        if (!Cookie::has('client_id') || !$token = Cookie::get('client_id')) {
             $token  = Request::server('HTTP_USER_AGENT');
             $token .= __DIR__;
             $token .= bindec(Request::ip2bin(Request::ip()));
@@ -80,13 +80,8 @@ class Base64
             $token = hash_hmac('sha256', $token, uniqid($token, true));
             $token = sha1(uniqid($token, true));
 
-            Session::set('client_id', $token);
+            Cookie::set('client_id', $token, ['httponly' => false]);
         }
-
-        Cookie::has('client_id') or Cookie::set('client_id', $token);
-
-        Cookie::has('client_token')
-            or Cookie::set('client_token', Base64::encrypt($token . Session::getId(false)));
 
         return $token;
     }

@@ -44,8 +44,8 @@ class AppMaintain
             // (new DataManage)->autoBackup();
 
             only_execute($app_name . '_remove_garbage.lock', '-4 hour', function () {
-                $runtime_path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR;
-                $uploads_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
+                $runtime_path = runtime_path();
+                $uploads_path = public_path('storage' . DIRECTORY_SEPARATOR . 'uploads');
 
                 // 清除过期缓存文件
                 ReGarbage::remove($runtime_path . 'cache', 1);
@@ -81,7 +81,7 @@ class AppMaintain
         ];
 
         // 删除根目录多余文件
-        $dir = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+        $dir = public_path();
         $files = is_dir($dir) ? scandir($dir) : [];
         foreach ($files as $dir_file) {
             // 跳过保留目录

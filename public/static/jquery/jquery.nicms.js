@@ -202,8 +202,8 @@
             }
         });
         sign = sign.substr(0, sign.length - 1);
-        sign += jQuery('meta[name="csrf-appsecret"]').attr('content');
-        sign += navigator.userAgent;
+        // sign += jQuery('meta[name="csrf-appsecret"]').attr('content');
+        sign += jQuery.get_cookie('client_token');
         // console.log(sign);
 
         return md5(sign);

@@ -91,8 +91,7 @@ class User extends BaseLogic
             // 锁定方法在[\app\common\event\CheckRequestCache::lock]
             if ($login_lock >= 5) {
                 $this->session->delete('login_lock');
-                $lock = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
-                $lock .= md5($this->request->ip()) . '.lock';
+                $lock = runtime_path('temp') . md5($this->request->ip()) . '.lock';
                 file_put_contents($lock, 'lock');
             } else {
                 $this->session->set('login_lock', $login_lock);

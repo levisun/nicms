@@ -258,7 +258,7 @@ class Analytical extends BaseLogic
         // 校验authorization合法性
         $token = (new Parser)->parse($authorization);
         // 密钥
-        $key  = $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
+        $key  = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
         $key = sha1(Base64::encrypt($key));
 
         $data = new ValidationData;

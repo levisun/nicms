@@ -14,6 +14,7 @@
 
 use think\Response;
 use think\exception\HttpResponseException;
+use think\facade\Cookie;
 use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
@@ -71,36 +72,34 @@ if (!function_exists('word')) {
      * @param  int    $_length 返回词语数量
      * @return array
      */
-    function word(string $_str, int $_length): array
+    function word(string $_str, int $_length = 0): array
     {
-        if ($_str = DataFilter::chs_alpha($_str)) {
-            @ini_set('memory_limit', '128M');
-            $path = app()->getRootPath() . 'vendor/lizhichao/word/Data/dict.json';
-            define('_VIC_WORD_DICT_PATH_', $path);
-            $fc = new VicWord('json');
-            $_str = $fc->getAutoWord($_str);
-            unset($fc);
+        // 过滤其他字符
+        $_str = DataFilter::chs_alpha($_str);
 
-            // 取出有效词
-            foreach ($_str as $key => $value) {
-                $value[0] = trim($value[0]);
+        @ini_set('memory_limit', '128M');
+        // 词库
+        define('_VIC_WORD_DICT_PATH_', root_path('vendor/lizhichao/word/Data') . 'dict.json');
 
-                if (1 < mb_strlen($value[0], 'UTF-8')) {
-                    $_str[$key] = trim($value[0]);
-                } elseif (intval($value[0])) {
-                    unset($_str[$key]);
-                } else {
-                    unset($_str[$key]);
-                }
+        $fc = new VicWord('json');
+        $words = $_str ? $fc->getAutoWord($_str) : [];
+        unset($fc);
+        foreach ($words as $key => $value) {
+            $value[0] = trim($value[0]);
+            if ($value[0]) {
+                $words[$key] = [
+                    'length' => mb_strlen($value[0], 'utf-8'),
+                    'word'   => $value[0],
+                ];
+            } else {
+                unset($words[$key]);
             }
-            // 过滤重复词
-            $_str = array_unique($_str);
-
-            // 如果设定长度,返回对应长度数组
-            return $_length ? array_slice($_str, 0, $_length) : $_str;
-        } else {
-            return [];
         }
+        $words = array_unique($words, SORT_REGULAR);
+        array_multisort(array_column($words, 'length'), SORT_DESC, $words);
+
+        // 如果设定长度,返回对应长度数组
+        return $_length ? array_slice($words, 0, $_length) : $words;
     }
 }
 
@@ -114,7 +113,7 @@ if (!function_exists('only_execute')) {
      */
     function only_execute(string $_lock, $_time, callable $_callback): void
     {
-        $path = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'lock' . DIRECTORY_SEPARATOR;
+        $path = runtime_path('lock');
         is_dir($path) or mkdir($path, 0755, true);
 
         is_file($path . $_lock) or file_put_contents($path . $_lock, '');
@@ -146,23 +145,12 @@ if (!function_exists('is_wechat')) {
     }
 }
 
-if (!function_exists('app_secret_meta')) {
-    /**
-     * APP密钥
-     * @return string
-     */
-    function app_secret_meta(int $_app_id): string
-    {
-        return '<meta name="csrf-appsecret" content="' . app_secret($_app_id) . '" />';
-    }
-}
-
 if (!function_exists('app_secret')) {
     /**
      * APP密钥
      * @return string
      */
-    function app_secret(int $_app_id): string
+    function app_secret(int $_app_id): void
     {
         $app_secret = '';
         if ($_app_id > 1000000) {
@@ -171,7 +159,10 @@ if (!function_exists('app_secret')) {
                 ['id', '=', $_app_id]
             ])->cache('app secret' . $_app_id)->value('secret', '');
         }
-        return sha1($app_secret . date('Ymd'));
+        $key = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $app_secret = sha1($app_secret . $key);
+
+        Cookie::has('client_token') or Cookie::set('client_token', $app_secret, ['httponly' => false]);
     }
 }
 
@@ -194,7 +185,7 @@ if (!function_exists('authorization')) {
     function authorization(): string
     {
         // 密钥
-        $key = Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $key = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         $key = sha1(Base64::encrypt($key));
 
         $token = (new Builder)
@@ -211,7 +202,7 @@ if (!function_exists('authorization')) {
             // 签发过期时间
             ->expiresAt(Request::time() + 28800)
             // 客户端ID
-            ->withClaim('uid', sha1(Base64::client_id() . Request::ip()))
+            ->withClaim('uid', Base64::client_id())
             // 生成token
             ->getToken(new Sha256, new Key($key));
 
@@ -229,7 +220,7 @@ if (!function_exists('miss')) {
     function miss(int $_code, bool $_redirect = true, bool $_abort = false): Response
     {
         $content = '';
-        $file = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_code . '.html';
+        $file = public_path() . $_code . '.html';
         if (is_file($file)) {
             $content .= file_get_contents($file);
         } else {
@@ -255,6 +246,38 @@ if (!function_exists('miss')) {
         }
 
         return $response;
+    }
+}
+
+if (!function_exists('public_path')) {
+    /**
+     * 获取web根目录
+     *
+     * @param string $path
+     * @return string
+     */
+    function public_path($_path = '')
+    {
+        $_path = trim($_path, '\/');
+        $_path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_path);
+        $_path = $_path ? $_path . DIRECTORY_SEPARATOR : '';
+        return app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_path;
+    }
+}
+
+if (!function_exists('runtime_path')) {
+    /**
+     * 获取应用运行时目录
+     *
+     * @param string $path
+     * @return string
+     */
+    function runtime_path($_path = '')
+    {
+        $_path = trim($_path, '\/');
+        $_path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_path);
+        $_path = $_path ? $_path . DIRECTORY_SEPARATOR : '';
+        return app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $_path;
     }
 }
 

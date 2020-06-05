@@ -102,6 +102,7 @@ abstract class BaseController
         @ini_set('max_execution_time', '10');
         @ini_set('memory_limit', '8M');
 
+        // 初始化视图
         $app_name = app('http')->getName();
         $result = Siteinfo::query($app_name);
         $this->view->config([
@@ -116,7 +117,6 @@ abstract class BaseController
                 '__SCRIPT__'      => $result['script'],
             ]
         ]);
-
         $this->view->assign([
             'web_title' => $result['title'],
             'web_keywords' => $result['keywords'],

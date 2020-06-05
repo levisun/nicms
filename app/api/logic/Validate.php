@@ -74,8 +74,9 @@ class Validate extends BaseLogic
             }
         }
         $str  = rtrim($str, '&');
-        $str .= sha1($_app_secret . date('Ymd'));
-        $str .= $this->request->server('HTTP_USER_AGENT');
+
+        $key = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
+        $str .= sha1($_app_secret . $key);
         // $str .= $this->request->server('HTTP_USER_AGENT') . $this->request->server('HTTP_REFERER') . $this->request->ip();
 
         if (!hash_equals(call_user_func($sign_type, $str), $sign)) {

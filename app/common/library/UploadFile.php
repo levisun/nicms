@@ -84,7 +84,7 @@ class UploadFile
         @ini_set('max_execution_time', '600');
         @set_time_limit(600);
 
-        $this->root_path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+        $this->root_path = public_path();
     }
 
     /**
@@ -252,7 +252,7 @@ class UploadFile
 
         // 添加水印
         if (true === $this->imgWater) {
-            $ttf = app()->getRootPath() . 'extend' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf';
+            $ttf = root_path('extend' . DIRECTORY_SEPARATOR . 'font') . 'simhei.ttf';
             $image->text(Request::rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9));
         }
 
@@ -297,7 +297,7 @@ class UploadFile
     {
         @ini_set('memory_limit', '128M');
 
-        $image = Image::open(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_save_file);
+        $image = Image::open(public_path() . $_save_file);
 
         // 缩放图片到指定尺寸
         if ($this->thumbSize['width'] && $this->thumbSize['height']) {
@@ -310,18 +310,18 @@ class UploadFile
 
         // 添加水印
         if (true === $this->imgWater) {
-            $ttf = app()->getRootPath() . 'extend' . DIRECTORY_SEPARATOR . 'font' . DIRECTORY_SEPARATOR . 'simhei.ttf';
+            $ttf = root_path('extend' . DIRECTORY_SEPARATOR . 'font') . 'simhei.ttf';
             $image->text(Request::rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9));
         }
 
         // 转换webp格式
         if (function_exists('imagewebp')) {
             $webp_file = str_replace('.' . $_files->extension(), '.webp', $_save_file);
-            $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $webp_file, 'webp');
+            $image->save(public_path() . $webp_file, 'webp');
             $this->writeUploadLog($webp_file);   // 记录上传文件日志
             // 删除非webp格式图片
             if ('webp' !== $_files->extension()) {
-                unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_save_file);
+                unlink(public_path() . $_save_file);
             }
             $_save_file = $webp_file;
         }
@@ -329,11 +329,11 @@ class UploadFile
         // 转换jpg格式
         elseif ('gif' !== $_files->extension()) {
             $jpg_file = str_replace('.' . $_files->extension(), '.jpg', $_save_file);
-            $image->save(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $jpg_file, 'jpg');
+            $image->save(public_path() . $jpg_file, 'jpg');
             $this->writeUploadLog($jpg_file);   // 记录上传文件日志
             // 删除非jpg格式图片
             if ('jpg' !== $_files->extension()) {
-                unlink(app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_save_file);
+                unlink(public_path() . $_save_file);
             }
             $_save_file = $jpg_file;
         }
@@ -397,7 +397,7 @@ class UploadFile
                 ->select();
             $result = $result ? $result->toArray() : [];
 
-            $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+            $path = public_path();
             $id = [];
             foreach ($result as $file) {
                 // 记录ID
@@ -443,7 +443,7 @@ class UploadFile
      */
     public function remove(string $_file): void
     {
-        $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR;
+        $path = public_path();
         // 过滤非法字符
         $abs_file = DataFilter::filter($_file);
         $abs_file = $path . str_replace('/', DIRECTORY_SEPARATOR, $abs_file);

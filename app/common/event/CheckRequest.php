@@ -41,8 +41,7 @@ class CheckRequest
      */
     private function lock()
     {
-        $lock = app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
-        $lock .= md5(Request::ip()) . '.lock';
+        $lock = runtime_path('temp') . md5(Request::ip()) . '.lock';
         if (is_file($lock)) {
             Log::write('[锁定 ' . Request::ip() . Request::url(true) . ']', 'alert');
 

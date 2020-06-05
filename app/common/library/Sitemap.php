@@ -101,7 +101,7 @@ class Sitemap
         $xml .= self::toXml($_data) . PHP_EOL;
         $xml .= '</urlset>';
 
-        $filename = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $_path;
+        $filename = public_path() . $_path;
         if (!is_dir(dirname($filename))) {
             mkdir(dirname($filename), 0755, true);
         }
