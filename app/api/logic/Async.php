@@ -139,9 +139,6 @@ class Async extends BaseLogic
      */
     protected function ApiInit(): void
     {
-        $this->validate->referer();
-        $this->validate->sign($this->analytical->appSecret);
-
         $this->analytical->openVersion = false;
         $this->analytical->authorization();
         $this->analytical->accept();
@@ -158,6 +155,8 @@ class Async extends BaseLogic
             $this->type = $this->analytical->appAuthKey == 'user_auth_key' ? 'user' : 'admin';
         }
 
+        $this->validate->sign($this->analytical->appSecret);
+        $this->validate->referer();
         $this->validate->fromToken();
     }
 
