@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\api\logic\Async;
+use app\common\library\api\Async;
 
 class Upload extends Async
 {

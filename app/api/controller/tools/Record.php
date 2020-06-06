@@ -6,7 +6,7 @@
  * 访问记录API
  *
  * @package   NICMS
- * @category  app\api\controller
+ * @category  app\api\controller\tools
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -15,10 +15,10 @@
 
 declare(strict_types=1);
 
-namespace app\api\controller;
+namespace app\api\controller\tools;
 
 use think\Response;
-use app\api\logic\Async;
+use app\common\library\api\Async;
 use app\common\library\AccessLog;
 
 class Record extends Async

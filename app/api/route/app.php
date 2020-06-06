@@ -15,33 +15,30 @@ use think\facade\Route;
 
 Route::group(function () {
     // 下载接口
-    Route::get('download$', 'Download/index');
+    Route::get('download$', 'tools.Download/index');
+    // IP信息接口
+    Route::get('ip$', 'tools.Ip/index');
+    // 访问日志
+    Route::get('record$', 'tools.Record/index');
+    // 验证码接口
+    Route::get('verify/img$', 'verify.Img/index');
+    Route::post('verify/sms$', 'verify.Sms/index');
+    Route::post('verify/sms_check$', 'verify.Sms/check');
+
+
+
+
+    // 支付
+    Route::post('pay/order/:method$', 'pay.Order/index');
+    Route::get('pay/respond/:method$', 'pay.Respond/index');
+    Route::get('pay/notify/:method$', 'pay.Notify/index');
 
     // 操作接口
     Route::post('handle$', 'Handle/index');
-
-    // IP信息接口
-    Route::get('ip$', 'Ip/index');
-
-    // 支付
-    Route::post('pay/order/:method$', 'Pay/index');
-    Route::get('pay/respond/:method$', 'Pay/respond');
-    Route::get('pay/notify/:method$', 'Pay/notify');
-
     // 请求接口
     Route::get('query$', 'Query/index');
-
-    // 访问日志
-    Route::get('record$', 'Record/index');
-
     // 上传接口
     Route::post('upload$', 'Upload/index');
-
-    // 验证码接口
-    Route::get('verify/img$', 'Verify/img');
-    Route::post('verify/img_check$', 'Verify/imgCheck');
-    Route::post('verify/sms$', 'Verify/sms');
-    Route::post('verify/sms_check$', 'Verify/smsCheck');
 
     // 微信接口
     Route::get('wechat$', 'Wechat/index');
