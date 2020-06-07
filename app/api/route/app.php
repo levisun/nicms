@@ -14,19 +14,16 @@
 use think\facade\Route;
 
 Route::group(function () {
-    // 下载接口
-    Route::get('download$', 'tools.Download/index');
-    // IP信息接口
-    Route::get('ip$', 'tools.Ip/index');
-    // 访问日志
-    Route::get('record$', 'tools.Record/index');
+
+    Route::get('download$', 'tools.Download/index');    // 下载接口
+    Route::get('ip$', 'tools.Ip/index');                // IP信息接口
+    Route::get('record$', 'tools.Record/index');        // 访问日志
+    Route::get('spider$', 'tools.Spider/index');        // 爬虫
+
     // 验证码接口
     Route::get('verify/img$', 'verify.Img/index');
     Route::post('verify/sms$', 'verify.Sms/index');
     Route::post('verify/sms_check$', 'verify.Sms/check');
-
-
-
 
     // 支付
     Route::post('pay/order/:method$', 'pay.Order/index');
@@ -39,9 +36,6 @@ Route::group(function () {
     Route::get('query$', 'Query/index');
     // 上传接口
     Route::post('upload$', 'Upload/index');
-
-    // 微信接口
-    Route::get('wechat$', 'Wechat/index');
 
     Route::miss(function () {
         return miss(404, false);

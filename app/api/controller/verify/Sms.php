@@ -3,7 +3,7 @@
 /**
  *
  * 控制层
- * 验证码API
+ * 短信验证码API
  *
  * @package   NICMS
  * @category  app\api\controller\verify
@@ -29,7 +29,7 @@ class Sms extends Async
      */
     public function index()
     {
-        if ($this->request->isPost()) {
+        if ($this->request->isPost() && $this->validate->referer()) {
             $phone = $this->request->param('phone', false);
             if ($phone && preg_match('/^1[3-9]\d{9}$/', $phone)) {
                 $key = md5('sms_' . $phone);

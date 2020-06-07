@@ -168,7 +168,7 @@ class Async extends BaseLogic
      * @param  integer $code 错误码，默认为10000
      * @return void
      */
-    protected function success(string $_msg, array $_data = [], int $_code = 10000): Response
+    protected function success(string $_msg, $_data = '', int $_code = 10000): Response
     {
         return $this->response($_msg, $_data, $_code);
     }
@@ -187,7 +187,7 @@ class Async extends BaseLogic
      */
     protected function error(string $_msg, int $_code = 40001): Response
     {
-        return $this->response($_msg, [], $_code);
+        return $this->cache(false)->response($_msg, [], $_code);
     }
 
     /**
@@ -198,7 +198,7 @@ class Async extends BaseLogic
      * @param  string $code   返回码
      * @return Response
      */
-    protected function response(string $_msg, array $_data = [], int $_code = 10000): Response
+    protected function response(string $_msg, $_data = '', int $_code = 10000): Response
     {
         $result = [
             'code'    => $_code,

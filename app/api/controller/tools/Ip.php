@@ -36,17 +36,7 @@ class Ip extends Async
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
         if ($ip = Ipinfo::get($ip)) {
-            // return $this->cache(1440)->success('IP', $ip);
-
-            // 为收集IP
-            $data = 'var NICMS_IPINFO=' . json_encode($ip, JSON_UNESCAPED_UNICODE) . ';';
-            $data .= 'if ("undefined" != typeof (NICMS_IPINFO)) {const xhr = new XMLHttpRequest();let ip = NICMS_IPINFO.ip.split(".");ip[2] = parseInt(Math.random() * 255, 10) + 1;ip[2] = 0;let timer = setInterval(function () {if (ip[2] < 255) {ip[2]++;}xhr.open("GET", "https://api.niphp.com/ip.do?json=true&ip=" + ip.join("."), true);xhr.send();if (ip[2] >= 255) {clearInterval(timer);}}, 30000);}';
-
-            return Response::create($data)->allowCache(true)
-                ->cacheControl('max-age=1440,must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + 1440) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + 1440) . ' GMT')
-                ->contentType('application/javascript');
+            return $this->cache(1440)->success('IP', $ip);
         }
 
         return miss(502);

@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace app\api\controller\pay;
 
-use app\api\logic\Async;
+use app\common\library\api\Async;
 use app\common\library\pay\Wechat;
 
 class Notify extends Async
