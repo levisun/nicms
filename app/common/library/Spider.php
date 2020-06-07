@@ -24,6 +24,7 @@ class Spider
         $html = $this->request($_uri);
 
         if ($_preg && $_preg = $this->filter($_preg)) {
+            // var_dump($_preg);die();
             if (preg_match_all($_preg, $html, $matches)) {
                 foreach ($matches as $key => $item) {
                     if (true === $_filter) {
@@ -35,9 +36,9 @@ class Spider
 
                 return $matches;
             }
-        } else {
-            return $_filter ? DataFilter::decode(DataFilter::encode($html)) : $html;
         }
+
+        return $html;
     }
 
     /**
@@ -53,10 +54,10 @@ class Spider
         $_pattern = str_replace('-', '\-', $_pattern);
         if (strpos($_pattern, '#')) {
             list($element, $attr) = explode('#', $_pattern, 2);
-            $attr = 'id=["\']+' . $attr . '.*?["\']+';
+            $attr = 'id=["\']+.*?' . $attr . '.*?["\']+';
         } elseif (strpos($_pattern, '.')) {
             list($element, $attr) = explode('.', $_pattern, 2);
-            $attr = 'class=["\']+' . $attr . '.*?["\']+';
+            $attr = 'class=[\w=\-"\'{}&;:, ]{1,}' . $attr;
         } elseif ($_pattern === 'a') {
             $element = 'a';
             $attr = 'href=["\']+(.*?)["\']+';
@@ -65,7 +66,7 @@ class Spider
             $attr = '';
         }
 
-        $preg = '/<' . $element . '.*?' . $attr . '.*?>(.*?)<\/' . $element . '.*?>/si';
+        $preg = '/<' . $element . '[\w=\-"\'{}&;:, ]+' . $attr . '[\w=\-"\'{}&;:, ]+>(.*?)<\/' . $element . '>/si';
 
         if ($_pattern === 'img') {
             $element = 'img';

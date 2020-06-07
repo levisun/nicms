@@ -26,7 +26,7 @@ class Spider extends Async
     public function index()
     {
         if ($uri = $this->request->param('uri', false)) {
-            usleep(rand(1000000, 1500000));
+            usleep(rand(1500000, 2500000));
 
             $uri = urldecode($uri);
             $base_uri  = parse_url($uri, PHP_URL_SCHEME) . '://';
@@ -43,7 +43,7 @@ class Spider extends Async
             $filter = (bool) $this->request->param('filter', true);
             if ($result = $spider->fetch($uri, $preg, $filter)) {
                 // 请勿开启缓存
-                return $this->cache(true)->success('spider success', $result);
+                return $this->cache(false)->success('spider success', $result);
             } else {
                 return $this->error('spider error');
             }
