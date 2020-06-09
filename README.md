@@ -44,12 +44,12 @@ composer require topthink/think-captcha
 composer require topthink/think-view
 composer require lcobucci/jwt
 composer require lizhichao/word
+composer require symfony/browser-kit
 
 
 
 
 composer require guzzlehttp/guzzle
-
 composer require overtrue/pinyin
 composer require overtrue/wechat
 composer require overtrue/easy-sms

@@ -26,27 +26,18 @@ class Spider extends Async
     public function index()
     {
         if ($uri = $this->request->param('uri', false)) {
+            $method = $this->request->param('method', 'GET');
+            $selector = $this->request->param('selector', '');
+            $extract = $this->request->param('extract', '');
+            $extract = $extract ? explode(',', $extract) : [];
+
             usleep(rand(1500000, 2500000));
+            $spider = new LibSpider($method, $uri);
+            $result = $selector
+                ? $spider->fetch($selector, $extract)
+                : $spider->getContent();
 
-            $uri = urldecode($uri);
-            $base_uri  = parse_url($uri, PHP_URL_SCHEME) . '://';
-            $base_uri .= parse_url($uri, PHP_URL_HOST) . '/';
-            $url_path  = parse_url($uri, PHP_URL_PATH);
-            $url_query = parse_url($uri, PHP_URL_QUERY);
-            $url_query = $url_query ? '?' . $url_query : '';
-            $uri = $url_path . $url_query;
-            unset($url_path, $url_query);
-
-            $spider = new LibSpider($base_uri);
-
-            $preg = $this->request->param('preg', '');
-            $filter = (bool) $this->request->param('filter', true);
-            if ($result = $spider->fetch($uri, $preg, $filter)) {
-                // 请勿开启缓存
-                return $this->cache(false)->success('spider success', $result);
-            } else {
-                return $this->error('spider error');
-            }
+            return $this->cache(true)->success('spider success', $result);
         }
     }
 }
