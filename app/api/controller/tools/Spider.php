@@ -18,7 +18,8 @@ declare(strict_types=1);
 namespace app\api\controller\tools;
 
 use app\common\library\api\Async;
-use app\common\library\Spider as LibSpider;
+use app\common\library\DataFilter;
+use Symfony\Component\BrowserKit\HttpBrowser;
 
 class Spider extends Async
 {
@@ -26,18 +27,35 @@ class Spider extends Async
     public function index()
     {
         if ($uri = $this->request->param('uri', false)) {
-            $method = $this->request->param('method', 'GET');
-            $selector = $this->request->param('selector', '');
-            $extract = $this->request->param('extract', '');
-            $extract = $extract ? explode(',', $extract) : [];
-
             usleep(rand(1500000, 2500000));
-            $spider = new LibSpider($method, $uri);
-            $result = $selector
-                ? $spider->fetch($selector, $extract)
-                : $spider->getContent();
+
+            $method = $this->request->param('method', 'GET');
+            $method = strtoupper($method);
+            $client = new HttpBrowser;
+            $crawler = $client->request($method, $uri);
+            // 正常访问
+            if (200 === $client->getInternalResponse()->getStatusCode()) {
+                // 有选择器时
+                if ($selector = $this->request->param('selector', false)) {
+                    // 扩展属性
+                    $extract = $this->request->param('extract', '');
+                    $extract = $extract ? explode(',', $extract) : [];
+
+                    $result = [];
+                    $crawler->filter($selector)->each(function ($node) use (&$extract, &$result) {
+                        $result[] = $extract
+                            ? DataFilter::encode($node->extract($extract))
+                            : DataFilter::encode($node->html());
+                    });
+                } else {
+                    $result = $client->getInternalResponse()->getContent();
+                    $result = htmlspecialchars($this->html, ENT_QUOTES);
+                }
+            }
 
             return $this->cache(true)->success('spider success', $result);
         }
+
+        return miss(404);
     }
 }

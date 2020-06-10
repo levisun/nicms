@@ -17,19 +17,35 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Cache;
-use think\facade\Request;
 use Symfony\Component\BrowserKit\HttpBrowser;
+use Symfony\Component\DomCrawler\Crawler;
 
 class Spider
 {
     private $client;
     private $crawler;
+    private $html = null;
 
     public function __construct(string $_method, string $_uri)
     {
-        $_method = strtoupper($_method);
-        $this->client = new HttpBrowser;
-        $this->crawler = $this->client->request($_method, $_uri);
+        $key = md5($_method . $_uri);
+        if (!Cache::has($key) || !$this->html = Cache::get($key)) {
+            $_method = strtoupper($_method);
+            $this->client = new HttpBrowser;
+            $this->crawler = $this->client->request($_method, $_uri);
+            if (200 === $this->client->getInternalResponse()->getStatusCode()) {
+                $this->html = $this->client->getInternalResponse()->getContent();
+                Cache::set($key, $this->html);
+            }
+        } else {
+            $this->crawler = new Crawler;
+            $this->crawler->addContent($this->html);
+        }
+    }
+
+    public function getCrawler()
+    {
+        return $this->crawler;
     }
 
     /**
@@ -54,12 +70,8 @@ class Spider
      * @access public
      * @return string
      */
-    public function getContent(): string
+    public function getHtml(): string
     {
-        $content = '';
-        if (200 === $this->client->getInternalResponse()->getStatusCode()) {
-            $content = $this->client->getInternalResponse()->getContent();
-        }
-        return $content;
+        return htmlspecialchars($this->html, ENT_QUOTES);
     }
 }

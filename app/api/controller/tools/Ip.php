@@ -39,6 +39,6 @@ class Ip extends Async
             return $this->cache(1440)->success('IP', $ip);
         }
 
-        return miss(502);
+        return miss(404);
     }
 }

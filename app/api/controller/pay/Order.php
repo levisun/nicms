@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\api\controller\pay;
 
 use app\common\library\api\Async;
+use app\common\library\pay\Wechat;
 
 class Order extends Async
 {

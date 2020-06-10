@@ -184,6 +184,7 @@ class DataFilter
     {
         libxml_disable_entity_loader(true);
 
+        // 过滤非法标签
         if (preg_match_all('/<([a-zA-Z0-9!]+).*?>/si', $_str, $ele)) {
             $ele[1] = array_map('trim', $ele[1]);
             $ele[1] = array_filter($ele[1]);
@@ -208,8 +209,6 @@ class DataFilter
 
             if (in_array($matches[1], self::$elements)) {
                 return $matches[0];
-            } else {
-                // print_r($matches);
             }
         }, $_str);
 
@@ -240,16 +239,7 @@ class DataFilter
                     return $ele_attr[0];
                 }
             }, $matches[2]);
-            // $matches[2] = preg_replace('/[ ]{1,}([^\w]+)/si', '$1', $matches[2]) . ' ';
-            // $matches[2] = preg_replace_callback('/(.*?)=(.*?) /si', function ($ele_attr) {
-            //     $ele_attr = array_map('strtolower', $ele_attr);
-            //     $ele_attr = array_map('trim', $ele_attr);
-            //     if (in_array($ele_attr[1], self::$attr) && false === stripos($ele_attr[2], 'javascript')) {
-            //         return $ele_attr[0] . ' ';
-            //     }
-            // }, $matches[2]);
             $matches[2] = trim($matches[2]);
-            $matches[2] = $matches[2] ? ' ' . $matches[2] : '';
             return $matches[1] . $matches[2] . $matches[3];
         }, $_str);
 
