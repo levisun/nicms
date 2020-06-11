@@ -29,7 +29,7 @@ class Image
      * @access public
      * @static
      * @param  string $_file
-     * @param  string $_size 整十数
+     * @param  int    $_size 整十数
      * @return string
      */
     public static function thumb(string $_img, int $_size = 0): string

@@ -54,10 +54,6 @@ class Index extends BaseController
      */
     public function index()
     {
-        $client = new \app\common\library\Client;
-        $res = $client->fetch('GET', 'http://www.gaosan.com/');
-        print_r($res);
-        die();
         return $this->fetch('/index');
     }
 

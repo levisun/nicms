@@ -50,9 +50,9 @@ class Compiler
 
     /**
      * 编译有效期
-     * @var bool
+     * @var int
      */
-    private $compile_time = 28800;
+    private $compile_time = 0;
 
     /**
      * 引入文件
@@ -104,7 +104,7 @@ class Compiler
             return false;
         }
 
-        if (filemtime($_compiler_file) + $this->compile_time < time()) {
+        if (!$this->compile_time || filemtime($_compiler_file) + $this->compile_time < time()) {
             return false;
         }
 

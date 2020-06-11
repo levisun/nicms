@@ -18,8 +18,7 @@ declare(strict_types=1);
 namespace app\api\controller\tools;
 
 use app\common\library\api\Async;
-use app\common\library\DataFilter;
-use Symfony\Component\BrowserKit\HttpBrowser;
+use app\common\library\Spider as LibSpider;
 
 class Spider extends Async
 {
@@ -30,26 +29,17 @@ class Spider extends Async
             usleep(rand(1500000, 2500000));
 
             $method = $this->request->param('method', 'GET');
-            $method = strtoupper($method);
-            $client = new HttpBrowser;
-            $crawler = $client->request($method, $uri);
-            // 正常访问
-            if (200 === $client->getInternalResponse()->getStatusCode()) {
+            $spider = new LibSpider;
+            if ($spider->request($method, $uri)) {
                 // 有选择器时
                 if ($selector = $this->request->param('selector', false)) {
                     // 扩展属性
                     $extract = $this->request->param('extract', '');
                     $extract = $extract ? explode(',', $extract) : [];
 
-                    $result = [];
-                    $crawler->filter($selector)->each(function ($node) use (&$extract, &$result) {
-                        $result[] = $extract
-                            ? DataFilter::encode($node->extract($extract))
-                            : DataFilter::encode($node->html());
-                    });
+                    $result = $spider->fetch($selector, $extract);
                 } else {
-                    $result = $client->getInternalResponse()->getContent();
-                    $result = htmlspecialchars($this->html, ENT_QUOTES);
+                    $result = htmlspecialchars($spider->html(), ENT_QUOTES);
                 }
             }
 

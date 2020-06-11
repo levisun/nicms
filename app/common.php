@@ -68,38 +68,47 @@ if (!function_exists('format_size')) {
 if (!function_exists('word')) {
     /**
      * 分词
-     * @param  string $_str
+     * @param  string $_text
      * @param  int    $_length 返回词语数量
      * @return array
      */
-    function word(string $_str, int $_length = 0): array
+    function word(string $_text, string $_sort = '', int $_length = 0): array
     {
+        $words = [];
+
         // 过滤其他字符
-        $_str = DataFilter::chs_alpha($_str);
+        if ($_text = DataFilter::chs_alpha($_text)) {
+            @ini_set('memory_limit', '128M');
+            // 词库
+            define('_VIC_WORD_DICT_PATH_', root_path('vendor/lizhichao/word/Data') . 'dict.json');
+            $fc = new VicWord('json');
+            $words = $fc->getAutoWord($_text);
+            unset($fc);
+            foreach ($words as $key => $value) {
+                if ($value[0] = trim($value[0])) {
+                    $words[$key] = [
+                        'length' => mb_strlen($value[0], 'utf-8'),
+                        'word'   => $value[0],
+                    ];
+                } else {
+                    unset($words[$key]);
+                }
+            }
 
-        @ini_set('memory_limit', '128M');
-        // 词库
-        define('_VIC_WORD_DICT_PATH_', root_path('vendor/lizhichao/word/Data') . 'dict.json');
+            // 排序
+            if ($_sort) {
+                $_sort = strtoupper($_sort) === 'ASC' ? SORT_ASC : SORT_DESC;
+                $words = array_unique($words, SORT_REGULAR);    // 过滤重复数据
+                array_multisort(array_column($words, 'length'), $_sort, $words);
+            }
 
-        $fc = new VicWord('json');
-        $words = $_str ? $fc->getAutoWord($_str) : [];
-        unset($fc);
-        foreach ($words as $key => $value) {
-            $value[0] = trim($value[0]);
-            if ($value[0]) {
-                $words[$key] = [
-                    'length' => mb_strlen($value[0], 'utf-8'),
-                    'word'   => $value[0],
-                ];
-            } else {
-                unset($words[$key]);
+            // 如果设定长度,返回对应长度数组
+            if ($_length) {
+                $words = array_slice($words, 0, $_length);
             }
         }
-        $words = array_unique($words, SORT_REGULAR);
-        array_multisort(array_column($words, 'length'), SORT_DESC, $words);
 
-        // 如果设定长度,返回对应长度数组
-        return $_length ? array_slice($words, 0, $_length) : $words;
+        return $words;
     }
 }
 
