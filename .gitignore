@@ -52,7 +52,6 @@ Temporary Items
 /vendor
 .env
 /*.json
-*.lock
 *.xml
 *.yml
 /*.php
@@ -60,5 +59,4 @@ think
 *.jpg
 *.png
 *.gif
-*.lock
 *.zip
