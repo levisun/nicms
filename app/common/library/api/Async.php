@@ -220,18 +220,20 @@ class Async extends BaseLogic
         ];
         $result = array_filter($result);
 
-        $response = Response::create($result, $this->analytical->format)->allowCache(false);
-        $response->header(array_merge(
-            $response->getHeader(),
-            ['X-Powered-By' => 'NI API']
-        ));
+        $response = Response::create($result, $this->analytical->format);
+        $header = $response->getHeader();
+        $header['X-Powered-By'] = 'NI API';
+
         if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
-            $response->allowCache(true)
-                ->cacheControl('max-age=' . $this->apiExpire . ',must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + $this->apiExpire) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + $this->apiExpire) . ' GMT')
-                ->eTag(md5($this->request->server('HTTP_USER_AGENT') . $this->request->ip()));
+            $timestamp = $this->request->time() + 3600 * 6;
+            $response->allowCache($this->apiCache);
+            $header['Cache-Control'] = 'max-age=' . $this->apiExpire . ',must-revalidate';
+            $header['Last-Modified'] = gmdate('D, d M Y H:i:s', $timestamp + $this->apiExpire) . ' GMT';
+            $header['Expires']       = gmdate('D, d M Y H:i:s', $timestamp + $this->apiExpire) . ' GMT';
+            $header['ETag']          = md5($this->request->ip());
         }
+
+        $response->header($header);
 
         $this->log->save();
         $this->session->save();

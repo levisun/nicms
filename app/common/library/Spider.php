@@ -40,14 +40,18 @@ class Spider
         if (!Cache::has($key) || !$this->html = Cache::get($key)) {
             $this->client = new HttpBrowser;
             $this->crawler = $this->client->request($_method, $_uri);
+
             if (200 === $this->client->getInternalResponse()->getStatusCode()) {
                 $this->html = $this->client->getInternalResponse()->getContent();
+
                 // 过滤回车和多余空格
                 $pattern = [
-                    '~>\s+<~'     => '><',
-                    '~>\s+~'      => '>',
-                    '~\s+<~'      => '<',
-                    '/( ){2,}/si' => ' ',
+                    '~>\s+<~'          => '><',
+                    '~>\s+~'           => '>',
+                    '~\s+<~'           => '<',
+                    '/( ){2,}/si'      => ' ',
+                    '/(\s+\n|\r|\n)/s' => '',
+                    '/(\t|\0|\x0B)/s'  => '',
                 ];
                 $this->html = (string) preg_replace(array_keys($pattern), array_values($pattern), $this->html);
 
@@ -56,6 +60,9 @@ class Spider
                     $charset = strtoupper($charset[1]);
                     if ($charset !== 'UTF-8') {
                         $this->html = iconv($charset . '//IGNORE', 'UTF-8', $this->html);
+                        $this->html = preg_replace_callback('/charset=["\']?([\w\-]{1,})["\']?/si', function ($matches) {
+                            return str_replace($matches[1], 'UTF-8', $matches[0]);
+                        }, $this->html);
                     }
                 }
 
@@ -101,17 +108,5 @@ class Spider
     public function html(): string
     {
         return htmlspecialchars($this->html, ENT_QUOTES);
-    }
-
-    /**
-     * 获得内容
-     * @access private
-     * @return string
-     */
-    private function getContent(string &$_content): string
-    {
-
-
-        return $_content;
     }
 }

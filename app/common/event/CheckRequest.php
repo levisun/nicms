@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
-use think\facade\Config;
 use think\facade\Log;
 use think\facade\Request;
 use think\Response;
@@ -27,8 +26,11 @@ class CheckRequest
 
     public function handle()
     {
-        // 304缓存
-        $this->_304();
+        // if (preg_match('/index\.[\w]+.*?/si', Request::baseUrl())) {
+        //     $response = redirect('/');
+        //     throw new HttpResponseException($response);
+        // }
+
         // IP进入显示空页面
         $this->ipRequest();
         // 频繁或非法请求将被锁定
@@ -68,26 +70,6 @@ class CheckRequest
         if (false !== filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             $response = miss(403, false);
             throw new HttpResponseException($response);
-        }
-    }
-
-    /**
-     * 304缓存
-     * @return void
-     */
-    private function _304(): void
-    {
-        if (Request::isGet() && $ms = Request::server('HTTP_IF_MODIFIED_SINCE')) {
-            // halt(date('Y-m-d H:i:s', strtotime($ms) + 28800));
-
-            $config = Config::get('route');
-            if ($config['request_cache_expire'] && strtotime($ms) + $config['request_cache_expire'] > Request::server('REQUEST_TIME')) {
-                $response = Response::create()->code(304);
-                $response->header([
-                    'X-Powered-By' => 'NI CACHE'
-                ]);
-                throw new HttpResponseException($response);
-            }
         }
     }
 }

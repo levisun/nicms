@@ -19,7 +19,7 @@ Route::group(function () {
     Route::get('ip$', 'tools.Ip/index');                // IP信息接口
     Route::get('record$', 'tools.Record/index');        // 访问日志
     Route::get('spider$', 'tools.Spider/index');        // 爬虫
-    Route::get('words$', 'tools.Words/index');        // 爬虫
+    Route::get('words$', 'tools.Words/index');          // 分词
 
     // 验证码接口
     Route::get('verify/img$', 'verify.Img/index');
@@ -31,12 +31,10 @@ Route::group(function () {
     Route::get('pay/respond/:method$', 'pay.Respond/index');
     Route::get('pay/notify/:method$', 'pay.Notify/index');
 
-    // 操作接口
-    Route::post('handle$', 'Handle/index');
-    // 请求接口
-    Route::get('query$', 'Query/index');
-    // 上传接口
-    Route::post('upload$', 'Upload/index');
+
+    Route::post('handle$', 'Handle/index');     // 操作接口
+    Route::get('query$', 'Query/index');        // 请求接口
+    Route::post('upload$', 'Upload/index');     // 上传接口
 
     Route::miss(function () {
         return miss(404, false);

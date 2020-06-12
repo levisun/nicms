@@ -25,7 +25,9 @@ Route::domain(['cdn', 'img'], function () {
 Route::group(function () {
     // 首页
     Route::get('/$', 'index');
-    Route::get('index$', 'index');
+    Route::get('index$', function(){
+        return redirect('/');
+    });
 
     // 列表页
     Route::get('list/:cid/[:page]$', 'category');

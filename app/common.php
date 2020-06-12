@@ -150,7 +150,7 @@ if (!function_exists('is_wechat')) {
      */
     function is_wechat(): bool
     {
-        return false !== strpos(Request::server('HTTP_USER_AGENT'), 'MicroMessenger') ? true : false;
+        return false !== stripos(Request::server('HTTP_USER_AGENT'), 'MicroMessenger') ? true : false;
     }
 }
 
