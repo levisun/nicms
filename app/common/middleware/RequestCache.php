@@ -46,16 +46,14 @@ class RequestCache
     /**
      * 设置当前地址的请求缓存
      * @access public
-     * @param  Request $request
-     * @param  Closure $next
-     * @param  mixed   $cache
+     * @param  Request  $request
+     * @param  Closure  $next
      * @return Response
      */
     public function handle(Request $request, Closure $next)
     {
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
             if (strtotime($ms) > $request->server('REQUEST_TIME')) {
-                // echo date('Y-m-d H:i:s', strtotime($ms));die();
                 $response = Response::create()->code(304);
                 $response->header([
                     'X-Powered-By' => 'NI CACHE'
@@ -66,21 +64,24 @@ class RequestCache
 
         $response = $next($request);
 
-        if (200 == $response->getCode() && $response->isAllowCache()) {
-            if ($expire = $response->getHeader('Cache-control')) {
-                $expire = (int) str_replace(['max-age=', ',must-revalidate'], '', $expire);
-            } else {
-                $expire = $this->config['request_cache_expire'];
-            }
+        if ($this->config['request_cache_key']) {
+            if (200 == $response->getCode() && $response->isAllowCache()) {
+                if ($expire = $response->getHeader('Cache-control')) {
+                    $expire = (int) str_replace(['max-age=', ',must-revalidate'], '', $expire);
+                } else {
+                    $expire = $this->config['request_cache_expire'];
+                }
 
-            $timestamp = time();
-            $header                  = $response->getHeader();
-            $header['Cache-Control'] = 'max-age=' . $expire . ',must-revalidate';
-            $header['Last-Modified'] = gmdate('D, d M Y H:i:s', $timestamp + $expire) . ' GMT';
-            $header['Expires']       = gmdate('D, d M Y H:i:s', $timestamp + $expire) . ' GMT';
-            $header['ETag']          = md5($request->ip());
-            $response->header($header);
+                $timestamp = time();
+                $header                  = $response->getHeader();
+                $header['Cache-Control'] = 'max-age=' . $expire . ',must-revalidate';
+                $header['Last-Modified'] = gmdate('D, d M Y H:i:s', $timestamp + $expire) . ' GMT';
+                $header['Expires']       = gmdate('D, d M Y H:i:s', $timestamp + $expire) . ' GMT';
+                $header['ETag']          = md5($request->ip());
+                $response->header($header);
+            }
         }
+
 
         return $response;
     }

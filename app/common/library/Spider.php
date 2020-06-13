@@ -24,7 +24,7 @@ class Spider
 {
     private $client;
     private $crawler;
-    private $html = null;
+    private $result = null;
 
     /**
      * 发起请求
@@ -37,12 +37,12 @@ class Spider
     {
         $_method = strtoupper($_method);
         $key = md5($_method . $_uri);
-        if (!Cache::has($key) || !$this->html = Cache::get($key)) {
+        if (!Cache::has($key) || !$this->result = Cache::get($key)) {
             $this->client = new HttpBrowser;
             $this->crawler = $this->client->request($_method, $_uri);
 
             if (200 === $this->client->getInternalResponse()->getStatusCode()) {
-                $this->html = $this->client->getInternalResponse()->getContent();
+                $this->result = $this->client->getInternalResponse()->getContent();
 
                 // 过滤回车和多余空格
                 $pattern = [
@@ -53,26 +53,26 @@ class Spider
                     '/(\s+\n|\r|\n)/s' => '',
                     '/(\t|\0|\x0B)/s'  => '',
                 ];
-                $this->html = (string) preg_replace(array_keys($pattern), array_values($pattern), $this->html);
+                $this->result = (string) preg_replace(array_keys($pattern), array_values($pattern), $this->result);
 
                 // 检查字符编码
-                if (preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->html, $charset)) {
+                if (preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->result, $charset)) {
                     $charset = strtoupper($charset[1]);
                     if ($charset !== 'UTF-8') {
-                        $this->html = iconv($charset . '//IGNORE', 'UTF-8', $this->html);
-                        $this->html = preg_replace_callback('/charset=["\']?([\w\-]{1,})["\']?/si', function ($matches) {
+                        $this->result = iconv($charset . '//IGNORE', 'UTF-8', $this->result);
+                        $this->result = preg_replace_callback('/charset=["\']?([\w\-]{1,})["\']?/si', function ($matches) {
                             return str_replace($matches[1], 'UTF-8', $matches[0]);
-                        }, $this->html);
+                        }, $this->result);
                     }
                 }
 
-                Cache::set($key, $this->html);
+                Cache::set($key, htmlspecialchars($this->result, ENT_QUOTES));
             } else {
                 return false;
             }
         } else {
             $this->crawler = new Crawler;
-            $this->crawler->addContent($this->html);
+            $this->crawler->addContent(htmlspecialchars_decode($this->result, ENT_QUOTES));
         }
 
         return true;
@@ -107,6 +107,6 @@ class Spider
      */
     public function html(): string
     {
-        return htmlspecialchars($this->html, ENT_QUOTES);
+        return $this->result;
     }
 }
