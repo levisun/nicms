@@ -28,7 +28,7 @@ class Emoji
      */
     public static function encode(string &$_str): string
     {
-        return json_decode(preg_replace_callback('/(\\\u[ed][0-9a-f]{3})/si', function ($matches) {
+        return (string) json_decode(preg_replace_callback('/(\\\u[ed][0-9a-f]{3})/si', function ($matches) {
             return '[EMOJI:' . base64_encode($matches[0]) . ']';
         }, json_encode($_str)));
     }
@@ -42,7 +42,7 @@ class Emoji
      */
     public static function decode(string &$_str): string
     {
-        return json_decode(preg_replace_callback('/(\[EMOJI:[A-Za-z0-9]{8}\])/', function ($matches) {
+        return (string) json_decode(preg_replace_callback('/(\[EMOJI:[A-Za-z0-9]{8}\])/', function ($matches) {
             return base64_decode(str_replace(['[EMOJI:', ']'], '', $matches[0]));
         }, json_encode($_str)));
     }
@@ -56,7 +56,7 @@ class Emoji
      */
     public static function clear(string &$_str): string
     {
-        return preg_replace_callback('/./u', function (array $matches) {
+        return (string) preg_replace_callback('/./u', function (array $matches) {
             return strlen($matches[0]) >= 4 ? '' : $matches[0];
         }, $_str);
     }

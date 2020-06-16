@@ -125,7 +125,10 @@ if (!function_exists('only_execute')) {
         $path = runtime_path('lock');
         is_dir($path) or mkdir($path, 0755, true);
 
-        is_file($path . $_lock) or file_put_contents($path . $_lock, '');
+        if (!is_file($path . $_lock)) {
+            file_put_contents($path . $_lock, 'runtime:' . date('Y-m-d H:i:s'));
+            $_time = false;
+        }
 
         clearstatcache();
         if (false === $_time || filemtime($path . $_lock) <= strtotime($_time)) {

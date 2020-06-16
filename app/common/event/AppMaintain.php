@@ -44,14 +44,13 @@ class AppMaintain
             // (new DataManage)->autoBackup();
 
             only_execute($app_name . '_remove_garbage.lock', '-4 hour', function () {
-                $runtime_path = runtime_path();
-                $uploads_path = public_path('storage' . DIRECTORY_SEPARATOR . 'uploads');
-
                 // 清除过期缓存文件
-                ReGarbage::remove($runtime_path . 'cache', 1);
+                ReGarbage::remove(runtime_path() . 'cache', 1);
 
                 // 清除过期临时文件
-                ReGarbage::remove($runtime_path . 'temp', 1);
+                ReGarbage::remove(runtime_path() . 'temp', 1);
+
+                $uploads_path = public_path('storage' . DIRECTORY_SEPARATOR . 'uploads');
 
                 // 清除游客上传的文件
                 ReGarbage::remove($uploads_path . 'guest', 60);

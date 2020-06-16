@@ -52,6 +52,7 @@ Temporary Items
 /vendor
 .env
 /*.json
+/*.lock
 *.xml
 *.yml
 /*.php

@@ -59,7 +59,7 @@ class Spider
                 if (preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->result, $charset)) {
                     $charset = strtoupper($charset[1]);
                     if ($charset !== 'UTF-8') {
-                        $this->result = iconv($charset . '//IGNORE', 'UTF-8', $this->result);
+                        $this->result = iconv($charset . '//IGNORE', 'UTF-8', (string) $this->result);
                         $this->result = preg_replace_callback('/charset=["\']?([\w\-]{1,})["\']?/si', function ($matches) {
                             return str_replace($matches[1], 'UTF-8', $matches[0]);
                         }, $this->result);

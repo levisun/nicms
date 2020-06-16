@@ -54,11 +54,7 @@ class RequestCache
     {
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
             if (strtotime($ms) > $request->server('REQUEST_TIME')) {
-                $response = Response::create()->code(304);
-                $response->header([
-                    'X-Powered-By' => 'NI CACHE'
-                ]);
-                return $response;
+                return Response::create()->code(304);
             }
         }
 
