@@ -14,6 +14,7 @@
 
 use think\Response;
 use think\exception\HttpResponseException;
+use think\facade\Config;
 use think\facade\Cookie;
 use think\facade\Request;
 use think\facade\Route;
@@ -65,6 +66,62 @@ if (!function_exists('format_size')) {
     }
 }
 
+if (!function_exists('filepath_decode')) {
+    /**
+     * 获得文件地址(解密)
+     * @param  string $_file
+     * @param  bool   $_abs
+     * @return string
+     */
+    function filepath_decode(string $_file, bool $_abs = false)
+    {
+        $salt = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $salt = md5($salt);
+
+        $_file = $_file ? Base64::decrypt($_file, $salt) : '';
+
+        if ($_file && false !== preg_match('/^[a-zA-Z0-9_\/\\\]+\.[a-zA-Z0-9]{2,4}$/u', $_file)) {
+            $_file = DataFilter::filter($_file);
+            $_file = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_file);
+
+            $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
+            $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+
+            if (is_file($path . $_file)) {
+                return $_abs ? $path . $_file : $_file;
+            }
+        }
+        return '';
+    }
+}
+
+if (!function_exists('filepath_encode')) {
+    /**
+     * 获得文件地址(加密)
+     * @param  string $_file
+     * @param  bool   $_abs
+     * @return string
+     */
+    function filepath_encode(string $_file, bool $_abs = false): string
+    {
+        $_file = DataFilter::filter($_file);
+        $_file = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_file);
+        $_file = str_replace(['storage' . DIRECTORY_SEPARATOR, 'uploads' . DIRECTORY_SEPARATOR], '', $_file);
+
+        $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
+        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+
+        $salt = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $salt = md5($salt);
+
+        if (is_file($path . $_file)) {
+            return $_abs ? Base64::encrypt($path . $_file, $salt) : Base64::encrypt($_file, $salt);
+        }
+
+        return '';
+    }
+}
+
 if (!function_exists('word')) {
     /**
      * 分词
@@ -80,7 +137,7 @@ if (!function_exists('word')) {
         if ($_text = DataFilter::chs_alpha($_text)) {
             @ini_set('memory_limit', '128M');
             // 词库
-            define('_VIC_WORD_DICT_PATH_', root_path('vendor/lizhichao/word/Data') . 'dict.json');
+            defined('_VIC_WORD_DICT_PATH_') or define('_VIC_WORD_DICT_PATH_', root_path('vendor/lizhichao/word/Data') . 'dict.json');
             $fc = new VicWord('json');
             $words = $fc->getAutoWord($_text);
             unset($fc);
@@ -174,18 +231,7 @@ if (!function_exists('app_secret')) {
         $key = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         $app_secret = sha1($app_secret . $key);
 
-        Cookie::has('client_token') or Cookie::set('client_token', $app_secret, ['httponly' => false]);
-    }
-}
-
-if (!function_exists('authorization_meta')) {
-    /**
-     * API授权字符串
-     * @return string
-     */
-    function authorization_meta(): string
-    {
-        return '<meta name="csrf-authorization" content="' . authorization() . '" />';
+        Cookie::has('XSRF_TOKEN') or Cookie::set('XSRF_TOKEN', $app_secret, ['httponly' => false]);
     }
 }
 
@@ -194,13 +240,13 @@ if (!function_exists('authorization')) {
      * API授权字符串
      * @return string
      */
-    function authorization(): string
+    function authorization(): void
     {
         // 密钥
         $key = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         $key = sha1(Base64::encrypt($key));
 
-        $token = (new Builder)
+        $authorization = (new Builder)
             // 签发者
             ->issuedBy(Request::rootDomain())
             // 接收者
@@ -218,7 +264,11 @@ if (!function_exists('authorization')) {
             // 生成token
             ->getToken(new Sha256, new Key($key));
 
-        return 'Bearer ' . (string) $token;
+        // return 'Bearer ' . (string) $authorization;
+
+        $authorization = (string) $authorization;
+
+        Cookie::set('XSRF_AUTHORIZATION', $authorization, ['httponly' => false]);
     }
 }
 

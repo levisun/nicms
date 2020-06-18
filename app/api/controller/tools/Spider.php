@@ -25,25 +25,27 @@ class Spider extends Async
 
     public function index()
     {
-        if ($uri = $this->request->param('uri', false)) {
-            usleep(rand(1500000, 2500000));
+        if ($this->request->isPost() && $this->validate->referer() && $this->validate->fromToken()) {
+            if ($uri = $this->request->param('uri', false)) {
+                usleep(rand(1500000, 2500000));
 
-            $method = $this->request->param('method', 'GET');
-            $spider = new LibSpider;
-            if ($spider->request($method, $uri)) {
-                // 有选择器时
-                if ($selector = $this->request->param('selector', false)) {
-                    // 扩展属性
-                    $extract = $this->request->param('extract', '');
-                    $extract = $extract ? explode(',', $extract) : [];
+                $method = $this->request->param('method', 'GET');
+                $spider = new LibSpider;
+                if ($spider->request($method, $uri)) {
+                    // 有选择器时
+                    if ($selector = $this->request->param('selector', false)) {
+                        // 扩展属性
+                        $extract = $this->request->param('extract', '');
+                        $extract = $extract ? explode(',', $extract) : [];
 
-                    $result = $spider->fetch($selector, $extract);
-                } else {
-                    $result = htmlspecialchars($spider->html(), ENT_QUOTES);
+                        $result = $spider->fetch($selector, $extract);
+                    } else {
+                        $result = htmlspecialchars($spider->html(), ENT_QUOTES);
+                    }
                 }
-            }
 
-            return $this->cache(true)->success('spider success', $result);
+                return $this->cache(true)->success('spider success', $result);
+            }
         }
 
         return miss(404);

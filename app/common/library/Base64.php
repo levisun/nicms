@@ -70,7 +70,7 @@ class Base64
     {
         if (!Cookie::has('client_id') || !$token = Cookie::get('client_id')) {
             $token  = Request::server('HTTP_USER_AGENT');
-            $token .= __DIR__;
+            $token .= sha1(__DIR__);
             $token .= bindec(Request::ip2bin(Request::ip()));
             $token .= date('YmdHis');
             $token .= Request::time(true);
@@ -137,11 +137,11 @@ class Base64
     public static function encrypt($_data, string $_salt = '')
     {
         if (is_string($_data)) {
-            $_salt = $_salt ?: Request::header('user_agent');
-            $secretkey = md5(__DIR__ . $_salt);
-            $secretkey = hash_hmac('sha256', $secretkey, Config::get('app.secretkey', __DIR__));
-            $iv = substr(sha1($secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
-            $_data = base64_encode(openssl_encrypt((string) $_data, 'AES-256-CBC', $secretkey, OPENSSL_RAW_DATA, $iv));
+            $_salt = $_salt ?: Request::server('HTTP_USER_AGENT');
+            $secret_key = md5(__DIR__ . $_salt);
+            $secret_key = hash_hmac('sha256', $secret_key, Config::get('app.secretkey', __DIR__));
+            $iv = substr(sha1($secret_key), 0, openssl_cipher_iv_length('AES-256-CBC'));
+            $_data = base64_encode(openssl_encrypt((string) $_data, 'AES-256-CBC', $secret_key, OPENSSL_RAW_DATA, $iv));
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::decrypt($value);
@@ -162,11 +162,11 @@ class Base64
     public static function decrypt($_data, string $_salt = '')
     {
         if (is_string($_data)) {
-            $_salt = $_salt ?: Request::header('user_agent');
-            $secretkey = md5(__DIR__ . $_salt);
-            $secretkey = hash_hmac('sha256', $secretkey, Config::get('app.secretkey', __DIR__));
-            $iv = substr(sha1($secretkey), 0, openssl_cipher_iv_length('AES-256-CBC'));
-            $_data = openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $secretkey, OPENSSL_RAW_DATA, $iv);
+            $_salt = $_salt ?: Request::server('HTTP_USER_AGENT');
+            $secret_key = md5(__DIR__ . $_salt);
+            $secret_key = hash_hmac('sha256', $secret_key, Config::get('app.secretkey', __DIR__));
+            $iv = substr(sha1($secret_key), 0, openssl_cipher_iv_length('AES-256-CBC'));
+            $_data = openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $secret_key, OPENSSL_RAW_DATA, $iv);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::decrypt($value);

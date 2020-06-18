@@ -22,8 +22,8 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class Spider
 {
-    private $client;
-    private $crawler;
+    private $client = null;
+    private $crawler = null;
     private $result = null;
 
     /**
@@ -80,7 +80,7 @@ class Spider
 
     public function getCrawler()
     {
-        return $this->crawler;
+        return $this->crawler ?: new Crawler;
     }
 
     /**

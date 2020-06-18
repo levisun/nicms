@@ -17,17 +17,22 @@ declare(strict_types=1);
 
 namespace app\api\controller\tools;
 
+use think\Response;
 use app\common\library\api\Async;
-use app\common\library\Download as DownloadFile;
 
 class Download extends Async
 {
 
     public function index()
     {
-        if ($this->validate->referer()) {
-            if ($file = $this->request->param('file', false)) {
-                return DownloadFile::file($file);
+        if ($this->validate->referer() && $file = $this->request->param('file', false)) {
+            if ($file = filepath_decode($file, true)) {
+                // $ext = pathinfo($file, PATHINFO_EXTENSION);
+
+                return Response::create($file, 'file')
+                    ->name(md5(pathinfo($file, PATHINFO_FILENAME) . date('Ymd')))
+                    ->isContent(false)
+                    ->expire(28800);
             }
         }
 

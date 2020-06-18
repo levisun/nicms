@@ -14,12 +14,16 @@
 use think\facade\Route;
 
 Route::group(function () {
+    // office接口
+    Route::post('excel/read$', 'office.Excel/read');
+    Route::post('excel/writer$', 'office.Excel/writer');
+
     // 工具接口
     Route::get('download$', 'tools.Download/index');    // 下载接口
     Route::get('ip$', 'tools.Ip/index');                // IP信息接口
     Route::get('record$', 'tools.Record/index');        // 访问日志
-    Route::get('spider$', 'tools.Spider/index');        // 爬虫
-    Route::get('words$', 'tools.Words/index');          // 分词
+    Route::post('spider$', 'tools.Spider/index');       // 爬虫
+    Route::post('words$', 'tools.Words/index');         // 分词
 
     // 验证码接口
     Route::get('verify/img$', 'verify.Img/index');

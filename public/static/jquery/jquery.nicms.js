@@ -77,7 +77,7 @@
         // 设置头部
         _params.beforeSend = function (xhr) {
             xhr.setRequestHeader('Accept', 'application/vnd.' + jQuery('meta[name="csrf-root"]').attr('content') + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
-            xhr.setRequestHeader('Authorization', jQuery('meta[name="csrf-authorization"]').attr('content'));
+            xhr.setRequestHeader('Authorization', 'Bearer ' + jQuery.get_cookie('XSRF_AUTHORIZATION'));
         }
 
         _params.complete = function (xhr) {
@@ -135,7 +135,7 @@
         // 设置头部
         _params.beforeSend = function (xhr) {
             xhr.setRequestHeader('Accept', 'application/vnd.' + jQuery('meta[name="csrf-root"]').attr('content') + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
-            xhr.setRequestHeader('Authorization', jQuery('meta[name="csrf-authorization"]').attr('content'));
+            xhr.setRequestHeader('Authorization', 'Bearer ' + jQuery.get_cookie('XSRF_AUTHORIZATION'));
         }
 
         _params.complete = function (xhr) {
@@ -202,8 +202,7 @@
             }
         });
         sign = sign.substr(0, sign.length - 1);
-        // sign += jQuery('meta[name="csrf-appsecret"]').attr('content');
-        sign += jQuery.get_cookie('client_token');
+        sign += jQuery.get_cookie('XSRF_TOKEN');
         // console.log(sign);
 
         return md5(sign);

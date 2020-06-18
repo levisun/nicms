@@ -65,7 +65,7 @@ class TagsHead extends Taglib
             '<meta name="csrf-version" content="' . $this->config['tpl_config']['api_version'] . '" />' .
             '<meta name="csrf-appid" content="' . $this->config['tpl_config']['api_appid'] . '" />' .
             '<?php app_secret(' . $this->config['tpl_config']['api_appid'] . ');?>' .
-            '<?php echo authorization_meta();?>' .
+            '<?php authorization();?>' .
             '<?php echo token_meta();?>' .
 
             '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
