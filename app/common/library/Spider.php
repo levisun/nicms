@@ -99,14 +99,14 @@ class Spider
     /**
      * 获得响应数据
      * @access public
-     * @param  string $_filter  CSS选择器,用于筛选数据
-     * @param  array  $_extract 扩展属性,用于获得筛选出来标签的属性
+     * @param  string $_selector CSS选择器,用于筛选数据
+     * @param  array  $_extract  扩展属性,用于获得筛选出来标签的属性
      * @return array
      */
-    public function fetch(string $_filter, array $_extract = []): array
+    public function fetch(string $_selector, array $_extract = []): array
     {
         $content = [];
-        $this->crawler->filter($_filter)->each(function ($node) use (&$_extract, &$content) {
+        $this->crawler->filter($_selector)->each(function ($node) use (&$_extract, &$content) {
             $content[] = $_extract ? $node->extract($_extract) : $node->html();
         });
 

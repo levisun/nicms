@@ -51,7 +51,7 @@ Temporary Items
 /runtime
 /vendor
 .env
-/*.json
+# /*.json
 /*.lock
 *.xml
 *.yml

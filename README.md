@@ -33,6 +33,8 @@ nicms1.x 未完成项目,正在拼命中...
 ## 安装方式
 
 ~~~
+composer install
+
 ThinkPHP6
 composer create-project topthink/think nicms
 composer update topthink/framework

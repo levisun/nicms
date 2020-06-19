@@ -189,7 +189,7 @@ class Analytical extends BaseLogic
      */
     public function accept(): void
     {
-        $accept = $this->request->header('accept');
+        $accept = (string) $this->request->header('accept', '');
         $pattern = '/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[a-zA-Z0-9]+\+[A-Za-z]{3,5}+$/u';
         if (!$accept || false === preg_match($pattern, $accept)) {
             $this->log->alert('[Async] header-accept error');
@@ -247,7 +247,7 @@ class Analytical extends BaseLogic
      */
     public function authorization(): void
     {
-        $authorization = $this->request->header('authorization');
+        $authorization = (string) $this->request->header('authorization', '');
         $authorization = str_replace('&#43;', '+', $authorization);
         $authorization = str_replace('Bearer ', '', $authorization);
         if (!$authorization) {
