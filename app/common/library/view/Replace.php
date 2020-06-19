@@ -266,9 +266,6 @@ class Replace
                 ? str_replace('></', ' defer="defer"></', $js)
                 : $js;
 
-            // 添加版本参数
-            $js = str_replace('.js"', '.js?v=' . date('YmdHis') . '"', $js);
-
             $_content .= $js;
         }
 

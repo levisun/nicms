@@ -45,78 +45,25 @@ class AppMaintain
 
             only_execute($app_name . '_remove_garbage.lock', '-4 hour', function () {
                 // 清除过期缓存文件
-                ReGarbage::remove(runtime_path() . 'cache', 1);
+                ReGarbage::clear(runtime_path() . 'cache', 1);
 
                 // 清除过期临时文件
-                ReGarbage::remove(runtime_path() . 'temp', 1);
+                ReGarbage::clear(runtime_path() . 'temp', 1);
 
                 $uploads_path = public_path('storage' . DIRECTORY_SEPARATOR . 'uploads');
 
                 // 清除游客上传的文件
-                ReGarbage::remove($uploads_path . 'guest', 60);
+                ReGarbage::clear($uploads_path . 'guest', 60);
 
                 // 清除上传的缩略图文件
-                ReGarbage::remove($uploads_path . 'thumb', 60);
+                ReGarbage::clear($uploads_path . 'thumb', 60);
 
-                $this->reRootDirOrFile();
+                // 清楚上传目录中的空目录
+                ReGarbage::upload();
+
+                // 保证网站根目录整洁
+                ReGarbage::public_dir();
             });
-        }
-    }
-
-    /**
-     * 保证网站根目录整洁
-     * @access private
-     * @return void
-     */
-    private function reRootDirOrFile(): void
-    {
-        $keep = [
-            '.', '..',
-            'screen', 'static', 'storage', 'theme',
-            '.htaccess', '.nginx', '.user.ini',
-            '404.html', '502.html', 'favicon.ico',
-            'index.php',
-            'robots.txt', 'sitemap.xml',
-        ];
-
-        // 删除根目录多余文件
-        $dir = public_path();
-        $files = is_dir($dir) ? scandir($dir) : [];
-        foreach ($files as $dir_file) {
-            // 跳过保留目录
-            if (in_array($dir_file, $keep)) {
-                continue;
-            }
-
-            if (is_dir($dir . $dir_file)) {
-                ReGarbage::remove($dir . $dir_file, 0);
-                @rmdir($dir . $dir_file);
-            } elseif (is_file($dir . $dir_file)) {
-                Log::alert('[unlink] ' . $dir_file);
-                @unlink($dir . $dir_file);
-            }
-        }
-
-        // 删除screen目录多余文件
-        $dir .= 'screen' . DIRECTORY_SEPARATOR;
-        $files = is_dir($dir) ? scandir($dir) : [];
-        foreach ($files as $dir_file) {
-            // 跳过
-            if (in_array($dir_file, ['.', '..', 'index.html'])) {
-                continue;
-            }
-            // 跳过保留目录
-            if (is_dir($dir . $dir_file)) {
-                if (is_file($dir . $dir_file . DIRECTORY_SEPARATOR . '.keep.ini')) {
-                    continue;
-                }
-
-                ReGarbage::remove($dir . $dir_file, 0);
-                @rmdir($dir . $dir_file);
-            } elseif (is_file($dir . $dir_file)) {
-                Log::alert('[unlink] ' . $dir_file);
-                @unlink($dir . $dir_file);
-            }
         }
     }
 }

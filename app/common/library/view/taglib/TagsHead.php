@@ -114,9 +114,6 @@ class TagsHead extends Taglib
                     ? str_replace('rel="', 'rel="preload ', $value)
                     : $value;
 
-                // 添加版本参数
-                $value = str_replace('.css', '.css?v=' . date('YmdHis'), $value);
-
                 $link .= $value;
             }
         }

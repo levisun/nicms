@@ -122,22 +122,25 @@ if (!function_exists('filepath_encode')) {
     }
 }
 
-if (!function_exists('word')) {
+if (!function_exists('words')) {
     /**
      * 分词
      * @param  string $_text
      * @param  int    $_length 返回词语数量
      * @return array
      */
-    function word(string $_text, string $_sort = '', int $_length = 0): array
+    function words(string $_text, string $_sort = 'DESC', int $_length = 0): array
     {
         $words = [];
 
         // 过滤其他字符
         if ($_text = DataFilter::chs_alpha($_text)) {
             @ini_set('memory_limit', '128M');
+
             // 词库
-            defined('_VIC_WORD_DICT_PATH_') or define('_VIC_WORD_DICT_PATH_', root_path('vendor/lizhichao/word/Data') . 'dict.json');
+            defined('_VIC_WORD_DICT_PATH_') or
+                define('_VIC_WORD_DICT_PATH_', root_path('vendor/lizhichao/word/Data') . 'dict.json');
+
             $fc = new VicWord('json');
             $words = $fc->getAutoWord($_text);
             unset($fc);
@@ -231,7 +234,7 @@ if (!function_exists('app_secret')) {
         $key = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         $app_secret = sha1($app_secret . $key);
 
-        Cookie::has('XSRF_TOKEN') or Cookie::set('XSRF_TOKEN', $app_secret, ['httponly' => false]);
+        Cookie::set('XSRF_TOKEN', $app_secret, ['httponly' => false]);
     }
 }
 
@@ -250,12 +253,12 @@ if (!function_exists('authorization')) {
             // 签发者
             ->issuedBy(Request::rootDomain())
             // 接收者
-            ->permittedFor(parse_url(Request::url(true), PHP_URL_HOST))
+            ->permittedFor(parse_url(Request::domain(), PHP_URL_HOST))
             // 身份标识(SessionID)
             ->identifiedBy(Base64::encrypt(Session::getId(false)), false)
             // 签发时间
             ->issuedAt(Request::time())
-            // Configures the time that the token can be used (nbf claim)
+            // 令牌使用时间
             ->canOnlyBeUsedAfter(Request::time() + 60)
             // 签发过期时间
             ->expiresAt(Request::time() + 28800)
@@ -263,8 +266,6 @@ if (!function_exists('authorization')) {
             ->withClaim('uid', Base64::client_id())
             // 生成token
             ->getToken(new Sha256, new Key($key));
-
-        // return 'Bearer ' . (string) $authorization;
 
         $authorization = (string) $authorization;
 

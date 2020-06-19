@@ -250,7 +250,7 @@ abstract class BaseLogic
      */
     public function upload(): array
     {
-        $this->actionLog('admin_upload_file', 'admin upload image');
+        $this->actionLog('upload_file', 'user upload');
 
         if ($this->request->isPost() && !empty($_FILES) && $this->uid) {
             $element = $this->request->param('element', 'upload');

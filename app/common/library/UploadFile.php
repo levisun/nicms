@@ -80,9 +80,9 @@ class UploadFile
 
     public function __construct()
     {
-        @ini_set('memory_limit', '128M');
-        @ini_set('max_execution_time', '600');
         @set_time_limit(600);
+        @ini_set('max_execution_time', '600');
+        @ini_set('memory_limit', '128M');
 
         $this->root_path = public_path();
     }
@@ -167,19 +167,24 @@ class UploadFile
     {
         $_dir = 'uploads' . DIRECTORY_SEPARATOR;
 
-        // 用户目录[删除用户时可删除目录]
-        if ($_user['user_id']) {
-            $_dir .= Base64::flag($_user['user_type'], 7) . DIRECTORY_SEPARATOR .
-                Base64::dechex((int) date('Ym')) . DIRECTORY_SEPARATOR .
-                Base64::dechex($_user['user_id']);
-        } else {
-            $_dir .= 'guest' . DIRECTORY_SEPARATOR . Base64::dechex((int) date('Ym'));
-        }
+        // 用户类型目录[后台,前台,访客]
+        $_dir .= !empty($_user['user_type'])
+            ? Base64::flag($_user['user_type'], 7) . DIRECTORY_SEPARATOR
+            : 'guest' . DIRECTORY_SEPARATOR;
 
+        // 时间目录
+        $_dir .= Base64::dechex((int) date('Ym')) . DIRECTORY_SEPARATOR;
+
+        // 用户目录[删除用户时可删除目录]
+        $_dir .= !empty($_user['user_id'])
+            ? Base64::dechex($_user['user_id'])
+            : '';
 
         $save_path = Config::get('filesystem.disks.public.url') . '/';
         $save_file = $save_path . Filesystem::disk('public')->putFile($_dir, $_files, 'uniqid');
-        $this->writeUploadLog($save_file);   // 记录上传文件日志
+
+        // 记录上传文件日志
+        $this->writeUploadLog($save_file);
 
         if (false !== strpos($_files->getMime(), 'image/')) {
             $save_file = $this->thumb($_files, $save_file);

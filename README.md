@@ -49,6 +49,8 @@ composer require symfony/http-client
 composer require phpoffice/phpspreadsheet
 
 
+composer require phpoffice/phpword
+
 
 composer require overtrue/pinyin
 composer require overtrue/wechat
