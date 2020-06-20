@@ -44,7 +44,7 @@ class Spider
 
         if (!Cache::has($key) || !$this->result = Cache::get($key)) {
             $client = new HttpBrowser;
-            $this->crawler = $client->request($_method, $_uri);
+            $client->request($_method, $_uri);
 
             // 请求失败
             if (200 !== $client->getInternalResponse()->getStatusCode()) {
@@ -79,10 +79,11 @@ class Spider
             $this->result = htmlspecialchars($this->result, ENT_QUOTES);
 
             Cache::set($key, $this->result);
-        } else {
-            $this->crawler = new Crawler;
-            $this->crawler->addContent(htmlspecialchars_decode($this->result, ENT_QUOTES));
         }
+
+        // 重新附加DOM文档
+        $this->crawler = new Crawler;
+        $this->crawler->addContent(htmlspecialchars_decode($this->result, ENT_QUOTES));
 
         return true;
     }

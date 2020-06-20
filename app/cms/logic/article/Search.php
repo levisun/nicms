@@ -65,7 +65,7 @@ class Search extends BaseLogic
         // 搜索
         if ($search_key = $this->request->param('key')) {
             // 搜索5个词
-            $search_key = word($search_key, 5);
+            $search_key = words($search_key, 5);
             if ($search_key = implode('|', $search_key)) {
                 $map[] = ['article.title', 'regexp', $search_key];
             }

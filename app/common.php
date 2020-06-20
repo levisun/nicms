@@ -129,7 +129,7 @@ if (!function_exists('words')) {
      * @param  int    $_length 返回词语数量
      * @return array
      */
-    function words(string $_text, string $_sort = 'DESC', int $_length = 0): array
+    function words(string $_text, int $_length = 0, string $_sort = ''): array
     {
         $words = [];
 
@@ -160,6 +160,10 @@ if (!function_exists('words')) {
                 $_sort = strtoupper($_sort) === 'ASC' ? SORT_ASC : SORT_DESC;
                 $words = array_unique($words, SORT_REGULAR);    // 过滤重复数据
                 array_multisort(array_column($words, 'length'), $_sort, $words);
+            }
+
+            foreach ($words as $key => $value) {
+                $words[$key] = $value['word'];
             }
 
             // 如果设定长度,返回对应长度数组
