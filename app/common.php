@@ -263,7 +263,7 @@ if (!function_exists('authorization')) {
             // 签发时间
             ->issuedAt(Request::time())
             // 令牌使用时间
-            ->canOnlyBeUsedAfter(Request::time() + 60)
+            ->canOnlyBeUsedAfter(Request::time() + 2880)
             // 签发过期时间
             ->expiresAt(Request::time() + 28800)
             // 客户端ID
@@ -273,7 +273,8 @@ if (!function_exists('authorization')) {
 
         $authorization = (string) $authorization;
 
-        Cookie::set('XSRF_AUTHORIZATION', $authorization, ['httponly' => false]);
+        Cookie::has('XSRF_AUTHORIZATION') or
+            Cookie::set('XSRF_AUTHORIZATION', $authorization, ['expire' => 1440, 'httponly' => false]);
     }
 }
 
@@ -345,6 +346,22 @@ if (!function_exists('runtime_path')) {
         $_path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_path);
         $_path = $_path ? $_path . DIRECTORY_SEPARATOR : '';
         return app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $_path;
+    }
+}
+
+if (!function_exists('root_path')) {
+    /**
+     * 获取应用运行时目录
+     *
+     * @param string $path
+     * @return string
+     */
+    function root_path($_path = '')
+    {
+        $_path = trim($_path, '\/');
+        $_path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_path);
+        $_path = $_path ? $_path . DIRECTORY_SEPARATOR : '';
+        return app()->getRootPath() . $_path;
     }
 }
 

@@ -33,21 +33,28 @@ class Excel extends Async
      */
     public function read()
     {
-        if ($this->validate->referer() && $file = $this->request->param('file', false)) {
+        if ($this->request->isPost() && $this->validate->referer() && $file = $this->request->param('file', false)) {
             if ($file = filepath_decode($file, true)) {
-                $ext = pathinfo($file, PATHINFO_EXTENSION);
-                $ext = strtolower($ext);
-                if (in_array($ext, ['xlsx', 'xls'])) {
-                    $spreadsheet = IOFactory::load($file);
-                    $sheet = $this->request->param('sheet/d', 0, 'abs');
-                    $result = $spreadsheet->getSheet($sheet)->toArray();
+                $sheet = $this->request->param('sheet/d', 0, 'abs');
 
-                    return $this->cache(true)->success('import success', $result);
+                $cache_key = md5($file . $sheet);
+
+                if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
+                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['xlsx', 'xls'])) {
+                        $spreadsheet = IOFactory::load($file);
+                        $result = $spreadsheet->getSheet($sheet)->toArray();
+                        $this->cache->set($cache_key, $result);
+                    }
                 }
+
+                return $result
+                    ? $this->cache(true)->success('Excel read success', $result)
+                    : $this->error('Excel read error');
             }
         }
 
-        return miss(404);
+        return miss(404, false);
     }
 
     /**
@@ -58,7 +65,7 @@ class Excel extends Async
      */
     public function writer()
     {
-        if ($this->validate->referer() && $data = $this->request->param('data/a', false)) {
+        if ($this->request->isPost() && $this->validate->referer() && $data = $this->request->param('data/a', false)) {
             $spreadsheet = new Spreadsheet();
             $worksheet = $spreadsheet->getActiveSheet();
 
@@ -89,6 +96,6 @@ class Excel extends Async
                 ->expire(28800);
         }
 
-        return miss(404);
+        return miss(404, false);
     }
 }

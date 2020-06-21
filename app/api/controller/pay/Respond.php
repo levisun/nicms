@@ -37,7 +37,7 @@ class Respond extends Async
             return call_user_func([$this, $method]);
         }
 
-        return miss(404);
+        return miss(404, false);
     }
 
     /**

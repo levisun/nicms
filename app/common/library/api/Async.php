@@ -145,10 +145,10 @@ class Async extends BaseLogic
         $this->analytical->appId();
         $this->analytical->loadLang();
 
+        // 设置会话信息(用户ID,用户组)
         $this->session->setId($this->analytical->sessionId);
         $this->session->init();
         $this->request->withSession($this->session);
-        // 设置会话信息(用户ID,用户组)
         if ($this->session->has($this->analytical->appAuthKey)) {
             $this->uid = (int) $this->session->get($this->analytical->appAuthKey);
             $this->urole = (int) $this->session->get($this->analytical->appAuthKey . '_role');

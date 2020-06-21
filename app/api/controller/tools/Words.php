@@ -24,36 +24,43 @@ class Words extends Async
 
     public function index()
     {
-        if ($txt = $this->request->param('txt', false)) {
+        if ($this->request->isPost() && $txt = $this->request->param('txt', false)) {
             if (mb_strlen($txt, 'UTF-8') <= 500) {
-                $result = [];
-                $result['segmentation'] = $this->segmentation($txt);
-                foreach ($result['segmentation'] as $key => $value) {
-                    $sentence = $this->sentence($value);
-                    foreach ($sentence as $row => $val) {
-                        $words = $this->words($row, $val);
-                        $flag = '';
-                        foreach ($words as $k => $v) {
-                            $flag .= $k;
+                $cache_key = md5($txt);
+                if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
+                    $result = [];
+                    $result['segmentation'] = $this->segmentation($txt);
+                    foreach ($result['segmentation'] as $key => $value) {
+                        $sentence = $this->sentence($value);
+                        foreach ($sentence as $row => $val) {
+                            $words = $this->words($row, $val);
+                            $flag = '';
+                            foreach ($words as $v) {
+                                $flag .= $v['flag'];
+                            }
+                            $sentence[$row] = [
+                                'txt'   => $val,
+                                'words' => $words,
+                                'flag'  => $flag,
+                            ];
                         }
-                        $sentence[$row] = [
-                            'txt'   => $val,
-                            'words' => $words,
-                            'flag'  => $flag,
+
+                        $result['segmentation'][$key] = [
+                            'txt'      => $value,
+                            'sentence' => $sentence,
                         ];
                     }
 
-                    $result['segmentation'][$key] = [
-                        'txt'      => $value,
-                        'sentence' => $sentence,
-                    ];
+                    $this->cache->set($cache_key, $result);
                 }
 
-                return $this->cache(true)->success('spider success', $result);
+                return $result
+                    ? $this->cache(true)->success('Words success', $result)
+                    : $this->error('Words error');
             }
         }
 
-        return miss(404);
+        return miss(404, false);
     }
 
     /**
@@ -63,10 +70,11 @@ class Words extends Async
      * @param  string $_txt
      * @return array
      */
-    private function words(int $_row, string &$_txt): array
+    private function words(int &$_row, string &$_txt): array
     {
         $words = words($_txt);
         $length = mb_strlen($_txt, 'UTF-8');
+        $new_words = [];
         foreach ($words as $key => $value) {
             // 词语在句中位置
             $numeric = mb_strpos($_txt, $value, 0, 'UTF-8');
@@ -74,24 +82,31 @@ class Words extends Async
             // 句首
             if ($numeric === 0) {
                 $identity = '{R' . $_row . 'N' . $key . 'LF}';
-                $words[$identity] = $value;
-                unset($words[$key]);
+                $attr = 'first';
             }
             // 句尾
             elseif ($numeric === ($length - mb_strlen($value, 'UTF-8'))) {
                 $identity = '{R' . $_row . 'N' . $key . 'LE}';
-                $words[$identity] = $value;
-                unset($words[$key]);
+                $attr = 'end';
             }
             // 句中
             else {
                 $identity = '{R' . $_row . 'N' . $key . 'LM}';
-                $words[$identity] = $value;
-                unset($words[$key]);
+                $attr = 'middle';
             }
+
+            $new_words[] = [
+                'txt'   => $value,
+                'flag'  => $identity,
+                'attr'  => [
+                    'location' => $attr,
+                    'ago'      => !empty($words[$key - 1]) ? $words[$key - 1] : '',
+                    'after'    => !empty($words[$key + 1]) ? $words[$key + 1] : '',
+                ],
+            ];
         }
 
-        return $words;
+        return $new_words;
     }
 
     /**

@@ -55,7 +55,7 @@ class Sms extends Async
             }
         }
 
-        return miss(404);
+        return miss(404, false);
     }
 
     public function check()
@@ -79,6 +79,6 @@ class Sms extends Async
             }
         }
 
-        return miss(404);
+        return miss(404, false);
     }
 }

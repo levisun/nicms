@@ -190,7 +190,7 @@ class Analytical extends BaseLogic
     public function accept(): void
     {
         $accept = (string) $this->request->header('accept', '');
-        $pattern = '/^application\/vnd\.[A-Za-z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[a-zA-Z0-9]+\+[A-Za-z]{3,5}+$/u';
+        $pattern = '/^application\/vnd\.[a-zA-Z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[a-zA-Z0-9]+\+[a-zA-Z]{3,5}+$/u';
         if (!$accept || false === preg_match($pattern, $accept)) {
             $this->log->alert('[Async] header-accept error');
             $this->abort('错误请求', 20004);
@@ -250,7 +250,7 @@ class Analytical extends BaseLogic
         $authorization = (string) $this->request->header('authorization', '');
         $authorization = str_replace('&#43;', '+', $authorization);
         $authorization = str_replace('Bearer ', '', $authorization);
-        if (!$authorization) {
+        if (!$authorization || false === preg_match('/^[\w\-]+\.[\w\-]+\.[\w\-]+$/u', $authorization)) {
             $this->log->alert('[Async] header-authorization params error');
             $this->abort('错误请求', 20001);
         }
@@ -265,7 +265,7 @@ class Analytical extends BaseLogic
         $data->setIssuer($this->request->rootDomain());
         $data->setAudience(parse_url($this->request->server('HTTP_REFERER'), PHP_URL_HOST));
         $data->setId($token->getClaim('jti'));
-        $data->setCurrentTime($this->request->time() + 60);
+        $data->setCurrentTime($this->request->time() + 2880);
 
         if (false === $token->verify(new Sha256, $key) || false === $token->validate($data)) {
             $this->log->alert('[Async] header-authorization params error');

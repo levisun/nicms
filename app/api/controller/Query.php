@@ -34,6 +34,6 @@ class Query extends Async
             );
         }
 
-        return miss(404);
+        return miss(404, false);
     }
 }

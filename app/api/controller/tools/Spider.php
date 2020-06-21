@@ -25,27 +25,38 @@ class Spider extends Async
 
     public function index()
     {
-        if ($uri = $this->request->param('uri', false)) {
-            usleep(rand(1500000, 2500000));
+        if ($this->request->isPost() && $uri = $this->request->param('uri', false)) {
 
             $method = $this->request->param('method', 'GET');
-            $spider = new LibSpider;
-            if ($spider->request($method, $uri)) {
-                // 有选择器时
-                if ($selector = $this->request->param('selector', false)) {
-                    // 扩展属性
-                    $extract = $this->request->param('extract', '');
-                    $extract = $extract ? explode(',', $extract) : [];
+            $selector = $this->request->param('selector', '');
+            $extract = $this->request->param('extract', '');
 
-                    $result = $spider->fetch($selector, $extract);
-                } else {
-                    $result = $spider->html();
+            $cache_key = md5($uri . $method . $selector, $extract);
+
+            if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
+                usleep(rand(1000000, 1500000));
+
+                $spider = new LibSpider;
+                if ($spider->request($method, $uri)) {
+                    // 有选择器时
+                    if ($selector) {
+                        // 扩展属性
+                        $extract = $extract ? explode(',', $extract) : [];
+
+                        $result = $spider->fetch($selector, $extract);
+                    } else {
+                        $result = $spider->html();
+                    }
+
+                    $this->cache->set($cache_key, $result);
                 }
-
-                return $this->cache(true)->success('spider success', $result);
             }
+
+            return $result
+                ? $this->cache(true)->success('spider success', $result)
+                : $this->error('spider error');
         }
 
-        return miss(404);
+        return miss(404, false);
     }
 }
