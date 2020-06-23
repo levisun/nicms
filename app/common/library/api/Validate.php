@@ -16,10 +16,10 @@ declare(strict_types=1);
 
 namespace app\common\library\api;
 
-use app\common\library\api\BaseLogic;
+use app\common\library\api\Base;
 use app\common\library\Rbac;
 
-class Validate extends BaseLogic
+class Validate extends Base
 {
     /**
      * 不用验证

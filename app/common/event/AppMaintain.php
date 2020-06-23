@@ -18,7 +18,6 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
-use think\facade\Log;
 use app\common\library\DataManage;
 use app\common\library\ReGarbage;
 use app\common\library\Sitemap;
@@ -43,7 +42,7 @@ class AppMaintain
             // 数据库备份
             // (new DataManage)->autoBackup();
 
-            only_execute($app_name . '_remove_garbage.lock', '-4 hour', function () {
+            only_execute('remove_garbage.lock', '-4 hour', function () {
                 // 清除过期缓存文件
                 ReGarbage::clear(runtime_path() . 'cache', 1);
 
@@ -55,10 +54,10 @@ class AppMaintain
                 // 清除游客上传的文件
                 ReGarbage::clear($uploads_path . 'guest', 60);
 
-                // 清除上传的缩略图文件
+                // 清除生成的缩略图
                 ReGarbage::clear($uploads_path . 'thumb', 60);
 
-                // 清楚上传目录中的空目录
+                // 清除上传目录中的空目录
                 ReGarbage::upload();
 
                 // 保证网站根目录整洁

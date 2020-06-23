@@ -238,7 +238,7 @@ if (!function_exists('app_secret')) {
         $key = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         $app_secret = sha1($app_secret . $key);
 
-        Cookie::set('XSRF_TOKEN', $app_secret, ['httponly' => false]);
+        Cookie::set('XSRF_TOKEN', $app_secret, ['expire' => 1440, 'httponly' => false]);
     }
 }
 
@@ -273,8 +273,7 @@ if (!function_exists('authorization')) {
 
         $authorization = (string) $authorization;
 
-        Cookie::has('XSRF_AUTHORIZATION') or
-            Cookie::set('XSRF_AUTHORIZATION', $authorization, ['expire' => 1440, 'httponly' => false]);
+        Cookie::set('XSRF_AUTHORIZATION', $authorization, ['expire' => 1440, 'httponly' => false]);
     }
 }
 

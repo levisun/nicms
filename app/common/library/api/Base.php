@@ -20,7 +20,7 @@ use think\App;
 use think\Response;
 use think\exception\HttpResponseException;
 
-abstract class BaseLogic
+abstract class Base
 {
     /**
      * 应用实例

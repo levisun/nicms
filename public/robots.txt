@@ -3,10 +3,8 @@ Disallow: /screen/
 Disallow: /static/
 Disallow: /storage/
 Disallow: /theme/
-Disallow: /router.php
-Disallow: /search.html
 Disallow: /404.html
 Disallow: /502.html
 Disallow: /*.do$
-Allow: .htm$
+Allow: .html$
 Sitemap: https://www.niphp.com/sitemap.xml

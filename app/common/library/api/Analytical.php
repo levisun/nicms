@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library\api;
 
-use app\common\library\api\BaseLogic;
+use app\common\library\api\Base;
 
 use app\common\library\Base64;
 use app\common\library\DataFilter;
@@ -26,7 +26,7 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\ValidationData;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 
-class Analytical extends BaseLogic
+class Analytical extends Base
 {
     /**
      * 开启版本控制

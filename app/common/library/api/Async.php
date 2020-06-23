@@ -17,11 +17,11 @@ declare(strict_types=1);
 namespace app\common\library\api;
 
 use think\Response;
-use app\common\library\api\BaseLogic;
+use app\common\library\api\Base;
 use app\common\library\api\Analytical;
 use app\common\library\api\Validate;
 
-class Async extends BaseLogic
+class Async extends Base
 {
     /**
      * 解析器
