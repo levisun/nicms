@@ -25,13 +25,13 @@ class Spider extends Async
 
     public function index()
     {
-        if ($this->request->isPost() && $uri = $this->request->param('uri', false)) {
+        if ($this->request->isGet() && $uri = $this->request->param('uri', false)) {
 
             $method = $this->request->param('method', 'GET');
             $selector = $this->request->param('selector', '');
             $extract = $this->request->param('extract', '');
 
-            $cache_key = md5($uri . $method . $selector, $extract);
+            $cache_key = md5($uri . $method . $selector . $extract);
 
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 usleep(rand(1000000, 1500000));
@@ -53,7 +53,7 @@ class Spider extends Async
             }
 
             return $result
-                ? $this->cache(true)->success('spider success', $result)
+                ? $this->cache(28800)->success('spider success', $result)
                 : $this->error('spider error');
         }
 

@@ -2,6 +2,8 @@
 
 ~~~
 https://github.com/liliuwei/thinkphp-social
+
+https://cdn.jsdelivr.net/npm/crawler@1.2.2/lib/crawler.js
 ~~~
 
 ## 2020-01-11

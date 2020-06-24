@@ -18,7 +18,7 @@ namespace app\common\middleware;
 
 use Closure;
 use think\Request;
-use think\Response;
+use app\common\library\Addon as LibAddon;
 
 class Addon
 {
@@ -28,12 +28,24 @@ class Addon
      * @access public
      * @param  Request $request
      * @param  Closure $next
-     * @param  mixed   $cache
      * @return Response
      */
     public function handle(Request $request, Closure $next)
     {
+        # TODO
+
         $response = $next($request);
+
+        $content = $response->getContent();
+
+        $items = LibAddon::query();
+        foreach ($items as $path => $config) {
+            if ($config['status'] === 'open') {
+                $content = LibAddon::exec($path, $content);
+            }
+        }
+
+        $response->content($content);
 
         return $response;
     }
