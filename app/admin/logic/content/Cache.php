@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
+use app\common\library\view\Compiler;
 
 class Cache extends BaseLogic
 {
@@ -32,7 +33,7 @@ class Cache extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content compile reomve');
 
-        (new \view\Compiler)->clear();
+        (new Compiler)->clear();
 
         return [
             'debug' => false,

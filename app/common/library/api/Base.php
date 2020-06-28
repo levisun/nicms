@@ -123,8 +123,7 @@ abstract class Base
             'code'    => $_code,
             'message' => $_msg,
             'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 3) . ', ' .
-                number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . ', ' .
-                (true === $this->apiCache ? $this->apiExpire : 'off'),
+                number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3)
         ];
 
         if ($_code > 21000) {
