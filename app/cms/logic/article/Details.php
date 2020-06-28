@@ -174,7 +174,7 @@ class Details extends BaseLogic
             'debug' => false,
             'cache' => !empty($result) ? 28800    : false,
             'msg'   => !empty($result) ? 'details': 'error',
-            'data'  => !empty($result) ?          : []
+            'data'  => !empty($result) ? $result  : []
         ];
     }
 
