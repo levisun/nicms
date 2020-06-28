@@ -52,7 +52,7 @@ class RecordRequestLog
 
         // 搜索蜘蛛日志
         AccessLog::spider();
-        // AccessLog::api();
+        AccessLog::api();
         AccessLog::log();
     }
 }

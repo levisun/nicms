@@ -96,7 +96,7 @@ abstract class BaseController
         // api和logic层默认关闭
         $this->app->debug((bool) $this->app->env->get('app_debug', false));
         // 设置请求默认过滤方法
-        $this->request->filter('\app\common\library\DataFilter::filter');
+        $this->request->filter('\app\common\library\Filter::safe');
 
         @set_time_limit(10);
         @ini_set('max_execution_time', '10');

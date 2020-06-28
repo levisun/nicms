@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Cache;
+use app\common\library\Filter;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -55,22 +56,14 @@ class Spider
             $this->result = $client->getInternalResponse()->getContent();
 
             // 过滤回车和多余空格
-            $pattern = [
-                '~>\s+<~'          => '><',
-                '~>\s+~'           => '>',
-                '~\s+<~'           => '<',
-                '/( ){2,}/si'      => ' ',
-                '/(\s+\n|\r|\n)/s' => '',
-                '/(\t|\0|\x0B)/s'  => '',
-            ];
-            $this->result = (string) preg_replace(array_keys($pattern), array_values($pattern), $this->result);
+            $this->result = Filter::space($this->result);
 
             // 检查字符编码
             if (preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->result, $charset)) {
                 $charset = strtoupper($charset[1]);
                 if ($charset !== 'UTF-8') {
                     $charset = $charset === 'GB2312' ? 'GBK' : $charset;
-                    $this->result = iconv($charset . '//IGNORE', 'UTF-8', (string) $this->result);
+                    $this->result = iconv($charset, 'UTF-8//IGNORE', (string) $this->result);
                     $this->result = preg_replace_callback('/charset=["\']?([\w\-]{1,})["\']?/si', function ($matches) {
                         return str_replace($matches[1], 'UTF-8', $matches[0]);
                     }, $this->result);
@@ -79,7 +72,7 @@ class Spider
 
             $this->result = htmlspecialchars($this->result, ENT_QUOTES);
 
-            Cache::set($key, $this->result);
+            Cache::set($key, $this->result, 28800);
         }
 
         // 重新附加DOM文档
@@ -109,7 +102,8 @@ class Spider
     {
         $content = [];
         $this->crawler->filter($_selector)->each(function ($node) use (&$_extract, &$content) {
-            $content[] = $_extract ? $node->extract($_extract) : $node->html();
+            $result = $_extract ? $node->extract($_extract) : $node->html();
+            $content[] = Filter::encode($result, ENT_QUOTES);
         });
 
         return $content;

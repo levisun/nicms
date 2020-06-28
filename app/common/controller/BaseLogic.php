@@ -110,7 +110,7 @@ abstract class BaseLogic
         $this->session = &$this->app->session;
 
         // 设置请求默认过滤方法
-        $this->request->filter('\app\common\library\DataFilter::filter');
+        $this->request->filter('\app\common\library\Filter::safe');
 
         // 设置会话信息(用户ID,用户组)
         if ($this->session->has($this->authKey) && $this->session->has($this->authKey . '_role')) {

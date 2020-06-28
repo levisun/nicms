@@ -23,7 +23,9 @@ class Addon extends Base
 
     private function api(): array
     {
-        $api = 'http://data.zz.baidu.com/urls?site=' . $this->addon_config['site'] . '&token=' . $this->addon_config['token'];
+        $api = 'http://data.zz.baidu.com/urls?site=' .
+            $this->addon_config['site'] . '&token=' .
+            $this->addon_config['token'];
 
         $ch = curl_init();
         $options =  array(
@@ -35,7 +37,7 @@ class Addon extends Base
         );
         curl_setopt_array($ch, $options);
         $result = curl_exec($ch);
-
+        curl_close($ch);
         return json_decode($result, true);
     }
 

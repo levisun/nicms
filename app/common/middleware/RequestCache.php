@@ -54,7 +54,7 @@ class RequestCache
     {
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
             if (strtotime($ms) > $request->server('REQUEST_TIME')) {
-                return Response::create()->code(304);
+                // return Response::create()->code(304);
             }
         }
 
@@ -62,7 +62,7 @@ class RequestCache
 
         if ($this->config['request_cache_key']) {
             if (200 == $response->getCode() && $response->isAllowCache()) {
-                if ($expire = $response->getHeader('Cache-control')) {
+                if ($expire = $response->getHeader('Cache-Control')) {
                     $expire = (int) str_replace(['max-age=', ',must-revalidate'], '', $expire);
                 } else {
                     $expire = $this->config['request_cache_expire'];

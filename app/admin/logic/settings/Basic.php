@@ -71,8 +71,8 @@ class Basic extends BaseLogic
             'cms_keywords'    => $this->request->param('cms_keywords'),
             'cms_description' => $this->request->param('cms_description'),
             'cms_footer'      => $this->request->param('cms_footer'),
-            'cms_copyright'   => $this->request->param('cms_copyright', '', '\app\common\library\DataFilter::encode'),
-            'cms_beian'       => $this->request->param('cms_beian', '', '\app\common\library\DataFilter::encode'),
+            'cms_copyright'   => $this->request->param('cms_copyright', '', '\app\common\library\Filter::encode'),
+            'cms_beian'       => $this->request->param('cms_beian', '', '\app\common\library\Filter::encode'),
             'cms_script'      => $this->request->param('cms_script', '', 'strip_tags,trim,htmlspecialchars'),
         ];
         if ($result = $this->validate(__METHOD__, $receive_data)) {

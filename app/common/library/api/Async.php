@@ -119,13 +119,13 @@ class Async extends Base
     {
         // 开启或关闭缓存
         if (is_bool($_expire)) {
-            $this->apiCache = $_expire;
+            $this->apiCache = !!$_expire;
         }
 
         // 指定缓存时间(int类型)
         elseif (is_numeric($_expire)) {
             $_expire = (int) $_expire;
-            $this->apiExpire = $_expire ? (int) $_expire : $this->apiExpire;
+            $this->apiExpire = $_expire ?: $this->apiExpire;
             $this->apiCache = true;
         }
 
@@ -237,6 +237,8 @@ class Async extends Base
 
         $this->log->save();
         $this->session->save();
+
+        ob_start('ob_gzhandler');
 
         return $response;
     }

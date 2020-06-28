@@ -299,6 +299,9 @@ if (!function_exists('miss')) {
             : '';
 
         $content = str_replace('{$return_url}', $return_url, $content);
+
+        ob_start('ob_gzhandler');
+
         $response = Response::create($content, 'html', $_code)
             ->header([
                 'Cache-Control'  => 'max-age=1440,must-revalidate',

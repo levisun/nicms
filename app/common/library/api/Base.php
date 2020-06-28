@@ -82,7 +82,7 @@ abstract class Base
         // 请勿开启调试模式
         $this->app->debug(false);
         // 设置请求默认过滤方法
-        $this->request->filter('\app\common\library\DataFilter::filter');
+        $this->request->filter('\app\common\library\Filter::safe');
         // 请勿更改参数(超时,执行内存)
         @set_time_limit(5);
         @ini_set('max_execution_time', '5');
@@ -119,7 +119,34 @@ abstract class Base
      */
     protected function abort(string $_msg, int $_code = 40001): void
     {
-        $response = Response::create(['code' => $_code, 'message' => $_msg], 'json');
+        $result = [
+            'code'    => $_code,
+            'message' => $_msg,
+            'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 3) . ', ' .
+                number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . ', ' .
+                (true === $this->apiCache ? $this->apiExpire : 'off'),
+        ];
+
+        if ($_code > 21000) {
+            // 返回地址
+            $result['return_url'] = $this->session->has('return_url')
+                ? $this->session->pull('return_url')
+                : '';
+
+            // 新表单令牌
+            $result['token'] = $this->request->isPost()
+                ? $this->request->buildToken('__token__', 'md5')
+                : '';
+        }
+
+        $result = array_filter($result);
+
+        ob_start('ob_gzhandler');
+
+        $response = Response::create($result, 'json');
+
+        $response->header(['X-Powered-By' => 'NI API']);
+
         throw new HttpResponseException($response);
     }
 }

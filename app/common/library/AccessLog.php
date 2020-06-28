@@ -23,7 +23,7 @@ use app\common\model\Visit as ModelVisit;
 
 class AccessLog
 {
-    private static $searchengine = [
+    private static $engine = [
         'GOOGLE'         => 'googlebot',
         'GOOGLE ADSENSE' => 'mediapartners-google',
         'BAIDU'          => 'baiduspider',
@@ -70,8 +70,8 @@ class AccessLog
 
         if (1 === mt_rand(1, 100)) {
             ModelVisit::where([
-                    ['date', '<', strtotime('-30 days')]
-                ])
+                ['date', '<', strtotime('-30 days')]
+            ])
                 ->limit(100)
                 ->delete();
         }
@@ -87,7 +87,7 @@ class AccessLog
     {
         $user_agent = strtolower(Request::server('HTTP_USER_AGENT'));
         $spider = false;
-        foreach (self::$searchengine as $key => $value) {
+        foreach (self::$engine as $key => $value) {
             if (0 !== preg_match('/(' . $value . ')/si', $user_agent)) {
                 $spider = $key;
                 continue;
@@ -124,9 +124,7 @@ class AccessLog
         $app_name = app('http')->getName();
         if ($app_name && 'api' === $app_name) {
             $method = 'API:';
-            $method .= Request::param('method')
-                ? str_replace('.', '_', Request::param('method'))
-                : pathinfo(Request::baseUrl(), PATHINFO_BASENAME);
+            $method .= Request::param('method') ?: ltrim(Request::baseUrl(), '/');
 
             $has = ModelVisit::where([
                 ['name', '=', $method],

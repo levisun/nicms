@@ -156,9 +156,9 @@ class Search extends BaseLogic
 
         return [
             'debug' => false,
-            'cache' => $list ? 28800    : false,
-            'msg'   => $list ? 'search' : 'error',
-            'data'  => $list ? [
+            'cache' => !empty($list) ? 28800    : false,
+            'msg'   => !empty($list) ? 'search' : 'error',
+            'data'  => !empty($list) ? [
                 'list'         => $list['data'],
                 'total'        => $list['total'],
                 'per_page'     => $list['per_page'],

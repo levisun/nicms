@@ -26,7 +26,6 @@ class Spider extends Async
     public function index()
     {
         if ($this->request->isGet() && $uri = $this->request->param('uri', false)) {
-
             $method = $this->request->param('method', 'GET');
             $selector = $this->request->param('selector', '');
             $extract = $this->request->param('extract', '');
@@ -52,7 +51,7 @@ class Spider extends Async
                 }
             }
 
-            return $result
+            return !empty($result)
                 ? $this->cache(28800)->success('spider success', $result)
                 : $this->error('spider error');
         }

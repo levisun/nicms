@@ -192,7 +192,7 @@ class Article extends BaseLogic
                     'article_id' => $article->id,
                     'thumb'      => $thumb,
                     'origin'     => $this->request->param('origin', ''),
-                    'content'    => $this->request->param('content', '', '\app\common\library\DataFilter::encode')
+                    'content'    => $this->request->param('content', '', '\app\common\library\Filter::encode')
                 ]);
             }
             // 相册
@@ -392,7 +392,7 @@ class Article extends BaseLogic
                 ModelArticleContent::update([
                     'thumb'   => $thumb,
                     'origin'  => $this->request->param('origin', ''),
-                    'content' => $this->request->param('content', '', '\app\common\library\DataFilter::encode')
+                    'content' => $this->request->param('content', '', '\app\common\library\Filter::encode')
                 ], ['article_id' => $id]);
             }
             // 相册
