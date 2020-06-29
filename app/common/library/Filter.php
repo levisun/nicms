@@ -44,7 +44,7 @@ class Filter
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::filter($value);
+                $_data[$key] = self::safe($value);
             }
         }
         return $_data;

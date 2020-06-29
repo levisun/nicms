@@ -20,7 +20,7 @@ namespace app\cms\logic\article;
 use app\common\controller\BaseLogic;
 use app\common\library\Base64;
 use app\common\library\Image;
-use app\common\library\DataFilter;
+use app\common\library\Filter;
 use app\common\library\Download;
 use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;
@@ -144,7 +144,7 @@ class Details extends BaseLogic
 
                                     // 文章内容
                                 case 'content':
-                                    $value = DataFilter::decode($value);
+                                    $value = Filter::decode($value);
                                     $value = preg_replace_callback('/(src=")([a-zA-Z0-9&=#,_:?.\/]+)(")/si', function ($matches) {
                                         return $matches[2]
                                             ? 'src="' . Image::path($matches[2]) . '"'

@@ -21,7 +21,7 @@ use think\facade\Config;
 use think\facade\Request;
 use think\facade\Filesystem;
 use think\Validate;
-use app\common\library\DataFilter;
+use app\common\library\Filter;
 use app\common\model\UploadFileLog as ModelUploadFileLog;
 
 class UploadFile
@@ -409,7 +409,7 @@ class UploadFile
                 $id[] = (int) $file['id'];
 
                 // 过滤非法字符
-                $file['file'] = DataFilter::filter($file['file']);
+                $file['file'] = Filter::safe($file['file']);
                 $file['file'] = $path . str_replace('/', DIRECTORY_SEPARATOR, $file['file']);
 
                 if (is_file($file['file'])) {
@@ -450,7 +450,7 @@ class UploadFile
     {
         $path = public_path();
         // 过滤非法字符
-        $abs_file = DataFilter::filter($_file);
+        $abs_file = Filter::safe($_file);
         $abs_file = $path . str_replace('/', DIRECTORY_SEPARATOR, $abs_file);
 
         if (is_file($abs_file)) {

@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\api\controller;
 
 use app\common\controller\Async;
-use app\common\library\DataFilter;
+use app\common\library\Filter;
 
 class Wechat extends Async
 {
@@ -47,15 +47,15 @@ class Wechat extends Async
             'formUser' => $wechat->getRevFrom(),                              // 请求用户
             'userData' => $wechat->getUserInfo($wechat->getRevFrom()),          // 用户个人信息
             'key'      => [
-                'sceneId'       => DataFilter::filter($wechat->getRevSceneId()),      // 扫公众号二维码返回值
-                'eventLocation' => DataFilter::filter($wechat->getRevEventGeo()),     // 获得的地理信息
-                'text'          => DataFilter::filter($wechat->getRevContent()),      // 文字信息
-                'image'         => DataFilter::filter($wechat->getRevPic()),          // 图片信息
-                'location'      => DataFilter::filter($wechat->getRevGeo()),          // 地理信息
-                'link'          => DataFilter::filter($wechat->getRevLink()),         // 链接信息
-                'voice'         => DataFilter::filter($wechat->getRevVoice()),        // 音频信息
-                'video'         => DataFilter::filter($wechat->getRevVideo()),        // 视频信息
-                'result'        => DataFilter::filter($wechat->getRevResult())        // 群发或模板信息回复内容
+                'sceneId'       => Filter::safe($wechat->getRevSceneId()),      // 扫公众号二维码返回值
+                'eventLocation' => Filter::safe($wechat->getRevEventGeo()),     // 获得的地理信息
+                'text'          => Filter::safe($wechat->getRevContent()),      // 文字信息
+                'image'         => Filter::safe($wechat->getRevPic()),          // 图片信息
+                'location'      => Filter::safe($wechat->getRevGeo()),          // 地理信息
+                'link'          => Filter::safe($wechat->getRevLink()),         // 链接信息
+                'voice'         => Filter::safe($wechat->getRevVoice()),        // 音频信息
+                'video'         => Filter::safe($wechat->getRevVideo()),        // 视频信息
+                'result'        => Filter::safe($wechat->getRevResult())        // 群发或模板信息回复内容
             ],
         ];
 

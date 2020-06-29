@@ -18,7 +18,7 @@ namespace app\common\library\view;
 
 use think\App;
 use think\contract\TemplateHandlerInterface;
-use app\common\library\DataFilter;
+use app\common\library\Filter;
 use app\common\library\view\Compiler;
 use app\common\library\view\File;
 use app\common\library\view\Replace;
@@ -167,7 +167,7 @@ class View implements TemplateHandlerInterface
      */
     public function exists(string $_template): bool
     {
-        $_template = DataFilter::filter($_template);
+        $_template = Filter::safe($_template);
 
         return is_file($_template);
     }
@@ -235,7 +235,7 @@ class View implements TemplateHandlerInterface
 
 
         // 获取模板文件名
-        $_template = DataFilter::filter($_template) . '.' . $this->config['view_suffix'];
+        $_template = Filter::safe($_template) . '.' . $this->config['view_suffix'];
         $_template = File::getTheme($this->config['view_path'], $_template);
 
 
@@ -256,8 +256,8 @@ class View implements TemplateHandlerInterface
 
 
         // 过滤变量内容
-        // $_data = DataFilter::encode($_data);
-        // $_data = DataFilter::decode($_data);
+        // $_data = Filter::encode($_data);
+        // $_data = Filter::decode($_data);
         $this->var_data = array_merge($this->var_data, $_data);
         extract($this->var_data, EXTR_OVERWRITE);
 

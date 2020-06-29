@@ -19,7 +19,7 @@ namespace app\common\library;
 use think\facade\Config;
 use think\facade\Request;
 use think\Image as ThinkImage;
-use app\common\library\DataFilter;
+use app\common\library\Filter;
 
 class Image
 {
@@ -35,7 +35,7 @@ class Image
     public static function thumb(string $_img, int $_size = 0): string
     {
         if (self::has($_img) && $_size >= 10 && $_size <= 800) {
-            $_img = DataFilter::filter($_img);
+            $_img = Filter::safe($_img);
             $_img = str_replace('/', DIRECTORY_SEPARATOR, $_img);
 
             $extension = '.' . pathinfo($_img, PATHINFO_EXTENSION);
@@ -123,7 +123,7 @@ class Image
 
         $path = root_path() . Config::get('filesystem.disks.public.visibility') . DIRECTORY_SEPARATOR;
 
-        $_img = DataFilter::filter($_img);
+        $_img = Filter::safe($_img);
         $_img = str_replace(DIRECTORY_SEPARATOR, '/', $_img);
 
         if ($_img && is_file($path . $_img)) {

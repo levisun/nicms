@@ -19,7 +19,7 @@ namespace app\common\library\api;
 use app\common\library\api\Base;
 
 use app\common\library\Base64;
-use app\common\library\DataFilter;
+use app\common\library\Filter;
 use app\common\model\ApiApp as ModelApiApp;
 
 use Lcobucci\JWT\Parser;
@@ -277,7 +277,7 @@ class Analytical extends Base
         // 校验session是否存在
         // Session初始化并规定sessionID
         $jti = Base64::decrypt($token->getClaim('jti'));
-        $jti = DataFilter::filter($jti);
+        $jti = Filter::safe($jti);
         if ($jti && is_file($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . $this->config->get('session.prefix') . DIRECTORY_SEPARATOR . 'sess_' . $jti)) {
             $this->sessionId = $jti;
         } else {

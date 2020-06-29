@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\settings;
 
 use app\common\controller\BaseLogic;
-use app\common\library\DataFilter;
+use app\common\library\Filter;
 use app\common\model\Config as ModelConfig;
 
 class Basic extends BaseLogic
@@ -42,7 +42,7 @@ class Basic extends BaseLogic
         $result = $result ? $result->toArray() : [];
 
         foreach ($result as $key => $value) {
-            $value['value'] = DataFilter::decode($value['value']);
+            $value['value'] = Filter::decode($value['value']);
             $result[$value['name']] = $value['value'];
             unset($result[$key]);
         }

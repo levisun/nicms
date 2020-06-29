@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
-use app\common\library\DataFilter;
+use app\common\library\Filter;
 use app\common\model\Article as ModelArticle;
 use app\common\model\ArticleContent as ModelArticleContent;
 use app\common\model\ArticleFile as ModelArticleFile;
@@ -270,7 +270,7 @@ class Article extends BaseLogic
                     }
                 }
                 if (isset($result['content'])) {
-                    $result['content'] = DataFilter::decode($result['content']);
+                    $result['content'] = Filter::decode($result['content']);
                 }
 
                 // 附加字段数据

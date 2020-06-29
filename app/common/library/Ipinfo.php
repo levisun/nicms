@@ -18,7 +18,7 @@ namespace app\common\library;
 
 use think\facade\Cache;
 use think\facade\Request;
-use app\common\library\DataFilter;
+use app\common\library\Filter;
 use app\common\model\IpInfo as ModelIpinfo;
 use app\common\model\Region as ModelRegion;
 
@@ -149,7 +149,7 @@ class Ipinfo
      */
     private static function queryRegion(string &$_name, int $_pid): int
     {
-        $_name = DataFilter::filter($_name);
+        $_name = Filter::safe($_name);
 
         $result = ModelRegion::where([
             ['pid', '=', $_pid],
@@ -175,7 +175,7 @@ class Ipinfo
         }
 
         $result  = $result['data'];
-        $isp     = !empty($result['isp']) ? DataFilter::filter($result['isp']) : '';
+        $isp     = !empty($result['isp']) ? Filter::safe($result['isp']) : '';
         $country = !empty($result['country']) ? self::queryRegion($result['country'], 0) : '';
         if (!$country) {
             return false;

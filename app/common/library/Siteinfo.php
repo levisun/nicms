@@ -19,7 +19,7 @@ namespace app\common\library;
 use think\facade\Cache;
 use think\facade\Lang;
 use think\facade\Request;
-use app\common\library\DataFilter;
+use app\common\library\Filter;
 use app\common\model\Config as ModelConfig;
 use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;
@@ -193,8 +193,8 @@ class Siteinfo
         ])->value('value', '');
 
         return
-            DataFilter::decode($copyright) . '&nbsp;' .
-            DataFilter::decode($beian) .
+            Filter::decode($copyright) . '&nbsp;' .
+            Filter::decode($beian) .
             '&nbsp;<a href="/sitemap.xml" target="_blank">sitemap</a>&nbsp;' .
             '&nbsp;Powered&nbsp;by&nbsp;<a href="https://github.com/levisun/nicms" rel="nofollow" target="_blank">NICMS</a>';
     }

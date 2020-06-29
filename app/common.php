@@ -20,7 +20,7 @@ use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
 use app\common\library\Base64;
-use app\common\library\DataFilter;
+use app\common\library\Filter;
 use app\common\model\ApiApp as ModelApiApp;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
@@ -81,7 +81,7 @@ if (!function_exists('filepath_decode')) {
         $_file = $_file ? Base64::decrypt($_file, $salt) : '';
 
         if ($_file && false !== preg_match('/^[a-zA-Z0-9_\/\\\]+\.[a-zA-Z0-9]{2,4}$/u', $_file)) {
-            $_file = DataFilter::filter($_file);
+            $_file = Filter::safe($_file);
             $_file = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_file);
 
             $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
@@ -104,7 +104,7 @@ if (!function_exists('filepath_encode')) {
      */
     function filepath_encode(string $_file, bool $_abs = false): string
     {
-        $_file = DataFilter::filter($_file);
+        $_file = Filter::safe($_file);
         $_file = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_file);
         $_file = str_replace(['storage' . DIRECTORY_SEPARATOR, 'uploads' . DIRECTORY_SEPARATOR], '', $_file);
 
@@ -134,7 +134,7 @@ if (!function_exists('words')) {
         $words = [];
 
         // 过滤其他字符
-        if ($_text = DataFilter::chs_alpha($_text)) {
+        if ($_text = Filter::chs_alpha($_text)) {
             @ini_set('memory_limit', '128M');
 
             // 词库

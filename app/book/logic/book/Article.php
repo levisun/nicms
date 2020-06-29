@@ -20,7 +20,7 @@ namespace app\book\logic\book;
 use app\common\controller\BaseLogic;
 use app\common\model\BookArticle as ModelBookArticle;
 use app\common\library\Base64;
-use app\common\library\DataFilter;
+use app\common\library\Filter;
 use gather\Book as GatherBook;
 
 class Article extends BaseLogic
@@ -51,17 +51,17 @@ class Article extends BaseLogic
                     ->find();
                 if ($result) {
                     $result = $result->toArray();
-                    $result['content'] = DataFilter::decode($result['content']);
+                    $result['content'] = Filter::decode($result['content']);
 
                     $this->cache->tag('book')->set($cache_key, $result);
                 } else {
                     $title = $this->request->param('t');
                     $title = Base64::decrypt($title, date('Ymd'));
-                    $title = DataFilter::filter($title);
+                    $title = Filter::safe($title);
                     $uri = $this->request->param('u');
                     $uri = Base64::decrypt($uri, date('Ymd'));
                     if ($sort_order && $title && $uri && $content = (new GatherBook)->getContent($uri)) {
-                        $content = DataFilter::encode($content);
+                        $content = Filter::encode($content);
                         $ModelBookArticle = new ModelBookArticle;
                         $ModelBookArticle->data([
                             'book_id'    => $bid,
@@ -75,7 +75,7 @@ class Article extends BaseLogic
                         $result = [
                             'id'      => $ModelBookArticle->id,
                             'title'   => $title,
-                            'content' => DataFilter::decode($content)
+                            'content' => Filter::decode($content)
                         ];
                     }
                 }
