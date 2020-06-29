@@ -56,7 +56,6 @@ Temporary Items
 *.xml
 *.yml
 /*.php
-think
 *.jpg
 *.png
 *.gif

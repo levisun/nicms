@@ -31,7 +31,7 @@ class Img extends Async
      */
     public function index()
     {
-        if ($this->request->isGet() && $this->validate->referer()) {
+        if ($this->validate->referer()) {
             $this->ApiInit();
             $captcha = Captcha::create();
             $this->session->save();

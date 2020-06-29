@@ -42,6 +42,26 @@ class Addon
     }
 
     /**
+     * 设置插件
+     * @access public
+     * @static
+     * @return void
+     */
+    public static function set(string $_namespace, bool $_status = false)
+    {
+        $file = root_path('extend/addon') . 'addon.json';
+        if (is_file($file) && $addon = json_decode(file_get_contents($file), true)) {
+            $_namespace = strtolower($_namespace);
+            $_namespace = trim($_namespace, '\/');
+            $_namespace = str_replace(['/', '\\'], '/', $_namespace);
+
+            $addon['require'][$_namespace]['status'] = $_status ? 'open' : 'close';
+
+            file_put_contents($file, json_encode($addon, JSON_UNESCAPED_UNICODE));
+        }
+    }
+
+    /**
      * 更新插件
      * @access public
      * @static
@@ -58,72 +78,59 @@ class Addon
      * @static
      * @return array
      */
-    public static function query()
+    public static function query(): array
     {
-        $path = root_path('extend/addon');
-        is_dir($path) or mkdir($path, 0755, true);
-        $path .= 'addon.json';
-
-        file_put_contents($path, json_encode([
-            'name' => '插件列表',
-            'require' => [
-                'baidu/ziyuan' => 'open',
-                'baidu/tongji' => 'close',
-                'lazyload'     => 'open',
-            ],
-        ], JSON_UNESCAPED_UNICODE));
-
-        $addon = file_get_contents($path);
-        $addon = json_decode($addon, true);
-        $addon = $addon['require'];
-
+        $result = [];
         $dir = root_path('extend/addon');
-        foreach ($addon as $path => $status) {
-            $file = $dir . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path) . DIRECTORY_SEPARATOR . 'config.json';
-            if (is_file($file) && $config = file_get_contents($file)) {
-                if ($config = json_decode($config, true)) {
-                    $addon[$path] = [
-                        'status'  => $status,
-                        'name'    => empty($config['name']) ?: $config['name'],
-                        'version' => empty($config['version']) ?: $config['version'],
-                        'date'    => empty($config['date']) ?: $config['date'],
+        if (is_file($dir . 'addon.json') && $addon = json_decode(file_get_contents($dir . 'addon.json'), true)) {
+            foreach ($addon['require'] as $namespace => $value) {
+                $file = $dir . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $namespace)
+                    . DIRECTORY_SEPARATOR . 'config.json';
+                if (is_file($file) && $config = json_decode(file_get_contents($file), true)) {
+                    $result[$namespace] = [
+                        'status'  => $value['status'],
+                        'type'    => $value['type'],
+                        'name'    => empty($config['name']) ? '未命名'    : $config['name'],
+                        'version' => empty($config['version']) ? '未知版本': $config['version'],
+                        'date'    => empty($config['date']) ? '未知发布日期' : $config['date'],
                     ];
-                    continue;
+                } else {
+                    $result[$namespace] = [
+                        'status'  => 'down',
+                        'type'    => '未知',
+                        'name'    => '未命名',
+                        'version' => '未知版本',
+                        'date'    => '未知发布日期',
+                    ];
                 }
             }
-
-            $addon[$path] = 'down';
         }
 
-        return $addon;
+        return $result;
     }
 
     /**
      * 运行
      * @access public
      * @static
-     * @return array
+     * @return string
      */
-    public static function exec(string &$_method, string &$_content): string
+    public static function exec(string &$_namespace, string &$_content): string
     {
-        $_method = trim($_method, '\/');
-
-        // 校验配置文件
-        $file  = root_path('extend/addon');
-        $file .= str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_method) . DIRECTORY_SEPARATOR . 'config.json';
-        if (is_file($file) && $config = file_get_contents($file)) {
-            if ($config = json_decode($config, true)) {
-                // 校验方法是否存在
-                $class = '\addon\\' . str_replace(['/', '\\'], '\\', $_method) . '\Addon';
-                if (class_exists($class)) {
-                    if (method_exists($class, 'run')) {
-                        $result = (string) call_user_func([app($class, [$config, $_content]), 'run']);
-                        return $result ?: $_content;
-                    }
-                }
-            }
+        $class = '\addon\\' . str_replace(['/', '\\'], '\\', $_namespace) . '\Index';
+        $file  = root_path('extend/addon') .
+            str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_namespace, '\/')) .
+            DIRECTORY_SEPARATOR . 'config.json';
+        if (
+            class_exists($class) && method_exists($class, 'run') &&
+            is_file($file) && $config = json_decode(file_get_contents($file), true)
+        ) {
+            $addon = app($class, [$config, $_content]);
+            $addon->run();
+            $result = (string) $addon;
+            $result = $result ?: $_content;
         }
 
-        return $_content;
+        return $result;
     }
 }

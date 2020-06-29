@@ -6,17 +6,14 @@ namespace addon\baidu\ziyuan;
 
 use \addon\Base;
 
-class Addon extends Base
+class Index extends Base
 {
 
     public function run(): void
     {
         if ($this->request->action() === 'details') {
-
             $this->api();
-
             $script = $this->script();
-
             $this->append($script);
         }
     }
@@ -24,8 +21,8 @@ class Addon extends Base
     private function api(): array
     {
         $api = 'http://data.zz.baidu.com/urls?site=' .
-            $this->addon_config['site'] . '&token=' .
-            $this->addon_config['token'];
+            $this->config['site'] . '&token=' .
+            $this->config['token'];
 
         $ch = curl_init();
         $options =  array(

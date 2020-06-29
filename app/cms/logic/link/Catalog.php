@@ -56,13 +56,11 @@ class Catalog extends BaseLogic
 
             foreach ($list as $key => $value) {
                 $value['logo'] = Image::path($value['logo']);
+                $value['url'] = url('go', ['url' => $value['url']]);
                 $list[$key] = $value;
             }
 
-            $this->cache->tag([
-                'cms',
-                'cms link list' . $category_id
-            ])->set($cache_key, $list);
+            $this->cache->tag(['cms', 'cms link list' . $category_id])->set($cache_key, $list);
         }
 
         return [
@@ -72,7 +70,6 @@ class Catalog extends BaseLogic
             'data'  => [
                 'list'  => $list,
                 'total' => count($list),
-                'url_format' => 'rel="nofollow" target="_blank"',
             ]
         ];
     }

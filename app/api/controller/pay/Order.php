@@ -25,7 +25,7 @@ class Order extends Async
 
     public function index(string $method)
     {
-        if ($this->request->isPost() && $this->validate->referer() && $this->validate->fromToken()) {
+        if ($this->validate->referer() && $this->validate->fromToken()) {
             $method = strtolower($method);
 
             if (method_exists($this, $method)) {

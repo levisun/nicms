@@ -6,7 +6,7 @@ namespace addon\lazyload;
 
 use \addon\Base;
 
-class Addon extends Base
+class Index extends Base
 {
 
     public function run(): void

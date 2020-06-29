@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS `nc_tags` (
     `count` int(11) UNSIGNED NOT NULL DEFAULT '1' COMMENT '标签文章数量',
     `lang` varchar(20) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
     PRIMARY KEY (`id`),
-    KEY `name` (`name`) USING BTREE,
-    KEY `lang` (`lang`) USING BTREE
+    INDEX `name` (`name`) USING BTREE,
+    INDEX `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='标签表';
  */
 

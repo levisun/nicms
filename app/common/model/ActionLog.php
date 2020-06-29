@@ -23,9 +23,9 @@ CREATE TABLE IF NOT EXISTS `nc_action_log` (
     `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '日志备注',
     `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '执行行为的时间',
     PRIMARY KEY (`id`),
-    KEY `action_id` (`action_id`) USING BTREE,
-    KEY `user_id` (`user_id`) USING BTREE,
-    KEY `create_time` (`create_time`) USING BTREE
+    INDEX `action_id` (`action_id`) USING BTREE,
+    INDEX `user_id` (`user_id`) USING BTREE,
+    INDEX `create_time` (`create_time`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='行为日志表';
  */
 

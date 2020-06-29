@@ -30,7 +30,7 @@ Route::group(function () {
     Route::get('search$', 'Index/search');
 
     Route::miss(function () {
-        return miss(404);
+        return miss(404, false);
     });
 })
 ->domain('book')

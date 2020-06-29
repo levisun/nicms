@@ -35,13 +35,13 @@ CREATE TABLE IF NOT EXISTS `nc_category` (
     `lang` varchar(10) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
     PRIMARY KEY (`id`),
     UNIQUE KEY `name` (`name`),
-    KEY `pid` (`pid`) USING BTREE,
-    KEY `type_id` (`type_id`) USING BTREE,
-    KEY `model_id` (`model_id`) USING BTREE,
-    KEY `is_show` (`is_show`) USING BTREE,
-    KEY `sort_order` (`sort_order`) USING BTREE,
-    KEY `access_id` (`access_id`) USING BTREE,
-    KEY `lang` (`lang`) USING BTREE
+    INDEX `pid` (`pid`) USING BTREE,
+    INDEX `type_id` (`type_id`) USING BTREE,
+    INDEX `model_id` (`model_id`) USING BTREE,
+    INDEX `is_show` (`is_show`) USING BTREE,
+    INDEX `sort_order` (`sort_order`) USING BTREE,
+    INDEX `access_id` (`access_id`) USING BTREE,
+    INDEX `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='栏目表';
  */
 

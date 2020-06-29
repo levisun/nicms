@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS `nc_role_access` (
     `role_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '组ID',
     `node_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '节点ID',
     PRIMARY KEY (`id`),
-    KEY `role_id` (`role_id`) USING BTREE,
-    KEY `node_id` (`node_id`) USING BTREE
+    INDEX `role_id` (`role_id`) USING BTREE,
+    INDEX `node_id` (`node_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
 */
 namespace app\common\model;

@@ -35,18 +35,18 @@ CREATE TABLE IF NOT EXISTS `nc_book` (
     `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
     `lang` varchar(20) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
     PRIMARY KEY (`id`),
-    KEY `title` (`title`) USING BTREE,
-    KEY `type_id` (`type_id`) USING BTREE,
-    KEY `author_id` (`author_id`) USING BTREE,
-    KEY `is_pass` (`is_pass`) USING BTREE,
-    KEY `is_com` (`is_com`) USING BTREE,
-    KEY `is_top` (`is_top`) USING BTREE,
-    KEY `is_hot` (`is_hot`) USING BTREE,
-    KEY `sort_order` (`sort_order`) USING BTREE,
-    KEY `status` (`status`) USING BTREE,
-    KEY `update_time` (`update_time`) USING BTREE,
-    KEY `delete_time` (`delete_time`) USING BTREE,
-    KEY `lang` (`lang`) USING BTREE
+    INDEX `title` (`title`) USING BTREE,
+    INDEX `type_id` (`type_id`) USING BTREE,
+    INDEX `author_id` (`author_id`) USING BTREE,
+    INDEX `is_pass` (`is_pass`) USING BTREE,
+    INDEX `is_com` (`is_com`) USING BTREE,
+    INDEX `is_top` (`is_top`) USING BTREE,
+    INDEX `is_hot` (`is_hot`) USING BTREE,
+    INDEX `sort_order` (`sort_order`) USING BTREE,
+    INDEX `status` (`status`) USING BTREE,
+    INDEX `update_time` (`update_time`) USING BTREE,
+    INDEX `delete_time` (`delete_time`) USING BTREE,
+    INDEX `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='书库表';
  */
 

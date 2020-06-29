@@ -37,11 +37,10 @@ class Addon
         $response = $next($request);
 
         $content = $response->getContent();
-
         $items = LibAddon::query();
-        foreach ($items as $path => $config) {
-            if ($config['status'] === 'open') {
-                $content = LibAddon::exec($path, $content);
+        foreach ($items as $namespace => $config) {
+            if ($config['status'] === 'headend' && $config['status'] === 'open') {
+                $content = LibAddon::exec($namespace, $content);
             }
         }
 

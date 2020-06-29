@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS `nc_level` (
     `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '状态',
     `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '描述',
     PRIMARY KEY (`id`),
-    KEY `credit` (`credit`) USING BTREE,
-    KEY `status` (`status`) USING BTREE
+    INDEX `credit` (`credit`) USING BTREE,
+    INDEX `status` (`status`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户组';
 INSERT INTO `nc_level` (`id`, `name`, `credit`, `status`, `remark`) VALUES
 (1, '钻石会员', 500000000, 1, ''),

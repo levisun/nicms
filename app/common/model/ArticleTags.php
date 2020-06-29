@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS `nc_article_tags` (
     `tags_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '标签ID',
     `article_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '文章ID',
     PRIMARY KEY (`id`),
-    KEY `tags_id` (`tags_id`) USING BTREE,
-    KEY `article_id` (`article_id`) USING BTREE
+    INDEX `tags_id` (`tags_id`) USING BTREE,
+    INDEX `article_id` (`article_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章标签关联表';
  */
 

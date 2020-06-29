@@ -29,7 +29,7 @@ class Sms extends Async
      */
     public function index()
     {
-        if ($this->request->isPost() && $this->validate->referer()) {
+        if ($this->validate->referer()) {
             $phone = $this->request->param('phone', false);
             if ($phone && preg_match('/^1[3-9]\d{9}$/', $phone)) {
                 $key = md5('sms_' . $phone);
@@ -60,23 +60,21 @@ class Sms extends Async
 
     public function check()
     {
-        if ($this->request->isPost()) {
-            $phone = $this->request->param('phone', false);
-            $verify = $this->request->param('verify/d', false);
-            if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone) && $verify) {
-                $key = md5('sms_' . $phone);
+        $phone = $this->request->param('phone', false);
+        $verify = $this->request->param('verify/d', false);
+        if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone) && $verify) {
+            $key = md5('sms_' . $phone);
 
-                if ($this->session->has($key) && $result = $this->session->get($key)) {
-                    if ($result['time'] >= time() && $result['verify'] == $verify && $result['phone'] == $phone) {
-                        $this->session->delete($key);
-                        return $this->cache(false)->success('验证成功');
-                    } else {
-                        return $this->error('手机号或验证码错误', 40009);
-                    }
+            if ($this->session->has($key) && $result = $this->session->get($key)) {
+                if ($result['time'] >= time() && $result['verify'] == $verify && $result['phone'] == $phone) {
+                    $this->session->delete($key);
+                    return $this->cache(false)->success('验证成功');
+                } else {
+                    return $this->error('手机号或验证码错误', 40009);
                 }
-            } else {
-                return $this->error('手机号或验证码错误', 40009);
             }
+        } else {
+            return $this->error('手机号或验证码错误', 40009);
         }
 
         return miss(404, false);

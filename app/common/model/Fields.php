@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS `nc_fields` (
     `sort_order` smallint(5) NOT NULL DEFAULT '0' COMMENT '排序',
     `remark` varchar(100) NOT NULL DEFAULT '' COMMENT '描述',
     PRIMARY KEY (`id`),
-    KEY `category_id` (`category_id`) USING BTREE,
-    KEY `type_id` (`type_id`) USING BTREE
+    INDEX `category_id` (`category_id`) USING BTREE,
+    INDEX `type_id` (`type_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='自定义字段表';
  */
 

@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS `nc_config` (
     `value` varchar(3000) NOT NULL DEFAULT '' COMMENT '值',
     `lang` varchar(10) NOT NULL DEFAULT '' COMMENT '语言 niphp为全局设置',
     PRIMARY KEY (`id`),
-    KEY `name` (`name`) USING BTREE,
-    KEY `lang` (`lang`) USING BTREE
+    INDEX `name` (`name`) USING BTREE,
+    INDEX `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='设置表';
 INSERT INTO `nc_config` (`id`, `name`, `value`, `lang`) VALUES
 (1, 'cms_theme', 'bootstrap', 'zh-cn'),

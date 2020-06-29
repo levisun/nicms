@@ -26,7 +26,7 @@ class Record extends Async
 
     public function index()
     {
-        if ($this->request->isGet() && $this->validate->referer()) {
+        if ($this->validate->referer()) {
             AccessLog::record();
 
             return Response::create()->allowCache(true)

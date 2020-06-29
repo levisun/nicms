@@ -20,9 +20,9 @@ CREATE TABLE IF NOT EXISTS `nc_upload_file_log` (
     `type` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '类型 0临时文件 1入库文件',
     `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
     PRIMARY KEY (`id`),
-    KEY `file` (`file`) USING BTREE,
-    KEY `type` (`type`) USING BTREE,
-    KEY `create_time` (`create_time`) USING BTREE
+    INDEX `file` (`file`) USING BTREE,
+    INDEX `type` (`type`) USING BTREE,
+    INDEX `create_time` (`create_time`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='上传文件日志';
  */
 

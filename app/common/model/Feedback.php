@@ -29,11 +29,11 @@ CREATE TABLE IF NOT EXISTS `nc_feedback` (
     `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
     `lang` varchar(10) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
     PRIMARY KEY (`id`),
-    KEY `category_id` (`category_id`),
-    KEY `type_id` (`type_id`),
-    KEY `is_pass` (`is_pass`),
-    KEY `update_time` (`update_time`),
-    KEY `lang` (`lang`)
+    INDEX `category_id` (`category_id`),
+    INDEX `type_id` (`type_id`),
+    INDEX `is_pass` (`is_pass`),
+    INDEX `update_time` (`update_time`),
+    INDEX `lang` (`lang`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='反馈表';
  */
 

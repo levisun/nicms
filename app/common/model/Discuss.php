@@ -29,13 +29,13 @@ CREATE TABLE IF NOT EXISTS `nc_discuss` (
     `delete_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '删除时间',
     `create_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '创建时间',
     PRIMARY KEY (`id`),
-    KEY `pid` (`pid`) USING BTREE,
-    KEY `article_id` (`article_id`) USING BTREE,
-    KEY `user_id` (`user_id`) USING BTREE,
-    KEY `is_pass` (`is_pass`) USING BTREE,
-    KEY `is_report` (`is_report`) USING BTREE,
-    KEY `report_time` (`report_time`) USING BTREE,
-    KEY `delete_time` (`delete_time`) USING BTREE
+    INDEX `pid` (`pid`) USING BTREE,
+    INDEX `article_id` (`article_id`) USING BTREE,
+    INDEX `user_id` (`user_id`) USING BTREE,
+    INDEX `is_pass` (`is_pass`) USING BTREE,
+    INDEX `is_report` (`is_report`) USING BTREE,
+    INDEX `report_time` (`report_time`) USING BTREE,
+    INDEX `delete_time` (`delete_time`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评论表';
  */
 

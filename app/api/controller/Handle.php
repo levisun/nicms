@@ -24,7 +24,7 @@ class Handle extends Async
 
     public function index()
     {
-        if ($this->request->isPost() && $result = $this->exec()) {
+        if ($result = $this->exec()) {
             // 请勿开启缓存
             return $this->cache(false)->response(
                 $result['msg'],

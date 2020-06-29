@@ -41,14 +41,14 @@ CREATE TABLE IF NOT EXISTS `nc_user` (
     UNIQUE KEY `username` (`username`),
     UNIQUE KEY `email` (`email`),
     UNIQUE KEY `phone` (`phone`),
-    KEY `password` (`password`) USING BTREE,
-    KEY `gender` (`gender`) USING BTREE,
-    KEY `birthday` (`birthday`) USING BTREE,
-    KEY `level_id` (`level_id`) USING BTREE,
-    KEY `province_id` (`province_id`) USING BTREE,
-    KEY `city_id` (`city_id`) USING BTREE,
-    KEY `area_id` (`area_id`) USING BTREE,
-    KEY `status` (`status`) USING BTREE
+    INDEX `password` (`password`) USING BTREE,
+    INDEX `gender` (`gender`) USING BTREE,
+    INDEX `birthday` (`birthday`) USING BTREE,
+    INDEX `level_id` (`level_id`) USING BTREE,
+    INDEX `province_id` (`province_id`) USING BTREE,
+    INDEX `city_id` (`city_id`) USING BTREE,
+    INDEX `area_id` (`area_id`) USING BTREE,
+    INDEX `status` (`status`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户';
 
 DROP TABLE IF EXISTS `nc_user_oauth`;

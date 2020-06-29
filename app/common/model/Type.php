@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `nc_type` (
     `name` varchar(100) NOT NULL DEFAULT '' COMMENT '分类名',
     `remark` varchar(300) NOT NULL DEFAULT '' COMMENT '描述',
     PRIMARY KEY (`id`),
-    KEY `category_id` (`category_id`) USING BTREE
+    INDEX `category_id` (`category_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分类';
  */
 

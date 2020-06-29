@@ -29,12 +29,12 @@ CREATE TABLE IF NOT EXISTS `nc_link` (
     `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
     `lang` varchar(10) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
     PRIMARY KEY (`id`),
-    KEY `category_id` (`category_id`) USING BTREE,
-    KEY `type_id` (`type_id`) USING BTREE,
-    KEY `is_pass` (`is_pass`) USING BTREE,
-    KEY `sort_order` (`sort_order`) USING BTREE,
-    KEY `update_time` (`update_time`) USING BTREE,
-    KEY `lang` (`lang`)
+    INDEX `category_id` (`category_id`) USING BTREE,
+    INDEX `type_id` (`type_id`) USING BTREE,
+    INDEX `is_pass` (`is_pass`) USING BTREE,
+    INDEX `sort_order` (`sort_order`) USING BTREE,
+    INDEX `update_time` (`update_time`) USING BTREE,
+    INDEX `lang` (`lang`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='友链表';
  */
 

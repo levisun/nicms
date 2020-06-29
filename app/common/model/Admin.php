@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS `nc_admin` (
     UNIQUE KEY `username` (`username`),
     UNIQUE KEY `phone` (`phone`),
     UNIQUE KEY `email` (`email`),
-    KEY `password` (`password`) USING BTREE,
-    KEY `status` (`status`) USING BTREE
+    INDEX `password` (`password`) USING BTREE,
+    INDEX `status` (`status`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='管理员表';
 INSERT INTO `nc_admin` (`id`, `username`, `password`, `phone`, `email`, `salt`, `last_login_ip`, `last_login_ip_attr`, `last_login_time`, `update_time`, `create_time`) VALUES
 (1, 'levisun', '$2y$11$d.FUHJoQT8EEsuJVv9GOQ.D6.GquPRJHb.7VfU89yugmVwzxzo6qG', '18629503709', 'levisun@mail.com', '0af476', '', '', 1556499533, 1556499533, 1556499533);

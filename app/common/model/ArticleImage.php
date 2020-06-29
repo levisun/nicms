@@ -21,7 +21,7 @@ CREATE TABLE `nc_article_image` (
     `image_width` smallint(5) DEFAULT '0' COMMENT '图片宽度',
     `image_height` smallint(5) DEFAULT '0' COMMENT '图片高度',
     PRIMARY KEY (`id`),
-    KEY `article_id` (`article_id`) USING BTREE
+    INDEX `article_id` (`article_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章图集图片表';
  */
 

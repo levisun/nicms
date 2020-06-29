@@ -53,10 +53,10 @@ CREATE TABLE IF NOT EXISTS `nc_node` (
     `sort_order` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '排序',
     `remark` varchar(100) NOT NULL DEFAULT '' COMMENT '描述',
     PRIMARY KEY (`id`),
-    KEY `pid` (`pid`) USING BTREE,
-    KEY `level` (`level`) USING BTREE,
-    KEY `status` (`status`) USING BTREE,
-    KEY `sort_order` (`sort_order`) USING BTREE
+    INDEX `pid` (`pid`) USING BTREE,
+    INDEX `level` (`level`) USING BTREE,
+    INDEX `status` (`status`) USING BTREE,
+    INDEX `sort_order` (`sort_order`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='节点表';
 INSERT INTO `nc_node` (`id`, `pid`, `level`, `name`, `title`, `status`, `sort_order`, `remark`) VALUES
 (1, 0, 1, 'admin', '后台', 1, 0, '后台模块'),

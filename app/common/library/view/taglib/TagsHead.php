@@ -94,7 +94,7 @@ class TagsHead extends Taglib
             'img:"__IMG__",' .
             'js:"__JS__"' .
             '}' .
-            '}</script></head>';
+            '}</script></head><body>';
 
         // <style type="text/css">*{moz-user-select:-moz-none;-moz-user-select:none; -o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none; user-select:none;}</style>
         // -webkit-filter: grayscale(100%);

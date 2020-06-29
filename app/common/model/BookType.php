@@ -30,10 +30,10 @@ CREATE TABLE IF NOT EXISTS `nc_book_type` (
     `lang` varchar(10) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
     PRIMARY KEY (`id`),
     UNIQUE KEY `name` (`name`),
-    KEY `pid` (`pid`) USING BTREE,
-    KEY `is_show` (`is_show`) USING BTREE,
-    KEY `sort_order` (`sort_order`) USING BTREE,
-    KEY `lang` (`lang`) USING BTREE
+    INDEX `pid` (`pid`) USING BTREE,
+    INDEX `is_show` (`is_show`) USING BTREE,
+    INDEX `sort_order` (`sort_order`) USING BTREE,
+    INDEX `lang` (`lang`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='栏目表';
  */
 

@@ -38,8 +38,8 @@ CREATE TABLE IF NOT EXISTS `nc_region` (
   `pid` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `name` varchar(20) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  KEY `pid` (`pid`) USING BTREE,
-  KEY `name` (`name`) USING BTREE
+  INDEX `pid` (`pid`) USING BTREE,
+  INDEX `name` (`name`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 INSERT INTO `nc_region` (`id`, `pid`, `name`) VALUES
 (100000, 0, '中国'),

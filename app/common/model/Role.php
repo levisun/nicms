@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS `nc_role` (
     `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '状态',
     `remark` varchar(100) NOT NULL DEFAULT '' COMMENT '描述',
     PRIMARY KEY (`id`),
-    KEY `pid` (`pid`) USING BTREE,
-    KEY `status` (`status`) USING BTREE
+    INDEX `pid` (`pid`) USING BTREE,
+    INDEX `status` (`status`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='组表';
 INSERT INTO `nc_role` (`id`, `pid`, `name`, `status`, `remark`) VALUES
 (1, 0, '创始人', 1, '创始人');

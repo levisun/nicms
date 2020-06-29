@@ -33,12 +33,6 @@ abstract class Base
     protected $cache;
 
     /**
-     * Config实例
-     * @var \think\Config
-     */
-    protected $config;
-
-    /**
      * Cookie实例
      * @var \think\Cookie
      */
@@ -66,7 +60,7 @@ abstract class Base
      * 插件配置
      * @var array
      */
-    protected $addon_config = [];
+    protected $config = [];
 
     /**
      * 页面输出内容
@@ -85,13 +79,12 @@ abstract class Base
     public function __construct(App $_app, array $_config, string $_content)
     {
         $this->app     = &$_app;
-        $this->config  = &$this->app->config;
         $this->cookie  = &$this->app->cookie;
         $this->request = &$this->app->request;
         $this->session = &$this->app->session;
         $this->view    = &$this->app->view;
 
-        $this->addon_config = &$_config;
+        $this->config = &$_config;
         $this->content = &$_content;
     }
 
@@ -117,7 +110,6 @@ abstract class Base
         } else {
             $this->content = $this->content . $_str;
         }
-
         return $this->content;
     }
 

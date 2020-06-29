@@ -30,9 +30,9 @@ CREATE TABLE IF NOT EXISTS `nc_ads` (
     `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
     `lang` varchar(20) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
     PRIMARY KEY (`id`),
-    KEY `start_time` (`start_time`),
-    KEY `end_time` (`end_time`),
-    KEY `lang` (`lang`)
+    INDEX `start_time` (`start_time`),
+    INDEX `end_time` (`end_time`),
+    INDEX `lang` (`lang`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='广告表';
  */
 

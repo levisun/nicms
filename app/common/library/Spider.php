@@ -24,7 +24,7 @@ use Symfony\Component\DomCrawler\Crawler;
 class Spider
 {
     private $crawler = null;
-    private $result = null;
+    private $result = '';
 
     /**
      * 发起请求

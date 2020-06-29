@@ -25,7 +25,7 @@ CREATE TABLE `nc_api_app` (
     `create_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '创建时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY `name` (`name`) USING BTREE,
-    KEY `status` (`status`) USING BTREE
+    INDEX `status` (`status`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='api应用表';
 INSERT INTO `nc_api_app` (`id`, `name`, `secret`, `authkey`, `status`, `remark`, `update_time`, `create_time`) VALUES
 (1, 'admin', '962940cfbe94a64efcd1573cf6d7a175', 'admin_auth_key', 1, '', 1505898660, 1505898660),

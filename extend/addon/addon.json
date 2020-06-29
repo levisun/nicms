@@ -1,1 +1,17 @@
-{"name":"插件列表","require":{"baidu\/ziyuan":"open","baidu\/tongji":"close","lazyload":"open"}}
+{
+    "name": "插件列表",
+    "require": {
+        "baidu\/ziyuan": {
+            "status": "open",
+            "type": "headend"
+        },
+        "baidu\/tongji": {
+            "status": "close",
+            "type": "headend"
+        },
+        "lazyload": {
+            "status": "close",
+            "type": "headend"
+        }
+    }
+}

@@ -33,7 +33,7 @@ class Excel extends Async
      */
     public function read()
     {
-        if ($this->request->isPost() && $this->validate->referer() && $file = $this->request->param('file', false)) {
+        if ($this->validate->referer() && $file = $this->request->param('file', false)) {
             if ($file = filepath_decode($file, true)) {
                 $sheet = $this->request->param('sheet/d', 0, 'abs');
 
@@ -65,7 +65,7 @@ class Excel extends Async
      */
     public function writer()
     {
-        if ($this->request->isPost() && $this->validate->referer() && $data = $this->request->param('data/a', false)) {
+        if ($this->validate->referer() && $data = $this->request->param('data/a', false)) {
             $spreadsheet = new Spreadsheet();
             $worksheet = $spreadsheet->getActiveSheet();
 

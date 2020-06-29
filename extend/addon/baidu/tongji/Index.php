@@ -6,7 +6,7 @@ namespace addon\baidu\tongji;
 
 use \addon\Base;
 
-class Addon extends Base
+class Index extends Base
 {
 
     public function run(): void

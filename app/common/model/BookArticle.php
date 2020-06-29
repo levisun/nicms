@@ -27,12 +27,12 @@ CREATE TABLE IF NOT EXISTS `nc_book_article` (
     `delete_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '删除时间',
     `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
     PRIMARY KEY (`id`),
-    KEY `book_id` (`book_id`) USING BTREE,
-    KEY `is_pass` (`is_pass`) USING BTREE,
-    KEY `show_time` (`show_time`) USING BTREE,
-    KEY `sort_order` (`sort_order`) USING BTREE,
-    KEY `update_time` (`update_time`) USING BTREE,
-    KEY `delete_time` (`delete_time`) USING BTREE
+    INDEX `book_id` (`book_id`) USING BTREE,
+    INDEX `is_pass` (`is_pass`) USING BTREE,
+    INDEX `show_time` (`show_time`) USING BTREE,
+    INDEX `sort_order` (`sort_order`) USING BTREE,
+    INDEX `update_time` (`update_time`) USING BTREE,
+    INDEX `delete_time` (`delete_time`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='书库文章表';
  */
 

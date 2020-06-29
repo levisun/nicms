@@ -125,7 +125,7 @@ class Index extends BaseController
     public function go()
     {
         if ($url = $this->request->param('url', false)) {
-            return \think\Response::create(base64_decode($url), 'redirect', 302);
+            return \think\Response::create($url, 'redirect', 302);
         } else {
             return miss(404);
         }
