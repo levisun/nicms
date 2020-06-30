@@ -6,7 +6,7 @@
             "type": "headend"
         },
         "baidu\/tongji": {
-            "status": "close",
+            "status": "open",
             "type": "headend"
         },
         "lazyload": {

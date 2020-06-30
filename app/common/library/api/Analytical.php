@@ -99,7 +99,7 @@ class Analytical extends Base
         // 校验方法名格式
         $method = $this->request->param('method');
         if (!$method || false === preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $method)) {
-            $this->log->alert('[Async] ' . $method);
+            $this->log->warning('[Async] ' . $method);
             $this->abort('错误请求', 25001);
         }
 
@@ -111,11 +111,11 @@ class Analytical extends Base
 
         // 校验方法是否存在
         if (!class_exists($class)) {
-            $this->log->alert('[Async] method not found ' . $class);
+            $this->log->warning('[Async] method not found ' . $class);
             $this->abort('错误请求', 25002);
         }
         if (!method_exists($class, $method)) {
-            $this->log->alert('[Async] action not found ' . $class . '->' . $method . '();');
+            $this->log->warning('[Async] action not found ' . $class . '->' . $method . '();');
             $this->abort('错误请求', 25003);
         }
 
@@ -159,7 +159,7 @@ class Analytical extends Base
     {
         $app_id = $this->request->param('appid/d', 0, 'abs');
         if (!$app_id || $app_id < 1000001) {
-            $this->log->alert('[Async] auth-appid not');
+            $this->log->warning('[Async] auth-appid not');
             $this->abort('错误请求', 21001);
         }
 
@@ -176,7 +176,7 @@ class Analytical extends Base
             $this->appSecret = $result['secret'];
             $this->appAuthKey = $result['authkey'];
         } else {
-            $this->log->alert('[Async] auth-appid error');
+            $this->log->warning('[Async] auth-appid error');
             $this->abort('错误请求', 21002);
         }
     }
@@ -192,7 +192,7 @@ class Analytical extends Base
         $accept = (string) $this->request->header('accept', '');
         $pattern = '/^application\/vnd\.[a-zA-Z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[a-zA-Z0-9]+\+[a-zA-Z]{3,5}+$/u';
         if (!$accept || false === preg_match($pattern, $accept)) {
-            $this->log->alert('[Async] header-accept error');
+            $this->log->warning('[Async] header-accept error');
             $this->abort('错误请求', 20004);
         }
 
@@ -205,7 +205,7 @@ class Analytical extends Base
         list($domain, $accept) = explode('.', $accept, 2);
         list($root) = explode('.', $this->request->rootDomain(), 2);
         if (!hash_equals($domain, $root)) {
-            $this->log->alert('[Async] header-accept domain error');
+            $this->log->warning('[Async] header-accept domain error');
             $this->abort('错误请求', 20005);
         }
         unset($domain, $root);
@@ -215,7 +215,7 @@ class Analytical extends Base
         // 取得版本与数据类型
         list($version, $this->format) = explode('+', $accept, 2);
         if (!$version || false === preg_match('/^[a-zA-Z0-9.]+$/u', $version)) {
-            $this->log->alert('[Async] header-accept version error');
+            $this->log->warning('[Async] header-accept version error');
             $this->abort('错误请求', 20006);
         }
         // 去掉"v"
@@ -232,8 +232,8 @@ class Analytical extends Base
 
         // 校验返回数据类型
         if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
-            $this->log->alert('[Async] header-accept format error');
-            $this->log->alert('[Async]' . $this->format);
+            $this->log->warning('[Async] header-accept format error');
+            $this->log->warning('[Async]' . $this->format);
             $this->abort('错误请求', 20007);
         }
     }
@@ -251,7 +251,7 @@ class Analytical extends Base
         $authorization = str_replace('&#43;', '+', $authorization);
         $authorization = str_replace('Bearer ', '', $authorization);
         if (!$authorization || false === preg_match('/^[\w\-]+\.[\w\-]+\.[\w\-]+$/u', $authorization)) {
-            $this->log->alert('[Async] header-authorization params error');
+            $this->log->warning('[Async] header-authorization params error');
             $this->abort('错误请求', 20001);
         }
 
@@ -268,7 +268,7 @@ class Analytical extends Base
         $data->setCurrentTime($this->request->time() + 2880);
 
         if (false === $token->verify(new Sha256, $key) || false === $token->validate($data)) {
-            $this->log->alert('[Async] header-authorization params error');
+            $this->log->warning('[Async] header-authorization params error');
             $this->abort('错误请求', 20002);
         }
 
@@ -281,7 +281,7 @@ class Analytical extends Base
         if ($jti && is_file($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . $this->config->get('session.prefix') . DIRECTORY_SEPARATOR . 'sess_' . $jti)) {
             $this->sessionId = $jti;
         } else {
-            $this->log->alert('[Async] header-authorization params error');
+            $this->log->warning('[Async] header-authorization params error');
             $this->abort('错误请求', 20003);
         }
     }

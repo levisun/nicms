@@ -11,14 +11,12 @@ class Index extends Base
 
     public function run(): void
     {
-        if ($this->request->action() === 'details') {
-            $this->api();
-            $script = $this->script();
-            $this->append($script);
-        }
+        $script  = $this->api();
+        $script .= $this->script();
+        $this->append($script);
     }
 
-    private function api(): array
+    private function api(): string
     {
         $api = 'http://data.zz.baidu.com/urls?site=' .
             $this->config['site'] . '&token=' .
@@ -35,7 +33,9 @@ class Index extends Base
         curl_setopt_array($ch, $options);
         $result = curl_exec($ch);
         curl_close($ch);
-        return json_decode($result, true);
+        return '<script type="text/javascript">console.log(' . $result . ');</script>';
+        // $result = json_decode($result, true);
+        // halt($result);
     }
 
     private function script(): string

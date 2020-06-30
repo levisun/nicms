@@ -77,11 +77,13 @@ class Dashboard extends BaseLogic
             ['create_time', '>', strtotime(date('Y-m-d'))]
         ])->count();
         $session_path = runtime_path('session');
-        $browse = ModelVisit::field('max(count) as count')->where([
-                ['name', '=', ''],
-                ['date', '=', strtotime(date('Y-m-d'))]
-            ])
-            ->value('count', 0);
+        $browse = ModelVisit::fieldRaw('sum(count) as count')->where([
+            ['name', '=', ''],
+            ['date', '=', strtotime(date('Y-m-d'))]
+        ])->find();
+        $browse = $browse ? $browse->toArray() : ['count' => 0];
+        $browse = $browse['count'];
+
         return [
             'ip'      => format_hits($sum_ip) . '/' . format_hits($day_ip),
             'session' => number_format(count((array) glob($session_path . '*'))),

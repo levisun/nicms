@@ -91,7 +91,7 @@ class Addon
                         'status'  => $value['status'],
                         'type'    => $value['type'],
                         'name'    => empty($config['name']) ? '未命名'    : $config['name'],
-                        'version' => empty($config['version']) ? '未知版本': $config['version'],
+                        'version' => empty($config['version']) ? '未知版本' : $config['version'],
                         'date'    => empty($config['date']) ? '未知发布日期' : $config['date'],
                     ];
                 } else {

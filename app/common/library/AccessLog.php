@@ -123,8 +123,8 @@ class AccessLog
     {
         $app_name = app('http')->getName();
         if ($app_name && 'api' === $app_name) {
-            $method = 'API:';
-            $method .= Request::param('method') ?: ltrim(Request::baseUrl(), '/');
+            $method  = 'API:' . ltrim(Request::baseUrl(), '/');
+            $method .= Request::param('method') ? '::' . Request::param('method') : '';
 
             $has = ModelVisit::where([
                 ['name', '=', $method],

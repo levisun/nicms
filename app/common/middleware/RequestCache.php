@@ -54,7 +54,7 @@ class RequestCache
     {
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
             if (strtotime($ms) > $request->server('REQUEST_TIME')) {
-                // return Response::create()->code(304);
+                return Response::create()->code(304);
             }
         }
 
