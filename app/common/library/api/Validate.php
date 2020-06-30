@@ -48,7 +48,7 @@ class Validate extends Base
 
         // 校验签名合法性
         $sign = $this->request->param('sign');
-        if (!$sign || false === preg_match('/^[A-Za-z0-9]+$/u', $sign)) {
+        if (!$sign || !!!preg_match('/^[A-Za-z0-9]+$/u', $sign)) {
             $this->abort('错误请求', 22002);
         }
 

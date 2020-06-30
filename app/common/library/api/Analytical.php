@@ -98,7 +98,7 @@ class Analytical extends Base
     {
         // 校验方法名格式
         $method = $this->request->param('method');
-        if (!$method || false === preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $method)) {
+        if (!$method || !!!preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $method)) {
             $this->log->warning('[Async] ' . $method);
             $this->abort('错误请求', 25001);
         }
@@ -191,7 +191,7 @@ class Analytical extends Base
     {
         $accept = (string) $this->request->header('accept', '');
         $pattern = '/^application\/vnd\.[a-zA-Z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[a-zA-Z0-9]+\+[a-zA-Z]{3,5}+$/u';
-        if (!$accept || false === preg_match($pattern, $accept)) {
+        if (!$accept || !!!preg_match($pattern, $accept)) {
             $this->log->warning('[Async] header-accept error');
             $this->abort('错误请求', 20004);
         }
@@ -214,7 +214,7 @@ class Analytical extends Base
 
         // 取得版本与数据类型
         list($version, $this->format) = explode('+', $accept, 2);
-        if (!$version || false === preg_match('/^[a-zA-Z0-9.]+$/u', $version)) {
+        if (!$version || !!!preg_match('/^[a-zA-Z0-9.]+$/u', $version)) {
             $this->log->warning('[Async] header-accept version error');
             $this->abort('错误请求', 20006);
         }
@@ -250,7 +250,7 @@ class Analytical extends Base
         $authorization = (string) $this->request->header('authorization', '');
         $authorization = str_replace('&#43;', '+', $authorization);
         $authorization = str_replace('Bearer ', '', $authorization);
-        if (!$authorization || false === preg_match('/^[\w\-]+\.[\w\-]+\.[\w\-]+$/u', $authorization)) {
+        if (!$authorization || !!!preg_match('/^[\w\-]+\.[\w\-]+\.[\w\-]+$/u', $authorization)) {
             $this->log->warning('[Async] header-authorization params error');
             $this->abort('错误请求', 20001);
         }
