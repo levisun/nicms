@@ -94,7 +94,7 @@ class Async extends Base
         ]);
 
         // 校验返回数据
-        if (!is_array($result) && array_key_exists('msg', $result)) {
+        if (!is_array($result) || !array_key_exists('msg', $result)) {
             $this->abort('返回数据格式错误', 28001);
         }
 

@@ -21,7 +21,7 @@ Route::group(function () {
 
     // 列表页
     Route::get('category/:tid$', 'Index/category');
-    Route::get('list/:id$', 'Index/catalog');
+    Route::get('book/:id$', 'Index/book');
 
     // 详情页
     Route::get('article/:bid/:id$', 'Index/article');

@@ -166,9 +166,10 @@ class Analytical extends Base
         $app_id -= 1000000;
         $result = ModelApiApp::field('name, secret, authkey')
             ->where([
-                ['id', '=', $app_id]
+                ['id', '=', $app_id],
+                ['status', '=', 1]
             ])
-            ->cache('asyncappid' . $app_id)
+            ->cache('async app id' . $app_id)
             ->find();
 
         if (null !== $result && $result = $result->toArray()) {

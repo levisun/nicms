@@ -76,19 +76,21 @@ class Siteinfo
             ['lang', '=', self::$langSet]
         ])->value('value', '');
 
-        // 文章描述
-        if ($id = Request::param('id/d', null)) {
-            $result = ModelArticle::where([
-                ['id', '=', $id]
-            ])->value('description', '');
-            $description = $result ?: $description;
-        }
-        // 栏目描述
-        elseif ($cid = Request::param('cid/d', null)) {
-            $result = ModelCategory::where([
-                ['id', '=', $cid]
-            ])->value('description', '');
-            $description = $result ?: $description;
+        if (self::$appName == 'cms') {
+            // 文章描述
+            if ($id = Request::param('id/d', null)) {
+                $result = ModelArticle::where([
+                    ['id', '=', $id]
+                ])->value('description', '');
+                $description = $result ?: $description;
+            }
+            // 栏目描述
+            elseif ($cid = Request::param('cid/d', null)) {
+                $result = ModelCategory::where([
+                    ['id', '=', $cid]
+                ])->value('description', '');
+                $description = $result ?: $description;
+            }
         }
 
         return strip_tags(htmlspecialchars_decode($description));
@@ -108,19 +110,21 @@ class Siteinfo
             ['lang', '=', self::$langSet]
         ])->value('value', '');
 
-        // 文章关键词
-        if ($id = Request::param('id/d', null)) {
-            $result = ModelArticle::where([
-                ['id', '=', $id]
-            ])->value('keywords', '');
-            $keywords = $result ?: $keywords;
-        }
-        // 栏目关键词
-        elseif ($cid = Request::param('cid/d', null)) {
-            $result = ModelCategory::where([
-                ['id', '=', $cid]
-            ])->value('keywords', '');
-            $keywords = $result ?: $keywords;
+        if (self::$appName == 'cms') {
+            // 文章关键词
+            if ($id = Request::param('id/d', null)) {
+                $result = ModelArticle::where([
+                    ['id', '=', $id]
+                ])->value('keywords', '');
+                $keywords = $result ?: $keywords;
+            }
+            // 栏目关键词
+            elseif ($cid = Request::param('cid/d', null)) {
+                $result = ModelCategory::where([
+                    ['id', '=', $cid]
+                ])->value('keywords', '');
+                $keywords = $result ?: $keywords;
+            }
         }
 
         return strip_tags(htmlspecialchars_decode($keywords));
@@ -136,21 +140,24 @@ class Siteinfo
     {
         $title = '';
 
-        // 文章名
-        if ($id = Request::param('id/d', null)) {
-            $article = ModelArticle::where([
-                ['id', '=', $id]
-            ])->value('title', '');
-            $title .= $article ? $article . '_' : '';
+        if (self::$appName == 'cms') {
+            // 文章名
+            if ($id = Request::param('id/d', null)) {
+                $article = ModelArticle::where([
+                    ['id', '=', $id]
+                ])->value('title', '');
+                $title .= $article ? $article . '_' : '';
+            }
+
+            // 栏目名
+            if ($cid = Request::param('cid/d', null)) {
+                $category = ModelCategory::where([
+                    ['id', '=', $cid]
+                ])->value('name', '');
+                $title .= $category ? $category . '_' : '';
+            }
         }
 
-        // 栏目名
-        if ($cid = Request::param('cid/d', null)) {
-            $category = ModelCategory::where([
-                ['id', '=', $cid]
-            ])->value('name', '');
-            $title .= $category ? $category . '_' : '';
-        }
 
         // 默认
         $title .= self::siteName();

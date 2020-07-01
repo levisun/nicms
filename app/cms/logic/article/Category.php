@@ -143,9 +143,9 @@ class Category extends BaseLogic
 
         return [
             'debug' => false,
-            'cache' => $list ? true : false,
-            'msg'   => $list ? 'category' : 'error',
-            'data'  => $list ? [
+            'cache' => isset($list) ? true : false,
+            'msg'   => isset($list) ? 'category' : 'error',
+            'data'  => isset($list) ? [
                 'list'         => $list['data'],
                 'total'        => $list['total'],
                 'per_page'     => $list['per_page'],

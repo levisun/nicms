@@ -38,10 +38,7 @@ class Index extends BaseController
      */
     public function index()
     {
-        $spider = new \app\common\library\Spider('https://www.jx.la/');
-        $html = $spider->filter('div#content')->fetch('/book/3792/2295763.html');
-        halt($html);
-        // return $this->fetch('index');
+        return $this->fetch('index');
     }
 
     /**
@@ -59,7 +56,7 @@ class Index extends BaseController
      * @access public
      * @return
      */
-    public function catalog()
+    public function book()
     {
         return $this->fetch('list');
     }

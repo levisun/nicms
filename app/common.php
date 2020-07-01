@@ -232,13 +232,14 @@ if (!function_exists('app_secret')) {
         if ($_app_id > 1000000) {
             $_app_id -= 1000000;
             $app_secret = ModelApiApp::where([
-                ['id', '=', $_app_id]
+                ['id', '=', $_app_id],
+                ['status', '=', 1]
             ])->cache('app secret' . $_app_id)->value('secret', '');
         }
         $key = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         $app_secret = sha1($app_secret . $key);
 
-        Cookie::set('XSRF_TOKEN', $app_secret, ['expire' => 1440, 'httponly' => false]);
+        Cookie::set('XSRF_TOKEN', $app_secret, ['httponly' => false]);
     }
 }
 
@@ -273,7 +274,7 @@ if (!function_exists('authorization')) {
 
         $authorization = (string) $authorization;
 
-        Cookie::set('XSRF_AUTHORIZATION', $authorization, ['expire' => 1440, 'httponly' => false]);
+        Cookie::set('XSRF_AUTHORIZATION', $authorization, ['httponly' => false]);
     }
 }
 

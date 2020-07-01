@@ -60,9 +60,9 @@ CREATE TABLE IF NOT EXISTS `nc_user_oauth` (
     `type` varchar(10) NOT NULL DEFAULT '' COMMENT '类型',
     `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
     PRIMARY KEY (`id`),
-    KEY `user_id` (`user_id`) USING BTREE,
-    KEY `openid` (`openid`) USING BTREE,
-    KEY `type` (`type`) USING BTREE
+    INDEX `user_id` (`user_id`) USING BTREE,
+    INDEX `openid` (`openid`) USING BTREE,
+    INDEX `type` (`type`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '第三方登录用户';
 
 DROP TABLE IF EXISTS `nc_user_wechat`;
@@ -87,11 +87,11 @@ CREATE TABLE IF NOT EXISTS `nc_user_wechat` (
     `groupid` varchar(50) NOT NULL DEFAULT '' COMMENT '分组ID',
     `tagid_list` varchar(500) NOT NULL DEFAULT '' COMMENT '标签ID',
     PRIMARY KEY (`id`),
-    KEY `user_id` (`user_id`) USING BTREE,
-    KEY `appid` (`appid`) USING BTREE,
-    KEY `appname` (`appname`) USING BTREE,
+    INDEX `user_id` (`user_id`) USING BTREE,
+    INDEX `appid` (`appid`) USING BTREE,
+    INDEX `appname` (`appname`) USING BTREE,
     UNIQUE KEY `openid` (`openid`),
-    KEY `unionid` (`unionid`) USING BTREE
+    INDEX `unionid` (`unionid`) USING BTREE
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COMMENT '微信用户信息表';
  */
 

@@ -3,7 +3,7 @@
 /**
  *
  * 数据层
- * 书 类型表
+ * 书籍分类表
  *
  * @package   NICMS
  * @category  app\common\model
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `nc_book_type` (
     INDEX `is_show` (`is_show`) USING BTREE,
     INDEX `sort_order` (`sort_order`) USING BTREE,
     INDEX `lang` (`lang`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='栏目表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='书籍分类表';
  */
 
 namespace app\common\model;

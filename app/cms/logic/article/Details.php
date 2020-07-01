@@ -172,9 +172,9 @@ class Details extends BaseLogic
 
         return [
             'debug' => false,
-            'cache' => $result ? 28800    : false,
-            'msg'   => $result ? 'details' : 'error',
-            'data'  => $result ?: []
+            'cache' => isset($result) ? 28800    : false,
+            'msg'   => isset($result) ? 'details' : 'error',
+            'data'  => isset($result) ? $result : []
         ];
     }
 

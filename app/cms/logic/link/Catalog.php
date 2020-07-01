@@ -66,11 +66,11 @@ class Catalog extends BaseLogic
         return [
             'debug' => false,
             'cache' => true,
-            'msg'   => $list ? 'link' : 'error',
-            'data'  => [
+            'msg'   => isset($list) ? 'link' : 'error',
+            'data'  => isset($list) ? [
                 'list'  => $list,
                 'total' => count($list),
-            ]
+            ] : []
         ];
     }
 }

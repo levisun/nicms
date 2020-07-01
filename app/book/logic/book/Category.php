@@ -61,6 +61,8 @@ class Category extends BaseLogic
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
             $result = (new ModelBook)
                 ->view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'hits', 'update_time'])
+                ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
+                ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
                 ->where($map)
                 ->order('book.is_top DESC, book.is_hot DESC , book.is_com DESC, book.sort_order DESC')
                 ->paginate([
@@ -73,7 +75,7 @@ class Category extends BaseLogic
                 $list['render'] = $result->render();
 
                 foreach ($list['data'] as $key => $value) {
-                    $value['url'] = url('catalog/' . $value['id']);
+                    $value['url'] = url('book/' . $value['id']);
                     $value['update_time'] = date($date_format, (int) $value['update_time']);
 
                     $list['data'][$key] = $value;

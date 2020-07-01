@@ -1,4 +1,9 @@
 <div id="app">
+    <!-- <h3 v-text="book.title"></h3> -->
+    <!-- <p v-text="book.author"></p> -->
+    <!-- <p v-text="book.status"></p> -->
+
+
     <template v-for="vo in items">
         <p>
             <a v-bind:href="vo.url" v-text="vo.title"></a>
@@ -7,25 +12,52 @@
 </div>
 
 <script>
-    let category = new Vue({
+    let app = new Vue({
         el: '#app',
         data: {
-            items: []
+            book: [],
+            items: [],
         },
         methods: {
+            html_decode: function (entity) {
+                var div = document.createElement('div');
+                div.innerHTML = entity;
+                var res = div.innerText || div.textContent;
+                return res;
+            },
             load: function () {
                 jQuery.pjax({
                     url: NICMS.api.url + '/query.do',
                     type: 'GET',
                     data: [
-                        { name: 'method', value: 'book.category.query' }
+                        { name: 'method', value: 'book.catalog.query' },
+                        { name: 'id', value: NICMS.api.param.id }
                     ],
                     success: function (result) {
-                        category.items = result.data.list;
+                        if (result.code == 10000) {
+
+                            app.items = result.data.list;
+                            app.book = result.data.book;
+
+                            if (!!!app.items.length) {
+                                jQuery.pjax({
+                                    url: NICMS.api.url + '/query.do',
+                                    type: 'GET',
+                                    data: [
+                                        { name: 'method', value: 'book.spider.jxbookarticle' },
+                                        { name: 'book_id', value: NICMS.api.param.id }
+                                    ],
+                                    success: function (res) {
+
+                                    }
+                                });
+                            }
+                        }
+
                     }
                 });
             }
         }
     });
-    category.load();
+    app.load();
 </script>
