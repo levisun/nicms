@@ -111,7 +111,8 @@ class Filter
         }, $_data);
 
         // 过滤多余空格
-        return preg_replace('/( ){2,}/', ' ', trim($str));
+        $str = preg_replace('/( ){2,}/', ' ', trim($str));
+        return trim($str);
     }
 
     /**
@@ -163,7 +164,12 @@ class Filter
             'insert' => 'insert&nbsp;',
         ];
 
-        return (string) str_replace(array_keys($pattern), array_values($pattern), $_str);
+        $_str = (string) str_ireplace(array_keys($pattern), array_values($pattern), $_str);
+
+        $_str = (string) str_ireplace(['\u00a0', '\u0020', '\u3000'], ' ', json_encode($_str));
+        $_str = json_decode($_str);
+
+        return trim($_str);
     }
 
     /**
@@ -198,7 +204,7 @@ class Filter
             return $element[1] . $element[2] . $element[3];
         }, $_str);
 
-        return $_str;
+        return trim($_str);
     }
 
     /**
@@ -217,25 +223,13 @@ class Filter
             $ele[1] = array_unique($ele[1]);
             $preg = [];
             foreach ($ele[1] as $value) {
-                if (!in_array($value, self::$elements)) {
+                if (!in_array(strtolower($value), self::$elements)) {
                     $preg[] = '/<' . $value . '.*?>.*?<\/' . $value . '>/si';
                     $preg[] = '/<' . $value . '.*?\/?>/si';
                 }
             }
             $_str = (string) preg_replace($preg, '', $_str);
         }
-
-
-
-        // 过滤闭合标签
-        $_str = (string) preg_replace_callback('/<([a-zA-Z0-9]+).*?>.*?<\/.*?>/si', function ($matches) {
-            $matches = array_map('trim', $matches);
-            $matches[1] = trim($matches[1], '/ ');
-
-            if (in_array(strtolower($matches[1]), self::$elements)) {
-                return $matches[0];
-            }
-        }, $_str);
 
 
 
@@ -246,10 +240,12 @@ class Filter
 
             if (in_array(strtolower($matches[1]), self::$elements)) {
                 return $matches[0];
+            } else {
+                return '';
             }
         }, $_str);
 
-        return $_str;
+        return trim($_str);
     }
 
     /**
@@ -262,16 +258,18 @@ class Filter
     public static function space(string &$_str): string
     {
         $pattern = [
-            '~>\s+<~'          => '><',
-            '~>\s+~'           => '>',
-            '~\s+<~'           => '<',
-            '/( ){2,}/si'      => ' ',
-            '/(\s+\n|\r|\n)/s' => '',
-            '/(\t|\0|\x0B)/s'  => '',
+            '/\s+/s'      => ' ',
+            '~>\s+<~'     => '><',
+            '~>\s+~'      => '>',
+            '~\s+<~'      => '<',
+            '/( ){2,}/si' => ' ',
+            // '/(\s+\n|\r|\n)/s' => '',
+            // '/(\t|\0|\x0B)/s'  => '',
             '/<\!--.*?-->/s'   => '',
         ];
 
-        return (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
+        $_str = (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
+        return trim($_str);
     }
 
     /**
@@ -298,6 +296,6 @@ class Filter
 
         libxml_disable_entity_loader(true);
 
-        return $_str;
+        return trim($_str);
     }
 }

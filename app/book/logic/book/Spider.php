@@ -18,7 +18,7 @@ class Spider extends BaseLogic
     public function JXBookAdded(string $_uri)
     {
         $spider = new LibSpider;
-        $spider->request('GET', $_uri);
+        $spider->request('GET', $this->bookURI . $_uri);
         $title = $spider->fetch('div#info h1');
         $title = Filter::safe($title[0]);
 
@@ -76,10 +76,21 @@ class Spider extends BaseLogic
                     $title = Filter::safe($title[0]);
 
                     $content = $spider->fetch('div#content');
-                    print_r($content);
-                    // $content = Filter::safe($content[0]);
+                    $content = htmlspecialchars_decode($content[0], ENT_QUOTES);
+                    // $content = explode('<br>', $content);
+                    // $content = array_map(function($value){
+                    //     // $value = mb_substr($value, 4);
+                    //     $value = htmlspecialchars_decode($value, ENT_QUOTES);
+                    //     $value = strip_tags($value);
+                    //     return trim($value);
+                    // }, $content);
+                    // $content = array_filter($content);
+                    // $content = '<p>' . implode('</p><p>', $content) . '</p>';
+                    var_dump($content);
+                    die();
                 }
-                print_r($matches);die();
+                print_r($matches);
+                die();
             }
         }
 

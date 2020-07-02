@@ -56,6 +56,7 @@ class Spider
             $this->result = $client->getInternalResponse()->getContent();
 
             // 过滤回车和多余空格
+            $this->result = Filter::symbol($this->result);
             $this->result = Filter::space($this->result);
 
             // 检查字符编码
@@ -101,9 +102,9 @@ class Spider
     public function fetch(string $_selector, array $_extract = []): array
     {
         $content = [];
-        $this->crawler->filter($_selector)->each(function ($node) use (&$_extract, &$content) {
+        $this->crawler->filter($_selector)->each(function (Crawler $node) use (&$_extract, &$content) {
             $result = $_extract ? $node->extract($_extract) : $node->html();
-            $content[] = Filter::encode($result, ENT_QUOTES);
+            $content[] = Filter::encode($result);
         });
 
         return $content;

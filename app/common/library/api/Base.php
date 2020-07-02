@@ -80,12 +80,12 @@ abstract class Base
         $this->session = &$this->app->session;
 
         // 请勿开启调试模式
-        $this->app->debug(true);
+        $this->app->debug(false);
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\Filter::safe');
         // 请勿更改参数(超时,执行内存)
-        @set_time_limit(5);
-        @ini_set('max_execution_time', '5');
+        @set_time_limit(10);
+        @ini_set('max_execution_time', '10');
         @ini_set('memory_limit', '8M');
 
         $this->initialize();
