@@ -1,15 +1,24 @@
 <div id="app">
-    <!-- <h3 v-text="book.title"></h3> -->
-    <!-- <p v-text="book.author"></p> -->
-    <!-- <p v-text="book.status"></p> -->
+    <div class="row">
+        <div class="col">
+            <h3 v-text="book.title"></h3>
+            <p>
+                <font v-text="book.author"></font>
+                <font v-text="book.status"></font>
+            </p>
+        </div>
+    </div>
 
-
-    <template v-for="vo in items">
-        <p>
-            <a v-bind:href="vo.url" v-text="vo.title"></a>
-        </p>
-    </template>
+    <div class="row">
+        <template v-for="vo in items">
+            <div class="col-4">
+                <a v-bind:href="vo.url" v-text="vo.title"></a>
+            </div>
+        </template>
+    </div>
 </div>
+
+
 
 <script>
     let app = new Vue({

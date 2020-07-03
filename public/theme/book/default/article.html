@@ -2,26 +2,22 @@
     <div id="app">
         <div class="container">
             <div class="row">
-                <div class="col-sm">
+                <div class="col">
                     <h4 style="text-align: center;" v-text="items.title"></h4>
                 </div>
             </div>
-        </div>
 
-        <div class="container">
             <div class="row">
-                <div class="col-sm">
+                <div class="col">
                     <div id="content" v-html="items.content"></div>
                 </div>
             </div>
-        </div>
 
-        <div class="container">
             <div class="row">
-                <div class="col-sm">
+                <div class="col">
                     <a v-if="items.prev" v-bind:href="items.prev.url" v-text="items.prev.title"></a>
                 </div>
-                <div class="col-sm" style="text-align: right;">
+                <div class="col" style="text-align: right;">
                     <a v-if="items.next" v-bind:href="items.next.url" v-text="items.next.title"></a>
                 </div>
             </div>
@@ -44,10 +40,7 @@
                     data: [
                         { name: 'method', value: 'book.article.query' },
                         { name: 'id', value: NICMS.api.param.id },
-                        { name: 'bid', value: NICMS.api.param.bid },
-                        { name: 'o', value: NICMS.api.param.o },
-                        { name: 't', value: NICMS.api.param.t },
-                        { name: 'u', value: NICMS.api.param.u }
+                        { name: 'book_id', value: NICMS.api.param.book_id },
                     ],
                     success: function (result) {
                         article.items = result.data;

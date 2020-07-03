@@ -59,6 +59,7 @@ composer require overtrue/wechat
 composer require overtrue/easy-sms
 composer require overtrue/socialite
 composer require phpmailer/phpmailer
+composer require anerg2046/sns_auth
 ~~~
 
 ## composer 命令

@@ -285,7 +285,7 @@ if (!function_exists('miss')) {
      * @param  bool $_redirect
      * @return Response
      */
-    function miss(int $_code, bool $_redirect = true, bool $_abort = false): Response
+    function miss(int $_code, bool $_redirect = true, bool $_abort = false)
     {
         $content = '';
         $file = public_path() . $_code . '.html';
@@ -301,22 +301,11 @@ if (!function_exists('miss')) {
 
         $content = str_replace('{$return_url}', $return_url, $content);
 
-        ob_start('ob_gzhandler');
-
-        $response = Response::create($content, 'html', $_code)
-            ->header([
-                'Cache-Control'  => 'max-age=1440,must-revalidate',
-                'Last-Modified'  => gmdate('D, d M Y H:i:s') . ' GMT',
-                'Expires'        => gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT',
-                'X-Powered-By'   => 'NICMS',
-                'Content-Length' => strlen($content)
-            ]);
-
         if ($_abort === true) {
-            throw new HttpResponseException($response);
+            throw new HttpResponseException(Response::create($content, 'html', $_code));
+        } else {
+            return $content;
         }
-
-        return $response;
     }
 }
 

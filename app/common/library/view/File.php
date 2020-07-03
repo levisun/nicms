@@ -42,8 +42,6 @@ class File
             self::$includeFile[$path] = time();
             return $path;
         } else {
-            var_dump($_view_path . self::getMobilePath($_view_path) . $_template);
-        die();
             if (app()->isDebug()) {
                 $error = 'template not exists:' . $_template;
                 $response = Response::create($error, 'html', 200);

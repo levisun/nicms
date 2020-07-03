@@ -26,6 +26,13 @@ class Spider
     private $crawler = null;
     private $result = '';
 
+    public function __construct()
+    {
+        @set_time_limit(600);
+        @ini_set('max_execution_time', '600');
+        @ini_set('memory_limit', '16M');
+    }
+
     /**
      * 发起请求
      * @access public

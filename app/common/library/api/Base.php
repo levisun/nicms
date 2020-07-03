@@ -80,7 +80,7 @@ abstract class Base
         $this->session = &$this->app->session;
 
         // 请勿开启调试模式
-        $this->app->debug(false);
+        $this->app->debug(true);
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\Filter::safe');
         // 请勿更改参数(超时,执行内存)
@@ -140,8 +140,7 @@ abstract class Base
 
         $result = array_filter($result);
 
-        $response = Response::create($result, 'json');
-        $response->header(['X-Powered-By' => 'NI API']);
+        $response = Response::create($result, 'json')->header(['X-Powered-By' => 'NI API']);
 
         $this->log->warning('[Async] ' . $this->request->url());
         $this->log->save();

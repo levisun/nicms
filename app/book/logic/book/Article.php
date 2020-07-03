@@ -19,9 +19,7 @@ namespace app\book\logic\book;
 
 use app\common\controller\BaseLogic;
 use app\common\model\BookArticle as ModelBookArticle;
-use app\common\library\Base64;
 use app\common\library\Filter;
-use gather\Book as GatherBook;
 
 class Article extends BaseLogic
 {
@@ -33,67 +31,115 @@ class Article extends BaseLogic
      */
     public function query(): array
     {
-        $result = null;
+        $book_id = $this->request->param('book_id/d', 0, 'abs');
+        $id = $this->request->param('id/d', 0, 'abs');
+        $date_format = $this->request->param('date_format', 'Y-m-d');
 
-        $bid = $this->request->param('bid/d');
-        $id = $this->request->param('id/d');
-        $sort_order = $this->request->param('o');
-        $sort_order = Base64::decrypt($sort_order, date('Ymd'));
-        $cache_key = md5(__METHOD__ . date('Ymd') . $bid . $id);
-        if ($bid && $id && $sort_order) {
-            if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
-                $result = (new ModelBookArticle)
-                    ->field('id, title, content')
-                    ->where([
-                        ['id', '=', $id],
-                        ['book_id', '=', $bid],
-                    ])
-                    ->find();
-                if ($result) {
-                    $result = $result->toArray();
-                    $result['content'] = Filter::decode($result['content']);
+        $cache_key = 'book article' . $book_id . $id . $date_format;
+        $cache_key = md5($cache_key);
 
-                    $this->cache->tag('book')->set($cache_key, $result);
-                } else {
-                    $title = $this->request->param('t');
-                    $title = Base64::decrypt($title, date('Ymd'));
-                    $title = Filter::safe($title);
-                    $uri = $this->request->param('u');
-                    $uri = Base64::decrypt($uri, date('Ymd'));
-                    if ($sort_order && $title && $uri && $content = (new GatherBook)->getContent($uri)) {
-                        $content = Filter::encode($content);
-                        $ModelBookArticle = new ModelBookArticle;
-                        $ModelBookArticle->data([
-                            'book_id'    => $bid,
-                            'is_pass'    => 1,
-                            'title'      => $title,
-                            'content'    => $content,
-                            'sort_order' => $sort_order,
-                            'show_time'  => time(),
-                        ])->save();
+        if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
+            $result = ModelBookArticle::where([
+                ['book_id', '=', $book_id],
+                ['id', '=', $id],
+            ])->find();
 
-                        $result = [
-                            'id'      => $ModelBookArticle->id,
-                            'title'   => $title,
-                            'content' => Filter::decode($content)
-                        ];
-                    }
-                }
+            if ($result && $result = $result->toArray()) {
+                // 书籍文章列表链接
+                $result['cat_url'] = url('book/' . $result['book_id']);
+                // 书籍文章文章链接
+                $result['url'] = url('article/' . $result['book_id'] . '/' . $result['id']);
+                // 内容
+                $result['content'] = Filter::decode($result['content']);
+                // 时间格式
+                $result['update_time'] = date($date_format, (int) $result['update_time']);
+
+                $result['next'] = $this->next($result['id'], $result['book_id']);
+                $result['prev'] = $this->prev($result['id'], $result['book_id']);
+
+                $this->cache->tag(['book', 'book article list' . $book_id])->set($cache_key, $result);
             }
-
-            $cache_key = md5('app\book\logic\book\Catalog::query' . $bid);
-            $catalog = $this->cache->get($cache_key);
-            $catalog = $catalog['list'];
-
-            $result['next'] = !empty($catalog[$sort_order]) ? $catalog[$sort_order] : false;
-            $result['prev'] = !empty($catalog[$sort_order - 2]) ? $catalog[$sort_order - 2] : false;
         }
 
         return [
             'debug' => false,
-            'cache' => false,
-            'msg'   => 'article',
-            'data'  => $result
+            'cache' => isset($result) ? true : false,
+            'msg'   => isset($result) ? 'article' : 'error',
+            'data'  => isset($result) ? $result : []
         ];
+    }
+
+    /**
+     * 下一篇
+     * @access private
+     * @param  int      $_article_id
+     * @param  int      $_book_id
+     * @return array
+     */
+    private function next(int $_article_id, int $_book_id)
+    {
+        $next_id = ModelBookArticle::where([
+            ['is_pass', '=', 1],
+            ['show_time', '<', time()],
+            ['id', '>', $_article_id],
+            ['book_id', '=', $_book_id],
+        ])->min('id');
+
+        $result = ModelBookArticle::field('id, title, book_id')
+            ->where([
+                ['is_pass', '=', 1],
+                ['show_time', '<', time()],
+                ['id', '=', $next_id]
+            ])->find();
+
+        if ($result && $result = $result->toArray()) {
+            $result['url'] = url('article/' . $result['book_id'] . '/' . $result['id']);
+            $result['cat_url'] = url('list/' . $result['book_id']);
+        } else {
+            $result = [
+                'title'   => $this->lang->get('not next'),
+                'url'     => url('article/' . $_book_id . '/' . $_article_id),
+                'cat_url' => url('list/' . $_book_id),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * 上一篇
+     * @access private
+     * @param  int      $_article_id
+     * @param  int      $_book_id
+     * @return array
+     */
+    private function prev(int $_article_id, int $_book_id)
+    {
+        $prev_id = ModelBookArticle::where([
+            ['is_pass', '=', 1],
+            ['show_time', '<', time()],
+            ['id', '<', $_article_id],
+            ['book_id', '=', $_book_id],
+        ])->max('id');
+
+        $result = ModelBookArticle::field('id, title, book_id')
+            ->where([
+                ['is_pass', '=', 1],
+                ['show_time', '<', time()],
+                ['id', '=', $prev_id]
+            ])->find();
+
+        if ($result && $result = $result->toArray()) {
+            $result['url'] = url('article/' . $result['book_id'] . '/' . $result['id']);
+            $result['cat_url'] = url('list/' . $result['book_id']);
+        } else {
+            $result = [
+                'title'   => $this->lang->get('not next'),
+                'url'     => url('article/' . $_book_id . '/' . $_article_id),
+                'cat_url' => url('list/' . $_book_id),
+            ];
+        }
+
+        return $result;
     }
 }

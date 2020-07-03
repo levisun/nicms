@@ -45,14 +45,14 @@ class Catalog extends BaseLogic
         $query_limit = $this->request->param('limit/d', 20, 'abs');
         $query_page = $this->request->param('page/d', 1, 'abs');
         $date_format = $this->request->param('date_format', 'Y-m-d');
-        $sort_order = 'sort_order DESC, id DESC';
+        $sort_order = 'sort_order ASC, id ASC';
 
         $cache_key = 'book article list' . $book_id . $query_limit . $query_page . $date_format;
         $cache_key = md5($cache_key);
 
         if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
             $book = (new ModelBook)
-                ->view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'hits', 'origin', 'status', 'update_time'])
+                ->view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'image', 'hits', 'origin', 'status', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
                 ->where([
@@ -61,6 +61,10 @@ class Catalog extends BaseLogic
                 ->find();
 
             if ($book && $book = $book->toArray()) {
+                // 缩略图
+                $book['image'] = Image::path($book['image']);
+
+
                 $result = ModelBookArticle::field(['id', 'book_id', 'title', 'update_time'])
                     ->where($map)
                     ->order($sort_order)
@@ -75,22 +79,16 @@ class Catalog extends BaseLogic
                         // 书籍文章列表链接
                         $value['cat_url'] = url('book/' . $value['book_id']);
                         // 书籍文章文章链接
-                        $value['url'] = url('details/' . $value['book_id'] . '/' . $value['id']);
+                        $value['url'] = url('article/' . $value['book_id'] . '/' . $value['id']);
                         // 标识符
                         $value['flag'] = Base64::flag($value['book_id'] . $value['id'], 7);
-                        // 缩略图
-                        $value['image'] = Image::path($value['image']);
                         // 时间格式
                         $value['update_time'] = date($date_format, (int) $value['update_time']);
-                        // 作者
-                        $value['author'] = $value['author'];
 
                         $list['data'][$key] = $value;
                     }
 
-                    // $this->cache->tag(['book', 'book article list' . $book_id])->set($cache_key, $list);
-                } else {
-
+                    $this->cache->tag(['book', 'book article list' . $book_id])->set($cache_key, $list);
                 }
 
                 $list['book'] = $book;
@@ -100,7 +98,7 @@ class Catalog extends BaseLogic
         return [
             'debug' => false,
             'cache' => isset($list) ? true : false,
-            'msg'   => isset($list) ? 'category' : 'error',
+            'msg'   => isset($list) ? 'list' : 'error',
             'data'  => isset($list) ? [
                 'book'         => $list['book'],
                 'list'         => $list['data'],

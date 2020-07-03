@@ -34,6 +34,7 @@ class Filter
     public static function safe($_data)
     {
         if (is_string($_data)) {
+            $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = Emoji::clear($_data);
             $_data = self::symbol($_data);
             $_data = self::space($_data);
@@ -111,7 +112,7 @@ class Filter
         }, $_data);
 
         // 过滤多余空格
-        $str = preg_replace('/( ){2,}/', ' ', trim($str));
+        $str = (string) preg_replace('/( ){2,}/', ' ', trim($str));
         return trim($str);
     }
 
@@ -166,8 +167,9 @@ class Filter
 
         $_str = (string) str_ireplace(array_keys($pattern), array_values($pattern), $_str);
 
+        // 过滤空格
         $_str = (string) str_ireplace(['\u00a0', '\u0020', '\u3000'], ' ', json_encode($_str));
-        $_str = json_decode($_str);
+        $_str = (string) json_decode($_str);
 
         return trim($_str);
     }
