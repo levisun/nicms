@@ -45,10 +45,10 @@ class File
             if (app()->isDebug()) {
                 $error = 'template not exists:' . $_template;
                 $response = Response::create($error, 'html', 200);
+                throw new HttpResponseException($response);
             } else {
-                $response = miss(403);
+                miss(403, false, true);
             }
-            throw new HttpResponseException($response);
         }
     }
 

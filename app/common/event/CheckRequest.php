@@ -52,11 +52,10 @@ class CheckRequest
                     'code' => 444444,
                     'msg'  => '锁定',
                 ], 'json')->allowCache(false);
+                throw new HttpResponseException($response);
             } else {
-                $response = miss(403, false);
+                miss(403, false, true);
             }
-
-            throw new HttpResponseException($response);
         }
     }
 
@@ -68,8 +67,7 @@ class CheckRequest
     {
         $domain = Request::subDomain() . '.' . Request::rootDomain();
         if (false !== filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            $response = miss(403, false);
-            throw new HttpResponseException($response);
+            miss(403, false, true);
         }
     }
 }

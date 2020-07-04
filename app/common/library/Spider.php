@@ -71,7 +71,7 @@ class Spider
                 $charset = strtoupper($charset[1]);
                 if ($charset !== 'UTF-8') {
                     $charset = 0 === stripos($charset, 'GB') ? 'GBK' : $charset;
-                    $this->result = iconv($charset, 'UTF-8//IGNORE', (string) $this->result);
+                    $this->result = @iconv($charset, 'UTF-8//IGNORE', (string) $this->result);
                     $this->result = preg_replace_callback('/charset=["\']?([\w\-]{1,})["\']?/si', function ($matches) {
                         return str_replace($matches[1], 'UTF-8', $matches[0]);
                     }, $this->result);

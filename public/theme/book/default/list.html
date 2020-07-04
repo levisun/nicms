@@ -16,6 +16,7 @@
             </div>
         </template>
     </div>
+    <nav aria-label="Page navigation example" v-html="page"></nav>
 </div>
 
 
@@ -26,6 +27,7 @@
         data: {
             book: [],
             items: [],
+            page: '',
         },
         methods: {
             html_decode: function (entity) {
@@ -46,6 +48,7 @@
                         if (result.code == 10000) {
 
                             app.items = result.data.list;
+                            app.page = result.data.page;
                             app.book = result.data.book;
 
                             if (!!!app.items.length) {

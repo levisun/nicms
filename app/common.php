@@ -283,6 +283,7 @@ if (!function_exists('miss')) {
      * miss
      * @param  int  $_code
      * @param  bool $_redirect
+     * @param  bool $_abort
      * @return Response
      */
     function miss(int $_code, bool $_redirect = true, bool $_abort = false)

@@ -50,15 +50,17 @@ class Catalog extends BaseLogic
         $cache_key = 'book article list' . $book_id . $query_limit . $query_page . $date_format;
         $cache_key = md5($cache_key);
 
-        if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
+        // if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
             $book = (new ModelBook)
                 ->view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'image', 'hits', 'origin', 'status', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
                 ->where([
-                    ['book.id', '=', $book_id]
+                    ['book.id', '=', $book_id],
+                    ['is_pass', '=', '1'],
                 ])
                 ->find();
+
 
             if ($book && $book = $book->toArray()) {
                 // 缩略图
@@ -71,7 +73,7 @@ class Catalog extends BaseLogic
                     ->paginate([
                         'list_rows' => $query_limit,
                         'path' => 'javascript:paging([PAGE]);',
-                    ]);
+                    ], true);
 
                 if ($result && $list = $result->toArray()) {
                     $list['render'] = $result->render();
@@ -93,7 +95,7 @@ class Catalog extends BaseLogic
 
                 $list['book'] = $book;
             }
-        }
+        // }
 
         return [
             'debug' => false,

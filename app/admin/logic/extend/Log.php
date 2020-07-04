@@ -45,6 +45,7 @@ class Log extends BaseLogic
             ]);
 
         $list = $result->toArray();
+        $list['total'] = number_format($list['total']);
         $list['render'] = $result->render();
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');

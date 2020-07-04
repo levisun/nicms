@@ -260,14 +260,14 @@ class Filter
     public static function space(string &$_str): string
     {
         $pattern = [
-            '/\s+/s'      => ' ',
-            '~>\s+<~'     => '><',
-            '~>\s+~'      => '>',
-            '~\s+<~'      => '<',
-            '/( ){2,}/si' => ' ',
+            '/\s+/s'         => ' ',
+            '~>\s+<~'        => '><',
+            '~>\s+~'         => '>',
+            '~\s+<~'         => '<',
+            '/( ){2,}/si'    => ' ',
+            '/<\!--.*?-->/s' => '',
             // '/(\s+\n|\r|\n)/s' => '',
             // '/(\t|\0|\x0B)/s'  => '',
-            '/<\!--.*?-->/s'   => '',
         ];
 
         $_str = (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);

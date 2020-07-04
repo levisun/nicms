@@ -80,24 +80,23 @@ class Recycle extends BaseLogic
                 'path' => 'javascript:paging([PAGE]);',
             ]);
 
-        if ($result) {
-            $list = $result->toArray();
-            $list['render'] = $result->render();
+        $list = $result->toArray();
+        $list['total'] = number_format($list['total']);
+        $list['render'] = $result->render();
 
-            foreach ($list['data'] as $key => $value) {
-                $value['url'] = [
-                    'editor' => url('content/recycle/editor/' . $value['id']),
-                    'remove' => url('content/recycle/remove/' . $value['id']),
-                ];
+        foreach ($list['data'] as $key => $value) {
+            $value['url'] = [
+                'editor' => url('content/recycle/editor/' . $value['id']),
+                'remove' => url('content/recycle/remove/' . $value['id']),
+            ];
 
-                // 时间格式
-                $value['update_time'] = date($date_format, (int) $value['update_time']);
-                // 作者
-                $value['author'] = $value['author'] ?: $value['username'];
-                unset($value['username']);
+            // 时间格式
+            $value['update_time'] = date($date_format, (int) $value['update_time']);
+            // 作者
+            $value['author'] = $value['author'] ?: $value['username'];
+            unset($value['username']);
 
-                $list['data'][$key] = $value;
-            }
+            $list['data'][$key] = $value;
         }
 
         return [

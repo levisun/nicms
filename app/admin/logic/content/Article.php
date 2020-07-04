@@ -87,29 +87,28 @@ class Article extends BaseLogic
                 'path' => 'javascript:paging([PAGE]);',
             ]);
 
-        if ($result) {
-            $list = $result->toArray();
-            $list['render'] = $result->render();
+        $list = $result->toArray();
+        $list['total'] = number_format($list['total']);
+        $list['render'] = $result->render();
 
-            foreach ($list['data'] as $key => $value) {
-                $value['url'] = [
-                    'editor' => url('content/article/editor/' . $value['id']),
-                    'remove' => url('content/article/remove/' . $value['id']),
+        foreach ($list['data'] as $key => $value) {
+            $value['url'] = [
+                'editor' => url('content/article/editor/' . $value['id']),
+                'remove' => url('content/article/remove/' . $value['id']),
 
-                    // 栏目链接
-                    'cat_url' => $this->config->get('app.app_host') . url('list/' . $value['category_id']),
-                    // 文章链接
-                    'url' => $this->config->get('app.app_host') . url('details/' . $value['category_id'] . '/' . $value['id']),
-                ];
+                // 栏目链接
+                'cat_url' => $this->config->get('app.app_host') . url('list/' . $value['category_id']),
+                // 文章链接
+                'url' => $this->config->get('app.app_host') . url('details/' . $value['category_id'] . '/' . $value['id']),
+            ];
 
-                // 时间格式
-                $value['update_time'] = date($date_format, (int) $value['update_time']);
-                // 作者
-                $value['author'] = $value['author'] ?: $value['username'];
-                unset($value['username']);
+            // 时间格式
+            $value['update_time'] = date($date_format, (int) $value['update_time']);
+            // 作者
+            $value['author'] = $value['author'] ?: $value['username'];
+            unset($value['username']);
 
-                $list['data'][$key] = $value;
-            }
+            $list['data'][$key] = $value;
         }
 
         return [

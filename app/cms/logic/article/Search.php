@@ -102,56 +102,55 @@ class Search extends BaseLogic
                     'path' => 'javascript:paging([PAGE]);',
                 ]);
 
-            if ($result) {
-                $list = $result->toArray();
-                $list['render'] = $result->render();
-                $list['search_key'] = $search_key ?: '';
-                foreach ($list['data'] as $key => $value) {
-                    // 栏目链接
-                    $value['cat_url'] = url('list/' . $value['category_id']);
-                    // 文章链接
-                    $value['url'] = url('details/' . $value['category_id'] . '/' . $value['id']);
-                    // 标识符
-                    $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
-                    // 缩略图
-                    $value['thumb'] = Image::path($value['thumb']);
-                    // 时间格式
-                    $value['update_time'] = date($date_format, (int) $value['update_time']);
-                    // 作者
-                    $value['author'] = $value['author'] ?: $value['username'];
-                    unset($value['username']);
+            $list = $result->toArray();
+            $list['total'] = number_format($list['total']);
+            $list['render'] = $result->render();
+            $list['search_key'] = $search_key ?: '';
+            foreach ($list['data'] as $key => $value) {
+                // 栏目链接
+                $value['cat_url'] = url('list/' . $value['category_id']);
+                // 文章链接
+                $value['url'] = url('details/' . $value['category_id'] . '/' . $value['id']);
+                // 标识符
+                $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
+                // 缩略图
+                $value['thumb'] = Image::path($value['thumb']);
+                // 时间格式
+                $value['update_time'] = date($date_format, (int) $value['update_time']);
+                // 作者
+                $value['author'] = $value['author'] ?: $value['username'];
+                unset($value['username']);
 
-                    // 附加字段数据
-                    $fields = ModelFieldsExtend::view('fields_extend', ['data'])
-                        ->view('fields', ['name' => 'fields_name'], 'fields.id=fields_extend.fields_id')
-                        ->where([
-                            ['fields_extend.article_id', '=', $value['id']],
-                            ['fields.category_id', '=', $value['category_id']],
-                        ])
-                        ->select()
-                        ->toArray();
-                    foreach ($fields as $val) {
-                        $value[$val['fields_name']] = $val['data'];
-                    }
-
-                    // 标签
-                    $value['tags'] = ModelArticleTags::view('article_tags', ['tags_id'])
-                        ->view('tags tags', ['name'], 'tags.id=article_tags.tags_id')
-                        ->where([
-                            ['article_tags.article_id', '=', $value['id']],
-                        ])
-                        ->select()
-                        ->toArray();
-                    foreach ($value['tags'] as $k => $tag) {
-                        $tag['url'] = url('tags/' . $tag['tags_id']);
-                        $value['tags'][$k] = $tag;
-                    }
-
-                    $list['data'][$key] = $value;
+                // 附加字段数据
+                $fields = ModelFieldsExtend::view('fields_extend', ['data'])
+                    ->view('fields', ['name' => 'fields_name'], 'fields.id=fields_extend.fields_id')
+                    ->where([
+                        ['fields_extend.article_id', '=', $value['id']],
+                        ['fields.category_id', '=', $value['category_id']],
+                    ])
+                    ->select()
+                    ->toArray();
+                foreach ($fields as $val) {
+                    $value[$val['fields_name']] = $val['data'];
                 }
 
-                $this->cache->tag(['cms', 'cms article list' . $category_id])->set($cache_key, $list);
+                // 标签
+                $value['tags'] = ModelArticleTags::view('article_tags', ['tags_id'])
+                    ->view('tags tags', ['name'], 'tags.id=article_tags.tags_id')
+                    ->where([
+                        ['article_tags.article_id', '=', $value['id']],
+                    ])
+                    ->select()
+                    ->toArray();
+                foreach ($value['tags'] as $k => $tag) {
+                    $tag['url'] = url('tags/' . $tag['tags_id']);
+                    $value['tags'][$k] = $tag;
+                }
+
+                $list['data'][$key] = $value;
             }
+
+            $this->cache->tag(['cms', 'cms article list' . $category_id])->set($cache_key, $list);
         }
 
         return [

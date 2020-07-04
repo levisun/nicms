@@ -37,11 +37,12 @@ class Visit extends BaseLogic
 
         $result = ModelVisit::order('date DESC, name DESC')
             ->paginate([
-                'list_rows'=> $query_limit,
+                'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
             ]);
 
         $list = $result->toArray();
+        $list['total'] = number_format($list['total']);
         $list['render'] = $result->render();
 
         foreach ($list['data'] as $key => $value) {

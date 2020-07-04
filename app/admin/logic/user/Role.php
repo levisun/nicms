@@ -42,6 +42,7 @@ class Role extends BaseLogic
         ]);
 
         $list = $result->toArray();
+        $list['total'] = number_format($list['total']);
         $list['render'] = $result->render();
 
         foreach ($list['data'] as $key => $value) {
