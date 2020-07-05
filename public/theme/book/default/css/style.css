@@ -1,0 +1,10 @@
+body {
+    background-color: #f6f1e7;
+}
+#content {
+    font-size: 1.3rem;
+    background-color: #f6f1e7;
+}
+#content p {
+    text-indent: 3rem;
+}
