@@ -111,8 +111,7 @@ class View implements TemplateHandlerInterface
         $this->config = array_merge($this->config, $_config);
 
         // 当前应用名
-        $this->config['app_name'] =
-            $this->app->http->getName()
+        $this->config['app_name'] = $this->app->http->getName()
             ? $this->app->http->getName() . DIRECTORY_SEPARATOR
             : '';
 

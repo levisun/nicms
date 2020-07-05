@@ -20,9 +20,12 @@ return [
     // cookie 有效域名
     'domain'    => '.' . request()->rootDomain(),
     // cookie 启用安全传输
-    'secure'    => false,
+    'secure'    => true,
     // httponly设置
     'httponly'  => true,
+    // samesite设置
+    'samesite'  => 'lax',
     // 是否使用 setcookie
     'setcookie' => true,
+
 ];

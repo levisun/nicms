@@ -27,7 +27,9 @@ class Spider extends Async
     {
         // $this->validate->referer() &&
         if ($uri = $this->request->param('uri', false)) {
-            usleep(rand(1500000, 2500000));
+            @set_time_limit(60);
+            @ini_set('max_execution_time', '60');
+            usleep(rand(5500000, 10000000));
 
             $method = $this->request->param('method', 'GET');
             $selector = $this->request->param('selector', '');
@@ -36,25 +38,30 @@ class Spider extends Async
             $cache_key = md5($uri . $method . $selector . $extract);
 
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
-                $spider = new LibSpider;
-                if ($spider->request($method, $uri)) {
-                    // 有选择器时
-                    if ($selector) {
-                        // 扩展属性
-                        $extract = $extract ? explode(',', $extract) : [];
+                try {
+                    $spider = new LibSpider;
+                    $uri = str_replace('&nbsp;', '', $uri);
+                    if ($spider->request($method, $uri)) {
+                        // 有选择器时
+                        if ($selector) {
+                            // 扩展属性
+                            $extract = $extract ? explode(',', $extract) : [];
 
-                        $result = $spider->fetch($selector, $extract);
-                    } else {
-                        $result = $spider->html();
+                            $result = $spider->fetch($selector, $extract);
+                        } else {
+                            $result = $spider->html();
+                        }
+
+                        $this->cache->set($cache_key, $result);
                     }
-
-                    $this->cache->set($cache_key, $result);
+                } catch (\Throwable $th) {
+                    //throw $th;
                 }
             }
 
             return !empty($result)
                 ? $this->cache(28800)->success('spider success', $result)
-                : $this->error('spider error');
+                : $this->success('spider error');
         }
 
         return miss(404, false);

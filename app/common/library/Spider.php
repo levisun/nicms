@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Cache;
+use think\facade\Request;
 use app\common\library\Filter;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\DomCrawler\Crawler;
@@ -28,8 +29,8 @@ class Spider
 
     public function __construct()
     {
-        @set_time_limit(600);
-        @ini_set('max_execution_time', '600');
+        @set_time_limit(60);
+        @ini_set('max_execution_time', '60');
         @ini_set('memory_limit', '16M');
     }
 
@@ -52,7 +53,13 @@ class Spider
 
         if (!Cache::has($key) || !$this->result = Cache::get($key)) {
             $client = new HttpBrowser;
-            $client->request($_method, $_uri);
+            $client->request($_method, $_uri, [], [], [
+                'HTTP_USER_AGENT'      => Request:: server('HTTP_USER_AGENT'),
+                'HTTP_ACCEPT'          => Request:: server('HTTP_ACCEPT'),
+                'HTTP_ACCEPT_LANGUAGE' => Request:: server('HTTP_ACCEPT_LANGUAGE'),
+                'HTTP_CONNECTION'      => Request:: server('HTTP_CONNECTION'),
+                'HTTP_REFERER'         => parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . '/',
+            ]);
 
             // 请求失败
             if (200 !== $client->getInternalResponse()->getStatusCode()) {
@@ -65,6 +72,7 @@ class Spider
             // 过滤回车和多余空格
             $this->result = Filter::symbol($this->result);
             $this->result = Filter::space($this->result);
+            $this->result = Filter::php($this->result);
 
             // 检查字符编码
             if (preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->result, $charset)) {

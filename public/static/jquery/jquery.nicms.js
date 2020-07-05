@@ -297,7 +297,7 @@
     };
 
     jQuery.filter_str = function (str) {
-        var pattern = new RegExp("[`~!@#$^&\\-*\"()=|{}':;,\\[\\].<>/?~！@#￥……&*（）——丨{}【】‘；：”“'。，、？%+_]");
+        var pattern = new RegExp("[^a-zA-Z0-9\u4e00-\u9fa5]+");
         var specialStr = '';
         for (let i = 0; i < str.length; i++) {
             specialStr += str.substr(i, 1).replace(pattern, '');

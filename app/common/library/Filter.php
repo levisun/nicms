@@ -24,6 +24,8 @@ class Filter
 
     private static $attr = ['alt', 'align', 'class', 'height', 'href', 'id', 'rel', 'src', 'style', 'target', 'title', 'width'];
 
+    private static $func = ['apache_setenv', 'base64_decode', 'call_user_func', 'call_user_func_array', 'chgrp', 'chown', 'chroot', 'eval', 'exec', 'file_get_contents', 'file_put_contents', 'function', 'imap_open', 'ini_alter', 'ini_restore', 'invoke', 'openlog', 'passthru', 'pcntl_alarm', 'pcntl_exec', 'pcntl_fork', 'pcntl_get_last_error', 'pcntl_getpriority', 'pcntl_setpriority', 'pcntl_signal', 'pcntl_signal_dispatch', 'pcntl_sigprocmask', 'pcntl_sigtimedwait', 'pcntl_sigwaitinfo', 'pcntl_strerror', 'pcntl_wait', 'pcntl_waitpid', 'pcntl_wexitstatus', 'pcntl_wifcontinued', 'pcntl_wifexited', 'pcntl_wifsignaled', 'pcntl_wifstopped', 'pcntl_wstopsig', 'pcntl_wtermsig', 'php', 'popen', 'popepassthru', 'proc_open', 'putenv', 'readlink', 'shell_exec', 'symlink', 'syslog', 'system', 'select', 'drop', 'delete', 'create', 'update', 'insert'];
+
     /**
      * 默认过滤
      * @access public
@@ -41,6 +43,7 @@ class Filter
             $_data = self::html($_data);
             $_data = self::html_attr($_data);
             $_data = self::php($_data);
+            $_data = self::fun($_data);
             $_data = strip_tags($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
@@ -66,6 +69,7 @@ class Filter
             $_data = self::html($_data);
             $_data = self::html_attr($_data);
             $_data = self::php($_data);
+            $_data = self::fun($_data);
             $_data = Emoji::encode($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
@@ -100,20 +104,15 @@ class Filter
      * 过滤非汉字英文与数字
      * @access public
      * @static
-     * @param  string $_data
+     * @param  string $_str
      * @return string
      */
-    public static function chs_alpha(string &$_data): string
+    public static function chs_alpha(string &$_str): string
     {
-        $str = '';
-        // 匹配中英文与数字
-        preg_replace_callback('/[\x{4e00}-\x{9fa5}a-zA-Z0-9 ]+/u', function ($matches) use (&$str) {
-            $str .= $matches[0];
-        }, $_data);
-
-        // 过滤多余空格
-        $str = (string) preg_replace('/( ){2,}/', ' ', trim($str));
-        return trim($str);
+        $_str = (string) preg_replace_callback('/[^\x{4e00}-\x{9fa5}a-zA-Z0-9]+/u', function () {
+            return '';
+        }, $_str);
+        return trim($_str);
     }
 
     /**
@@ -135,41 +134,12 @@ class Filter
             '｜' => '|', '〃' => '"',
 
             // 特殊字符转HTML实体
-            '*' => '&lowast;', '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;', '`' => '&acute;',
+            '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;', '`' => '&acute;',
 
-            // 危险函数(方法)
-            'base64_decode'        => 'base64_decode&nbsp;',
-            'call_user_func_array' => 'call_user_func_array&nbsp;',
-            'call_user_func'       => 'call_user_func&nbsp;',
-            'chown'                => 'chown&nbsp;',
-            'eval'                 => 'eval&nbsp;',
-            'exec'                 => 'exec&nbsp;',
-            'file_get_contents'    => 'file_get_contents&nbsp;',
-            'file_put_contents'    => 'file_put_contents&nbsp;',
-            'invoke'               => 'invoke&nbsp;',
-            'passthru'             => 'passthru&nbsp;',
-            'phpinfo'              => 'phpinfo&nbsp;',
-            'proc_open'            => 'proc_open&nbsp;',
-            'popen'                => 'popen&nbsp;',
-            'sleep'                => 'sleep&nbsp;',
-            'shell_exec'           => 'shell_exec&nbsp;',
-            'system'               => 'system&nbsp;',
-            '__destruct'           => '__destruct&nbsp;',
-            '.php'                 => '&nbsp;.php',
-
-            'select' => 'select&nbsp;',
-            'drop'   => 'drop&nbsp;',
-            'delete' => 'delete&nbsp;',
-            'create' => 'create&nbsp;',
-            'update' => 'update&nbsp;',
-            'insert' => 'insert&nbsp;',
+            // '*' => '&lowast;',
         ];
 
         $_str = (string) str_ireplace(array_keys($pattern), array_values($pattern), $_str);
-
-        // 过滤空格
-        $_str = (string) str_ireplace(['\u00a0', '\u0020', '\u3000'], ' ', json_encode($_str));
-        $_str = (string) json_decode($_str);
 
         return trim($_str);
     }
@@ -271,6 +241,32 @@ class Filter
         ];
 
         $_str = (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
+
+        // 不间断空格\u00a0,主要用在office中,让一个单词在结尾处不会换行显示,快捷键ctrl+shift+space
+        // 半角空格(英文符号)\u0020,代码中常用的
+        // 全角空格(中文符号)\u3000,中文文章中使用
+        $_str = (string) str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($_str));
+        $_str = (string) json_decode($_str);
+
+        return trim($_str);
+    }
+
+    /**
+     * 危险函数(方法)
+     * @access public
+     * @static
+     * @param  string $_str
+     * @return string
+     */
+    public static function fun(string &$_str): string
+    {
+        $regex = '/' . implode('|', self::$func) . '/si';
+
+        $_str = (string) preg_replace_callback($regex, function ($matches) {
+            $matches = array_map('trim', $matches);
+            return $matches[0] . '&nbsp;';
+        }, $_str);
+
         return trim($_str);
     }
 

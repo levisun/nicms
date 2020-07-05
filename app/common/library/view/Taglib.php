@@ -2,7 +2,7 @@
 
 /**
  *
- * 模板编译
+ * 模板标签
  *
  * @package   NICMS
  * @category  app\common\library\view
