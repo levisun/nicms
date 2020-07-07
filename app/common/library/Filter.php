@@ -22,7 +22,7 @@ class Filter
 {
     private static $elements = ['a', 'audio', 'b', 'br', 'blockquote', 'center', 'dd', 'del', 'div', 'dl', 'dt', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'img', 'li', 'ol', 'p', 'pre', 'section', 'small', 'span', 'strong', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul', 'video'];
 
-    private static $attr = ['alt', 'align', 'class', 'height', 'href', 'id', 'rel', 'src', 'style', 'target', 'title', 'width'];
+    private static $attr = ['alt', 'align', 'async', 'charset', 'class', 'content', 'defer', 'height', 'href', 'id', 'name', 'rel', 'src', 'style', 'target', 'title', 'type', 'width'];
 
     private static $func = ['apache_setenv', 'base64_decode', 'call_user_func', 'call_user_func_array', 'chgrp', 'chown', 'chroot', 'eval', 'exec', 'file_get_contents', 'file_put_contents', 'function', 'imap_open', 'ini_alter', 'ini_restore', 'invoke', 'openlog', 'passthru', 'pcntl_alarm', 'pcntl_exec', 'pcntl_fork', 'pcntl_get_last_error', 'pcntl_getpriority', 'pcntl_setpriority', 'pcntl_signal', 'pcntl_signal_dispatch', 'pcntl_sigprocmask', 'pcntl_sigtimedwait', 'pcntl_sigwaitinfo', 'pcntl_strerror', 'pcntl_wait', 'pcntl_waitpid', 'pcntl_wexitstatus', 'pcntl_wifcontinued', 'pcntl_wifexited', 'pcntl_wifsignaled', 'pcntl_wifstopped', 'pcntl_wstopsig', 'pcntl_wtermsig', 'php', 'popen', 'popepassthru', 'proc_open', 'putenv', 'readlink', 'shell_exec', 'symlink', 'syslog', 'system', 'select', 'drop', 'delete', 'create', 'update', 'insert'];
 
@@ -157,21 +157,21 @@ class Filter
         $_str = (string) preg_replace_callback('/(<\/?[a-zA-Z0-9]+)(.*?)(\/?>)/si', function ($element) {
             $element = array_map('trim', $element);
 
-            $element[2] = preg_replace_callback('/([\w\-]+)=([^\s]*)/si', function ($attr) {
+            $element[2] = (string) preg_replace_callback('/([\w\-]+)=([^\s]*)/si', function ($attr) {
                 $attr = array_map('trim', $attr);
                 if (in_array(strtolower($attr[1]), self::$attr) && false === stripos($attr[2], 'javascript')) {
                     return ' ' . $attr[1] . '="' . str_replace(['"', '\''], '', $attr[2]) . '"';
                 }
             }, $element[2]);
 
-            $element[2] = preg_replace_callback('/[^\s]*/si', function ($attr) {
+            $element[2] = (string) preg_replace_callback('/[^\s]*/si', function ($attr) {
                 $attr = array_map('trim', $attr);
                 if (false !== strpos($attr[0], '=')) {
                     return trim($attr[0]);
                 }
             }, $element[2]);
 
-            $element[2] = preg_replace('/( ){2,}/si', ' ', $element[2]);
+            $element[2] = (string) preg_replace('/( ){2,}/si', ' ', $element[2]);
 
             return $element[1] . $element[2] . $element[3];
         }, $_str);
@@ -247,6 +247,8 @@ class Filter
         // 全角空格(中文符号)\u3000,中文文章中使用
         $_str = (string) str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($_str));
         $_str = (string) json_decode($_str);
+
+        $_str = (string) preg_replace('/( ){2,}/si', ' ', $_str);
 
         return trim($_str);
     }

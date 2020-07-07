@@ -69,11 +69,6 @@ class Spider
             // 获得HTML文档内容
             $this->result = $client->getInternalResponse()->getContent();
 
-            // 过滤回车和多余空格
-            $this->result = Filter::symbol($this->result);
-            $this->result = Filter::space($this->result);
-            $this->result = Filter::php($this->result);
-
             // 检查字符编码
             if (preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->result, $charset)) {
                 $charset = strtoupper($charset[1]);
@@ -85,6 +80,11 @@ class Spider
                     }, $this->result);
                 }
             }
+
+            // 过滤回车和多余空格
+            $this->result = Filter::symbol($this->result);
+            $this->result = Filter::space($this->result);
+            $this->result = Filter::php($this->result);
 
             $this->result = htmlspecialchars($this->result, ENT_QUOTES);
 

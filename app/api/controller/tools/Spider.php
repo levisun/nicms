@@ -61,7 +61,7 @@ class Spider extends Async
 
             return !empty($result)
                 ? $this->cache(28800)->success('spider success', $result)
-                : $this->success('spider error');
+                : $this->cache(false)->success('spider error');
         }
 
         return miss(404, false);

@@ -24,7 +24,7 @@ class ReGarbage
      * @access public
      * @static
      * @param  string $_dir
-     * @param  int    $_time
+     * @param  int    $_expire
      * @return void
      */
     public static function clear(string $_dir, int $_expire): void

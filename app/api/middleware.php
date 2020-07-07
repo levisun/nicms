@@ -15,5 +15,8 @@
 return [
     // 跨域
     \app\common\middleware\AllowCrossDomain::class,
+    // 全局请求缓存
     \app\common\middleware\RequestCache::class,
+    // 访问限制
+    \app\common\middleware\Throttle::class,
 ];

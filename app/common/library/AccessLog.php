@@ -231,7 +231,7 @@ class AccessLog
         $pattern = '/' . implode('|', $pattern) . '/si';
         if (0 !== preg_match($pattern, $params)) {
             Log::warning('非法' . $log);
-        } elseif (3 <= $run_time) {
+        } elseif (10 <= $run_time) {
             Log::alert('长' . $log);
         } else {
             // Log::info($log);

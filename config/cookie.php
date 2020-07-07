@@ -20,7 +20,7 @@ return [
     // cookie 有效域名
     'domain'    => '.' . request()->rootDomain(),
     // cookie 启用安全传输
-    'secure'    => true,
+    'secure'    => false,
     // httponly设置
     'httponly'  => true,
     // samesite设置

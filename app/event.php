@@ -15,12 +15,9 @@
 return [
     'bind'      => [],
     'listen'    => [
-        'AppInit'  => [
-            \app\common\event\CheckRequest::class,
-        ],
+        'AppInit'  => [],
         'HttpRun' => [],
         'HttpEnd' => [
-            \app\common\event\RecordRequestLog::class,
             \app\common\event\AppMaintain::class,
         ],
         'RouteLoaded' => [],

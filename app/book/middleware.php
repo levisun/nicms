@@ -19,4 +19,6 @@ return [
     \app\common\middleware\RequestCache::class,
     // 多语言加载
     \think\middleware\LoadLangPack::class,
+    // 访问限制
+    \app\common\middleware\Throttle::class,
 ];
