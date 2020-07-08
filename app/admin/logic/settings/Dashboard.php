@@ -73,22 +73,24 @@ class Dashboard extends BaseLogic
     private function total()
     {
         $sum_ip = ModelIpInfo::count();
+
         $day_ip = ModelIpInfo::where([
             ['create_time', '>', strtotime(date('Y-m-d'))]
         ])->count();
-        $session_path = runtime_path('session');
+
+
         $browse = ModelVisit::fieldRaw('sum(count) as count')->where([
             ['name', '=', ''],
             ['date', '=', strtotime(date('Y-m-d'))]
         ])->find();
         $browse = $browse ? $browse->toArray() : ['count' => 0];
-        $browse = $browse['count'];
+        $browse = (int) $browse['count'];
 
         return [
             'ip'      => format_hits($sum_ip) . '/' . format_hits($day_ip),
-            'session' => number_format(count((array) glob($session_path . '*'))),
+            'session' => format_hits(count((array) glob(runtime_path('session') . '*'))),
             'access'  => [
-                'browse' => number_format($browse),
+                'browse' => format_hits($browse),
             ]
         ];
     }

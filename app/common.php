@@ -137,34 +137,28 @@ if (!function_exists('words')) {
         if ($_text = Filter::chs_alpha($_text)) {
             @ini_set('memory_limit', '128M');
 
-            // 词库
-            defined('_VIC_WORD_DICT_PATH_') or
-                define('_VIC_WORD_DICT_PATH_', root_path('vendor/lizhichao/word/Data') . 'dict.json');
-
-            $fc = new VicWord('json');
+            $fc = new VicWord();
             $words = $fc->getAutoWord($_text);
             unset($fc);
+
+            $length = [];
             foreach ($words as $key => $value) {
-                if ($value[0] = trim($value[0])) {
-                    $words[$key] = [
-                        'length' => mb_strlen($value[0], 'utf-8'),
-                        'word'   => $value[0],
-                    ];
-                } else {
-                    unset($words[$key]);
-                }
+                $value[0] = trim($value[0]);
+                $length[] = mb_strlen($value[0], 'utf-8');
+                $words[$key] = $value[0];
             }
 
             // 排序
             if ($_sort) {
                 $_sort = strtoupper($_sort) === 'ASC' ? SORT_ASC : SORT_DESC;
-                $words = array_unique($words, SORT_REGULAR);    // 过滤重复数据
-                array_multisort(array_column($words, 'length'), $_sort, $words);
+                array_multisort($length, $_sort, $words);
             }
 
-            foreach ($words as $key => $value) {
-                $words[$key] = $value['word'];
-            }
+            unset($length);
+
+            // 过滤重复数据或空数据
+            $words = array_unique($words);
+            $words = array_filter($words);
 
             // 如果设定长度,返回对应长度数组
             if ($_length) {
@@ -226,20 +220,25 @@ if (!function_exists('app_secret')) {
      * APP密钥
      * @return string
      */
-    function app_secret(int $_app_id): void
+    function app_secret(): string
     {
-        $app_secret = '';
-        if ($_app_id > 1000000) {
-            $_app_id -= 1000000;
-            $app_secret = ModelApiApp::where([
-                ['id', '=', $_app_id],
+        $app_name = app('http')->getName();
+        $api_app = ModelApiApp::field('id, secret')
+            ->where([
+                ['name', '=', $app_name],
                 ['status', '=', 1]
-            ])->cache('app secret' . $_app_id)->value('secret', '');
-        }
-        $key = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
-        $app_secret = sha1($app_secret . $key);
+            ])
+            ->cache('app secret' . $app_name)
+            ->find();
+        if ($api_app && $api_app = $api_app->toArray()) {
+            $key = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+            $app_secret = sha1($api_app['secret'] . $key);
+            Cookie::set('XSRF_TOKEN', $app_secret, ['httponly' => false]);
 
-        Cookie::set('XSRF_TOKEN', $app_secret, ['httponly' => false]);
+            return '<meta name="csrf-appid" content="' . ($api_app['id'] + 1000000) . '" />';
+        }
+
+        return '';
     }
 }
 

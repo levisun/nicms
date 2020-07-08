@@ -20,13 +20,16 @@ use Closure;
 use think\Request;
 use think\facade\Cache;
 
+use think\Response;
+use think\exception\HttpResponseException;
+
 class Throttle
 {
     /**
      * 最大访问次数
      * @var int
      */
-    private $max_requests = 50;
+    private $max_requests = 60;
 
     /**
      * 计时时间
@@ -50,19 +53,23 @@ class Throttle
     {
         $key = md5(app('http')->getName() . $request->ip());
 
-        Cache::has($key . 'lock') and miss(403, false, true);
+        // 最近一次请求
+        $last_time = Cache::has($key) ? (float) Cache::get($key) : 0;
 
-        $last_time = Cache::get($key, 0);
+        // 平均 n 秒一个请求
         $rate = (float) $this->duration['m'] / $this->max_requests;
-        if ($request->time() - $last_time < $rate) {
-            // Cache::set($key . 'lock', 'true');
-            miss(403, false, true);
+
+        if ($request->time(true) - $last_time < $rate) {
+            $content = '<!DOCTYPE html><html lang="zh-cn"><head><meta charset="UTF-8"><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>请勿频繁操作</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2 class="miss">o(╥﹏╥)o 请勿频繁操作</h2><p>' . $request->time(true) . ':' . $last_time . '::' . $rate . '</p></section></body></html>';
+            throw new HttpResponseException(Response::create($content, 'html')->allowCache(false));
         }
 
         $response = $next($request);
 
-        $last_time = Cache::has($key) ? $last_time : $request->time();
-        Cache::set($key, $last_time, $this->duration['m']);
+        if ($response->getCode() !== 302) {
+            $last_time = Cache::has($key) ? $last_time : $request->time(true);
+            Cache::set($key, $last_time, $this->duration['m']);
+        }
 
         return $response;
     }

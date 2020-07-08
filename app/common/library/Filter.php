@@ -193,6 +193,14 @@ class Filter
             $ele[1] = array_map('trim', $ele[1]);
             $ele[1] = array_filter($ele[1]);
             $ele[1] = array_unique($ele[1]);
+
+            $length = [];
+            foreach ($ele[1] as $value) {
+                $length[] = strlen($value);
+            }
+
+            $ele[1] = array_multisort($length, SORT_DESC, $ele[1]);
+
             $preg = [];
             foreach ($ele[1] as $value) {
                 if (!in_array(strtolower($value), self::$elements)) {

@@ -47,9 +47,6 @@ class AppMaintain
                 // 清除过期缓存文件
                 ReGarbage::clear(runtime_path() . 'cache', 3);
 
-                // 清除过期临时文件
-                ReGarbage::clear(runtime_path() . 'temp', 1);
-
                 $uploads_path = public_path('storage' . DIRECTORY_SEPARATOR . 'uploads');
 
                 // 清除游客上传的文件
