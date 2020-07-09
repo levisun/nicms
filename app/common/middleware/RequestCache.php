@@ -52,17 +52,6 @@ class RequestCache
      */
     public function handle(Request $request, Closure $next)
     {
-        //
-        // if (preg_match('/index\.[\w]+.*?/si', $request->baseUrl())) {
-        //     return redirect('/');
-        // }
-
-        // IP进入显示空页面
-        $domain = $request->subDomain() . '.' . $request->rootDomain();
-        if (false !== filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            miss(403, false, true);
-        }
-
         // 304缓存
         if ($request->isGet() && $ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
             if (strtotime($ms) > $request->server('REQUEST_TIME')) {
@@ -85,7 +74,6 @@ class RequestCache
                 $header['Cache-Control'] = 'max-age=' . $expire . ',must-revalidate';
                 $header['Last-Modified'] = gmdate('D, d M Y H:i:s', $timestamp + $expire) . ' GMT';
                 $header['Expires']       = gmdate('D, d M Y H:i:s', $timestamp + $expire) . ' GMT';
-                $header['ETag']          = md5($request->ip());
                 $response->header($header);
             }
         }

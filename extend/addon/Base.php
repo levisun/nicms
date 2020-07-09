@@ -63,12 +63,6 @@ abstract class Base
     protected $config = [];
 
     /**
-     * 页面输出内容
-     * @var string
-     */
-    protected $content = '';
-
-    /**
      * 构造方法
      * @access public
      * @param  App    $_app     应用对象
@@ -76,7 +70,7 @@ abstract class Base
      * @param  string $_content 页面输出内容
      * @return void
      */
-    public function __construct(App $_app, array $_config, string $_content)
+    public function __construct(App $_app)
     {
         $this->app     = &$_app;
         $this->cookie  = &$this->app->cookie;
@@ -84,34 +78,16 @@ abstract class Base
         $this->session = &$this->app->session;
         $this->view    = &$this->app->view;
 
-        $this->config = &$_config;
-        $this->content = &$_content;
-    }
-
-    public function __toString(): string
-    {
-        return $this->content;
-    }
-
-    public function run(): void
-    {}
-
-    /**
-     * 追加内容
-     * @access protected
-     * @param  string $_str
-     * @return string
-     */
-    protected function append(string &$_str): string
-    {
-        $pos = strripos($this->content, '</body>');
-        if (false !== $pos) {
-            $this->content = substr($this->content, 0, $pos) . $_str . substr($this->content, $pos);
-        } else {
-            $this->content = $this->content . $_str;
+        // 载入配置
+        $file = substr(get_class($this), 0, -5);
+        $file = root_path('extend') . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $file) . 'config.json';
+        if (is_file($file) && $config = json_decode(file_get_contents($file), true)) {
+            $this->config = $config;
         }
-        return $this->content;
     }
+
+    public function run()
+    {}
 
     /**
      * 渲染模板文件

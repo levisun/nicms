@@ -9,11 +9,11 @@ use \addon\Base;
 class Index extends Base
 {
 
-    public function run(): void
+    public function run()
     {
         $script  = $this->api();
         $script .= $this->script();
-        $this->append($script);
+        return $script;
     }
 
     private function api(): string

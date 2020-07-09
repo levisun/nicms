@@ -140,7 +140,7 @@ abstract class Base
 
         $result = array_filter($result);
 
-        $response = Response::create($result, 'json')->header(['X-Powered-By' => 'NI API']);
+        $response = Response::create($result, 'json');
 
         $this->log->warning('[Async] ' . $this->request->url());
         $this->log->save();

@@ -199,7 +199,7 @@ class Filter
                 $length[] = strlen($value);
             }
 
-            $ele[1] = array_multisort($length, SORT_DESC, $ele[1]);
+            array_multisort($length, SORT_DESC, $ele[1]);
 
             $preg = [];
             foreach ($ele[1] as $value) {

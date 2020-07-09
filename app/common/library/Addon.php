@@ -72,6 +72,8 @@ class Addon
         # code...
     }
 
+
+
     /**
      * 查询所有插件
      * @access public
@@ -110,6 +112,40 @@ class Addon
     }
 
     /**
+     * 获得开启的插件
+     * @access public
+     * @static
+     * @return array
+     */
+    public static function getOpenList()
+    {
+        $result = [];
+        $dir = root_path('extend/addon');
+        if (is_file($dir . 'addon.json') && $addon = json_decode(file_get_contents($dir . 'addon.json'), true)) {
+            foreach ($addon['require'] as $namespace => $config) {
+                if ($config['status'] !== 'open') {
+                    continue;
+                }
+
+                $addon_config = $dir . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $namespace)
+                    . DIRECTORY_SEPARATOR . 'config.json';
+                if (is_file($addon_config) && $addon_config = json_decode(file_get_contents($addon_config), true)) {
+                    $result[$namespace] = [
+                        'status'  => $config['status'],
+                        'type'    => $config['type'],
+                        'name'    => empty($addon_config['name']) ? '未命名'    : $addon_config['name'],
+                        'author'  => empty($addon_config['author']) ? '未知作者'    : $addon_config['author'],
+                        'version' => empty($addon_config['version']) ? '未知版本' : $addon_config['version'],
+                        'date'    => empty($addon_config['date']) ? '未知发布日期' : $addon_config['date'],
+                    ];
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * 运行
      * @access public
      * @static
@@ -121,16 +157,27 @@ class Addon
         $file  = root_path('extend/addon') .
             str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_namespace, '\/')) .
             DIRECTORY_SEPARATOR . 'config.json';
-        if (
-            class_exists($class) && method_exists($class, 'run') &&
-            is_file($file) && $config = json_decode(file_get_contents($file), true)
-        ) {
-            $addon = app($class, [$config, $_content]);
-            $addon->run();
-            $result = (string) $addon;
-            $result = $result ?: $_content;
+
+        if (!class_exists($class) || !method_exists($class, 'run')) {
+            trace('[addon] ' . $_namespace . '插件不存在或约定方法错误', 'error');
+            return '';
         }
 
-        return $result;
+        if (!is_file($file) || !json_decode(file_get_contents($file), true)) {
+            trace('[addon] ' . $_namespace . '配置文件不存在或格式错误', 'error');
+            return '';
+        }
+
+        $addon = app($class);
+        if ($result = (string) $addon->run()) {
+            $pos = strripos($_content, '</body>');
+            if (false !== $pos) {
+                $_content = substr($_content, 0, $pos) . $result . substr($_content, $pos);
+            } else {
+                $_content = $_content . $result;
+            }
+        }
+
+        return $_content;
     }
 }

@@ -220,11 +220,7 @@ class Async extends Base
         ];
         $result = array_filter($result);
 
-        $response = Response::create($result, $this->analytical->format)
-            ->allowCache(false)
-            ->header([
-                'X-Powered-By' => 'NI API'
-            ]);
+        $response = Response::create($result, $this->analytical->format)->allowCache(false);
 
         if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
             $timestamp = $this->request->time() + 3600 * 6;
@@ -232,7 +228,6 @@ class Async extends Base
                 'Cache-Control' => 'max-age=' . $this->apiExpire . ',must-revalidate',
                 'Last-Modified' => gmdate('D, d M Y H:i:s', $timestamp + $this->apiExpire) . ' GMT',
                 'Expires'       => gmdate('D, d M Y H:i:s', $timestamp + $this->apiExpire) . ' GMT',
-                'ETag'          => md5($this->request->ip())
             ]);
         }
 

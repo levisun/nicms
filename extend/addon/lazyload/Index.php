@@ -9,9 +9,8 @@ use \addon\Base;
 class Index extends Base
 {
 
-    public function run(): void
+    public function run()
     {
-        $script = '<script src="https://cdn.jsdelivr.net/npm/lazyload@2.0.0-rc.2/lazyload.min.js"></script>';
-
+        return '<script src="https://cdn.jsdelivr.net/npm/lazyload@2.0.0-rc.2/lazyload.min.js"></script>';
     }
 }

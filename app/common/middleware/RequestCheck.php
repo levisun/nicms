@@ -2,14 +2,14 @@
 
 /**
  *
- * 插件
+ * 请求合法校验
  *
  * @package   NICMS
  * @category  app\common\middleware
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
- * @since     2019
+ * @since     2020
  */
 
 declare(strict_types=1);
@@ -18,9 +18,8 @@ namespace app\common\middleware;
 
 use Closure;
 use think\Request;
-use app\common\library\Addon as LibAddon;
 
-class Addon
+class RequestCheck
 {
 
     /**
@@ -32,19 +31,17 @@ class Addon
      */
     public function handle(Request $request, Closure $next)
     {
-        # TODO
-
-        $response = $next($request);
-
-        $content = $response->getContent();
-        $items = LibAddon::getOpenList();
-        foreach ($items as $namespace => $config) {
-            if ($config['type'] === 'headend' && $config['status'] === 'open') {
-                $content = LibAddon::exec($namespace, $content);
-            }
+        // index.[html|php]等进入重定向到根域名
+        if (0 === stripos($request->baseUrl(), '/index.')) {
+            return redirect('/');
         }
 
-        $response->content($content);
+        // IP进入显示空页面
+        if (false !== filter_var($request->subDomain() . '.' . $request->rootDomain(), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            miss(404, false, true);
+        }
+
+        $response = $next($request);
 
         return $response;
     }
