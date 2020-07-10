@@ -18,7 +18,6 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
-use app\common\library\AccessLog;
 use app\common\library\DataManage;
 use app\common\library\ReGarbage;
 use app\common\library\Sitemap;
@@ -62,9 +61,5 @@ class AppMaintain
                 ReGarbage::public_dir();
             });
         }
-
-        AccessLog::spider();
-        AccessLog::api();
-        AccessLog::log();
     }
 }

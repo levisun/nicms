@@ -145,12 +145,12 @@ class Compiler
     {
         /* 去除html空格与换行 */
         $pattern = [
-            '~>\s+<~'               => '><',
-            '~>(\s+\n|\r)~'         => '>',
-            '/( ){2,}/s'            => ' ',
-            '/(\s+\n|\r)/s'         => '',
-            '/(\t|\n|\r|\0|\x0B)/s' => '',
-            '/<\/(body|html)>/s'    => '',
+            '/\s+/s'             => ' ',
+            '~>\s+<~'            => '><',
+            '~>\s+~'             => '>',
+            '~\s+<~'             => '<',
+            '/( ){2,}/si'        => ' ',
+            '/<\/(body|html)>/s' => '',
         ];
         $compiler = preg_replace(array_keys($pattern), array_values($pattern), $_content);
         $compiler .= '</body></html>';
@@ -159,8 +159,6 @@ class Compiler
         $compiler = preg_replace([
             '/\?>\s*<\?php\s(?!echo\b|\bend)/s',
             '/\?>\s*<\?php/s',
-            // '/<\/script>\s*<script[a-z "\/=]*>/s',
-            // '/<\/script>\s*<script (type=)*>/s',
         ], '', $compiler);
         $compiler = str_replace('\/', '/', $compiler);
 

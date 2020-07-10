@@ -17,6 +17,4 @@ return [
     \think\middleware\SessionInit::class,
     // 多语言加载
     \think\middleware\LoadLangPack::class,
-    // 插件
-    \app\common\middleware\Addon::class,
 ];

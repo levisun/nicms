@@ -1,17 +1,21 @@
 {
     "name": "插件列表",
     "require": {
-        "baidu\/ziyuan": {
+        "pillow\/baidu\/ziyuan": {
             "status": "open",
-            "type": "headend"
+            "type": "cms"
         },
-        "baidu\/tongji": {
+        "pillow\/baidu\/tongji": {
             "status": "open",
-            "type": "headend"
+            "type": "cms"
         },
-        "lazyload": {
+        "pillow\/lazyload": {
             "status": "close",
-            "type": "headend"
+            "type": "cms"
+        },
+        "pillow\/gotop" : {
+            "status": "open",
+            "type": "cms"
         }
     }
 }

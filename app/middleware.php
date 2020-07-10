@@ -19,4 +19,6 @@ return [
     \app\common\middleware\RequestCheck::class,
     // 访问频率限制
     \app\common\middleware\Throttle::class,
+    // 插件
+    \app\common\middleware\Hook::class,
 ];

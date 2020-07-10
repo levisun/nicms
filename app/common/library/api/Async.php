@@ -224,11 +224,10 @@ class Async extends Base
 
         if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
             $timestamp = $this->request->time() + 3600 * 6;
-            $response->allowCache(true)->header([
-                'Cache-Control' => 'max-age=' . $this->apiExpire . ',must-revalidate',
-                'Last-Modified' => gmdate('D, d M Y H:i:s', $timestamp + $this->apiExpire) . ' GMT',
-                'Expires'       => gmdate('D, d M Y H:i:s', $timestamp + $this->apiExpire) . ' GMT',
-            ]);
+            $response->allowCache(true)
+                ->cacheControl('max-age=' . $this->apiExpire . ',must-revalidate')
+                ->expires(gmdate('D, d M Y H:i:s', $timestamp + $this->apiExpire) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s', $timestamp + $this->apiExpire) . ' GMT');
         }
 
         $this->log->save();

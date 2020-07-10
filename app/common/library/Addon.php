@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use app\common\library\Filter;
+
 class Addon
 {
 
@@ -170,6 +172,11 @@ class Addon
 
         $addon = app($class);
         if ($result = (string) $addon->run()) {
+            // 安全过滤
+            $result = Filter::symbol($result);
+            $result = Filter::space($result);
+            $result = Filter::php($result);
+
             $pos = strripos($_content, '</body>');
             if (false !== $pos) {
                 $_content = substr($_content, 0, $pos) . $result . substr($_content, $pos);

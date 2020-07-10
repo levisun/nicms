@@ -3,5 +3,8 @@
     "author": "失眠小枕头",
     "version": "1.0.1",
     "date": "2020-06-21",
-    "token": "f84c00b8cb5bc0e8462129c1bf5fb184"
+    "settings": {
+        "type": "cms",
+        "token": "f84c00b8cb5bc0e8462129c1bf5fb184"
+    }
 }

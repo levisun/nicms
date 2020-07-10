@@ -18,9 +18,9 @@ namespace app\common\middleware;
 
 use Closure;
 use think\Request;
-use app\common\library\Addon as LibAddon;
+use app\common\library\Addon;
 
-class Addon
+class Hook
 {
 
     /**
@@ -37,10 +37,12 @@ class Addon
         $response = $next($request);
 
         $content = $response->getContent();
-        $items = LibAddon::getOpenList();
+        $items = Addon::getOpenList();
         foreach ($items as $namespace => $config) {
-            if ($config['type'] === 'headend' && $config['status'] === 'open') {
-                $content = LibAddon::exec($namespace, $content);
+            $config = array_map('strtolower', $config);
+
+            if (in_array(app('http')->getName(), explode(',', $config['type'])) && $config['status'] === 'open') {
+                $content = Addon::exec($namespace, $content);
             }
         }
 

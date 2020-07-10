@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace addon\lazyload;
+namespace addon\pillow\lazyload;
 
 use \addon\Base;
 

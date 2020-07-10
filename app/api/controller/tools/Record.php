@@ -29,10 +29,11 @@ class Record extends Async
         if ($this->validate->referer()) {
             AccessLog::record();
 
+            $timestamp = $this->request->time() + 3600 * 6;
             return Response::create()->allowCache(true)
                 ->cacheControl('max-age=30,must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $this->request->time() + 30) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $this->request->time() + 30) . ' GMT')
+                ->expires(gmdate('D, d M Y H:i:s', $timestamp + 30) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s', $timestamp + 30) . ' GMT')
                 ->contentType('application/javascript');
         }
 

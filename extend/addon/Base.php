@@ -63,6 +63,12 @@ abstract class Base
     protected $config = [];
 
     /**
+     * 插件设置
+     * @var array
+     */
+    protected $settings = [];
+
+    /**
      * 构造方法
      * @access public
      * @param  App    $_app     应用对象
@@ -83,6 +89,7 @@ abstract class Base
         $file = root_path('extend') . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $file) . 'config.json';
         if (is_file($file) && $config = json_decode(file_get_contents($file), true)) {
             $this->config = $config;
+            $this->settings = isset($config['settings']) ? $config['settings'] : [];
         }
     }
 

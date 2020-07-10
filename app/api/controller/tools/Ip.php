@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace app\api\controller\tools;
 
 use think\Response;
-use think\exception\HttpResponseException;
 use app\common\library\api\Async;
 use app\common\library\Ipinfo;
 
@@ -30,13 +29,18 @@ class Ip extends Async
         // 解决没有传IP参数,缓存造成的缓存错误
         if (!$ip = $this->request->param('ip', false)) {
             $url = $this->request->baseUrl(true) . '?ip=' . $this->request->ip();
-            $response = Response::create($url, 'redirect', 302);
-            throw new HttpResponseException($response);
+            return Response::create($url, 'redirect', 302);
         }
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
         if ($ip = Ipinfo::get($ip)) {
-            return $this->cache(1440)->success('IP', $ip);
+            $timestamp = $this->request->time() + 3600 * 6;
+            return Response::create('const IP = ' . json_encode($ip))
+                ->allowCache(true)
+                ->cacheControl('max-age=28800,must-revalidate')
+                ->expires(gmdate('D, d M Y H:i:s', $timestamp + 28800) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s', $timestamp + 28800) . ' GMT')
+                ->contentType('application/javascript');
         }
 
         return miss(404, false);
