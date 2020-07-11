@@ -44,12 +44,12 @@ class Addon
     }
 
     /**
-     * 设置插件
+     * 开启关闭插件
      * @access public
      * @static
      * @return void
      */
-    public static function set(string $_namespace, bool $_status = false)
+    public static function switch(string $_namespace, bool $_status = false)
     {
         $file = root_path('extend/addon') . 'addon.json';
         if (is_file($file) && $addon = json_decode(file_get_contents($file), true)) {
@@ -87,22 +87,24 @@ class Addon
         $result = [];
         $dir = root_path('extend/addon');
         if (is_file($dir . 'addon.json') && $addon = json_decode(file_get_contents($dir . 'addon.json'), true)) {
-            foreach ($addon['require'] as $namespace => $value) {
-                $file = $dir . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $namespace)
+            foreach ($addon['require'] as $namespace => $config) {
+                $addon_config = $dir . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $namespace)
                     . DIRECTORY_SEPARATOR . 'config.json';
-                if (is_file($file) && $config = json_decode(file_get_contents($file), true)) {
+                if (is_file($addon_config) && $addon_config = json_decode(file_get_contents($addon_config), true)) {
                     $result[$namespace] = [
-                        'status'  => $value['status'],
-                        'type'    => $value['type'],
-                        'name'    => empty($config['name']) ? '未命名'    : $config['name'],
-                        'version' => empty($config['version']) ? '未知版本' : $config['version'],
-                        'date'    => empty($config['date']) ? '未知发布日期' : $config['date'],
+                        'status'  => $config['status'],
+                        'type'    => $config['type'],
+                        'name'    => empty($addon_config['name']) ? '未命名' : $addon_config['name'],
+                        'author'  => empty($addon_config['author']) ? '未知作者' : $addon_config['author'],
+                        'version' => empty($addon_config['version']) ? '未知版本' : $addon_config['version'],
+                        'date'    => empty($addon_config['date']) ? '未知发布日期' : $addon_config['date'],
                     ];
                 } else {
                     $result[$namespace] = [
                         'status'  => 'down',
                         'type'    => '未知',
                         'name'    => '未命名',
+                        'author'  => '未知作者',
                         'version' => '未知版本',
                         'date'    => '未知发布日期',
                     ];
@@ -135,8 +137,8 @@ class Addon
                     $result[$namespace] = [
                         'status'  => $config['status'],
                         'type'    => $config['type'],
-                        'name'    => empty($addon_config['name']) ? '未命名'    : $addon_config['name'],
-                        'author'  => empty($addon_config['author']) ? '未知作者'    : $addon_config['author'],
+                        'name'    => empty($addon_config['name']) ? '未命名' : $addon_config['name'],
+                        'author'  => empty($addon_config['author']) ? '未知作者' : $addon_config['author'],
                         'version' => empty($addon_config['version']) ? '未知版本' : $addon_config['version'],
                         'date'    => empty($addon_config['date']) ? '未知发布日期' : $addon_config['date'],
                     ];

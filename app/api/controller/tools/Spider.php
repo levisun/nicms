@@ -55,6 +55,7 @@ class Spider extends Async
                         $this->cache->set($cache_key, $result);
                     }
                 } catch (\Exception $e) {
+                    trace($e->getFile() . $e->getLine() . $e->getMessage(), 'error');
                     // halt($e->getFile() . $e->getLine() . $e->getMessage());
                     //throw $th;
                 }

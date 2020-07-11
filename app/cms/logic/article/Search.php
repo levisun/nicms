@@ -64,6 +64,8 @@ class Search extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
+            $search_key = htmlspecialchars_decode($search_key, ENT_QUOTES);
+            $search_key = str_replace('&nbsp;', '', $search_key);
             // 搜索5个词
             $search_key = words($search_key, 5);
             if ($search_key = implode('|', $search_key)) {

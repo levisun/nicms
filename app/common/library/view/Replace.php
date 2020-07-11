@@ -262,21 +262,21 @@ class Replace
             // 替换引号
             $js = str_replace('\'', '"', $js);
             // 添加defer属性
-            $js = false === stripos($js, 'defer') && false === stripos($js, 'async')
-                ? str_replace('></', ' defer="defer"></', $js)
-                : $js;
+            // $js = false === stripos($js, 'defer') && false === stripos($js, 'async')
+            //     ? str_replace('></', ' defer="defer"></', $js)
+            //     : $js;
 
             $_content .= $js;
         }
 
-        $_content .= '<script src="' . Config::get('app.api_host') . '/ip.do" async="async" ></script>';
+        $_content .= '<script src="' . Config::get('app.api_host') . '/ip.do" async></script>';
         if ('admin' !== trim($this->config['app_name'], '\/')) {
-            $_content .= '<script src="' . Config::get('app.api_host') . '/record.do?token=<?php echo md5(request()->url(true));?>' . '" async="async" ></script>';
+            $_content .= '<script src="' . Config::get('app.api_host') . '/record.do?token=<?php echo md5(request()->url(true));?>' . '" async></script>';
         }
 
         // 解析模板中的JS, 移动到HTML文档底部
         $script = '';
-        $pattern = '/<script( type=["\']+(.*?)["\']+)?>(.*?)<\/script>/si';
+        $pattern = '/<script( type=["\']+.*?["\']+)?>(.*?)<\/script>/si';
         $_content = preg_replace_callback($pattern, function ($matches) use (&$script) {
             $pattern = [
                 '/\/\/.*?(\r|\n)+/i',
@@ -286,13 +286,14 @@ class Replace
                 '/(\s+\n|\r)/s',
                 '/(\t|\n|\r|\0|\x0B)/s',
             ];
-            $matches[3] = preg_replace($pattern, '', $matches[3]);
-            $script .= $matches[3];
+            $matches[2] = preg_replace($pattern, '', $matches[2]);
+            $script .= $matches[2];
             return;
         }, $_content);
 
         if ($script) {
-            $_content .= '<script type="text/javascript">window.onload=function(){' . $script . '};</script>';
+            // $_content .= '<script type="text/javascript">window.onload=function(){' . $script . '}</script>';
+            $_content .= '<script type="text/javascript">' . $script . '</script>';
         }
         $script = '';
     }

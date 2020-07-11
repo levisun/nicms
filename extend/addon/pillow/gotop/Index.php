@@ -21,20 +21,18 @@ class Index extends Base
             height:64px;
         }
         </style>
+        <div id="addon-gotop">回到顶端</div>
         <script type="text/javascript">
-        window.onload=function(){
-            jQuery(window).scroll(function () {
-                if (jQuery(window).scrollTop() >= 100) {
-                    jQuery("#addon-gotop").fadeIn(1500);
-                } else {
-                    jQuery("#addon-gotop").fadeOut(1500);
-                }
-            });
-            jQuery("#addon-gotop").click(function (){
-                jQuery("html,body").animate({ scrollTop: 0 }, 500);
-            });
-        }
-        </script>
-        <div id="addon-gotop">回到顶端</div>';
+        jQuery(window).scroll(function () {
+            if (jQuery(window).scrollTop() >= 100) {
+                jQuery("#addon-gotop").fadeIn(1500);
+            } else {
+                jQuery("#addon-gotop").fadeOut(1500);
+            }
+        });
+        jQuery("#addon-gotop").click(function (){
+            jQuery("html,body").animate({ scrollTop: 0 }, 500);
+        });
+        </script>';
     }
 }
