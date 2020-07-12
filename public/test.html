@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        font {
+            font-size: 16px;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <p v-if="red.length">
+            total: <span v-text="red.length"></span>
+        </p>
+        <p v-html="future"></p>
+        <button v-on:click="create">888</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"
+        integrity="sha256-chlNFSVx3TdcQ2Xlw7SvnbLAavAQLO0Y/LBiWX04viY=" crossorigin="anonymous"></script>
+    <script>
+        let app = new Vue({
+            el: "#app",
+            data: {
+                red: [],
+                old: [1, 2, 3, 4, 5, 6],
+                future: "",
+            },
+            methods: {
+                create: function () {
+                    alert(this.red[this.rand()]);
+                    this.future = this.red[this.rand()];
+                },
+                rand: function () {
+                    return Math.floor(Math.random() * app.red.length);
+                },
+                // 判断上期
+                hasOld: function (needle) {
+                    for (let index in this.old) {
+                        if (needle == this.old[index]) {
+                            return true;
+                        }
+                    }
+                    return false;
+                },
+                // 判断连号
+                hasCont: function (_i1, _i2) {
+                    return _i1 + 1 == _i2 ? true : false;
+                },
+                // 判断奇偶
+                hasEven: function (_num) {
+                    return _num % 2 == 0 ? true : false;
+                },
+                each: function () {
+                    for (let r1 = 1; r1 <= 28; r1++) {
+                        if (this.hasOld(r1)) continue;
+                        for (let r2 = 2; r2 <= 29; r2++) {
+                            if (r1 == r2 || r2 < r1) continue;
+                            if (this.hasOld(r2)) continue;
+                            for (let r3 = 3; r3 <= 30; r3++) {
+                                if (r2 == r3 || r3 < r2) continue;
+                                if (this.hasOld(r3)) continue;
+                                for (let r4 = 4; r4 <= 31; r4++) {
+                                    if (r3 == r4 || r4 < r3) continue;
+                                    if (this.hasOld(r4)) continue;
+                                    for (let r5 = 5; r5 <= 32; r5++) {
+                                        if (r4 == r5 || r5 < r4) continue;
+                                        if (this.hasOld(r5)) continue;
+                                        for (let r6 = 6; r6 <= 33; r6++) {
+                                            if (r5 == r6 || r6 < r5) continue;
+                                            if (this.hasOld(r6)) continue;
+
+                                            // 连
+                                            let cont = 0;
+                                            if (this.hasCont(r1, r2)) ++cont;
+                                            if (this.hasCont(r2, r3)) ++cont;
+                                            if (this.hasCont(r3, r4)) ++cont;
+                                            if (this.hasCont(r4, r5)) ++cont;
+                                            if (this.hasCont(r5, r6)) ++cont;
+                                            if (cont > 3) continue;
+
+                                            // 奇偶
+                                            let even = 0;
+                                            let odd = 0;
+                                            this.hasEven(r1) ? ++even : ++odd;
+                                            this.hasEven(r2) ? ++even : ++odd;
+                                            this.hasEven(r3) ? ++even : ++odd;
+                                            this.hasEven(r4) ? ++even : ++odd;
+                                            this.hasEven(r5) ? ++even : ++odd;
+                                            this.hasEven(r6) ? ++even : ++odd;
+                                            if (even == 6 || odd == 6) continue;
+
+                                            if (r1 + r2 + r3 + r4 + r5 + r6 < 70) {
+                                                continue;
+                                            }
+
+                                            if (r1 + r2 + r3 + r4 + r5 + r6 > 100) {
+                                                continue;
+                                            }
+
+                                            let redStyle = '<font style="color:red;">' + r1 + '</font>'
+                                                + '<font style="color:red;">' + r2 + '</font>'
+                                                + '<font style="color:red;">' + r3 + '</font>'
+                                                + '<font style="color:red;">' + r4 + '</font>'
+                                                + '<font style="color:red;">' + r5 + '</font>'
+                                                + '<font style="color:red;">' + r6 + '</font>';
+
+                                            // console.log(r1+'.'+r2+'.'+r3+'.'+r4+'.'+r5+'.'+r6);
+
+                                            for (let b = 1; b <= 16; b++) {
+                                                this.red.push(redStyle + '<font style="color:blue;">' + b + '</font>');
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        app.each();
+    </script>
+</body>
+
+</html>
