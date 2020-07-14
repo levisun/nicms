@@ -56,7 +56,6 @@ class Catalog extends BaseLogic
 
             foreach ($list as $key => $value) {
                 $value['logo'] = Image::path($value['logo']);
-                $value['url'] = url('go', ['url' => $value['url']]);
                 $list[$key] = $value;
             }
 

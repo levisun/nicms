@@ -101,8 +101,8 @@ class ReGarbage
                     continue;
                 }
 
-                $name = (int) pathinfo($dir . $dir_file, PATHINFO_FILENAME);
-                if ($ext == 'html' && $name) {
+                // $name = (int) pathinfo($dir . $dir_file, PATHINFO_FILENAME);
+                if ($ext == 'html') {
                     continue;
                 }
             }
