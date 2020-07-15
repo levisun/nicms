@@ -46,7 +46,7 @@ class Sidebar extends BaseLogic
                     ])
                     ->find();
 
-                if (null !== $result && $result = $result->toArray()) {
+                if ($result && $result = $result->toArray()) {
                     $result['id'] = (int) $result['id'];
                     $result['child'] = $this->child($result['id']);
                     $result['image'] = Image::path((string) $result['image']);
@@ -60,9 +60,9 @@ class Sidebar extends BaseLogic
                         $result['url'] = url('channel/' . $result['id']);
                     }
                     unset($result['action_name']);
-                }
 
-                $this->cache->tag(['cms', 'cms nav'])->set($cache_key, $result);
+                    $this->cache->tag(['cms', 'cms nav'])->set($cache_key, $result);
+                }
             }
         }
 
@@ -70,7 +70,7 @@ class Sidebar extends BaseLogic
             'debug' => false,
             'cache' => 28800,
             'msg'   => 'sidebar',
-            'data'  => $result ? $result : []
+            'data'  => isset($result) ? $result : []
         ];
     }
 

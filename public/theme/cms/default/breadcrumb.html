@@ -3,10 +3,36 @@
         <li class="breadcrumb-item" aria-current="page">
             <a href="/">{:lang('home')}</a>
         </li>
-        {tags:breadcrumb}
-        <li class="breadcrumb-item">
-            <a href={$item.url}>{$item.name}</a>
+
+        <li class="breadcrumb-item" v-for="item in nav">
+            <a v-bind:href="item.url" v-text="item.name"></a>
         </li>
-        {tags:/breadcrumb}
     </ol>
 </nav>
+
+<script>
+    let breadcrumb = new Vue({
+        el: '#layout-breadcrumb',
+        data: {
+            nav: [],
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.breadcrumb.query' },
+                        { name: 'cid', value: NICMS.api.param.cid }
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            breadcrumb.nav = result.data;
+                        }
+                    }
+                });
+            }
+        }
+    });
+    breadcrumb.load();
+</script>

@@ -70,7 +70,7 @@ class Breadcrumb extends BaseLogic
             ])
             ->find();
 
-        if (null !== $result && $result = $result->toArray()) {
+        if ($result && $result = $result->toArray()) {
             $result['id'] = (int) $result['id'];
             $result['image'] = Image::path((string) $result['image']);
             $result['flag'] = Base64::flag($result['id'], 7);

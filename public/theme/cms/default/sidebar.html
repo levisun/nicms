@@ -1,13 +1,36 @@
-<aside id="sidebar" class="col-md-3">
+<aside id="layout-sidebar" class="col-md-3">
     <div class="card">
-        {tags:sidebar /}
-        <div class="card-header">{$sidebar.name}</div>
+        <div class="card-header" v-text="items.name"></div>
         <div class="card-body">
             <ul class="list-unstyled">
-                {tags:each $sidebar['child'] as $key => $vo}
-                <li><a href="{$vo.url}">{$vo.name}</a></li>
-                {tags:/each}
+                <li v-for="item in items.child"><a v-bind:href="item.url" v-text="item.name"></a></li>
             </ul>
         </div>
     </div>
 </aside>
+<script>
+    let layout_sidebar = new Vue({
+        el: '#layout-sidebar',
+        data: {
+            items: []
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.sidebar.query' },
+                        { name: 'cid', value: NICMS.api.param.cid }
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            layout_sidebar.items = result.data;
+                        }
+                    }
+                });
+            }
+        }
+    });
+    layout_sidebar.load();
+</script>

@@ -45,27 +45,28 @@ class Main extends BaseLogic
                     ['category.lang', '=', $this->lang->getLangSet()]
                 ])
                 ->order('category.sort_order ASC, category.id DESC')
-                ->select()
-                ->toArray();
+                ->select();
 
-            foreach ($result as $key => $value) {
-                $value['id'] = (int) $value['id'];
-                $value['child'] = $this->child($value['id']);
-                $value['image'] = Image::path((string) $value['image']);
-                $value['flag'] = Base64::flag($value['id'], 7);
-                if (in_array($value['action_name'], ['article', 'picture', 'download'])) {
-                    $value['url'] = url('list/' . $value['id']);
-                } else {
-                    $value['url'] = url($value['action_name'] . '/' . $value['id']);
-                }
-                if ($value['access_id']) {
-                    $value['url'] = url('channel/' . $value['id']);
-                }
-                unset($value['action_name']);
+            if ($result && $result = $result->toArray()) {
+                foreach ($result as $key => $value) {
+                    $value['id'] = (int) $value['id'];
+                    $value['child'] = $this->child($value['id']);
+                    $value['image'] = Image::path((string) $value['image']);
+                    $value['flag'] = Base64::flag($value['id'], 7);
+                    if (in_array($value['action_name'], ['article', 'picture', 'download'])) {
+                        $value['url'] = url('list/' . $value['id']);
+                    } else {
+                        $value['url'] = url($value['action_name'] . '/' . $value['id']);
+                    }
+                    if ($value['access_id']) {
+                        $value['url'] = url('channel/' . $value['id']);
+                    }
+                    unset($value['action_name']);
 
-                $result[$key] = $value;
+                    $result[$key] = $value;
+                }
+                $this->cache->tag(['cms', 'cms nav'])->set($cache_key, $result);
             }
-            $this->cache->tag(['cms', 'cms nav'])->set($cache_key, $result);
         }
 
         return [

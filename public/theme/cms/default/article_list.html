@@ -1,39 +1,63 @@
-<div id="layout-list">
-    <div class="row">
-        {include file="sidebar.html"}
-        <div id="list" class="col-md-9">
-            {include file="breadcrumb.html"}
-            <div class="card">
-                <div class="card-header">{$sidebar.name}</div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        {tags:items}
-                        <li class="list-group-item">
-                            <h5 class="card-title">
-                                <a class="badge badge-primary" style="margin-right:10px;"
-                                    href="{$item.cat_url}">{$item.cat_name}</a>
-                                <a href="{$item.url}">{$item.title}</a>
-                            </h5>
-                            <p class="text-muted">
-                                <span style="margin-right:10px;">
-                                    <i class="fa fa-calendar-day"></i>
-                                    <font>{$item.update_time}</font>
-                                </span>
-                                <span style="margin-right:10px;">
-                                    <i class="fa fa-user"></i>
-                                    <font>{$item.author}</font>
-                                </span>
-                                <span style="margin-right:10px;">
-                                    <i class="fa fa-eye"></i>
-                                    <font>{$item.hits}</font>
-                                </span>
-                            </p>
-                            <p class="card-text">{$item.description}</p>
-                        </li>
-                        {tags:/list}
-                    </ul>
-                </div>
+<div class="row">
+    {include file="sidebar.html"}
+    <div id="list" class="col-md-9">
+        {include file="breadcrumb.html"}
+        <div class="card">
+            <div class="card-header"></div>
+            <div id="layout-list" class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" v-for="item in items">
+                        <h5 class="card-title">
+                            <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="item.cat_url"
+                                v-text="item.cat_name"></a>
+                            <a v-bind:href="item.url" v-text="item.title"></a>
+                        </h5>
+                        <p class="text-muted">
+                            <span style="margin-right:10px;">
+                                <i class="fa fa-calendar-day"></i>
+                                <font v-text="item.update_time"></font>
+                            </span>
+                            <span style="margin-right:10px;">
+                                <i class="fa fa-user"></i>
+                                <font v-text="item.author"></font>
+                            </span>
+                            <span style="margin-right:10px;">
+                                <i class="fa fa-eye"></i>
+                                <font v-text="item.hits"></font>
+                            </span>
+                        </p>
+                        <p class="card-text" v-text="item.description"></p>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
 </div>
+
+
+<script>
+    let list = new Vue({
+        el: '#layout-list',
+        data: {
+            items: [],
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'article.category.query' },
+                        { name: 'cid', value: NICMS.api.param.cid },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            list.items = result.data.list;
+                        }
+                    }
+                });
+            }
+        }
+    });
+    list.load();
+</script>

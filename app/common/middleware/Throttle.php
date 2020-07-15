@@ -29,7 +29,7 @@ class Throttle
      * 最大访问次数
      * @var int
      */
-    private $max_requests = 60;
+    private $max_requests = 600;
 
     /**
      * 计时时间

@@ -29,7 +29,7 @@ return [
             // 关闭子目录
             'cache_subdir'  => false,
             // 启用数据压缩
-            'data_compress' => true,
+            'data_compress' => false,
             // 缓存标签前缀
             'tag_prefix'    => 'tag: ',
             // 序列化机制 例如 ['serialize', 'unserialize']

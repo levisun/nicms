@@ -109,9 +109,9 @@ class TagsHead extends Taglib
                 // 替换引号
                 $value = str_replace(['\'', '/>'], ['"', '>'], $value);
 
-                $value = false === stripos($value, 'preload') && false === stripos($value, 'prefetch')
-                    ? str_replace('rel="', 'rel="preload ', $value)
-                    : $value;
+                // $value = false === stripos($value, 'preload') && false === stripos($value, 'prefetch')
+                //     ? str_replace('rel="', 'rel="preload ', $value)
+                //     : $value;
 
                 $link .= $value;
             }
