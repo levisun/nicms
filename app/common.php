@@ -84,7 +84,7 @@ if (!function_exists('filepath_decode')) {
             $_file = Filter::safe($_file);
             $_file = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_file);
 
-            $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
+            $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
             $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
 
             if (is_file($path . $_file)) {
@@ -106,9 +106,8 @@ if (!function_exists('filepath_encode')) {
     {
         $_file = Filter::safe($_file);
         $_file = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_file);
-        $_file = str_replace(['storage' . DIRECTORY_SEPARATOR, 'uploads' . DIRECTORY_SEPARATOR], '', $_file);
 
-        $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
+        $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
         $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
 
         $salt = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');

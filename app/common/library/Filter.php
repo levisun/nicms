@@ -109,9 +109,9 @@ class Filter
      */
     public static function chs_alpha(string &$_str): string
     {
-        $_str = (string) preg_replace_callback('/[^\x{4e00}-\x{9fa5}a-zA-Z0-9]+/u', function () {
+        $_str = (string) preg_replace_callback('/[^\x{4e00}-\x{9fa5}a-zA-Z0-9 ]+/u', function () {
             return '';
-        }, $_str);
+        }, trim($_str));
         return trim($_str);
     }
 
@@ -258,6 +258,11 @@ class Filter
 
         $_str = (string) preg_replace('/( ){2,}/si', ' ', $_str);
 
+        // 过滤斜杠,反斜杠,点避免非法目录操作
+        $_str = trim($_str);
+        $_str = trim(trim($_str, ',_-'));
+        $_str = trim(ltrim($_str, '\/.'));
+
         return trim($_str);
     }
 
@@ -296,11 +301,6 @@ class Filter
             '/<\?/s',
             '/\?>/s',
         ], '', $_str);
-
-        // 过滤斜杠,反斜杠,点避免非法目录操作
-        $_str = trim($_str);
-        $_str = trim(trim($_str, ',_-'));
-        $_str = trim(ltrim($_str, '\/.'));
 
         libxml_disable_entity_loader(true);
 
