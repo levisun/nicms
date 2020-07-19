@@ -24,6 +24,7 @@ namespace app\common\controller;
 
 use think\App;
 use app\common\library\UploadFile;
+use app\common\library\UploadLog;
 use app\common\model\Action as ModelAction;
 use app\common\model\ActionLog as ModelActionLog;
 
@@ -217,29 +218,6 @@ abstract class BaseLogic
         } else {
             return false;
         }
-    }
-
-    /**
-     * 删除上传文件
-     * @access public
-     * @param  string $_file
-     * @return void
-     */
-    public function removeFile(string $_file): void
-    {
-        (new UploadFile)->remove($_file);
-    }
-
-    /**
-     * 上传文件
-     * 写入日志
-     * @access public
-     * @param  string $_file
-     * @return void
-     */
-    public function writeFileLog(string $_file): void
-    {
-        (new UploadFile)->writeUploadLog($_file, 1);
     }
 
     /**

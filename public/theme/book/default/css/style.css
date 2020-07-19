@@ -4,6 +4,8 @@ body {
 #content {
     font-size: 1.3rem;
     background-color: #f6f1e7;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 #content p {
     text-indent: 3rem;

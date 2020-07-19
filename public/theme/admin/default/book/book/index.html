@@ -1,0 +1,145 @@
+<div class="box">
+    <div class="box-header clearfix">
+        <div class="no-margin pull-left">
+            <div class="form-inline">
+                <label>{:lang('pass')}</label>
+                <select class="form-control" v-model="is_pass" v-on:change="filter">
+                    <option value="0">{:lang('select')}</option>
+                    <option value="1">{:lang('is_pass')}</option>
+                    <option value="-1">{:lang('not_pass')}</option>
+                </select>
+            </div>
+        </div>
+        <div class="no-margin pull-right">
+            <button class="btn btn-primary" v-on:click="added()">{:lang('added')}</button>
+        </div>
+    </div>
+    <div class="box-body">
+        <form id="book">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th width="5%">{:lang('sort')}</th>
+                        <th>{:lang('title')}</th>
+                        <th>{:lang('type')}</th>
+                        <th>{:lang('status')}</th>
+                        <th>{:lang('update time')}</th>
+                        <th>{:lang('operation')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template v-for="vo in items.list">
+                        <tr>
+                            <td>
+                                <input type="text" class="form-control" v-bind:name="'sort_order['+vo.id+']'"
+                                    v-bind:value="vo.sort_order">
+                            </td>
+                            <td>
+                                <a v-bind:href="vo.url.url" target="_blank" v-text="vo.title"></a>
+                            </td>
+                            <td>
+                                <a v-bind:href="vo.url.type_url" target="_blank" v-text="vo.cat_name"></a>
+                            </td>
+                            <td>
+                                <span class="label label-primary" v-if="vo.is_pass">{:lang('is_pass')}</span>
+                                <span class="label label-primary" v-else>{:lang('not_pass')}</span>
+                                <span class="label label-primary" v-if="vo.is_com">{:lang('commend')}</span>
+                                <span class="label label-primary" v-if="vo.is_hot">{:lang('hot')}</span>
+                                <span class="label label-primary" v-if="vo.is_top">{:lang('top')}</span>
+                            </td>
+                            <td v-text="vo.update_time"></td>
+                            <td>
+                                <a class="editor" v-bind:href="vo.url.editor">
+                                    <i class="fa fa-pencil-square-o"></i>
+                                    {:lang('editor')}
+                                </a>
+                                <a class="remove" v-on:click="remove(vo.id)" v-bind:data="vo.id">
+                                    <i class="fa fa-trash"></i>
+                                    {:lang('remove')}
+                                </a>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <div class="box-footer clearfix" v-html="items.page"></div>
+</div>
+<script type="text/javascript">
+    let book = new Vue({
+        el: '.box',
+        data: {
+            is_pass: 0,
+            items: []
+        },
+        methods: {
+            filter: function () {
+                var filter = '';
+                if (this.is_pass != 0) {
+                    filter += '&pass=' + this.is_pass;
+                }
+
+                if (filter) {
+                    window.location.href = '?filter' + filter;
+                } else {
+                    window.location.href = '?filter';
+                }
+            },
+            load: function (_p) {
+                var request = NICMS.url + '?page=' + _p;
+                if (this.is_pass != 0) {
+                    request += '&pass=' + this.is_pass;
+                }
+
+                jQuery.pjax({
+                    url: NICMS.api.url + '/query.do',
+                    type: 'GET',
+                    push: true,
+                    replace: true,
+                    requestUrl: request,
+                    data: [
+                        { name: 'method', value: 'book.book.query' },
+                        { name: 'page', value: _p },
+                        { name: 'pass', value: book.is_pass },
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            book.items = result.data
+                        }
+                    }
+                });
+            },
+            added: function () {
+                window.location.href = NICMS.domain + '/book/book/added.html';
+            },
+            remove: function (id) {
+                jQuery.pjax({
+                    url: NICMS.api.url + '/handle.do',
+                    type: 'POST',
+                    data: [
+                        { name: 'method', value: 'book.book.remove' },
+                        { name: 'id', value: id }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            book.load(NICM.api.param.page);
+                        }
+                    }
+                });
+            }
+        }
+    });
+    jQuery.set_cookie('editor', '', -1);
+
+    let pass = jQuery.get_url_query('pass');
+    book.is_pass = pass ? pass : 0;
+
+    let page = jQuery.get_url_query('page');
+    page = page ? page : 1;
+    book.load(page);
+
+    window.paging = function (_p) {
+        book.load(_p);
+    };
+</script>

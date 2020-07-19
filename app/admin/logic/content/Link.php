@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
+use app\common\library\UploadLog;
 use app\common\model\Link as ModelLink;
 
 class Link extends BaseLogic
@@ -186,8 +187,8 @@ class Link extends BaseLogic
             ['id', '=', $id],
         ])->value('logo');
         if ($logo !== $receive_data['logo']) {
-            $this->removeFile($logo);
-            $this->writeFileLog($receive_data['logo']);
+            UploadLog::remove($logo);
+            UploadLog::update($receive_data['logo'], 1);
         }
 
         ModelLink::update($receive_data, ['id' => $id]);
@@ -225,7 +226,7 @@ class Link extends BaseLogic
         ])->column('logo', 'category_id');
 
         if (null !== $find['logo'] && $find['logo']) {
-            $this->removeFile($find['logo']);
+            UploadLog::remove($find['logo']);
         }
 
         ModelLink::where([

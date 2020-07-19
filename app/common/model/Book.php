@@ -63,6 +63,7 @@ class Book extends Model
     protected $updateTime = 'update_time';
     protected $deleteTime = 'delete_time';
     protected $defaultSoftDelete = 0;
+    protected $dateFormat = false;
     protected $pk = 'id';
     protected $type = [
         'author_id'   => 'integer',
@@ -73,12 +74,14 @@ class Book extends Model
         'is_hot'      => 'integer',
         'sort_order'  => 'integer',
         'hits'        => 'integer',
+        'status'      => 'integer',
     ];
     protected $field = [
         'id',
         'title',
         'keywords',
         'description',
+        'image',
         'origin',
         'author_id',
         'type_id',
@@ -88,10 +91,10 @@ class Book extends Model
         'is_hot',
         'sort_order',
         'hits',
+        'status',
         'create_time',
         'update_time',
         'delete_time',
-        'access_id',
         'lang'
     ];
 }

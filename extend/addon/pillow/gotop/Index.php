@@ -12,6 +12,26 @@ class Index extends Base
     public function run()
     {
         return '<style>
+        #addon-elevator {
+            display: none;
+            position: fixed;
+            right: 20px;
+            bottom: 40px;
+            color: #96a0a8;
+            border: solid 1px #e0e0e0;
+            background-color: #fff;
+            z-index: 1000;
+            border-radius: 4px;
+        }
+        #addon-elevator>li {
+            display: block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border-bottom: solid 1px #ededed;
+            position: relative;
+        }
         #addon-gotop {
             position:fixed;
             bottom:80px;
@@ -21,6 +41,13 @@ class Index extends Base
             height:64px;
         }
         </style>
+
+        <ul id="addon-elevator" style="display: block;">
+            <li>
+                <span id="elevator_gotop" title="↑ 返回顶部"></span>
+            </li>
+        </ul>
+
         <div id="addon-gotop">回到顶端</div>
         <script type="text/javascript">
         jQuery(window).scroll(function () {

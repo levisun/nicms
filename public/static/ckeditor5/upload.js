@@ -38,7 +38,7 @@ class MyUploadAdapter {
         // xhr.open('POST', 'http://example.com/image/upload/path', true);
         xhr.open('POST', NICMS.api.url + '/upload.do', true);
         xhr.setRequestHeader('Accept', 'application/vnd.' + jQuery('meta[name="csrf-root"]').attr('content') + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
-        xhr.setRequestHeader('Authorization', jQuery('meta[name="csrf-authorization"]').attr('content'));
+        xhr.setRequestHeader('Authorization', 'Bearer ' + jQuery.get_cookie('XSRF_AUTHORIZATION'));
         xhr.responseType = 'json';
     }
 
@@ -93,8 +93,8 @@ class MyUploadAdapter {
         data.append('appid', jQuery('meta[name="csrf-appid"]').attr('content'));
         data.append('__token__', jQuery('meta[name="csrf-token"]').attr('content'));
         data.append('method', 'content.article.upload');
-        data.append('width', 100);
-        data.append('height', 100);
+        data.append('width', 800);
+        data.append('height', 800);
         data.append('water', 0);
         data.append('typeOption', 'upload_image');
 
@@ -102,8 +102,8 @@ class MyUploadAdapter {
         newData.push({ name: 'appid', value: jQuery('meta[name="csrf-appid"]').attr('content') });
         newData.push({ name: '__token__', value: jQuery('meta[name="csrf-token"]').attr('content') });
         newData.push({ name: 'method', value: 'content.article.upload' });
-        newData.push({ name: 'width', value: 100 });
-        newData.push({ name: 'height', value: 100 });
+        newData.push({ name: 'width', value: 800 });
+        newData.push({ name: 'height', value: 800 });
         newData.push({ name: 'water', value: 0 });
         newData.push({ name: 'typeOption', value: 'upload_image' });
 

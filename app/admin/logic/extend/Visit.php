@@ -35,7 +35,7 @@ class Visit extends BaseLogic
 
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
-        $result = ModelVisit::order('date DESC, name DESC')
+        $result = ModelVisit::order('date DESC, count DESC, name DESC')
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',

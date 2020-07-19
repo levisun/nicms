@@ -2,7 +2,7 @@
 
 /**
  *
- * 模板驱动
+ * 上传文件
  *
  * @package   NICMS
  * @category  app\common\library
@@ -21,7 +21,9 @@ use think\facade\Config;
 use think\facade\Request;
 use think\facade\Filesystem;
 use think\Validate;
+use app\common\library\Base64;
 use app\common\library\Filter;
+use app\common\library\UploadLog;
 use app\common\model\UploadFileLog as ModelUploadFileLog;
 
 class UploadFile
@@ -102,8 +104,7 @@ class UploadFile
         $this->thumbSize = [
             'width'  => !empty($_thumb['width']) ? (int) abs($_thumb['width']) : 0,
             'height' => !empty($_thumb['height']) ? (int) abs($_thumb['height']) : 0,
-            // THUMB_SCALING:等比例缩放
-            // THUMB_FIXED:固定尺寸缩放
+            // THUMB_SCALING:等比例缩放 | THUMB_FIXED:固定尺寸缩放
             'type'   => !empty($_thumb['type']) ? Image::THUMB_SCALING : Image::THUMB_FIXED,
         ];
         $this->imgWater = $_water;
@@ -183,13 +184,12 @@ class UploadFile
         $save_path = Config::get('filesystem.disks.public.url') . '/';
         $save_file = $save_path . Filesystem::disk('public')->putFile($_dir, $_files, 'uniqid');
 
-        // 记录上传文件日志
-        $this->writeUploadLog($save_file);
+        UploadLog::write($save_file);   // 记录上传文件日志
 
         if (false !== strpos($_files->getMime(), 'image/')) {
-            $save_file = $this->thumb($_files, $save_file);
-            $save_file = $this->water($_files, $save_file);
-            $save_file = $this->toExt($_files, $save_file);
+            $save_file = $this->thumb($save_file);
+            $save_file = $this->water($save_file);
+            $save_file = $this->toExt($_files->extension(), $save_file);
         }
 
         $save_file = str_replace(DIRECTORY_SEPARATOR, '/', $save_file);
@@ -213,29 +213,29 @@ class UploadFile
      * @param  string $_save_file 文件名
      * @return void
      */
-    private function toExt(\think\File &$_files, string $_save_file): string
+    private function toExt(string $_extension, string $_save_file): string
     {
         $image = Image::open($this->root_path . $_save_file);
 
         // 转换webp格式
         if (function_exists('imagewebp')) {
-            $webp_file = str_replace('.' . $_files->extension(), '.webp', $_save_file);
+            $webp_file = str_replace('.' . $_extension, '.webp', $_save_file);
             $image->save($this->root_path . $webp_file, 'webp');
-            $this->writeUploadLog($webp_file);   // 记录上传文件日志
+            UploadLog::write($webp_file);   // 记录上传文件日志
             // 删除非webp格式图片
-            if ('webp' !== $_files->extension()) {
+            if ('webp' !== $_extension) {
                 unlink($this->root_path . $_save_file);
             }
             $_save_file = $webp_file;
         }
 
         // 转换jpg格式
-        elseif ('gif' !== $_files->extension()) {
-            $jpg_file = str_replace('.' . $_files->extension(), '.jpg', $_save_file);
+        elseif ('gif' !== $_extension) {
+            $jpg_file = str_replace('.' . $_extension, '.jpg', $_save_file);
             $image->save($this->root_path . $jpg_file, 'jpg');
-            $this->writeUploadLog($jpg_file);   // 记录上传文件日志
+            UploadLog::write($jpg_file);   // 记录上传文件日志
             // 删除非jpg格式图片
-            if ('jpg' !== $_files->extension()) {
+            if ('jpg' !== $_extension) {
                 unlink($this->root_path . $_save_file);
             }
             $_save_file = $jpg_file;
@@ -251,7 +251,7 @@ class UploadFile
      * @param  string $_save_file 文件名
      * @return void
      */
-    private function water(\think\File &$_files, string $_save_file): string
+    private function water(string $_save_file): string
     {
         $image = Image::open($this->root_path . $_save_file);
 
@@ -273,7 +273,7 @@ class UploadFile
      * @param  string $_save_file 文件名
      * @return void
      */
-    private function thumb(\think\File &$_files, string $_save_file): string
+    private function thumb(string $_save_file): string
     {
         $image = Image::open($this->root_path . $_save_file);
 
@@ -289,191 +289,5 @@ class UploadFile
         $image->save($this->root_path . $_save_file);
 
         return $_save_file;
-    }
-
-    /**
-     * 图片缩略图和水印
-     * @access private
-     * @param  string $_file 文件
-     * @param  string $_save_file 文件名
-     * @return void
-     */
-    private function thumbAndWater(\think\File &$_files, string $_save_file): string
-    {
-        @ini_set('memory_limit', '128M');
-
-        $image = Image::open(public_path() . $_save_file);
-
-        // 缩放图片到指定尺寸
-        if ($this->thumbSize['width'] && $this->thumbSize['height']) {
-            $image->thumb($this->thumbSize['width'], $this->thumbSize['height'], $this->thumbSize['type']);
-        }
-        // 规定图片最大尺寸
-        elseif ($image->width() >= 800) {
-            $image->thumb(800, 800, Image::THUMB_SCALING);
-        }
-
-        // 添加水印
-        if (true === $this->imgWater) {
-            $ttf = root_path('extend' . DIRECTORY_SEPARATOR . 'font') . 'simhei.ttf';
-            $image->text(Request::rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9));
-        }
-
-        // 转换webp格式
-        if (function_exists('imagewebp')) {
-            $webp_file = str_replace('.' . $_files->extension(), '.webp', $_save_file);
-            $image->save(public_path() . $webp_file, 'webp');
-            $this->writeUploadLog($webp_file);   // 记录上传文件日志
-            // 删除非webp格式图片
-            if ('webp' !== $_files->extension()) {
-                unlink(public_path() . $_save_file);
-            }
-            $_save_file = $webp_file;
-        }
-
-        // 转换jpg格式
-        elseif ('gif' !== $_files->extension()) {
-            $jpg_file = str_replace('.' . $_files->extension(), '.jpg', $_save_file);
-            $image->save(public_path() . $jpg_file, 'jpg');
-            $this->writeUploadLog($jpg_file);   // 记录上传文件日志
-            // 删除非jpg格式图片
-            if ('jpg' !== $_files->extension()) {
-                unlink(public_path() . $_save_file);
-            }
-            $_save_file = $jpg_file;
-        }
-
-        unset($image);
-
-        return $_save_file;
-    }
-
-    /**
-     * 记录上传文件
-     * @access public
-     * @param  string $_file 文件
-     * @param  int    $_type
-     * @return void
-     */
-    public function writeUploadLog(string $_file, int $_type = 0): void
-    {
-        if (!$_file) {
-            return;
-        }
-
-        $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
-
-        $has = ModelUploadFileLog::where([
-            ['file', '=', $_file]
-        ])->value('file');
-
-        if ($has) {
-            ModelUploadFileLog::update([
-                'type' => $_type
-            ], ['file' => $_file]);
-        } else {
-            ModelUploadFileLog::create([
-                'file' => $_file,
-                'type' => $_type
-            ]);
-        }
-    }
-
-    /**
-     * 删除上传垃圾文件
-     * @access public
-     * @return void
-     */
-    public function ReGarbage(): void
-    {
-        only_execute('remove_upload_garbage.lock', '-12 hour', function () {
-            $sort_order = mt_rand(0, 1) ? 'upload_file_log.id DESC' : 'upload_file_log.id ASC';
-
-            // 查询文件记录
-            $result = ModelUploadFileLog::view('upload_file_log', ['id', 'file'])
-                ->view('upload_file_log log', ['id' => 'log_id'], 'log.type=1 and log.file=upload_file_log.file', 'LEFT')
-                ->where([
-                    ['upload_file_log.type', '=', '0'],
-                    ['log.id', '=', null],
-                    ['upload_file_log.create_time', '<=', strtotime('-1 days')]
-                ])
-                ->order($sort_order)
-                ->limit(10)
-                ->select();
-            $result = $result ? $result->toArray() : [];
-
-            $path = public_path();
-            $id = [];
-            foreach ($result as $file) {
-                // 记录ID
-                $id[] = (int) $file['id'];
-
-                // 过滤非法字符
-                $file['file'] = Filter::safe($file['file']);
-                $file['file'] = $path . str_replace('/', DIRECTORY_SEPARATOR, $file['file']);
-
-                if (is_file($file['file'])) {
-                    // 删除系统生成的缩略图
-                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                    $mime = finfo_file($finfo, $file['file']);
-                    if (false !== strpos($mime, 'image/')) {
-                        $extension = '.' . pathinfo($file['file'], PATHINFO_EXTENSION);
-                        for ($i = 1; $i <= 8; $i++) {
-                            $size = $i * 100;
-                            $thumb = str_replace($extension, '_' . $size . $extension, $file['file']);
-                            if (is_file($thumb)) {
-                                @unlink($thumb);
-                            }
-                        }
-                    }
-
-                    // 删除文件
-                    @unlink($file['file']);
-                }
-            }
-
-            if (!empty($id) && 0 < count($id)) {
-                ModelUploadFileLog::where([
-                    ['id', 'in', $id]
-                ])->delete();
-            }
-        });
-    }
-
-    /**
-     * 删除入库上传文件
-     * @access public
-     * @param  string $_file
-     * @return void
-     */
-    public function remove(string $_file): void
-    {
-        $path = public_path();
-        // 过滤非法字符
-        $abs_file = Filter::safe($_file);
-        $abs_file = $path . str_replace('/', DIRECTORY_SEPARATOR, $abs_file);
-
-        if (is_file($abs_file)) {
-            // 删除系统生成的缩略图
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mime = finfo_file($finfo, $abs_file);
-            if (false !== strpos($mime, 'image/')) {
-                $extension = '.' . pathinfo($abs_file, PATHINFO_EXTENSION);
-                for ($i = 1; $i <= 8; $i++) {
-                    $size = $i * 100;
-                    $thumb = str_replace($extension, '_' . $size . $extension, $abs_file);
-                    if (is_file($thumb)) {
-                        @unlink($thumb);
-                    }
-                }
-            }
-
-            // 删除文件
-            @unlink($abs_file);
-        }
-
-        ModelUploadFileLog::where([
-            ['file', '=', $_file]
-        ])->delete();
     }
 }

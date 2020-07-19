@@ -41,9 +41,15 @@ class Hook
         foreach ($items as $namespace => $config) {
             $config = array_map('strtolower', $config);
 
-            if (in_array(app('http')->getName(), explode(',', $config['type'])) && $config['status'] === 'open') {
-                $content = Addon::exec($namespace, $content);
+            if ($config['status'] !== 'open') {
+                continue;
             }
+
+            if (!in_array(app('http')->getName(), explode(',', $config['type']))) {
+                continue;
+            }
+
+            $content = Addon::exec($namespace, $content);
         }
 
         $response->content($content);

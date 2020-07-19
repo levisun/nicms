@@ -19,6 +19,7 @@ namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
 use app\common\library\Filter;
+use app\common\library\UploadLog;
 use app\common\model\Article as ModelArticle;
 use app\common\model\ArticleContent as ModelArticleContent;
 use app\common\model\ArticleFile as ModelArticleFile;
@@ -62,7 +63,7 @@ class Article extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
-            $search_key = word($search_key, 3);
+            $search_key = words($search_key, 3);
             if (!empty($search_key)) {
                 $map[] = ['article.title', 'regexp', implode('|', $search_key)];
             }
@@ -186,7 +187,7 @@ class Article extends BaseLogic
             // 文章,单页
             if (1 === $receive_data['model_id'] || 4 === $receive_data['model_id']) {
                 $thumb = $this->request->param('thumb', '');
-                $this->writeFileLog($thumb);
+                UploadLog::update($thumb, 1);
                 ModelArticleContent::create([
                     'article_id' => $article->id,
                     'thumb'      => $thumb,
@@ -198,7 +199,7 @@ class Article extends BaseLogic
             elseif (2 === $receive_data['model_id']) {
                 $image_url = $this->request->param('image_url/a', '');
                 foreach ($image_url as $key => $value) {
-                    $this->writeFileLog($value);
+                    UploadLog::update($value, 1);
                 }
                 ModelArticleImage::create([
                     'article_id'   => $article->id,
@@ -384,8 +385,8 @@ class Article extends BaseLogic
                 ])->value('thumb');
                 $thumb = $this->request->param('thumb', '');
                 if ($old_thumb !== $thumb) {
-                    $this->removeFile($old_thumb);
-                    $this->writeFileLog($thumb);
+                    UploadLog::remove($old_thumb);
+                    UploadLog::update($thumb, 1);
                 }
 
                 ModelArticleContent::update([
@@ -404,11 +405,11 @@ class Article extends BaseLogic
                 $image_url = $this->request->param('image_url/a', '');
                 foreach ($old_img as $value) {
                     if (!in_array($value, $image_url)) {
-                        $this->removeFile($value);
+                        UploadLog::remove($value);
                     }
                 }
                 foreach ($image_url as $value) {
-                    $this->writeFileLog($value);
+                    UploadLog::update($value, 1);
                 }
 
                 ModelArticleImage::update([
@@ -425,8 +426,8 @@ class Article extends BaseLogic
                 ])->value('file_url');
                 $file_url = $this->request->param('file_url', '');
                 if ($old_file_url !== $file_url) {
-                    $this->removeFile($old_file_url);
-                    $this->writeFileLog($file_url);
+                    UploadLog::remove($old_file_url);
+                    UploadLog::update($file_url, 1);
                 }
 
                 ModelArticleFile::update([

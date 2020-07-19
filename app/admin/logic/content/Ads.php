@@ -19,6 +19,7 @@ namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
 use app\common\library\Image;
+use app\common\library\UploadLog;
 use app\common\model\Ads as ModelAds;
 
 class Ads extends BaseLogic
@@ -181,8 +182,8 @@ class Ads extends BaseLogic
         ])->value('image');
 
         if ($image !== $receive_data['image']) {
-            $this->removeFile($image);
-            $this->writeFileLog($receive_data['image']);
+            UploadLog::remove($image);
+            UploadLog::update($receive_data['image'], 1);
         }
 
         ModelAds::update($receive_data, ['id' => $id]);
@@ -220,7 +221,7 @@ class Ads extends BaseLogic
         ])->value('image');
 
         if ($image) {
-            $this->removeFile($image);
+            UploadLog::remove($image);
         }
 
         ModelAds::where([

@@ -3,10 +3,10 @@
 /**
  *
  * API接口层
- * 栏目
+ * 书籍分类
  *
  * @package   NICMS
- * @category  app\admin\logic\category
+ * @category  app\admin\logic\book
  * @author    失眠小枕头 [levisun.mail@gmail.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -15,13 +15,13 @@
 
 declare(strict_types=1);
 
-namespace app\admin\logic\category;
+namespace app\admin\logic\book;
 
 use app\common\controller\BaseLogic;
 use app\common\library\UploadLog;
-use app\common\model\Category as ModelCategory;
+use app\common\model\BookType as ModelBookType;
 
-class Category extends BaseLogic
+class Type extends BaseLogic
 {
     protected $authKey = 'admin_auth_key';
 
@@ -35,23 +35,21 @@ class Category extends BaseLogic
      */
     public function query(): array
     {
-        $result = ModelCategory::view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
-            ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
+        $result = ModelBookType::field(['id', 'name', 'is_show', 'sort_order'])
             ->where([
-                ['category.pid', '=', 0],
-                ['category.lang', '=', $this->lang->getLangSet()]
+                ['pid', '=', 0],
+                ['lang', '=', $this->lang->getLangSet()]
             ])
-            ->order('category.type_id ASC, category.sort_order ASC, category.id DESC')
+            ->order('sort_order ASC, id DESC')
             ->select();
 
         $result = $result ? $result->toArray() : [];
 
         foreach ($result as $key => $value) {
-            $value['type_name'] = $this->typeName($value['type_id']);
             $value['url'] = [
-                'added'  => url('category/category/added/' . $value['id']),
-                'editor' => url('category/category/editor/' . $value['id']),
-                'remove' => url('category/category/remove/' . $value['id']),
+                'added'  => url('book/type/added/' . $value['id']),
+                'editor' => url('book/type/editor/' . $value['id']),
+                'remove' => url('book/type/remove/' . $value['id']),
             ];
             $this->layer = 0;
             $value['child'] = $this->child((int) $value['id']);
@@ -79,13 +77,12 @@ class Category extends BaseLogic
     {
         $this->layer++;
 
-        $result = ModelCategory::view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
-            ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
+        $result = ModelBookType::field(['id', 'name', 'type_id', 'is_show', 'is_channel', 'sort_order'])
             ->where([
-                ['category.pid', '=', $_pid],
-                ['category.lang', '=', $this->lang->getLangSet()]
+                ['pid', '=', $_pid],
+                ['lang', '=', $this->lang->getLangSet()]
             ])
-            ->order('category.sort_order ASC, category.id DESC')
+            ->order('sort_order ASC, id DESC')
             ->select();
 
         $result = $result ? $result->toArray() : [];
@@ -95,11 +92,10 @@ class Category extends BaseLogic
                 $value['name'] = '|__' . $value['name'];
             }
 
-            $value['type_name'] = $this->typeName((int) $value['type_id']);
             $value['url'] = [
-                'added'  => url('category/category/added/' . $value['id']),
-                'editor' => url('category/category/editor/' . $value['id']),
-                'remove' => url('category/category/remove/' . $value['id']),
+                'added'  => url('book/type/added/' . $value['id']),
+                'editor' => url('book/type/editor/' . $value['id']),
+                'remove' => url('book/type/remove/' . $value['id']),
             ];
             $value['child'] = $this->child((int) $value['id']);
             $result[$key] = $value;
@@ -109,32 +105,13 @@ class Category extends BaseLogic
     }
 
     /**
-     * 导航类型
-     * @access private
-     * @param  int $_tid
-     * @return string
-     */
-    private function typeName(int $_tid): string
-    {
-        if ($_tid === 1) {
-            return $this->lang->get('category top type');
-        } elseif ($_tid === 2) {
-            return $this->lang->get('category main type');
-        } elseif ($_tid === 3) {
-            return $this->lang->get('category foot type');
-        } else {
-            return $this->lang->get('category other type');
-        }
-    }
-
-    /**
      * 添加
      * @access public
      * @return array
      */
     public function added(): array
     {
-        $this->actionLog(__METHOD__, 'admin category added');
+        $this->actionLog(__METHOD__, 'admin book type added');
 
         $pid = $this->request->param('pid/d', 0, 'abs');
 
@@ -146,12 +123,9 @@ class Category extends BaseLogic
             'keywords'    => $this->request->param('keywords'),
             'description' => $this->request->param('description'),
             'image'       => $this->request->param('image'),
-            'model_id'    => $this->request->param('model_id/d', 1, 'abs'),
-            'type_id'     => $this->request->param('type_id/d', 1, 'abs'),
             'is_show'     => $this->request->param('is_show/d', 1, 'abs'),
             'is_channel'  => $this->request->param('is_channel/d', 0, 'abs'),
             'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
-            'access_id'   => $this->request->param('access_id/d', 0, 'abs'),
             'url'         => $this->request->param('url'),
             'update_time' => time(),
             'create_time' => time(),
@@ -161,7 +135,7 @@ class Category extends BaseLogic
             return $result;
         }
 
-        ModelCategory::create($receive_data);
+        ModelBookType::create($receive_data);
 
         $this->cache->tag('cms nav')->clear();
 
@@ -180,10 +154,8 @@ class Category extends BaseLogic
     public function find(): array
     {
         if ($id = $this->request->param('id/d', 0, 'abs')) {
-            $result = ModelCategory::view('category')
-                ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
-                ->where([
-                    ['category.id', '=', $id],
+            $result = ModelBookType::where([
+                    ['id', '=', $id],
                 ])
                 ->find();
 
@@ -192,25 +164,18 @@ class Category extends BaseLogic
                     ? $this->config->get('app.img_host') . '/' . $result['image']
                     : '';
 
-                $result['parent'] = ModelCategory::where([
+                $result['parent'] = ModelBookType::where([
                     ['id', '=', $result['pid']]
                 ])->value('name as parent');
             }
         } else {
             $result = [];
             if ($pid = $this->request->param('pid/d', 0, 'abs')) {
-                $result['parent'] = ModelCategory::where([
+                $result['parent'] = ModelBookType::where([
                     ['id', '=', $pid]
                 ])->value('name as parent');
             }
         }
-
-        $result['type_list'] = [
-            ['id' => '1', 'name' => $this->lang->get('category top type')],
-            ['id' => '2', 'name' => $this->lang->get('category main type')],
-            ['id' => '3', 'name' => $this->lang->get('category foot type')],
-            ['id' => '4', 'name' => $this->lang->get('category other type')],
-        ];
 
         return [
             'debug' => false,
@@ -227,7 +192,7 @@ class Category extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin category editor');
+        $this->actionLog(__METHOD__, 'admin book type editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -245,12 +210,8 @@ class Category extends BaseLogic
             'keywords'    => $this->request->param('keywords'),
             'description' => $this->request->param('description'),
             'image'       => $this->request->param('image'),
-            'model_id'    => $this->request->param('model_id/d', 1, 'abs'),
-            'type_id'     => $this->request->param('type_id/d', 1, 'abs'),
             'is_show'     => $this->request->param('is_show/d', 1, 'abs'),
-            'is_channel'  => $this->request->param('is_channel/d', 0, 'abs'),
             'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
-            'access_id'   => $this->request->param('access_id/d', 0, 'abs'),
             'url'         => $this->request->param('url'),
             'update_time' => time(),
         ];
@@ -259,7 +220,7 @@ class Category extends BaseLogic
         }
 
         // 删除旧图片
-        $image = ModelCategory::where([
+        $image = ModelBookType::where([
             ['id', '=', $id],
         ])->value('image');
         if ($image !== $receive_data['image']) {
@@ -267,7 +228,7 @@ class Category extends BaseLogic
             UploadLog::update($receive_data['image'], 1);
         }
 
-        ModelCategory::update($receive_data, ['id' => $id]);
+        ModelBookType::update($receive_data, ['id' => $id]);
 
         $this->cache->tag('cms nav')->clear();
 
@@ -285,7 +246,7 @@ class Category extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin category remove');
+        $this->actionLog(__METHOD__, 'admin book type remove');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -296,7 +257,7 @@ class Category extends BaseLogic
             ];
         }
 
-        $image = ModelCategory::where([
+        $image = ModelBookType::where([
             ['id', '=', $id],
             ['lang', '=', $this->lang->getLangSet()]
         ])->value('image');
@@ -305,7 +266,7 @@ class Category extends BaseLogic
             UploadLog::remove($image);
         }
 
-        ModelCategory::where([
+        ModelBookType::where([
             ['id', '=', $id]
         ])->delete();
 
@@ -325,7 +286,7 @@ class Category extends BaseLogic
      */
     public function sort(): array
     {
-        $this->actionLog(__METHOD__, 'admin category sort');
+        $this->actionLog(__METHOD__, 'admin book type sort');
 
         $sort_order = $this->request->param('sort_order/a');
         if (empty($sort_order)) {
@@ -344,7 +305,7 @@ class Category extends BaseLogic
             }
         }
         if (!empty($list)) {
-            (new ModelCategory)->saveAll($list);
+            (new ModelBookType)->saveAll($list);
         }
 
         return [

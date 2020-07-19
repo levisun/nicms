@@ -23,21 +23,13 @@ use app\common\model\Category as ModelCategory;
 class Sitemap
 {
 
-    public static function create()
-    {
-        only_execute('create_sitemap.lock', '-4 hour', function () {
-            // 保存网站地图文件
-            self::saveSitemapFile();
-        });
-    }
-
     /**
      * 保存Sitemap文件
-     * @access private
+     * @access public
      * @static
      * @return void
      */
-    private static function saveSitemapFile(): void
+    public static function create(): void
     {
         $category = ModelCategory::view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')

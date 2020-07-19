@@ -21,7 +21,7 @@ namespace app\common\event;
 use app\common\library\DataManage;
 use app\common\library\ReGarbage;
 use app\common\library\Sitemap;
-use app\common\library\UploadFile;
+use app\common\library\UploadLog;
 
 class AppMaintain
 {
@@ -30,12 +30,6 @@ class AppMaintain
     {
         $app_name = app('http')->getName();
         if ($app_name && 'api' !== $app_name) {
-            // 生成网站地图
-            Sitemap::create();
-
-            // 清除上传垃圾文件
-            (new UploadFile)->ReGarbage();
-
             // 数据库优化|修复
             (new DataManage)->optimize();
 
@@ -43,6 +37,9 @@ class AppMaintain
             // (new DataManage)->autoBackup();
 
             only_execute('remove_garbage.lock', '-4 hour', function () {
+                // 生成网站地图
+                Sitemap::create();
+
                 // 清除过期缓存文件
                 ReGarbage::clear(runtime_path() . 'cache', 3);
 
@@ -55,10 +52,13 @@ class AppMaintain
                 ReGarbage::clear($uploads_path . 'thumb', 60);
 
                 // 清除上传目录中的空目录
-                ReGarbage::upload();
+                ReGarbage::uploadEmptyDirectory();
 
                 // 保证网站根目录整洁
-                ReGarbage::public_dir();
+                ReGarbage::publicDirTidy();
+
+                // 清除上传垃圾文件
+                UploadLog::clearGarbage();
             });
         }
     }

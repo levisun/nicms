@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
+use app\common\library\UploadLog;
 use app\common\model\Article as ModelArticle;
 use app\common\model\ArticleContent as ModelArticleContent;
 use app\common\model\ArticleFile as ModelArticleFile;
@@ -55,7 +56,7 @@ class Recycle extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
-            $search_key = word($search_key, 3);
+            $search_key = words($search_key, 3);
             if (!empty($search_key)) {
                 $map[] = ['article.title', 'regexp', implode('|', $search_key)];
             }
@@ -180,7 +181,7 @@ class Recycle extends BaseLogic
             $content = ModelArticleContent::where([
                 ['article_id', '=', $id]
             ])->column('thumb', 'content');
-            !empty($content['thumb']) and $this->removeFile($content['thumb']);
+            !empty($content['thumb']) and UploadLog::remove($content['thumb']);
             ModelArticleContent::where([
                 ['article_id', '=', $id]
             ])->delete();
@@ -190,7 +191,7 @@ class Recycle extends BaseLogic
             $file_url = ModelArticleFile::where([
                 ['article_id', '=', $id]
             ])->value('file_url');
-            $file_url and $this->removeFile($file_url);
+            $file_url and UploadLog::remove($file_url);
             ModelArticleFile::where([
                 ['article_id', '=', $id]
             ])->delete();
@@ -202,7 +203,7 @@ class Recycle extends BaseLogic
             ])->value('image_url');
             $image_url = unserialize($image_url);
             foreach ($image_url as $value) {
-                $this->removeFile($value);
+                UploadLog::remove($value);
             }
             ModelArticleImage::where([
                 ['article_id', '=', $id]

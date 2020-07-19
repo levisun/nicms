@@ -43,7 +43,7 @@ use think\Model;
 
 class BookType extends Model
 {
-    protected $name = 'category';
+    protected $name = 'book_type';
     protected $autoWriteTimestamp = true;
     protected $updateTime = 'update_time';
     protected $dateFormat = false;

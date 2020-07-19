@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use app\common\model\UploadFileLog as ModelUploadFileLog;
+
 class ReGarbage
 {
 
@@ -47,34 +49,12 @@ class ReGarbage
     }
 
     /**
-     * 删除上传目录中的空目录
-     * @access public
-     * @static
-     * @param  string $_dir
-     * @return void
-     */
-    public static function upload(string $_dir = ''): void
-    {
-        $_dir = $_dir ?: public_path('storage/uploads');
-
-        if ($files = glob($_dir . '*')) {
-            foreach ($files as $file) {
-                if (is_dir($file)) {
-                    self::upload($file . DIRECTORY_SEPARATOR);
-                }
-            }
-        } else {
-            @rmdir($_dir);
-        }
-    }
-
-    /**
      * 保证网站根目录整洁
      * @access public
      * @static
      * @return void
      */
-    public static function public_dir(): void
+    public static function publicDirTidy(): void
     {
         $dir = public_path();
         $files = is_dir($dir) ? scandir($dir) : [];
@@ -112,6 +92,28 @@ class ReGarbage
             } elseif (is_file($dir . $dir_file)) {
                 @unlink($dir . $dir_file);
             }
+        }
+    }
+
+    /**
+     * 删除上传目录中的空目录
+     * @access public
+     * @static
+     * @param  string $_dir
+     * @return void
+     */
+    public static function uploadEmptyDirectory(string $_dir = ''): void
+    {
+        $_dir = $_dir ?: public_path('storage/uploads');
+
+        if ($files = glob($_dir . '*')) {
+            foreach ($files as $file) {
+                if (is_dir($file)) {
+                    self::uploadEmptyDirectory($file . DIRECTORY_SEPARATOR);
+                }
+            }
+        } else {
+            @rmdir($_dir);
         }
     }
 }
