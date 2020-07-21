@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\api\controller\tools;
 
 use app\common\library\api\Async;
+use app\common\library\Filter;
 use app\common\library\Spider as LibSpider;
 
 class Spider extends Async
@@ -29,7 +30,7 @@ class Spider extends Async
         if ($uri = $this->request->param('uri', false)) {
             @set_time_limit(60);
             @ini_set('max_execution_time', '60');
-            usleep(rand(5500000, 10000000));
+            usleep(rand(1500000, 3000000));
 
             $method = $this->request->param('method', 'GET');
             $selector = $this->request->param('selector', '');
@@ -39,8 +40,10 @@ class Spider extends Async
 
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 try {
-                    $spider = new LibSpider;
+                    $uri = Filter::decode($uri);
                     $uri = str_replace('&nbsp;', '', $uri);
+
+                    $spider = new LibSpider;
                     if ($spider->request($method, $uri)) {
                         // 有选择器时
                         if ($selector) {
@@ -54,10 +57,11 @@ class Spider extends Async
 
                         $this->cache->set($cache_key, $result);
                     }
+                    trace($uri, 'info');
+
                 } catch (\Exception $e) {
+                    trace($uri, 'error');
                     trace($e->getFile() . $e->getLine() . $e->getMessage(), 'error');
-                    // halt($e->getFile() . $e->getLine() . $e->getMessage());
-                    //throw $th;
                 }
             }
 

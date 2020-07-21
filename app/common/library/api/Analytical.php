@@ -279,7 +279,7 @@ class Analytical extends Base
         // Session初始化并规定sessionID
         $jti = Base64::decrypt($token->getClaim('jti'));
         $jti = Filter::safe($jti);
-        if ($jti && is_file($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR . $this->config->get('session.prefix') . DIRECTORY_SEPARATOR . 'sess_' . $jti)) {
+        if ($jti && is_file(runtime_path('session/' . $this->config->get('session.prefix')) . 'sess_' . $jti)) {
             $this->sessionId = $jti;
         } else {
             $this->log->warning('[Async] header-authorization params error');

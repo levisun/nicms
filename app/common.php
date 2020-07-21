@@ -337,7 +337,7 @@ if (!function_exists('runtime_path')) {
 
 if (!function_exists('root_path')) {
     /**
-     * 获取应用运行时目录
+     * 获取项目根目录
      *
      * @param string $path
      * @return string
