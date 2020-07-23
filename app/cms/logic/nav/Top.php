@@ -65,7 +65,7 @@ class Top extends BaseLogic
 
                     $result[$key] = $value;
                 }
-                $this->cache->tag(['cms', 'cms nav'])->set($cache_key, $result);
+                $this->cache->tag('cms nav')->set($cache_key, $result);
             }
         }
 

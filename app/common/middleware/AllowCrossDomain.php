@@ -22,12 +22,15 @@ use Closure;
 use think\Config;
 use think\Request;
 use think\Response;
+use think\Session;
 
 /**
  * 跨域请求支持
  */
 class AllowCrossDomain
 {
+    protected $session;
+
     protected $cookieDomain;
 
     protected $header = [
@@ -36,8 +39,10 @@ class AllowCrossDomain
         'Access-Control-Allow-Headers'     => 'Accept, Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-CSRF-TOKEN, X-Requested-With',
     ];
 
-    public function __construct(Config $config)
+    public function __construct(Config $config, Session $session)
     {
+        $this->session = $session;
+
         $this->cookieDomain = $config->get('cookie.domain', '');
     }
 
@@ -69,5 +74,10 @@ class AllowCrossDomain
         }
 
         return $next($request)->header($header);
+    }
+
+    public function end(Response $response)
+    {
+        $this->session->save();
     }
 }

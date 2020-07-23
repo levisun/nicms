@@ -59,7 +59,7 @@ class Catalog extends BaseLogic
                 $list[$key] = $value;
             }
 
-            $this->cache->tag(['cms', 'cms link list' . $category_id])->set($cache_key, $list);
+            $this->cache->tag('cms link list' . $category_id)->set($cache_key, $list);
         }
 
         return [

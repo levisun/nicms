@@ -117,7 +117,7 @@ class Safe extends BaseLogic
 
         file_put_contents($this->app->getRootPath() . '.env', $result);
 
-        $this->cache->tag('SYSTEM')->clear();
+        $this->cache->tag('system')->clear();
 
         return [
             'debug' => false,

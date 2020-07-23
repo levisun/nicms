@@ -47,7 +47,7 @@ class Basic extends BaseLogic
             unset($result[$key]);
         }
 
-        $this->cache->tag('siteinfo')->clear();
+        $this->cache->tag('system')->clear();
 
         return [
             'debug' => false,
@@ -85,7 +85,7 @@ class Basic extends BaseLogic
             ], ['name' => $key, 'lang' => $this->lang->getLangSet()]);
         }
 
-        $this->cache->tag('SYSTEM')->clear();
+        $this->cache->tag('system')->clear();
 
         return [
             'debug' => false,

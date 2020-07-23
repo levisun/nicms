@@ -30,7 +30,7 @@ class Spider extends Async
         if ($uri = $this->request->param('uri', false)) {
             @set_time_limit(60);
             @ini_set('max_execution_time', '60');
-            usleep(rand(1500000, 3000000));
+            usleep(rand(3500000, 5000000));
 
             $method = $this->request->param('method', 'GET');
             $selector = $this->request->param('selector', '');

@@ -20,6 +20,7 @@ namespace app\admin\logic\theme;
 use app\common\controller\BaseLogic;
 use app\common\model\Config as ModelConfig;
 use app\common\library\Base64;
+use app\common\library\view\Compiler;
 
 class Cms extends BaseLogic
 {
@@ -92,9 +93,7 @@ class Cms extends BaseLogic
 
         $this->cache->tag('system')->clear();
 
-        $this->cache->tag('request')->clear();
-
-        (new \view\Compiler)->clear();
+        (new Compiler)->clear();
 
         return [
             'debug' => false,

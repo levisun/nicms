@@ -75,7 +75,7 @@ if (!function_exists('filepath_decode')) {
      */
     function filepath_decode(string $_file, bool $_abs = false)
     {
-        $salt = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $salt = date('Y') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         $salt = md5($salt);
 
         $_file = $_file ? Base64::decrypt($_file, $salt) : '';
@@ -110,7 +110,7 @@ if (!function_exists('filepath_encode')) {
         $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
         $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
 
-        $salt = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $salt = date('Y') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         $salt = md5($salt);
 
         if (is_file($path . $_file)) {

@@ -152,7 +152,7 @@ class Search extends BaseLogic
                 $list['data'][$key] = $value;
             }
 
-            $this->cache->tag(['cms', 'cms article list' . $category_id])->set($cache_key, $list);
+            $this->cache->tag('cms article list' . $category_id)->set($cache_key, $list);
         }
 
         return [

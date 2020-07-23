@@ -21,7 +21,6 @@ use app\common\controller\BaseLogic;
 use app\common\library\Base64;
 use app\common\library\Image;
 use app\common\library\Filter;
-use app\common\library\Download;
 use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;
 use app\common\model\ArticleTags as ModelArticleTags;
@@ -155,7 +154,9 @@ class Details extends BaseLogic
 
                                     // 下载文件
                                 case 'file_url':
-                                    $result[$key] = $value ? Download::getUrl($value) : '';
+                                    $result[$key] = $value
+                                        ? $this->config->get('app.api_host') . 'download.do?file=' . filepath_encode($value)
+                                        : '';
                                     break;
 
                                 default:
@@ -165,7 +166,7 @@ class Details extends BaseLogic
                         }
                     }
 
-                    $this->cache->tag(['cms', 'cms article details'])->set($cache_key, $result);
+                    $this->cache->tag('cms article details')->set($cache_key, $result);
                 }
             }
         }

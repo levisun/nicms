@@ -55,9 +55,9 @@ class Spider
             $client = new HttpBrowser;
             $client->request($_method, $_uri, [], [], [
                 'HTTP_USER_AGENT'      => Request::server('HTTP_USER_AGENT'),
-                'HTTP_ACCEPT'          => Request::server('HTTP_ACCEPT'),
-                'HTTP_ACCEPT_LANGUAGE' => Request::server('HTTP_ACCEPT_LANGUAGE'),
-                'HTTP_CONNECTION'      => Request::server('HTTP_CONNECTION'),
+                // 'HTTP_ACCEPT'          => Request::server('HTTP_ACCEPT'),
+                // 'HTTP_ACCEPT_LANGUAGE' => Request::server('HTTP_ACCEPT_LANGUAGE'),
+                // 'HTTP_CONNECTION'      => Request::server('HTTP_CONNECTION'),
                 'HTTP_REFERER'         => parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . '/',
             ]);
 

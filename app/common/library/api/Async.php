@@ -230,9 +230,6 @@ class Async extends Base
                 ->lastModified(gmdate('D, d M Y H:i:s', $timestamp + $this->apiExpire) . ' GMT');
         }
 
-        $this->log->save();
-        $this->session->save();
-
         ob_start('ob_gzhandler');
 
         return $response;

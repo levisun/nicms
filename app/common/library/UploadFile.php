@@ -22,9 +22,7 @@ use think\facade\Request;
 use think\facade\Filesystem;
 use think\Validate;
 use app\common\library\Base64;
-use app\common\library\Filter;
 use app\common\library\UploadLog;
-use app\common\model\UploadFileLog as ModelUploadFileLog;
 
 class UploadFile
 {
@@ -284,6 +282,10 @@ class UploadFile
         // 规定图片最大尺寸
         elseif ($image->width() >= 800) {
             $image->thumb(800, 800, Image::THUMB_SCALING);
+        }
+        // 过滤图片中的木马信息
+        else {
+            $image->thumb($image->width(), $image->height(), Image::THUMB_SCALING);
         }
 
         $image->save($this->root_path . $_save_file);
