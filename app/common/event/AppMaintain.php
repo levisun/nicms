@@ -41,7 +41,7 @@ class AppMaintain
                 Sitemap::create();
 
                 // 清除过期缓存文件
-                ReGarbage::clear(runtime_path() . 'cache', 3);
+                ReGarbage::clear(runtime_path() . 'cache', 1);
 
                 $uploads_path = public_path('storage' . DIRECTORY_SEPARATOR . 'uploads');
 

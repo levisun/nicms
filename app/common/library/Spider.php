@@ -24,6 +24,7 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class Spider
 {
+    private $client = null;
     private $crawler = null;
     private $result = '';
 
@@ -32,6 +33,11 @@ class Spider
         @set_time_limit(60);
         @ini_set('max_execution_time', '60');
         @ini_set('memory_limit', '16M');
+    }
+
+    public function __destruct()
+    {
+        usleep(1500000);
     }
 
     /**
@@ -49,25 +55,34 @@ class Spider
         }
 
         $_method = strtoupper($_method);
-        $key = md5($_method . $_uri);
+        $cache_key = md5($_method . $_uri);
 
-        if (!Cache::has($key) || !$this->result = Cache::get($key)) {
-            $client = new HttpBrowser;
-            $client->request($_method, $_uri, [], [], [
-                'HTTP_USER_AGENT'      => Request::server('HTTP_USER_AGENT'),
-                // 'HTTP_ACCEPT'          => Request::server('HTTP_ACCEPT'),
-                // 'HTTP_ACCEPT_LANGUAGE' => Request::server('HTTP_ACCEPT_LANGUAGE'),
-                // 'HTTP_CONNECTION'      => Request::server('HTTP_CONNECTION'),
+        if (!Cache::has($cache_key) || !$this->result = Cache::get($cache_key)) {
+            $this->client = new HttpBrowser;
+            $agent = [
+                'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0',
+                'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36 Edg/84.0.522.40',
+                'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36',
+                Request::header('user_agent'),
+            ];
+            shuffle($agent);
+            $this->client->request($_method, $_uri, [], [], [
+                'HTTP_HOST'            => parse_url($_uri, PHP_URL_HOST),
+                'HTTP_USER_AGENT'      => $agent[array_rand($agent, 1)],
                 'HTTP_REFERER'         => parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . '/',
+                'HTTP_ACCEPT'          => Request::header('accept'),
+                'HTTP_ACCEPT_LANGUAGE' => Request::header('accept_language'),
+                'HTTP_CONNECTION'      => Request::header('connection'),
+                // 'HTTP_ACCEPT_ENCODING' => Request::header('accept-encoding'),
             ]);
 
             // 请求失败
-            if (200 !== $client->getInternalResponse()->getStatusCode()) {
+            if (200 !== $this->client->getInternalResponse()->getStatusCode()) {
                 return false;
             }
 
             // 获得HTML文档内容
-            $this->result = $client->getInternalResponse()->getContent();
+            $this->result = $this->client->getInternalResponse()->getContent();
 
             // 检查字符编码
             if (preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->result, $charset)) {
@@ -88,7 +103,7 @@ class Spider
 
             $this->result = htmlspecialchars($this->result, ENT_QUOTES);
 
-            Cache::set($key, $this->result, 28800);
+            Cache::set($cache_key, $this->result, 1440);
         }
 
         // 重新附加DOM文档

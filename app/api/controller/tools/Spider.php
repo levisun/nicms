@@ -30,46 +30,61 @@ class Spider extends Async
         if ($uri = $this->request->param('uri', false)) {
             @set_time_limit(60);
             @ini_set('max_execution_time', '60');
-            usleep(rand(3500000, 5000000));
+            usleep(rand(7500000, 15000000));
 
             $method = $this->request->param('method', 'GET');
             $selector = $this->request->param('selector', '');
             $extract = $this->request->param('extract', '');
 
-            $cache_key = md5($uri . $method . $selector . $extract);
+            $uri = Filter::decode($uri);
+            $uri = str_replace('&nbsp;', '', $uri);
 
-            if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
-                try {
-                    $uri = Filter::decode($uri);
-                    $uri = str_replace('&nbsp;', '', $uri);
-
-                    $spider = new LibSpider;
-                    if ($spider->request($method, $uri)) {
-                        // 有选择器时
-                        if ($selector) {
-                            // 扩展属性
-                            $extract = $extract ? explode(',', $extract) : [];
-
-                            $result = $spider->fetch($selector, $extract);
-                        } else {
-                            $result = $spider->html();
-                        }
-
-                        $this->cache->set($cache_key, $result);
-                    }
-                    trace($uri, 'info');
-
-                } catch (\Exception $e) {
-                    trace($uri, 'error');
-                    trace($e->getFile() . $e->getLine() . $e->getMessage(), 'error');
-                }
+            try {
+                $result = $this->request($method, $uri, $selector, $extract);
+            } catch (\Exception $e) {
+                trace($uri, 'error');
+                trace($e->getFile() . $e->getLine() . $e->getMessage(), 'error');
             }
 
             return !empty($result)
-                ? $this->cache(28800)->success('spider success', $result)
-                : $this->cache(false)->success('spider error');
+                ? $this->cache(1440)->success('spider success', $result)
+                : $this->cache(false)->success('spider error', $uri);
         }
 
         return miss(404, false);
+    }
+
+    /**
+     * 请求
+     * @access private
+     * @param  string $_method
+     * @param  string $_uri
+     * @param  string $_selector
+     * @param  string $_extract
+     * @return string|array
+     */
+    private function request(string $_method, string $_uri, string $_selector, string $_extract)
+    {
+        $spider = new LibSpider;
+        if ($spider->request($_method, $_uri)) {
+            // 有选择器时
+            if ($_selector) {
+                // 扩展属性
+                $result = $spider->fetch($_selector, $_extract ? explode(',', $_extract) : []);
+                shuffle($result);
+                return $result;
+            } else {
+                $result = $spider->html();
+
+                if (preg_match('/http\-equiv="refresh"\scontent=".*?url=(.*?)">/si', htmlspecialchars_decode($result, ENT_QUOTES), $refresh)) {
+                    $refresh = trim($refresh[1], '\'"');
+                    $result = $this->request($_method, $refresh, $_selector, $_extract);
+                }
+
+                return $result;
+            }
+        }
+
+        return '';
     }
 }

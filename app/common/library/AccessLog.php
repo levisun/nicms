@@ -95,19 +95,28 @@ class AccessLog
         }
 
         if ($spider) {
+            trace(Request::server('HTTP_USER_AGENT'), 'info');
+            $ip = Ipinfo::get(Request::ip());
             $has = ModelVisit::where([
+                ['ip', '=', $ip['ip']], 
                 ['name', '=', $spider],
+                ['user_agent', '=', md5($user_agent)],
                 ['date', '=', strtotime(date('Y-m-d'))]
             ])->value('name');
             if ($has) {
                 ModelVisit::where([
+                    ['ip', '=', $ip['ip']],
                     ['name', '=', $spider],
+                    ['user_agent', '=', md5($user_agent)],
                     ['date', '=', strtotime(date('Y-m-d'))]
                 ])->inc('count', 1)->update();
             } else {
                 ModelVisit::create([
-                    'name' => $spider,
-                    'date' => strtotime(date('Y-m-d'))
+                    'ip'         => $ip['ip'],
+                    'ip_attr'    => isset($ip['country']) ? $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'] : '',
+                    'name'       => $spider,
+                    'user_agent' => md5($user_agent),
+                    'date'       => strtotime(date('Y-m-d'))
                 ]);
             }
         }
