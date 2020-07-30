@@ -30,8 +30,6 @@ class Spider
 
     public function __construct()
     {
-        @set_time_limit(60);
-        @ini_set('max_execution_time', '60');
         @ini_set('memory_limit', '16M');
     }
 
@@ -54,8 +52,7 @@ class Spider
             return false;
         }
 
-        $_method = strtoupper($_method);
-        $cache_key = md5($_method . $_uri);
+        $cache_key = md5($_uri);
 
         if (!Cache::has($cache_key) || !$this->result = Cache::get($cache_key)) {
             $this->client = new HttpBrowser;
@@ -66,6 +63,7 @@ class Spider
                 Request::header('user_agent'),
             ];
             shuffle($agent);
+            $_method = strtoupper($_method);
             $this->client->request($_method, $_uri, [], [], [
                 'HTTP_HOST'            => parse_url($_uri, PHP_URL_HOST),
                 'HTTP_USER_AGENT'      => $agent[array_rand($agent, 1)],
@@ -103,7 +101,7 @@ class Spider
 
             $this->result = htmlspecialchars($this->result, ENT_QUOTES);
 
-            Cache::set($cache_key, $this->result, 1440);
+            mb_strlen($this->result, 'utf-8') > 2000 and Cache::set($cache_key, $this->result, 1440);
         }
 
         // 重新附加DOM文档

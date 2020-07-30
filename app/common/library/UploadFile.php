@@ -28,12 +28,6 @@ class UploadFile
 {
 
     /**
-     * 图片根目录地址
-     * @var string
-     */
-    private $root_path = '';
-
-    /**
      * 允许上传文件后缀,避免恶意修改配置文件导致的有害文件上传
      * @var array
      */
@@ -83,8 +77,6 @@ class UploadFile
         @set_time_limit(600);
         @ini_set('max_execution_time', '600');
         @ini_set('memory_limit', '128M');
-
-        $this->root_path = public_path();
     }
 
     /**
@@ -198,8 +190,8 @@ class UploadFile
             'extension' => pathinfo($save_file, PATHINFO_EXTENSION),
             'name'      => pathinfo($save_file, PATHINFO_BASENAME),
             'save_path' => $save_file,
-            'size'      => filesize($this->root_path . $save_file),
-            'type'      => finfo_file($finfo, $this->root_path . $save_file),
+            'size'      => filesize(public_path() . $save_file),
+            'type'      => finfo_file($finfo, public_path() . $save_file),
             'url'       => Config::get('app.img_host') . $save_file,
         ];
     }
@@ -213,16 +205,16 @@ class UploadFile
      */
     private function toExt(string $_extension, string $_save_file): string
     {
-        $image = Image::open($this->root_path . $_save_file);
+        $image = Image::open(public_path() . $_save_file);
 
         // 转换webp格式
         if (function_exists('imagewebp')) {
             $webp_file = str_replace('.' . $_extension, '.webp', $_save_file);
-            $image->save($this->root_path . $webp_file, 'webp');
+            $image->save(public_path() . $webp_file, 'webp');
             UploadLog::write($webp_file);   // 记录上传文件日志
             // 删除非webp格式图片
             if ('webp' !== $_extension) {
-                unlink($this->root_path . $_save_file);
+                unlink(public_path() . $_save_file);
             }
             $_save_file = $webp_file;
         }
@@ -230,11 +222,11 @@ class UploadFile
         // 转换jpg格式
         elseif ('gif' !== $_extension) {
             $jpg_file = str_replace('.' . $_extension, '.jpg', $_save_file);
-            $image->save($this->root_path . $jpg_file, 'jpg');
+            $image->save(public_path() . $jpg_file, 'jpg');
             UploadLog::write($jpg_file);   // 记录上传文件日志
             // 删除非jpg格式图片
             if ('jpg' !== $_extension) {
-                unlink($this->root_path . $_save_file);
+                unlink(public_path() . $_save_file);
             }
             $_save_file = $jpg_file;
         }
@@ -251,15 +243,15 @@ class UploadFile
      */
     private function water(string $_save_file): string
     {
-        $image = Image::open($this->root_path . $_save_file);
+        $image = Image::open(public_path() . $_save_file);
 
         // 添加水印
         if (true === $this->imgWater) {
-            $ttf = root_path('extend' . DIRECTORY_SEPARATOR . 'font') . 'simhei.ttf';
+            $ttf = root_path('extend/font') . 'simhei.ttf';
             $image->text(Request::rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9));
         }
 
-        $image->save($this->root_path . $_save_file);
+        $image->save(public_path() . $_save_file);
 
         return $_save_file;
     }
@@ -273,7 +265,7 @@ class UploadFile
      */
     private function thumb(string $_save_file): string
     {
-        $image = Image::open($this->root_path . $_save_file);
+        $image = Image::open(public_path() . $_save_file);
 
         // 缩放图片到指定尺寸
         if ($this->thumbSize['width'] && $this->thumbSize['height']) {
@@ -288,7 +280,7 @@ class UploadFile
             $image->thumb($image->width(), $image->height(), Image::THUMB_SCALING);
         }
 
-        $image->save($this->root_path . $_save_file);
+        $image->save(public_path() . $_save_file);
 
         return $_save_file;
     }

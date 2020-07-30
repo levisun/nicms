@@ -72,17 +72,18 @@ class Spider extends Async
                 // 扩展属性
                 $result = $spider->fetch($_selector, $_extract ? explode(',', $_extract) : []);
                 shuffle($result);
-                return $result;
             } else {
                 $result = $spider->html();
 
-                if (preg_match('/http\-equiv="refresh"\scontent=".*?url=(.*?)">/si', htmlspecialchars_decode($result, ENT_QUOTES), $refresh)) {
+                // 解析跳转代码
+                $regex = '/http\-equiv="refresh"\scontent=".*?url=(.*?)">/si';
+                $result = preg_replace_callback($regex, function ($refresh) use($_method, $_selector, $_extract) {
                     $refresh = trim($refresh[1], '\'"');
-                    $result = $this->request($_method, $refresh, $_selector, $_extract);
-                }
-
-                return $result;
+                    return $this->request($_method, $refresh, $_selector, $_extract);
+                }, htmlspecialchars_decode($result, ENT_QUOTES));
             }
+
+            return $result;
         }
 
         return '';

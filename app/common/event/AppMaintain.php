@@ -41,9 +41,9 @@ class AppMaintain
                 Sitemap::create();
 
                 // 清除过期缓存文件
-                ReGarbage::clear(runtime_path() . 'cache', 1);
+                ReGarbage::clear(runtime_path('cache'), 1);
 
-                $uploads_path = public_path('storage' . DIRECTORY_SEPARATOR . 'uploads');
+                $uploads_path = public_path('storage/uploads');
 
                 // 清除游客上传的文件
                 ReGarbage::clear($uploads_path . 'guest', 60);

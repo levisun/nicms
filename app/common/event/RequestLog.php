@@ -20,6 +20,7 @@ namespace app\common\event;
 
 use think\facade\Log;
 use think\facade\Request;
+use app\common\library\Ipinfo;
 use app\common\model\Visit as ModelVisit;
 
 class RequestLog
@@ -43,6 +44,12 @@ class RequestLog
         $this->spider();
         $this->api();
         $this->log();
+
+        if (1 === mt_rand(1, 100)) {
+            ModelVisit::where([
+                ['date', '<', strtotime('-30 days')]
+            ])->limit(100)->delete();
+        }
     }
 
     /**
@@ -62,6 +69,7 @@ class RequestLog
         }
 
         if ($spider) {
+            trace(Request::server('HTTP_USER_AGENT'), 'info');
             $has = ModelVisit::where([
                 ['name', '=', $spider],
                 ['date', '=', strtotime(date('Y-m-d'))]

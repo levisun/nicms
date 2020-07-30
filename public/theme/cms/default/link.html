@@ -1,14 +1,12 @@
-<div id="layout-link">
-    <div class="row">
-        {include file="sidebar.html"}
-        <div id="list" class="col-md-9">
-            {include file="breadcrumb.html"}
-            <div class="card">
-                <div class="card-body">
-                    {tags:link}
-                        <p><a href="{$item.url}" rel="nofollow" target="_blank">{$item.title}</a></p>
-                    {tags:/link}
-                </div>
+<div class="row">
+    {include file="sidebar.html"}
+    <div id="list" class="col-md-9">
+        {include file="breadcrumb.html"}
+        <div id="layout-link" class="card">
+            <div class="card-body">
+                {tags:link}
+                <p><a href="{$item.url}" rel="nofollow" target="_blank">{$item.title}</a></p>
+                {tags:/link}
             </div>
         </div>
     </div>

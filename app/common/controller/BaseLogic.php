@@ -24,7 +24,6 @@ namespace app\common\controller;
 
 use think\App;
 use app\common\library\UploadFile;
-use app\common\library\UploadLog;
 use app\common\model\Action as ModelAction;
 use app\common\model\ActionLog as ModelActionLog;
 

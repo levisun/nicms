@@ -36,15 +36,13 @@ class Image
     {
         if (self::has($_img) && $_size >= 10 && $_size <= 800) {
             $_img = Filter::safe($_img);
-            $_img = str_replace('/', DIRECTORY_SEPARATOR, $_img);
-
-            $extension = '.' . pathinfo($_img, PATHINFO_EXTENSION);
+            $_img = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_img);
 
             $_size = intval($_size / 10) * 10;
 
-            $new_file = md5($_img) . '_s' . $_size . $extension;
+            $new_file = md5($_img . $_size) . '.' . pathinfo($_img, PATHINFO_EXTENSION);
 
-            $path = public_path('storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR .'thumb');
+            $path = public_path('storage/uploads/thumb');
             is_dir($path) or mkdir($path, 0755, true);
 
             if (!is_file($path . $new_file)) {
@@ -60,9 +58,7 @@ class Image
 
             $_img = Config::get('app.img_host') . '/storage/uploads/thumb/' .
                 str_replace(DIRECTORY_SEPARATOR, '/', $new_file);
-        }
-
-        else {
+        } else {
             $_img = self::miss();
         }
 

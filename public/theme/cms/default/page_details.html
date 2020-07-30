@@ -1,32 +1,30 @@
-<div id="layout-details">
-    <div class="row">
-        {include file="sidebar.html"}
-        <div id="list" class="col-md-9">
-            {include file="breadcrumb.html"}
-            <div class="card">
-                {tags:details /}
-                <div class="card-body">
-                    <h3><a href="{$details.url}">{$details.title}</a></h3>
-                    <p class="text-muted">
-                        <span style="margin-right:10px;">
-                            <i class="fa fa-calendar-day"></i>
-                            <font>{$details.update_time}</font>
-                        </span>
-                        <span style="margin-right:10px;">
-                            <i class="fa fa-calendar-day"></i>
-                            <a href="{$details.cat_url}">{$details.cat_name}</a>
-                        </span>
-                        <span style="margin-right:10px;">
-                            <i class="fa fa-user"></i>
-                            <font>{$details.author}</font>
-                        </span>
-                        <span style="margin-right:10px;">
-                            <i class="fa fa-eye"></i>
-                            <font>{$details.hits}</font>
-                        </span>
-                    </p>
-                    <div class="details">{$details.content}</div>
-                </div>
+<div class="row">
+    {include file="sidebar.html"}
+    <div id="list" class="col-md-9">
+        {include file="breadcrumb.html"}
+        <div id="layout-details" class="card">
+            {tags:details /}
+            <div class="card-body">
+                <h3><a href="{$details.url}">{$details.title}</a></h3>
+                <p class="text-muted">
+                    <span style="margin-right:10px;">
+                        <i class="fa fa-calendar-day"></i>
+                        <font>{$details.update_time}</font>
+                    </span>
+                    <span style="margin-right:10px;">
+                        <i class="fa fa-calendar-day"></i>
+                        <a href="{$details.cat_url}">{$details.cat_name}</a>
+                    </span>
+                    <span style="margin-right:10px;">
+                        <i class="fa fa-user"></i>
+                        <font>{$details.author}</font>
+                    </span>
+                    <span style="margin-right:10px;">
+                        <i class="fa fa-eye"></i>
+                        <font>{$details.hits}</font>
+                    </span>
+                </p>
+                <div class="details">{$details.content}</div>
             </div>
         </div>
     </div>

@@ -19,7 +19,8 @@ namespace app\api\controller\tools;
 
 use think\Response;
 use app\common\library\api\Async;
-use app\common\library\AccessLog;
+use app\common\library\Ipinfo;
+use app\common\model\Visit as ModelVisit;
 
 class Record extends Async
 {
@@ -27,7 +28,27 @@ class Record extends Async
     public function index()
     {
         if ($this->validate->referer()) {
-            AccessLog::record();
+            $user_agent = strtolower($this->request->server('HTTP_USER_AGENT'));
+            $ip = Ipinfo::get($this->request->ip());
+            $has = ModelVisit::where([
+                ['ip', '=', $ip['ip']],
+                ['user_agent', '=', md5($user_agent)],
+                ['date', '=', strtotime(date('Y-m-d'))]
+            ])->value('ip');
+            if ($has) {
+                ModelVisit::where([
+                    ['ip', '=', $ip['ip']],
+                    ['user_agent', '=', md5($user_agent)],
+                    ['date', '=', strtotime(date('Y-m-d'))]
+                ])->inc('count', 1)->update();
+            } else {
+                ModelVisit::create([
+                    'ip'         => $ip['ip'],
+                    'ip_attr'    => isset($ip['country']) ? $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'] : '',
+                    'user_agent' => md5($user_agent),
+                    'date'       => strtotime(date('Y-m-d'))
+                ]);
+            }
 
             $timestamp = $this->request->time() + 3600 * 6;
             return Response::create()->allowCache(true)
