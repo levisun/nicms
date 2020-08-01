@@ -30,7 +30,6 @@ class Spider extends Async
         if ($uri = $this->request->param('uri', false)) {
             @set_time_limit(60);
             @ini_set('max_execution_time', '60');
-            usleep(rand(7500000, 15000000));
 
             $method = $this->request->param('method', 'GET');
             $selector = $this->request->param('selector', '');
@@ -40,7 +39,17 @@ class Spider extends Async
             $uri = str_replace('&nbsp;', '', $uri);
 
             try {
-                $result = $this->request($method, $uri, $selector, $extract);
+                $spider = new LibSpider;
+                if ($spider->request($method, $uri)) {
+                    // 有选择器时
+                    if ($selector) {
+                        // 扩展属性
+                        $result = $spider->fetch($selector, $extract ? explode(',', $extract) : []);
+                        shuffle($result);
+                    } else {
+                        $result = $spider->html();
+                    }
+                }
             } catch (\Exception $e) {
                 trace($uri, 'error');
                 trace($e->getFile() . $e->getLine() . $e->getMessage(), 'error');
@@ -52,40 +61,5 @@ class Spider extends Async
         }
 
         return miss(404, false);
-    }
-
-    /**
-     * 请求
-     * @access private
-     * @param  string $_method
-     * @param  string $_uri
-     * @param  string $_selector
-     * @param  string $_extract
-     * @return string|array
-     */
-    private function request(string $_method, string $_uri, string $_selector, string $_extract)
-    {
-        $spider = new LibSpider;
-        if ($spider->request($_method, $_uri)) {
-            // 有选择器时
-            if ($_selector) {
-                // 扩展属性
-                $result = $spider->fetch($_selector, $_extract ? explode(',', $_extract) : []);
-                shuffle($result);
-            } else {
-                $result = $spider->html();
-
-                // 解析跳转代码
-                $regex = '/http\-equiv="refresh"\scontent=".*?url=(.*?)">/si';
-                $result = preg_replace_callback($regex, function ($refresh) use($_method, $_selector, $_extract) {
-                    $refresh = trim($refresh[1], '\'"');
-                    return $this->request($_method, $refresh, $_selector, $_extract);
-                }, htmlspecialchars_decode($result, ENT_QUOTES));
-            }
-
-            return $result;
-        }
-
-        return '';
     }
 }

@@ -24,7 +24,7 @@ class Words extends Async
 
     public function index()
     {
-        if ($txt = $this->request->param('txt', false)) {
+        if ($this->validate->referer() && $txt = $this->request->param('txt', false)) {
             if (mb_strlen($txt, 'UTF-8') <= 500) {
                 $cache_key = md5($txt);
                 if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {

@@ -27,10 +27,10 @@ class ReGarbage
      * @param  int    $_expire
      * @return void
      */
-    public static function clear(string $_dir, int $_expire): void
+    public static function clear(string $_dir, string $_expire): void
     {
         $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_dir) . DIRECTORY_SEPARATOR;
-        $timestamp = (0 === $_expire) ? $_expire : strtotime('-' . $_expire . ' days');
+        $timestamp = (0 === $_expire) ? $_expire : strtotime($_expire);
 
         if ($files = glob($_dir . '*')) {
             foreach ($files as $file) {
@@ -102,7 +102,8 @@ class ReGarbage
      */
     public static function uploadEmptyDirectory(string $_dir = ''): void
     {
-        $_dir = $_dir ?: public_path('storage/uploads');
+        $_dir = $_dir ? 'storage/uploads/' . $_dir : 'storage/uploads';
+        $_dir = public_path($_dir);
 
         if ($files = glob($_dir . '*')) {
             foreach ($files as $file) {

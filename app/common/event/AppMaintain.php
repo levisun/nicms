@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
+use app\common\library\Base64;
 use app\common\library\DataManage;
 use app\common\library\ReGarbage;
 use app\common\library\Sitemap;
@@ -36,23 +37,25 @@ class AppMaintain
             // 数据库备份
             // (new DataManage)->autoBackup();
 
-            only_execute('remove_garbage.lock', '-4 hour', function () {
+            only_execute('remove_garbage.lock', '-1 hour', function () {
                 // 生成网站地图
                 Sitemap::create();
 
                 // 清除过期缓存文件
-                ReGarbage::clear(runtime_path('cache'), 1);
+                ReGarbage::clear(runtime_path('cache'), '-4 hour');
 
                 $uploads_path = public_path('storage/uploads');
 
                 // 清除游客上传的文件
-                ReGarbage::clear($uploads_path . 'guest', 60);
+                ReGarbage::clear($uploads_path . 'guest', '-60 day');
 
                 // 清除生成的缩略图
-                ReGarbage::clear($uploads_path . 'thumb', 60);
+                ReGarbage::clear($uploads_path . 'thumb', '-60 day');
 
                 // 清除上传目录中的空目录
-                ReGarbage::uploadEmptyDirectory();
+                $sub_dir = Base64::dechex((int) date('Ym', strtotime('-1 month')));
+                ReGarbage::uploadEmptyDirectory(Base64::flag('user') . '/' . $sub_dir);
+                ReGarbage::uploadEmptyDirectory(Base64::flag('admin') . '/' . $sub_dir);
 
                 // 保证网站根目录整洁
                 ReGarbage::publicDirTidy();

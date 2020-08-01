@@ -35,7 +35,7 @@ class Spider
 
     public function __destruct()
     {
-        usleep(1500000);
+        usleep(rand(1500000, 3500000));
     }
 
     /**
@@ -51,11 +51,13 @@ class Spider
         if (false === filter_var($_uri, FILTER_VALIDATE_URL)) {
             return false;
         }
-
         $cache_key = md5($_uri);
 
         if (!Cache::has($cache_key) || !$this->result = Cache::get($cache_key)) {
             $this->client = new HttpBrowser;
+            $this->client->followRedirects();
+            $this->client->setMaxRedirects(5);
+            $this->client->followMetaRefresh();
             $agent = [
                 'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0',
                 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36 Edg/84.0.522.40',
@@ -63,16 +65,19 @@ class Spider
                 Request::header('user_agent'),
             ];
             shuffle($agent);
-            $_method = strtoupper($_method);
-            $this->client->request($_method, $_uri, [], [], [
+            $this->client->setServerParameters([
                 'HTTP_HOST'            => parse_url($_uri, PHP_URL_HOST),
                 'HTTP_USER_AGENT'      => $agent[array_rand($agent, 1)],
                 'HTTP_REFERER'         => parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . '/',
                 'HTTP_ACCEPT'          => Request::header('accept'),
                 'HTTP_ACCEPT_LANGUAGE' => Request::header('accept_language'),
                 'HTTP_CONNECTION'      => Request::header('connection'),
+                // 'CLIENT_IP'            => '117.117.117.117',
+                // 'X_FORWARDED_FOR'      => '117.117.117.117',
                 // 'HTTP_ACCEPT_ENCODING' => Request::header('accept-encoding'),
             ]);
+
+            $this->client->request(strtoupper($_method), $_uri);
 
             // 请求失败
             if (200 !== $this->client->getInternalResponse()->getStatusCode()) {
