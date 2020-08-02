@@ -44,18 +44,19 @@ class AppMaintain
                 // 清除过期缓存文件
                 ReGarbage::clear(runtime_path('cache'), '-4 hour');
 
-                $uploads_path = public_path('storage/uploads');
 
                 // 清除游客上传的文件
-                ReGarbage::clear($uploads_path . 'guest', '-60 day');
+                ReGarbage::clear(public_path('storage/uploads/guest'), '-60 day');
 
                 // 清除生成的缩略图
-                ReGarbage::clear($uploads_path . 'thumb', '-60 day');
+                ReGarbage::clear(public_path('storage/uploads/thumb'), '-60 day');
 
                 // 清除上传目录中的空目录
                 $sub_dir = Base64::dechex((int) date('Ym', strtotime('-1 month')));
-                ReGarbage::uploadEmptyDirectory(Base64::flag('user') . '/' . $sub_dir);
-                ReGarbage::uploadEmptyDirectory(Base64::flag('admin') . '/' . $sub_dir);
+                $user_dir = public_path('storage/uploads/' . Base64::flag('user', 7) . '/' . $sub_dir);
+                ReGarbage::uploadEmptyDirectory($user_dir);
+                $admin_dir = public_path('storage/uploads/' . Base64::flag('user', 7) . '/' . $sub_dir);
+                ReGarbage::uploadEmptyDirectory($admin_dir);
 
                 // 保证网站根目录整洁
                 ReGarbage::publicDirTidy();

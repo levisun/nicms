@@ -54,8 +54,6 @@ class Index extends BaseController
      */
     public function index()
     {
-        print_r($this->request->header());
-        die();
         return $this->fetch('index');
     }
 

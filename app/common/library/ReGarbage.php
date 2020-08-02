@@ -24,13 +24,13 @@ class ReGarbage
      * @access public
      * @static
      * @param  string $_dir
-     * @param  int    $_expire
+     * @param  string $_expire '-1 month' or '-1 day' or '-1 hour' or ...
      * @return void
      */
-    public static function clear(string $_dir, string $_expire): void
+    public static function clear(string $_dir, string $_expire = ''): void
     {
         $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_dir) . DIRECTORY_SEPARATOR;
-        $timestamp = (0 === $_expire) ? $_expire : strtotime($_expire);
+        $timestamp = $_expire ? strtotime($_expire) : 0;
 
         if ($files = glob($_dir . '*')) {
             foreach ($files as $file) {
@@ -86,7 +86,7 @@ class ReGarbage
             }
 
             if (is_dir($dir . $dir_file)) {
-                self::clear($dir . $dir_file, 0);
+                self::clear($dir . $dir_file);
             } elseif (is_file($dir . $dir_file)) {
                 @unlink($dir . $dir_file);
             }
@@ -102,8 +102,7 @@ class ReGarbage
      */
     public static function uploadEmptyDirectory(string $_dir = ''): void
     {
-        $_dir = $_dir ? 'storage/uploads/' . $_dir : 'storage/uploads';
-        $_dir = public_path($_dir);
+        $_dir = $_dir ? $_dir : public_path('storage/uploads');
 
         if ($files = glob($_dir . '*')) {
             foreach ($files as $file) {

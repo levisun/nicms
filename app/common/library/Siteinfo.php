@@ -146,7 +146,7 @@ class Siteinfo
                 $article = ModelArticle::where([
                     ['id', '=', $id]
                 ])->value('title', '');
-                $title .= $article ? $article . '_' : '';
+                $title .= $article ? $article . '-' : '';
             }
 
             // 栏目名
@@ -154,7 +154,7 @@ class Siteinfo
                 $category = ModelCategory::where([
                     ['id', '=', $cid]
                 ])->value('name', '');
-                $title .= $category ? $category . '_' : '';
+                $title .= $category ? $category . '-' : '';
             }
         }
 
