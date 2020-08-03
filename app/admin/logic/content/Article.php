@@ -136,10 +136,14 @@ class Article extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content added');
 
+        $thumb = $this->request->param('thumb', '');
+        UploadLog::update($thumb, 1);
+
         $receive_data = [
             'title'       => $this->request->param('title'),
             'keywords'    => $this->request->param('keywords'),
             'description' => $this->request->param('description'),
+            'thumb'       => $thumb,
             'category_id' => $this->request->param('category_id/d'),
             'model_id'    => $this->request->param('model_id/d'),
             'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
@@ -186,11 +190,8 @@ class Article extends BaseLogic
 
             // 文章,单页
             if (1 === $receive_data['model_id'] || 4 === $receive_data['model_id']) {
-                $thumb = $this->request->param('thumb', '');
-                UploadLog::update($thumb, 1);
                 ModelArticleContent::create([
                     'article_id' => $article->id,
-                    'thumb'      => $thumb,
                     'origin'     => $this->request->param('origin', ''),
                     'content'    => $this->request->param('content', '', '\app\common\library\Filter::encode')
                 ]);
@@ -323,10 +324,21 @@ class Article extends BaseLogic
             ];
         }
 
+        // 删除旧图片
+        $old_thumb = ModelArticleContent::where([
+            ['article_id', '=', $id]
+        ])->value('thumb');
+        $thumb = $this->request->param('thumb', '');
+        if ($old_thumb !== $thumb) {
+            UploadLog::remove($old_thumb);
+            UploadLog::update($thumb, 1);
+        }
+
         $receive_data = [
             'title'       => $this->request->param('title'),
             'keywords'    => $this->request->param('keywords'),
             'description' => $this->request->param('description'),
+            'thumb'       => $thumb,
             'category_id' => $this->request->param('category_id/d'),
             'model_id'    => $this->request->param('model_id/d'),
             'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
@@ -379,18 +391,9 @@ class Article extends BaseLogic
 
             // 文章,单页
             if (1 === $receive_data['model_id'] || 4 === $receive_data['model_id']) {
-                // 删除旧图片
-                $old_thumb = ModelArticleContent::where([
-                    ['article_id', '=', $id]
-                ])->value('thumb');
-                $thumb = $this->request->param('thumb', '');
-                if ($old_thumb !== $thumb) {
-                    UploadLog::remove($old_thumb);
-                    UploadLog::update($thumb, 1);
-                }
+
 
                 ModelArticleContent::update([
-                    'thumb'   => $thumb,
                     'origin'  => $this->request->param('origin', ''),
                     'content' => $this->request->param('content', '', '\app\common\library\Filter::encode')
                 ], ['article_id' => $id]);

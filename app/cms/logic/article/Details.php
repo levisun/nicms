@@ -60,7 +60,7 @@ class Details extends BaseLogic
         if ($id || $cid) {
             $cache_key = md5('article details' . $id . $cid);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
-                $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'username', 'access_id', 'hits', 'update_time'])
+                $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'thumb', 'username', 'access_id', 'hits', 'update_time'])
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                     ->view('model', ['id' => 'model_id', 'name' => 'model_name', 'table_name'], 'model.id=category.model_id')
                     ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
@@ -70,6 +70,8 @@ class Details extends BaseLogic
                     ->find();
 
                 if ($result && $result = $result->toArray()) {
+                    // 缩略图
+                    $result['thumb'] = Image::path($result['thumb']);
                     // 栏目链接
                     $result['cat_url'] = url('list/' . $result['category_id']);
                     // 文章链接
@@ -126,11 +128,6 @@ class Details extends BaseLogic
                         unset($content['id'], $content['article_id']);
                         foreach ($content as $key => $value) {
                             switch ($key) {
-                                    // 缩略图
-                                case 'thumb':
-                                    $result[$key] = Image::path($value);
-                                    break;
-
                                     // 图片
                                 case 'image_url':
                                     $value = unserialize($value);

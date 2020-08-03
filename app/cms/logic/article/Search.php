@@ -90,10 +90,9 @@ class Search extends BaseLogic
         $cache_key = md5($cache_key);
 
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
-            $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'username', 'access_id', 'hits', 'update_time'])
+            $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'thumb', 'username', 'access_id', 'hits', 'update_time'])
                 ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                 ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id and model.id<=3')
-                ->view('article_content', ['thumb'], 'article_content.article_id=article.id', 'LEFT')
                 ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                 ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
                 ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')

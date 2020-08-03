@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `nc_article` (
     `title` varchar(50) NOT NULL DEFAULT '' COMMENT '标题',
     `keywords` varchar(100) NOT NULL DEFAULT '' COMMENT '关键词',
     `description` varchar(300) NOT NULL DEFAULT '' COMMENT '描述',
+    `thumb` varchar(200) NOT NULL DEFAULT '' COMMENT '缩略图',
     `category_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '栏目ID',
     `type_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '类型ID',
     `admin_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '管理员ID',
