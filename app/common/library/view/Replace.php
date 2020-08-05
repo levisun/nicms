@@ -63,7 +63,7 @@ class Replace
      */
     private function TRepClosedTags(string &$_content): void
     {
-        $regex = str_replace('__REGEX__', '([a-zA-Z]+)([a-zA-Z0-9 $.=>\(\)\[\]"\'_]{0,})', $this->pattern);
+        $regex = str_replace('__REGEX__', '([\w]+)([\w $.=>\(\)\[\]"\']{0,})', $this->pattern);
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
@@ -81,7 +81,14 @@ class Replace
             return $str;
         }, $_content);
 
-        $regex = str_replace('__REGEX__', '\/([a-zA-Z]+)', $this->pattern);
+        /* $regex = '/' . $this->tpl_begin . '\/([\w]+)' . $this->tpl_end . '/si';
+        $_content = preg_replace_callback($regex, function ($matches) {
+            $matches = array_map('strtolower', $matches);
+            $matches = array_map('trim', $matches);
+            return '<?php end' . $matches[1] . '; ?>';
+        }, $_content); */
+
+        $regex = str_replace('__REGEX__', '\/([\w]+)', $this->pattern);
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
@@ -105,7 +112,7 @@ class Replace
      */
     private function TRepAloneTags(string &$_content): void
     {
-        $regex = str_replace('__REGEX__', '([a-zA-Z]+)([a-zA-Z0-9 $.="\'_]+)\/', $this->pattern);
+        $regex = str_replace('__REGEX__', '([\w]+)([\w $.="\']+)\/', $this->pattern);
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
@@ -131,7 +138,7 @@ class Replace
      */
     private function vars(string &$_content): void
     {
-        $regex = '/' . $this->tpl_begin . '\$([a-zA-Z0-9_.]+)' . $this->tpl_end . '/si';
+        $regex = '/' . $this->tpl_begin . '\$([\w\.]+)' . $this->tpl_end . '/si';
         $_content = preg_replace_callback($regex, function ($matches) {
             $var_type = '';
             $var_name = $matches[1];
@@ -233,7 +240,7 @@ class Replace
      */
     private function func(string &$_content): void
     {
-        $pattern = '/' . $this->tpl_begin . ':([a-zA-Z0-9_]+)\((.*?)\)' . $this->tpl_end . '/si';
+        $pattern = '/' . $this->tpl_begin . ':([\w]+)\((.*?)\)' . $this->tpl_end . '/si';
 
         $_content = preg_replace_callback($pattern, function ($matches) {
             $safe_func = [
@@ -308,7 +315,7 @@ class Replace
     private function include(string &$_content): void
     {
         $pattern = '/' . $this->tpl_begin .
-            'include file=["\']+([a-zA-Z_\.]+)["\']+' .
+            'include file=["\']+([\w\.]+)["\']+' .
             $this->tpl_end . '/si';
 
         $_content = preg_replace_callback($pattern, function ($matches) {
