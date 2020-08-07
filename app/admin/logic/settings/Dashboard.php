@@ -7,7 +7,7 @@
  *
  * @package   NICMS
  * @category  app\admin\logic\settings
- * @author    失眠小枕头 [levisun.mail@gmail.com]
+ * @author    失眠小枕头 [312630173@qq.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
  * @since     2019
@@ -52,7 +52,7 @@ class Dashboard extends BaseLogic
                     $this->lang->get('sys timezone')  => $this->config->get('app.default_timezone'),
                     $this->lang->get('sys timeout')   => ini_get('max_execution_time'),
                     $this->lang->get('sys lang')      => $this->config->get('lang.default_lang'),
-                    $this->lang->get('sys copyright') => '失眠小枕头 [levisun.mail@gmail.com]',
+                    $this->lang->get('sys copyright') => '失眠小枕头 [312630173@qq.com]',
                     $this->lang->get('sys upgrade')   => '',
                 ],
             ];

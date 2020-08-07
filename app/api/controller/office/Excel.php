@@ -7,7 +7,7 @@
  *
  * @package   NICMS
  * @category  app\api\controller\office
- * @author    失眠小枕头 [levisun.mail@gmail.com]
+ * @author    失眠小枕头 [312630173@qq.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
  * @since     2020

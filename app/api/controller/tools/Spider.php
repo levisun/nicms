@@ -7,7 +7,7 @@
  *
  * @package   NICMS
  * @category  app\api\controller\tools
- * @author    失眠小枕头 [levisun.mail@gmail.com]
+ * @author    失眠小枕头 [312630173@qq.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
  * @since     2020
@@ -26,8 +26,7 @@ class Spider extends Async
 
     public function index()
     {
-        // $this->validate->referer() &&
-        if ($uri = $this->request->param('uri', false)) {
+        if ($this->validate->referer() && $uri = $this->request->param('uri', false)) {
             @set_time_limit(60);
             @ini_set('max_execution_time', '60');
 
@@ -45,7 +44,6 @@ class Spider extends Async
                     if ($selector) {
                         // 扩展属性
                         $result = $spider->fetch($selector, $extract ? explode(',', $extract) : []);
-                        shuffle($result);
                     } else {
                         $result = $spider->html();
                     }

@@ -7,7 +7,7 @@
  *
  * @package   NICMS
  * @category  app\api\controller\tools
- * @author    失眠小枕头 [levisun.mail@gmail.com]
+ * @author    失眠小枕头 [312630173@qq.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
  * @since     2020
@@ -117,7 +117,8 @@ class Words extends Async
      */
     private function segmentation(string &$_txt): array
     {
-        $segmentation = strip_tags($_txt);
+        $segmentation = strip_tags($_txt, '<br><p>');
+        $segmentation = str_replace(['<br>', '<br />', '<p>', '</p>'], PHP_EOL, $segmentation);
         $segmentation = nl2br($segmentation);
         $segmentation = explode('<br />', $segmentation);
         $segmentation = array_map('trim', $segmentation);
@@ -136,7 +137,7 @@ class Words extends Async
     {
         $sentence = strip_tags($_txt);
         $sentence = str_replace([
-            '。', '！', '!', '？', '?', '；', ';', '：', ':', '，', ',', '……', '、', '————'
+            '。', '！', '!', '？', '?', '；', ';', '：', ':', '，', ',', '……', '————'
         ], '<br />', $_txt);
         $sentence = explode('<br />', $sentence);
         $sentence = array_map('trim', $sentence);

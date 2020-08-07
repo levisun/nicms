@@ -124,10 +124,10 @@
 
         _params.data.push({ name: 'appid', value: jQuery('meta[name="csrf-appid"]').attr('content') });
         _params.data.push({ name: 'sign_type', value: 'md5' });
+        _params.data.push({ name: 'timestamp', value: jQuery.timestamp() });
 
         if ('POST' == _params.type || 'post' == _params.type) {
             _params.data.push({ name: '__token__', value: jQuery('meta[name="csrf-token"]').attr('content') });
-            _params.data.push({ name: 'timestamp', value: jQuery.timestamp() });
         }
 
         _params.data.push({ name: 'sign', value: jQuery.sign(_params.data) });

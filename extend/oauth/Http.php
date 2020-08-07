@@ -3,7 +3,7 @@
  *
  * @package   NiPHPCMS
  * @category  net\oauth\
- * @author    失眠小枕头 [levisun.mail@gmail.com]
+ * @author    失眠小枕头 [312630173@qq.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @version   CVS: $Id: Http.php v1.0.1 $
  * @link      http://www.NiPHP.com

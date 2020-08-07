@@ -6,7 +6,7 @@
  *
  * @package   NICMS
  * @category  view\taglib
- * @author    失眠小枕头 [levisun.mail@gmail.com]
+ * @author    失眠小枕头 [312630173@qq.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
  * @since     2019
@@ -52,7 +52,7 @@ class TagsHead extends Taglib
             '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' .
             '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' .
 
-            '<meta name="author" content="levisun.mail@gmail.com" />' .
+            '<meta name="author" content="312630173@qq.com" />' .
             '<meta name="generator" content="nicms" />' .
             '<meta name="copyright" content="2013-<?php echo date(\'Y\');?> nicms all rights reserved" />' .
 

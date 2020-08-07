@@ -6,7 +6,7 @@
  *
  * @package   NiPHP
  * @category  config
- * @author    失眠小枕头 [levisun.mail@gmail.com]
+ * @author    失眠小枕头 [312630173@qq.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
  * @since     2019
@@ -24,9 +24,9 @@ return [
     // 调试
     'debug'            => env('app_debug', false),
     // 加密密钥
-    'secretkey'        => hash_hmac('sha256', env('app.secretkey', 'nicms'), __DIR__),
+    'secretkey'        => hash_hmac('sha256', env('app.secretkey', 'nicms'), sha1(request()->rootDomain() . __DIR__)),
     // 上传文件大小,单位MB
-    'upload_size'      => env('app.upload_size', 1),
+    'upload_size'      => env('app.upload_size', 3),
     // 上传文件类型(扩展名)
     'upload_type'      => env('app.upload_type', 'jpg,gif,png,webp,mp3,mp4,doc,docx,xls,xlsx,ppt,pptx,pdf,zip'),
 

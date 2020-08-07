@@ -6,7 +6,7 @@
  *
  * @package   NICMS
  * @category  app\common\library\api
- * @author    失眠小枕头 [levisun.mail@gmail.com]
+ * @author    失眠小枕头 [312630173@qq.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
  * @since     2019
@@ -54,7 +54,7 @@ class Validate extends Base
 
         // 请求时间
         $timestamp = $this->request->param('timestamp/d', $this->request->time(), 'abs');
-        if (!$timestamp || $timestamp <= strtotime('-1 days')) {
+        if ($timestamp <= strtotime('-1 hour')) {
             $this->abort('错误请求', 23001);
         }
 
