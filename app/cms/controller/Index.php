@@ -54,10 +54,6 @@ class Index extends BaseController
      */
     public function index()
     {
-        $url = './Uploads/live/202008/5f2fb8f138fe9.png';
-        $sub = substr($url, (strlen($url) - strpos($url, '.', 1) - 1) * -1);
-        halt($sub);
-
         return $this->fetch('index');
     }
 
