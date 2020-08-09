@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Request;
+use app\common\library\Base64;
 use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;
 
@@ -59,7 +60,7 @@ class Sitemap
                 ->toArray();
             if (!empty($article)) {
                 $sitemap_xml[]['url'] = [
-                    'loc'        => $domain . url('list/' . $vo_cate['id']),
+                    'loc'        => $domain . url('list/' . Base64::url62encode($vo_cate['id'])),
                     'lastmod'    => date('Y-m-d'),
                     'changefreq' => 'daily',
                     'priority'   => '1.0',
@@ -68,7 +69,7 @@ class Sitemap
 
             foreach ($article as $vo_art) {
                 $sitemap_xml[]['url'] = [
-                    'loc'        => $domain . url('details/' . $vo_art['category_id'] . '/' . $vo_art['id']),
+                    'loc'        => $domain . url('details/' . Base64::url62encode($vo_art['category_id']) . '/' . Base64::url62encode($vo_art['id'])),
                     'lastmod'    => date('Y-m-d H:i:s', $vo_art['update_time']),
                     'changefreq' => 'weekly',
                     'priority'   => '0.8',

@@ -6,6 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            background: white;
+            font-family: "Century Gothic", "Microsoft yahei";
+            color: #333;
+            font-size: 18px;
+        }
+
         font {
             font-size: 16px;
             margin: 0 5px;
@@ -33,8 +45,7 @@
             },
             methods: {
                 create: function () {
-                    alert(this.red[this.rand()]);
-                    this.future = this.red[this.rand()];
+                        this.future = this.red[this.rand()];
                 },
                 rand: function () {
                     return Math.floor(Math.random() * app.red.length);
@@ -75,16 +86,16 @@
                                             if (r5 == r6 || r6 < r5) continue;
                                             if (this.hasOld(r6)) continue;
 
-                                            // 连
+                                            // 过滤3连号
                                             let cont = 0;
                                             if (this.hasCont(r1, r2)) ++cont;
                                             if (this.hasCont(r2, r3)) ++cont;
                                             if (this.hasCont(r3, r4)) ++cont;
                                             if (this.hasCont(r4, r5)) ++cont;
                                             if (this.hasCont(r5, r6)) ++cont;
-                                            if (cont > 3) continue;
+                                            if (cont > 2) continue;
 
-                                            // 奇偶
+                                            // 过滤全奇偶
                                             let even = 0;
                                             let odd = 0;
                                             this.hasEven(r1) ? ++even : ++odd;
@@ -95,14 +106,15 @@
                                             this.hasEven(r6) ? ++even : ++odd;
                                             if (even == 6 || odd == 6) continue;
 
+                                            // 过滤区间
                                             if (r1 + r2 + r3 + r4 + r5 + r6 < 70) {
                                                 continue;
                                             }
-
                                             if (r1 + r2 + r3 + r4 + r5 + r6 > 100) {
                                                 continue;
                                             }
 
+                                            // 组装数据
                                             let redStyle = '<font style="color:red;">' + r1 + '</font>'
                                                 + '<font style="color:red;">' + r2 + '</font>'
                                                 + '<font style="color:red;">' + r3 + '</font>'

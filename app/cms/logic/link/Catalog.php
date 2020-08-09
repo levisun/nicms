@@ -37,7 +37,7 @@ class Catalog extends BaseLogic
             ['link.lang', '=', $this->lang->getLangSet()]
         ];
 
-        if ($category_id = $this->request->param('cid/d', 0, 'abs')) {
+        if ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
             $map[] = ['link.category_id', '=', $category_id];
         }
 

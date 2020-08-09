@@ -37,7 +37,7 @@ class Details extends BaseLogic
     public function query(): array
     {
         $id = $cid = false;
-        if ($id = $this->request->param('id/d', 0, 'abs')) {
+        if ($id = $this->request->param('id', 0, '\app\common\library\Base64::url62decode')) {
             $map = [
                 ['article.id', '=', $id],
                 ['article.is_pass', '=', 1],
@@ -73,9 +73,9 @@ class Details extends BaseLogic
                     // 缩略图
                     $result['thumb'] = Image::path($result['thumb']);
                     // 栏目链接
-                    $result['cat_url'] = url('list/' . $result['category_id']);
+                    $result['cat_url'] = url('list/' . Base64::url62encode($result['category_id']));
                     // 文章链接
-                    $result['url'] = url('details/' . $result['category_id'] . '/' . $result['id']);
+                    $result['url'] = url('details/' . Base64::url62encode($result['category_id']) . '/' . Base64::url62encode($result['id']));
                     // 标识符
                     $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
                     // 时间格式
@@ -113,7 +113,7 @@ class Details extends BaseLogic
                         ->select()
                         ->toArray();
                     foreach ($result['tags'] as $key => $tag) {
-                        $tag['url'] = url('tags/' . $tag['tags_id']);
+                        $tag['url'] = url('tags/' . Base64::url62encode($tag['tags_id']));
                         $result['tags'][$key] = $tag;
                     }
 
@@ -234,13 +234,13 @@ class Details extends BaseLogic
 
         if (null !== $result && $result = $result->toArray()) {
             $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
-            $result['url'] = url('details/' . $result['category_id'] . '/' . $result['id']);
-            $result['cat_url'] = url('list/' . $result['category_id']);
+            $result['url'] = url('details/' . Base64::url62encode($result['category_id']) . '/' . Base64::url62encode($result['id']));
+            $result['cat_url'] = url('list/' . Base64::url62encode($result['category_id']));
         } else {
             $result = [
                 'title'   => $this->lang->get('not next'),
-                'url'     => url('details/' . $_category_id . '/' . $_article_id),
-                'cat_url' => url('list/' . $_category_id),
+                'url'     => url('details/' . Base64::url62encode($_category_id) . '/' . Base64::url62encode($_article_id)),
+                'cat_url' => url('list/' . Base64::url62encode($_category_id)),
             ];
         }
 
@@ -276,13 +276,13 @@ class Details extends BaseLogic
 
         if (null !== $result && $result = $result->toArray()) {
             $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
-            $result['url'] = url('details/' . $result['category_id'] . '/' . $result['id']);
-            $result['cat_url'] = url('list/' . $result['category_id']);
+            $result['url'] = url('details/' . Base64::url62encode($result['category_id']) . '/' . Base64::url62encode($result['id']));
+            $result['cat_url'] = url('list/' . Base64::url62encode($result['category_id']));
         } else {
             $result = [
                 'title'   => $this->lang->get('not prev'),
-                'url'     => url('details/' . $_category_id . '/' . $_article_id),
-                'cat_url' => url('list/' . $_category_id),
+                'url'     => url('details/' . Base64::url62encode($_category_id) . '/' . Base64::url62encode($_article_id)),
+                'cat_url' => url('list/' . Base64::url62encode($_category_id)),
             ];
         }
 

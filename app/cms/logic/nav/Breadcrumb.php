@@ -34,7 +34,7 @@ class Breadcrumb extends BaseLogic
      */
     public function query(): array
     {
-        if ($cid = $this->request->param('cid/d', 0, 'abs')) {
+        if ($cid = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
             $cache_key = md5('nav breadcrumb' . $cid);
             if (!$this->cache->has($cache_key)) {
                 $this->parentCate((int) $cid);
@@ -75,12 +75,12 @@ class Breadcrumb extends BaseLogic
             $result['image'] = Image::path((string) $result['image']);
             $result['flag'] = Base64::flag($result['id'], 7);
             if (in_array($result['action_name'], ['article', 'picture', 'download'])) {
-                $result['url'] = url('list/' . $result['id']);
+                $result['url'] = url('list/' . Base64::url62encode($result['id']));
             } else {
-                $result['url'] = url($result['action_name'] . '/' . $result['id']);
+                $result['url'] = url($result['action_name'] . '/' . Base64::url62encode($result['id']));
             }
             if ($result['access_id']) {
-                $result['url'] = url('channel/' . $result['id']);
+                $result['url'] = url('channel/' . Base64::url62encode($result['id']));
             }
             unset($result['action_name']);
 

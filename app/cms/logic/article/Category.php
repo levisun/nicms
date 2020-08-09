@@ -43,7 +43,7 @@ class Category extends BaseLogic
         ];
 
         // 安栏目查询,为空查询所有
-        if ($category_id = $this->request->param('cid/d', 0, 'abs')) {
+        if ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
             $map[] = ['article.category_id', 'in', $this->child($category_id)];
         }
 
@@ -93,9 +93,9 @@ class Category extends BaseLogic
                 $list['render'] = $result->render();
                 foreach ($list['data'] as $key => $value) {
                     // 栏目链接
-                    $value['cat_url'] = url('list/' . $value['category_id']);
+                    $value['cat_url'] = url('list/' . Base64::url62encode($value['category_id']));
                     // 文章链接
-                    $value['url'] = url('details/' . $value['category_id'] . '/' . $value['id']);
+                    $value['url'] = url('details/' . Base64::url62encode($value['category_id']) . '/' . Base64::url62encode($value['id']));
                     // 标识符
                     $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
                     // 缩略图
@@ -128,7 +128,7 @@ class Category extends BaseLogic
                         ->select()
                         ->toArray();
                     foreach ($value['tags'] as $k => $tag) {
-                        $tag['url'] = url('tags/' . $tag['tags_id']);
+                        $tag['url'] = url('tags/' . Base64::url62encode($tag['tags_id']));
                         $value['tags'][$k] = $tag;
                     }
 

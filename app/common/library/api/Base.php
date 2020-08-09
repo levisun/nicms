@@ -144,7 +144,7 @@ abstract class Base
 
         $this->log->warning('[Async] ' . $this->request->url());
         $this->log->save();
-        $this->session->save();
+        // $this->session->save();
 
         ob_start('ob_gzhandler');
 

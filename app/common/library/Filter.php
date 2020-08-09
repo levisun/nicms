@@ -64,6 +64,7 @@ class Filter
     public static function encode($_data)
     {
         if (is_string($_data)) {
+            $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = self::symbol($_data);
             $_data = self::space($_data);
             $_data = self::html($_data);

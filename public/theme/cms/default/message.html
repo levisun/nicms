@@ -43,9 +43,6 @@
                 jQuery.pjax({
                     url: NICMS.api.url + '/verify/img.do',
                     type: 'get',
-                    data: [
-                        { name: 'timestamp', value: jQuery.timestamp() }
-                    ],
                     success: function (result) {
                         jQuery('#img-verify').attr('src', result);
                     }

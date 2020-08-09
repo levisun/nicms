@@ -33,7 +33,7 @@ class Catalog extends BaseLogic
     public function query()
     {
         $list = false;
-        if ($category_id = $this->request->param('cid/d', 0, 'abs')) {
+        if ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
             $query_limit = $this->request->param('limit/d', 20, 'abs');
             $query_page = $this->request->param('page/d', 1, 'abs');
             $date_format = $this->request->param('date_format', 'Y-m-d');

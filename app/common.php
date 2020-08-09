@@ -73,7 +73,7 @@ if (!function_exists('filepath_decode')) {
      * @param  bool   $_abs
      * @return string
      */
-    function filepath_decode(string $_file, bool $_abs = false)
+    function filepath_decode(string $_file, bool $_abs = false): string
     {
         $salt = date('Y') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         $salt = md5($salt);
@@ -134,8 +134,17 @@ if (!function_exists('words')) {
 
         // 过滤其他字符
         if ($_text = Filter::chs_alpha($_text)) {
-            @ini_set('memory_limit', '128M');
+            // 提取日期词语
+            $date = [];
+            $_text = (string) preg_replace_callback('/([\d]+[年|月|日]+)/si', function ($matches) use (&$date) {
+                $matches = array_map('trim', $matches);
+                $date[] = $matches[1];
+                return '';
+            }, $_text);
 
+
+
+            @ini_set('memory_limit', '128M');
             $fc = new VicWord();
             $words = $fc->getAutoWord($_text);
             unset($fc);
@@ -146,6 +155,7 @@ if (!function_exists('words')) {
                 $length[] = mb_strlen($value[0], 'utf-8');
                 $words[$key] = $value[0];
             }
+            $words = array_merge($words, $date);
 
             // 排序
             if ($_sort) {
@@ -310,7 +320,7 @@ if (!function_exists('public_path')) {
      * @param string $path
      * @return string
      */
-    function public_path($_path = '')
+    function public_path($_path = ''): string
     {
         $_path = trim($_path, '\/');
         $_path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_path);
@@ -326,7 +336,7 @@ if (!function_exists('runtime_path')) {
      * @param string $path
      * @return string
      */
-    function runtime_path($_path = '')
+    function runtime_path($_path = ''): string
     {
         $_path = trim($_path, '\/');
         $_path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_path);
@@ -342,7 +352,7 @@ if (!function_exists('root_path')) {
      * @param string $path
      * @return string
      */
-    function root_path($_path = '')
+    function root_path($_path = ''): string
     {
         $_path = trim($_path, '\/');
         $_path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_path);

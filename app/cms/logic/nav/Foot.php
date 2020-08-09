@@ -54,12 +54,12 @@ class Foot extends BaseLogic
                     $value['image'] = Image::path((string) $value['image']);
                     $value['flag'] = Base64::flag($value['id'], 7);
                     if (in_array($value['action_name'], ['article', 'picture', 'download'])) {
-                        $value['url'] = url('list/' . $value['id']);
+                        $value['url'] = url('list/' . Base64::url62encode($value['id']));
                     } else {
-                        $value['url'] = url($value['action_name'] . '/' . $value['id']);
+                        $value['url'] = url($value['action_name'] . '/' . Base64::url62encode($value['id']));
                     }
                     if ($value['access_id']) {
-                        $value['url'] = url('channel/' . $value['id']);
+                        $value['url'] = url('channel/' . Base64::url62encode($value['id']));
                     }
                     unset($value['action_name']);
 
@@ -103,12 +103,12 @@ class Foot extends BaseLogic
             $value['image'] = Image::path((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             if (in_array($value['action_name'], ['article', 'picture', 'download'])) {
-                $value['url'] = url('list/' . $value['id']);
+                $value['url'] = url('list/' . Base64::url62encode($value['id']));
             } else {
-                $value['url'] = url($value['action_name'] . '/' . $value['id']);
+                $value['url'] = url($value['action_name'] . '/' . Base64::url62encode($value['id']));
             }
             if ($value['access_id']) {
-                $value['url'] = url('channel/' . $value['id']);
+                $value['url'] = url('channel/' . Base64::url62encode($value['id']));
             }
             unset($value['action_name']);
 

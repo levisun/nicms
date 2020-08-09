@@ -127,6 +127,49 @@ class Base64
     }
 
     /**
+     * url62加密
+     * @access public
+     * @static
+     * @param  int    $_number 加密前的数据
+     * @return string 加密后的数据
+     */
+    public static function url62encode(int $_number): string
+    {
+        $base62 = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $encode = '';
+        $_number += 1000;
+        while($_number > 0) {
+            if ($mod = bcmod((string) $_number, '62')) {
+                $encode .= $base62[$mod];
+                $_number = bcdiv((string) bcsub((string) $_number, $mod), '62');
+            }
+        }
+
+        return strrev($encode);
+    }
+
+    /**
+     * url62解密
+     * @access public
+     * @static
+     * @param  string $_encode 解密前的数据
+     * @return int    解密后的数据
+     */
+    public static function url62decode(string $_encode): int
+    {
+        $base62 = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $len = strlen($_encode);
+        $arr = array_flip(str_split($base62));
+
+        $number = '';
+        for($i = 0; $i < $len; $i ++) {
+            $number = bcadd((string) $number, bcmul((string) $arr[$_encode[$i]], bcpow('62', (string) ($len - $i - 1) )));
+        }
+
+        return (int) $number - 1000;
+    }
+
+    /**
      * 数据加密
      * @access public
      * @static
@@ -155,9 +198,9 @@ class Base64
      * 数据解密
      * @access public
      * @static
-     * @param  mixed  $_data 加密前的数据
+     * @param  mixed  $_data 解密前的数据
      * @param  string $_salt
-     * @return mixed  加密后的数据
+     * @return mixed  解密后的数据
      */
     public static function decrypt($_data, string $_salt = '')
     {

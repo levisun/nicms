@@ -30,7 +30,7 @@ class Index extends BaseController
      */
     public function initialize()
     {
-        if ($cid = $this->request->param('cid/d', 0, 'abs')) {
+        if ($cid = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
             // 获得栏目对应模板
             $this->model_name = ModelCategory::view('category', ['id'])
                 ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
@@ -54,6 +54,10 @@ class Index extends BaseController
      */
     public function index()
     {
+        $url = './Uploads/live/202008/5f2fb8f138fe9.png';
+        $sub = substr($url, (strlen($url) - strpos($url, '.', 1) - 1) * -1);
+        halt($sub);
+
         return $this->fetch('index');
     }
 

@@ -22,6 +22,7 @@ class Index extends Base
             background-color: #fff;
             z-index: 1000;
             border-radius: 4px;
+            padding: 0;
         }
         #addon-elevator>li {
             display: block;
@@ -31,6 +32,22 @@ class Index extends Base
             text-align: center;
             border-bottom: solid 1px #ededed;
             position: relative;
+        }
+        .container {
+            width: 0;
+            height: 0;
+            border: 10px solid;
+            border-color: transparent transparent red transparent;
+            position: relative;
+            top: -15px;
+        }
+        .container::after {
+            content: "";
+            position: absolute;
+            top: -25px;
+            left: -50px;
+            border: 50px solid;
+            border-color: transparent transparent white transparent;
         }
         #addon-gotop {
             position:fixed;
@@ -43,9 +60,9 @@ class Index extends Base
         </style>
 
         <ul id="addon-elevator" style="display: block;">
-            <li>
-                <span id="elevator_gotop" title="↑ 返回顶部"></span>
-            </li>
+            <li><span id="elevator_gotop" title="↑ 返回顶部"><i class="container"></i></span></li>
+            <li><span id="elevator_gotop" title="微信公众号"></span></li>
+            <li><span id="elevator_gotop" title="手机版"></span></li>
         </ul>
 
         <div id="addon-gotop">回到顶端</div>
