@@ -36,7 +36,7 @@ Route::group(function () {
 ->domain('book')
 ->ext('html')
 ->pattern([
-    'tid'  => '\d+',
-    'bid'  => '\d+',
-    'id'   => '\d+',
+    'tid'  => '\w+',
+    'bid'  => '\w+',
+    'id'   => '\w+',
 ]);

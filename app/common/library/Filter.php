@@ -37,13 +37,13 @@ class Filter
     {
         if (is_string($_data)) {
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
-            $_data = Emoji::clear($_data);
             $_data = self::symbol($_data);
             $_data = self::space($_data);
             $_data = self::html($_data);
             $_data = self::html_attr($_data);
             $_data = self::php($_data);
             $_data = self::fun($_data);
+            $_data = Emoji::clear($_data);
             $_data = strip_tags($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {

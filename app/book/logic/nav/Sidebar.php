@@ -33,7 +33,7 @@ class Sidebar extends BaseLogic
      */
     public function query(): array
     {
-        if ($cid = $this->request->param('cid/d', 0, 'abs')) {
+        if ($cid = $this->request->param('tid', 0, '\app\common\library\Base64::url62decode')) {
             $cache_key = md5('book nav sidebar' . $cid);
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $id = $this->parent((int) $cid);
@@ -48,7 +48,7 @@ class Sidebar extends BaseLogic
                     $result['child'] = $this->child($result['id']);
                     $result['image'] = Image::path((string) $result['image']);
                     $result['flag'] = Base64::flag($result['id'], 7);
-                    $result['url'] = url('list/' . $result['id']);
+                    $result['url'] = url('list/' . Base64::url62encode($result['id']));
                 }
 
                 $this->cache->tag(['book', 'book nav'])->set($cache_key, $result);
@@ -84,7 +84,7 @@ class Sidebar extends BaseLogic
             $value['child'] = $this->child($value['id']);
             $value['image'] = Image::path((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
-            $value['url'] = url('list/' . $value['id']);
+            $value['url'] = url('list/' . Base64::url62encode($value['id']));
 
             $result[$key] = $value;
         }

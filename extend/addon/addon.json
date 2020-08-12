@@ -14,7 +14,7 @@
             "type": "cms"
         },
         "pillow\/gotop" : {
-            "status": "open",
+            "status": "close",
             "type": "cms"
         }
     }

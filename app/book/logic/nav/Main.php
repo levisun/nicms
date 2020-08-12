@@ -49,7 +49,7 @@ class Main extends BaseLogic
                 $value['child'] = $this->child($value['id']);
                 $value['image'] = Image::path((string) $value['image']);
                 $value['flag'] = Base64::flag($value['id'], 7);
-                $value['url'] = url('list/' . $value['id']);
+                $value['url'] = url('list/' . Base64::url62encode($value['id']));
 
                 $result[$key] = $value;
             }
@@ -85,7 +85,7 @@ class Main extends BaseLogic
             $value['child'] = $this->child($value['id']);
             $value['image'] = Image::path((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
-            $value['url'] = url('list/' . $value['id']);
+            $value['url'] = url('list/' . Base64::url62encode($value['id']));
 
             $result[$key] = $value;
         }

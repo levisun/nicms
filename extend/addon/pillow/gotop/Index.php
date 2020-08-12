@@ -33,7 +33,7 @@ class Index extends Base
             border-bottom: solid 1px #ededed;
             position: relative;
         }
-        .container {
+        #addon-elevator>li .container {
             width: 0;
             height: 0;
             border: 10px solid;
@@ -41,7 +41,7 @@ class Index extends Base
             position: relative;
             top: -15px;
         }
-        .container::after {
+        #addon-elevator>li .container::after {
             content: "";
             position: absolute;
             top: -25px;

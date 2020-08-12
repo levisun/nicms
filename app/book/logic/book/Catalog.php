@@ -33,7 +33,7 @@ class Catalog extends BaseLogic
      */
     public function query(): array
     {
-        $book_id = $this->request->param('id/d', 0, 'abs');
+        $book_id = $this->request->param('id', 0, '\app\common\library\Base64::url62decode');
         $map = [
             ['is_pass', '=', '1'],
             ['delete_time', '=', '0'],
@@ -50,7 +50,8 @@ class Catalog extends BaseLogic
         $cache_key = 'book article list' . $book_id . $query_limit . $query_page . $date_format;
         $cache_key = md5($cache_key);
 
-        // if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
+        if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
+            // 书籍信息
             $book = (new ModelBook)
                 ->view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'image', 'hits', 'origin', 'status', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
@@ -66,7 +67,7 @@ class Catalog extends BaseLogic
                 // 缩略图
                 $book['image'] = Image::path($book['image']);
 
-
+                // 书籍章节
                 $result = ModelBookArticle::field(['id', 'book_id', 'title', 'update_time'])
                     ->where($map)
                     ->order($sort_order)
@@ -77,11 +78,12 @@ class Catalog extends BaseLogic
 
                 if ($result && $list = $result->toArray()) {
                     $list['render'] = $result->render();
+                    $list['total'] = number_format($list['total']);
                     foreach ($list['data'] as $key => $value) {
                         // 书籍文章列表链接
-                        $value['cat_url'] = url('book/' . $value['book_id']);
+                        $value['cat_url'] = url('book/' . Base64::url62encode($value['book_id']));
                         // 书籍文章文章链接
-                        $value['url'] = url('article/' . $value['book_id'] . '/' . $value['id']);
+                        $value['url'] = url('article/' . Base64::url62encode($value['book_id']) . '/' . Base64::url62encode($value['id']));
                         // 标识符
                         $value['flag'] = Base64::flag($value['book_id'] . $value['id'], 7);
                         // 时间格式
@@ -95,7 +97,7 @@ class Catalog extends BaseLogic
 
                 $list['book'] = $book;
             }
-        // }
+        }
 
         return [
             'debug' => false,

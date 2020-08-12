@@ -98,9 +98,9 @@ abstract class BaseController
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\Filter::safe');
 
-        @set_time_limit(10);
-        @ini_set('max_execution_time', '10');
-        @ini_set('memory_limit', '8M');
+        @set_time_limit(30);
+        @ini_set('max_execution_time', '30');
+        @ini_set('memory_limit', '16M');
 
         // 初始化视图
         $app_name = app('http')->getName();

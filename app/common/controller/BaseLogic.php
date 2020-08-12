@@ -109,8 +109,14 @@ abstract class BaseLogic
         $this->request = &$this->app->request;
         $this->session = &$this->app->session;
 
+        // 请勿开启调试模式
+        $this->app->debug(false);
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\Filter::safe');
+        // 请勿更改参数(超时,执行内存)
+        @set_time_limit(30);
+        @ini_set('max_execution_time', '30');
+        @ini_set('memory_limit', '16M');
 
         // 设置会话信息(用户ID,用户组)
         if ($this->session->has($this->authKey) && $this->session->has($this->authKey . '_role')) {

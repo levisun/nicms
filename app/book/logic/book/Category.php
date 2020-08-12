@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\book\logic\book;
 
 use app\common\controller\BaseLogic;
+use app\common\library\Base64;
 use app\common\model\Book as ModelBook;
 
 class Category extends BaseLogic
@@ -44,7 +45,7 @@ class Category extends BaseLogic
             $map[] = ['book.is_hot', '=', '1'];
         }
 
-        if ($type_id = $this->request->param('tid/d', 0, 'abs')) {
+        if ($type_id = $this->request->param('tid', 0, '\app\common\library\Base64::url62decode')) {
             $map[] = ['book.type_id', '=', $type_id];
         }
 
@@ -75,7 +76,7 @@ class Category extends BaseLogic
                 $list['render'] = $result->render();
 
                 foreach ($list['data'] as $key => $value) {
-                    $value['url'] = url('book/' . $value['id']);
+                    $value['url'] = url('book/' . Base64::url62encode($value['id']));
                     $value['update_time'] = date($date_format, (int) $value['update_time']);
 
                     $list['data'][$key] = $value;
