@@ -54,41 +54,45 @@ class ReGarbage
      */
     public static function publicDirTidy(): void
     {
+        $keep = [
+            'file' => [
+                'index.php',
+                'robots.txt',
+                'sitemap.xml',
+                'favicon.ico',
+            ],
+            'ext' => [
+                'htaccess',
+                'nginx',
+                'html',
+                'ini',
+                'env',
+                'yaml',
+            ],
+        ];
+
         $dir = public_path();
-        $files = is_dir($dir) ? scandir($dir) : [];
-        foreach ($files as $dir_file) {
-            if (in_array($dir_file, ['.', '..'])) {
-                continue;
-            }
-
-            // 跳过目录
-            elseif (is_dir($dir . $dir_file) && in_array($dir_file, ['screen', 'static', 'storage', 'theme'])) {
-                continue;
-            }
-
-            // 文件
-            elseif (is_file($dir . $dir_file)) {
-                // 跳过文件
-                if (in_array($dir_file, ['index.php', 'robots.txt', 'sitemap.xml', 'favicon.ico'])) {
+        if ($files = glob($dir . '*')) {
+            foreach ($files as $dir_file) {
+                // 跳过目录
+                if (is_dir($dir_file)) {
                     continue;
                 }
+                // 文件
+                elseif (is_file($dir_file)) {
+                    // 跳过文件
+                    $name = strtolower(pathinfo($dir_file, PATHINFO_BASENAME));
+                    if (in_array($name, $keep['file'])) {
+                        continue;
+                    }
 
-                // 跳过配置文件
-                $ext = strtolower(pathinfo($dir . $dir_file, PATHINFO_EXTENSION));
-                if (in_array($ext, ['htaccess', 'nginx', 'ini', 'env', 'yaml'])) {
-                    continue;
+                    $ext = strtolower(pathinfo($dir_file, PATHINFO_EXTENSION));
+                    if (in_array($ext, $keep['ext'])) {
+                        continue;
+                    }
+
+                    @unlink($dir_file);
                 }
-
-                // $name = (int) pathinfo($dir . $dir_file, PATHINFO_FILENAME);
-                if ($ext == 'html') {
-                    continue;
-                }
-            }
-
-            if (is_dir($dir . $dir_file)) {
-                self::clear($dir . $dir_file);
-            } elseif (is_file($dir . $dir_file)) {
-                @unlink($dir . $dir_file);
             }
         }
     }

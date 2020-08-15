@@ -155,6 +155,37 @@ class Filter
     public static function html_attr(string &$_str): string
     {
         // [ onclick="alert(1)" onload=eval(ssltest.title) data-d={1:\'12 3213\',22=2:\' dabdd\'} ]在做修改时,请保证括号内代码成功过滤!有新结构体,请追加在括号内!
+
+        $_str = (string) preg_replace_callback('/[\w\-]+=[^>]*/si', function ($attr) {
+            $attr = trim($attr[0]);
+            // 过滤json数据
+            $attr = preg_replace('/[\{\[]+.*?[\}\]]+/si', '', $attr);
+            // 替换空格
+            $attr = preg_replace('/([\w:]+)( )/si', '$1&nbsp;', $attr);
+            // halt($attr);
+            $attr = preg_replace_callback('/([\w\-]+)=[^\s]*/si', function ($r) {
+                $r = array_map('trim', $r);
+                if (false !== stripos($r[0], 'javascript')) {
+                    return '';
+                }
+
+                if (!in_array(strtolower($r[1]), self::$attr)) {
+                    return '';
+                }
+
+                return str_replace('&nbsp;', ' ', trim($r[0]));
+            }, $attr);
+
+            // 清除多余空格
+            $attr = preg_replace('/\s{2,}/si', ' ', $attr);
+            return trim($attr);
+        }, $_str);
+
+        // 修复标签中的空格
+        $_str = preg_replace('/\s+>/si', '>', $_str);
+        return $_str;
+
+        // 废弃
         $_str = (string) preg_replace_callback('/(<\/?[a-zA-Z0-9]+)(.*?)(\/?>)/si', function ($element) {
             $element = array_map('trim', $element);
 
@@ -205,8 +236,8 @@ class Filter
             $preg = [];
             foreach ($ele[1] as $value) {
                 if (!in_array(strtolower($value), self::$elements)) {
-                    $preg[] = '/<' . $value . '.*?>.*?<\/' . $value . '>/si';
-                    $preg[] = '/<' . $value . '.*?\/?>/si';
+                    $preg[] = '/<' . $value . '.*?\/' . $value . '>/si';
+                    $preg[] = '/<' . $value . '.*?>/si';
                 }
             }
             $_str = (string) preg_replace($preg, '', $_str);

@@ -60,33 +60,6 @@ class Base64
     }
 
     /**
-     * 客户端唯一ID
-     * 请勿在API或logic层中调用
-     * @access public
-     * @static
-     * @return string
-     */
-    public static function client_id(): string
-    {
-        if (!Cookie::has('client_id') || !$token = Cookie::get('client_id')) {
-            $token  = Request::server('HTTP_USER_AGENT');
-            $token .= sha1(__DIR__);
-            $token .= bindec(Request::ip2bin(Request::ip()));
-            $token .= date('YmdHis');
-            $token .= Request::time(true);
-            $token .= number_format(microtime(true) - app()->getBeginTime(), 3);
-            $token .= number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3);
-
-            $token = hash_hmac('sha256', $token, uniqid($token, true));
-            $token = sha1(uniqid($token, true));
-
-            Cookie::set('client_id', $token, ['httponly' => false]);
-        }
-
-        return $token;
-    }
-
-    /**
      * 生成旗标
      * @access public
      * @static

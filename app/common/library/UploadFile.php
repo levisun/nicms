@@ -164,11 +164,11 @@ class UploadFile
             : 'guest' . DIRECTORY_SEPARATOR;
 
         // 时间目录
-        $_dir .= Base64::dechex((int) date('Ym')) . DIRECTORY_SEPARATOR;
+        $_dir .= Base64::url62encode((int) date('Ym')) . DIRECTORY_SEPARATOR;
 
         // 用户目录[删除用户时可删除目录]
         $_dir .= !empty($_user['user_id'])
-            ? Base64::dechex($_user['user_id'])
+            ? Base64::url62encode((int) $_user['user_id'])
             : '';
 
         $save_path = Config::get('filesystem.disks.public.url') . '/';

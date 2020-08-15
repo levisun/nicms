@@ -43,9 +43,9 @@ class Spider
      * @access public
      * @param  string $_method 请求类型 GET|POST
      * @param  string $_uri    请求地址 http://xxx
-     * @return bool
+     * @return mixed
      */
-    public function request(string $_method, string $_uri): bool
+    public function request(string $_method, string $_uri)
     {
         // 非URL地址返回错误
         if (false === filter_var($_uri, FILTER_VALIDATE_URL)) {
@@ -113,7 +113,7 @@ class Spider
         $this->crawler = new Crawler;
         $this->crawler->addContent(htmlspecialchars_decode($this->result, ENT_QUOTES));
 
-        return true;
+        return $this;
     }
 
     public function getCrawler()

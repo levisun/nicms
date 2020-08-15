@@ -182,9 +182,9 @@ if (!function_exists('words')) {
 if (!function_exists('only_execute')) {
     /**
      * 非阻塞模式并发运行
-     * @param string       $_lock     锁定文件
-     * @param false|string $_time     执行周期
-     * @param callable     $_callback
+     * @param  string       $_lock     锁定文件
+     * @param  false|string $_time     执行周期
+     * @param  callable     $_callback
      * @return void
      */
     function only_execute(string $_lock, $_time, callable $_callback): void
@@ -260,7 +260,7 @@ if (!function_exists('authorization')) {
     {
         // 密钥
         $key = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
-        $key = sha1(Base64::encrypt($key));
+        $key = sha1(uniqid(Base64::encrypt($key), true));
 
         $authorization = (new Builder)
             // 签发者
@@ -276,13 +276,40 @@ if (!function_exists('authorization')) {
             // 签发过期时间
             ->expiresAt(Request::time() + 28800)
             // 客户端ID
-            ->withClaim('uid', Base64::client_id())
+            ->withClaim('uid', client_id())
             // 生成token
             ->getToken(new Sha256, new Key($key));
 
         $authorization = (string) $authorization;
 
         Cookie::set('XSRF_AUTHORIZATION', $authorization, ['httponly' => false]);
+    }
+}
+
+if (!function_exists('client_id')) {
+    /**
+     * 客户端唯一ID
+     * 请勿在API或logic层中调用
+     * @return string
+     */
+    function client_id(): string
+    {
+        if (!Cookie::has('client_id') || !$token = Cookie::get('client_id')) {
+            $token  = Request::server('HTTP_USER_AGENT');
+            $token .= sha1(__DIR__);
+            $token .= bindec(Request::ip2bin(Request::ip()));
+            $token .= date('YmdHis');
+            $token .= Request::time(true);
+            $token .= number_format(microtime(true) - app()->getBeginTime(), 3);
+            $token .= number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3);
+
+            $token = hash_hmac('sha256', $token, uniqid($token, true));
+            $token = sha1(uniqid($token, true));
+
+            Cookie::set('client_id', $token, ['httponly' => false]);
+        }
+
+        return $token;
     }
 }
 
