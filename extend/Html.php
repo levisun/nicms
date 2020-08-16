@@ -4,18 +4,184 @@ declare(strict_types=1);
 
 class Html
 {
+    private $xml = '';
+
+    public function __construct(string $_html = '')
+    {
+        $this->xml = $_html;
+    }
+
+    public function select(string $_element)
+    {
+        $id = '';
+        $_element = (string) preg_replace_callback('/#[\w\- ]+/si', function ($matches) use (&$id) {
+            $matches[0] = trim($matches[0]);
+            $id = 'id=["\']?[^<>]*' . ltrim($matches[0], '#') . '[^<>]*[\s"\']?';
+            return;
+        }, $_element);
+
+        $class = '';
+        $_element = (string) preg_replace_callback('/\.[\w\- ]+/si', function ($matches) use (&$class) {
+            $matches[0] = trim($matches[0]);
+            $class = 'class=["\']?[^<>]*' . ltrim($matches[0], '.') . '[^<>]*[\s"\']?';
+            return;
+        }, $_element);
+
+        $sub_ele = '(.*?)';
+        $_element = (string) preg_replace_callback('/>[\w\- ]+/si', function ($matches) use (&$sub_ele) {
+            $matches[0] = trim($matches[0]);
+            $matches[0] = ltrim($matches[0], '>');
+            $sub_ele = '\s?<' . $matches[0] . '[^<>]*>(.*?)<\/' . $matches[0] . '>.*?';
+            return;
+        }, $_element);
+
+        $_element = $_element ?: '[^<>]+';
+
+
+        $content = '';
+        $pattern = '/<(' . $_element . ')[^<>]*' . $id . $class . '[^<>]*>/si';
+        preg_replace_callback($pattern, function ($matches) use ($sub_ele, &$content) {
+            // 匹配地址
+            $pattern = '/' . $matches[0] . $sub_ele . '<\/' . trim($matches[1]) . '>/si';
+            preg_match_all($pattern, $this->xml, $matches);
+
+            $content = !empty($matches[1][0]) ? trim($matches[1][0]) : '';
+        }, $this->xml);
+
+        return $content;
+    }
+
+    /**
+     * 获得keywords
+     * @access public
+     * @return string
+     */
+    public function description(): string
+    {
+        $description = '';
+        preg_replace_callback('/<head[^<>]*>(.*?)<\/head>/si', function ($head) use (&$description) {
+            $head = trim($head[1]);
+
+            // 匹配地址
+            $pattern = '/<meta[^<>]*name=["\']?description["\']?[^<>]*content=([^<>\s]+)/si';
+            preg_match_all($pattern, $head, $matches);
+
+            $description = !empty($matches[1][0]) ? trim($matches[1][0], '"\'') : '';
+        }, $this->xml);
+
+        return $description;
+    }
+
+    /**
+     * 获得keywords
+     * @access public
+     * @return string
+     */
+    public function keywords(): string
+    {
+        $keywords = '';
+        preg_replace_callback('/<head[^<>]*>(.*?)<\/head>/si', function ($head) use (&$keywords) {
+            $head = trim($head[1]);
+
+            // 匹配地址
+            $pattern = '/<meta[^<>]*name=["\']?keywords["\']?[^<>]*content=([^<>\s]+)/si';
+            preg_match_all($pattern, $head, $matches);
+
+            $keywords = !empty($matches[1][0]) ? trim($matches[1][0], '"\'') : '';
+        }, $this->xml);
+
+        return $keywords;
+    }
+
+    /**
+     * 获得title
+     * @access public
+     * @return string
+     */
+    public function title(): string
+    {
+        $title = '';
+        preg_replace_callback('/<head.*?>(.*?)<\/head>/si', function ($head) use (&$title) {
+            $head = trim($head[1]);
+
+            // 匹配地址
+            $pattern = '/<title>([^<>]+)<\/title>/si';
+            preg_match_all($pattern, $head, $matches);
+
+            $title = !empty($matches[1][0]) ? trim($matches[1][0]) : '';
+        }, $this->xml);
+
+        return $title;
+    }
+
+    /**
+     * 获得links
+     * @access public
+     * @return array
+     */
+    public function links(): array
+    {
+        $links = [];
+        preg_replace_callback('/<body[^<>]*>(.*?)<\/body>/si', function ($body) use (&$links) {
+            $body = trim($body[1]);
+
+            // 匹配地址
+            $pattern = '/<a[^<>]*href=([^<>\s]+)/si';
+            preg_match_all($pattern, $body, $matches);
+            $matches = array_map('array_unique', $matches);
+
+            foreach ($matches[1] as $value) {
+                $links[] = trim($value, '"\'');
+            }
+        }, $this->xml);
+
+        return $links;
+    }
+
+    /**
+     * 获得图片
+     * @access public
+     * @return array
+     */
+    public function imgs(): array
+    {
+        $imgs = [];
+        preg_replace_callback('/<body[^<>]*>(.*?)<\/body>/si', function ($body) use (&$imgs) {
+            $body = trim($body[1]);
+
+            // 匹配地址
+            $pattern = '/<img[^<>]*src=([^<>\s]+)[^<>]*>/si';
+            preg_match_all($pattern, $body, $matches);
+
+            foreach ($matches[0] as $key => $value) {
+                // 宽
+                $pattern = '/width=([^<>\s;]+)/si';
+                preg_match_all($pattern, $value, $width);
+
+                // 高
+                $pattern = '/height=([^<>\s;]+)/si';
+                preg_match_all($pattern, $value, $height);
+
+                $imgs[] = [
+                    'src'    => trim($matches[1][$key], '"\''),
+                    'width'  => !empty($width[1][0]) ? (int) trim($width[1][0], '"\'') : 0,
+                    'height' => !empty($height[1][0]) ? (int) trim($height[1][0], '"\'') : 0,
+                ];
+            }
+        }, $this->xml);
+
+        return $imgs;
+    }
 
     /**
      * 获得内容
      * @access public
-     * @static
-     * @param  string $_html
      * @return string
      */
-    public static function getContent(string &$_html): string
+    public function content(): string
     {
         $content = '';
-        preg_replace_callback('/<body.*?>(.*?)<\/body/si', function ($body) use (&$content) {
+        preg_replace_callback('/<body[^<>]*>(.*?)<\/body>/si', function ($body) use (&$content) {
             $body = trim($body[1]);
             // 清除脚本与样式
             $body = preg_replace(['/<script.*?\/script>/si', '/<style.*?\/style>/si'], '', $body);
@@ -26,8 +192,15 @@ class Html
             // 清除a标签
             $body = preg_replace('/<a.*?\/a>/si', '', $body);
             // halt($body);
+
             // 清除多余标签
-            $body = strip_tags($body, '<div><p><br><span>');
+            $body = strip_tags($body, '<div><p><br><span><img>');
+
+            // 替换图片
+            $body = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) {
+                return '[img src:' . trim($img[1], '"\'') . ']';
+            }, $body);
+
             $body = preg_replace([
                 // 清除标签属性
                 '/[\w\-]+=["\']+[^>]*["\']+/si',
@@ -49,6 +222,7 @@ class Html
                 '/[|]+/si',
             ], '', $body);
             // halt($body);
+
             // 修复标签中的空格
             $body = preg_replace('/[ ]+>/si', '>', $body);
             // 清除空格
@@ -86,10 +260,12 @@ class Html
             $content = (string) preg_replace_callback('/./u', function (array $matches) {
                 return strlen($matches[0]) >= 4 ? '' : $matches[0];
             }, $content);
+            // halt($content);
 
             // 恢复格式
             $content = nl2br($content);
             $content = explode('<br />', nl2br($content));
+            // halt($content);
 
             // 跳过字符
             $jump = [
@@ -106,11 +282,18 @@ class Html
             }
             $content = array_map('trim', $content);
             $content = array_filter($content);
+            // halt($content);
 
             $content = !empty($content)
                 ? '<p>' . implode('</p><p>', $content) . '</p>'
                 : '';
-        }, $_html);
+
+            // 恢复图片
+            $content = preg_replace_callback('/\[img src:([^<>\s]+)\]/si', function ($img) {
+                return '<img src="' . trim($img[1], '"\'') . '" />';
+            }, $content);
+            // halt($content);
+        }, $this->xml);
 
         return $content;
     }

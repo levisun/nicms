@@ -159,7 +159,8 @@ class Filter
         $_str = (string) preg_replace_callback('/[\w\-]+=[^>]*/si', function ($attr) {
             $attr = trim($attr[0]);
             // 过滤json数据
-            $attr = preg_replace('/[\{\[]+.*?[\}\]]+/si', '', $attr);
+            $attr = preg_replace('/[\{]+.*?[\}]+/si', '', $attr);
+            $attr = preg_replace('/[\[]+.*?[\]]+/si', '', $attr);
             // 替换空格
             $attr = preg_replace('/([\w:]+)( )/si', '$1&nbsp;', $attr);
             // halt($attr);
@@ -182,8 +183,9 @@ class Filter
         }, $_str);
 
         // 修复标签中的空格
-        $_str = preg_replace('/\s+>/si', '>', $_str);
-        return $_str;
+        return preg_replace('/\s+>/si', '>', $_str);
+
+
 
         // 废弃
         $_str = (string) preg_replace_callback('/(<\/?[a-zA-Z0-9]+)(.*?)(\/?>)/si', function ($element) {
