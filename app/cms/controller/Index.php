@@ -54,11 +54,6 @@ class Index extends BaseController
      */
     public function index()
     {
-        $result = (new \app\common\library\Spider)->request('GET', 'http://www.gaosan.com/gaokao/208845.html')->html();
-        $result = htmlspecialchars_decode($result, ENT_QUOTES);
-        $html = new \Html($result);
-        halt($html->content('div.content'));
-
         return $this->fetch('index');
     }
 
