@@ -7,7 +7,7 @@ class Alidy
     private $api = 'https://dysmsapi.aliyuncs.com/?';
     private $config = [
         'Signature'        => '',
-        'AccessKeyId'      => 'LTAIXSdAPLSmsECt',
+        'AccessKeyId'      => '',
         'Action'           => 'SendSms',
         'Format'           => 'json',
         'SignatureMethod'  => 'HMAC-SHA1',
