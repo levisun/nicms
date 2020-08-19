@@ -56,11 +56,13 @@ class UploadFile
         '7z'   => 'application/x-7z-compressed'
     ];
 
+    private $element = null;
+
     /**
-     * 图片规定尺寸
+     * 裁减大小
      * @var array
      */
-    private $thumbSize = [
+    private $cutSize = [
         'width'  => 0,
         'height' => 0,
         'type'   => false,
@@ -72,11 +74,22 @@ class UploadFile
      */
     private $imgWater = true;
 
-    public function __construct()
+    public function __construct(array $_size, bool $_water, string $_element)
     {
         @set_time_limit(600);
         @ini_set('max_execution_time', '600');
         @ini_set('memory_limit', '128M');
+
+        $this->cutSize = [
+            'width'  => !empty($_size['width']) ? abs($_size['width']) : 0,
+            'height' => !empty($_size['height']) ? abs($_size['height']) : 0,
+            // THUMB_SCALING:等比例缩放 | THUMB_FIXED:固定尺寸缩放
+            'type'   => !empty($_size['type']) ? Image::THUMB_SCALING : Image::THUMB_FIXED,
+        ];
+
+        $this->imgWater = $_water;
+
+        $this->element = $_element;
     }
 
     /**
@@ -84,30 +97,23 @@ class UploadFile
      * @access public
      * @param  int    $_uid 用户ID
      * @param  string $_element 表单名
-     * @param  array  $_thumb 缩略图宽高,缩放比例
-     * @param  bool   $_water 添加水印
+     * @param  array  $_size    裁减宽高与比例
+     * @param  bool   $_water   添加水印
      * @return array
      */
-    public function getFileInfo(array $_user, string $_element, array $_thumb, bool $_water): array
+    public function getFileInfo(array $_user): array
     {
-        $files = Request::file($_element);
-        $this->thumbSize = [
-            'width'  => !empty($_thumb['width']) ? (int) abs($_thumb['width']) : 0,
-            'height' => !empty($_thumb['height']) ? (int) abs($_thumb['height']) : 0,
-            // THUMB_SCALING:等比例缩放 | THUMB_FIXED:固定尺寸缩放
-            'type'   => !empty($_thumb['type']) ? Image::THUMB_SCALING : Image::THUMB_FIXED,
-        ];
-        $this->imgWater = $_water;
+        $files = Request::file($this->element);
 
         // 校验上传文件
-        if (!$result = $this->validate($_element, $files)) {
+        if (!$result = $this->validate($this->element, $files)) {
             // 单文件
-            if (is_string($_FILES[$_element]['name'])) {
+            if (is_string($_FILES[$this->element]['name'])) {
                 $result = $this->save($_user, $files);
             }
 
             // 多文件
-            elseif (is_array($_FILES[$_element]['name'])) {
+            elseif (is_array($_FILES[$this->element]['name'])) {
                 $result = [];
                 foreach ($files as $file) {
                     $result[] = $this->save($_user, $file);
@@ -156,20 +162,28 @@ class UploadFile
      */
     private function save(array &$_user, \think\File &$_files): array
     {
-        $_dir = 'uploads' . DIRECTORY_SEPARATOR;
+        $_dir  = 'uploads' . DIRECTORY_SEPARATOR;
+
+        // 文件类型目录
+        if (false !== strpos($_files->getMime(), 'image/')) {
+            $_dir .= Base64::flag('image', 7) . DIRECTORY_SEPARATOR;
+        } else {
+            $_dir .= Base64::flag($_files->getMime(), 7) . DIRECTORY_SEPARATOR;
+        }
 
         // 用户类型目录[后台,前台,访客]
-        $_dir .= !empty($_user['user_type'])
-            ? Base64::flag($_user['user_type'], 7) . DIRECTORY_SEPARATOR
-            : 'guest' . DIRECTORY_SEPARATOR;
+        if (!empty($_user['user_type']) && !empty($_user['user_id'])) {
+            $_dir .= Base64::flag($_user['user_type'], 7) . DIRECTORY_SEPARATOR;
+            // 日期目录
+            $_dir .= Base64::url62encode((int) date('Ym')) . DIRECTORY_SEPARATOR;
+            // 用户目录[删除用户时可删除目录]
+            $_dir .= Base64::url62encode((int) $_user['user_id']) . DIRECTORY_SEPARATOR;
+        } else {
+            $_dir .= 'guest' . DIRECTORY_SEPARATOR;
+        }
 
-        // 时间目录
-        $_dir .= Base64::url62encode((int) date('Ym')) . DIRECTORY_SEPARATOR;
-
-        // 用户目录[删除用户时可删除目录]
-        $_dir .= !empty($_user['user_id'])
-            ? Base64::url62encode((int) $_user['user_id'])
-            : '';
+        // 日期目录
+        $_dir .= Base64::url62encode((int) date('Ym'));
 
         $save_path = Config::get('filesystem.disks.public.url') . '/';
         $save_file = $save_path . Filesystem::disk('public')->putFile($_dir, $_files, 'uniqid');
@@ -177,7 +191,7 @@ class UploadFile
         UploadLog::write($save_file);   // 记录上传文件日志
 
         if (false !== strpos($_files->getMime(), 'image/')) {
-            $save_file = $this->thumb($save_file);
+            $save_file = $this->tailoring($save_file);
             $save_file = $this->water($save_file);
             $save_file = $this->toExt($_files->extension(), $save_file);
         }
@@ -257,21 +271,21 @@ class UploadFile
     }
 
     /**
-     * 生成缩略图
+     * 裁减图片
      * @access private
      * @param  string $_file 文件
      * @param  string $_save_file 文件名
      * @return void
      */
-    private function thumb(string $_save_file): string
+    private function tailoring(string $_save_file): string
     {
         $image = Image::open(public_path() . $_save_file);
 
-        // 缩放图片到指定尺寸
-        if ($this->thumbSize['width'] && $this->thumbSize['height']) {
-            $image->thumb($this->thumbSize['width'], $this->thumbSize['height'], $this->thumbSize['type']);
+        // 裁减图片到指定尺寸
+        if ($this->cutSize['width'] && $this->cutSize['height']) {
+            $image->thumb($this->cutSize['width'], $this->cutSize['height'], $this->cutSize['type']);
         }
-        // 规定图片最大尺寸
+        // 裁减图片到最大尺寸
         elseif ($image->width() >= 800) {
             $image->thumb(800, 800, Image::THUMB_SCALING);
         }

@@ -325,8 +325,8 @@ class Article extends BaseLogic
         }
 
         // 删除旧图片
-        $old_thumb = ModelArticleContent::where([
-            ['article_id', '=', $id]
+        $old_thumb = ModelArticle::where([
+            ['id', '=', $id]
         ])->value('thumb');
         $thumb = $this->request->param('thumb', '');
         if ($old_thumb !== $thumb) {

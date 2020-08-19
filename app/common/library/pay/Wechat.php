@@ -12,12 +12,12 @@
  */
 /*
 $config = array(
-    'appid' => 'wxea53b7eabf4beb2d',
-    'appsecret' => 'ac1a9edce78573f3d287f9560a2d50a7',
-    'mch_id' => '1487938612',
-    'key' => '0af4769d381ece7b4fddd59dcf048da6',
-    'sslcert_path' => '1487938612_cert.pem',
-    'sslkey_path' => '1487938612_key.pem',
+    'appid' => 'xxx',
+    'appsecret' => 'xxx',
+    'mch_id' => '123',
+    'key' => 'xxx',
+    'sslcert_path' => '123_cert.pem',
+    'sslkey_path' => '123_key.pem',
 );
 $obj = new PayWechat($config);
 $param = array(

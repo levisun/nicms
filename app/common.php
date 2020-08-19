@@ -260,7 +260,7 @@ if (!function_exists('authorization')) {
     {
         // 密钥
         $key = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
-        $key = sha1(uniqid(Base64::encrypt($key), true));
+        $key = sha1(Base64::encrypt($key));
 
         $authorization = (new Builder)
             // 签发者
@@ -294,7 +294,7 @@ if (!function_exists('client_id')) {
      */
     function client_id(): string
     {
-        if (!Cookie::has('client_id') || !$token = Cookie::get('client_id')) {
+        if (!Cookie::has('CID') || !$token = Cookie::get('CID')) {
             $token  = Request::server('HTTP_USER_AGENT');
             $token .= sha1(__DIR__);
             $token .= bindec(Request::ip2bin(Request::ip()));
@@ -306,7 +306,7 @@ if (!function_exists('client_id')) {
             $token = hash_hmac('sha256', $token, uniqid($token, true));
             $token = sha1(uniqid($token, true));
 
-            Cookie::set('client_id', $token, ['httponly' => false]);
+            Cookie::set('CID', $token, ['httponly' => false]);
         }
 
         return $token;
@@ -323,13 +323,12 @@ if (!function_exists('miss')) {
      */
     function miss(int $_code, bool $_redirect = true, bool $_abort = false)
     {
-        $content = '<!DOCTYPE html><html lang="zh-cn"><head><meta charset="UTF-8"><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>' . $_code . '</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2 class="miss">o(╥﹏╥)o ' . $_code . '</h2></section></body></html>';
+        $file = public_path('static') . $_code . '.html';
+        $content = is_file($file)
+            ? file_get_contents($file)
+            : '<!DOCTYPE html><html lang="zh-cn"><head><meta charset="UTF-8"><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>' . $_code . '</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2 class="miss">o(╥﹏╥)o ' . $_code . '</h2></section></body></html>';
 
         $return_url = '<script type="text/javascript">setTimeout(function(){location.href = "//' . Request::rootDomain() . '";},3000);</script>';
-
-        $file = public_path() . $_code . '.html';
-        $content = is_file($file) ? file_get_contents($file) : $content;
-
         $content = true === $_redirect ? str_replace('</body>', $return_url . '</body>', $content) : $content;
 
         if ($_abort === true) {

@@ -173,15 +173,16 @@ class Recycle extends BaseLogic
         }
 
         ModelArticle::transaction(function () use ($id) {
+            // 删除文章模块数据
+            $thumb = ModelArticle::where([
+                ['id', '=', $id]
+            ])->value('thumb');
+            !empty($thumb) and UploadLog::remove($thumb);
+
             ModelArticle::where([
                 ['id', '=', $id]
             ])->delete();
 
-            // 删除文章模块数据
-            $content = ModelArticleContent::where([
-                ['article_id', '=', $id]
-            ])->column('thumb', 'content');
-            !empty($content['thumb']) and UploadLog::remove($content['thumb']);
             ModelArticleContent::where([
                 ['article_id', '=', $id]
             ])->delete();

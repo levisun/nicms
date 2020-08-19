@@ -53,6 +53,7 @@ Temporary Items
 .env
 # /*.json
 /*.lock
+/public/silian.txt
 *.xml
 *.yml
 /*.php

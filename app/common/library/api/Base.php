@@ -142,7 +142,7 @@ abstract class Base
 
         $response = Response::create($result, 'json');
 
-        $this->log->warning('[Async] ' . $this->request->url());
+        $this->log->warning($this->request->url());
         $this->log->save();
         // $this->session->save();
 

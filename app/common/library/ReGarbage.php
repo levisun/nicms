@@ -58,13 +58,13 @@ class ReGarbage
             'file' => [
                 'index.php',
                 'robots.txt',
+                'silian.txt',
                 'sitemap.xml',
                 'favicon.ico',
             ],
             'ext' => [
                 'htaccess',
                 'nginx',
-                'html',
                 'ini',
                 'env',
                 'yaml',

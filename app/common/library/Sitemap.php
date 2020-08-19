@@ -32,52 +32,47 @@ class Sitemap
      */
     public static function create(): void
     {
-        $category = ModelCategory::view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
-            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-            ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
-            ->where([
-                ['category.is_show', '=', 1],
-                ['category.model_id', 'in', [1, 2, 3]]
-            ])
-            ->order('category.sort_order ASC, category.id DESC')
-            ->select()
-            ->toArray();
-
         $sitemap_xml = [];
         $domain = Request::scheme() . '://www.' . Request::rootDomain();
-        foreach ($category as $vo_cate) {
-            $article = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
-                ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
-                ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-                ->where([
-                    ['article.category_id', '=', $vo_cate['id']],
-                    ['article.is_pass', '=', '1'],
-                    ['article.show_time', '<', time()],
-                ])
-                ->order('article.id DESC')
-                ->limit(100)
-                ->select()
-                ->toArray();
-            if (!empty($article)) {
-                $sitemap_xml[]['url'] = [
-                    'loc'        => $domain . url('list/' . Base64::url62encode($vo_cate['id'])),
-                    'lastmod'    => date('Y-m-d'),
-                    'changefreq' => 'daily',
-                    'priority'   => '1.0',
-                ];
-            }
-
-            foreach ($article as $vo_art) {
-                $sitemap_xml[]['url'] = [
-                    'loc'        => $domain . url('details/' . Base64::url62encode($vo_art['category_id']) . '/' . Base64::url62encode($vo_art['id'])),
-                    'lastmod'    => date('Y-m-d H:i:s', $vo_art['update_time']),
-                    'changefreq' => 'weekly',
-                    'priority'   => '0.8',
-                ];
-            }
+        $article = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+            ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+            ->where([
+                ['article.is_pass', '=', '1'],
+                ['article.delete_time', '=', 0],
+                ['article.show_time', '<', time()],
+            ])
+            ->order('article.id DESC')
+            ->limit(5000)
+            ->select()
+            ->toArray();
+        foreach ($article as $value) {
+            $sitemap_xml[]['url'] = [
+                'loc'        => $domain . url('details/' . Base64::url62encode($value['category_id']) . '/' . Base64::url62encode($value['id'])),
+                'lastmod'    => date('Y-m-d H:i:s', $value['update_time']),
+                'changefreq' => 'weekly',
+                'priority'   => '0.8',
+            ];
         }
 
         self::saveXml($sitemap_xml, 'sitemap.xml');
+
+
+        $article = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
+            ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+            ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
+            ->where([
+                ['article.delete_time', '<>', 0],
+            ])
+            ->order('article.id DESC')
+            ->limit(5000)
+            ->select()
+            ->toArray();
+        $silian = '';
+        foreach ($article as $value) {
+            $silian .= $domain . url('details/' . Base64::url62encode($value['category_id']) . '/' . Base64::url62encode($value['id'])) . "\r\n";
+        }
+        file_put_contents(public_path() . 'silian.txt', $silian);
     }
 
     /**
@@ -116,11 +111,7 @@ class Sitemap
                 $xml .= '<' . $key . '>';
             }
 
-            if (is_array($value)) {
-                $xml .= PHP_EOL . self::toXml($value);
-            } else {
-                $xml .= $value;
-            }
+            $xml .= is_array($value) ? PHP_EOL . self::toXml($value) : $value;
 
             if (is_string($key)) {
                 $xml .= '</' . $key . '>' . PHP_EOL;

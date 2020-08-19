@@ -260,7 +260,7 @@ class Analytical extends Base
         $token = (new Parser)->parse($authorization);
         // 密钥
         $key  = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
-        $key = sha1(uniqid(Base64::encrypt($key), true));
+        $key = sha1(Base64::encrypt($key));
 
         $data = new ValidationData;
         $data->setIssuer($this->request->rootDomain());

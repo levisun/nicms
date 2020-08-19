@@ -235,21 +235,21 @@ abstract class BaseLogic
     {
         $this->actionLog('upload_file', 'user upload');
 
+        $result = 'upload error';
         if ($this->request->isPost() && !empty($_FILES) && $this->uid) {
             $element = $this->request->param('element', 'upload');
-            $thumb = [
+            $size = [
                 'width'  => $this->request->param('width/d', 0, 'abs'),
                 'height' => $this->request->param('height/d', 0, 'abs'),
                 'type'   => $this->request->param('type/b', false),
             ];
             $water = $this->request->param('water/b', true);
 
-            $result = (new UploadFile)->getFileInfo([
+            $upload = new UploadFile($size, $water, $element);
+            $result = $upload->getFileInfo([
                 'user_id'   => $this->uid,
                 'user_type' => $this->type
-            ], $element, $thumb, $water);
-        } else {
-            $result = 'upload error';
+            ]);
         }
 
         return [
