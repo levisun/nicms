@@ -27,7 +27,7 @@ return [
             // 缓存有效期 0表示永久缓存
             'expire'        => env('cache.expire', 28800) - mt_rand(1, 1440),
             // 关闭子目录
-            'cache_subdir'  => false,
+            'cache_subdir'  => true,
             // 启用数据压缩
             'data_compress' => false,
             // 缓存标签前缀

@@ -11,6 +11,7 @@
  * @since     2019
  */
 
+use app\Request;
 use think\facade\Route;
 
 /**
@@ -21,11 +22,10 @@ Route::domain(['cdn', 'img'], function () {
         return miss(404, false);
     });
 });
-
 Route::group(function () {
     // 首页
     Route::get('/$', 'index');
-    Route::get('index$', function(){
+    Route::get('index$', function () {
         return redirect('/');
     });
 
@@ -46,12 +46,9 @@ Route::group(function () {
     Route::get('go$', 'go');
 
     Route::miss(function () {
-        return miss(404);
+        return miss(404, true);
     });
-})
-->prefix('Index/')
-->ext('html')
-->pattern([
+})->prefix('Index/')->ext('html')->pattern([
     'page' => '\d+',
     'cid'  => '\w+',
     'id'   => '\w+',

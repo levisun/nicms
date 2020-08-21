@@ -73,9 +73,9 @@
                             <td>
                                 <span class="label label-primary" v-if="vo.is_pass">{:lang('is_pass')}</span>
                                 <span class="label label-primary" v-else>{:lang('not_pass')}</span>
-                                <span class="label label-primary" v-if="vo.is_com">{:lang('commend')}</span>
-                                <span class="label label-primary" v-if="vo.is_hot">{:lang('hot')}</span>
-                                <span class="label label-primary" v-if="vo.is_top">{:lang('top')}</span>
+                                <span class="label label-primary" v-if="vo.static==1">{:lang('commend')}</span>
+                                <span class="label label-primary" v-if="vo.is_hot==2">{:lang('hot')}</span>
+                                <span class="label label-primary" v-if="vo.is_top==3">{:lang('top')}</span>
                             </td>
                             <td v-text="vo.access_name"></td>
                             <td v-text="vo.update_time"></td>

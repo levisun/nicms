@@ -57,8 +57,8 @@ class TagsPage extends Taglib
         }
         $parseStr .= ')->find();
                 if ($result && $result = $result->toArray()):
-                    $result["cat_url"] = url("list/" . $result["category_id"]);
-                    $result["url"] = url("details/" . $result["category_id"] . "/" . $result["id"]);
+                    $result["cat_url"] = url("list/" . \app\common\library\Base64::url62encode($result["category_id"]));
+                    $result["url"] = url("details/" . \app\common\library\Base64::url62encode($result["category_id"]) . "/" . \app\common\library\Base64::url62encode($result["id"]));
                     $result["flag"] = \app\common\library\Base64::flag($result["category_id"] . $result["id"], 7);
                     $result["update_time"] = date("' . $this->params['date_format'] . '", (int) $result["update_time"]);
                     $result["author"] = $result["author"] ?: $result["username"];
@@ -84,7 +84,7 @@ class TagsPage extends Taglib
                         ->select()
                         ->toArray();
                     foreach ($result["tags"] as $key => $tag):
-                        $tag["url"] = url("tags/" . $tag["tags_id"]);
+                        $tag["url"] = url("tags/" . \app\common\library\Base64::url62encode($tag["tags_id"]));
                         $result["tags"][$key] = $tag;
                     endforeach;
 

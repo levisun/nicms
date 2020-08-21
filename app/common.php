@@ -136,9 +136,23 @@ if (!function_exists('words')) {
         if ($_text = Filter::chs_alpha($_text)) {
             // 提取日期词语
             $date = [];
-            $_text = (string) preg_replace_callback('/([\d]+[年|月|日]+)/si', function ($matches) use (&$date) {
+            $_text = (string) preg_replace_callback('/([\d]+[\x{4e00}-\x{9fa5}]{1})/u', function ($matches) use (&$date) {
                 $matches = array_map('trim', $matches);
-                $date[] = $matches[1];
+                if (false !== mb_strpos($matches[1], '年', 0, 'utf-8')) {
+                    $date[] = $matches[1];
+                } elseif (false !== mb_strpos($matches[1], '月', 0, 'utf-8')) {
+                    $date[] = $matches[1];
+                } elseif (false !== mb_strpos($matches[1], '日', 0, 'utf-8')) {
+                    $date[] = $matches[1];
+                } elseif (false !== mb_strpos($matches[1], '时', 0, 'utf-8')) {
+                    $date[] = $matches[1];
+                } elseif (false !== mb_strpos($matches[1], '分', 0, 'utf-8')) {
+                    $date[] = $matches[1];
+                } elseif (false !== mb_strpos($matches[1], '秒', 0, 'utf-8')) {
+                    $date[] = $matches[1];
+                } else {
+                    return mb_substr($matches[1], mb_strlen($matches['1'], 'utf-8') - 1);
+                }
                 return '';
             }, $_text);
 

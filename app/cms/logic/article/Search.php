@@ -49,12 +49,8 @@ class Search extends BaseLogic
         }
 
         // 推荐置顶最热,三选一
-        if ($com = $this->request->param('com/d', 0, 'abs')) {
-            $map[] = ['article.is_com', '=', '1'];
-        } elseif ($top = $this->request->param('top/d', 0, 'abs')) {
-            $map[] = ['article.is_top', '=', '1'];
-        } elseif ($hot = $this->request->param('hot/d', 0, 'abs')) {
-            $map[] = ['article.is_hot', '=', '1'];
+        if ($static = $this->request->param('static/d', 0, 'abs')) {
+            $map[] = ['article.static', '=', $static];
         }
 
         // 安类别查询,为空查询所有
@@ -77,7 +73,7 @@ class Search extends BaseLogic
         if ($sort_order = $this->request->param('sort')) {
             $sort_order = 'article.' . $sort_order;
         } else {
-            $sort_order = 'article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.update_time DESC';
+            $sort_order = 'article.static DESC, article.sort_order DESC, article.update_time DESC';
         }
 
         $query_limit = $this->request->param('limit/d', 20, 'abs');
@@ -85,7 +81,7 @@ class Search extends BaseLogic
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
         $cache_key = 'article list' . $category_id .
-            $com . $top . $hot . $type_id . $sort_order . $search_key .
+            $static . $type_id . $sort_order . $search_key .
             $query_limit . $query_page . $date_format;
         $cache_key = md5($cache_key);
 

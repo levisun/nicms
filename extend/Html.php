@@ -262,6 +262,22 @@ class Html
             }, $content);
             // halt($content);
 
+            // 截取
+            if (400 < mb_strlen($content, 'utf-8')) {
+                $length = 400;
+                if (600 > mb_strpos((string) $content, ' ', 0, 'utf-8')) {
+                    $length = mb_strpos((string) $content, ' ', 400, 'utf-8');
+                }
+                if (600 > mb_strpos((string) $content, '。', 0, 'utf-8')) {
+                    $length = mb_strpos((string) $content, '。', 400, 'utf-8');
+                }
+                if (600 > mb_strpos((string) $content, '.', 0, 'utf-8')) {
+                    $length = mb_strpos((string) $content, '.', 400, 'utf-8');
+                }
+
+                $content = mb_substr($content, 0, $length + 1, 'UTF-8');
+            }
+
             // 恢复格式
             $content = nl2br($content);
             $content = explode('<br />', nl2br($content));

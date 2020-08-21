@@ -24,9 +24,7 @@ class TagsList extends Taglib
     public function closed(): string
     {
         $this->params['cid'] = !empty($this->params['cid']) ? (int) $this->params['cid'] : request()->param('cid/d', 0);
-        $this->params['com'] = !empty($this->params['com']) ? (int) $this->params['com'] : 0;
-        $this->params['top'] = !empty($this->params['top']) ? (int) $this->params['top'] : 0;
-        $this->params['hot'] = !empty($this->params['hot']) ? (int) $this->params['hot'] : 0;
+        $this->params['static'] = !empty($this->params['static']) ? (int) $this->params['static'] : 0;
         $this->params['tid'] = !empty($this->params['tid']) ? (int) $this->params['tid'] : 0;
         $this->params['sort'] = !empty($this->params['sort']) ? $this->params['sort'] : '';
         $this->params['limit'] = !empty($this->params['limit']) ? (int) $this->params['limit'] : 10;
@@ -36,10 +34,10 @@ class TagsList extends Taglib
         if ($this->params['sort']) {
             $sort_order = 'article.' . $this->params['sort'];
         } else {
-            $sort_order = 'article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.update_time DESC';
+            $sort_order = 'article.static DESC, article.sort_order DESC, article.update_time DESC';
         }
 
-        $cache_key = md5('taglib tablist::article list' . $this->params['cid'] . $this->params['com'] . $this->params['top'] . $this->params['hot'] . $this->params['tid'] . $this->params['sort'] . $this->params['limit'] . $this->params['page'] . $this->params['date_format']);
+        $cache_key = md5('taglib tablist::article list' . $this->params['cid'] . $this->params['static'] . $this->params['tid'] . $this->params['sort'] . $this->params['limit'] . $this->params['page'] . $this->params['date_format']);
 
         $parseStr  = '<?php
         if (!cache("?' . $cache_key . '") || !$list = cache("' . $cache_key . '")):
@@ -58,12 +56,8 @@ class TagsList extends Taglib
             $child = app('\app\cms\logic\article\Category')->child($this->params["cid"]);
             $parseStr .= '["article.category_id", "in", "' . implode(',', $child) . '"],';
         }
-        if ($this->params['com']) {
-            $parseStr .= '["article.is_com", "=", 1],';
-        } elseif ($this->params['top']) {
-            $parseStr .= '["article.is_top", "=", 1],';
-        } elseif ($this->params['hot']) {
-            $parseStr .= '["article.is_hot", "=", 1],';
+        if ($static = $this->params['static']) {
+            $parseStr .= '["article.static", "=", ' . $static . '],';
         }
 
         if ($this->params['tid']) {
@@ -80,8 +74,8 @@ class TagsList extends Taglib
                 $list = $result->toArray();
                 $list["render"] = $result->render();
                 foreach ($list["data"] as $key => $value):
-                    $value["cat_url"] = url("list/" . $value["category_id"]);
-                    $value["url"] = url("details/" . $value["category_id"] . "/" . $value["id"]);
+                    $value["cat_url"] = url("list/" . \app\common\library\Base64::url62encode($value["category_id"]));
+                    $value["url"] = url("details/" . \app\common\library\Base64::url62encode($value["category_id"]) . "/" . \app\common\library\Base64::url62encode($value["id"]));
                     $value["flag"] = \app\common\library\Base64::flag($value["category_id"] . $value["id"], 7);
                     $value["thumb"] = \app\common\library\Image::path($value["thumb"], 300);
                     $value["update_time"] = date("' . $this->params['date_format'] . '", (int) $value["update_time"]);
@@ -108,7 +102,7 @@ class TagsList extends Taglib
                         ->select()
                         ->toArray();
                     foreach ($value["tags"] as $k => $tag):
-                        $tag["url"] = url("tags/" . $tag["tags_id"]);
+                        $tag["url"] = url("tags/" . \app\common\library\Base64::url62encode($tag["tags_id"]));
                         $value["tags"][$k] = $tag;
                     endforeach;
 

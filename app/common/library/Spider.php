@@ -51,8 +51,8 @@ class Spider
         if (false === filter_var($_uri, FILTER_VALIDATE_URL)) {
             return false;
         }
-        $cache_key = md5($_uri);
 
+        $cache_key = md5($_uri);
         if (!Cache::has($cache_key) || !$this->result = Cache::get($cache_key)) {
             $this->client = new HttpBrowser;
             $this->client->followRedirects();
@@ -103,6 +103,12 @@ class Spider
             $this->result = Filter::symbol($this->result);
             $this->result = Filter::space($this->result);
             $this->result = Filter::php($this->result);
+
+            // 添加单页支持
+            $base = parse_url($_uri, PHP_URL_PATH);
+            $base = $base ? str_replace('\\', '/', rtrim(dirname($base), '\/')) . '/' : '';
+            $base = parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . $base;
+            $this->result = str_replace('<head>', '<head>' . '<base href="' . $base . '" />', $this->result);
 
             $this->result = htmlspecialchars($this->result, ENT_QUOTES);
 

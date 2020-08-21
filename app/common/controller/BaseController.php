@@ -133,18 +133,17 @@ abstract class BaseController
     }
 
     /**
-     * 302重指向
+     * 重指向
      * @access protected
      * @param  string $_route 路由
      * @return void
      */
-    protected function redirect(string $_route): void
+    protected function redirect(string $_route, int $_code = 302): void
     {
         // 记录当前地址
         $this->session->set('return_url', $this->request->url());
 
-        // 302
-        $response = Response::create(url($_route), 'redirect', 302);
+        $response = Response::create(url($_route), 'redirect', $_code);
         throw new HttpResponseException($response);
     }
 

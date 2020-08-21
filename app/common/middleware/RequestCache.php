@@ -78,7 +78,6 @@ class RequestCache
             }
         }
 
-
         return $response;
     }
 }

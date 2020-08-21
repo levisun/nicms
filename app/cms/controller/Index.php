@@ -40,8 +40,14 @@ class Index extends BaseController
                 ])
                 ->cache('theme_' . (string) $cid)
                 ->value('model.name');
+
             // 栏目不存在抛出404错误
             if (!$this->model_name) {
+                $url = preg_replace_callback('/\/+[\d]+/si', function ($value) {
+                    return '/' . \app\common\library\Base64::url62encode((int) trim($value[0], '\/'));
+                }, $this->request->url());
+                $this->redirect(str_replace('.html', '', $url), 301);
+
                 miss(404, true, true);
             }
         }
