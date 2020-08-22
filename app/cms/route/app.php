@@ -26,7 +26,7 @@ Route::group(function () {
     // 首页
     Route::get('/$', 'index');
     Route::get('index$', function () {
-        return redirect('/');
+        return redirect('/', 301);
     });
 
     // 列表页
@@ -48,7 +48,7 @@ Route::group(function () {
     Route::miss(function () {
         return miss(404, true);
     });
-})->prefix('Index/')->ext('html')->pattern([
+})->prefix('Index/')->https(!env('app_debug', false))->ext('html')->pattern([
     'page' => '\d+',
     'cid'  => '\w+',
     'id'   => '\w+',

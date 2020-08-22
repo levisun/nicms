@@ -33,7 +33,7 @@ class Top extends BaseLogic
      */
     public function query(): array
     {
-        $cache_key = md5('nav top' . $this->lang->getLangSet());
+        $cache_key = 'nav top' . $this->lang->getLangSet();
         if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
             $result = ModelCategory::view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
                 ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')

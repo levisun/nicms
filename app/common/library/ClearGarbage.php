@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
-class ReGarbage
+class ClearGarbage
 {
 
     /**
@@ -33,14 +33,39 @@ class ReGarbage
         $timestamp = $_expire ? strtotime($_expire) : 0;
 
         if ($files = glob($_dir . '*')) {
-            foreach ($files as $file) {
-                if (is_dir($file)) {
-                    self::clear($file . DIRECTORY_SEPARATOR, $_expire);
-                    @rmdir($file);
-                } elseif (is_file($file) && 0 === $timestamp) {
-                    @unlink($file);
-                } elseif (is_file($file) && filemtime($file) <= $timestamp) {
-                    @unlink($file);
+            foreach ($files as $filename) {
+                if (is_dir($filename)) {
+                    self::clear($filename . DIRECTORY_SEPARATOR, $_expire);
+                    @rmdir($filename);
+                } elseif (is_file($filename) && 0 === $timestamp) {
+                    @unlink($filename);
+                } elseif (is_file($filename) && filemtime($filename) <= $timestamp) {
+                    @unlink($filename);
+                }
+            }
+        }
+    }
+
+    /**
+     * 清除过期无效缓存
+     * @access public
+     * @static
+     * @return void
+     */
+    public static function clearCache(string $_dir = '')
+    {
+        $_dir = $_dir ?: runtime_path('cache');
+        if ($files = glob($_dir . '*')) {
+            foreach ($files as $filename) {
+                if (is_dir($filename)) {
+                    self::clearCache($filename . DIRECTORY_SEPARATOR);
+                } elseif (is_file($filename) && strtotime('-1 day') > filemtime($filename)) {
+                    if ($content = @file_get_contents($filename)) {
+                        $expire = (int) substr($content, 8, 12);
+                        if (0 != $expire && time() - $expire > filemtime($filename)) {
+                            @unlink($filename);
+                        }
+                    }
                 }
             }
         }

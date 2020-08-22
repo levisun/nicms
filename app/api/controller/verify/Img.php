@@ -40,7 +40,6 @@ class Img extends Async
                 ->header([
                     'Content-Type'   => 'image/png',
                     'Content-Length' => strlen($captcha),
-                    'X-Powered-By'   => 'NI API',
                 ]);
         }
 

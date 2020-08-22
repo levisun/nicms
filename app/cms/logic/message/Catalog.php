@@ -39,7 +39,6 @@ class Catalog extends BaseLogic
             $date_format = $this->request->param('date_format', 'Y-m-d');
 
             $cache_key = 'cms message list' . $category_id . $query_limit . $query_page . $date_format;
-            $cache_key = md5($cache_key);
 
             if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
                 $result = ModelMessage::where([

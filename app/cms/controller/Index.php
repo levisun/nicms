@@ -30,15 +30,15 @@ class Index extends BaseController
      */
     public function initialize()
     {
-        if ($cid = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
+        if ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
             // 获得栏目对应模板
             $this->model_name = ModelCategory::view('category', ['id'])
                 ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
                 ->where([
                     ['category.is_show', '=', 1],
-                    ['category.id', '=', $cid],
+                    ['category.id', '=', $category_id],
                 ])
-                ->cache('theme_' . (string) $cid)
+                ->cache('theme_' . (string) $category_id)
                 ->value('model.name');
 
             // 栏目不存在抛出404错误

@@ -33,10 +33,10 @@ class Sidebar extends BaseLogic
      */
     public function query(): array
     {
-        if ($cid = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
-            $cache_key = md5('nav sidebar' . $cid);
+        if ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
+            $cache_key = 'nav sidebar' . $category_id;
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
-                $id = $this->parent((int) $cid);
+                $id = $this->parent((int) $category_id);
                 $result = ModelCategory::view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
                     ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
                     ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')

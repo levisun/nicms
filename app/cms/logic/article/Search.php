@@ -83,7 +83,6 @@ class Search extends BaseLogic
         $cache_key = 'article list' . $category_id .
             $static . $type_id . $sort_order . $search_key .
             $query_limit . $query_page . $date_format;
-        $cache_key = md5($cache_key);
 
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
             $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'thumb', 'username', 'access_id', 'hits', 'update_time'])

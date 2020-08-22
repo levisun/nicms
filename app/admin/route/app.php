@@ -14,22 +14,19 @@
 use think\facade\Route;
 
 Route::group(function () {
-    Route::get('/$', function(){
-        return redirect(url('account/user/login'));
+    Route::get('/$', function () {
+        return redirect(url('account/user/login'), 301);
     });
-    Route::get('index$', function(){
-        return redirect(url('account/user/login'));
+    Route::get('index$', function () {
+        return redirect(url('account/user/login'), 301);
     });
 
     Route::get(':logic/:action/:method/[:id]$', 'Index/index');
 
     Route::miss(function () {
-        return miss(404);
+        return miss(404, false);
     });
-})
-->domain(env('admin.entry', 'admin'))
-->ext('html')
-->pattern([
+})->domain(env('admin.entry', 'admin'))->https(!env('app_debug', false))->ext('html')->pattern([
     'logic'  => '[a-z]+',
     'action' => '[a-z]+',
     'method' => '[a-z]+',

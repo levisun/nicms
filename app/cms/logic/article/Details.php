@@ -36,7 +36,7 @@ class Details extends BaseLogic
      */
     public function query(): array
     {
-        $id = $cid = false;
+        $id = $category_id = false;
         if ($id = $this->request->param('id', 0, '\app\common\library\Base64::url62decode')) {
             $map = [
                 ['article.id', '=', $id],
@@ -47,9 +47,9 @@ class Details extends BaseLogic
             ];
         }
         // 单页
-        elseif ($cid = $this->request->param('cid/d', 0, 'abs')) {
+        elseif ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
             $map = [
-                ['article.category_id', '=', $cid],
+                ['article.category_id', '=', $category_id],
                 ['article.is_pass', '=', 1],
                 ['article.delete_time', '=', 0],
                 ['article.show_time', '<', time()],
@@ -57,8 +57,8 @@ class Details extends BaseLogic
             ];
         }
 
-        if ($id || $cid) {
-            $cache_key = md5('article details' . $id . $cid);
+        if ($id || $category_id) {
+            $cache_key = 'article details' . $id . $category_id;
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'thumb', 'username', 'access_id', 'hits', 'update_time'])
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')

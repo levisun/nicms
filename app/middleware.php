@@ -15,9 +15,7 @@
 return [
     // 全局请求缓存
     \app\common\middleware\RequestCache::class,
-    // 请求合法校验
-    \app\common\middleware\RequestCheck::class,
-    // 访问频率限制
+    // 访问限制
     \app\common\middleware\Throttle::class,
     // 插件
     \app\common\middleware\Hook::class,

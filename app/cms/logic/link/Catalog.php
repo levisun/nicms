@@ -41,8 +41,7 @@ class Catalog extends BaseLogic
             $map[] = ['link.category_id', '=', $category_id];
         }
 
-        $cache_key = 'link list' . date('Ymd') . $category_id;
-        $cache_key = md5($cache_key);
+        $cache_key = 'link list' . $category_id;
 
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
             $list = ModelLink::view('link link', ['id', 'category_id', 'title', 'url', 'logo'])

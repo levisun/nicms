@@ -69,11 +69,11 @@ class RequestCache
                     $expire = $this->config['request_cache_expire'];
                 }
 
-                $timestamp = time();
+                $timestamp = time() + $expire;
                 $header                  = $response->getHeader();
                 $header['Cache-Control'] = 'max-age=' . $expire . ',must-revalidate';
-                $header['Last-Modified'] = gmdate('D, d M Y H:i:s', $timestamp + $expire) . ' GMT';
-                $header['Expires']       = gmdate('D, d M Y H:i:s', $timestamp + $expire) . ' GMT';
+                $header['Last-Modified'] = gmdate('D, d M Y H:i:s', $timestamp) . ' GMT';
+                $header['Expires']       = gmdate('D, d M Y H:i:s', $timestamp) . ' GMT';
                 $response->header($header);
             }
         }

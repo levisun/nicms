@@ -33,7 +33,7 @@ class Main extends BaseLogic
      */
     public function query(): array
     {
-        $cache_key = md5('nav main' . $this->lang->getLangSet());
+        $cache_key = 'nav main' . $this->lang->getLangSet();
         if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
             $result = ModelCategory::view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
                 ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
