@@ -223,11 +223,11 @@ class Async extends Base
         $response = Response::create($result, $this->analytical->format)->allowCache(false);
 
         if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
-            $timestamp = $this->request->time() + 3600 * 6;
+            $timestamp = time() + $this->apiExpire;
             $response->allowCache(true)
                 ->cacheControl('max-age=' . $this->apiExpire . ',must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $timestamp + $this->apiExpire) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $timestamp + $this->apiExpire) . ' GMT');
+                ->lastModified(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT')
+                ->expires(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT');
         }
 
         ob_start('ob_gzhandler');

@@ -97,14 +97,9 @@ class View implements TemplateHandlerInterface
     {
         $this->app = &$app;
 
-        // 编译目录
-        $this->config['compile_path'] = runtime_path('compile');
-
-        // 模板目录
-        $this->config['view_path'] = public_path('theme');
-
-        // 是否更新编译
-        $this->config['tpl_compile'] = (bool) !env('app_debug', false);
+        $this->config['compile_path'] = runtime_path('compile');            // 编译目录
+        $this->config['view_path'] = public_path('theme');                  // 模板目录
+        $this->config['tpl_compile'] = (bool) !env('app_debug', false);     // 是否更新编译
 
         // 合并配置
         $_config = array_filter($_config);
@@ -137,11 +132,8 @@ class View implements TemplateHandlerInterface
                 $this->config[$key] = $value;
             }
         }
-        $this->config['view_theme'] = str_replace(
-            ['/', '\\'],
-            DIRECTORY_SEPARATOR,
-            trim($this->config['view_theme'], '\/')
-        );
+
+        $this->config['view_theme'] = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($this->config['view_theme'],'\/'));
 
         $this->config['compile_path'] .= $this->config['view_theme'] . DIRECTORY_SEPARATOR;
         $this->config['view_path'] .= $this->config['view_theme'] . DIRECTORY_SEPARATOR;

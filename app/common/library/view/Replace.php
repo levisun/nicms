@@ -63,6 +63,7 @@ class Replace
      */
     private function TRepClosedTags(string &$_content): void
     {
+        // 开始标签
         $regex = str_replace('__REGEX__', '([\w]+)([\w $.=>\(\)\[\]"\']{0,})', $this->pattern);
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
@@ -81,14 +82,30 @@ class Replace
             return $str;
         }, $_content);
 
-        /* $regex = '/' . $this->tpl_begin . '\/([\w]+)' . $this->tpl_end . '/si';
+        // 中间标签
+        $regex = '/' . $this->tpl_begin . '([\w]+)\/' . $this->tpl_end . '/si';
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
-            return '<?php end' . $matches[1] . '; ?>';
-        }, $_content); */
+            return '<?php ' . $matches[1] . ': ?>';
+        }, $_content);
 
-        $regex = str_replace('__REGEX__', '\/([\w]+)', $this->pattern);
+        // 结束标签
+        $regex = '/' . $this->tpl_begin . '\/([\w]+)' . $this->tpl_end . '/si';
+        $_content = preg_replace_callback($regex, function ($matches) {
+            $matches = array_map('strtolower', $matches);
+            $matches = array_map('trim', $matches);
+            $class = '\app\common\library\view\taglib\Tags' . ucfirst($matches[1]);
+            if (class_exists($class) && method_exists($class, 'end')) {
+                $object = new $class([], $this->config);
+                $str = $object->end();
+            } else {
+                $str = '<?php end' . $matches[1] . '; ?>';
+            }
+            return $str;
+        }, $_content);
+
+        /* $regex = str_replace('__REGEX__', '\/([\w]+)', $this->pattern);
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
@@ -100,7 +117,7 @@ class Replace
                 $str = '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
             }
             return $str;
-        }, $_content);
+        }, $_content); */
     }
 
     /**
