@@ -140,8 +140,10 @@ abstract class BaseController
      */
     protected function redirect(string $_route, int $_code = 302): void
     {
-        // 记录当前地址
-        $this->session->set('return_url', $this->request->url());
+        // 临时跳转时记录当前地址
+        if (302 === $_code) {
+            $this->session->set('return_url', $this->request->url());
+        }
 
         $response = Response::create(url($_route), 'redirect', $_code);
         throw new HttpResponseException($response);
