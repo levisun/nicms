@@ -70,11 +70,11 @@
         methods: {
             find: function() {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
+                    url: NICMS.api_uri + '/query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.fields.find' },
-                        { name: 'id', value: NICMS.api.param.id },
+                        { name: 'id', value: NICMS.param.id },
                     ],
                     success: function (result) {
                         if (10000 == result.code) {
@@ -84,7 +84,7 @@
                 });
 
                 jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
+                    url: NICMS.api_uri + '/query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.category.query' }
@@ -99,9 +99,9 @@
             save: function() {
                 var data = jQuery('#fields').serializeArray();
                 data.push({ name: 'method', value: 'category.fields.editor' });
-                data.push({ name: 'id', value: NICMS.api.param.id });
+                data.push({ name: 'id', value: NICMS.param.id });
                 jQuery.pjax({
-                    url: NICMS.api.url + '/handle.do',
+                    url: NICMS.api_uri + '/handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {

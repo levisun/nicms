@@ -33,4 +33,19 @@ class Taglib
         $this->params = $_params;
         $this->config = $_config;
     }
+
+    public function closed(): string
+    {
+        return '<!---->';
+    }
+
+    public function end(): string
+    {
+        return '<!---->';
+    }
+
+    public function alone(): string
+    {
+        return '<!---->';
+    }
 }

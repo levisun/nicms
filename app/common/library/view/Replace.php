@@ -35,11 +35,10 @@ class Replace
      */
     public function __construct(array &$_config)
     {
-        $this->config = &$_config;
+        $this->config    = &$_config;
         $this->tpl_begin = $this->config['tpl_begin'];
-        $this->tpl_end = $this->config['tpl_end'];
-
-        $this->pattern = '/' . $this->tpl_begin . '[a-zA-Z]+:__REGEX__' . $this->tpl_end . '/si';
+        $this->tpl_end   = $this->config['tpl_end'];
+        $this->pattern   = '/' . $this->tpl_begin . '[a-zA-Z]+:__REGEX__' . $this->tpl_end . '/si';
     }
 
     public function getContent(string &$_content)
@@ -68,17 +67,19 @@ class Replace
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
-            $class = '\app\common\library\view\taglib\Tags' . ucfirst($matches[1]);
+
             $params = str_replace(['"', '"', ' as', ' =>'], '', $matches[2]);
             $params = str_replace(' ', '&', $params);
             parse_str($params, $params);
             $params['expression'] = str_replace('&', ' ', $matches[2]);
-            if (class_exists($class) && method_exists($class, 'closed')) {
+
+            if ($class = $this->getTagsNamespace($matches[1], 'closed')) {
                 $object = new $class($params, $this->config);
                 $str = $object->closed();
             } else {
                 $str = '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
             }
+
             return $str;
         }, $_content);
 
@@ -95,13 +96,14 @@ class Replace
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
-            $class = '\app\common\library\view\taglib\Tags' . ucfirst($matches[1]);
-            if (class_exists($class) && method_exists($class, 'end')) {
+
+            if ($class = $this->getTagsNamespace($matches[1], 'end')) {
                 $object = new $class([], $this->config);
                 $str = $object->end();
             } else {
                 $str = '<?php end' . $matches[1] . '; ?>';
             }
+
             return $str;
         }, $_content);
 
@@ -133,17 +135,43 @@ class Replace
         $_content = preg_replace_callback($regex, function ($matches) {
             $matches = array_map('strtolower', $matches);
             $matches = array_map('trim', $matches);
-            $class = '\app\common\library\view\taglib\Tags' . ucfirst($matches[1]);
+
             $matches[2] = str_replace(['"', "'", ' '], ['', '', '&'], $matches[2]);
             parse_str($matches[2], $params);
-            if (class_exists($class) && method_exists($class, 'alone')) {
+
+            if ($class = $this->getTagsNamespace($matches[1], 'alone')) {
                 $object = new $class($params, $this->config);
                 $str = $object->alone();
             } else {
                 $str = '<!-- 无法解析:' . htmlspecialchars_decode($matches[0]) . ' -->';
             }
+
             return $str;
         }, $_content);
+    }
+
+    /**
+     * 获得模板标签的命名空间
+     * @access private
+     * @param  string  $_tag_name
+     * @param  string  $_method
+     * @return string
+     */
+    private function getTagsNamespace(string $_tag_name, string $_method = 'alone'): string
+    {
+        $_tag_name = ucfirst($_tag_name);
+        $_method = ucfirst($_method);
+        $class = '\app\common\library\view\taglib\Tags' . $_tag_name;
+        if (class_exists($class) && method_exists($class, $_method)) {
+            return $class;
+        }
+
+        $class = '\taglib\Tags' . $_tag_name;
+        if (class_exists($class) && method_exists($class, $_method)) {
+            return $class;
+        }
+
+        return '';
     }
 
     /**

@@ -19,11 +19,11 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
+                    url: NICMS.api_uri + '/query.do',
                     method: 'get',
                     data: [
                         { name: 'method', value: 'nav.breadcrumb.query' },
-                        { name: 'cid', value: NICMS.api.param.cid }
+                        { name: 'cid', value: NICMS.param.cid }
                     ],
                     success: function (result) {
                         if (10000 == result.code) {

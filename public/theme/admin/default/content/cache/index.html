@@ -28,7 +28,7 @@
         methods: {
             rmRequest: function () {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
+                    url: NICMS.api_uri + '/query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'content.cache.request' }
@@ -42,7 +42,7 @@
             },
             rmCompile: function () {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
+                    url: NICMS.api_uri + '/query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'content.cache.compile' }
@@ -56,7 +56,7 @@
             },
             rmApi: function () {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
+                    url: NICMS.api_uri + '/query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'content.cache.api' }

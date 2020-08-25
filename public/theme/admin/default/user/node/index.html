@@ -128,7 +128,7 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
+                    url: NICMS.api_uri + '/query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'user.node.query' }
@@ -145,7 +145,7 @@
             },
             remove: function (id) {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/handle.do',
+                    url: NICMS.api_uri + '/handle.do',
                     type: 'POST',
                     data: [
                         { name: 'method', value: 'user.node.remove' },

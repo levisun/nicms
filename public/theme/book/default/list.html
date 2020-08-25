@@ -38,11 +38,11 @@
             },
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
+                    url: NICMS.api_uri + '/query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'book.catalog.query' },
-                        { name: 'id', value: NICMS.api.param.id }
+                        { name: 'id', value: NICMS.param.id }
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
@@ -53,11 +53,11 @@
 
                             if (!!!app.items.length) {
                                 jQuery.pjax({
-                                    url: NICMS.api.url + '/query.do',
+                                    url: NICMS.api_uri + '/query.do',
                                     type: 'GET',
                                     data: [
                                         { name: 'method', value: 'book.spider.jxbookarticle' },
-                                        { name: 'book_id', value: NICMS.api.param.id }
+                                        { name: 'book_id', value: NICMS.param.id }
                                     ],
                                     success: function (res) {
 

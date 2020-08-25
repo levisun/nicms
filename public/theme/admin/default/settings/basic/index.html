@@ -50,7 +50,7 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
+                    url: NICMS.api_uri + '/query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'settings.basic.query' }
@@ -66,7 +66,7 @@
                 var data = jQuery('#basic-config').serializeArray();
                 data.push({ name: 'method', value: 'settings.basic.editor' });
                 jQuery.pjax({
-                    url: NICMS.api.url + '/handle.do',
+                    url: NICMS.api_uri + '/handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {

@@ -64,7 +64,7 @@ return [
             // 监听SQL
             'trigger_sql'       => env('app_debug', false),
             // 开启字段缓存
-            'fields_cache'      => !env('app_debug', false),
+            'fields_cache'      => env('app_debug', true) ? false : true,
             // 字段缓存路径
             'schema_cache_path' => app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'schema' . DIRECTORY_SEPARATOR,
         ],

@@ -280,7 +280,7 @@ if (!function_exists('authorization')) {
             // 签发者
             ->issuedBy(Request::rootDomain())
             // 接收者
-            ->permittedFor(parse_url(Request::domain(), PHP_URL_HOST))
+            ->permittedFor(Request::host())
             // 身份标识(SessionID)
             ->identifiedBy(Base64::encrypt(Session::getId(false)), false)
             // 签发时间

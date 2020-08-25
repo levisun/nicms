@@ -31,12 +31,12 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
+                    url: NICMS.api_uri + '/query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'book.article.query' },
-                        { name: 'id', value: NICMS.api.param.id },
-                        { name: 'book_id', value: NICMS.api.param.book_id },
+                        { name: 'id', value: NICMS.param.id },
+                        { name: 'book_id', value: NICMS.param.book_id },
                     ],
                     success: function (result) {
                         article.items = result.data;

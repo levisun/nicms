@@ -36,10 +36,10 @@ class TagsHead extends Taglib
             '<meta name="keywords" content="{$web_keywords}" />' .
             '<meta name="description" content="{$web_description}" />' .
 
-            '<meta property="og:title" content="__NAME__">' .
-            '<meta property="og:type" content="website">' .
-            '<meta property="og:url" content="<?php echo request()->baseUrl(true);?>">' .
-            '<meta property="og:image" content="">' .
+            '<meta property="og:title" content="__NAME__" />' .
+            '<meta property="og:type" content="website" />' .
+            '<meta property="og:url" content="<?php echo request()->baseUrl(true);?>" />' .
+            '<meta property="og:image" content="" />' .
 
             '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
             '<meta name="robots" content="all" />' .                                // 蜘蛛抓取
@@ -56,7 +56,7 @@ class TagsHead extends Taglib
             '<meta name="generator" content="nicms" />' .
             '<meta name="copyright" content="2013-<?php echo date(\'Y\');?> nicms all rights reserved" />' .
 
-            '<meta http-equiv="Window-target" content="_top">' .
+            '<meta http-equiv="Window-target" content="_top" />' .
 
             '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
             '<meta http-equiv="Cache-Control" content="no-transform" />' .
@@ -78,21 +78,17 @@ class TagsHead extends Taglib
             $this->link() .
 
             '<script type="text/javascript">const NICMS = {' .
-            'domain:"//<?php echo request()->subDomain() . "." . request()->rootDomain();?>",' .
+            'domain:"//<?php echo request()->host();?>",' .
             'rootDomain:"//<?php echo request()->rootDomain();?>",' .
-            'url:"<?php echo request()->baseUrl(true);?>",' .
-            /* 'ip:"<?php echo request()->ip();?>",' . */
-            'api:{' .
-            'url:"<?php echo config("app.api_host");?>",' .
-            'param:<?php echo json_encode(app("request")->param());?>' .
-            '},' .
-            'cdn:{' .
+            'uri:"<?php echo request()->baseUrl(true);?>",' .
+            'api_uri:"<?php echo config("app.api_host");?>",' .
+            'param:<?php echo json_encode(app("request")->param());?>,' .
+            'ip:"<?php echo request()->ip();?>",' .
             'static:"__STATIC__",' .
             'theme:"__THEME__",' .
             'css:"__CSS__",' .
             'img:"__IMG__",' .
             'js:"__JS__"' .
-            '}' .
             '}</script></head><body>';
 
         // <style type="text/css">*{moz-user-select:-moz-none;-moz-user-select:none; -o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none; user-select:none;}</style>
@@ -107,7 +103,7 @@ class TagsHead extends Taglib
                 // 过滤多余空格
                 $value = preg_replace('/( ){2,}/si', '', $value);
                 // 替换引号
-                $value = str_replace(['\'', '/>'], ['"', '>'], $value);
+                $value = str_replace('\'', '"', $value);
 
                 // $value = false === stripos($value, 'preload') && false === stripos($value, 'prefetch')
                 //     ? str_replace('rel="', 'rel="preload ', $value)

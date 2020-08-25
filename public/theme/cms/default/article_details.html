@@ -47,11 +47,11 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
+                    url: NICMS.api_uri + '/query.do',
                     method: 'get',
                     data: [
                         { name: 'method', value: 'article.details.hits' },
-                        { name: 'id', value: NICMS.api.param.id }
+                        { name: 'id', value: NICMS.param.id }
                     ],
                     success: function (result) {
                         if (result.code == '10000') {

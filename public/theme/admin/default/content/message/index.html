@@ -60,7 +60,7 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
+                    url: NICMS.api_uri + '/query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'content.message.query' }
@@ -74,7 +74,7 @@
             },
             remove: function (id) {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/handle.do',
+                    url: NICMS.api_uri + '/handle.do',
                     type: 'POST',
                     data: [
                         { name: 'method', value: 'content.message.remove' },
@@ -89,7 +89,7 @@
             },
             editor: function (id) {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/handle.do',
+                    url: NICMS.api_uri + '/handle.do',
                     type: 'POST',
                     data: [
                         { name: 'method', value: 'content.message.editor' },
@@ -106,7 +106,7 @@
             },
             open: function (_id) {
                 jQuery.pjax({
-                    url: NICMS.api.url + '/query.do',
+                    url: NICMS.api_uri + '/query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'content.message.find' },

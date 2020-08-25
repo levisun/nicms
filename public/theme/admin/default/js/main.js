@@ -6,7 +6,7 @@ export class main {
 
     axios(_params) {
         const instance = axios.create({
-            baseURL: NICMS.api.url,
+            baseURL: NICMS.api_uri,
             headers: {
                 Accept: 'application/vnd.' + NICMS.api.root + '.v' + NICMS.api.version + '+json',
                 Authorization: NICMS.api.authorization
