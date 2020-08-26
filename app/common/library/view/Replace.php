@@ -243,7 +243,7 @@ class Replace
     private function TRepVars(string &$_content): void
     {
         $path  = Config::get('app.cdn_host') . '/theme/';
-        $path .= $this->config['app_name'] . $this->config['view_theme'] . '/';
+        $path .= $this->config['app_name'] . '/' . $this->config['view_theme'] . '/';
 
         // 拼装移动端模板路径
         if (Request::isMobile()) {

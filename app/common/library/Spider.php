@@ -110,9 +110,13 @@ class Spider
             $base = parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . $base;
             $this->result = str_replace('<head>', '<head>' . '<base href="' . $base . '" />', $this->result);
 
+            $length = mb_strlen(strip_tags($this->result), 'utf-8');
+
             $this->result = htmlspecialchars($this->result, ENT_QUOTES);
 
-            mb_strlen($this->result, 'utf-8') > 2000 and Cache::set($cache_key, $this->result, 1440);
+            if (300 < $length) {
+                Cache::set($cache_key, $this->result, 1440);
+            }
         }
 
         // 重新附加DOM文档

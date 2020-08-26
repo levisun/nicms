@@ -97,22 +97,14 @@ class View implements TemplateHandlerInterface
     {
         $this->app = &$app;
 
-        $this->config['compile_path'] = runtime_path('compile');            // 编译目录
-        $this->config['view_path'] = public_path('theme');                  // 模板目录
+        $this->config['app_name'] = $this->app->http->getName();
+        $this->config['compile_path'] = runtime_path($this->config['app_name'] . '/compile');            // 编译目录
+        $this->config['view_path'] = public_path('theme/' . $this->config['app_name']);                  // 模板目录
         $this->config['tpl_compile'] = (bool) !env('app_debug', false);     // 是否更新编译
 
         // 合并配置
         $_config = array_filter($_config);
         $this->config = array_merge($this->config, $_config);
-
-        // 当前应用名
-        $this->config['app_name'] = $this->app->http->getName()
-            ? $this->app->http->getName() . DIRECTORY_SEPARATOR
-            : '';
-
-        // 分应用存储
-        $this->config['compile_path'] .= $this->config['app_name'];
-        $this->config['view_path'] .= $this->config['app_name'];
     }
 
     /**
