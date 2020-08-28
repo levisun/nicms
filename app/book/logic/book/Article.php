@@ -37,7 +37,6 @@ class Article extends BaseLogic
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
         $cache_key = 'book article' . $book_id . $id . $date_format;
-        $cache_key = md5($cache_key);
 
         if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
             $result = ModelBookArticle::where([

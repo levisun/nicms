@@ -442,7 +442,7 @@ class Article extends BaseLogic
 
             // 清除缓存
             $this->cache->tag('cms article list' . $receive_data['category_id'])->clear();
-            $this->cache->delete(md5('article details' . $id));
+            $this->cache->delete('article details' . $id);
         });
 
         return [
@@ -481,7 +481,7 @@ class Article extends BaseLogic
 
             // 清除缓存
             $this->cache->tag('cms article list' . $category_id)->clear();
-            $this->cache->delete(md5('article details' . $id));
+            $this->cache->delete('article details' . $id);
         }
 
         return [

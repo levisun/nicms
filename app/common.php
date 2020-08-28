@@ -76,7 +76,7 @@ if (!function_exists('filepath_decode')) {
     function filepath_decode(string $_file, bool $_abs = false): string
     {
         $salt = date('Y') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
-        $salt = md5($salt);
+        $salt = sha1($salt);
 
         $_file = $_file ? Base64::decrypt($_file, $salt) : '';
 
@@ -111,7 +111,7 @@ if (!function_exists('filepath_encode')) {
         $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
 
         $salt = date('Y') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
-        $salt = md5($salt);
+        $salt = sha1($salt);
 
         if (is_file($path . $_file)) {
             return $_abs ? Base64::encrypt($path . $_file, $salt) : Base64::encrypt($_file, $salt);
@@ -238,12 +238,12 @@ if (!function_exists('is_wechat')) {
     }
 }
 
-if (!function_exists('app_secret')) {
+if (!function_exists('csrf_appid')) {
     /**
      * APP密钥
      * @return string
      */
-    function app_secret(): string
+    function csrf_appid(): string
     {
         $app_name = app('http')->getName();
         $api_app = ModelApiApp::field('id, secret')
@@ -254,49 +254,10 @@ if (!function_exists('app_secret')) {
             ->cache('app secret' . $app_name)
             ->find();
         if ($api_app && $api_app = $api_app->toArray()) {
-            $key = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
-            $app_secret = sha1($api_app['secret'] . $key);
-            Cookie::set('XSRF_TOKEN', $app_secret, ['httponly' => false]);
-
             return '<meta name="csrf-appid" content="' . ($api_app['id'] + 1000000) . '" />';
         }
 
         return '';
-    }
-}
-
-if (!function_exists('authorization')) {
-    /**
-     * API授权字符串
-     * @return string
-     */
-    function authorization(): void
-    {
-        // 密钥
-        $key = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
-        $key = sha1(Base64::encrypt($key));
-
-        $authorization = (new Builder)
-            // 签发者
-            ->issuedBy(Request::rootDomain())
-            // 接收者
-            ->permittedFor(Request::host())
-            // 身份标识(SessionID)
-            ->identifiedBy(Base64::encrypt(Session::getId(false)), false)
-            // 签发时间
-            ->issuedAt(Request::time())
-            // 令牌使用时间
-            ->canOnlyBeUsedAfter(Request::time() + 2880)
-            // 签发过期时间
-            ->expiresAt(Request::time() + 28800)
-            // 客户端ID
-            ->withClaim('uid', client_id())
-            // 生成token
-            ->getToken(new Sha256, new Key($key));
-
-        $authorization = (string) $authorization;
-
-        Cookie::set('XSRF_AUTHORIZATION', $authorization, ['httponly' => false]);
     }
 }
 

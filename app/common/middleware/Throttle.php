@@ -62,9 +62,9 @@ class Throttle
             miss(404, false, true);
         }
 
-        $this->cache_key = app('http')->getName() . $request->ip();
+        $this->cache_key = $request->domain() . $request->ip();
 
-        if ($this->hasLock()) {
+        if ($this->hasLock() || $this->hasLoginLock()) {
             $this->abort();
         }
 
@@ -73,7 +73,7 @@ class Throttle
 
         // 平均 n 秒一个请求
         if ($request->time(true) - $last_time < $this->duration['m'] / $this->max_requests) {
-            $this->setLock();
+            Cache::set($this->cache_key . 'lock', date('Y-m-d H:i:s'), 28800);
             $this->abort();
         }
 
@@ -87,14 +87,14 @@ class Throttle
         return $response;
     }
 
+    private function hasLoginLock(): bool
+    {
+        return Cache::has($this->cache_key . 'login_lock');
+    }
+
     private function hasLock(): bool
     {
         return Cache::has($this->cache_key . 'lock');
-    }
-
-    private function setLock()
-    {
-        Cache::set($this->cache_key . 'lock', date('Y-m-d H:i:s'), 28800);
     }
 
     private function abort()

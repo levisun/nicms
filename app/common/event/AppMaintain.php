@@ -56,7 +56,7 @@ class AppMaintain
                 $user_dir = public_path('storage/uploads/' . Base64::flag('user', 7) . '/' . $sub_dir);
                 ClearGarbage::uploadEmptyDirectory($user_dir);
 
-                $admin_dir = public_path('storage/uploads/' . Base64::flag('user', 7) . '/' . $sub_dir);
+                $admin_dir = public_path('storage/uploads/' . Base64::flag('admin', 7) . '/' . $sub_dir);
                 ClearGarbage::uploadEmptyDirectory($admin_dir);
 
                 // 保证网站根目录整洁

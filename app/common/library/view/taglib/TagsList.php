@@ -37,7 +37,7 @@ class TagsList extends Taglib
             $sort_order = 'article.static DESC, article.sort_order DESC, article.update_time DESC';
         }
 
-        $cache_key = md5('taglib tablist::article list' . $this->params['cid'] . $this->params['static'] . $this->params['tid'] . $this->params['sort'] . $this->params['limit'] . $this->params['page'] . $this->params['date_format']);
+        $cache_key = 'taglib tablist::article list' . $this->params['cid'] . $this->params['static'] . $this->params['tid'] . $this->params['sort'] . $this->params['limit'] . $this->params['page'] . $this->params['date_format'];
 
         $parseStr  = '<?php
         if (!cache("?' . $cache_key . '") || !$list = cache("' . $cache_key . '")):

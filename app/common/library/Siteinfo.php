@@ -34,7 +34,7 @@ class Siteinfo
         self::$appName = $_app_name;
         self::$langSet = Lang::getLangSet();
 
-        $cache_key = md5(self::$appName . self::$langSet);
+        $cache_key = self::$appName . self::$langSet;
         if (!Cache::has($cache_key) || !$common = Cache::get($cache_key)) {
             $common = [
                 'theme'     => self::theme(),
@@ -47,8 +47,7 @@ class Siteinfo
             Cache::tag('system')->set($cache_key, $common);
         }
 
-        $cache_key .= Request::param('id', null) . Request::param('cid', null);
-        $cache_key = md5($cache_key);
+        $cache_key .= Request::param('id', 0, 'abs') . Request::param('cid', 0, 'abs');
         if (!Cache::has($cache_key) || !$result = Cache::get($cache_key)) {
             $result = [
                 'title'       => self::title(),

@@ -85,7 +85,7 @@ class Compiler
      */
     public function getHashFile(string &$_template): string
     {
-        return $this->path . md5($this->layout_on . $this->layout_name . $_template) . '.' . $this->suffix;
+        return $this->path . sha1($this->layout_on . $this->layout_name . $_template) . '.' . $this->suffix;
     }
 
     /**

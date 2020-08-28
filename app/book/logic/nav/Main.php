@@ -33,7 +33,7 @@ class Main extends BaseLogic
      */
     public function query(): array
     {
-        $cache_key = md5('book nav main' . $this->lang->getLangSet());
+        $cache_key = 'book nav main' . $this->lang->getLangSet();
         if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
             $result = ModelBookType::where([
                     ['is_show', '=', 1],

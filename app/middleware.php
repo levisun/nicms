@@ -13,8 +13,6 @@
  */
 
 return [
-    // 全局请求缓存
-    \app\common\middleware\RequestCache::class,
     // 访问限制
     \app\common\middleware\Throttle::class,
     // 插件

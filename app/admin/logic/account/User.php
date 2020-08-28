@@ -88,11 +88,11 @@ class User extends BaseLogic
             ++$login_lock;
 
             // 错误次数超过5次锁定IP
-            // 锁定方法在[\app\common\event\CheckRequestCache::lock]
+            // 锁定方法在[\app\common\middleware\Throttle::class]
             if ($login_lock >= 5) {
                 $this->session->delete('login_lock');
-                $lock = runtime_path('temp') . md5($this->request->ip()) . '.lock';
-                file_put_contents($lock, 'lock');
+                $cache_key = $this->request->domain() . $this->request->ip() . 'login_lock';
+                $this->cache->set($cache_key, date('Y-m-d H:i:s'), 28800);
             } else {
                 $this->session->set('login_lock', $login_lock);
             }

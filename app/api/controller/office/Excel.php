@@ -37,7 +37,7 @@ class Excel extends Async
             if ($file = filepath_decode($file, true)) {
                 $sheet = $this->request->param('sheet/d', 0, 'abs');
 
-                $cache_key = md5($file . $sheet);
+                $cache_key = $file . $sheet;
 
                 if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                     $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
@@ -86,7 +86,7 @@ class Excel extends Async
             }
 
             $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-            $file = runtime_path('temp') . md5(date('YmdHis') . $this->request->server('HTTP_USER_AGENT')) . '.xlsx';
+            $file = runtime_path('temp') . sha1(date('YmdHis') . $this->request->server('HTTP_USER_AGENT')) . '.xlsx';
             $writer->save($file);
             unset($spreadsheet, $worksheet, $writer);
 

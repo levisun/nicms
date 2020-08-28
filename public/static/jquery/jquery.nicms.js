@@ -61,7 +61,7 @@
         _params.data.append('appid', jQuery('meta[name="csrf-appid"]').attr('content'));
 
         if ('POST' == _params.type || 'post' == _params.type) {
-            _params.data.append('__token__', jQuery('meta[name="csrf-token"]').attr('content'));
+            _params.data.append('__token__', jQuery.get_cookie('CSRF_TOKEN'));
         }
 
         let newData = [];
@@ -84,7 +84,7 @@
             if ('undefined' !== typeof (xhr.responseText)) {
                 var result = JSON.parse(xhr.responseText);
                 if ('undefined' !== typeof (result.token)) {
-                    jQuery('meta[name="csrf-token"]').attr('content', result.token);
+                    jQuery.set_cookie('CSRF_TOKEN', result.token);
                 }
             }
         }
@@ -124,10 +124,10 @@
 
         _params.data.push({ name: 'appid', value: jQuery('meta[name="csrf-appid"]').attr('content') });
         _params.data.push({ name: 'sign_type', value: 'md5' });
-        _params.data.push({ name: 'timestamp', value: jQuery.timestamp() });
 
         if ('POST' == _params.type || 'post' == _params.type) {
-            _params.data.push({ name: '__token__', value: jQuery('meta[name="csrf-token"]').attr('content') });
+            _params.data.push({ name: 'timestamp', value: jQuery.timestamp() });
+            _params.data.push({ name: '__token__', value: jQuery.get_cookie('CSRF_TOKEN') });
         }
 
         _params.data.push({ name: 'sign', value: jQuery.sign(_params.data) });
@@ -142,7 +142,7 @@
             if ('undefined' !== typeof (xhr.responseText)) {
                 var result = JSON.parse(xhr.responseText);
                 if ('undefined' !== typeof (result.token)) {
-                    jQuery('meta[name="csrf-token"]').attr('content', result.token);
+                    jQuery.set_cookie('CSRF_TOKEN', result.token);
                 }
             }
         }
@@ -188,6 +188,9 @@
             }
         }
         _data = _data.sort(compare);
+        _data = _data.filter(function (item, index, self) {
+            return self.indexOf(item) == index;
+        });
 
         var sign = '';
         jQuery.each(_data, function (i, field) {

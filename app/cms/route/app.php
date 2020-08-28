@@ -48,7 +48,7 @@ Route::group(function () {
     Route::miss(function () {
         return miss(404, true);
     });
-})->prefix('Index/')->https(!env('app_debug', false))->ext('html')->pattern([
+})->prefix('Index/')->https(env('app_debug', false) ? false : true)->ext('html')->pattern([
     'page' => '\d+',
     'cid'  => '\w+',
     'id'   => '\w+',

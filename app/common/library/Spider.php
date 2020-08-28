@@ -52,7 +52,7 @@ class Spider
             return false;
         }
 
-        $cache_key = md5($_uri);
+        $cache_key = $_uri;
         if (!Cache::has($cache_key) || !$this->result = Cache::get($cache_key)) {
             $this->client = new HttpBrowser;
             $this->client->followRedirects();

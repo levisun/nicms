@@ -57,7 +57,6 @@ class Category extends BaseLogic
         $cache_key = __METHOD__ . date('Ymd') .
             $com . $top . $hot . $type_id .
             $query_limit . $query_page . $date_format;
-        $cache_key = md5($cache_key);
 
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
             $result = (new ModelBook)

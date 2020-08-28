@@ -30,7 +30,7 @@ class Download extends Async
                 // $ext = pathinfo($file, PATHINFO_EXTENSION);
 
                 return Response::create($file, 'file')
-                    ->name(md5(pathinfo($file, PATHINFO_FILENAME) . date('Ymd')))
+                    ->name(sha1(pathinfo($file, PATHINFO_FILENAME) . date('Ymd')))
                     ->isContent(false)
                     ->expire(28800);
             }

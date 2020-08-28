@@ -27,7 +27,7 @@ class TagsPage extends Taglib
         $this->params['page_id'] = !empty($this->params['page_id']) ? (int) $this->params['page_id'] : '';
         $this->params['date_format'] = !empty($this->params['date_format']) ? $this->params['date_format'] : 'Y-m-d';
 
-        $cache_key = md5('article details' . $this->params['id'] . $this->params['page_id']);
+        $cache_key = 'article details' . $this->params['id'] . $this->params['page_id'];
 
         $parseStr  = '<?php
             if (!cache("?' . $cache_key . '") || !$result = cache("' . $cache_key . '")):

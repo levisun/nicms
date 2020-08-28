@@ -48,7 +48,6 @@ class Catalog extends BaseLogic
         $sort_order = 'sort_order ASC, id ASC';
 
         $cache_key = 'book article list' . $book_id . $query_limit . $query_page . $date_format;
-        $cache_key = md5($cache_key);
 
         if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
             // 书籍信息

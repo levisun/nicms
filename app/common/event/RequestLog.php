@@ -2,9 +2,7 @@
 
 /**
  *
- * 应用维护
- * 清除应用垃圾
- * 数据库维护
+ * 请求日志
  *
  * @package   NICMS
  * @category  app\common\event

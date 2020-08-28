@@ -49,7 +49,7 @@ class Ipinfo
         ];
 
         if ($_ip && self::validate($_ip)) {
-            $cache_key = md5(__METHOD__ . $_ip);
+            $cache_key = __METHOD__ . $_ip;
             if (!Cache::has($cache_key) || !$region = Cache::get($cache_key)) {
                 // 查询IP地址库
                 if (!$query_region = self::query($_ip)) {

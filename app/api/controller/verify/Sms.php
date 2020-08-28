@@ -32,7 +32,7 @@ class Sms extends Async
         if ($this->validate->referer()) {
             $phone = $this->request->param('phone', false);
             if ($phone && preg_match('/^1[3-9]\d{9}$/', $phone)) {
-                $key = md5('sms_' . $phone);
+                $key = sha1('sms_' . $phone);
 
                 if ($this->session->has($key) && $result = $this->session->get($key)) {
                     if ($result['time'] >= time()) {
@@ -63,7 +63,7 @@ class Sms extends Async
         $phone = $this->request->param('phone', false);
         $verify = $this->request->param('verify/d', false);
         if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone) && $verify) {
-            $key = md5('sms_' . $phone);
+            $key = sha1('sms_' . $phone);
 
             if ($this->session->has($key) && $result = $this->session->get($key)) {
                 if ($result['time'] >= time() && $result['verify'] == $verify && $result['phone'] == $phone) {
