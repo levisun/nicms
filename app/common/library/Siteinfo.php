@@ -47,7 +47,7 @@ class Siteinfo
             Cache::tag('system')->set($cache_key, $common);
         }
 
-        $cache_key .= Request::param('id', 0, 'abs') . Request::param('cid', 0, 'abs');
+        $cache_key .= Request::param('id', 0) . Request::param('cid', 0);
         if (!Cache::has($cache_key) || !$result = Cache::get($cache_key)) {
             $result = [
                 'title'       => self::title(),

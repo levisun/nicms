@@ -33,7 +33,10 @@ class Cache extends BaseLogic
     {
         $this->actionLog(__METHOD__, 'admin content compile remove');
 
-        (new Compiler)->clear();
+        (new Compiler)->clear(runtime_path('admin/compile'));
+        (new Compiler)->clear(runtime_path('book/compile'));
+        (new Compiler)->clear(runtime_path('cms/compile'));
+        (new Compiler)->clear(runtime_path('user/compile'));
 
         return [
             'debug' => false,

@@ -43,6 +43,6 @@ Route::group(function () {
     Route::miss(function () {
         return miss(404, false);
     });
-})->domain('api')->https(env('app_debug', false) ? false : true)->ext('do')->pattern([
+})->domain('api')->ext('do')->pattern([
     'method' => '[a-z]+',
 ]);

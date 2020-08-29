@@ -26,7 +26,7 @@ Route::group(function () {
     Route::miss(function () {
         return miss(404, false);
     });
-})->domain(env('admin.entry', 'admin'))->https(env('app_debug', false) ? false : true)->ext('html')->pattern([
+})->domain(env('admin.entry', 'admin'))->ext('html')->pattern([
     'logic'  => '[a-z]+',
     'action' => '[a-z]+',
     'method' => '[a-z]+',

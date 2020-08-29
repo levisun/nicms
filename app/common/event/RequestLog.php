@@ -67,7 +67,7 @@ class RequestLog
         }
 
         if ($spider) {
-            trace(Request::server('HTTP_USER_AGENT'), 'info');
+            // trace(Request::server('HTTP_USER_AGENT'), 'info');
             $has = ModelVisit::where([
                 ['name', '=', $spider],
                 ['date', '=', strtotime(date('Y-m-d'))]

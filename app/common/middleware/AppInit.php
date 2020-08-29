@@ -49,30 +49,46 @@ class AppInit
         return $response;
     }
 
-    private function csrf_token()
+    /**
+     * API POST请求表单签名
+     * @access private
+     * @return void
+     */
+    private function csrf_token(): void
     {
         $app_token = $this->request->buildToken('__token__', 'md5');
         Cookie::set('CSRF_TOKEN', $app_token, ['httponly' => false]);
     }
 
-    private function app_secret()
+    /**
+     * API请求sign签名加密密钥
+     * @access private
+     * @return void
+     */
+    private function app_secret(): void
     {
-        $app_name = Config::get('app.domain_bind.' . $this->request->subDomain());
-        $api_app = ModelApiApp::field('id, secret')
-            ->where([
-                ['name', '=', $app_name],
-                ['status', '=', 1]
-            ])
-            ->cache('app secret' . $app_name)
-            ->find();
-        if ($api_app && $api_app = $api_app->toArray()) {
-            $key = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
-            $app_secret = sha1($api_app['secret'] . $key);
-            Cookie::set('XSRF_TOKEN', $app_secret, ['httponly' => false]);
+        if ($app_name = Config::get('app.domain_bind.' . $this->request->subDomain())) {
+            $api_app = ModelApiApp::field('id, secret')
+                ->where([
+                    ['name', '=', $app_name],
+                    ['status', '=', 1]
+                ])
+                ->cache('app secret' . $app_name)
+                ->find();
+            if ($api_app && $api_app = $api_app->toArray()) {
+                $key = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
+                $app_secret = sha1($api_app['secret'] . $key);
+                Cookie::set('XSRF_TOKEN', $app_secret, ['httponly' => false]);
+            }
         }
     }
 
-    private function authorization()
+    /**
+     * API请求认证标识
+     * @access private
+     * @return void
+     */
+    private function authorization(): void
     {
         // 密钥
         $key = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');

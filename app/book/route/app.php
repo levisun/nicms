@@ -32,7 +32,7 @@ Route::group(function () {
     Route::miss(function () {
         return miss(404, false);
     });
-})->domain('book')->https(env('app_debug', false) ? false : true)->ext('html')->pattern([
+})->domain('book')->ext('html')->pattern([
     'tid'  => '\w+',
     'bid'  => '\w+',
     'id'   => '\w+',

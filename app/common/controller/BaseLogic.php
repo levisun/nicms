@@ -80,21 +80,6 @@ abstract class BaseLogic
     protected $type = 'guest';
 
     /**
-     * 不用验证
-     * @var array
-     */
-    protected $notAuth = [
-        'not_auth_action' => [
-            'login',
-            'logout',
-            'forget',
-            'auth',
-            'profile',
-            'notice'
-        ]
-    ];
-
-    /**
      * 构造方法
      * @access public
      * @param  App  $app  应用对象
