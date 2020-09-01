@@ -23,6 +23,7 @@ use think\Config;
 use think\Request;
 use think\Response;
 use think\Session;
+use think\Log;
 
 /**
  * 跨域请求支持
@@ -30,6 +31,7 @@ use think\Session;
 class AllowCrossDomain
 {
     protected $session;
+    protected $log;
 
     protected $cookieDomain;
 
@@ -39,9 +41,10 @@ class AllowCrossDomain
         'Access-Control-Allow-Headers'     => 'Accept, Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-CSRF-TOKEN, X-Requested-With',
     ];
 
-    public function __construct(Config $config, Session $session)
+    public function __construct(Config $config, Session $session, Log $log)
     {
         $this->session = $session;
+        $this->log = $log;
 
         $this->cookieDomain = $config->get('cookie.domain', '');
     }
@@ -79,5 +82,6 @@ class AllowCrossDomain
     public function end(Response $response)
     {
         $this->session->save();
+        $this->log->save();
     }
 }

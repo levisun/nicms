@@ -97,7 +97,7 @@ class Wechat
         $this->params['mchid']            = $this->config['mch_id'];
         $this->params['nonce_str']        = $this->getNonceStr(32);
         $this->params['partner_trade_no'] = $this->config['mch_id'] . date('YmdHis') . mt_rand(111, 999);
-        $this->params['spbill_create_ip'] = app('request')->ip();
+        $this->params['spbill_create_ip'] = request()->ip();
         $this->params['sign']             = $this->getSign($this->params);
 
         $url = 'https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers';
@@ -128,7 +128,7 @@ class Wechat
         $this->params['mch_billno'] = $this->config['mch_id'] . date('YmdHis') . mt_rand(111, 999);
         $this->params['mch_id']     = $this->config['mch_id'];
         $this->params['wxappid']    = $this->config['appid'];
-        $this->params['client_ip']  = app('request')->ip();
+        $this->params['client_ip']  = request()->ip();
         $this->params['sign']       = $this->getSign($this->params);
 
         $url = 'https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack';
@@ -241,11 +241,11 @@ class Wechat
      */
     public function respond()
     {
-        if (!app('request')->has('out_trade_no', 'param')) {
+        if (!request()->has('out_trade_no', 'param')) {
             return false;
         }
 
-        $out_trade_no = app('request')->param('out_trade_no');
+        $out_trade_no = request()->param('out_trade_no');
         $result = $this->queryOrder(['out_trade_no' => $out_trade_no]);
         if ($result['return_code'] == 'SUCCESS' && $result['result_code'] == 'SUCCESS' && $result['trade_state'] == 'SUCCESS') {
             return [
@@ -421,7 +421,7 @@ class Wechat
         $this->params['appid']            = $this->config['appid'];
         $this->params['mch_id']           = $this->config['mch_id'];
         $this->params['nonce_str']        = $this->getNonceStr(32);
-        $this->params['spbill_create_ip'] = app('request')->ip();
+        $this->params['spbill_create_ip'] = request()->ip();
         $this->params['time_start']       = date('YmdHis');
         $this->params['time_expire']      = date('YmdHis', time() + 600);
         $this->params['sign']             = $this->getSign($this->params);

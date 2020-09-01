@@ -81,7 +81,6 @@ class TagsHead extends Taglib
             'url:"<?php echo request()->baseUrl(true);?>",' .
             'api_uri:"' . config("app.api_host") . '",' .
             'param:<?php echo json_encode(app("request")->param());?>,' .
-            'ip:"<?php echo request()->ip();?>",' .
             'static:"__STATIC__",' .
             'theme:"__THEME__",' .
             'css:"__CSS__",' .

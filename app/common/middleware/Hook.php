@@ -37,6 +37,9 @@ class Hook
         $response = $next($request);
 
         $content = $response->getContent();
+
+        $type = app('http')->getName() . '.' . $request->controller(true) . '.' . $request->action(true);
+
         $items = Addon::getOpenList();
         foreach ($items as $namespace => $config) {
             $config = array_map('strtolower', $config);
@@ -45,7 +48,7 @@ class Hook
                 continue;
             }
 
-            if (!in_array(app('http')->getName(), explode(',', $config['type']))) {
+            if ($config['type'] !== 'all' && $config['type'] !== $type) {
                 continue;
             }
 

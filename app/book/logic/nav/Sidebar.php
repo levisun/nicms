@@ -66,7 +66,7 @@ class Sidebar extends BaseLogic
     /**
      * 获得子导航
      * @access private
-     * @param  int    $_id      ID
+     * @param  int    $_id ID
      * @return array
      */
     private function child(int $_id): array

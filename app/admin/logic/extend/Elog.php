@@ -32,26 +32,68 @@ class Elog extends BaseLogic
     public function query(): array
     {
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
+
+        $salt = date('Ymd');
+
+        $result = [];
         $path = runtime_path('log');
-
         if ($files = glob($path . '*')) {
-            rsort($files);
-
-            foreach ($files as $key => $value) {
-                $date = date($date_format, filectime($value));
-
-                $size = filesize($value);
-                $size = number_format($size / 1024, 2) . 'KB';
-
-                $files[$key] = [
-                    'id'   => Base64::encrypt(basename($value), date('Ymd')),
+            foreach ($files as $value) {
+                $result[] = [
+                    'id'   => Base64::encrypt('log/' . basename($value), $salt),
                     'name' => pathinfo($value, PATHINFO_FILENAME),
-                    'date' => $date,
-                    'size' => $size,
+                    'date' => date($date_format, filectime($value)),
+                    'size' => number_format(filesize($value) / 1024, 2) . 'KB',
                 ];
             }
-        } else {
-            $files = [];
+        }
+
+        $path = runtime_path('admin/log');
+        if ($files = glob($path . '*')) {
+            foreach ($files as $value) {
+                $result[] = [
+                    'id'   => Base64::decrypt('admin/log/' . basename($value), $salt),
+                    'name' => 'admin_' . pathinfo($value, PATHINFO_FILENAME),
+                    'date' => date($date_format, filectime($value)),
+                    'size' => number_format(filesize($value) / 1024, 2) . 'KB',
+                ];
+            }
+        }
+
+        $path = runtime_path('api/log');
+        if ($files = glob($path . '*')) {
+            foreach ($files as $value) {
+                $result[] = [
+                    'id'   => Base64::decrypt('api/log/' . basename($value), $salt),
+                    'name' => 'api_' . pathinfo($value, PATHINFO_FILENAME),
+                    'date' => date($date_format, filectime($value)),
+                    'size' => number_format(filesize($value) / 1024, 2) . 'KB',
+                ];
+            }
+        }
+
+        $path = runtime_path('book/log');
+        if ($files = glob($path . '*')) {
+            foreach ($files as $value) {
+                $result[] = [
+                    'id'   => Base64::decrypt('book/log/' . basename($value), $salt),
+                    'name' => 'book_' . pathinfo($value, PATHINFO_FILENAME),
+                    'date' => date($date_format, filectime($value)),
+                    'size' => number_format(filesize($value) / 1024, 2) . 'KB',
+                ];
+            }
+        }
+
+        $path = runtime_path('cms/log');
+        if ($files = glob($path . '*')) {
+            foreach ($files as $value) {
+                $result[] = [
+                    'id'   => Base64::decrypt('cms/log/' . basename($value), $salt),
+                    'name' => 'cms_' . pathinfo($value, PATHINFO_FILENAME),
+                    'date' => date($date_format, filectime($value)),
+                    'size' => number_format(filesize($value) / 1024, 2) . 'KB',
+                ];
+            }
         }
 
 
@@ -60,8 +102,8 @@ class Elog extends BaseLogic
             'cache' => true,
             'msg'   => 'success',
             'data'  => [
-                'list'  => $files,
-                'total' => count($files)
+                'list'  => rsort($result),
+                'total' => count($result)
             ]
         ];
     }
@@ -78,13 +120,13 @@ class Elog extends BaseLogic
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id, date('Ymd'))) {
 
-            $file = runtime_path('log') . $id;
+            $file = runtime_path() . str_replace('/', DIRECTORY_SEPARATOR, $id);
             if (is_file($file)) {
                 $data = file_get_contents($file);
                 $data = str_replace(['<', '>'], ['[', ']'], $data);
                 $data = str_replace($this->app->getRootPath(), 'ROOT_PATH', $data);
                 $data = nl2br($data);
-                $data = preg_replace_callback('/mysql\:host=[0-9A-Za-z_.=;]+;/si', function ($matches) {
+                $data = preg_replace_callback('/mysql\:host=[0-9A-Za-z_.=;]+;/si', function () {
                     return 'ROOT ';
                 }, $data);
             } else {

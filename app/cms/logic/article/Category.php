@@ -38,6 +38,7 @@ class Category extends BaseLogic
         $map = [
             ['article.is_pass', '=', '1'],
             ['article.delete_time', '=', '0'],
+            ['article.access_id', '=', $this->urole],
             ['article.show_time', '<', time()],
             ['article.lang', '=', $this->lang->getLangSet()]
         ];
@@ -68,7 +69,7 @@ class Category extends BaseLogic
         $query_page = $this->request->param('page/d', 1, 'abs');
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
-        $cache_key = 'article list' . $category_id . $static . $type_id . $sort_order . $query_limit . $query_page . $date_format;
+        $cache_key = 'article list' . $category_id . $static . $type_id . $sort_order . $query_limit . $query_page . $date_format . $this->urole;
 
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
             $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'thumb', 'username', 'access_id', 'hits', 'update_time'])

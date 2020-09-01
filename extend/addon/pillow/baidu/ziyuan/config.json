@@ -3,8 +3,8 @@
     "author": "失眠小枕头",
     "version": "1.0.1",
     "date": "2020-06-21",
+    "type": "cms.index.details",
     "settings": {
-        "type": "cms",
         "site": "https://www.niphp.com",
         "token": "7OfYOJd0ZzM7E2Et"
     }

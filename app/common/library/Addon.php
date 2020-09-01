@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use think\facade\Cache;
 use app\common\library\Filter;
 
 class Addon
@@ -86,14 +87,15 @@ class Addon
     {
         $result = [];
         $dir = root_path('extend/addon');
-        if (is_file($dir . 'addon.json') && $addon = json_decode(file_get_contents($dir . 'addon.json'), true)) {
+        if (is_file($dir . 'addon.json') && $addon = file_get_contents($dir . 'addon.json')) {
+            $addon = json_decode($addon, true);
             foreach ($addon['require'] as $namespace => $config) {
-                $addon_config = $dir . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $namespace)
-                    . DIRECTORY_SEPARATOR . 'config.json';
-                if (is_file($addon_config) && $addon_config = json_decode(file_get_contents($addon_config), true)) {
+                $addon_config = root_path('extend/addon/' . $namespace) . 'config.json';
+                if (is_file($addon_config) && $addon_config = file_get_contents($addon_config)) {
+                    $addon_config = json_decode($addon_config, true);
                     $result[$namespace] = [
                         'status'  => $config['status'],
-                        'type'    => $config['type'],
+                        'type'    => empty($addon_config['type']) ? '未知' : $addon_config['type'],
                         'name'    => empty($addon_config['name']) ? '未命名' : $addon_config['name'],
                         'author'  => empty($addon_config['author']) ? '未知作者' : $addon_config['author'],
                         'version' => empty($addon_config['version']) ? '未知版本' : $addon_config['version'],
@@ -123,27 +125,15 @@ class Addon
      */
     public static function getOpenList()
     {
-        $result = [];
-        $dir = root_path('extend/addon');
-        if (is_file($dir . 'addon.json') && $addon = json_decode(file_get_contents($dir . 'addon.json'), true)) {
-            foreach ($addon['require'] as $namespace => $config) {
-                if ($config['status'] !== 'open') {
-                    continue;
-                }
-
-                $addon_config = $dir . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $namespace)
-                    . DIRECTORY_SEPARATOR . 'config.json';
-                if (is_file($addon_config) && $addon_config = json_decode(file_get_contents($addon_config), true)) {
-                    $result[$namespace] = [
-                        'status'  => $config['status'],
-                        'type'    => $config['type'],
-                        'name'    => empty($addon_config['name']) ? '未命名' : $addon_config['name'],
-                        'author'  => empty($addon_config['author']) ? '未知作者' : $addon_config['author'],
-                        'version' => empty($addon_config['version']) ? '未知版本' : $addon_config['version'],
-                        'date'    => empty($addon_config['date']) ? '未知发布日期' : $addon_config['date'],
-                    ];
+        $cache_key = 'extend addon list';
+        if (!Cache::has($cache_key) || !$result = Cache::get($cache_key)) {
+            $result = self::query();
+            foreach ($result as $key => $value) {
+                if ($value['status'] !== 'open') {
+                    unset($result[$key]);
                 }
             }
+            Cache::tag('system')->set($cache_key, $result);
         }
 
         return $result;
@@ -158,22 +148,20 @@ class Addon
     public static function exec(string &$_namespace, string &$_content): string
     {
         $class = '\addon\\' . str_replace(['/', '\\'], '\\', $_namespace) . '\Index';
-        $file  = root_path('extend/addon') .
-            str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_namespace, '\/')) .
-            DIRECTORY_SEPARATOR . 'config.json';
-
         if (!class_exists($class) || !method_exists($class, 'run')) {
             trace('[addon] ' . $_namespace . '插件不存在或约定方法错误', 'error');
             return '';
         }
 
+        $file  = root_path('extend/addon') .
+            str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($_namespace, '\/')) .
+            DIRECTORY_SEPARATOR . 'config.json';
         if (!is_file($file) || !json_decode(file_get_contents($file), true)) {
             trace('[addon] ' . $_namespace . '配置文件不存在或格式错误', 'error');
             return '';
         }
 
-        $addon = app($class);
-        if ($result = (string) $addon->run()) {
+        if ($result = (string) app($class)->run()) {
             // 安全过滤
             $result = Filter::symbol($result);
             $result = Filter::space($result);

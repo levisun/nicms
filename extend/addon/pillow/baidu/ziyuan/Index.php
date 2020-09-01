@@ -11,8 +11,8 @@ class Index extends Base
 
     public function run()
     {
-        // $script  = $this->api();
-        $script = $this->script();
+        $script = $this->api();
+        $script .= $this->script();
         return $script;
     }
 
@@ -34,8 +34,6 @@ class Index extends Base
         $result = curl_exec($ch);
         curl_close($ch);
         return '<script type="text/javascript">console.log(' . $result . ');</script>';
-        // $result = json_decode($result, true);
-        // halt($result);
     }
 
     private function script(): string
