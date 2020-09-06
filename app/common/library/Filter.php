@@ -136,8 +136,10 @@ class Filter
 
             // 特殊字符转HTML实体
             '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;', '`' => '&acute;',
+            '`' => '&#96;',
 
-            // '*' => '&lowast;',
+            // '"' => '&#34;', '\'' => '&#39;',
+            // '*' => '&#42;',
         ];
 
         $_str = (string) str_ireplace(array_keys($pattern), array_values($pattern), $_str);

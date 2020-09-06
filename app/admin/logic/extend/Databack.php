@@ -40,16 +40,12 @@ class Databack extends BaseLogic
             rsort($file);
 
             foreach ($file as $key => $value) {
-                if (basename($value) == 'sys_auto') {
-                    unset($file[$key]);
-                } else {
-                    $file[$key] = [
-                        'id'   => Base64::encrypt(basename($value), date('Ymd')),
-                        'name' => basename($value),
-                        'date' => date($date_format, filectime($value)),
-                        'size' => number_format(filesize($value) / 1024 / 1024, 2) . 'MB',
-                    ];
-                }
+                $file[$key] = [
+                    'id'   => Base64::encrypt(basename($value), date('Ymd')),
+                    'name' => basename($value),
+                    'date' => date($date_format, filectime($value)),
+                    'size' => number_format(filesize($value) / 1024 / 1024, 2) . 'MB',
+                ];
             }
         } else {
             $file = [];
@@ -80,6 +76,32 @@ class Databack extends BaseLogic
             $msg = 'success';
         } catch (\Exception $e) {
             $msg = 'error';
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => $msg,
+        ];
+    }
+
+    /**
+     * 还原
+     * @access public
+     * @return array
+     */
+    public function restores(): array
+    {
+        $this->actionLog(__METHOD__, 'databack backup restores');
+
+        $msg = 'error';
+        $id = $this->request->param('id');
+        if ($id && $id = Base64::decrypt($id, date('Ymd'))) {
+            $path = runtime_path('backup') . $id;
+            if (is_file($path)) {
+                (new DataManage)->restores($id);
+                $msg = 'success';
+            }
         }
 
         return [

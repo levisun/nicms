@@ -34,9 +34,6 @@ class AppMaintain
             // 数据库优化|修复
             (new DataManage)->optimize();
 
-            // 数据库备份
-            // (new DataManage)->autoBackup();
-
             only_execute('remove_garbage.lock', '-3 hour', function () {
                 // 生成网站地图
                 Sitemap::create();

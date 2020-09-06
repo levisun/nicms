@@ -42,7 +42,7 @@ return [
             'params'            => [
                 \PDO::ATTR_PERSISTENT               => false,       // 长链接
                 \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,        // 查询缓存
-                \PDO::ATTR_TIMEOUT                  => 10,          // 链接超时
+                \PDO::ATTR_TIMEOUT                  => 30,          // 链接超时
                 // \PDO::ATTR_EMULATE_PREPARES         => true,
             ],
             // 数据库编码默认采用utf8
@@ -60,11 +60,15 @@ return [
             // 是否严格检查字段是否存在
             'fields_strict'     => true,
             // 是否需要断线重连
-            'break_reconnect'   => false,
+            'break_reconnect'   => true,
+            // 断线标识字符串
+            'break_match_str' => [
+                'error with',
+            ],
             // 监听SQL
-            'trigger_sql'       => env('app_debug', false),
+            'trigger_sql'       => false,
             // 开启字段缓存
-            'fields_cache'      => env('app_debug', true) ? false : true,
+            'fields_cache'      => true,
             // 字段缓存路径
             'schema_cache_path' => app()->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'schema' . DIRECTORY_SEPARATOR,
         ],

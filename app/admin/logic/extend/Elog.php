@@ -96,13 +96,14 @@ class Elog extends BaseLogic
             }
         }
 
+        rsort($result);
 
         return [
             'debug' => false,
             'cache' => true,
             'msg'   => 'success',
             'data'  => [
-                'list'  => rsort($result),
+                'list'  => $result,
                 'total' => count($result)
             ]
         ];
@@ -120,7 +121,7 @@ class Elog extends BaseLogic
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id, date('Ymd'))) {
 
-            $file = runtime_path() . str_replace('/', DIRECTORY_SEPARATOR, $id);
+            $file = runtime_path() . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $id);
             if (is_file($file)) {
                 $data = file_get_contents($file);
                 $data = str_replace(['<', '>'], ['[', ']'], $data);

@@ -39,6 +39,13 @@ class DataManage
         @set_time_limit(3600);
         @ini_set('max_execution_time', '3600');
         @ini_set('memory_limit', '128M');
+
+        ignore_user_abort(true);
+    }
+
+    public function __destruct()
+    {
+        ignore_user_abort(false);
     }
 
     /**
@@ -49,8 +56,6 @@ class DataManage
     public function optimize(): bool
     {
         only_execute('db_optimize.lock', '-30 days', function () {
-            ignore_user_abort(true);
-
             $tables = $this->queryTableName();
             foreach ($tables as $name) {
                 $result = $this->DB->query('ANALYZE TABLE `' . $name . '`');
@@ -60,8 +65,6 @@ class DataManage
                     Log::alert('[AUTO BACKUP] 优化表' . $name);
                 }
             }
-
-            ignore_user_abort(false);
         });
 
         return true;
@@ -70,8 +73,6 @@ class DataManage
     public function repair()
     {
         only_execute('db_repair.lock', '-30 days', function () {
-            ignore_user_abort(true);
-
             $tables = $this->queryTableName();
             foreach ($tables as $name) {
                 $result = $this->DB->query('CHECK TABLE `' . $name . '`');
@@ -81,163 +82,129 @@ class DataManage
                     Log::alert('[AUTO BACKUP] 修复表' . $name);
                 }
             }
-
-            ignore_user_abort(false);
         });
 
         return true;
     }
 
     /**
-     * 自动备份
+     * 还原
      * @access public
-     * @return bool
+     * @return void
      */
-    public function autoBackup(): bool
+    public function restores(string $_backup): void
     {
-        only_execute('db_auto_back.lock', '-10 minute', function () {
-            ignore_user_abort(true);
-
-            $this->savePath .= 'sys_auto' . DIRECTORY_SEPARATOR;
-            is_dir($this->savePath) or mkdir($this->savePath, 0755, true);
-
-            // 备份记录文件
-            if (is_file($this->savePath . 'backup_time.json')) {
-                $btime = json_decode(file_get_contents($this->savePath . 'backup_time.json'), true);
-            } else {
-                $btime = [];
+        only_execute('db_backup.lock', false, function () use (&$_backup) {
+            if ($files = glob(runtime_path('temp') . '*')) {
+                array_map('unlink', $files);
             }
 
-            // 获得库中所有的表名
-            $table_name = $this->queryTableName();
-            foreach ($table_name as $name) {
-                $sql_file = $this->savePath . $name . '.sql';
+            $filename = $this->savePath . $_backup;
+            $zip = new \ZipArchive;
+            if (true === $zip->open($filename)) {
+                $zip->extractTo(runtime_path('temp'));
+                $zip->close();
+            }
 
-                // 检查表结构备份是否存在或过期
-                if (!isset($btime[$name]) || strtotime($btime[$name]) <= strtotime('-3 days')) {
-                    // 记录新的备份时间
-                    $btime[$name] = date('Y-m-d H:i:s');
+            if ($files = glob(runtime_path('temp') . '*')) {
+                shuffle($files);
 
-                    // 获得表结构SQL语句
-                    $sql = $this->queryTableStructure($name);
-                    file_put_contents($sql_file, $sql);
+                foreach ($files as $filename) {
+                    $table_name = pathinfo($filename, PATHINFO_FILENAME);
 
-                    // 压缩SQL文件
-                    $zip_name = pathinfo($sql_file, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR .
-                        pathinfo($sql_file, PATHINFO_FILENAME) . '.zip';
-                    $zip = new \ZipArchive;
-                    if (true === $zip->open($zip_name, \ZipArchive::CREATE | \ZipArchive::OVERWRITE)) {
-                        $zip->addFile($sql_file, pathinfo($sql_file, PATHINFO_BASENAME));
-                        $zip->close();
-                        @unlink($sql_file);
-                    }
-                }
-
-                // 获得表总数据
-                if ($total = $this->DB->table($name)->count()) {
-                    $total = $total ? (int) ceil($total / 100000) : 0;
-                    $field = $this->queryTableInsertField($name);
-                    $pk = $this->DB->table($name)->getPk();
-                    for ($i = 1; $i <= $total; $i++) {
-                        $num = $name . '_' . sprintf('%07d', $i);
-                        if (!isset($btime[$num]) || strtotime($btime[$num]) <= strtotime('-3 days')) {
-                            $btime[$num] = date('Y-m-d H:i:s');
-                            $sql_file = $this->savePath . $num . '.sql';
-                            $this->DB->table($name)
-                                ->where([
-                                    [$pk, '>', ($i - 1) * 100000],
-                                    [$pk, '<=', $i * 100000]
-                                ])
-                                ->chunk(100, function ($result) use ($name, $field, $sql_file) {
-                                    $result = $result->toArray();
-                                    $sql = $this->getTableInsertData($name, $field, $result);
-                                    file_put_contents($sql_file, $sql, FILE_APPEND);
-                                });
-
-                            $zip_name = pathinfo($sql_file, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR .
-                                pathinfo($sql_file, PATHINFO_FILENAME) . '.zip';
-                            $zip = new \ZipArchive;
-                            if (true === $zip->open($zip_name, \ZipArchive::CREATE | \ZipArchive::OVERWRITE)) {
-                                $zip->addFile($sql_file, pathinfo($sql_file, PATHINFO_BASENAME));
-                                $zip->close();
-                                @unlink($sql_file);
-                            }
-
-                            Log::alert('[AUTO BACKUP] 自动备份数据库' . $num);
-                            break;
+                    $file = fopen($filename, 'r');
+                    while (!feof($file) && $sql = fgets($file)) {
+                        if (0 === strpos($sql, '--')) {
+                            continue;
                         }
+
+                        try {
+                            $this->DB->query($sql);
+                        } catch (\Exception $e) {
+                            halt($sql, $e->getFile() . $e->getLine() . $e->getMessage());
+                        }
+
+                        // 持续查询状态并不利于处理任务，每10ms执行一次，此时释放CPU，降低机器负载
+                        usleep(10000);
+                    }
+                    fclose($file);
+                    unlink($filename);
+
+                    try {
+                        $this->DB->query('ALTER  TABLE `' . $table_name . '` RENAME TO `old_' . $table_name . '`');
+                        $this->DB->query('ALTER  TABLE `backup_' . $table_name . '` RENAME TO `' . $table_name . '`');
+                        $this->DB->query('DROP TABLE `old_' . $table_name . '`');
+                    } catch (\Exception $e) {
+                        halt($sql, $e->getFile() . $e->getLine() . $e->getMessage());
                     }
                 }
+
+                @rmdir(runtime_path('temp'));
             }
-            file_put_contents($this->savePath . 'backup_time.json', json_encode($btime));
-
-            ignore_user_abort(false);
         });
-
-        return true;
     }
 
     /**
      * 备份
      * @access public
-     * @return bool
+     * @return void
      */
-    public function backup(): bool
+    public function backup(): void
     {
-        only_execute('db_back.lock', false, function () {
-            ignore_user_abort(true);
-
-            $this->savePath .= date('YmdHis') . DIRECTORY_SEPARATOR;
-            if (!is_dir($this->savePath)) {
-                mkdir($this->savePath, 0755, true);
+        only_execute('db_backup.lock', false, function () {
+            if ($files = glob(runtime_path('backup') . '*')) {
+                foreach ($files as $filename) {
+                    if ('sql' === pathinfo($filename, PATHINFO_EXTENSION)) {
+                        unlink($filename);
+                    } elseif (filemtime($filename) <= strtotime('-6 month')) {
+                        unlink($filename);
+                    }
+                }
             }
 
             $table_name = $this->queryTableName();
+            shuffle($table_name);
             foreach ($table_name as $name) {
                 $sql_file = $this->savePath . $name . '.sql';
 
-                // 写入表结构文件
-                if ($sql = $this->queryTableStructure($name)) {
-                    file_put_contents($sql_file, $sql);
-                }
+                // 获得表结构SQL语句
+                $sql = $this->queryTableStructure($name);
+                file_put_contents($sql_file, $sql);
 
-                if ($field = $this->queryTableInsertField($name)) {
-                    $this->DB->table($name)
-                        ->chunk(100, function ($result) use ($name, $field, $sql_file) {
-                            $result = $result->toArray();
-                            $sql = $this->getTableInsertData($name, $field, $result);
-                            file_put_contents($sql_file, $sql, FILE_APPEND);
-                        });
-                }
+                // 获得表字段和主键
+                $field = $this->queryTableInsertField($name);
+
+                $this->DB->table($name)->chunk(10, function ($result) use ($name, $field, $sql_file) {
+                    $result = $result->toArray();
+                    $sql = $this->getTableInsertData($name, $field, $result);
+                    file_put_contents($sql_file, $sql, FILE_APPEND);
+                    // 持续查询状态并不利于处理任务，每10ms执行一次，此时释放CPU，降低机器负载
+                    usleep(10000);
+                });
             }
 
-            $zip = new \ZipArchive;
-            $path = runtime_path('backup') . pathinfo($this->savePath, PATHINFO_BASENAME) . '.zip';
-            if (true === $zip->open($path, \ZipArchive::CREATE)) {
-                if ($dir = glob($this->savePath . '*')) {
-                    foreach ($dir as $name) {
-                        $zip->addFile($name, pathinfo($name, PATHINFO_BASENAME));
+            if ($files = glob($this->savePath . '*')) {
+                foreach ($files as $key => $filename) {
+                    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+                    if ('sql' !== $ext) {
+                        unset($files[$key]);
+                    }
+                }
+
+                if (!empty($files)) {
+                    $zip_name = $this->savePath . date('YmdHis') . '.zip';
+                    $zip = new \ZipArchive;
+                    $zip->open($zip_name, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+                    foreach ($files as $filename) {
+                        $zip->addFile($filename, pathinfo($filename, PATHINFO_BASENAME));
                     }
                     $zip->close();
-                    foreach ($dir as $name) {
-                        unlink($name);
+                    foreach ($files as $filename) {
+                        @unlink($filename);
                     }
                 }
-                // $dir = (array) glob($this->savePath . '*');
-                // foreach ($dir as $name) {
-                //     $zip->addFile($name, pathinfo($name, PATHINFO_BASENAME));
-                // }
-                // $zip->close();
-                // foreach ($dir as $name) {
-                //     unlink($name);
-                // }
-                rmdir($this->savePath);
             }
-
-            ignore_user_abort(false);
         });
-
-        return true;
     }
 
     /**
@@ -250,12 +217,13 @@ class DataManage
      */
     private function getTableInsertData(string $_table_name, string $_table_field, array $_data): string
     {
-        $sql  = '-- ' . date('Y-m-d H:i:s') . PHP_EOL;
-        $sql .= 'INSERT INTO `' . $_table_name . '` (' . $_table_field . ') VALUES' . PHP_EOL;
+        $sql = 'INSERT INTO `backup_' . $_table_name . '` (' . $_table_field . ') VALUES';
 
         foreach ($_data as $value) {
             $sql .= '(';
             foreach ($value as $vo) {
+                $vo = preg_replace(['/\s+/s', '/( ){2,}/si'], ' ', $vo);
+                $vo = trim($vo);
                 if (is_integer($vo)) {
                     $sql .= $vo . ',';
                 } elseif (is_null($vo) || $vo == 'null' || $vo == 'NULL') {
@@ -264,9 +232,9 @@ class DataManage
                     $sql .= '\'' . addslashes($vo) . '\',';
                 }
             }
-            $sql = rtrim($sql, ',') . '),' . PHP_EOL;
+            $sql = rtrim($sql, ',') . '),';
         }
-        return rtrim($sql, ',' . PHP_EOL) . ';' . PHP_EOL;
+        return rtrim($sql, ',') . ';' . PHP_EOL;
     }
 
     /**
@@ -299,16 +267,18 @@ class DataManage
         if (empty($tableRes[0]['Create Table'])) {
             return false;
         }
-
         $structure  = '-- ' . date('Y-m-d H:i:s') . PHP_EOL;
         $structure .= 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
-        $structure .= $tableRes[0]['Create Table'] . ';' . PHP_EOL;
+        $structure .= preg_replace(['/\s+/s', '/( ){2,}/si'], ' ', $tableRes[0]['Create Table']) . ';';
+        $structure = trim($structure);
+
+        $structure = str_replace($_table_name, 'backup_' . $_table_name, $structure);
 
         $structure = preg_replace_callback('/(AUTO_INCREMENT=[0-9]+ DEFAULT)/si', function () {
             return 'DEFAULT';
         }, $structure);
 
-        return $structure;
+        return $structure . PHP_EOL;
     }
 
     /**

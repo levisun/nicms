@@ -39,10 +39,10 @@ return [
     'request_cache_key'     => env('app_debug', false) ? false : true,
     // 请求缓存有效期
     'request_cache_expire'  => 28800,
-    // 全局请求缓存排除规则
-    'request_cache_except'  => [],
     // 全局请求缓存的Tag
     'request_cache_tag'     => 'request',
+    // 全局请求缓存排除规则
+    'request_cache_except'  => [],
     // 默认控制器名
     'default_controller'    => 'Index',
     // 默认操作名
