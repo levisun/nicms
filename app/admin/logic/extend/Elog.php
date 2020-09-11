@@ -40,56 +40,8 @@ class Elog extends BaseLogic
         if ($files = glob($path . '*')) {
             foreach ($files as $value) {
                 $result[] = [
-                    'id'   => Base64::encrypt('log/' . basename($value), $salt),
+                    'id'   => Base64::encrypt(basename($value), $salt),
                     'name' => pathinfo($value, PATHINFO_FILENAME),
-                    'date' => date($date_format, filectime($value)),
-                    'size' => number_format(filesize($value) / 1024, 2) . 'KB',
-                ];
-            }
-        }
-
-        $path = runtime_path('admin/log');
-        if ($files = glob($path . '*')) {
-            foreach ($files as $value) {
-                $result[] = [
-                    'id'   => Base64::decrypt('admin/log/' . basename($value), $salt),
-                    'name' => 'admin_' . pathinfo($value, PATHINFO_FILENAME),
-                    'date' => date($date_format, filectime($value)),
-                    'size' => number_format(filesize($value) / 1024, 2) . 'KB',
-                ];
-            }
-        }
-
-        $path = runtime_path('api/log');
-        if ($files = glob($path . '*')) {
-            foreach ($files as $value) {
-                $result[] = [
-                    'id'   => Base64::decrypt('api/log/' . basename($value), $salt),
-                    'name' => 'api_' . pathinfo($value, PATHINFO_FILENAME),
-                    'date' => date($date_format, filectime($value)),
-                    'size' => number_format(filesize($value) / 1024, 2) . 'KB',
-                ];
-            }
-        }
-
-        $path = runtime_path('book/log');
-        if ($files = glob($path . '*')) {
-            foreach ($files as $value) {
-                $result[] = [
-                    'id'   => Base64::decrypt('book/log/' . basename($value), $salt),
-                    'name' => 'book_' . pathinfo($value, PATHINFO_FILENAME),
-                    'date' => date($date_format, filectime($value)),
-                    'size' => number_format(filesize($value) / 1024, 2) . 'KB',
-                ];
-            }
-        }
-
-        $path = runtime_path('cms/log');
-        if ($files = glob($path . '*')) {
-            foreach ($files as $value) {
-                $result[] = [
-                    'id'   => Base64::decrypt('cms/log/' . basename($value), $salt),
-                    'name' => 'cms_' . pathinfo($value, PATHINFO_FILENAME),
                     'date' => date($date_format, filectime($value)),
                     'size' => number_format(filesize($value) / 1024, 2) . 'KB',
                 ];
@@ -120,8 +72,7 @@ class Elog extends BaseLogic
 
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id, date('Ymd'))) {
-
-            $file = runtime_path() . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $id);
+            $file = runtime_path('log') . $id;
             if (is_file($file)) {
                 $data = file_get_contents($file);
                 $data = str_replace(['<', '>'], ['[', ']'], $data);

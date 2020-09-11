@@ -31,12 +31,9 @@ class Cache extends BaseLogic
      */
     public function compile(): array
     {
-        $this->actionLog(__METHOD__, 'admin content compile remove');
+        $this->actionLog(__METHOD__, 'compile remove');
 
-        (new Compiler)->clear(runtime_path('admin/compile'));
-        (new Compiler)->clear(runtime_path('book/compile'));
-        (new Compiler)->clear(runtime_path('cms/compile'));
-        (new Compiler)->clear(runtime_path('user/compile'));
+        (new Compiler)->clear(runtime_path('compile'));
 
         return [
             'debug' => false,
@@ -52,7 +49,7 @@ class Cache extends BaseLogic
      */
     public function request(): array
     {
-        $this->actionLog(__METHOD__, 'admin content request cache remove');
+        $this->actionLog(__METHOD__, 'request cache remove');
 
         $this->cache->tag('request')->clear();
 
@@ -70,7 +67,7 @@ class Cache extends BaseLogic
      */
     public function api(): array
     {
-        $this->actionLog(__METHOD__, 'admin content cache remove');
+        $this->actionLog(__METHOD__, 'api cache remove');
 
         if ($app = $this->request->param('app_name')) {
             $this->cache->tag($app)->clear();
