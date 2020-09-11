@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace app\logic;
+
 class Html
 {
     private $xml = '';
@@ -109,6 +111,18 @@ class Html
             preg_match_all($pattern, $head, $matches);
 
             $title = !empty($matches[1][0]) ? trim($matches[1][0]) : '';
+
+            $title = explode('_', $title);
+            if (1 < count($title)) {
+                unset($title[count($title) - 1]);
+            }
+            $title = implode('_', $title);
+
+            $title = explode('-', $title);
+            if (1 < count($title)) {
+                unset($title[count($title) - 1]);
+            }
+            $title = implode('-', $title);
         }, $this->xml);
 
         return $title;
@@ -178,10 +192,10 @@ class Html
      * @access public
      * @return string
      */
-    public function content(): string
+    public function content(int $_length = 0): string
     {
         $content = '';
-        preg_replace_callback('/<body[^<>]*>(.*?)<\/body>/si', function ($body) use (&$content) {
+        preg_replace_callback('/<body[^<>]*>(.*?)<\/body>/si', function ($body) use (&$content, &$_length) {
             $body = trim($body[1]);
             // 清除脚本与样式
             $body = preg_replace(['/<script.*?\/script>/si', '/<style.*?\/style>/si'], '', $body);
@@ -191,26 +205,42 @@ class Html
             $body = str_replace('&nbsp;', ' ', $body);
             // 清除a标签
             $body = preg_replace('/<a.*?\/a>/si', '', $body);
+            // 清除ul标签
+            $body = preg_replace('/<ul.*?\/ul>/si', '', $body);
+            $body = preg_replace('/<ol.*?\/ol>/si', '', $body);
             // halt($body);
 
             // 清除多余标签
-            $body = strip_tags($body, '<div><p><br><span><img>');
+            $body = strip_tags($body, '<div><p><br><span><img><table><tr><td><th>');
+            // halt($body);
 
             // 替换图片
             $body = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) {
-                return '[img src:' . trim($img[1], '"\'') . ']';
+                return '[tag:img src:' . trim($img[1], '"\'') . ']';
             }, $body);
+
+            // 过滤表格中的HTML标签
+            $body = preg_replace_callback('/<table[^<>]*>(.*?)<\/table[^<>]*>/si', function ($table) {
+                return '<table>' . strip_tags($table[1], '<tr><td><th>') . '</table>';
+            }, $body);
+            // 替换表格
+            $body = preg_replace_callback('/<(\/)?(table|tr|td|th)[^<>]*>/si', function ($table) {
+                return '[tag:' . trim($table[1]) . trim($table[2]) . ']';
+            }, $body);
+            // halt($body);
 
             $body = preg_replace([
                 // 清除标签属性
                 '/[\w\-]+=["\']+[^>]*["\']+/si',
                 // 清除转义字符
-                '/&[#\w]+;/si',
+                // '/&[#\w]+;/si',
 
                 // 清除日期和时间
                 '/[\d]{2,4}[\-\/\.]+[\d]{1,2}[\-\/\.]+[\d]{1,2}/si',
                 '/[\d]{1,2}:[\d]{1,2}:[\d]{1,2}/si',
                 '/[\d]{1,2}:[\d]{1,2}/si',
+
+                '/[\d]{4}[\x{4e00}-\x{9fa5}]{1}[\d]{2}[\x{4e00}-\x{9fa5}]{1}[\d]{2}[\x{4e00}-\x{9fa5}]{1}/u',
 
                 // 清除电话
                 '/[\d]{11}+/si',
@@ -230,6 +260,7 @@ class Html
             // 清除无用标签
             $body = preg_replace('/<span>[0-9]{4,}<\/span>/si', '', $body);
             $body = preg_replace('/<\/?span>/si', '', $body);
+            // 修复HTML标签结构
             while (preg_match('/<div[^<>]*><div/si', $body)) {
                 $body = preg_replace('/<div[^<>]*><div/si', '<div', $body);
             }
@@ -250,6 +281,7 @@ class Html
             $pattern = '/>[^<>]{160,}</si';
             preg_match_all($pattern, $body, $matches);
             $content = $matches[0];
+            // halt($content);
             foreach ($content as $key => $value) {
                 $content[$key] = trim($value, '><') . PHP_EOL;
             }
@@ -263,23 +295,21 @@ class Html
             // halt($content);
 
             // 截取
-            if (400 < mb_strlen($content, 'utf-8')) {
-                $length = 400;
-                if (600 > mb_strpos((string) $content, ' ', 0, 'utf-8')) {
-                    $length = mb_strpos((string) $content, ' ', 400, 'utf-8');
+            if ($_length && $_length < mb_strlen($content, 'utf-8')) {
+                if ($position = mb_strpos($content, '[tag:/table]', $_length, 'utf-8')) {
+                    $content = mb_substr($content, 0, $position + 12, 'UTF-8');
+                } elseif ($position = mb_strpos($content, '。', $_length, 'utf-8')) {
+                    $content = mb_substr($content, 0, $position + 1, 'UTF-8');
+                } elseif ($position = mb_strpos($content, '.', $_length, 'utf-8')) {
+                    $content = mb_substr($content, 0, $position + 1, 'UTF-8');
+                } elseif ($position = mb_strpos($content, ' ', $_length, 'utf-8')) {
+                    $content = mb_substr($content, 0, $position + 1, 'UTF-8');
+                } else {
+                    $content = mb_substr($content, 0, $_length, 'UTF-8');
                 }
-                if (600 > mb_strpos((string) $content, '。', 0, 'utf-8')) {
-                    $length = mb_strpos((string) $content, '。', 400, 'utf-8');
-                }
-                if (600 > mb_strpos((string) $content, '.', 0, 'utf-8')) {
-                    $length = mb_strpos((string) $content, '.', 400, 'utf-8');
-                }
-
-                $content = mb_substr($content, 0, $length + 1, 'UTF-8');
             }
 
             // 恢复格式
-            $content = nl2br($content);
             $content = explode('<br />', nl2br($content));
             // halt($content);
 
@@ -300,14 +330,19 @@ class Html
             $content = array_filter($content);
             // halt($content);
 
+            // 恢复图片
+            $content = preg_replace_callback('/\[tag:img src:([^<>\s]+)\]/si', function ($img) {
+                return '<img src="' . trim($img[1], '"\'') . '" />';
+            }, $content);
+
+            // 恢复表格
+            $content = preg_replace_callback('/\[tag:([\w\/]+)\]/si', function ($table) {
+                return '<' . $table[1] . '>';
+            }, $content);
+
             $content = !empty($content)
                 ? '<p>' . implode('</p><p>', $content) . '</p>'
                 : '';
-
-            // 恢复图片
-            $content = preg_replace_callback('/\[img src:([^<>\s]+)\]/si', function ($img) {
-                return '<img src="' . trim($img[1], '"\'') . '" />';
-            }, $content);
             // halt($content);
         }, $this->xml);
 

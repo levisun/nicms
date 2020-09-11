@@ -57,6 +57,8 @@ class Article extends BaseLogic
                 $result['next'] = $this->next($result['id'], $result['book_id']);
                 $result['prev'] = $this->prev($result['id'], $result['book_id']);
 
+                unset($result['id'], $result['book_id']);
+
                 $this->cache->tag(['book', 'book article list' . $book_id])->set($cache_key, $result);
             }
         }

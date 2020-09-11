@@ -72,8 +72,9 @@ class Throttle
         $last_time = Cache::has($this->cache_key) ? (float) Cache::get($this->cache_key) : 0;
 
         // 平均 n 秒一个请求
-        if ($request->time(true) - $last_time < $this->duration['m'] / $this->max_requests) {
-            Cache::set($this->cache_key . 'lock', date('Y-m-d H:i:s'), 28800);
+        $rate = (float) $this->duration['m'] / $this->max_requests;
+        if ($request->time(true) - $last_time < $rate) {
+            Cache::set($this->cache_key . 'lock', date('Y-m-d H:i:s'), 1440);
             $this->abort();
         }
 

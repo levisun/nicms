@@ -61,7 +61,6 @@ class Catalog extends BaseLogic
                 ])
                 ->find();
 
-
             if ($book && $book = $book->toArray()) {
                 // 缩略图
                 $book['image'] = Image::path($book['image']);
@@ -73,8 +72,7 @@ class Catalog extends BaseLogic
                     ->paginate([
                         'list_rows' => $query_limit,
                         'path' => 'javascript:paging([PAGE]);',
-                    ], true);
-
+                    ]);
                 if ($result && $list = $result->toArray()) {
                     $list['render'] = $result->render();
                     $list['total'] = number_format($list['total']);
@@ -91,10 +89,10 @@ class Catalog extends BaseLogic
                         $list['data'][$key] = $value;
                     }
 
+                    $list['book'] = $book;
+
                     $this->cache->tag(['book', 'book article list' . $book_id])->set($cache_key, $list);
                 }
-
-                $list['book'] = $book;
             }
         }
 

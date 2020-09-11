@@ -3,6 +3,7 @@
     "theme": "adminlte",
     "api_version": "1.0.1",
     "theme_version": "1.0.1",
+    "responsive": true,
     "link": [
         "<link rel='dns-prefetch' href='https://cdn.bootcss.com' />",
         "<link rel='dns-prefetch' href='https://cdn.jsdelivr.net' />",

@@ -71,10 +71,10 @@ class Compiler
         $this->layout_on = isset($_config['layout_on']) ? $_config['layout_on'] : false;
         $this->layout_name = isset($_config['layout_name']) ? $_config['layout_name'] : 'layout.html';
         $this->suffix = isset($_config['suffix']) ? $_config['suffix'] : 'php';
+        $this->tpl_compile = isset($_config['tpl_compile']) ? $_config['tpl_compile'] : false;
         $this->path = isset($_config['path'])
             ? $_config['path']
             : runtime_path('compile');
-        $this->tpl_compile = isset($_config['tpl_compile']) ? $_config['tpl_compile'] : false;
     }
 
     /**

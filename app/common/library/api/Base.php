@@ -142,8 +142,6 @@ abstract class Base
 
         $response = Response::create($result, 'json');
 
-        $this->log->warning($this->request->url());
-        // $this->log->save();
         // $this->session->save();
 
         ob_start('ob_gzhandler');

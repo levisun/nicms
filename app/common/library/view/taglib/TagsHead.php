@@ -72,6 +72,8 @@ class TagsHead extends Taglib
 
             '<link href="<?php echo config(\'app.img_host\');?>/favicon.ico" rel="shortcut icon" type="image/x-icon" />' .
 
+            /* '<?php echo request()->isMobile() ? \'<link rel="canonical" href="\' . request()->scheme() . \'://www.\' . request()->rootDomain() . \'" />\' : \'<link rel="alternate" href="\' . request()->scheme() . \'://m.\' . request()->rootDomain() . \'" />\' ?>' . */
+
             $this->meta() .
             $this->link() .
 

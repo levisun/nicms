@@ -102,8 +102,9 @@ abstract class BaseController
         @ini_set('max_execution_time', '30');
         @ini_set('memory_limit', '16M');
 
-        // 初始化视图
         $app_name = app('http')->getName();
+
+        // 初始化视图
         $result = Siteinfo::query($app_name);
         $this->view->config([
             'view_theme' => $result['theme'],

@@ -79,7 +79,6 @@ class Validate extends Base
         $str .= sha1($_app_secret . $key);
 
         if (!hash_equals(call_user_func($sign_type, $str), $sign)) {
-            $this->log->warning('[Async] ' . $str);
             $this->abort('错误请求', 22003);
         }
     }
