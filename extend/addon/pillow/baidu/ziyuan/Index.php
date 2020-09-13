@@ -33,7 +33,8 @@ class Index extends Base
         curl_setopt_array($ch, $options);
         $result = curl_exec($ch);
         curl_close($ch);
-        return '<script type="text/javascript">console.log(' . $result . ');</script>';
+        $result = json_decode($result, true);
+        return '<script type="text/javascript">console.log("百度资源提交' . ($result['success'] ? '成功' : '失败') . '");</script>';
     }
 
     private function script(): string

@@ -274,17 +274,16 @@ class Filter
     public static function space(string &$_str): string
     {
         $pattern = [
-            '/\s+/s'         => ' ',
             '~>\s+<~'        => '><',
             '~>\s+~'         => '>',
             '~\s+<~'         => '<',
-            '/( ){2,}/si'    => ' ',
             '/<\!--.*?-->/s' => '',
-            // '/(\s+\n|\r|\n)/s' => '',
-            // '/(\t|\0|\x0B)/s'  => '',
         ];
-
         $_str = (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
+        $_str = (string) preg_replace('/\s+/s', ' ', $_str);
+        $_str = (string) preg_replace('/( ){2,}/si', ' ', $_str);
+
+
 
         // 不间断空格\u00a0,主要用在office中,让一个单词在结尾处不会换行显示,快捷键ctrl+shift+space
         // 半角空格(英文符号)\u0020,代码中常用的
@@ -296,7 +295,6 @@ class Filter
 
         // 过滤斜杠,反斜杠,点避免非法目录操作
         $_str = trim($_str);
-        $_str = trim(trim($_str, ',_-'));
         $_str = trim(ltrim($_str, '\/.'));
 
         return trim($_str);
