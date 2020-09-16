@@ -99,7 +99,7 @@ class Analytical extends Base
         // 校验方法名格式
         $method = $this->request->param('method');
         if (!$method || !!!preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $method)) {
-            $this->abort('错误请求', 25001);
+            $this->abort('The method parameter is empty or formatted incorrectly.', 25001);
         }
 
         // 解析方法名
@@ -110,10 +110,10 @@ class Analytical extends Base
 
         // 校验方法是否存在
         if (!class_exists($class)) {
-            $this->abort('错误请求', 25002);
+            $this->abort('Method parameter error, this method could not be found.', 25002);
         }
         if (!method_exists($class, $method)) {
-            $this->abort('错误请求', 25003);
+            $this->abort('Method parameter error, this method could not be found.', 25003);
         }
 
         // 记录方法
@@ -156,7 +156,7 @@ class Analytical extends Base
     {
         $app_id = $this->request->param('appid/d', 0, 'abs');
         if (!$app_id || $app_id < 1000001) {
-            $this->abort('错误请求', 21001);
+            $this->abort('The appid parameter is wrong.', 21001);
         }
 
         $app_id -= 1000000;
@@ -173,7 +173,7 @@ class Analytical extends Base
             $this->appSecret = $result['secret'];
             $this->appAuthKey = $result['authkey'];
         } else {
-            $this->abort('错误请求', 21002);
+            $this->abort('The appid parameter is wrong.', 21002);
         }
     }
 
@@ -188,7 +188,7 @@ class Analytical extends Base
         $accept = (string) $this->request->header('accept', '');
         $pattern = '/^application\/vnd\.[a-zA-Z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[a-zA-Z0-9]+\+[a-zA-Z]{3,5}+$/u';
         if (!$accept || !!!preg_match($pattern, $accept)) {
-            $this->abort('错误请求', 20004);
+            $this->abort('The accept parameter is wrong.', 20004);
         }
 
 
@@ -200,7 +200,7 @@ class Analytical extends Base
         list($domain, $accept) = explode('.', $accept, 2);
         list($root) = explode('.', $this->request->rootDomain(), 2);
         if (!hash_equals($domain, $root)) {
-            $this->abort('错误请求', 20005);
+            $this->abort('Accept parameter domain name error.', 20005);
         }
         unset($domain, $root);
 
@@ -209,7 +209,7 @@ class Analytical extends Base
         // 取得版本与数据类型
         list($version, $this->format) = explode('+', $accept, 2);
         if (!$version || !!!preg_match('/^[a-zA-Z0-9.]+$/u', $version)) {
-            $this->abort('错误请求', 20006);
+            $this->abort('The accept parameter version is incorrect.', 20006);
         }
         // 去掉"v"
         $version = substr($version, 1);
@@ -225,7 +225,7 @@ class Analytical extends Base
 
         // 校验返回数据类型
         if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
-            $this->abort('错误请求', 20007);
+            $this->abort('The accept parameter returns an error type.', 20007);
         }
     }
 
@@ -242,7 +242,7 @@ class Analytical extends Base
         $authorization = str_replace('&#43;', '+', $authorization);
         $authorization = str_replace('Bearer ', '', $authorization);
         if (!$authorization || !!!preg_match('/^[\w\-]+\.[\w\-]+\.[\w\-]+$/u', $authorization)) {
-            $this->abort('错误请求', 20001);
+            $this->abort('The authentication information is incorrect.', 20001);
         }
 
         // 校验authorization合法性
@@ -258,7 +258,7 @@ class Analytical extends Base
         $data->setCurrentTime($this->request->time() + 2880);
 
         if (false === $token->verify(new Sha256, $key) || false === $token->validate($data)) {
-            $this->abort('错误请求', 20002);
+            $this->abort('The authentication information is incorrect.', 20002);
         }
 
 
@@ -270,7 +270,7 @@ class Analytical extends Base
         if ($jti && is_file(runtime_path('session/' . $this->config->get('session.prefix')) . 'sess_' . $jti)) {
             $this->sessionId = $jti;
         } else {
-            $this->abort('错误请求', 20003);
+            $this->abort('The authentication information is incorrect.', 20003);
         }
     }
 }

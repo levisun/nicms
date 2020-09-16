@@ -43,19 +43,19 @@ class Validate extends Base
         // 校验签名类型
         $sign_type = $this->request->param('sign_type', 'md5');
         if (!function_exists($sign_type)) {
-            $this->abort('错误请求', 22001);
+            $this->abort('The signature type is wrong.', 22001);
         }
 
         // 校验签名合法性
         $sign = $this->request->param('sign');
         if (!$sign || !!!preg_match('/^[A-Za-z0-9]+$/u', $sign)) {
-            $this->abort('错误请求', 22002);
+            $this->abort('The signature is wrong.', 22002);
         }
 
         // 请求时间
         $timestamp = $this->request->param('timestamp/d', $this->request->time(), 'abs');
         if ($timestamp <= strtotime('-1 hour')) {
-            $this->abort('错误请求', 23001);
+            $this->abort('The request timed out.', 23001);
         }
 
         // 获得原始数据
@@ -79,7 +79,7 @@ class Validate extends Base
         $str .= sha1($_app_secret . $key);
 
         if (!hash_equals(call_user_func($sign_type, $str), $sign)) {
-            $this->abort('错误请求', 22003);
+            $this->abort('The signature is wrong.', 22003);
         }
     }
 
@@ -91,7 +91,7 @@ class Validate extends Base
     public function fromToken(): bool
     {
         if ($this->request->isPost() && false === $this->request->checkToken()) {
-            $this->abort('错误请求', 24002);
+            $this->abort('The request form token is wrong.', 24002);
         }
 
         return true;
@@ -106,7 +106,7 @@ class Validate extends Base
     {
         $referer = $this->request->server('HTTP_REFERER');
         if (!$referer || false === stripos($referer, $this->request->rootDomain())) {
-            $this->abort('错误请求', 24001);
+            $this->abort('The source request was incorrect.', 24001);
         }
 
         return true;
@@ -133,7 +133,7 @@ class Validate extends Base
                     $this->notAuth
                 );
                 if (false === $result) {
-                    $this->abort('错误请求', 26001);
+                    $this->abort('No action permissions.', 26001);
                 }
             }
         }

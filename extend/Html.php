@@ -172,7 +172,6 @@ class Html
                     ];
                 }
             }
-
         }, $this->xml);
 
         return $imgs;
@@ -189,73 +188,77 @@ class Html
         preg_replace_callback('/<body[^<>]*>(.*?)<\/body>/si', function ($body) use (&$content, &$_length) {
             $body = trim($body[1]);
 
-            $body = preg_replace([
-                // 清除脚本
-                '/<script.*?\/script>/si',
-                // 样式
-                '/<style.*?\/style>/si',
-                // 清除a标签
-                '/<a.*?\/a>/si',
-                // 清除ul标签
-                '/<ul.*?\/ul>/si',
-                '/<ol.*?\/ol>/si',
-            ], '', $body);
+            // 过滤Emoji
+            $content = (string) preg_replace_callback('/./u', function (array $matches) {
+                return strlen($matches[0]) >= 4 ? '' : $matches[0];
+            }, $content);
+            // 空格
+            $content = (string) str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($content));
+            $content = (string) json_decode($content);
+
+            // 过滤脚本,样式,a标签和ul标签
+            // 过滤空格回车等
+            $pattern = [
+                '/<script.*?\/script>/si' => '',
+                '/<style.*?\/style>/si'   => '',
+                '/<a.*?\/a>/si'           => '',
+                '/<ul.*?\/ul>/si'         => '',
+                '/<ol.*?\/ol>/si'         => '',
+                '/>\s+</'                 => '><',
+                '/>\s+/'                  => '>',
+                '/\s+</'                  => '<',
+                '/　/si'                  => ' ',
+                '/ {2,}/si'               => ' ',
+
+
+                // 清除日期和时间
+                '/[\d]{2,4}[\-\/\.]+[\d]{1,2}[\-\/\.]+[\d]{1,2}/si' => '',
+                '/[\d]{1,2}:[\d]{1,2}:[\d]{1,2}/si' => '',
+                '/[\d]{1,2}:[\d]{1,2}/si' => '',
+
+                '/[\d]{4}[\x{4e00}-\x{9fa5}]{1}[\d]{2}[\x{4e00}-\x{9fa5}]{1}[\d]{2}[\x{4e00}-\x{9fa5}]{1}/u' => '',
+
+                // 清除电话
+                '/[\d]{11}+/si' => '',
+                '/[\d]{3}-[\d]{3,4}-[\d]{3,4}+/si' => '',
+                '/[\d]{3,4}-[\d]{8}/si' => '',
+
+
+                '/[a-zA-Z0-9]{20,}/si' => '',
+                '/[|]+/si' => '',
+            ];
+            $body = (string) preg_replace(array_keys($pattern), array_values($pattern), $body);
 
             // 替换article标签为div
             $body = str_replace('article', 'div', $body);
-            // 替换空格
-            $body = str_replace('&nbsp;', ' ', $body);
-            // halt($body);
 
             // 清除多余标签
             $body = strip_tags($body, '<div><p><br><span><img><table><tr><td><th>');
-            // halt($body);
 
             // 替换图片
             $body = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) {
-                return '[tag:img src:' . trim($img[1], '"\'') . ']';
+                return '[TAG:img' . trim($img[1], '"\'') . ']';
+            }, $body);
+
+            // 过滤属性
+            $body = preg_replace_callback('/(<[\w\d!]+)([\w\d\- ]+=[^>]*)/si', function ($attr) {
+                return $attr[1];
             }, $body);
 
             // 替换表格
             $body = preg_replace_callback('/<table[^<>]*>(.*?)<\/table[^<>]*>/si', function ($table) {
-                return '<table>' . strip_tags($table[1], '<tr><td><th>') . '</table>';
+                $table[1] = strip_tags($table[1], '<tr><td><th><br><p>');
+                return '<table>' . $table[1] . '</table>';
             }, $body);
             $body = preg_replace_callback('/<(\/)?(table|tr|td|th)[^<>]*>/si', function ($table) {
-                return '[tag:' . trim($table[1]) . trim($table[2]) . ']';
+                return '[TAG:' . trim($table[1]) . trim($table[2]) . ']';
             }, $body);
-            // halt($body);
 
-            $body = preg_replace([
-                // 清除标签属性
-                '/[\w\-]+=["\']+[^>]*["\']+/si',
-                // 清除转义字符
-                // '/&[#\w]+;/si',
-
-                // 清除日期和时间
-                '/[\d]{2,4}[\-\/\.]+[\d]{1,2}[\-\/\.]+[\d]{1,2}/si',
-                '/[\d]{1,2}:[\d]{1,2}:[\d]{1,2}/si',
-                '/[\d]{1,2}:[\d]{1,2}/si',
-
-                '/[\d]{4}[\x{4e00}-\x{9fa5}]{1}[\d]{2}[\x{4e00}-\x{9fa5}]{1}[\d]{2}[\x{4e00}-\x{9fa5}]{1}/u',
-
-                // 清除电话
-                '/[\d]{11}+/si',
-                '/[\d]{3}-[\d]{3,4}-[\d]{3,4}+/si',
-                '/[\d]{3,4}-[\d]{8}/si',
-
-
-                '/[a-zA-Z0-9]{20,}/si',
-                '/[|]+/si',
-            ], '', $body);
-            // halt($body);
-
-            // 修复标签中的空格
-            $body = preg_replace('/ +>/si', '>', $body);
-            // 清除空格
-            $body = preg_replace('/ {2,}/si', '', $body);
             // 清除无用标签
-            $body = preg_replace('/<span>[0-9]{4,}<\/span>/si', '', $body);
-            $body = preg_replace('/<\/?span>/si', '', $body);
+            $body = preg_replace([
+                '/<span>[\d]{4,}<\/span>/si',
+                '/<\/?span>/si',
+            ], '', $body);
             while (preg_match('/<div[^<>]*><div/si', $body)) {
                 $body = preg_replace('/<div[^<>]*><div/si', '<div', $body);
             }
@@ -265,48 +268,42 @@ class Html
             while (preg_match('/<\/div><\/div>/si', $body)) {
                 $body = preg_replace('/<\/div><\/div>/si', '</div>', $body);
             }
-            // halt($body);
+            // 清除空格
+            while (preg_match('/<[\w\d!]+>\s?<\/[\w\d!]+>/si', $body)) {
+                $body = preg_replace('/<[\w\d!]+>\s?<\/[\w\d!]+>/si', '', $body);
+            }
 
             // 标签转回车
             $body = str_ireplace(['<p>', '</p>', '<br>', '<br />', '<br/>'], PHP_EOL, $body);
-            $body = str_replace('　', '', $body);
-            // halt($body);
 
             // 匹配内容
             $pattern = '/>[^<>]{160,}</si';
             if (false !== preg_match_all($pattern, $body, $matches)) {
                 $content = $matches[0];
-                // halt($content);
                 foreach ($content as $key => $value) {
                     $content[$key] = trim($value, '><') . PHP_EOL;
                 }
-                // halt($content);
                 $content = implode('', $content);
-
-                // 过滤Emoji
-                $content = (string) preg_replace_callback('/./u', function (array $matches) {
-                    return strlen($matches[0]) >= 4 ? '' : $matches[0];
-                }, $content);
-                // halt($content);
 
                 // 截取
                 if ($_length && $_length < mb_strlen($content, 'utf-8')) {
-                    if ($position = mb_strpos($content, '[tag:/table]', $_length, 'utf-8')) {
-                        $content = mb_substr($content, 0, $position + 12, 'UTF-8');
+                    if ($position = mb_strpos($content, '[TAG:/table]', $_length, 'utf-8')) {
+                        $content = mb_substr($content, 0, $position + 12, 'utf-8');
                     } elseif ($position = mb_strpos($content, '。', $_length, 'utf-8')) {
-                        $content = mb_substr($content, 0, $position + 1, 'UTF-8');
+                        $content = mb_substr($content, 0, $position + 1, 'utf-8');
                     } elseif ($position = mb_strpos($content, '.', $_length, 'utf-8')) {
-                        $content = mb_substr($content, 0, $position + 1, 'UTF-8');
+                        $content = mb_substr($content, 0, $position + 1, 'utf-8');
                     } elseif ($position = mb_strpos($content, ' ', $_length, 'utf-8')) {
-                        $content = mb_substr($content, 0, $position + 1, 'UTF-8');
+                        $content = mb_substr($content, 0, $position + 1, 'utf-8');
                     } else {
-                        $content = mb_substr($content, 0, $_length, 'UTF-8');
+                        $content = mb_substr($content, 0, $_length, 'utf-8');
                     }
                 }
 
                 // 恢复格式
                 $content = explode('<br />', nl2br((string) $content));
-                // halt($content);
+                $content = array_map('trim', $content);
+                $content = array_filter($content);
 
                 // 跳过字符
                 $jump = [
@@ -323,26 +320,26 @@ class Html
                 }
                 $content = array_map('trim', $content);
                 $content = array_filter($content);
-                // halt($content);
-
-
 
                 // 恢复图片
-                $content = preg_replace_callback('/\[tag:img src:([^<>\s]+)\]/si', function ($img) {
+                $content = preg_replace_callback('/\[TAG:img([^<>\s]+)\]/si', function ($img) {
                     return '<img src="' . trim($img[1], '"\'') . '" />';
                 }, $content);
 
                 // 恢复表格
-                $content = preg_replace_callback('/\[tag:([\w\/]+)\]/si', function ($table) {
+                $content = preg_replace_callback('/\[TAG:([\w\/]+)\]/si', function ($table) {
                     return '<' . $table[1] . '>';
                 }, $content);
             }
 
+            foreach ($content as $key => $value) {
+                if (0 !== strpos($value, '<')) {
+                    $value = '<p>' . $value . '</p>';
+                }
+                $content[$key] = $value;
+            }
 
-            $content = !empty($content)
-                ? '<p>' . implode('</p><p>', $content) . '</p>'
-                : '';
-            // halt($content);
+            $content = implode('', $content);
         }, $this->xml);
 
         return $content;

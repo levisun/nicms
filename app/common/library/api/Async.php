@@ -95,7 +95,7 @@ class Async extends Base
 
         // 校验返回数据
         if (!is_array($result) || !array_key_exists('msg', $result)) {
-            $this->abort('返回数据格式错误', 28001);
+            $this->abort('The data was returned in the wrong format.', 28001);
         }
 
         // 缓存(缓存时间) true or int 单位秒
