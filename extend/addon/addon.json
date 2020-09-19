@@ -2,10 +2,10 @@
     "name": "插件列表",
     "require": {
         "pillow\/baidu\/ziyuan": {
-            "status": "open"
+            "status": "close"
         },
         "pillow\/baidu\/tongji": {
-            "status": "open"
+            "status": "close"
         },
         "pillow\/lazyload": {
             "status": "close"

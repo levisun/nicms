@@ -201,10 +201,6 @@ class Filter
 
             return $attr[1] . trim($attr[2]);
         }, $_str);
-
-
-        // 修复标签中的空格
-        return preg_replace('/\s+>/si', '>', $_str);
     }
 
     /**
@@ -268,8 +264,7 @@ class Filter
         // 不间断空格\u00a0,主要用在office中,让一个单词在结尾处不会换行显示,快捷键ctrl+shift+space
         // 半角空格(英文符号)\u0020,代码中常用的
         // 全角空格(中文符号)\u3000,中文文章中使用
-        $_str = (string) str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($_str));
-        $_str = (string) json_decode($_str);
+        $_str = (string) json_decode(str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($_str)));
 
         $pattern = [
             '/>\s+</'        => '><',

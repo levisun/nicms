@@ -19,7 +19,6 @@ namespace app\common\library;
 use think\facade\Request;
 use app\common\library\Base64;
 use app\common\model\Article as ModelArticle;
-use app\common\model\Category as ModelCategory;
 
 class Sitemap
 {
@@ -84,7 +83,7 @@ class Sitemap
      */
     private static function saveXml(array &$_data, string $_path): void
     {
-        $xml  = '<?xml version="1.0" encoding="UTF-8" ?>' . PHP_EOL;
+        $xml  = '<?xml version="1.0" encoding="utf-8"?>' . PHP_EOL;
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
         $xml .= self::toXml($_data) . PHP_EOL;
         $xml .= '</urlset>';

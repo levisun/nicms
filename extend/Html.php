@@ -248,10 +248,10 @@ class Html
             // 替换表格
             $body = preg_replace_callback('/<table[^<>]*>(.*?)<\/table[^<>]*>/si', function ($table) {
                 $table[1] = strip_tags($table[1], '<tr><td><th><br><p>');
-                return '<table>' . $table[1] . '</table>';
-            }, $body);
-            $body = preg_replace_callback('/<(\/)?(table|tr|td|th)[^<>]*>/si', function ($table) {
-                return '[TAG:' . trim($table[1]) . trim($table[2]) . ']';
+                $table[1] = preg_replace_callback('/<(\/)?(tr|td|th)>/si', function ($tr) {
+                    return '[TAG:' . $tr[1] . $tr[2] . ']';
+                }, $table[1]);
+                return '[TAG:table]' . $table[1] . '[TAG:/table]';
             }, $body);
 
             // 清除无用标签
@@ -269,9 +269,9 @@ class Html
                 $body = preg_replace('/<\/div><\/div>/si', '</div>', $body);
             }
             // 清除空格
-            while (preg_match('/<[\w\d!]+>\s?<\/[\w\d!]+>/si', $body)) {
-                $body = preg_replace('/<[\w\d!]+>\s?<\/[\w\d!]+>/si', '', $body);
-            }
+            // while (preg_match('/<[\w\d!]+>\s?<\/[\w\d!]+>/si', $body)) {
+            //     $body = preg_replace('/<[\w\d!]+>\s?<\/[\w\d!]+>/si', '', $body);
+            // }
 
             // 标签转回车
             $body = str_ireplace(['<p>', '</p>', '<br>', '<br />', '<br/>'], PHP_EOL, $body);
@@ -320,20 +320,20 @@ class Html
                 }
                 $content = array_map('trim', $content);
                 $content = array_filter($content);
-
-                // 恢复图片
-                $content = preg_replace_callback('/\[TAG:img([^<>\s]+)\]/si', function ($img) {
-                    return '<img src="' . trim($img[1], '"\'') . '" />';
-                }, $content);
-
-                // 恢复表格
-                $content = preg_replace_callback('/\[TAG:([\w\/]+)\]/si', function ($table) {
-                    return '<' . $table[1] . '>';
-                }, $content);
             }
 
             foreach ($content as $key => $value) {
-                if (0 !== strpos($value, '<')) {
+                // 恢复表格
+                $value = preg_replace_callback('/\[TAG:([\w\/]+)\]/si', function ($table) {
+                    return '<' . $table[1] . '>';
+                }, $value);
+                // 恢复图片
+                $value = preg_replace_callback('/\[TAG:img([^<>\s]+)\]/si', function ($img) {
+                    return '<img src="' . trim($img[1], '"\'') . '" />';
+                }, $value);
+
+
+                if (false === mb_strpos($value, '<', 0, 'utf-8') && false === mb_strpos($value, '>', mb_strlen($value, 'utf-8') -1, 'utf-8')) {
                     $value = '<p>' . $value . '</p>';
                 }
                 $content[$key] = $value;

@@ -24,6 +24,7 @@ class DataManage
     private $DB = null;
 
     private $savePath;
+    private $tempPath;
     private $lockPath;
 
     public function __construct()
@@ -32,6 +33,9 @@ class DataManage
 
         $this->savePath = runtime_path('backup');
         is_dir($this->savePath) or mkdir($this->savePath, 0755, true);
+
+        $this->tempPath = runtime_path('temp');
+        is_dir($this->tempPath) or mkdir($this->tempPath, 0755, true);
 
         $this->lockPath = runtime_path('lock');
         is_dir($this->lockPath) or mkdir($this->lockPath, 0755, true);
@@ -95,29 +99,33 @@ class DataManage
     public function restores(string $_backup): void
     {
         only_execute('db_backup.lock', false, function () use (&$_backup) {
-            if ($files = glob(runtime_path('temp') . '*')) {
+            // 清空上次残留垃圾文件
+            if ($files = glob($this->tempPath . '*')) {
                 array_map('unlink', $files);
             }
 
-            $filename = $this->savePath . $_backup;
+            // 打开压缩包并解压文件到指定目录
             $zip = new \ZipArchive;
-            if (true === $zip->open($filename)) {
-                $zip->extractTo(runtime_path('temp'));
+            if (true === $zip->open($this->savePath . $_backup)) {
+                $zip->extractTo($this->tempPath);
                 $zip->close();
             }
 
-            if ($files = glob(runtime_path('temp') . '*')) {
+            // 获得解压后的文件
+            if ($files = glob($this->tempPath . '*')) {
                 shuffle($files);
 
                 foreach ($files as $filename) {
-                    $table_name = pathinfo($filename, PATHINFO_FILENAME);
-
+                    // 读取每行数据
                     $file = fopen($filename, 'r');
                     while (!feof($file) && $sql = fgets($file)) {
+                        $sql = trim($sql);
+
                         if (0 === strpos($sql, '--')) {
                             continue;
                         }
 
+                        // 执行SQL
                         try {
                             $this->DB->query($sql);
                         } catch (\Exception $e) {
@@ -128,18 +136,21 @@ class DataManage
                         usleep(10000);
                     }
                     fclose($file);
-                    unlink($filename);
 
+                    // 修改原表名为旧数据表,并修改备份表名为原表名,保证还原时不会损坏原数据
                     try {
+                        $table_name = pathinfo($filename, PATHINFO_FILENAME);
                         $this->DB->query('ALTER  TABLE `' . $table_name . '` RENAME TO `old_' . $table_name . '`');
                         $this->DB->query('ALTER  TABLE `backup_' . $table_name . '` RENAME TO `' . $table_name . '`');
                         $this->DB->query('DROP TABLE `old_' . $table_name . '`');
                     } catch (\Exception $e) {
                         halt($sql, $e->getFile() . $e->getLine() . $e->getMessage());
                     }
+
+                    unlink($filename);
                 }
 
-                @rmdir(runtime_path('temp'));
+                @rmdir($this->tempPath);
             }
         });
     }
@@ -152,20 +163,15 @@ class DataManage
     public function backup(): void
     {
         only_execute('db_backup.lock', false, function () {
-            if ($files = glob(runtime_path('backup') . '*')) {
-                foreach ($files as $filename) {
-                    if ('sql' === pathinfo($filename, PATHINFO_EXTENSION)) {
-                        unlink($filename);
-                    } elseif (filemtime($filename) <= strtotime('-6 month')) {
-                        unlink($filename);
-                    }
-                }
+            // 清空上次残留垃圾文件
+            if ($files = glob($this->tempPath . '*')) {
+                array_map('unlink', $files);
             }
 
             $table_name = $this->queryTableName();
             shuffle($table_name);
             foreach ($table_name as $name) {
-                $sql_file = $this->savePath . $name . '.sql';
+                $sql_file = $this->tempPath. $name . '.sql';
 
                 // 获得表结构SQL语句
                 $sql = $this->queryTableStructure($name);
@@ -183,7 +189,7 @@ class DataManage
                 });
             }
 
-            if ($files = glob($this->savePath . '*')) {
+            if ($files = glob($this->tempPath . '*')) {
                 foreach ($files as $key => $filename) {
                     $ext = pathinfo($filename, PATHINFO_EXTENSION);
                     if ('sql' !== $ext) {
@@ -202,6 +208,8 @@ class DataManage
                     foreach ($files as $filename) {
                         @unlink($filename);
                     }
+
+                    @rmdir($this->tempPath);
                 }
             }
         });
@@ -276,13 +284,16 @@ class DataManage
         if (empty($tableRes[0]['Create Table'])) {
             return false;
         }
-        $structure  = '-- ' . date('Y-m-d H:i:s') . PHP_EOL;
+        $structure  = '-- 备份时间 ' . date('Y-m-d H:i:s') . PHP_EOL;
         $structure .= 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
-        $structure .= preg_replace(['/\s+/s', '/( ){2,}/si'], ' ', $tableRes[0]['Create Table']) . ';';
+        // 清除多余空格回车制表符等
+        $structure .= preg_replace(['/\s+/s', '/ {2,}/si'], ' ', $tableRes[0]['Create Table']) . ';';
         $structure = trim($structure);
 
+        // 原表名替换成备份表名,此操作避免恢复数据失败时直接覆盖原数据导致的不可逆转错误
         $structure = str_replace($_table_name, 'backup_' . $_table_name, $structure);
 
+        // 删除自增主键记录
         $structure = preg_replace_callback('/(AUTO_INCREMENT=[0-9]+ DEFAULT)/si', function () {
             return 'DEFAULT';
         }, $structure);

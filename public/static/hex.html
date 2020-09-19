@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>口算</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            background: white;
+            font-family: "Century Gothic", "Microsoft yahei";
+            color: #333;
+            font-size: 18px;
+        }
+
+        font {
+            font-size: 16px;
+            margin: 0 5px;
+        }
+
+        ul>li {
+            list-style: none;
+            width: 100px;
+            float: left;
+            padding: 10px 15px;
+            font-size: 22px;
+        }
+
+        * {
+            -moz-user-select: -moz-none;
+            -moz-user-select: none;
+            -o-user-select: none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+    <ul></ul>
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <ul>
+            <li v-for="item in items" v-text="item"></li>
+        </ul>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"
+        integrity="sha256-chlNFSVx3TdcQ2Xlw7SvnbLAavAQLO0Y/LBiWX04viY=" crossorigin="anonymous"></script>
+    <script>
+        let app = new Vue({
+            el: "#app",
+            data: {
+                items: [],
+                rand_max: 10,
+            },
+            methods: {
+                get: function (variable, def) {
+                    let query = window.location.search.substring(1);
+                    query = query.split("&");
+                    for (var i = 0; i < query.length; i++) {
+                        var pair = query[i].split("=");
+                        if (pair[0] == variable) { return pair[1]; } else {
+                            return def;
+                        }
+                    }
+                },
+                rand_type: function () {
+                    let type = Math.floor(Math.random() * 4);
+                    switch (type) {
+                        case 1:
+                            type = '+';
+                            break;
+                        case 2:
+                            type = '-';
+                            break;
+                        case 3:
+                            type = '×';
+                            break;
+                        default:
+                            type = '÷';
+                            break;
+                    }
+                    return type;
+                },
+                rand: function () {
+                    return Math.floor(Math.random() * this.rand_max);
+                },
+
+                each: function () {
+                    for (let index = 0; index < 100; index++) {
+                        let type = this.rand_type();
+                        if ('-' === type || '÷' === type) {
+                            let bei = this.rand();
+                            bei = 0 >= bei ? 1 : bei;
+                            let jian = this.rand();
+                            if (bei < jian) {
+                                bei = bei + jian;
+                                jian = bei - jian;
+                                bei = bei - jian;
+                            }
+                            if ('÷' === type) {
+                                jian = 0 >= jian ? 1 : jian;
+                                bei = bei * jian;
+                            }
+                            this.items.push(bei + type + jian + '=');
+                        } else {
+                            this.items.push(this.rand(20) + type + this.rand(20) + '=');
+                        }
+                    }
+                }
+            }
+        });
+        app.rand_max = app.get('max', 10);
+        app.each();
+    </script>
+</body>
+
+</html>
