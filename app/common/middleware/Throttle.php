@@ -62,7 +62,8 @@ class Throttle
             miss(404, false, true);
         }
 
-        $this->cache_key = $request->domain() . $request->ip() . $request->server('HTTP_USER_AGENT');
+        $this->cache_key = $request->ip() . $request->domain();
+        $this->cache_key .= 'html' === $request->ext() ?: $request->baseUrl();
 
         if ($this->hasLock() || $this->hasLoginLock()) {
             $this->abort($request);
