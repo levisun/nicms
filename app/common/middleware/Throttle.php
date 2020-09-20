@@ -62,10 +62,10 @@ class Throttle
             miss(404, false, true);
         }
 
-        $this->cache_key = $request->domain() . $request->ip();
+        $this->cache_key = $request->domain() . $request->ip() . $request->server('HTTP_USER_AGENT');
 
         if ($this->hasLock() || $this->hasLoginLock()) {
-            $this->abort();
+            $this->abort($request);
         }
 
         // 最近一次请求
@@ -75,7 +75,7 @@ class Throttle
         $rate = (float) $this->duration['m'] / $this->max_requests;
         if ($request->time(true) - $last_time < $rate) {
             Cache::set($this->cache_key . 'lock', date('Y-m-d H:i:s'), 1440);
-            $this->abort();
+            $this->abort($request);
         }
 
         $response = $next($request);
@@ -98,9 +98,9 @@ class Throttle
         return Cache::has($this->cache_key . 'lock');
     }
 
-    private function abort()
+    private function abort(Request $request)
     {
-        $content = '<!DOCTYPE html><html lang="zh-cn"><head><meta charset="UTF-8"><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>请勿频繁操作</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2 class="miss">o(╥﹏╥)o 请勿频繁操作</h2></section></body></html>';
+        $content = '<!DOCTYPE html><html lang="zh-cn"><head><meta charset="UTF-8"><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>请勿频繁操作</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2 class="miss">o(╥﹏╥)o 请勿频繁操作</h2><p>' . date('Y-m-d H:i:s', $request->time()) . '</p></section></body></html>';
         throw new HttpResponseException(Response::create($content, 'html')->allowCache(true));
     }
 }

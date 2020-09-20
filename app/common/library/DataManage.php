@@ -231,9 +231,7 @@ class DataManage
             $sql .= '(';
             foreach ($value as $vo) {
                 // 过滤回车空格tab等符号
-                $vo = preg_replace('/\s+/s', ' ', $vo);
-                // 过滤多余空格
-                $vo = preg_replace('/ {2,}/s', ' ', $vo);
+                $vo = preg_replace(['/\s+/s', '/ {2,}/s'], ' ', $vo);
 
                 $vo = trim($vo);
 
@@ -243,7 +241,7 @@ class DataManage
                 } elseif (is_float($vo)) {
                     $vo = (float) $vo;
                     $sql .= $vo . ',';
-                } elseif (is_null($vo) || $vo == 'null' || $vo == 'NULL') {
+                } elseif (is_null($vo) || $vo === 'null' || $vo === 'NULL') {
                     $sql .= 'NULL,';
                 } else {
                     $sql .= '\'' . addslashes($vo) . '\',';

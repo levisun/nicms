@@ -59,30 +59,9 @@ class User extends BaseLogic
                 ['admin.email', '=', $this->request->param('username')]
             ])
             ->find();
-        if (!is_null($user) && $new_pw = Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {
-            // 更新登录信息
-            $info = Ipinfo::get($this->request->ip());
-            ModelAdmin::update([
-                'flag'               => $this->session->getId(false),
-                'last_login_time'    => time(),
-                'last_login_ip'      => $info['ip'],
-                'last_login_ip_attr' => isset($info['country_id']) ? $info['region'] . $info['city'] . $info['area'] : ''
-            ], ['id' => $user['id']]);
 
-            // 唯一登录
-            if ($user['flag'] && $user['flag'] !== $this->session->getId(false)) {
-                $this->session->delete($user['flag']);
-            }
-
-            // 登录令牌
-            $this->session->set($this->authKey, $user['id']);
-            $this->session->set($this->authKey . '_role', $user['role_id']);
-            $this->session->delete('login_lock');
-
-            $this->uid = $user['id'];
-            $this->urole = $user['role_id'];
-            $this->actionLog(__METHOD__, 'admin user login');
-        } else {
+        // 用户不存在 密码错误
+        if (!$user || !$new_pw = Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {
             // 记录登录错误次数
             $login_lock = $this->session->has('login_lock') ? $this->session->get('login_lock') : 0;
             ++$login_lock;
@@ -96,13 +75,43 @@ class User extends BaseLogic
             } else {
                 $this->session->set('login_lock', $login_lock);
             }
+
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40009,
+                'msg'   => 'error'
+            ];
         }
+
+        // 更新登录信息
+        $info = Ipinfo::get($this->request->ip());
+        ModelAdmin::update([
+            'flag'               => $this->session->getId(false),
+            'last_login_time'    => time(),
+            'last_login_ip'      => $info['ip'],
+            'last_login_ip_attr' => isset($info['country_id']) ? $info['region'] . $info['city'] . $info['area'] : ''
+        ], ['id' => $user['id']]);
+
+        // 唯一登录
+        if ($user['flag'] && $user['flag'] !== $this->session->getId(false)) {
+            $this->session->delete($user['flag']);
+        }
+
+        // 登录令牌
+        $this->session->set($this->authKey, $user['id']);
+        $this->session->set($this->authKey . '_role', $user['role_id']);
+        $this->session->delete('login_lock');
+
+        $this->uid = $user['id'];
+        $this->urole = $user['role_id'];
+        $this->actionLog(__METHOD__, 'admin user login');
 
         return [
             'debug' => false,
             'cache' => false,
-            'code'  => !is_null($user) && $new_pw ? 10000 : 40009,
-            'msg'   => !is_null($user) && $new_pw ? 'success' : 'error'
+            'code'  => 10000,
+            'msg'   => 'success'
         ];
     }
 

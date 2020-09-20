@@ -127,7 +127,7 @@ class View implements TemplateHandlerInterface
 
         $this->config['view_theme'] = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($this->config['view_theme'],'\/'));
 
-        $this->config['compile_path'] .= $this->config['view_theme'] . DIRECTORY_SEPARATOR;
+        $this->config['compile_path'] .= $this->config['view_theme'] . '_';
         $this->config['view_path'] .= $this->config['view_theme'] . DIRECTORY_SEPARATOR;
     }
 
@@ -220,7 +220,6 @@ class View implements TemplateHandlerInterface
         // 获取模板文件名
         $_template = Filter::safe($_template) . '.' . $this->config['view_suffix'];
         $_template = File::getTheme($this->config['view_path'], $_template);
-
 
 
         // 编译文件
