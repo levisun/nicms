@@ -19,7 +19,7 @@ namespace app\api\controller\tools;
 
 use think\Response;
 use app\common\library\api\Async;
-use app\common\library\Ipinfo;
+use app\common\library\IpInfo;
 use app\common\model\Visit as ModelVisit;
 
 class Record extends Async
@@ -29,7 +29,7 @@ class Record extends Async
     {
         if ($this->validate->referer()) {
             $user_agent = strtolower($this->request->server('HTTP_USER_AGENT'));
-            $ip = Ipinfo::get($this->request->ip());
+            $ip = (new IpInfo)->get($this->request->ip());
             $has = ModelVisit::where([
                 ['ip', '=', $ip['ip']],
                 ['user_agent', '=', md5($user_agent)],

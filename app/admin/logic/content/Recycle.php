@@ -177,7 +177,10 @@ class Recycle extends BaseLogic
             $thumb = ModelArticle::where([
                 ['id', '=', $id]
             ])->value('thumb');
-            !empty($thumb) and UploadLog::remove($thumb);
+
+            if (!empty($thumb)) {
+                UploadLog::remove($thumb);
+            }
 
             ModelArticle::where([
                 ['id', '=', $id]
@@ -192,7 +195,9 @@ class Recycle extends BaseLogic
             $file_url = ModelArticleFile::where([
                 ['article_id', '=', $id]
             ])->value('file_url');
-            $file_url and UploadLog::remove($file_url);
+            if (!empty($file_url)) {
+                UploadLog::remove($file_url);
+            }
             ModelArticleFile::where([
                 ['article_id', '=', $id]
             ])->delete();

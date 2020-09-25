@@ -19,20 +19,19 @@ namespace app\common\library;
 use think\facade\Cache;
 use think\facade\Request;
 use app\common\library\Filter;
-use app\common\model\IpInfo as ModelIpinfo;
+use app\common\model\IpInfo as ModelIpInfo;
 use app\common\model\Region as ModelRegion;
 
-class Ipinfo
+class IpInfo
 {
 
     /**
      * 查询IP地址信息
      * @access public
-     * @static
      * @param  string 请求IP地址
      * @return array
      */
-    public static function get(string $_ip = ''): array
+    public function get(string $_ip = ''): array
     {
         $region = [
             'ip'          => $_ip,
@@ -48,13 +47,13 @@ class Ipinfo
             'isp'         => '',
         ];
 
-        if ($_ip && self::validate($_ip)) {
+        if ($_ip && $this->validate($_ip)) {
             $cache_key = __METHOD__ . $_ip;
             if (!Cache::has($cache_key) || !$region = Cache::get($cache_key)) {
                 // 查询IP地址库
-                if (!$query_region = self::query($_ip)) {
+                if (!$query_region = $this->query($_ip)) {
                     // 获得信息并录入信息
-                    if ($query_region = self::getIpInfo($_ip)) {
+                    if ($query_region = $this->getIpInfo($_ip)) {
                         unset($query_region['id'], $query_region['update_time']);
                         $query_region['ip'] = $_ip;
 
@@ -70,22 +69,19 @@ class Ipinfo
     /**
      * 验证IP
      * @access private
-     * @static
      * @param  string  $_ip
      * @return bool
      */
-    private static function validate(string $_ip): bool
+    private function validate(string $_ip): bool
     {
         // 判断合法IP
-        if (false === filter_var($_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        if (false === Request::isValidIP($_ip, 'ipv4') ) {
             return false;
         }
 
         // 保留IP地址段
         $_ip = explode('.', $_ip);
-        $_ip = array_map(function ($value) {
-            return (int) $value;
-        }, $_ip);
+        $_ip = array_map('intval', $_ip);
 
         // a类 10.0.0.0~10.255.255.255
         if (10 == $_ip[0]) {
@@ -93,7 +89,7 @@ class Ipinfo
         }
 
         // b类 172.16.0.0~172.31.255.255
-        if (172 == $_ip[0] && 16 <= $_ip[0] && 31 >= $_ip[1]) {
+        if (172 == $_ip[0] && 16 <= $_ip[1] && 31 >= $_ip[1]) {
             return false;
         }
 
@@ -113,13 +109,12 @@ class Ipinfo
     /**
      * 查询IP地址库
      * @access private
-     * @static
      * @param  string  $_ip
      * @return array|false
      */
-    private static function query(string &$_ip)
+    private function query(string &$_ip)
     {
-        $result = ModelIpinfo::view('ipinfo', ['id', 'ip', 'isp', 'update_time'])
+        $result = ModelIpInfo::view('ipinfo', ['id', 'ip', 'isp', 'update_time'])
             ->view('region country', ['id' => 'country_id', 'name' => 'country'], 'country.id=ipinfo.country_id')
             ->view('region region', ['id' => 'region_id', 'name' => 'region'], 'region.id=ipinfo.province_id')
             ->view('region city', ['id' => 'city_id', 'name' => 'city'], 'city.id=ipinfo.city_id')
@@ -132,7 +127,7 @@ class Ipinfo
 
         // 更新信息
         if ($result && $result['update_time'] < strtotime('-90 days')) {
-            self::getIpInfo($_ip);
+            // $this->getIpInfo($_ip);
         }
 
 
@@ -142,12 +137,11 @@ class Ipinfo
     /**
      * 查询地址ID
      * @access private
-     * @static
      * @param  string  $_name
      * @param  int     $_pid
      * @return int
      */
-    private static function queryRegion(string &$_name, int $_pid): int
+    private function queryRegion(string &$_name, int $_pid): int
     {
         $_name = Filter::safe($_name);
 
@@ -162,12 +156,11 @@ class Ipinfo
     /**
      * 写入IP地址库
      * @access private
-     * @static
      * @return array|false
      */
-    private static function getIpInfo(string &$_ip)
+    private function getIpInfo(string &$_ip)
     {
-        $result = self::get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
+        $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
         $result = $result ? json_decode($result, true) : null;
 
         if (!is_array($result) || empty($result) || $result['code'] !== 0) {
@@ -176,14 +169,14 @@ class Ipinfo
 
         $result  = $result['data'];
         $isp     = !empty($result['isp']) ? Filter::safe($result['isp']) : '';
-        $country = !empty($result['country']) ? self::queryRegion($result['country'], 0) : '';
+        $country = !empty($result['country']) ? $this->queryRegion($result['country'], 0) : '';
         if (!$country) {
             return false;
         }
 
-        $province = self::queryRegion($result['region'], $country);
-        $city     = self::queryRegion($result['city'], $province);
-        $area     = !empty($result['area']) ? self::queryRegion($result['area'], $city) : 0;
+        $province = $this->queryRegion($result['region'], $country);
+        $city     = $this->queryRegion($result['city'], $province);
+        $area     = !empty($result['area']) ? $this->queryRegion($result['area'], $city) : 0;
 
         $binip = bindec(Request::ip2bin($_ip));
         $save_data = [
@@ -196,7 +189,7 @@ class Ipinfo
             'update_time' => time(),
             'create_time' => time()
         ];
-        self::added($save_data);
+        $this->added($save_data);
 
         // 为了收集IP
         $temp = explode('.', $_ip, 4);
@@ -214,28 +207,28 @@ class Ipinfo
                 'update_time' => time(),
                 'create_time' => time()
             ];
-            self::added($save_data);
+            $this->added($save_data);
         }
 
-        return self::query($_ip);
+        return $this->query($_ip);
     }
 
-    private static function added(array $_save_data): void
+    private function added(array $_save_data): void
     {
-        $has = ModelIpinfo::where([
+        $has = ModelIpInfo::where([
             ['ip', '=', $_save_data['ip']]
         ])->value('id');
 
         if (!$has) {
-            ModelIpinfo::create($_save_data);
+            ModelIpInfo::create($_save_data);
         } else {
-            self::update($_save_data);
+            $this->update($_save_data);
         }
     }
 
-    private static function update(array $_save_data): void
+    private function update(array $_save_data): void
     {
-        ModelIpinfo::update([
+        ModelIpInfo::update([
             'country_id'  => $_save_data['country_id'],
             'province_id' => $_save_data['province_id'],
             'city_id'     => $_save_data['city_id'],
@@ -245,7 +238,7 @@ class Ipinfo
         ], ['ip' => $_save_data['ip']]);
     }
 
-    private static function get_curl(string $_url): string
+    private function get_curl(string $_url): string
     {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $_url);

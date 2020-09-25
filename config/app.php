@@ -71,7 +71,7 @@ return [
     // 异常页面的模板文件
     'exception_tmpl'   => env('app_debug', false)
         ? app()->getThinkPath() . 'tpl/think_exception.tpl'
-        : app()->getRootPath() . 'public/error.html',
+        : app()->getRootPath() . 'public/static/error.html',
     // 错误显示信息,非调试模式有效
     'error_message'    => '页面错误！请稍后再试～',
     // 显示错误信息

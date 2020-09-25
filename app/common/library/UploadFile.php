@@ -95,10 +95,7 @@ class UploadFile
     /**
      * 获得上传文件信息
      * @access public
-     * @param  int    $_uid 用户ID
-     * @param  string $_element 表单名
-     * @param  array  $_size    裁减宽高与比例
-     * @param  bool   $_water   添加水印
+     * @param  array $_user 用户
      * @return array
      */
     public function getFileInfo(array $_user): array
@@ -127,6 +124,8 @@ class UploadFile
     /**
      * 校验上传文件
      * @access private
+     * @param  string $_element HTML元素
+     * @param  \think\File $_files 文件
      * @return bool|string
      */
     private function validate(string &$_element, \think\File &$_files)
@@ -157,40 +156,21 @@ class UploadFile
     /**
      * 保存上传文件
      * @access private
+     * @param  array $_user 用户
      * @param  \think\File $_files 文件
      * @return array
      */
     private function save(array &$_user, \think\File &$_files): array
     {
-        $_dir  = 'uploads' . DIRECTORY_SEPARATOR;
+        $save_path = Config::get('filesystem.disks.public.url') . DIRECTORY_SEPARATOR;
+        $save_path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $save_path);
 
-        // 文件类型目录
-        if (false !== strpos($_files->getMime(), 'image/')) {
-            $_dir .= Base64::flag('image', 7) . DIRECTORY_SEPARATOR;
-        } else {
-            $_dir .= Base64::flag($_files->getMime(), 7) . DIRECTORY_SEPARATOR;
-        }
-
-        // 用户类型目录[后台,前台,访客]
-        if (!empty($_user['user_type']) && !empty($_user['user_id'])) {
-            $_dir .= Base64::flag($_user['user_type'], 7) . DIRECTORY_SEPARATOR;
-            // 日期目录
-            $_dir .= Base64::url62encode((int) date('Ym')) . DIRECTORY_SEPARATOR;
-            // 用户目录[删除用户时可删除目录]
-            $_dir .= Base64::url62encode((int) $_user['user_id']) . DIRECTORY_SEPARATOR;
-        } else {
-            $_dir .= 'guest' . DIRECTORY_SEPARATOR;
-        }
-
-        // 日期目录
-        $_dir .= Base64::url62encode((int) date('Ym'));
-
-        $save_path = Config::get('filesystem.disks.public.url') . '/';
-        $save_file = $save_path . Filesystem::disk('public')->putFile($_dir, $_files, 'uniqid');
+        $path = $this->savePath($_user);
+        $save_file = $save_path . Filesystem::disk('public')->putFile($path, $_files, 'uniqid');
 
         UploadLog::write($save_file);   // 记录上传文件日志
 
-        if (false !== strpos($_files->getMime(), 'image/')) {
+        if (false !== stripos($_files->getMime(), 'image/')) {
             $save_file = $this->tailoring($save_file);
             $save_file = $this->water($save_file);
             $save_file = $this->toExt($_files->extension(), $save_file);
@@ -211,9 +191,39 @@ class UploadFile
     }
 
     /**
+     * 保存路径
+     * @access private
+     * @param  array $_user 用户
+     * @param  \think\File $_files 文件
+     * @return string
+     */
+    private function savePath(array &$_user): string
+    {
+        $save_dir  = 'uploads' . DIRECTORY_SEPARATOR;
+
+        // 用户类型目录
+        $save_dir .= !empty($_user['user_type'])
+            ? Base64::flag($_user['user_type'], 7) . DIRECTORY_SEPARATOR
+            : 'guest' . DIRECTORY_SEPARATOR;
+
+        // 用户ID目录
+        $user_dir = !empty($_user['user_id'])
+            ? Base64::url62encode((int) $_user['user_id']) . DIRECTORY_SEPARATOR
+            : '';
+        $save_dir .= $user_dir
+            ? substr($user_dir, 0, 2) . DIRECTORY_SEPARATOR . $user_dir . DIRECTORY_SEPARATOR
+            : '';
+
+        // 日期目录
+        $save_dir .= Base64::url62encode((int) date('Ym')) . DIRECTORY_SEPARATOR;
+
+        return $save_dir;
+    }
+
+    /**
      * 转换图片格式
      * @access private
-     * @param  string $_file 文件
+     * @param  string $_extension 扩展名
      * @param  string $_save_file 文件名
      * @return void
      */
@@ -221,37 +231,25 @@ class UploadFile
     {
         $image = Image::open(public_path() . $_save_file);
 
-        // 转换webp格式
+        $new_file = $_save_file;
         if (function_exists('imagewebp')) {
-            $webp_file = str_replace('.' . $_extension, '.webp', $_save_file);
-            $image->save(public_path() . $webp_file, 'webp');
-            UploadLog::write($webp_file);   // 记录上传文件日志
-            // 删除非webp格式图片
-            if ('webp' !== $_extension) {
-                unlink(public_path() . $_save_file);
-            }
-            $_save_file = $webp_file;
+            $new_file = str_replace('.' . $_extension, '.webp', $_save_file);
+            $image->save(public_path() . $new_file, 'webp');
+            unlink(public_path() . $_save_file);
+        } elseif ('gif' !== $_extension) {
+            $new_file = str_replace('.' . $_extension, '.jpg', $_save_file);
+            $image->save(public_path() . $new_file, 'jpg');
+            unlink(public_path() . $_save_file);
         }
 
-        // 转换jpg格式
-        elseif ('gif' !== $_extension) {
-            $jpg_file = str_replace('.' . $_extension, '.jpg', $_save_file);
-            $image->save(public_path() . $jpg_file, 'jpg');
-            UploadLog::write($jpg_file);   // 记录上传文件日志
-            // 删除非jpg格式图片
-            if ('jpg' !== $_extension) {
-                unlink(public_path() . $_save_file);
-            }
-            $_save_file = $jpg_file;
-        }
+        UploadLog::write($new_file);   // 记录上传文件日志
 
-        return $_save_file;
+        return $new_file;
     }
 
     /**
      * 添加水印
      * @access private
-     * @param  string $_file 文件
      * @param  string $_save_file 文件名
      * @return void
      */
@@ -273,7 +271,6 @@ class UploadFile
     /**
      * 裁减图片
      * @access private
-     * @param  string $_file 文件
      * @param  string $_save_file 文件名
      * @return void
      */

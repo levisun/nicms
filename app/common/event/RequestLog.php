@@ -18,7 +18,6 @@ namespace app\common\event;
 
 use think\facade\Log;
 use think\facade\Request;
-use app\common\library\Ipinfo;
 use app\common\model\Visit as ModelVisit;
 
 class RequestLog

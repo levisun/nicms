@@ -35,6 +35,7 @@ class Spider
 
     public function __destruct()
     {
+        // 1.5至3.5秒间隔
         usleep(rand(1500000, 3500000));
     }
 

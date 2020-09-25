@@ -36,7 +36,7 @@ class MyUploadAdapter {
         // a POST request with JSON as a data structure but your configuration
         // could be different.
         // xhr.open('POST', 'http://example.com/image/upload/path', true);
-        xhr.open('POST', NICMS.api.url + '/upload.do', true);
+        xhr.open('POST', NICMS.api_url + '/upload.do', true);
         xhr.setRequestHeader('Accept', 'application/vnd.' + jQuery('meta[name="csrf-root"]').attr('content') + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
         xhr.setRequestHeader('Authorization', 'Bearer ' + jQuery.get_cookie('XSRF_AUTHORIZATION'));
         xhr.responseType = 'json';

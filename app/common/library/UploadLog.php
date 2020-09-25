@@ -32,23 +32,25 @@ class UploadLog
      */
     public static function write(string $_file, int $_type = 0): void
     {
-        if ($_file) {
-            $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
+        if (!$_file) {
+            return;
+        }
 
-            $has = ModelUploadFileLog::where([
-                ['file', '=', $_file]
-            ])->value('file');
+        $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
 
-            if ($has) {
-                ModelUploadFileLog::update([
-                    'type' => $_type
-                ], ['file' => $_file]);
-            } else {
-                ModelUploadFileLog::create([
-                    'file' => $_file,
-                    'type' => $_type
-                ]);
-            }
+        $has = ModelUploadFileLog::where([
+            ['file', '=', $_file]
+        ])->value('file');
+
+        if (!$has) {
+            ModelUploadFileLog::create([
+                'file' => $_file,
+                'type' => $_type
+            ]);
+        } else {
+            ModelUploadFileLog::update([
+                'type' => $_type
+            ], ['file' => $_file]);
         }
     }
 
@@ -62,13 +64,15 @@ class UploadLog
      */
     public static function update(string $_file, int $_type = 0)
     {
-        if ($_file) {
-            $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
-
-            ModelUploadFileLog::update([
-                'type' => $_type
-            ], ['file' => $_file]);
+        if (!$_file) {
+            return;
         }
+
+        $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
+
+        ModelUploadFileLog::update([
+            'type' => $_type
+        ], ['file' => $_file]);
     }
 
     /**

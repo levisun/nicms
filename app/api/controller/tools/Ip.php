@@ -19,7 +19,7 @@ namespace app\api\controller\tools;
 
 use think\Response;
 use app\common\library\api\Async;
-use app\common\library\Ipinfo;
+use app\common\library\IpInfo;
 
 class Ip extends Async
 {
@@ -33,7 +33,7 @@ class Ip extends Async
         }
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
-        if ($ip = Ipinfo::get($ip)) {
+        if ($ip = (new IpInfo)->get($ip)) {
             $timestamp = $this->request->time() + 3600 * 6;
             return Response::create('const IP = ' . json_encode($ip))
                 ->allowCache(true)

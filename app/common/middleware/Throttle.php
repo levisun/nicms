@@ -25,28 +25,6 @@ use think\exception\HttpResponseException;
 
 class Throttle
 {
-    /**
-     * 缓存标识
-     * @var string
-     */
-    private $cache_key = '';
-
-    /**
-     * 最大访问次数
-     * @var int
-     */
-    private $max_requests = 600;
-
-    /**
-     * 计时时间
-     * @var array
-     */
-    private $duration = [
-        's' => 1,
-        'm' => 60,
-        'h' => 3600,
-        'd' => 86400,
-    ];
 
     /**
      *
@@ -58,50 +36,91 @@ class Throttle
     public function handle(Request $request, Closure $next)
     {
         // IP进入显示空页面
-        if (false !== filter_var($request->host(true), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        if ($request->isValidIP($request->host(true), 'ipv4') || $request->isValidIP($request->host(true), 'ipv6')) {
             miss(404, false, true);
         }
 
-        $this->cache_key = $request->ip() . $request->domain();
-        $this->cache_key .= 'html' === $request->ext() ?: $request->baseUrl();
-
-        if ($this->hasLock() || $this->hasLoginLock()) {
-            $this->abort($request);
-        }
-
-        // 最近一次请求
-        $last_time = Cache::has($this->cache_key) ? (float) Cache::get($this->cache_key) : 0;
-
-        // 平均 n 秒一个请求
-        $rate = (float) $this->duration['m'] / $this->max_requests;
-        if ($request->time(true) - $last_time < $rate) {
-            Cache::set($this->cache_key . 'lock', date('Y-m-d H:i:s'), 1440);
+        if (Cache::has($request->ip() . 'lock') || Cache::has($request->domain() . $request->ip() . 'login_lock')) {
             $this->abort($request);
         }
 
         $response = $next($request);
 
-        if (200 === $response->getCode()) {
-            $last_time = Cache::has($this->cache_key) ? (float) Cache::get($this->cache_key) : $request->time(true);
-            Cache::set($this->cache_key, $last_time, $this->duration['m']);
-        }
+        $this->checkAnHourIpTotal($request, $response);
+        $this->checkAnMinuteUserTotal($request, $response);
 
         return $response;
     }
 
-    private function hasLoginLock(): bool
+    /**
+     * 校验用户一分钟访问量
+     * @access private
+     * @param  Request  $_request
+     * @param  Response $_response
+     * @return void
+     */
+    private function checkAnMinuteUserTotal(Request $_request, Response $_response)
     {
-        return Cache::has($this->cache_key . 'login_lock');
+        if (200 !== $_response->getCode()) {
+            return;
+        }
+
+        $cache_key = 'an minute user total' . $_request->ip();
+        $last_time = $_request->time(true);
+        if (Cache::has($cache_key)) {
+            $last_time = (float) Cache::get($cache_key);
+        } else {
+            Cache::set($cache_key, $last_time, 60);
+        }
+
+        // 平均 n 秒一个请求
+        $last_time = $_request->time(true) - $last_time;
+        $rate = (float) 60 / 1200;
+        if ($last_time && $last_time < $rate) {
+            Cache::set($_request->ip() . 'lock', date('Y-m-d H:i:s'), 86400);
+        }
     }
 
-    private function hasLock(): bool
+
+    /**
+     * 校验IP一小时访问量
+     * @access private
+     * @param  Request  $_request
+     * @param  Response $_response
+     * @return void
+     */
+    private function checkAnHourIpTotal(Request $_request, Response $_response): void
     {
-        return Cache::has($this->cache_key . 'lock');
+        if (200 !== $_response->getCode()) {
+            return;
+        }
+
+        // 记录IP一小时访问总量
+        $cache_key = 'an hour ip total' . $_request->ip();
+        $total = 0;
+        if (Cache::has($cache_key . 'last time') && Cache::has($cache_key)) {
+            $total = (int) Cache::get($cache_key);
+            Cache::inc($cache_key);
+        } else {
+            Cache::set($cache_key . 'last time', date('Y-m-d H:i:s'), 3600);
+            Cache::set($cache_key, 1, 0);
+        }
+
+        // IP一小时访问超过一定数量抛出
+        if (1000 <= $total) {
+            Cache::set($_request->ip() . 'lock', date('Y-m-d H:i:s'), 86400);
+        }
     }
 
-    private function abort(Request $request)
+    /**
+     * 抛出页面
+     * @access private
+     * @param  Request $_request
+     * @return void
+     */
+    private function abort(Request $_request)
     {
-        $content = '<!DOCTYPE html><html lang="zh-cn"><head><meta charset="UTF-8"><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>请勿频繁操作</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2 class="miss">o(╥﹏╥)o 请勿频繁操作</h2><p>' . date('Y-m-d H:i:s', $request->time()) . '</p></section></body></html>';
+        $content = '<!DOCTYPE html><html lang="zh-cn"><head><meta charset="UTF-8" /><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>请勿频繁操作</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2 class="miss">o(╥﹏╥)o 请勿频繁操作</h2><p>' . date('Y-m-d H:i:s', $_request->time()) . '</p></section></body></html>';
         throw new HttpResponseException(Response::create($content, 'html')->allowCache(true));
     }
 }

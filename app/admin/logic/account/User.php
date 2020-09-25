@@ -20,7 +20,7 @@ namespace app\admin\logic\account;
 use app\common\controller\BaseLogic;
 use app\common\library\Base64;
 use app\common\library\Image;
-use app\common\library\Ipinfo;
+use app\common\library\IpInfo;
 use app\common\library\Rbac;
 use app\common\model\Admin as ModelAdmin;
 
@@ -61,7 +61,7 @@ class User extends BaseLogic
             ->find();
 
         // 用户不存在 密码错误
-        if (!$user || !$new_pw = Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {
+        if (!$user || !Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {
             // 记录登录错误次数
             $login_lock = $this->session->has('login_lock') ? $this->session->get('login_lock') : 0;
             ++$login_lock;
@@ -85,7 +85,7 @@ class User extends BaseLogic
         }
 
         // 更新登录信息
-        $info = Ipinfo::get($this->request->ip());
+        $info = (new IpInfo)->get($this->request->ip());
         ModelAdmin::update([
             'flag'               => $this->session->getId(false),
             'last_login_time'    => time(),

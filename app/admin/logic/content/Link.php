@@ -225,7 +225,7 @@ class Link extends BaseLogic
             ['id', '=', $id]
         ])->column('logo', 'category_id');
 
-        if (null !== $find['logo'] && $find['logo']) {
+        if ($find['logo']) {
             UploadLog::remove($find['logo']);
         }
 

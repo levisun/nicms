@@ -1,8 +1,0 @@
-User-agent: *
-Disallow: /screen/
-Disallow: /static/
-Disallow: /storage/
-Disallow: /theme/
-Disallow: *.do$
-Allow: .html$
-Sitemap: https://www.niphp.com/sitemap.xml

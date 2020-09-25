@@ -121,7 +121,7 @@ class Filter
         $_str = self::php($_str);
         $_str = self::fun($_str);
 
-        return $_str;
+        return trim($_str);
     }
 
     /**
@@ -180,8 +180,10 @@ class Filter
             $attr = array_map('trim', $attr);
 
             // 过滤json数据
-            $attr[2] = preg_replace('/\{+.*?\}+/si', '', $attr[2]);
-            $attr[2] = preg_replace('/\[+.*?\]+/si', '', $attr[2]);
+            $attr[2] = preg_replace([
+                '/\{+.*?\}+/si',
+                '/\[+.*?\]+/si'
+            ], '', $attr[2]);
 
             // 过滤非法属性
             $attr[2] = preg_replace_callback('/([\w\d\-]+)=[^\s]*/si', function ($single) {
@@ -197,9 +199,11 @@ class Filter
                 return trim($single[0]);
             }, $attr[2]);
             // 清除多余空格
-            $attr[2] = preg_replace('/\s{2,}/si', ' ', $attr[2]);
+            $attr[2] = preg_replace('/\s+/si', ' ', $attr[2]);
+            $attr[2] = trim($attr[2]);
 
-            return $attr[1] . trim($attr[2]);
+            $attr[2] = !empty($attr[2]) ? ' ' . $attr[2] : '';
+            return $attr[1] . $attr[2];
         }, $_str);
     }
 
@@ -213,8 +217,9 @@ class Filter
     public static function html(string &$_str): string
     {
         // 过滤非法标签
-        if (false !== preg_match_all('/<([\w\d!]+).*?>/si', $_str, $ele)) {
+        if (false !== preg_match_all('/<([\w\d!]+)[^<>]*>/si', $_str, $ele)) {
             $ele[1] = array_map('trim', $ele[1]);
+            $ele[1] = array_map('strtolower', $ele[1]);
             $ele[1] = array_filter($ele[1]);
             $ele[1] = array_unique($ele[1]);
 
@@ -227,27 +232,14 @@ class Filter
 
             $preg = [];
             foreach ($ele[1] as $value) {
-                if (!in_array(strtolower($value), self::$elements)) {
-                    $preg[] = '/<' . $value . '.*?\/' . $value . '>/si';
-                    $preg[] = '/<' . $value . '.*?>/si';
+                if (!in_array($value, self::$elements)) {
+                    $preg[] = '/<' . $value . '[^<>]*>.*?<\/' . $value . '>/si';
+                    $preg[] = '/<' . $value . '[^<>]*>/si';
                 }
             }
+
             $_str = (string) preg_replace($preg, '', $_str);
         }
-
-
-
-        // 过滤不闭合标签
-        $_str = (string) preg_replace_callback('/<([\w\d]+).*?\/?>/si', function ($matches) {
-            $matches = array_map('trim', $matches);
-            $matches[1] = trim($matches[1], '/ ');
-
-            if (in_array(strtolower($matches[1]), self::$elements)) {
-                return $matches[0];
-            } else {
-                return '';
-            }
-        }, $_str);
 
         return trim($_str);
     }
@@ -267,26 +259,20 @@ class Filter
         $_str = (string) json_decode(str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($_str)));
 
         $pattern = [
+            '/<\!--.*?-->/s' => '',
             '/>\s+</'        => '><',
             '/>\s+/'         => '>',
             '/\s+</'         => '<',
             '/\s+/s'         => ' ',
-            '/ {2,}/si'      => ' ',
-            '/<\!--.*?-->/s' => '',
+            '/ +/si'      => ' ',
         ];
         $_str = (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
-
-
-        // 过滤斜杠,反斜杠,点避免非法目录操作
-        $_str = trim($_str);
-        $_str = trim(ltrim($_str, '\/.'));
 
         return trim($_str);
     }
 
     /**
      * 全角字符转半角
-     * 替换危险方法名
      * @access public
      * @static
      * @param  string $_str
@@ -312,6 +298,10 @@ class Filter
 
         $_str = (string) str_ireplace(array_keys($pattern), array_values($pattern), $_str);
 
-        return trim($_str);
+        // 过滤斜杠,反斜杠,点避免非法目录操作
+        $_str = trim($_str);
+        $_str = trim(ltrim($_str, '\/.'));
+
+        return $_str;
     }
 }

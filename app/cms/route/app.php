@@ -11,7 +11,6 @@
  * @since     2019
  */
 
-use app\Request;
 use think\facade\Route;
 
 /**
