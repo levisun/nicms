@@ -32,7 +32,7 @@ class ClearGarbage
         $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_dir) . DIRECTORY_SEPARATOR;
         $timestamp = $_expire ? strtotime($_expire) : 0;
 
-        if ($files = glob($_dir . '*')) {
+        if ($files = glob(rtrim($_dir, '\/.') . DIRECTORY_SEPARATOR . '*')) {
             foreach ($files as $filename) {
                 if (is_dir($filename)) {
                     self::clear($filename . DIRECTORY_SEPARATOR, $_expire);
@@ -55,7 +55,7 @@ class ClearGarbage
     public static function clearCache(string $_dir = '')
     {
         $_dir = $_dir ?: runtime_path('cache');
-        if ($files = glob($_dir . '*')) {
+        if ($files = glob(rtrim($_dir, '\/.') . DIRECTORY_SEPARATOR . '*')) {
             foreach ($files as $filename) {
                 if (is_dir($filename)) {
                     self::clearCache($filename . DIRECTORY_SEPARATOR);
@@ -96,8 +96,7 @@ class ClearGarbage
             ],
         ];
 
-        $dir = public_path();
-        if ($files = glob($dir . '*')) {
+        if ($files = glob(public_path() . '*')) {
             foreach ($files as $dir_file) {
                 // 跳过目录
                 if (is_dir($dir_file)) {

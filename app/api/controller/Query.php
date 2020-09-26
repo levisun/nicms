@@ -24,7 +24,7 @@ class Query extends Async
 
     public function index()
     {
-        if ($result = $this->exec()) {
+        if ($result = $this->run()) {
             // 请勿开启缓存
             // 如要开启缓存请在方法中单独定义
             return $this->response(

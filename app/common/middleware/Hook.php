@@ -38,7 +38,8 @@ class Hook
 
         $content = $response->getContent();
 
-        $type = app('http')->getName() . '.' . $request->controller(true) . '.' . $request->action(true);
+        // $type = app('http')->getName() . '.' . $request->controller(true) . '.' . $request->action(true);
+        $type = app('http')->getName();
 
         $items = Addon::getOpenList();
         foreach ($items as $namespace => $config) {
@@ -52,7 +53,7 @@ class Hook
                 continue;
             }
 
-            $content = Addon::exec($namespace, $content);
+            $content = Addon::run($namespace, $content);
         }
 
         $response->content($content);

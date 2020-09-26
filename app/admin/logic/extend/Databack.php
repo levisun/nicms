@@ -34,9 +34,7 @@ class Databack extends BaseLogic
     {
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
-        $path = runtime_path('backup');
-
-        if ($file = glob($path . '*')) {
+        if ($file = glob(runtime_path('backup') . '*')) {
             rsort($file);
 
             foreach ($file as $key => $value) {

@@ -31,8 +31,6 @@ class Sitemap
      */
     public static function create(): void
     {
-        $sitemap_xml = [];
-        $domain = Request::scheme() . '://www.' . Request::rootDomain();
         $article = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
@@ -45,8 +43,10 @@ class Sitemap
             ->limit(5000)
             ->select()
             ->toArray();
+        $sitemap = [];
+        $domain = Request::domain();
         foreach ($article as $value) {
-            $sitemap_xml[]['url'] = [
+            $sitemap[]['url'] = [
                 'loc'        => $domain . url('details/' . Base64::url62encode($value['category_id']) . '/' . Base64::url62encode($value['id'])),
                 'lastmod'    => date('Y-m-d H:i:s', $value['update_time']),
                 'changefreq' => 'weekly',
@@ -54,9 +54,41 @@ class Sitemap
             ];
         }
 
-        self::saveXml($sitemap_xml, 'sitemap.xml');
+        self::saveXml($sitemap, 'sitemap.xml');
+    }
 
+    /**
+     * 爬虫协议
+     * @access public
+     * @static
+     * @return void
+     */
+    public static function robots(): void
+    {
+        $robots = 'User-agent: *' . PHP_EOL;
+        $paths = glob(public_path() . '*');
+        if (!empty($paths)) {
+            foreach ($paths as $dir) {
+                if (is_dir($dir)) {
+                    $robots .= 'Disallow: /' . pathinfo($dir, PATHINFO_BASENAME) . '/' . PHP_EOL;
+                }
+            }
+        }
+        $robots .= 'Disallow: *.do$' . PHP_EOL;
+        $robots .= 'Allow: .html$' . PHP_EOL;
+        $robots .= 'Sitemap: ' . Request::domain() . '/sitemap.xml' . PHP_EOL;
 
+        file_put_contents(public_path() . 'robots.txt', $robots);
+    }
+
+    /**
+     * 死链
+     * @access public
+     * @static
+     * @return void
+     */
+    public static function deadLink(): void
+    {
         $article = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
@@ -67,11 +99,12 @@ class Sitemap
             ->limit(5000)
             ->select()
             ->toArray();
-        $silian = '';
+        $dead_link = '';
+        $domain = Request::domain();
         foreach ($article as $value) {
-            $silian .= $domain . url('details/' . Base64::url62encode($value['category_id']) . '/' . Base64::url62encode($value['id'])) . "\r\n";
+            $dead_link .= $domain . url('details/' . Base64::url62encode($value['category_id']) . '/' . Base64::url62encode($value['id'])) . "\r\n";
         }
-        file_put_contents(public_path() . 'silian.txt', $silian);
+        file_put_contents(public_path() . 'dead_link.txt', $dead_link);
     }
 
     /**

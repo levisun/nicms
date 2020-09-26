@@ -31,16 +31,11 @@ class AppMaintain
         $app_name = app('http')->getName();
 
         if ($app_name && 'cms' === $app_name) {
-            // 生成网站地图
             $sitemap = public_path() . 'sitemap.xml';
-            if (!is_file($sitemap) || strtotime('-3 hour') > filemtime($sitemap)) {
+            if (!is_file($sitemap) || strtotime('-12 hour') > filemtime($sitemap)) {
                 Sitemap::create();
-            }
-
-            // 生成爬虫协议
-            $robots = public_path() . 'robots.txt';
-            if (!is_file($robots) || strtotime('-1 day') > filemtime($sitemap)) {
-                $this->robots();
+                Sitemap::deadLink();
+                Sitemap::robots();
             }
         }
 
@@ -50,24 +45,6 @@ class AppMaintain
 
             $this->removeGarbage();
         }
-    }
-
-    private function robots()
-    {
-        $robots = 'User-agent: *' . PHP_EOL;
-        $paths = glob(public_path() . '*');
-        if (!empty($paths)) {
-            foreach ($paths as $dir) {
-                if (is_dir($dir)) {
-                    $robots .= 'Disallow: /' . pathinfo($dir, PATHINFO_BASENAME) . '/' . PHP_EOL;
-                }
-            }
-        }
-        $robots .= 'Disallow: *.do$' . PHP_EOL;
-        $robots .= 'Allow: .html$' . PHP_EOL;
-        $robots .= 'Sitemap: ' . request()->domain() . '/sitemap.xml' . PHP_EOL;
-
-        file_put_contents(public_path() . 'robots.txt', $robots);
     }
 
     /**

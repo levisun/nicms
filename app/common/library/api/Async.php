@@ -81,7 +81,7 @@ class Async extends Base
      * @access protected
      * @return $this
      */
-    protected function exec(): array
+    protected function run(): array
     {
         $this->ApiInit();
         $this->analytical->method();

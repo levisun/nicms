@@ -36,8 +36,7 @@ class Elog extends BaseLogic
         $salt = date('Ymd');
 
         $result = [];
-        $path = runtime_path('log');
-        if ($files = glob($path . '*')) {
+        if ($files = glob(runtime_path('log') . '*')) {
             foreach ($files as $value) {
                 $result[] = [
                     'id'   => Base64::encrypt(basename($value), $salt),

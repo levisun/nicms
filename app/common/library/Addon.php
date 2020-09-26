@@ -95,20 +95,22 @@ class Addon
                     $addon_config = json_decode($addon_config, true);
                     $result[$namespace] = [
                         'status'  => $config['status'],
-                        'type'    => empty($addon_config['type']) ? '未知' : $addon_config['type'],
                         'name'    => empty($addon_config['name']) ? '未命名' : $addon_config['name'],
                         'author'  => empty($addon_config['author']) ? '未知作者' : $addon_config['author'],
                         'version' => empty($addon_config['version']) ? '未知版本' : $addon_config['version'],
                         'date'    => empty($addon_config['date']) ? '未知发布日期' : $addon_config['date'],
+                        'type'    => empty($addon_config['type']) ? '未知' : $addon_config['type'],
+                        'type'    => empty($addon_config['settings']) ? [] : $addon_config['settings'],
                     ];
                 } else {
                     $result[$namespace] = [
                         'status'  => 'down',
-                        'type'    => '未知',
                         'name'    => '未命名',
                         'author'  => '未知作者',
                         'version' => '未知版本',
                         'date'    => '未知发布日期',
+                        'type'    => '未知',
+                        'type'    => [],
                     ];
                 }
             }
@@ -145,7 +147,7 @@ class Addon
      * @static
      * @return string
      */
-    public static function exec(string &$_namespace, string &$_content): string
+    public static function run(string &$_namespace, string &$_content): string
     {
         $class = '\addon\\' . str_replace(['/', '\\'], '\\', $_namespace) . '\Index';
         if (!class_exists($class) || !method_exists($class, 'run')) {

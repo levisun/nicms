@@ -46,18 +46,13 @@ Temporary Items
 .vscode
 *.code-workspace
 
-/public/screen/*
-/public/storage/*
 /runtime
 /vendor
+/public/storage/*
+/public/*.txt
+/*.php
 .env
-# /*.json
-/*.lock
-/public/silian.txt
+*.lock
 *.xml
 *.yml
-/*.php
-*.jpg
-*.png
-*.gif
 *.zip

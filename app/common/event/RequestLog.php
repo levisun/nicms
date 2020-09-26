@@ -66,7 +66,6 @@ class RequestLog
         }
 
         if ($spider) {
-            // trace(Request::server('HTTP_USER_AGENT'), 'info');
             $has = ModelVisit::where([
                 ['name', '=', $spider],
                 ['date', '=', strtotime(date('Y-m-d'))]
@@ -127,23 +126,19 @@ class RequestLog
             ? Request::except(['password', 'sign', '__token__', 'timestamp', 'sign_type', 'appid'])
             : [];
         $params = array_filter($params);
-        $params = !empty($params) ? PHP_EOL . json_encode($params, JSON_UNESCAPED_UNICODE) : '';
+        $params = !empty($params) ? json_encode($params, JSON_UNESCAPED_UNICODE) : '';
 
         // 请求时间
         $run_time = number_format(microtime(true) - Request::time(true), 3);
-        // 运行内存
-        $run_memory = number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3) . 'mb ';
-        // 加载文件
-        $load_total = count(get_included_files()) . ' ';
-        // 请求来源
-        $url = Request::ip() . ' ' . Request::method(true) . ' ' . Request::url(true);
 
         // 日志
-        $log  = '请求' . $run_time . 's, ' . $run_memory . $load_total . PHP_EOL;
-        $log .= $url . PHP_EOL;
-        $log .= Request::server('HTTP_REFERER') ? Request::server('HTTP_REFERER') . PHP_EOL : '';
-        $log .= Request::server('HTTP_USER_AGENT') . PHP_EOL;
-        $log .= $params ? trim(htmlspecialchars($params)) . PHP_EOL : '';
+        $log = Request::ip() . ' ' . Request::method(true) . ' ' . $run_time . 's, ' .
+            number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3) . 'mb, ' .
+            count(get_included_files()) . PHP_EOL .
+            Request::server('HTTP_USER_AGENT') . PHP_EOL .
+            Request::url(true) . PHP_EOL .
+            (Request::server('HTTP_REFERER') ? Request::server('HTTP_REFERER') . PHP_EOL : '') .
+            ($params ? trim(htmlspecialchars($params)) . PHP_EOL : '');
 
         $pattern = [
             // '__',

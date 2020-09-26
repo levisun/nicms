@@ -165,7 +165,6 @@ class View implements TemplateHandlerInterface
     public function display(string $_content, array $_data = []): void
     {
         extract($_data, EXTR_OVERWRITE);
-        /* eval('?>' . $_content); */
     }
 
     /**

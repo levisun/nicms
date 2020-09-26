@@ -24,7 +24,7 @@ class Upload extends Async
 
     public function index()
     {
-        if ($result = $this->exec()) {
+        if ($result = $this->run()) {
             // 请勿开启缓存
             return $this->cache(false)->response(
                 $result['msg'],

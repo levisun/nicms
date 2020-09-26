@@ -33,9 +33,7 @@ class Cms extends BaseLogic
      */
     public function query()
     {
-        $path = $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . 'cms' . DIRECTORY_SEPARATOR;
-
-        if ($files = glob($path . '*')) {
+        if ($files = glob(public_path('theme/cms') . '*')) {
             rsort($files);
 
             foreach ($files as $key => $value) {
