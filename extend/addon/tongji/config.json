@@ -1,9 +1,11 @@
 {
-    "name": "返回顶部",
+    "name": "百度统计",
     "author": "失眠小枕头",
     "version": "1.0.1",
     "date": "2020-06-21",
     "type": "cms",
     "settings": {
+        "status": "open",
+        "token": "f84c00b8cb5bc0e8462129c1bf5fb184"
     }
 }

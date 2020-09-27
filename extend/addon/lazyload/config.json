@@ -1,0 +1,10 @@
+{
+    "name": "图片懒加载",
+    "author": "失眠小枕头",
+    "version": "1.0.1",
+    "date": "2020-06-21",
+    "type": "cms",
+    "settings": {
+        "status": "close"
+    }
+}

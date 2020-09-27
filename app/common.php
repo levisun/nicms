@@ -18,13 +18,9 @@ use think\facade\Config;
 use think\facade\Cookie;
 use think\facade\Request;
 use think\facade\Route;
-use think\facade\Session;
 use app\common\library\Base64;
 use app\common\library\Filter;
 use app\common\model\ApiApp as ModelApiApp;
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Signer\Key;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lizhichao\Word\VicWord;
 
 if (!function_exists('format_hits')) {
@@ -318,7 +314,7 @@ if (!function_exists('public_path')) {
     /**
      * 获取web根目录
      *
-     * @param string $path
+     * @param  string $path
      * @return string
      */
     function public_path($_path = ''): string
@@ -334,7 +330,7 @@ if (!function_exists('runtime_path')) {
     /**
      * 获取应用运行时目录
      *
-     * @param string $path
+     * @param  string $path
      * @return string
      */
     function runtime_path($_path = ''): string
@@ -350,7 +346,7 @@ if (!function_exists('root_path')) {
     /**
      * 获取项目根目录
      *
-     * @param string $path
+     * @param  string $path
      * @return string
      */
     function root_path($_path = ''): string
@@ -371,7 +367,7 @@ if (!function_exists('url')) {
      */
     function url(string $_url = '', array $_vars = []): string
     {
-        $_url = $_url ? '/' . $_url : '';
+        $_url = $_url ? '/' . trim($_url, '\/.') : '';
         return (string) Route::buildUrl($_url, $_vars)->suffix(true)->domain(false);
     }
 }

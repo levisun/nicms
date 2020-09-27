@@ -1,0 +1,10 @@
+{
+    "name": "web shell 扫描",
+    "author": "失眠小枕头",
+    "version": "1.0.1",
+    "date": "2020-09-27",
+    "type": "admin",
+    "settings": {
+        "status": "close"
+    }
+}

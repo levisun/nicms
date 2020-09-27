@@ -2,25 +2,21 @@
 
 declare(strict_types=1);
 
-namespace addon\pillow\baidu\ziyuan;
+namespace addon\ziyuan;
 
-use \addon\Base;
-
-class Index extends Base
+class Index
 {
 
-    public function run()
+    public function run(array $_settings)
     {
-        $script = $this->api();
+        $script = $this->api($_settings);
         $script .= $this->script();
         return $script;
     }
 
-    private function api(): string
+    private function api(array $_settings): string
     {
-        $api = 'http://data.zz.baidu.com/urls?site=' .
-            $this->settings['site'] . '&token=' .
-            $this->settings['token'];
+        $api = 'http://data.zz.baidu.com/urls?site=' . $_settings['site'] . '&token=' . $_settings['token'];
 
         $ch = curl_init();
         $options =  array(

@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace addon\pillow\lazyload;
 
-use \addon\Base;
-
-class Index extends Base
+class Index
 {
 
     public function run()

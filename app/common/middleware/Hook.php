@@ -26,8 +26,8 @@ class Hook
     /**
      *
      * @access public
-     * @param  Request $request
-     * @param  Closure $next
+     * @param  Request  $request
+     * @param  Closure  $next
      * @return Response
      */
     public function handle(Request $request, Closure $next)
@@ -38,22 +38,15 @@ class Hook
 
         $content = $response->getContent();
 
-        // $type = app('http')->getName() . '.' . $request->controller(true) . '.' . $request->action(true);
-        $type = app('http')->getName();
+        $type = app('http')->getName() . '.' . $request->controller(true) . '.' . $request->action(true);
 
         $items = Addon::getOpenList();
         foreach ($items as $namespace => $config) {
-            $config = array_map('strtolower', $config);
-
-            if ($config['status'] !== 'open') {
+            if ($config['type'] !== 'all' && false === stripos($type, $config['type'])) {
                 continue;
             }
 
-            if ($config['type'] !== 'all' && $config['type'] !== $type) {
-                continue;
-            }
-
-            $content = Addon::run($namespace, $content);
+            $content = Addon::run($namespace, $content, $config['settings']);
         }
 
         $response->content($content);

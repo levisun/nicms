@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace addon\pillow\WebShell;
+namespace addon\webshell;
 
-use \addon\Base;
-
-class Index extends Base
+class Index
 {
     private $harmFun = [
         'apache_setenv', 'base64_decode', 'call_user_func', 'call_user_func_array', 'chgrp', 'chown', 'chroot', 'dl', 'eval', 'exec', 'file_get_contents', 'file_put_contents', 'imap_open', 'ini_alter', 'ini_restore', 'invoke', 'openlog', 'passthru', 'pcntl_alarm', 'pcntl_exec', 'pcntl_fork', 'pcntl_get_last_error', 'pcntl_getpriority', 'pcntl_setpriority', 'pcntl_signal', 'pcntl_signal_dispatch', 'pcntl_sigprocmask', 'pcntl_sigtimedwait', 'pcntl_sigwaitinfo', 'pcntl_strerror', 'pcntl_wait', 'pcntl_waitpid', 'pcntl_wexitstatus', 'pcntl_wifcontinued', 'pcntl_wifexited', 'pcntl_wifsignaled', 'pcntl_wifstopped', 'pcntl_wstopsig', 'pcntl_wtermsig', 'popen', 'popepassthru', 'proc_open', 'putenv', 'readlink', 'shell_exec', 'symlink', 'syslog', 'system',
@@ -19,7 +17,7 @@ class Index extends Base
     private $dirTotal = 0;
     private $fileTotal = 0;
 
-    private $log = [];
+    private $log = '';
 
     public function __construct()
     {
@@ -126,7 +124,7 @@ class Index extends Base
     {
         $path = str_replace('\extend\addon\pillow\WebShell', '', __DIR__);
         $path = str_replace($path, '', $_file_path);
-        $this->log[] = $path . ($_line ? '::' . $_line : '') . PHP_EOL . $_code;
+        $this->log .= '<p>' . $path . ($_line ? '::' . $_line : '') . '<br />' . $_code . '</p>';
     }
 
     /**
