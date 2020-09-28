@@ -1,0 +1,82 @@
+<div class="box">
+    <div class="box-body">
+        <form id="addon">
+            <div class="form-group">
+                <label>{:lang('name')}</label>
+                <input type="text" name="name" class="form-control" disabled="true" v-bind:value="items.name">
+            </div>
+            <div class="form-group">
+                <label>{:lang('author')}</label>
+                <input type="text" name="author" class="form-control" disabled="true" v-bind:value="items.author">
+            </div>
+            <div class="form-group">
+                <label>{:lang('version')}</label>
+                <input type="text" name="version" class="form-control" disabled="true" v-bind:value="items.version">
+            </div>
+            <div class="form-group">
+                <label>{:lang('date')}</label>
+                <input type="text" name="date" class="form-control" disabled="true" v-bind:value="items.date">
+            </div>
+            <div class="form-group">
+                <label>{:lang('type')}</label>
+                <input type="text" name="type" class="form-control" disabled="true" v-bind:value="items.type">
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('status')}</label>
+                <label>
+                    <input type="radio" name="settings[status]" value="1" v-bind:checked="'open'==items.settings.status ? true : false"> {:lang('yes')}
+                </label>
+                <label>
+                    <input type="radio" name="settings[status]" value="0" v-bind:checked="'close'==items.settings.status ? true : false"> {:lang('no')}
+                </label>
+            </div>
+
+        </form>
+    </div>
+    <div class="box-footer">
+        <button class="btn btn-primary" @click="save">{:lang('save')}</button>
+    </div>
+</div>
+<script>
+    var addon = new Vue({
+        el: '.box',
+        data: {
+            items: [],
+        },
+        methods: {
+            find: function() {
+                jQuery.pjax({
+                    url: NICMS.api_uri + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'extend.addon.find' },
+                        { name: 'id', value: NICMS.param.id },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            addon.items = result.data;
+                        }
+                    }
+                });
+            },
+            save: function() {
+                var data = jQuery('#addon').serializeArray();
+                data.push({ name: 'method', value: 'extend.addon.editor' });
+                data.push({ name: 'id', value: NICMS.param.id });
+                jQuery.pjax({
+                    url: NICMS.api_uri + '/handle.do',
+                    type: 'POST',
+                    data: data,
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            jQuery.uiToast(result.message);
+                            history.back();
+                        }
+                    }
+                });
+            }
+        }
+    });
+    addon.find();
+</script>

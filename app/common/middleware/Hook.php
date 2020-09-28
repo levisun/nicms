@@ -40,13 +40,14 @@ class Hook
 
         $type = app('http')->getName() . '.' . $request->controller(true) . '.' . $request->action(true);
 
-        $items = Addon::getOpenList();
+        $addon = new Addon;
+        $items = $addon->getOpenList();
         foreach ($items as $namespace => $config) {
             if ($config['type'] !== 'all' && false === stripos($type, $config['type'])) {
                 continue;
             }
 
-            $content = Addon::run($namespace, $content, $config['settings']);
+            $content = $addon->run($namespace, $content, $config['settings']);
         }
 
         $response->content($content);

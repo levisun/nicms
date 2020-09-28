@@ -65,7 +65,7 @@ class Throttle
             return;
         }
 
-        $cache_key = 'an minute user total' . $_request->ip();
+        $cache_key = 'an minute user total' . $_request->ip() . $_request->ext();
         $last_time = $_request->time(true);
         if (Cache::has($cache_key)) {
             $last_time = (float) Cache::get($cache_key);
@@ -80,7 +80,6 @@ class Throttle
             Cache::set($_request->ip() . 'lock', date('Y-m-d H:i:s'), 86400);
         }
     }
-
 
     /**
      * 校验IP一小时访问量

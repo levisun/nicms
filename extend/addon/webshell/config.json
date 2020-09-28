@@ -5,6 +5,9 @@
     "date": "2020-09-27",
     "type": "admin",
     "settings": {
-        "status": "close"
+        "status": "open",
+        "path": {
+
+        }
     }
 }

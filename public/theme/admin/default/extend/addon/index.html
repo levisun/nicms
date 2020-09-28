@@ -1,0 +1,93 @@
+<div class="box">
+    <div class="box-header">
+
+    </div>
+    <div class="box-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>{:lang('name')}</th>
+                    <th>{:lang('type')}</th>
+                    <th>{:lang('status')}</th>
+                    <th>{:lang('operation')}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template v-for="vo in items.list">
+                    <tr>
+                        <td v-text="vo.name"></td>
+                        <td v-text="vo.type"></td>
+                        <td v-text="vo.settings.status"></td>
+                        <td>
+                            <a class="editor" v-bind:href="vo.url.editor">
+                                <i class="fa fa-pencil-square-o"></i>
+                                {:lang('editor')}
+                            </a>
+                            <a class="remove" v-on:click="remove('vo.id')" v-bind:data="vo.id">
+                                <i class="fa fa-trash"></i>
+                                {:lang('remove')}
+                            </a>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+    <div class="box-footer clearfix"></div>
+</div>
+
+<script>
+    let addon = new Vue({
+        el: '.box',
+        data: {
+            items: [],
+
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api_uri + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'extend.addon.query' }
+                    ],
+                    success: function (result) {
+                        if (result.code === 10000) {
+                            addon.items = result.data;
+                        }
+                    }
+                });
+            },
+            addon: function () {
+                jQuery.pjax({
+                    url: NICMS.api_uri + '/handle.do',
+                    type: 'POST',
+                    data: [
+                        { name: 'method', value: 'extend.addon.backup' }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            addon.load();
+                        }
+                    }
+                });
+            },
+            remove: function (_id) {
+                jQuery.pjax({
+                    url: NICMS.api_uri + '/handle.do',
+                    type: 'POST',
+                    data: [
+                        { name: 'method', value: 'extend.addon.remove' },
+                        { name: 'id', value: _id }
+                    ],
+                    success: function () {
+                        if (result.code == 10000) {
+                            addon.load();
+                        }
+                    }
+                });
+            }
+        }
+    });
+    addon.load();
+</script>

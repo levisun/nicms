@@ -31,7 +31,19 @@ class Index
         return isset($this->$_name) ? $this->$_name : null;
     }
 
-    public function each(string $_path = ''): void
+    public function run(array $_settings)
+    {
+    }
+
+    /**
+     * 查找非法变量
+     * @access private
+     * @param  string $_path 文件
+     * @param  string $_code
+     * @param  int    $_line
+     * @return void
+     */
+    private function each(string $_path = ''): void
     {
         if ($files = glob(rtrim($_path, '\/.') . DIRECTORY_SEPARATOR . '*')) {
             foreach ($files as $file) {

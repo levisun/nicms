@@ -16,7 +16,7 @@ class Index
 
     private function api(array $_settings): string
     {
-        $api = 'http://data.zz.baidu.com/urls?site=' . $_settings['site'] . '&token=' . $_settings['token'];
+        $api = 'http://data.zz.baidu.com/urls?site=' . urlencode($_settings['site']) . '&token=' . $_settings['token'] . '&type=daily';
 
         $ch = curl_init();
         $options =  array(
