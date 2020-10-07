@@ -19,6 +19,7 @@ return [
     'var_session_id' => '',
     // 驱动方式 支持file cache
     'type'           => 'file',
+    'path'           => runtime_path('session'),
     // 存储连接标识 当type使用cache的时候有效
     'store'          => null,
     // 过期时间

@@ -55,6 +55,12 @@ class Index extends BaseController
      */
     public function index()
     {
+        // $web_shell = new \addon\pillow\WebShell\Index;
+        // $web_shell->each(root_path('app'));
+        // $web_shell->each(root_path('config'));
+        // $web_shell->each(root_path('extend'));
+        // $web_shell->each(root_path('public'));
+        // halt($web_shell->dirTotal, $web_shell->fileTotal, $web_shell->log);
         return $this->fetch('index');
     }
 

@@ -62,11 +62,12 @@ class Html
 
             // 匹配地址
             $pattern = '/<meta[^<>]*name=["\']?description["\']?[^<>]*content=([^<>\s]+)/si';
-            if (false !== preg_match($pattern, $head, $matches)) {
+            if (false !== preg_match($pattern, $head, $matches) && !empty($matches)) {
                 $description = !empty($matches[1]) ? trim($matches[1], '"\'') : '';
             }
         }, $this->xml);
 
+        $description = trim($description, '\/.');
         return $description;
     }
 
@@ -83,11 +84,12 @@ class Html
 
             // 匹配地址
             $pattern = '/<meta[^<>]*name=["\']?keywords["\']?[^<>]*content=([^<>\s]+)/si';
-            if (false !== preg_match($pattern, $head, $matches)) {
+            if (false !== preg_match($pattern, $head, $matches) && !empty($matches)) {
                 $keywords = !empty($matches[1]) ? trim($matches[1], '"\'') : '';
             }
         }, $this->xml);
 
+        $keywords = trim($keywords, '\/.');
         return $keywords;
     }
 
@@ -99,12 +101,12 @@ class Html
     public function title(): string
     {
         $title = '';
-        preg_replace_callback('/<head.*?>.*?<\/head>/si', function ($head) use (&$title) {
+        preg_replace_callback('/<head[^<>]*>.*?<\/head>/si', function ($head) use (&$title) {
             $head = trim($head[0]);
 
             // 匹配地址
             $pattern = '/<title>[^<>]+<\/title>/si';
-            if (false !== preg_match($pattern, $head, $matches)) {
+            if (false !== preg_match($pattern, $head, $matches) && !empty($matches)) {
                 $title = strip_tags($matches[0]);
                 $title = str_replace('_', '-', $title);
                 $title = explode('-', $title);
@@ -112,6 +114,7 @@ class Html
             }
         }, $this->xml);
 
+        $title = trim($title, '\/.');
         return $title;
     }
 
@@ -333,7 +336,7 @@ class Html
                 }, $value);
 
 
-                if (false === mb_strpos($value, '<', 0, 'utf-8') && false === mb_strpos($value, '>', mb_strlen($value, 'utf-8') -1, 'utf-8')) {
+                if (false === mb_strpos($value, '<', 0, 'utf-8') && false === mb_strpos($value, '>', mb_strlen($value, 'utf-8') - 1, 'utf-8')) {
                     $value = '<p>' . $value . '</p>';
                 }
                 $content[$key] = $value;

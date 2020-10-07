@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace addon\pillow\lazyload;
+namespace addon\lazyload;
 
 class Index
 {

@@ -85,6 +85,9 @@ class Spider
                 return false;
             }
 
+            // 获得实际URI
+            $_uri = $this->client->getHistory()->current()->getUri();
+
             // 获得HTML文档内容
             $this->result = $this->client->getInternalResponse()->getContent();
 
@@ -104,6 +107,9 @@ class Spider
             $this->result = Filter::symbol($this->result);
             $this->result = Filter::space($this->result);
             $this->result = Filter::php($this->result);
+
+            // 添加访问网址
+            $this->result = '<!-- website:' . $_uri . ' -->' . $this->result;
 
             // 添加单页支持
             $base = parse_url($_uri, PHP_URL_PATH);

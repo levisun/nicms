@@ -172,6 +172,7 @@ class Addon
         foreach ($addon as $path) {
             $namespace = str_replace(root_path('extend'), '', $path);
             $namespace = trim($namespace, '\/.');
+            $namespace = str_replace(['/', '\\'], '\\', $namespace);
 
             $result[$namespace] = [
                 'name'     => '未命名',

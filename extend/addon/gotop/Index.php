@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace addon\pillow\gotop;
+namespace addon\gotop;
 
 class Index
 {

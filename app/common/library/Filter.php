@@ -257,6 +257,7 @@ class Filter
         // 半角空格(英文符号)\u0020,代码中常用的
         // 全角空格(中文符号)\u3000,中文文章中使用
         $_str = (string) json_decode(str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($_str)));
+        $_str = (string) str_ireplace(['&nbsp;', '&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;'], ' ', $_str);
 
         $pattern = [
             '/<\!--.*?-->/s' => '',
