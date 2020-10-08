@@ -20,6 +20,7 @@ use think\Response;
 use app\common\library\api\Base;
 use app\common\library\api\Analytical;
 use app\common\library\api\Validate;
+use app\common\library\Base64;
 
 class Async extends Base
 {
@@ -217,6 +218,9 @@ class Async extends Base
             'token' => $this->request->isPost()
                 ? $this->request->buildToken('__token__', 'md5')
                 : '',
+
+            // 登录标识符
+            'flag' => $this->request->isGet() && $this->uid ? Base64::flag($this->uid) : '',
         ];
         $result = array_filter($result);
 

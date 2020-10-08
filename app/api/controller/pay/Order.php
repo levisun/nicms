@@ -72,9 +72,9 @@ class Order extends Async
             // 商户订单号
             'out_trade_no' => $order_no,
             // 异步通知回调地址
-            'notify_url'   => $this->app->config['api_host'] . 'pay/notify/wechat.html',
+            'notify_url'   => $this->app->config['api_host'] . 'pay/notify/wechat.do',
             // 同步通知回调地址
-            'respond_url'  => $this->app->config['api_host'] . 'pay/respond/wechat.html' .
+            'respond_url'  => $this->app->config['api_host'] . 'pay/respond/wechat.do' .
                 '?out_trade_no=' . $order_no,
         ];
 
