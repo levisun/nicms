@@ -27,37 +27,37 @@ class Record extends Async
 
     public function index()
     {
-        if ($this->validate->referer()) {
-            $user_agent = strtolower($this->request->server('HTTP_USER_AGENT'));
-            $ip = (new IpInfo)->get($this->request->ip());
-            $has = ModelVisit::where([
+        if (!$this->validate->referer()) {
+            return miss(404, false);
+        }
+
+        $user_agent = strtolower($this->request->server('HTTP_USER_AGENT'));
+        $ip = (new IpInfo)->get($this->request->ip());
+        $has = ModelVisit::where([
+            ['ip', '=', $ip['ip']],
+            ['user_agent', '=', md5($user_agent)],
+            ['date', '=', strtotime(date('Y-m-d'))]
+        ])->value('ip');
+        if ($has) {
+            ModelVisit::where([
                 ['ip', '=', $ip['ip']],
                 ['user_agent', '=', md5($user_agent)],
                 ['date', '=', strtotime(date('Y-m-d'))]
-            ])->value('ip');
-            if ($has) {
-                ModelVisit::where([
-                    ['ip', '=', $ip['ip']],
-                    ['user_agent', '=', md5($user_agent)],
-                    ['date', '=', strtotime(date('Y-m-d'))]
-                ])->inc('count', 1)->update();
-            } else {
-                ModelVisit::create([
-                    'ip'         => $ip['ip'],
-                    'ip_attr'    => isset($ip['country']) ? $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'] : '',
-                    'user_agent' => md5($user_agent),
-                    'date'       => strtotime(date('Y-m-d'))
-                ]);
-            }
-
-            $timestamp = $this->request->time() + 3600 * 6;
-            return Response::create()->allowCache(true)
-                ->cacheControl('max-age=30,must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $timestamp + 30) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $timestamp + 30) . ' GMT')
-                ->contentType('application/javascript');
+            ])->inc('count', 1)->update();
+        } else {
+            ModelVisit::create([
+                'ip'         => $ip['ip'],
+                'ip_attr'    => isset($ip['country']) ? $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'] : '',
+                'user_agent' => md5($user_agent),
+                'date'       => strtotime(date('Y-m-d'))
+            ]);
         }
 
-        return miss(404, false);
+        $timestamp = $this->request->time() + 3600 * 6;
+        return Response::create()->allowCache(true)
+            ->cacheControl('max-age=30,must-revalidate')
+            ->expires(gmdate('D, d M Y H:i:s', $timestamp + 30) . ' GMT')
+            ->lastModified(gmdate('D, d M Y H:i:s', $timestamp + 30) . ' GMT')
+            ->contentType('application/javascript');
     }
 }

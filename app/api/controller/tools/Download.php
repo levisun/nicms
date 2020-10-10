@@ -25,17 +25,17 @@ class Download extends Async
 
     public function index()
     {
-        if ($this->validate->referer() && $file = $this->request->param('file', false)) {
-            if ($file = filepath_decode($file, true)) {
-                // $ext = pathinfo($file, PATHINFO_EXTENSION);
-
-                return Response::create($file, 'file')
-                    ->name(sha1(pathinfo($file, PATHINFO_FILENAME) . date('Ymd')))
-                    ->isContent(false)
-                    ->expire(28800);
-            }
+        if (!$this->validate->referer() || !$file = $this->request->param('file')) {
+            return miss(404, false);
         }
 
-        return miss(404, false);
+        if ($file = filepath_decode($file, true)) {
+            // $ext = pathinfo($file, PATHINFO_EXTENSION);
+
+            return Response::create($file, 'file')
+                ->name(sha1(pathinfo($file, PATHINFO_FILENAME) . date('Ymd')))
+                ->isContent(false)
+                ->expire(28800);
+        }
     }
 }

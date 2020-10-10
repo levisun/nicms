@@ -24,16 +24,16 @@ class Query extends Async
 
     public function index()
     {
-        if ($result = $this->run()) {
-            // 请勿开启缓存
-            // 如要开启缓存请在方法中单独定义
-            return $this->response(
-                $result['msg'],
-                $result['data'],
-                $result['code']
-            );
+        if (!$result = $this->run()) {
+            return miss(404, false);
         }
 
-        return miss(404, false);
+        // 请勿开启缓存
+        // 如要开启缓存请在方法中单独定义
+        return $this->response(
+            $result['msg'],
+            $result['data'],
+            $result['code']
+        );
     }
 }

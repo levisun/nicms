@@ -29,33 +29,33 @@ class Sms extends Async
      */
     public function index()
     {
-        if ($this->validate->referer()) {
-            $phone = $this->request->param('phone', false);
-            if ($phone && preg_match('/^1[3-9]\d{9}$/', $phone)) {
-                $key = sha1('sms_' . $phone);
-
-                if ($this->session->has($key) && $result = $this->session->get($key)) {
-                    if ($result['time'] >= time()) {
-                        return $this->cache(false)->error('请勿重复请求', 40009);
-                    }
-                }
-
-                $captcha = mt_rand(100000, 999999);
-
-                # TODO
-
-                $this->session->set($key, [
-                    'captcha' => $captcha,
-                    'time'    => time() + 300,
-                    'phone'   => $phone,
-                ]);
-                return $this->cache(false)->success('验证码发送成功');
-            } else {
-                return $this->error('手机号错误', 40009);
-            }
+        if (!$this->validate->referer()) {
+            return miss(404, false);
         }
 
-        return miss(404, false);
+        $phone = $this->request->param('phone', false);
+        if ($phone && preg_match('/^1[3-9]\d{9}$/', $phone)) {
+            $key = sha1('sms_' . $phone);
+
+            if ($this->session->has($key) && $result = $this->session->get($key)) {
+                if ($result['time'] >= time()) {
+                    return $this->cache(false)->error('请勿重复请求', 40009);
+                }
+            }
+
+            $captcha = mt_rand(100000, 999999);
+
+            # TODO
+
+            $this->session->set($key, [
+                'captcha' => $captcha,
+                'time'    => time() + 300,
+                'phone'   => $phone,
+            ]);
+            return $this->cache(false)->success('验证码发送成功');
+        } else {
+            return $this->error('手机号错误', 40009);
+        }
     }
 
     public function check()

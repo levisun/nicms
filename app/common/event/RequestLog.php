@@ -111,6 +111,23 @@ class RequestLog
                     'date' => strtotime(date('Y-m-d'))
                 ]);
             }
+
+            // $ip = 'API:' .  Request::ip();
+            // $has = ModelVisit::where([
+            //     ['name', '=', $ip],
+            //     ['date', '=', strtotime(date('Y-m-d'))]
+            // ])->value('name');
+            // if ($has) {
+            //     ModelVisit::where([
+            //         ['name', '=', $ip],
+            //         ['date', '=', strtotime(date('Y-m-d'))]
+            //     ])->inc('count', 1)->update();
+            // } else {
+            //     ModelVisit::create([
+            //         'name' => $ip,
+            //         'date' => strtotime(date('Y-m-d'))
+            //     ]);
+            // }
         }
     }
 
@@ -135,10 +152,10 @@ class RequestLog
         $log = Request::ip() . ' ' . Request::method(true) . ' ' . $run_time . 's, ' .
             number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3) . 'mb, ' .
             count(get_included_files()) . PHP_EOL .
-            Request::server('HTTP_USER_AGENT') . PHP_EOL .
-            Request::url(true) . PHP_EOL .
-            (Request::server('HTTP_REFERER') ? Request::server('HTTP_REFERER') . PHP_EOL : '') .
-            ($params ? trim(htmlspecialchars($params)) . PHP_EOL : '');
+            'user agent ' . Request::server('HTTP_USER_AGENT') . PHP_EOL .
+            'request ' . Request::url(true) . PHP_EOL .
+            (Request::server('HTTP_REFERER') ? 'referer ' . Request::server('HTTP_REFERER') . PHP_EOL : '') .
+            ($params ? 'params ' . trim(htmlspecialchars($params)) . PHP_EOL : '');
 
         $pattern = [
             // '__',

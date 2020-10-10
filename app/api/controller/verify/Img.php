@@ -31,18 +31,18 @@ class Img extends Async
      */
     public function index()
     {
-        if ($this->validate->referer()) {
-            $this->ApiInit();
-            $captcha = Captcha::create();
-            $this->session->save();
-            $captcha = 'data:image/png;base64,' . base64_encode($captcha->getContent());
-            return Response::create($captcha)
-                ->header([
-                    'Content-Type'   => 'image/png',
-                    'Content-Length' => strlen($captcha),
-                ]);
+        if (!$this->validate->referer()) {
+            return miss(404, false);
         }
 
-        return miss(404, false);
+        $this->ApiInit();
+        $captcha = Captcha::create();
+        $this->session->save();
+        $captcha = 'data:image/png;base64,' . base64_encode($captcha->getContent());
+        return Response::create($captcha)
+            ->header([
+                'Content-Type'   => 'image/png',
+                'Content-Length' => strlen($captcha),
+            ]);
     }
 }

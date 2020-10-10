@@ -59,6 +59,8 @@ class ClearGarbage
             foreach ($files as $filename) {
                 if (is_dir($filename)) {
                     self::clearCache($filename . DIRECTORY_SEPARATOR);
+                } elseif (is_file($filename) && strtotime('-1 day') > filemtime($filename)) {
+                    @unlink($filename);
                 } elseif (is_file($filename) && strtotime('-12 hour') > filemtime($filename)) {
                     if ($content = @file_get_contents($filename)) {
                         $expire = (int) substr($content, 8, 12);

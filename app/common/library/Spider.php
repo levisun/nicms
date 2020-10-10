@@ -91,17 +91,24 @@ class Spider
             // 获得HTML文档内容
             $this->result = $this->client->getInternalResponse()->getContent();
 
+
             // 检查字符编码
-            if (preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->result, $charset)) {
+            $headers = $this->client->getInternalResponse()->getHeaders();
+            if (isset($headers['content-type'][0]) && preg_match('/charset=([\w\-]+)/si', $headers['content-type'][0], $charset) && !empty($charset)) {
                 $charset = strtoupper($charset[1]);
-                if ($charset !== 'UTF-8') {
-                    $charset = 0 === stripos($charset, 'GB') ? 'GBK' : $charset;
-                    $this->result = @iconv($charset, 'UTF-8//IGNORE', (string) $this->result);
-                    $this->result = preg_replace_callback('/charset=["\']?([\w\-]{1,})["\']?/si', function ($matches) {
-                        return str_replace($matches[1], 'UTF-8', $matches[0]);
-                    }, $this->result);
-                }
+            } elseif (preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->result, $charset) && !empty($charset)) {
+                $charset = strtoupper($charset[1]);
             }
+
+            if ($charset !== 'UTF-8') {
+                $charset = 0 === stripos($charset, 'GB') ? 'GBK' : $charset;
+                $this->result = @iconv($charset, 'UTF-8//IGNORE', (string) $this->result);
+            }
+
+            $this->result = preg_replace_callback('/charset=["\']?([\w\-]{1,})["\']?/si', function ($charset) {
+                return str_replace($charset[1], 'UTF-8', $charset[0]);
+            }, $this->result);
+
 
             // 过滤回车和多余空格
             $this->result = Filter::symbol($this->result);
@@ -109,7 +116,8 @@ class Spider
             $this->result = Filter::php($this->result);
 
             // 添加访问网址
-            $this->result = '<!-- website:' . $_uri . ' -->' . $this->result;
+            $this->result = '<!-- website:' . $_uri . ' -->' . PHP_EOL .
+                '<!-- date:' . date('Y-m-d H:i:s') . ' -->' . PHP_EOL . $this->result;
 
             // 添加单页支持
             $base = parse_url($_uri, PHP_URL_PATH);

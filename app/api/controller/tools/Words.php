@@ -24,43 +24,43 @@ class Words extends Async
 
     public function index()
     {
-        if ($this->validate->referer() && $txt = $this->request->param('txt', false)) {
-            if (mb_strlen($txt, 'UTF-8') <= 500) {
-                $cache_key = $txt;
-                if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
-                    $result = [];
-                    $result['segmentation'] = $this->segmentation($txt);
-                    foreach ($result['segmentation'] as $key => $value) {
-                        $sentence = $this->sentence($value);
-                        foreach ($sentence as $row => $val) {
-                            $words = $this->words($row, $val);
-                            $flag = '';
-                            foreach ($words as $v) {
-                                $flag .= $v['flag'];
-                            }
-                            $sentence[$row] = [
-                                'txt'   => $val,
-                                'words' => $words,
-                                'flag'  => $flag,
-                            ];
-                        }
+        if (!$this->validate->referer() || !$txt = $this->request->param('txt')) {
+            return miss(404, false);
+        }
 
-                        $result['segmentation'][$key] = [
-                            'txt'      => $value,
-                            'sentence' => $sentence,
+        if (mb_strlen($txt, 'UTF-8') <= 500) {
+            $cache_key = $txt;
+            if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
+                $result = [];
+                $result['segmentation'] = $this->segmentation($txt);
+                foreach ($result['segmentation'] as $key => $value) {
+                    $sentence = $this->sentence($value);
+                    foreach ($sentence as $row => $val) {
+                        $words = $this->words($row, $val);
+                        $flag = '';
+                        foreach ($words as $v) {
+                            $flag .= $v['flag'];
+                        }
+                        $sentence[$row] = [
+                            'txt'   => $val,
+                            'words' => $words,
+                            'flag'  => $flag,
                         ];
                     }
 
-                    $this->cache->set($cache_key, $result);
+                    $result['segmentation'][$key] = [
+                        'txt'      => $value,
+                        'sentence' => $sentence,
+                    ];
                 }
 
-                return $result
-                    ? $this->cache(true)->success('Words success', $result)
-                    : $this->error('Words error');
+                $this->cache->set($cache_key, $result);
             }
-        }
 
-        return miss(404, false);
+            return $result
+                ? $this->cache(true)->success('Words success', $result)
+                : $this->error('Words error');
+        }
     }
 
     /**
