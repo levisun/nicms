@@ -1,0 +1,59 @@
+<div class="row theme">
+    <template v-for="vo in items">
+        <div class="col-md-3">
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <i class="fa fa-dashboard"></i>
+                    <h3 class="box-title" v-text="vo.name"></h3>
+                </div>
+                <div class="box-body">
+                    <div><img v-if="vo.img" v-bind:src="vo.img"></div>
+                </div>
+                <div class="box-footer">
+                    <button class="btn btn-primary" @click="editor(vo.id)">{:lang('use')}</button>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>
+
+<script>
+    var cms = new Vue({
+        el: '.theme',
+        data: {
+            items: []
+        },
+        methods: {
+            load() {
+                jQuery.pjax({
+                    url: NICMS.api_uri + '/query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'theme.member.query' }
+                    ],
+                    success: function (result) {
+                        if (result.code == 10000) {
+                            cms.items = result.data.list;
+                        }
+                    }
+                });
+            },
+            editor(_id) {
+                jQuery.pjax({
+                    url: NICMS.api_uri + '/handle.do',
+                    type: 'POST',
+                    data: [
+                        { name: 'method', value: 'theme.member.editor' },
+                        { name: 'id', value: _id }
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            jQuery.uiToast(result.message);
+                        }
+                    }
+                });
+            }
+        }
+    });
+    cms.load();
+</script>
