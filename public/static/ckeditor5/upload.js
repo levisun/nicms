@@ -36,7 +36,7 @@ class MyUploadAdapter {
         // a POST request with JSON as a data structure but your configuration
         // could be different.
         // xhr.open('POST', 'http://example.com/image/upload/path', true);
-        xhr.open('POST', NICMS.api_url + '/upload.do', true);
+        xhr.open('POST', NICMS.api_uri + '/upload.do', true);
         xhr.setRequestHeader('Accept', 'application/vnd.' + jQuery('meta[name="csrf-root"]').attr('content') + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
         xhr.setRequestHeader('Authorization', 'Bearer ' + jQuery.get_cookie('XSRF_AUTHORIZATION'));
         xhr.responseType = 'json';
@@ -91,7 +91,7 @@ class MyUploadAdapter {
         const data = new FormData();
 
         data.append('appid', jQuery('meta[name="csrf-appid"]').attr('content'));
-        data.append('__token__', jQuery('meta[name="csrf-token"]').attr('content'));
+        data.append('__token__', jQuery.get_cookie('CSRF_TOKEN'));
         data.append('method', 'content.article.upload');
         data.append('width', 800);
         data.append('height', 800);
@@ -100,7 +100,7 @@ class MyUploadAdapter {
 
         var newData = [];
         newData.push({ name: 'appid', value: jQuery('meta[name="csrf-appid"]').attr('content') });
-        newData.push({ name: '__token__', value: jQuery('meta[name="csrf-token"]').attr('content') });
+        newData.push({ name: '__token__', value: jQuery.get_cookie('CSRF_TOKEN') });
         newData.push({ name: 'method', value: 'content.article.upload' });
         newData.push({ name: 'width', value: 800 });
         newData.push({ name: 'height', value: 800 });
