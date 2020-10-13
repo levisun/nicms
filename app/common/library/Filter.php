@@ -37,7 +37,7 @@ class Filter
     {
         if (is_string($_data) && $_data) {
             $_data = self::base($_data);
-            $_data = Emoji::clear($_data);
+            $_data = (new Emoji)->clear($_data);
             $_data = strip_tags($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
@@ -59,7 +59,7 @@ class Filter
     {
         if (is_string($_data) && $_data) {
             $_data = self::base($_data);
-            $_data = Emoji::encode($_data);
+            $_data = (new Emoji)->encode($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
@@ -80,7 +80,7 @@ class Filter
     {
         if (is_string($_data) && $_data) {
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
-            $_data = Emoji::decode($_data);
+            $_data = (new Emoji)->decode($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::decode($value);
@@ -182,7 +182,7 @@ class Filter
             // 过滤json数据
             $attr[2] = preg_replace([
                 '/\{+.*?\}+/si',
-                '/\[+.*?\]+/si'
+                '/\[+.*?\]+/si',
             ], '', $attr[2]);
 
             // 过滤非法属性

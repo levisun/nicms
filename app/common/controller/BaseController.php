@@ -19,7 +19,7 @@ namespace app\common\controller;
 use think\App;
 use think\Response;
 use think\exception\HttpResponseException;
-use app\common\library\Siteinfo;
+use app\common\library\SiteInfo;
 
 abstract class BaseController
 {
@@ -105,7 +105,7 @@ abstract class BaseController
         $app_name = app('http')->getName();
 
         // 初始化视图
-        $result = Siteinfo::query($app_name);
+        $result = (new SiteInfo)->query($app_name);
         $this->view->config([
             'view_theme' => $result['theme'],
             'tpl_replace_string' => [

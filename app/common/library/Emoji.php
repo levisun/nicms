@@ -22,11 +22,10 @@ class Emoji
     /**
      * 原形转换为String
      * @access public
-     * @static
      * @param  string $_str
      * @return string
      */
-    public static function encode(string &$_str): string
+    public function encode(string &$_str): string
     {
         return (string) json_decode(preg_replace_callback('/(\\\u[ed][0-9a-f]{3})/si', function ($matches) {
             return '[EMOJI:' . base64_encode($matches[0]) . ']';
@@ -36,11 +35,10 @@ class Emoji
     /**
      * 字符串转换为原形
      * @access public
-     * @static
      * @param  string $_str
      * @return string
      */
-    public static function decode(string &$_str): string
+    public function decode(string &$_str): string
     {
         return (string) json_decode(preg_replace_callback('/(\[EMOJI:[A-Za-z0-9]{8}\])/', function ($matches) {
             return base64_decode(str_replace(['[EMOJI:', ']'], '', $matches[0]));
@@ -50,11 +48,10 @@ class Emoji
     /**
      * 字符串清清理
      * @access public
-     * @static
      * @param  string $_str
      * @return string
      */
-    public static function clear(string &$_str): string
+    public function clear(string &$_str): string
     {
         return (string) preg_replace_callback('/./u', function (array $matches) {
             return strlen($matches[0]) >= 4 ? '' : $matches[0];

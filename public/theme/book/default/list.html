@@ -36,13 +36,18 @@
                 var res = div.innerText || div.textContent;
                 return res;
             },
-            load: function () {
+            load: function (_p) {
+                var request = NICMS.url + '?page=' + _p;
                 jQuery.pjax({
                     url: NICMS.api_uri + '/query.do',
                     type: 'GET',
+                    push: true,
+                    replace: true,
+                    requestUrl: request,
                     data: [
                         { name: 'method', value: 'book.catalog.query' },
                         { name: 'id', value: NICMS.param.id }
+                        { name: 'page', value: _p },
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
@@ -71,5 +76,11 @@
             }
         }
     });
-    app.load();
+    let page = jQuery.get_url_query('page');
+    page = page ? page : 1;
+    app.load(page);
+
+    window.paging = function (_p) {
+        article.load(_p);
+    };
 </script>

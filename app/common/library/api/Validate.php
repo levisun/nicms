@@ -124,7 +124,7 @@ class Validate extends Base
             // 不需要鉴权方法(登录 登出 找回密码)
             if (!in_array($_app_method['method'], ['login', 'logout', 'forget'])) {
                 // 验证权限
-                $result = Rbac::authenticate(
+                $result = (new Rbac)->authenticate(
                     $_uid,
                     $_app_name,
                     $_app_method['logic'],

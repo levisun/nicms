@@ -137,7 +137,7 @@ class Words extends Async
     {
         $sentence = strip_tags($_txt);
         $sentence = str_replace([
-            '。', '！', '!', '？', '?', '；', ';', '：', ':', '，', ',', '……', '————'
+            '。', '！', '!', '？', '?', '；', ';', '：', ':', '，', ',', '......', '...', '.', '……', '————'
         ], '<br />', $_txt);
         $sentence = explode('<br />', $sentence);
         $sentence = array_map('trim', $sentence);

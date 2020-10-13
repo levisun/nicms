@@ -40,7 +40,7 @@ class Index extends BaseController
         // 登录状态
         if ($this->session->has($this->authKey)) {
             // 校验权限
-            $result = Rbac::authenticate(
+            $result = (new Rbac)->authenticate(
                 $this->session->get($this->authKey),
                 'admin',
                 $logic,

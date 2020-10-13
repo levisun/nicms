@@ -194,7 +194,6 @@ class UploadFile
      * 保存路径
      * @access private
      * @param  array $_user 用户
-     * @param  \think\File $_files 文件
      * @return string
      */
     private function savePath(array &$_user): string
@@ -248,7 +247,7 @@ class UploadFile
     }
 
     /**
-     * 添加水印
+     * 添加图片水印
      * @access private
      * @param  string $_save_file 文件名
      * @return void
