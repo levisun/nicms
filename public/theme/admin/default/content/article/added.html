@@ -183,7 +183,6 @@
 </div>
 
 <script src="__STATIC__ckeditor5/ckeditor.js"></script>
-<script src="__STATIC__ckeditor5/translations/zh-cn.js"></script>
 <script src="__STATIC__ckeditor5/upload.js"></script>
 
 <script>
@@ -229,17 +228,58 @@
                     }
                 });
 
-                ClassicEditor
-                    .create(document.querySelector('#editor'), {
-                        language: 'zh-cn',
-                        extraPlugins: [MyCustomUploadAdapterPlugin],
-                    })
-                    .then(editor => {
-                        window.editor = editor;
-                    })
-                    .catch(err => {
-                        console.error(err.stack);
-                    });
+                ClassicEditor.create(document.querySelector('#editor'), {
+                    toolbar: {
+                        items: [
+                            'heading',
+                            '|',
+                            'fontFamily',
+                            'fontSize',
+                            'fontColor',
+                            'bold',
+                            'italic',
+                            'highlight',
+                            'link',
+                            'bulletedList',
+                            'numberedList',
+                            '|',
+                            'indent',
+                            'outdent',
+                            '|',
+                            'imageUpload',
+                            'blockQuote',
+                            'insertTable',
+                            'mediaEmbed',
+                            '|',
+                            'code',
+                            'codeBlock',
+                            '|',
+                            'undo',
+                            'redo'
+                        ]
+                    },
+                    language: 'zh-cn',
+                    image: {
+                        toolbar: [
+                            'imageTextAlternative',
+                            'imageStyle:full',
+                            'imageStyle:side'
+                        ]
+                    },
+                    table: {
+                        contentToolbar: [
+                            'tableColumn',
+                            'tableRow',
+                            'mergeTableCells'
+                        ]
+                    },
+                    licenseKey: '',
+                    extraPlugins: [MyCustomUploadAdapterPlugin],
+                }).then(editor => {
+                    window.editor = editor;
+                }).catch(err => {
+                    console.error(err.stack);
+                });
             },
             filterType: function () {
                 for (let index = 0; index < article.category_list.length; index++) {

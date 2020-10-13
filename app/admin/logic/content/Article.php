@@ -75,14 +75,14 @@ class Article extends BaseLogic
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
-        $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'is_pass', 'is_com', 'is_hot', 'is_top', 'username', 'access_id', 'hits', 'sort_order', 'update_time'])
+        $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'is_pass', 'static', 'username', 'access_id', 'hits', 'sort_order', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id')
             ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
             ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
             ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
             ->where($map)
-            ->order('article.is_pass ASC, article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.update_time DESC')
+            ->order('article.is_pass ASC, article.static DESC, article.sort_order DESC, article.update_time DESC')
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
@@ -241,7 +241,7 @@ class Article extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d', 0, 'abs')) {
-            $result = ModelArticle::view('article', ['id', 'title', 'keywords', 'description', 'category_id', 'type_id', 'is_pass', 'is_com', 'is_top', 'is_hot', 'sort_order', 'hits', 'username', 'admin_id', 'user_id', 'show_time', 'create_time', 'update_time', 'delete_time', 'access_id', 'lang'])
+            $result = ModelArticle::view('article', ['id', 'title', 'keywords', 'description', 'category_id', 'type_id', 'is_pass', 'static', 'sort_order', 'hits', 'username', 'admin_id', 'user_id', 'show_time', 'create_time', 'update_time', 'delete_time', 'access_id', 'lang'])
                 ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                 ->view('model', ['id' => 'model_id', 'name' => 'model_name', 'table_name'], 'model.id=category.model_id')
                 ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')

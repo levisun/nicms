@@ -207,14 +207,14 @@ class UploadFile
 
         // 用户ID目录
         $user_dir = !empty($_user['user_id'])
-            ? Base64::url62encode((int) $_user['user_id']) . DIRECTORY_SEPARATOR
+            ? Base64::url62encode((int) $_user['user_id'])
             : '';
         $save_dir .= $user_dir
             ? substr($user_dir, 0, 2) . DIRECTORY_SEPARATOR . $user_dir . DIRECTORY_SEPARATOR
             : '';
 
         // 日期目录
-        $save_dir .= Base64::url62encode((int) date('Ym')) . DIRECTORY_SEPARATOR;
+        $save_dir .= Base64::url62encode((int) date('Ym'));
 
         return $save_dir;
     }

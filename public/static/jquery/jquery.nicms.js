@@ -264,11 +264,10 @@
     /**
      * 设置COOKIE
      */
-    jQuery.set_cookie = function (cname, cvalue, exdays) {
+    jQuery.set_cookie = function (cname, cvalue, exdays = 1) {
         var d = new Date();
         d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
         var expires = 'expires=' + d.toUTCString();
-        console.log(NICMS.rootDomain.substring(2));
         document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/;domain=.'+NICMS.rootDomain.substring(2);
     };
 
