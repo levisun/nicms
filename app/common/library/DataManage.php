@@ -44,6 +44,10 @@ class DataManage
         @ini_set('max_execution_time', '3600');
         @ini_set('memory_limit', '128M');
 
+        if (!class_exists('ZipArchive')) {
+            halt('<info>环境不支持 ZipArchive 方法,系统备份功能无法使用</info>');
+        }
+
         ignore_user_abort(true);
     }
 
@@ -171,7 +175,7 @@ class DataManage
             $table_name = $this->queryTableName();
             shuffle($table_name);
             foreach ($table_name as $name) {
-                $sql_file = $this->tempPath. $name . '.sql';
+                $sql_file = $this->tempPath . $name . '.db_back';
 
                 // 获得表结构SQL语句
                 $sql = $this->queryTableStructure($name);
@@ -180,10 +184,11 @@ class DataManage
                 // 获得表字段和主键
                 $field = $this->queryTableInsertField($name);
 
-                $this->DB->table($name)->chunk(10, function ($result) use ($name, $field, $sql_file) {
-                    $result = $result->toArray();
-                    $sql = $this->getTableInsertData($name, $field, $result);
-                    file_put_contents($sql_file, $sql, FILE_APPEND);
+                $this->DB->table($name)->chunk(5, function ($result) use (&$name, &$field, &$sql_file) {
+                    $result = $result->toArray() ?: [];
+                    if ($sql = $this->getTableInsertData($name, $field, $result)) {
+                        file_put_contents($sql_file, $sql, FILE_APPEND);
+                    }
                     // 持续查询状态并不利于处理任务，每10ms执行一次，此时释放CPU，降低机器负载
                     usleep(10000);
                 });
@@ -192,7 +197,7 @@ class DataManage
             if ($files = glob($this->tempPath . '*')) {
                 foreach ($files as $key => $filename) {
                     $ext = pathinfo($filename, PATHINFO_EXTENSION);
-                    if ('sql' !== $ext) {
+                    if ('db_back' !== $ext) {
                         unset($files[$key]);
                     }
                 }
@@ -223,31 +228,29 @@ class DataManage
      * @param  array  $_data        表数据
      * @return string
      */
-    private function getTableInsertData(string $_table_name, string $_table_field, array $_data): string
+    private function getTableInsertData(string &$_table_name, string &$_table_field, array &$_data): string
     {
+        if (empty($_data)) {
+            return '';
+        }
+
         $sql = 'INSERT INTO `backup_' . $_table_name . '` (' . $_table_field . ') VALUES';
 
         foreach ($_data as $value) {
-            $sql .= '(';
-            foreach ($value as $vo) {
-                // 过滤回车空格tab等符号
+            $value = array_map(function ($vo) {
                 $vo = preg_replace(['/\s+/s', '/ {2,}/s'], ' ', $vo);
-
                 $vo = trim($vo);
-
                 if (is_integer($vo)) {
                     $vo = (int) $vo;
-                    $sql .= $vo . ',';
                 } elseif (is_float($vo)) {
                     $vo = (float) $vo;
-                    $sql .= $vo . ',';
                 } elseif (is_null($vo) || $vo === 'null' || $vo === 'NULL') {
-                    $sql .= 'NULL,';
+                    $vo = 'NULL';
                 } else {
-                    $sql .= '\'' . addslashes($vo) . '\',';
+                    $vo .= '\'' . addslashes($vo) . '\'';
                 }
-            }
-            $sql = rtrim($sql, ',') . '),';
+            }, $value);
+            $sql .= '(' . implode(',', $value) . '),';
         }
         return rtrim($sql, ',') . ';' . PHP_EOL;
     }

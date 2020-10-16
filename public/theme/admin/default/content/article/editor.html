@@ -423,9 +423,9 @@
     });
     article.load();
     if (jQuery.get_cookie('editor')) {
-        window.editor.setData(jQuery.get_cookie('editor'));
+        window.editor.setData(jQuery.get_storage('editor'));
     }
     setInterval(function () {
-        jQuery.set_cookie('editor', window.editor.getData());
+        jQuery.set_storage('editor', window.editor.getData());
     }, 60000);
 </script>

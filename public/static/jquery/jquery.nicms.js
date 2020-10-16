@@ -262,13 +262,41 @@
     };
 
     /**
+     * 设置浏览器本地存储
+     */
+    jQuery.set_storage = function (name, value) {
+        window.localStorage.setItem(name, JSON.stringify(value));
+    };
+
+    /**
+     * 获得浏览器本地存储
+     */
+    jQuery.get_storage = function (name, devalue = '') {
+        let value = window.localStorage.getItem(name);
+        return value ? JSON.parse(value) : devalue;
+    };
+
+    /**
+     * 删除浏览器本地存储
+     */
+    jQuery.remove_storage = function (name) {
+        window.localStorage.removeItem(name);
+    };
+
+    /**
+     * 清空浏览器本地存储
+     */
+    jQuery.clear_storage = function () {
+        window.localStorage.clear();
+    };
+
+    /**
      * 设置COOKIE
      */
     jQuery.set_cookie = function (cname, cvalue, exdays = 1) {
         var d = new Date();
         d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-        var expires = 'expires=' + d.toUTCString();
-        document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/;domain=.'+NICMS.rootDomain.substring(2);
+        document.cookie = cname + '=' + cvalue + ';expires=' + d.toUTCString() + ';path=/;SameSite=lax;domain=.' + NICMS.rootDomain.substring(2);
     };
 
     /**
@@ -299,6 +327,9 @@
         return false;
     };
 
+    /**
+     * 过滤
+     */
     jQuery.filter_str = function (str) {
         var pattern = new RegExp("[^a-zA-Z0-9\u4e00-\u9fa5]+");
         var specialStr = '';

@@ -75,7 +75,7 @@
                         { name: 'method', value: 'extend.databack.remove' },
                         { name: 'id', value: _id }
                     ],
-                    success: function () {
+                    success: function (result) {
                         if (result.code == 10000) {
                             databack.load();
                         }

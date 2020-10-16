@@ -17,7 +17,8 @@ class Index
     private $dirTotal = 0;
     private $fileTotal = 0;
 
-    private $log = '';
+    private $notice = '';
+    private $warning = '';
 
     public function __construct()
     {
@@ -31,8 +32,12 @@ class Index
         return isset($this->$_name) ? $this->$_name : null;
     }
 
-    public function run(array $_settings)
+    public function run()
     {
+        $this->each(root_path('app'));
+        $this->each(root_path('config'));
+        $this->each(root_path('extend'));
+        $this->each(root_path('public'));
     }
 
     /**
@@ -125,21 +130,6 @@ class Index
     }
 
     /**
-     * 记录非法位置信息
-     * @access private
-     * @param  string $_path 文件
-     * @param  string $_code
-     * @param  int    $_line
-     * @return void
-     */
-    private function record(string $_file_path, string $_code, int $_line): void
-    {
-        $path = str_replace('\extend\addon\pillow\WebShell', '', __DIR__);
-        $path = str_replace($path, '', $_file_path);
-        $this->log .= '<p>' . $path . ($_line ? '::' . $_line : '') . '<br />' . $_code . '</p>';
-    }
-
-    /**
      * 逐行读取文件内容
      * @access private
      * @param  string   $_file_path 文件
@@ -149,7 +139,7 @@ class Index
     private function read(string $_file_path, callable $_callback): void
     {
         if (strtotime('-30 day') < filemtime($_file_path)) {
-            $this->record($_file_path, '文件近期发生改变', 0);
+            $this->record($_file_path, '文件近期发生改变,管理员修改可忽略!', 0, 'notice');
         }
 
         $line = 0;
@@ -171,5 +161,19 @@ class Index
             // usleep(10000);
         }
         fclose($file);
+    }
+
+    /**
+     * 记录非法位置信息
+     * @access private
+     * @param  string $_path 文件
+     * @param  string $_code
+     * @param  int    $_line
+     * @return void
+     */
+    private function record(string $_file_path, string $_code, int $_line, string $_type = 'warning'): void
+    {
+        $path = str_replace(root_path(), DIRECTORY_SEPARATOR, $_file_path);
+        $this->$_type .= '<p>' . $path . ($_line ? '::' . $_line : '') . '<br />' . $_code . '</p>';
     }
 }

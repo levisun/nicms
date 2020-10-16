@@ -16,7 +16,7 @@ use think\facade\Route;
 Route::group(function () {
     // office接口
     Route::post('excel/read$', 'office.Excel/read');
-    Route::post('excel/writer$', 'office.Excel/writer');
+    Route::post('excel/write$', 'office.Excel/write');
 
     // 工具接口
     Route::get('download$', 'tools.Download/index');    // 下载接口

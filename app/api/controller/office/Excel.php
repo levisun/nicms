@@ -19,8 +19,7 @@ namespace app\api\controller\office;
 
 use think\Response;
 use app\common\library\api\Async;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\IOFactory;
+use app\common\library\Excel as LibExcel;
 
 class Excel extends Async
 {
@@ -40,16 +39,7 @@ class Excel extends Async
         if ($file = filepath_decode($file, true)) {
             $sheet = $this->request->param('sheet/d', 0, 'abs');
 
-            $cache_key = $file . $sheet;
-
-            if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
-                $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                if (in_array($ext, ['xlsx', 'xls'])) {
-                    $spreadsheet = IOFactory::load($file);
-                    $result = $spreadsheet->getSheet($sheet)->toArray();
-                    $this->cache->set($cache_key, $result);
-                }
-            }
+            $result = (new LibExcel)->read($file, $sheet);
 
             return $result
                 ? $this->cache(true)->success('Excel read success', $result)
@@ -63,39 +53,20 @@ class Excel extends Async
      * @param
      * @return Response
      */
-    public function writer()
+    public function write()
     {
         if (!$this->validate->referer() || !$data = $this->request->param('data/a')) {
             return miss(404, false);
         }
-
-        $spreadsheet = new Spreadsheet();
-        $worksheet = $spreadsheet->getActiveSheet();
-
         $sheet = $this->request->param('sheet/d', 0, 'abs');
-        $worksheet->setTitle($sheet);
 
-        foreach ($data as $line_no => $column) {
-            if (!empty($column)) {
-                $line_no += 1;
-                foreach ($column as $column_no => $value) {
-                    $value = trim($value);
-                    if (!empty($value)) {
-                        $column_no += 1;
-                        $worksheet->setCellValueByColumnAndRow($column_no, $line_no, $value);
-                    }
-                }
-            }
-        }
+        $file = (new LibExcel)->write($data, $sheet);
 
-        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-        $file = runtime_path('temp') . sha1(date('YmdHis') . $this->request->server('HTTP_USER_AGENT')) . '.xlsx';
-        $writer->save($file);
-        unset($spreadsheet, $worksheet, $writer);
-
-        return Response::create($file, 'file')
+        return $file
+            ? Response::create($file, 'file')
             ->name(pathinfo($file, PATHINFO_FILENAME))
             ->isContent(false)
-            ->expire(28800);
+            ->expire(28800)
+            : $this->error('Excel write error');
     }
 }

@@ -38,13 +38,14 @@ class AppInit
 
     public function handle(Request $request, Closure $next)
     {
-        $this->request = $request;
+        # TODO
 
+        $response = $next($request);
+
+        $this->request = $request;
         $this->app_secret();
         $this->csrf_token();
         $this->authorization();
-
-        $response = $next($request);
 
         return $response;
     }
