@@ -66,8 +66,7 @@ class Sitemap
     public static function robots(): void
     {
         $robots = 'User-agent: *' . PHP_EOL;
-        $paths = glob(public_path() . '*');
-        if (!empty($paths)) {
+        if ($paths = glob(public_path() . '*')) {
             foreach ($paths as $dir) {
                 if (is_dir($dir)) {
                     $robots .= 'Disallow: /' . pathinfo($dir, PATHINFO_BASENAME) . '/' . PHP_EOL;

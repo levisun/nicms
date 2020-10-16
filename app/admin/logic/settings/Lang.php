@@ -36,7 +36,7 @@ class Lang extends BaseLogic
         $path = $this->app->getBasePath();
         foreach ($app_name as $value) {
             $dir = $path . $value . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
-            if (is_dir($dir) && $index = glob($dir . '*')) {
+            if ($index = glob($dir . '*')) {
                 foreach ($index as $file) {
                     $file = str_replace('.php', '', basename($file));
                     $lang[$file][] = $value;
