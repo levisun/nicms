@@ -73,6 +73,7 @@ class Sitemap
                 }
             }
         }
+        $robots .= 'Disallow: *.txt$' . PHP_EOL;
         $robots .= 'Disallow: *.do$' . PHP_EOL;
         $robots .= 'Allow: .html$' . PHP_EOL;
         $robots .= 'Sitemap: ' . Request::domain() . '/sitemap.xml' . PHP_EOL;
@@ -98,12 +99,12 @@ class Sitemap
             ->limit(5000)
             ->select()
             ->toArray();
-        $dead_link = '';
+        $dead = '';
         $domain = Request::domain();
         foreach ($article as $value) {
-            $dead_link .= $domain . url('details/' . Base64::url62encode($value['category_id']) . '/' . Base64::url62encode($value['id'])) . "\r\n";
+            $dead .= $domain . url('details/' . Base64::url62encode($value['category_id']) . '/' . Base64::url62encode($value['id'])) . "\r\n";
         }
-        file_put_contents(public_path() . 'dead_link.txt', $dead_link);
+        file_put_contents(public_path() . 'dead.txt', $dead);
     }
 
     /**

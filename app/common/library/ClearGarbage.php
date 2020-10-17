@@ -85,7 +85,7 @@ class ClearGarbage
             'file' => [
                 'index.php',
                 'robots.txt',
-                'silian.txt',
+                'dead.txt',
                 'sitemap.xml',
                 'favicon.ico',
             ],
@@ -100,12 +100,7 @@ class ClearGarbage
 
         if ($files = glob(public_path() . '*')) {
             foreach ($files as $dir_file) {
-                // 跳过目录
-                if (is_dir($dir_file)) {
-                    continue;
-                }
-                // 文件
-                elseif (is_file($dir_file)) {
+                if (!is_dir($dir_file) && is_file($dir_file)) {
                     // 跳过文件
                     $name = strtolower(pathinfo($dir_file, PATHINFO_BASENAME));
                     if (in_array($name, $keep['file'])) {

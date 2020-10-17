@@ -27,6 +27,8 @@ class DataManage
     private $tempPath;
     private $lockPath;
 
+    private $error_log = [];
+
     public function __construct()
     {
         $this->DB = app('think\DbManager');
@@ -42,7 +44,7 @@ class DataManage
 
         @set_time_limit(3600);
         @ini_set('max_execution_time', '3600');
-        @ini_set('memory_limit', '128M');
+        @ini_set('memory_limit', '32M');
 
         if (!class_exists('ZipArchive')) {
             halt('<info>环境不支持 ZipArchive 方法,系统备份功能无法使用</info>');
@@ -98,11 +100,12 @@ class DataManage
     /**
      * 还原
      * @access public
-     * @return void
+     * @param  string $_name 文件
+     * @return mixed
      */
-    public function restores(string $_backup): void
+    public function restores(string $_name)
     {
-        only_execute('db_backup.lock', false, function () use (&$_backup) {
+        only_execute('db_backup.lock', false, function () use (&$_name) {
             // 清空上次残留垃圾文件
             if ($files = glob($this->tempPath . '*')) {
                 array_map('unlink', $files);
@@ -110,7 +113,7 @@ class DataManage
 
             // 打开压缩包并解压文件到指定目录
             $zip = new \ZipArchive;
-            if (true === $zip->open($this->savePath . $_backup)) {
+            if (true === $zip->open($this->savePath . $_name)) {
                 $zip->extractTo($this->tempPath);
                 $zip->close();
             }
@@ -133,11 +136,9 @@ class DataManage
                         try {
                             $this->DB->query($sql);
                         } catch (\Exception $e) {
-                            halt($sql, $e->getFile() . $e->getLine() . $e->getMessage());
+                            Log::warning('数据库还原错误' . $sql);
+                            $this->error_log[] = $sql;
                         }
-
-                        // 持续查询状态并不利于处理任务，每10ms执行一次，此时释放CPU，降低机器负载
-                        usleep(10000);
                     }
                     fclose($file);
 
@@ -148,15 +149,16 @@ class DataManage
                         $this->DB->query('ALTER  TABLE `backup_' . $table_name . '` RENAME TO `' . $table_name . '`');
                         $this->DB->query('DROP TABLE `old_' . $table_name . '`');
                     } catch (\Exception $e) {
-                        halt($sql, $e->getFile() . $e->getLine() . $e->getMessage());
+                        Log::warning('数据库还原错误' . $sql);
+                        $this->error_log[] = $sql;
                     }
 
                     unlink($filename);
                 }
-
-                @rmdir($this->tempPath);
             }
         });
+
+        return !empty($this->error_log) ? $this->error_log : false;
     }
 
     /**
@@ -175,19 +177,22 @@ class DataManage
             $table_name = $this->queryTableName();
             shuffle($table_name);
             foreach ($table_name as $name) {
-                $sql_file = $this->tempPath . $name . '.db_back';
+                $filename = $this->tempPath . $name . '.db_back';
 
                 // 获得表结构SQL语句
-                $sql = $this->queryTableStructure($name);
-                file_put_contents($sql_file, $sql);
+                $sql = '-- 备份时间 ' . date('Y-m-d H:i:s') . PHP_EOL .
+                    $this->queryTableStructure($name);
+                file_put_contents($filename, $sql);
 
-                // 获得表字段和主键
-                $field = $this->queryTableInsertField($name);
+                // 获得主键
+                $primary = $this->queryTablePrimary($name);
+                // 表字段
+                $field = $this->queryTableField($name);
 
-                $this->DB->table($name)->chunk(5, function ($result) use (&$name, &$field, &$sql_file) {
+                $this->DB->table($name)->order($primary . ' ASC')->chunk(10, function ($result) use (&$name, &$field, &$filename) {
                     $result = $result->toArray() ?: [];
-                    if ($sql = $this->getTableInsertData($name, $field, $result)) {
-                        file_put_contents($sql_file, $sql, FILE_APPEND);
+                    if ($sql = $this->getTableData($name, $field, $result)) {
+                        file_put_contents($filename, $sql, FILE_APPEND);
                     }
                     // 持续查询状态并不利于处理任务，每10ms执行一次，此时释放CPU，降低机器负载
                     usleep(10000);
@@ -196,14 +201,13 @@ class DataManage
 
             if ($files = glob($this->tempPath . '*')) {
                 foreach ($files as $key => $filename) {
-                    $ext = pathinfo($filename, PATHINFO_EXTENSION);
-                    if ('db_back' !== $ext) {
+                    if ('db_back' !== pathinfo($filename, PATHINFO_EXTENSION)) {
                         unset($files[$key]);
                     }
                 }
 
                 if (!empty($files)) {
-                    $zip_name = $this->savePath . date('YmdHis') . '.zip';
+                    $zip_name = $this->savePath . uniqid() . '.zip';
                     $zip = new \ZipArchive;
                     $zip->open($zip_name, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
                     foreach ($files as $filename) {
@@ -213,8 +217,6 @@ class DataManage
                     foreach ($files as $filename) {
                         @unlink($filename);
                     }
-
-                    @rmdir($this->tempPath);
                 }
             }
         });
@@ -223,18 +225,18 @@ class DataManage
     /**
      * 表数据SQL
      * @access private
-     * @param  string $_table_name  表名
-     * @param  string $_table_field 表字段
-     * @param  array  $_data        表数据
+     * @param  string $_name  表名
+     * @param  string $_field 表字段
+     * @param  array  $_data  表数据
      * @return string
      */
-    private function getTableInsertData(string &$_table_name, string &$_table_field, array &$_data): string
+    private function getTableData(string &$_name, string &$_field, array &$_data): string
     {
         if (empty($_data)) {
             return '';
         }
 
-        $sql = 'INSERT INTO `backup_' . $_table_name . '` (' . $_table_field . ') VALUES';
+        $sql = 'INSERT INTO `backup_' . $_name . '` (' . $_field . ') VALUES';
 
         foreach ($_data as $value) {
             $value = array_map(function ($vo) {
@@ -247,8 +249,9 @@ class DataManage
                 } elseif (is_null($vo) || $vo === 'null' || $vo === 'NULL') {
                     $vo = 'NULL';
                 } else {
-                    $vo .= '\'' . addslashes($vo) . '\'';
+                    $vo = '\'' . addslashes($vo) . '\'';
                 }
+                return $vo;
             }, $value);
             $sql .= '(' . implode(',', $value) . '),';
         }
@@ -261,16 +264,35 @@ class DataManage
      * @param  string $_table_name 表名
      * @return string
      */
-    private function queryTableInsertField(string $_table_name): string
+    private function queryTableField(string &$_table_name): string
     {
         $result = $this->DB->query('SHOW COLUMNS FROM `' . $_table_name . '`');
-        $field = '';
-        foreach ($result as $value) {
-            $field .= '`' . $value['Field'] . '`,';
+        foreach ($result as $key => $value) {
+            $value = '`' . $value['Field'] . '`';
+            $result[$key] = $value;
         }
-        $field = rtrim($field, ',');
 
-        return $field;
+        return implode(',', $result);
+    }
+
+    /**
+     * 查询表主键
+     * @access private
+     * @param  string $_table_name 表名
+     * @return string
+     */
+    private function queryTablePrimary(string &$_table_name): string
+    {
+        $result = $this->DB->query('SHOW COLUMNS FROM `' . $_table_name . '`');
+        $primary = '';
+        foreach ($result as $key => $value) {
+            if ('PRI' === $value['Key']) {
+                $primary = $value['Field'];
+                break;
+            }
+        }
+
+        return $primary;
     }
 
     /**
@@ -279,14 +301,13 @@ class DataManage
      * @param  string $_table_name 表名
      * @return bool|string
      */
-    private function queryTableStructure(string $_table_name)
+    private function queryTableStructure(string &$_table_name)
     {
         $tableRes = $this->DB->query('SHOW CREATE TABLE `' . $_table_name . '`');
         if (empty($tableRes[0]['Create Table'])) {
             return false;
         }
-        $structure  = '-- 备份时间 ' . date('Y-m-d H:i:s') . PHP_EOL;
-        $structure .= 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
+        $structure = 'DROP TABLE IF EXISTS `' . $_table_name . '`;' . PHP_EOL;
         // 清除多余空格回车制表符等
         $structure .= preg_replace(['/\s+/s', '/ {2,}/si'], ' ', $tableRes[0]['Create Table']) . ';';
         $structure = trim($structure);
