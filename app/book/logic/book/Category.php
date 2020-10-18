@@ -33,16 +33,15 @@ class Category extends BaseLogic
     {
         $map = [
             ['book.is_pass', '=', '1'],
-            ['book.status', '=', '1'],
             ['book.lang', '=', $this->lang->getLangSet()]
         ];
 
-        if ($com = $this->request->param('com/d', 0, 'abs')) {
-            $map[] = ['book.is_com', '=', '1'];
-        } elseif ($top = $this->request->param('top/d', 0, 'abs')) {
-            $map[] = ['book.is_top', '=', '1'];
-        } elseif ($hot = $this->request->param('hot/d', 0, 'abs')) {
-            $map[] = ['book.is_hot', '=', '1'];
+        if ($attribute = $this->request->param('attribute/d', 0, 'abs')) {
+            $map[] = ['book.attribute', '=', $attribute];
+        }
+
+        if ($status = $this->request->param('status/d', 0, 'abs')) {
+            $map[] = ['book.status', '=', $status];
         }
 
         if ($type_id = $this->request->param('tid', 0, '\app\common\library\Base64::url62decode')) {
@@ -54,17 +53,14 @@ class Category extends BaseLogic
         $query_page = $this->request->param('page/d', 1, 'abs');
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
-        $cache_key = __METHOD__ . date('Ymd') .
-            $com . $top . $hot . $type_id .
-            $query_limit . $query_page . $date_format;
+        $cache_key = 'book list' . $attribute . $status . $type_id . $query_limit . $query_page . $date_format;
 
-        if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
-            $result = (new ModelBook)
-                ->view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'hits', 'update_time'])
+        // if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
+            $result = ModelBook::view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'hits', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
                 ->where($map)
-                ->order('book.is_top DESC, book.is_hot DESC , book.is_com DESC, book.sort_order DESC')
+                ->order('book.attribute DESC, book.sort_order DESC')
                 ->paginate([
                     'list_rows' => $query_limit,
                     'path' => 'javascript:paging([PAGE]);',
@@ -83,7 +79,7 @@ class Category extends BaseLogic
 
                 $this->cache->tag('book')->set($cache_key, $list);
             }
-        }
+        // }
 
         return [
             'debug' => false,

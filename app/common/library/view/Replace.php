@@ -310,7 +310,7 @@ class Replace
         // JS引入
         foreach ($this->config['tpl_config']['js'] as $js) {
             // 过滤多余空格
-            $js = preg_replace('/( ){2,}/si', '', $js);
+            $js = preg_replace('/ {2,}/si', '', $js);
             // 替换引号
             $js = str_replace('\'', '"', $js);
             // 添加defer属性

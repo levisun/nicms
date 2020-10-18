@@ -50,7 +50,7 @@
                         <th>{:lang('title')}</th>
                         <th>{:lang('category')}</th>
                         <th>{:lang('model')}</th>
-                        <th>{:lang('status')}</th>
+                        <th>{:lang('attribute')}</th>
                         <th>{:lang('access')}</th>
                         <th>{:lang('update time')}</th>
                         <th>{:lang('operation')}</th>
@@ -73,9 +73,10 @@
                             <td>
                                 <span class="label label-primary" v-if="vo.is_pass">{:lang('is_pass')}</span>
                                 <span class="label label-primary" v-else>{:lang('not_pass')}</span>
-                                <span class="label label-primary" v-if="vo.static==1">{:lang('commend')}</span>
-                                <span class="label label-primary" v-if="vo.is_hot==2">{:lang('hot')}</span>
-                                <span class="label label-primary" v-if="vo.is_top==3">{:lang('top')}</span>
+
+                                <span class="label label-primary" v-if="vo.attribute==1">{:lang('commend')}</span>
+                                <span class="label label-primary" v-if="vo.attribute==2">{:lang('hot')}</span>
+                                <span class="label label-primary" v-if="vo.attribute==3">{:lang('top')}</span>
                             </td>
                             <td v-text="vo.access_name"></td>
                             <td v-text="vo.update_time"></td>

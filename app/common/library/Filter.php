@@ -24,7 +24,7 @@ class Filter
 
     private static $attr = ['alt', 'align', 'async', 'charset', 'class', 'content', 'defer', 'height', 'href', 'id', 'name', 'rel', 'src', 'style', 'target', 'title', 'type', 'width'];
 
-    private static $func = ['apache_setenv', 'base64_decode', 'call_user_func', 'call_user_func_array', 'chgrp', 'chown', 'chroot', 'eval', 'exec', 'file_get_contents', 'file_put_contents', 'function', 'imap_open', 'ini_alter', 'ini_restore', 'invoke', 'openlog', 'passthru', 'pcntl_alarm', 'pcntl_exec', 'pcntl_fork', 'pcntl_get_last_error', 'pcntl_getpriority', 'pcntl_setpriority', 'pcntl_signal', 'pcntl_signal_dispatch', 'pcntl_sigprocmask', 'pcntl_sigtimedwait', 'pcntl_sigwaitinfo', 'pcntl_strerror', 'pcntl_wait', 'pcntl_waitpid', 'pcntl_wexitstatus', 'pcntl_wifcontinued', 'pcntl_wifexited', 'pcntl_wifsignaled', 'pcntl_wifstopped', 'pcntl_wstopsig', 'pcntl_wtermsig', 'php', 'popen', 'popepassthru', 'proc_open', 'putenv', 'readlink', 'shell_exec', 'symlink', 'syslog', 'system', 'select', 'drop', 'delete', 'create', 'update', 'insert'];
+    private static $func = ['apache_setenv', 'base64_decode', 'call_user_func', 'call_user_func_array', 'chgrp', 'chown', 'chroot', 'eval', 'exec', 'file_get_contents', 'file_put_contents', 'function', 'imap_open', 'ini_alter', 'ini_restore', 'invoke', 'openlog', 'passthru', 'pcntl_alarm', 'pcntl_exec', 'pcntl_fork', 'pcntl_get_last_error', 'pcntl_getpriority', 'pcntl_setpriority', 'pcntl_signal', 'pcntl_signal_dispatch', 'pcntl_sigprocmask', 'pcntl_sigtimedwait', 'pcntl_sigwaitinfo', 'pcntl_strerror', 'pcntl_wait', 'pcntl_waitpid', 'pcntl_wexitstatus', 'pcntl_wifcontinued', 'pcntl_wifexited', 'pcntl_wifsignaled', 'pcntl_wifstopped', 'pcntl_wstopsig', 'pcntl_wtermsig', 'popen', 'popepassthru', 'proc_open', 'putenv', 'readlink', 'shell_exec', 'symlink', 'syslog', 'system', 'select', 'drop', 'delete', 'create', 'update', 'insert'];
 
     /**
      * 默认过滤
@@ -90,6 +90,48 @@ class Filter
     }
 
     /**
+     * 过滤敏感词
+     * @access public
+     * @static
+     * @param  string $_str
+     * @return string
+     */
+    public static function sensitive(string &$_str): string
+    {
+        $words = [];
+
+        $file = root_path('extend') . 'sensitive.txt';
+        if (is_file($file) && $words = file_get_contents($file)) {
+            $words = self::symbol($words);
+            $words = self::space($words);
+            $words = preg_replace('/--\s?.*?\s+/i', '', $words);
+            $words = explode(',', $words);
+        }
+
+        sort($words);
+        $words = array_map(function ($value) {
+            return strtolower(trim($value));
+        }, $words);
+        $words = array_filter($words);
+        $words = array_unique($words);
+
+        $length = [];
+        foreach ($words as $key => $value) {
+            $length[$key] = mb_strlen($value, 'utf-8');
+        }
+        array_multisort($length, SORT_DESC, $words);
+
+        $length = 200;
+        $num = 0;
+        while ($pattern = array_slice($words, $length * $num, $length)) {
+            $num++;
+            $_str = preg_replace('/' . implode('|', $pattern) . '/i', '&#42;', $_str);
+        }
+
+        return $_str;
+    }
+
+    /**
      * 过滤非汉字英文与数字
      * @access public
      * @static
@@ -133,11 +175,10 @@ class Filter
      */
     public static function fun(string &$_str): string
     {
-        $regex = '/' . implode('|', self::$func) . '/si';
+        $regex = '/' . implode('\(|', self::$func) . '/si';
 
         $_str = (string) preg_replace_callback($regex, function ($matches) {
-            $matches = array_map('trim', $matches);
-            return $matches[0] . '&nbsp;';
+            return str_replace('(', '&nbsp;(', trim($matches[0]));
         }, $_str);
 
         return trim($_str);
@@ -218,8 +259,11 @@ class Filter
     {
         // 过滤非法标签
         if (false !== preg_match_all('/<([\w\d!]+)[^<>]*>/si', $_str, $ele)) {
-            $ele[1] = array_map('trim', $ele[1]);
-            $ele[1] = array_map('strtolower', $ele[1]);
+            $ele[1] = array_map(function ($value) {
+                $value = strtolower($value);
+                $value = trim($value);
+                return $value;
+            }, $ele[1]);
             $ele[1] = array_filter($ele[1]);
             $ele[1] = array_unique($ele[1]);
 
@@ -257,7 +301,7 @@ class Filter
         // 半角空格(英文符号)\u0020,代码中常用的
         // 全角空格(中文符号)\u3000,中文文章中使用
         $_str = (string) json_decode(str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($_str)));
-        $_str = (string) str_ireplace(['&nbsp;', '&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;'], '&nbsp;', $_str);
+        $_str = (string) str_ireplace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;'], '&nbsp;', $_str);
 
         $pattern = [
             '/<\!--[^<>]+-->/s' => '',

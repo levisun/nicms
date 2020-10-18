@@ -41,7 +41,7 @@ class Throttle
         }
 
         if (Cache::has($request->ip() . 'lock')) {
-            // $this->abort(Cache::get($request->ip() . 'lock'));
+            $this->abort(Cache::get($request->ip() . 'lock'));
         }
 
         if (Cache::has($request->domain() . $request->ip() . 'login_lock')) {

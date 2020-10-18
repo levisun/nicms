@@ -62,7 +62,7 @@ class Spider extends BaseLogic
 
     public function jxbookarticle()
     {
-        if ($book_id = $this->request->param('book_id/d', 0, 'abs')) {
+        if ($book_id = $this->request->param('book_id/d', 0, '\app\common\library\Base64::url62decode')) {
             $origin = ModelBook::where([
                 ['id', '=', $book_id]
             ])->value('origin');

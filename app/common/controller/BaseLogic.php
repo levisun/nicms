@@ -130,7 +130,7 @@ abstract class BaseLogic
     }
 
     /**
-     * 权限验证
+     * 操作日志
      * @access protected
      * @param  string  $_method
      * @param  string  $_write_log

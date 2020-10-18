@@ -68,14 +68,14 @@ class Recycle extends BaseLogic
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
-        $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'is_com', 'is_hot', 'is_top', 'username', 'access_id', 'hits', 'update_time'])
+        $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'attribute', 'username', 'access_id', 'hits', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id')
             ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
             ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
             ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
             ->where($map)
-            ->order('article.is_pass ASC, article.is_top DESC, article.is_hot DESC , article.is_com DESC, article.sort_order DESC, article.update_time DESC')
+            ->order('article.is_pass ASC, article.attribute DESC, article.sort_order DESC, article.update_time DESC')
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',

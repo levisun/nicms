@@ -50,8 +50,8 @@ class Search extends BaseLogic
         }
 
         // 推荐置顶最热,三选一
-        if ($static = $this->request->param('static/d', 0, 'abs')) {
-            $map[] = ['article.static', '=', $static];
+        if ($attribute = $this->request->param('attribute/d', 0, 'abs')) {
+            $map[] = ['article.attribute', '=', $attribute];
         }
 
         // 安类别查询,为空查询所有
@@ -74,7 +74,7 @@ class Search extends BaseLogic
         if ($sort_order = $this->request->param('sort')) {
             $sort_order = 'article.' . $sort_order;
         } else {
-            $sort_order = 'article.static DESC, article.sort_order DESC, article.update_time DESC';
+            $sort_order = 'article.attribute DESC, article.sort_order DESC, article.update_time DESC';
         }
 
         $query_limit = $this->request->param('limit/d', 20, 'abs');
@@ -82,7 +82,7 @@ class Search extends BaseLogic
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
         $cache_key = 'article list' . $category_id .
-            $static . $type_id . $sort_order . $search_key .
+            $attribute . $type_id . $sort_order . $search_key .
             $query_limit . $query_page . $date_format . $this->urole;
 
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {

@@ -93,32 +93,18 @@
             <!-- 模型:文章,相册,下载 -->
             <template v-if="model_id<=3">
                 <div class="form-group">
-                    <label>{:lang('commend')}</label>
+                    <label>{:lang('attribute')}</label>
                     <label>
-                        <input type="radio" name="is_com" value="1"> {:lang('yes')}
+                        <input type="radio" name="attribute" value="1">{:lang('commend')}
                     </label>
                     <label>
-                        <input type="radio" name="is_com" value="0" checked="checked"> {:lang('no')}
-                    </label>
-                </div>
-
-                <div class="form-group">
-                    <label>{:lang('top')}</label>
-                    <label>
-                        <input type="radio" name="is_top" value="1"> {:lang('yes')}
+                        <input type="radio" name="attribute" value="2">{:lang('top')}
                     </label>
                     <label>
-                        <input type="radio" name="is_top" value="0" checked="checked"> {:lang('no')}
-                    </label>
-                </div>
-
-                <div class="form-group">
-                    <label>{:lang('hot')}</label>
-                    <label>
-                        <input type="radio" name="is_hot" value="1"> {:lang('yes')}
+                        <input type="radio" name="attribute" value="3">{:lang('hot')}
                     </label>
                     <label>
-                        <input type="radio" name="is_hot" value="0" checked="checked"> {:lang('no')}
+                        <input type="radio" name="attribute" value="0" checked="checked"> {:lang('no')}
                     </label>
                 </div>
 
