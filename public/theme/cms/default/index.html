@@ -4,26 +4,28 @@
             <div class="card">
                 <div class="card-header">{:lang('new')}</div>
                 <ul class="list-group list-group-flush">
-                    {tags:list cid="0"}
-                    <li class="list-group-item">
+                    <li class="list-group-item" v-for="item in items">
                         <h5 class="card-title">
-                            <a class="badge badge-primary" style="margin-right:10px;"
-                                href="{$item.cat_url}">{$item.cat_name}</a>
-                            <a href="{$item.url}">{$item.title}</a>
+                            <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="item.cat_url"
+                                v-text="item.cat_name"></a>
+                            <a v-bind:href="item.url" v-text="item.title"></a>
                         </h5>
                         <p class="text-muted">
                             <span style="margin-right:10px;">
                                 <i class="fa fa-calendar-day"></i>
-                                <font>{$item.update_time}</font>
+                                <font v-text="item.update_time"></font>
                             </span>
                             <span style="margin-right:10px;">
                                 <i class="fa fa-user"></i>
-                                <font>{$item.author}</font>
+                                <font v-text="item.author"></font>
+                            </span>
+                            <span style="margin-right:10px;">
+                                <i class="fa fa-eye"></i>
+                                <font v-text="item.hits"></font>
                             </span>
                         </p>
-                        <p class="card-text">{$item.description}</p>
+                        <p class="card-text" v-text="item.description"></p>
                     </li>
-                    {/list}
                 </ul>
             </div>
         </div>
@@ -64,3 +66,28 @@
         </div>
     </div>
 </div>
+<script>
+    let index = new Vue({
+        el: '#layout-index',
+        data: {
+            items: [],
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api_uri + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'article.category.query' },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            index.items = result.data.list;
+                        }
+                    }
+                });
+            }
+        }
+    });
+    index.load();
+</script>

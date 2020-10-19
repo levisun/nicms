@@ -24,7 +24,7 @@ class TagsList extends Taglib
     public function closed(): string
     {
         $this->params['cid'] = !empty($this->params['cid']) ? (int) $this->params['cid'] : request()->param('cid/d', 0);
-        $this->params['static'] = !empty($this->params['static']) ? (int) $this->params['static'] : 0;
+        $this->params['attribute'] = !empty($this->params['attribute']) ? (int) $this->params['attribute'] : 0;
         $this->params['tid'] = !empty($this->params['tid']) ? (int) $this->params['tid'] : 0;
         $this->params['sort'] = !empty($this->params['sort']) ? $this->params['sort'] : '';
         $this->params['limit'] = !empty($this->params['limit']) ? (int) $this->params['limit'] : 10;
@@ -34,10 +34,10 @@ class TagsList extends Taglib
         if ($this->params['sort']) {
             $sort_order = 'article.' . $this->params['sort'];
         } else {
-            $sort_order = 'article.static DESC, article.sort_order DESC, article.update_time DESC';
+            $sort_order = 'article.attribute DESC, article.sort_order DESC, article.update_time DESC';
         }
 
-        $cache_key = 'taglib tablist::article list' . $this->params['cid'] . $this->params['static'] . $this->params['tid'] . $this->params['sort'] . $this->params['limit'] . $this->params['page'] . $this->params['date_format'];
+        $cache_key = 'taglib tablist::article list' . $this->params['cid'] . $this->params['attribute'] . $this->params['tid'] . $this->params['sort'] . $this->params['limit'] . $this->params['page'] . $this->params['date_format'];
 
         $parseStr  = '<?php
         if (!cache("?' . $cache_key . '") || !$list = cache("' . $cache_key . '")):
@@ -56,8 +56,8 @@ class TagsList extends Taglib
             $child = app('\app\cms\logic\article\Category')->child($this->params["cid"]);
             $parseStr .= '["article.category_id", "in", "' . implode(',', $child) . '"],';
         }
-        if ($static = $this->params['static']) {
-            $parseStr .= '["article.static", "=", ' . $static . '],';
+        if ($attribute = $this->params['attribute']) {
+            $parseStr .= '["article.attribute", "=", ' . $attribute . '],';
         }
 
         if ($this->params['tid']) {
