@@ -148,7 +148,7 @@ class Ads extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin content editor');
+        $this->actionLog(__METHOD__, 'admin ads editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -205,7 +205,7 @@ class Ads extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin content recycle');
+        $this->actionLog(__METHOD__, 'admin ads remove');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [

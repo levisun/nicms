@@ -19,7 +19,7 @@ namespace app\api\controller\office;
 
 use think\Response;
 use app\common\library\api\Async;
-use app\common\library\Excel as LibExcel;
+use app\common\library\tools\OfficeExcel;
 
 class Excel extends Async
 {
@@ -39,7 +39,11 @@ class Excel extends Async
         if ($file = filepath_decode($file, true)) {
             $sheet = $this->request->param('sheet/d', 0, 'abs');
 
-            $result = (new LibExcel)->read($file, $sheet);
+            if (!$this->cache->has($file . $sheet) || !$result = $this->cache->get($file . $sheet)) {
+                $result = (new OfficeExcel)->read($file, $sheet);
+                $this->cache->set($file . $sheet, $result);
+            }
+
 
             return $result
                 ? $this->cache(true)->success('Excel read success', $result)
@@ -60,7 +64,7 @@ class Excel extends Async
         }
         $sheet = $this->request->param('sheet/d', 0, 'abs');
 
-        $file = (new LibExcel)->write($data, $sheet);
+        $file = (new OfficeExcel)->write($data, $sheet);
 
         return $file
             ? Response::create($file, 'file')

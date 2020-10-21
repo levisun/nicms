@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace app\common\library;
+namespace app\common\library\tools;
 
 use think\facade\Request;
 use app\common\library\Base64;

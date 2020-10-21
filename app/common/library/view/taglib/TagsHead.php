@@ -78,9 +78,9 @@ class TagsHead extends Taglib
             $this->link() .
 
             '<script type="text/javascript">const NICMS = {' .
-            'domain:"//<?php echo request()->host();?>",' .
-            'rootDomain:"//' . request()->rootDomain() . '",' .
-            'url:"<?php echo request()->baseUrl(true);?>",' .
+            'domain:"//"+window.location.host,' .
+            'rootDomain:"//"+window.location.host.substr(window.location.host.indexOf(".")+1),' .
+            'url:"//"+window.location.host+window.location.pathname+window.location.search,' .
             'api_uri:"' . config("app.api_host") . '",' .
             'param:<?php echo json_encode(app("request")->param());?>,' .
             'static:"__STATIC__",' .

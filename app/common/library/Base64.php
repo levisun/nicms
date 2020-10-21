@@ -100,6 +100,48 @@ class Base64
     }
 
     /**
+     * emoji编码
+     * @access public
+     * @static
+     * @param  string $_str
+     * @return string
+     */
+    public static function emojiEncode(string &$_str): string
+    {
+        return (string) json_decode(preg_replace_callback('/(\\\u[ed][0-9a-f]{3})/si', function ($matches) {
+            return '[EMOJI:' . base64_encode($matches[0]) . ']';
+        }, json_encode($_str)));
+    }
+
+    /**
+     * emoji解码
+     * @access public
+     * @static
+     * @param  string $_str
+     * @return string
+     */
+    public static function emojiDecode(string &$_str): string
+    {
+        return (string) json_decode(preg_replace_callback('/(\[EMOJI:[A-Za-z0-9]{8}\])/', function ($matches) {
+            return base64_decode(str_replace(['[EMOJI:', ']'], '', $matches[0]));
+        }, json_encode($_str)));
+    }
+
+    /**
+     * emoji清理
+     * @access public
+     * @static
+     * @param  string $_str
+     * @return string
+     */
+    public static function emojiClear(string &$_str): string
+    {
+        return (string) preg_replace_callback('/./u', function (array $matches) {
+            return strlen($matches[0]) >= 4 ? '' : $matches[0];
+        }, $_str);
+    }
+
+    /**
      * url62加密
      * @access public
      * @static

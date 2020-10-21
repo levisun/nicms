@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
-use app\common\library\Emoji;
+use app\common\library\Base64;
 
 class Filter
 {
@@ -37,7 +37,7 @@ class Filter
     {
         if (is_string($_data) && $_data) {
             $_data = self::base($_data);
-            $_data = (new Emoji)->clear($_data);
+            $_data = Base64::emojiClear($_data);
             $_data = strip_tags($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
@@ -59,7 +59,7 @@ class Filter
     {
         if (is_string($_data) && $_data) {
             $_data = self::base($_data);
-            $_data = (new Emoji)->encode($_data);
+            $_data = Base64::emojiEncode($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
@@ -80,7 +80,7 @@ class Filter
     {
         if (is_string($_data) && $_data) {
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
-            $_data = (new Emoji)->decode($_data);
+            $_data = Base64::emojiDecode($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::decode($value);

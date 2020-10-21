@@ -36,39 +36,13 @@
                     </template>
                 </ul>
                 <div class="form-inline my-2 my-lg-0">
-                    <input class="form-control mr-sm-2" type="search" id="key" placeholder="Search"
-                        aria-label="Search">
+                    <input class="form-control mr-sm-2" type="search" id="key" placeholder="Search" aria-label="Search">
                     <button class="btn btn-outline-success my-2 my-sm-0" v-on:click="search">Search</button>
                 </div>
             </div>
         </nav>
     </div>
 </header>
-
-<main id="layout-main" class="bg-light">
-    <div class="container">
-        {__CONTENT__}
-    </div>
-</main>
-
-<footer id="layout-footer" class="bg-dark">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm text-white-50">
-                <p>
-                    <template v-for="vo in foot_nav">
-                        <a v-bind:href="vo.url" v-text="vo.name"></a>
-                    </template>
-                </p>
-                <p>__FOOTER_MSG__</p>
-                <p>__COPYRIGHT__</p>
-            </div>
-        </div>
-    </div>
-</footer>
-
-__SCRIPT__
-
 <script>
     let layout_header = new Vue({
         el: '#layout-header',
@@ -105,7 +79,7 @@ __SCRIPT__
             },
             search: function () {
                 let key = jQuery('#key').val();
-                    key = jQuery.filter_str(key);
+                key = jQuery.filter_str(key);
                 if (key) {
                     window.location.href = '/search.html?key=' + key;
                 }
@@ -113,12 +87,38 @@ __SCRIPT__
         }
     });
     layout_header.navbar();
+</script>
 
+
+
+<main id="layout-main" class="bg-light">
+    <div class="container">
+        {__CONTENT__}
+    </div>
+</main>
+
+
+
+<footer id="layout-footer" class="bg-dark">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm text-white-50">
+                <p>
+                    <template v-for="vo in foot_nav">
+                        <a v-bind:href="vo.url" v-text="vo.name"></a>
+                    </template>
+                </p>
+                <p>__FOOTER_MSG__</p>
+                <p>__COPYRIGHT__</p>
+            </div>
+        </div>
+    </div>
+</footer>
+<script>
     let layout_footer = new Vue({
         el: '#layout-footer',
         data: {
             foot_nav: [],
-            ip: '',
         },
         methods: {
             load: function () {
@@ -139,3 +139,5 @@ __SCRIPT__
     });
     layout_footer.load();
 </script>
+
+__SCRIPT__

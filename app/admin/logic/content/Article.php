@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
+use app\common\library\tools\Participle;
 use app\common\library\Filter;
 use app\common\library\UploadLog;
 use app\common\model\Article as ModelArticle;
@@ -63,7 +64,7 @@ class Article extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
-            $search_key = words($search_key, 3);
+            $search_key = (new Participle)->words($search_key, 3);
             if (!empty($search_key)) {
                 $map[] = ['article.title', 'regexp', implode('|', $search_key)];
             }
@@ -175,15 +176,16 @@ class Article extends BaseLogic
             unset($model);
 
             // 自定义字段
-            if ($fiels = $this->request->param('fields/a', false)) {
-                foreach ($fiels as $key => $value) {
-                    $fiels_save[] = [
+            if ($field = $this->request->param('fields/a', false)) {
+                $field_save = [];
+                foreach ($field as $key => $value) {
+                    $field_save[] = [
                         'article_id' => $article->id,
                         'fields_id'  => $key,
                         'data'       => $value,
                     ];
                 }
-                (new ModelFieldsExtend)->saveAll($fiels_save);
+                (new ModelFieldsExtend)->saveAll($field_save);
             }
 
             // 文章,单页
@@ -343,7 +345,7 @@ class Article extends BaseLogic
             'admin_id'    => $this->uid,
             'user_id'     => $this->request->param('user_id/d', 0, 'abs'),
             'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
-            'attribute'      => $this->request->param('attribute/d', 0, 'abs'),
+            'attribute'   => $this->request->param('attribute/d', 0, 'abs'),
             'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'username'    => $this->request->param('username', ''),
             'access_id'   => $this->request->param('access_id/d', 0, 'abs'),
@@ -365,8 +367,8 @@ class Article extends BaseLogic
             unset($model);
 
             // 自定义字段
-            if ($fiels = $this->request->param('fields/a', false)) {
-                foreach ($fiels as $key => $value) {
+            if ($field = $this->request->param('fields/a', false)) {
+                foreach ($field as $key => $value) {
                     $has = ModelFieldsExtend::where([
                         ['article_id', '=', $id],
                         ['fields_id', '=', $key]

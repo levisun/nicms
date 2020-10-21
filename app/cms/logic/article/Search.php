@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\cms\logic\article;
 
 use app\common\controller\BaseLogic;
+use app\common\library\tools\Participle;
 use app\common\library\Base64;
 use app\common\library\Image;
 use app\common\model\Article as ModelArticle;
@@ -64,7 +65,7 @@ class Search extends BaseLogic
             $search_key = htmlspecialchars_decode($search_key, ENT_QUOTES);
             $search_key = str_replace('&nbsp;', '', $search_key);
             // 搜索5个词
-            $search_key = words($search_key, 5);
+            $search_key = (new Participle)->words($search_key, 5);
             if ($search_key = implode('|', $search_key)) {
                 $map[] = ['article.title', 'regexp', $search_key];
             }

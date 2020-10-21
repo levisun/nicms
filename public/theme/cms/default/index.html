@@ -6,8 +6,7 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item" v-for="item in items">
                         <h5 class="card-title">
-                            <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="item.cat_url"
-                                v-text="item.cat_name"></a>
+                            <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="item.cat_url" v-text="item.cat_name"></a>
                             <a v-bind:href="item.url" v-text="item.title"></a>
                         </h5>
                         <p class="text-muted">
@@ -34,15 +33,13 @@
                 <div class="card-header">{:lang('hot')}</div>
                 <div class="card-body">
                     <ul class="list-unstyled">
-                        {tags:list sort="hits DESC"}
-                        <li>
-                            <a class="badge badge-primary" style="margin-right:10px;" href="{$item.cat_url}">{$item.cat_name}</a>
-                            <a href="{$item.url}">{$item.title}</a>
+                        <li v-for="item in hot_items">
+                            <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="item.cat_url" v-text="item.cat_name"></a>
+                            <a v-bind:href="item.url" v-text="item.title"></a>
                             <p class="text-muted" style="margin-bottom:0;">
-                                <small>{$item.update_time}</small>
+                                <small v-text="item.update_time"></small>
                             </p>
                         </li>
-                        {/list}
                     </ul>
                 </div>
             </div>
@@ -51,15 +48,13 @@
                 <div class="card-header">{:lang('new')}</div>
                 <div class="card-body">
                     <ul class="list-unstyled">
-                        {tags:list sort="update_time DESC"}
-                        <li>
-                            <a class="badge badge-primary" style="margin-right:10px;" href="{$item.cat_url}">{$item.cat_name}</a>
-                            <a href="{$item.url}">{$item.title}</a>
+                        <li v-for="item in new_items">
+                            <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="item.cat_url" v-text="item.cat_name"></a>
+                            <a v-bind:href="item.url" v-text="item.title"></a>
                             <p class="text-muted" style="margin-bottom:0;">
-                                <small>{$item.update_time}</small>
+                                <small v-text="item.update_time"></small>
                             </p>
                         </li>
-                        {/list}
                     </ul>
                 </div>
             </div>
@@ -71,6 +66,8 @@
         el: '#layout-index',
         data: {
             items: [],
+            hot_items: [],
+            new_items: [],
         },
         methods: {
             load: function () {
@@ -83,6 +80,34 @@
                     success: function (result) {
                         if (10000 == result.code) {
                             index.items = result.data.list;
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api_uri + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'article.category.query' },
+                        { name: 'sort', value: 'hits DESC' },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            index.hot_items = result.data.list;
+                        }
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api_uri + '/query.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'article.category.query' },
+                        { name: 'sort', value: 'update_time DESC' },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            index.new_items = result.data.list;
                         }
                     }
                 });

@@ -84,10 +84,9 @@ class UploadLog
      */
     public static function remove(string $_file): void
     {
-        $path = public_path();
         // 过滤非法字符
         $abs_file = Filter::safe($_file);
-        $abs_file = $path . str_replace('/', DIRECTORY_SEPARATOR, $abs_file);
+        $abs_file = public_path() . str_replace('/', DIRECTORY_SEPARATOR, $abs_file);
 
         // 删除文件
         if (is_file($abs_file)) {

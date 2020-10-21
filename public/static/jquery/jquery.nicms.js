@@ -318,6 +318,13 @@
         return '';
     }
 
+    /**
+     * 删除COOKIE
+     */
+    jQuery.remove_cookie = function (name) {
+        document.cookie = cname + '=null;expires=-1440;path=/;SameSite=lax;domain=.' + NICMS.rootDomain.substring(2);
+    };
+
     jQuery.in_array = function (needle, haystack) {
         for (var index in haystack) {
             if (needle == haystack[index]) {

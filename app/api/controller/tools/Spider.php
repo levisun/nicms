@@ -18,8 +18,8 @@ declare(strict_types=1);
 namespace app\api\controller\tools;
 
 use app\common\library\api\Async;
+use app\common\library\tools\Spider as LibSpider;
 use app\common\library\Filter;
-use app\common\library\Spider as LibSpider;
 
 class Spider extends Async
 {

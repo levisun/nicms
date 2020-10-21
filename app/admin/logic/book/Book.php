@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\book;
 
 use app\common\controller\BaseLogic;
+use app\common\library\tools\Participle;
 use app\common\library\UploadLog;
 use app\common\model\Book as ModelBook;
 
@@ -45,7 +46,7 @@ class Book extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key')) {
-            $search_key = words($search_key, 3);
+            $search_key = (new Participle)->words($search_key, 3);
             if (!empty($search_key)) {
                 $map[] = ['book.title', 'regexp', implode('|', $search_key)];
             }

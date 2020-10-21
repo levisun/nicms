@@ -17,9 +17,9 @@
                     <tr>
                         <td v-text="vo.name"></td>
                         <td>
-                            <a id="open" data-toggle="modal" data-target="#modal-default" v-on:click="open(vo.id)">
-                                <i class="fa fa-eye"></i>
-                                {:lang('open')}
+                            <a class="editor" v-bind:href="vo.url.editor">
+                                <i class="fa fa-pencil-square-o"></i>
+                                {:lang('editor')}
                             </a>
                             <a v-on:click="remove(vo.id)" v-bind:data="vo.id">
                                 <i class="fa fa-trash"></i>

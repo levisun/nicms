@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
+use app\common\library\UploadLog;
 use app\common\model\Banner as ModelBanner;
 
 class Banner extends BaseLogic
@@ -33,7 +34,12 @@ class Banner extends BaseLogic
     {
         $query_limit = $this->request->param('limit/d', 20, 'abs');
 
+        $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
+
         $result = ModelBanner::view('banner', ['id', 'name', 'width', 'height'])
+            ->where([
+                ['id', '=', 0]
+            ])
             ->order('banner.update_time DESC')
             ->paginate([
                 'list_rows' => $query_limit,
@@ -45,14 +51,7 @@ class Banner extends BaseLogic
         $list['render'] = $result->render();
 
         foreach ($list['data'] as $key => $value) {
-            $child = ModelBanner::field(['id', 'title', 'description', 'image', 'url'])
-                ->where([
-                    ['id', '=', $value['id']]
-                ])
-                ->order('sort_order ASC, update_time DESC')
-                ->select();
-            $value['child'] = $child ? $child->toArray() : [];
-
+            $value['image_url'] = unserialize($value['image_url']);
             $value['url'] = [
                 'editor' => url('content/banner/editor/' . $value['id']),
                 'remove' => url('content/banner/remove/' . $value['id']),
@@ -72,6 +71,181 @@ class Banner extends BaseLogic
                 'last_page'    => $list['last_page'],
                 'page'         => $list['render'],
             ]
+        ];
+    }
+
+    /**
+     * 添加
+     * @access public
+     * @return array
+     */
+    public function added()
+    {
+        $this->actionLog(__METHOD__, 'admin banner added');
+
+        $receive_data = [
+            'name'        => $this->request->param('name'),
+            'description' => $this->request->param('description', ''),
+            'width'       => $this->request->param('width/d', 0, 'abs'),
+            'height'      => $this->request->param('height/d', 0, 'abs'),
+            'image_url'   => $this->request->param('image_url/a'),
+            'url'         => $this->request->param('url/a'),
+            'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
+            'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
+            'update_time' => time(),
+            'create_time' => time(),
+            'lang'        => $this->lang->getLangSet()
+        ];
+
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+
+        foreach ($receive_data['image_url'] as $value) {
+            UploadLog::update($value, 1);
+        }
+
+        $receive_data['image_url'] = serialize($receive_data['image_url']);
+        $receive_data['url'] = serialize($receive_data['url']);
+
+        ModelBanner::create($receive_data);
+
+        $this->cache->tag('cms banner')->clear();
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'success',
+        ];
+    }
+
+    /**
+     * 查询
+     * @access public
+     * @return array
+     */
+    public function find(): array
+    {
+        $result = [];
+
+        if ($id = $this->request->param('id/d', 0, 'abs')) {
+            $result = ModelBanner::where([
+                ['id', '=', $id],
+            ])->find();
+            $result['image_url'] = unserialize($result['image_url']);
+            $result['url'] = unserialize($result['url']);
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'success',
+            'data'  => $result
+        ];
+    }
+
+    /**
+     * 编辑
+     * @access public
+     * @return array
+     */
+    public function editor(): array
+    {
+        $this->actionLog(__METHOD__, 'admin banner editor');
+
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40001,
+                'msg'   => 'error'
+            ];
+        }
+
+        $receive_data = [
+            'name'        => $this->request->param('name'),
+            'width'       => $this->request->param('width/d', 0, 'abs'),
+            'height'      => $this->request->param('height/d', 0, 'abs'),
+            'image_url'   => $this->request->param('image_url/a'),
+            'url'         => $this->request->param('url/a'),
+            'description' => $this->request->param('description', ''),
+            'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
+            'update_time' => time(),
+        ];
+
+        if ($result = $this->validate(__METHOD__, $receive_data)) {
+            return $result;
+        }
+
+        // 删除旧图片
+        $image_url = ModelBanner::where([
+            ['id', '=', $id],
+        ])->value('image_url');
+        $image_url = unserialize($image_url);
+
+        foreach ($image_url as $img) {
+            if (!is_array($img, $receive_data['image_url'])) {
+                UploadLog::remove($img);
+            }
+        }
+        foreach ($receive_data['image_url'] as $img) {
+            UploadLog::update($img, 1);
+        }
+
+        $receive_data['image_url'] = serialize($receive_data['image_url']);
+        $receive_data['url'] = serialize($receive_data['url']);
+
+        ModelBanner::update($receive_data, ['id' => $id]);
+
+        // 清除缓存
+        $this->cache->tag('cms banner')->clear();
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'success',
+        ];
+    }
+
+    /**
+     * 删除
+     * @access public
+     * @return array
+     */
+    public function remove(): array
+    {
+        $this->actionLog(__METHOD__, 'admin banner remove');
+
+        if (!$id = $this->request->param('id/d', 0, 'abs')) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40001,
+                'msg'   => 'error'
+            ];
+        }
+
+        // 删除图片
+        $image_url = ModelBanner::where([
+            ['id', '=', $id],
+        ])->value('image_url');
+        $image_url = unserialize($image_url);
+
+        foreach ($image_url as $img) {
+            UploadLog::remove($img);
+        }
+
+        ModelBanner::where([
+            ['id', '=', $id]
+        ])->delete();
+
+        // 清除缓存
+        $this->cache->tag('cms banner')->clear();
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'success'
         ];
     }
 }

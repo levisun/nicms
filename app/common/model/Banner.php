@@ -16,15 +16,14 @@
 DROP TABLE IF EXISTS `nc_banner`;
 CREATE TABLE IF NOT EXISTS `nc_banner` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `pid` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '父ID',
     `name` varchar(255) NOT NULL DEFAULT '' COMMENT '幻灯片名',
-    `title` varchar(255) NOT NULL DEFAULT '' COMMENT '图片标题',
     `description` varchar(300) NOT NULL DEFAULT '' COMMENT '描述',
     `width` smallint(4) NOT NULL DEFAULT '0' COMMENT '图片宽',
     `height` smallint(4) NOT NULL DEFAULT '0' COMMENT '图片高',
-    `image` varchar(255) NOT NULL DEFAULT '' COMMENT '图片',
+    `image_url` varchar(255) NOT NULL DEFAULT '' COMMENT '图片',
     `url` varchar(500) NOT NULL DEFAULT '' COMMENT '跳转链接',
     `hits` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '点击量',
+    `is_pass` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '审核',
     `sort_order` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
     `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
     `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
@@ -48,23 +47,22 @@ class Banner extends Model
     protected $updateTime = 'update_time';
     protected $pk = 'id';
     protected $type = [
-        'pid'        => 'integer',
         'width'      => 'integer',
         'height'     => 'integer',
         'hits'       => 'integer',
+        'is_pass'    => 'integer',
         'sort_order' => 'integer',
     ];
     protected $field = [
         'id',
-        'pid',
         'name',
-        'title',
         'description',
         'width',
         'height',
-        'image',
+        'image_url',
         'url',
         'hits',
+        'is_pass',
         'sort_order',
         'update_time',
         'create_time',

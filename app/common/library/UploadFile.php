@@ -69,6 +69,24 @@ class UploadFile
     ];
 
     /**
+     * 图片宽
+     * @var int
+     */
+    private $imgWidth = 0;
+
+    /**
+     * 图片高
+     * @var int
+     */
+    private $imgHeight = 0;
+
+    /**
+     * 图片缩略图(裁减)类型
+     * @var int
+     */
+    private $imgThumbType = 0;
+
+    /**
      * 图片水印
      * @var bool
      */
@@ -80,12 +98,10 @@ class UploadFile
         @ini_set('max_execution_time', '600');
         @ini_set('memory_limit', '128M');
 
-        $this->cutSize = [
-            'width'  => !empty($_size['width']) ? abs($_size['width']) : 0,
-            'height' => !empty($_size['height']) ? abs($_size['height']) : 0,
-            // THUMB_SCALING:等比例缩放 | THUMB_FIXED:固定尺寸缩放
-            'type'   => !empty($_size['type']) ? Image::THUMB_SCALING : Image::THUMB_FIXED,
-        ];
+        $this->imgWidth = !empty($_size['width']) ? abs($_size['width']) : 0;
+        $this->imgHeight = !empty($_size['height']) ? abs($_size['height']) : 0;
+        // THUMB_SCALING:等比例缩放 | THUMB_FIXED:固定尺寸缩放
+        $this->imgThumbType = !empty($_size['type']) ? Image::THUMB_SCALING : Image::THUMB_FIXED;
 
         $this->imgWater = $_water;
 
@@ -278,8 +294,8 @@ class UploadFile
         $image = Image::open(public_path() . $_save_file);
 
         // 裁减图片到指定尺寸
-        if ($this->cutSize['width'] && $this->cutSize['height']) {
-            $image->thumb($this->cutSize['width'], $this->cutSize['height'], $this->cutSize['type']);
+        if ($this->imgWidth && $this->imgHeight) {
+            $image->thumb($this->imgWidth, $this->imgHeight, $this->imgThumbType);
         }
         // 裁减图片到最大尺寸
         elseif ($image->width() >= 800) {

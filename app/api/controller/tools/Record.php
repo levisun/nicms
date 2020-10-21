@@ -19,7 +19,7 @@ namespace app\api\controller\tools;
 
 use think\Response;
 use app\common\library\api\Async;
-use app\common\library\IpInfo;
+use app\common\library\tools\IpInfo;
 use app\common\model\Visit as ModelVisit;
 
 class Record extends Async

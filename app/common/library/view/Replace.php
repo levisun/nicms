@@ -323,7 +323,7 @@ class Replace
 
         $_content .= '<script src="' . Config::get('app.api_host') . '/ip.do" async></script>';
         if ('admin' !== trim($this->config['app_name'], '\/')) {
-            $_content .= '<script src="' . Config::get('app.api_host') . '/record.do?token=<?php echo md5(request()->url(true));?>' . '" async></script>';
+            $_content .= '<script src="' . Config::get('app.api_host') . '/tools/record.do?token=<?php echo md5(request()->url(true));?>' . '" async></script>';
         }
 
         // 解析模板中的JS, 移动到HTML文档底部

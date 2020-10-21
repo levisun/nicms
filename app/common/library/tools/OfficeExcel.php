@@ -2,7 +2,7 @@
 
 /**
  *
- * 爬虫
+ * Office Excel表格
  *
  * @package   NICMS
  * @category  app\common\library
@@ -14,13 +14,12 @@
 
 declare(strict_types=1);
 
-namespace app\common\library;
+namespace app\common\library\tools;
 
-use think\facade\Cache;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
-class Excel
+class OfficeExcel
 {
 
     /**
@@ -35,15 +34,11 @@ class Excel
             return false;
         }
 
-        $cache_key = $_file . $_sheet;
 
-        if (!Cache::has($cache_key) || !$result = Cache::get($cache_key)) {
-            $ext = strtolower(pathinfo($_file, PATHINFO_EXTENSION));
-            if (in_array($ext, ['xlsx', 'xls'])) {
-                $spreadsheet = IOFactory::load($_file);
-                $result = $spreadsheet->getSheet($_sheet)->toArray();
-                Cache::set($cache_key, $result);
-            }
+        $ext = strtolower(pathinfo($_file, PATHINFO_EXTENSION));
+        if (in_array($ext, ['xlsx', 'xls'])) {
+            $spreadsheet = IOFactory::load($_file);
+            $result = $spreadsheet->getSheet($_sheet)->toArray();
         }
 
         return $result ?: null;
