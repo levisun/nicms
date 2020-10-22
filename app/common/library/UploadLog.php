@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
-use app\common\library\Filter;
 use app\common\model\UploadFileLog as ModelUploadFileLog;
 
 class UploadLog
@@ -36,6 +35,7 @@ class UploadLog
             return;
         }
 
+        $_file = trim($_file, '\/.');
         $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
 
         $has = ModelUploadFileLog::where([
@@ -68,8 +68,8 @@ class UploadLog
             return;
         }
 
+        $_file = trim($_file, '\/.');
         $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
-
         ModelUploadFileLog::update([
             'type' => $_type
         ], ['file' => $_file]);
@@ -85,7 +85,7 @@ class UploadLog
     public static function remove(string $_file): void
     {
         // 过滤非法字符
-        $abs_file = Filter::safe($_file);
+        $abs_file = trim($_file, '\/.');
         $abs_file = public_path() . str_replace('/', DIRECTORY_SEPARATOR, $abs_file);
 
         // 删除文件
@@ -111,19 +111,20 @@ class UploadLog
                 ['type', '=', 0],
                 ['create_time', '<=', strtotime('-1 days')]
             ])
+            ->order('id ASC')
             ->limit(10)
             ->select();
 
         $result = $result ? $result->toArray() : [];
 
-        $path = public_path();
+        $id = [];
         foreach ($result as $file) {
             // 记录ID
             $id[] = (int) $file['id'];
 
             // 过滤非法字符
-            $file['file'] = Filter::safe($file['file']);
-            $file['file'] = $path . str_replace('/', DIRECTORY_SEPARATOR, $file['file']);
+            $file['file'] = trim($file['file'], '\/.');
+            $file['file'] = public_path() . str_replace('/', DIRECTORY_SEPARATOR, $file['file']);
 
             if (is_file($file['file'])) {
                 @unlink($file['file']);

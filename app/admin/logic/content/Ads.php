@@ -103,6 +103,8 @@ class Ads extends BaseLogic
             return $result;
         }
 
+        UploadLog::update($receive_data['image'], 1);
+
         ModelAds::create($receive_data);
 
         $this->cache->tag('cms ads')->clear();
@@ -183,8 +185,9 @@ class Ads extends BaseLogic
 
         if ($image !== $receive_data['image']) {
             UploadLog::remove($image);
-            UploadLog::update($receive_data['image'], 1);
         }
+
+        UploadLog::update($receive_data['image'], 1);
 
         ModelAds::update($receive_data, ['id' => $id]);
 

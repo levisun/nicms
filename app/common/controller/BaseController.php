@@ -88,8 +88,7 @@ abstract class BaseController
         $this->view    = &$this->app->view;
 
         // 加载语言包
-        $lang  = $this->app->getBasePath() . 'common' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
-        $lang .= $this->app->lang->getLangSet() . '.php';
+        $lang = root_path('app/common/lang') . $this->app->lang->getLangSet() . '.php';
         $this->app->lang->load($lang);
 
         // 调试模式,请到.env进行设置

@@ -21,6 +21,11 @@ Route::domain(['cdn', 'img'], function () {
         return miss(404, false);
     });
 });
+
+Route::miss(function () {
+    return miss(404, false);
+});
+
 Route::group(function () {
     // 首页
     Route::get('/$', 'index');
@@ -43,10 +48,6 @@ Route::group(function () {
 
     // 跳转接口
     Route::get('go$', 'go');
-
-    Route::miss(function () {
-        return miss(404, true);
-    });
 })->prefix('Index/')->ext('html')->pattern([
     'page' => '\d+',
     'cid'  => '\w+',

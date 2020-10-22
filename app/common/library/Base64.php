@@ -76,30 +76,6 @@ class Base64
     }
 
     /**
-     * 16进制转10进制
-     * @access public
-     * @static
-     * @param  string $_hex
-     * @return int
-     */
-    public static function hexdec(string $_hex): int
-    {
-        return (int) hexdec($_hex) - 1000;
-    }
-
-    /**
-     * 10进制转16进制
-     * @access public
-     * @static
-     * @param  int $_dec
-     * @return string
-     */
-    public static function dechex(int $_dec): string
-    {
-        return dechex($_dec + 1000);
-    }
-
-    /**
      * emoji编码
      * @access public
      * @static

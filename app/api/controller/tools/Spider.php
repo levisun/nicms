@@ -38,7 +38,7 @@ class Spider extends Async
         $extract = $this->request->param('extract', '');
         $extract = $extract ? explode(',', $extract) : [];
 
-        $uri = Filter::decode($uri);
+        $uri = Filter::contentDecode($uri);
         $uri = str_replace('&nbsp;', '', $uri);
 
         try {

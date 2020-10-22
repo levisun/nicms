@@ -161,6 +161,8 @@ class Category extends BaseLogic
             return $result;
         }
 
+        UploadLog::update($receive_data['image'], 1);
+
         ModelCategory::create($receive_data);
 
         $this->cache->tag('cms nav')->clear();
@@ -188,7 +190,7 @@ class Category extends BaseLogic
                 ->find();
 
             if (null !== $result && $result = $result->toArray()) {
-                $result['image'] = $result['image']
+                $result['image_url'] = $result['image']
                     ? $this->config->get('app.img_host') . '/' . $result['image']
                     : '';
 
@@ -264,8 +266,9 @@ class Category extends BaseLogic
         ])->value('image');
         if ($image !== $receive_data['image']) {
             UploadLog::remove($image);
-            UploadLog::update($receive_data['image'], 1);
         }
+
+        UploadLog::update($receive_data['image'], 1);
 
         ModelCategory::update($receive_data, ['id' => $id]);
 

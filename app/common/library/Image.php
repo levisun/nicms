@@ -32,37 +32,35 @@ class Image
      * @param  int    $_size 整十数
      * @return string
      */
-    public static function thumb(string $_img, int $_size = 0): string
+    public static function thumb(string $_img, int $_size = 100): string
     {
-        if (self::has($_img) && $_size >= 10 && $_size <= 800) {
-            $_img = Filter::safe($_img);
-            $_img = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_img);
-
-            $_size = intval($_size / 10) * 10;
-
-            $new_file = md5($_img . $_size) . '.' . pathinfo($_img, PATHINFO_EXTENSION);
-
-            $path = public_path('storage/uploads/thumb');
-            is_dir($path) or mkdir($path, 0755, true);
-
-            if (!is_file($path . $new_file)) {
-                @ini_set('memory_limit', '128M');
-                $origin = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
-                $image = ThinkImage::open($origin . $_img);
-                if ($image->width() > $_size) {
-                    $image->thumb($_size, $_size, ThinkImage::THUMB_SCALING);
-                }
-                $image->save($path . $new_file);
-                unset($image);
-            }
-
-            $_img = Config::get('app.img_host') . '/storage/uploads/thumb/' .
-                str_replace(DIRECTORY_SEPARATOR, '/', $new_file);
-        } else {
-            $_img = self::miss();
+        if (!self::has($_img)) {
+            return $_img;
         }
 
-        return $_img;
+        $_size = intval($_size / 10) * 10;
+        $_size = 800 > $_size ? $_size : 800;
+        $_size = 10 < $_size ? $_size : 10;
+
+        $_img = trim($_img, '\/.');
+        $_img = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_img);
+
+        $new_file = md5($_img . $_size) . '.' . pathinfo($_img, PATHINFO_EXTENSION);
+
+        $path = public_path('storage/uploads/thumb');
+        is_dir($path) or mkdir($path, 0755, true);
+
+        if (!is_file($path . $new_file)) {
+            @ini_set('memory_limit', '128M');
+            $image = ThinkImage::open(public_path() . $_img);
+            if ($image->width() > $_size) {
+                $image->thumb($_size, $_size, ThinkImage::THUMB_SCALING);
+            }
+            $image->save($path . $new_file);
+            unset($image);
+        }
+
+        return Config::get('app.img_host') . '/storage/uploads/thumb/' . str_replace(DIRECTORY_SEPARATOR, '/', $new_file);
     }
 
     /**
@@ -93,8 +91,8 @@ class Image
     public static function avatar(string $_img, string $_username = 'avatar'): string
     {
         if (!$_img = self::has($_img)) {
-            $length = mb_strlen($_username);
-            $salt = mb_strlen(Request::rootDomain());
+            $length = mb_strlen($_username, 'utf-8');
+            $salt = strlen(Request::rootDomain());
             $bg = (intval($length * $salt) % 255) . ',' . (intval($length * $salt * 3) % 255) . ',' . (intval($length * $salt * 9) % 255);
 
             $_img = 'data:image/svg+xml;base64,' .
@@ -118,12 +116,9 @@ class Image
         }
 
         $_img = Filter::safe($_img);
-        $_img = str_replace(DIRECTORY_SEPARATOR, '/', $_img);
-
-        $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
-
-        if ($_img && is_file($path . $_img)) {
-            return Config::get('app.img_host') . '/' . $_img;
+        $_img = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_img);
+        if ($_img && is_file(public_path() . $_img)) {
+            return Config::get('app.img_host') . '/' . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
         }
 
         return false;

@@ -35,7 +35,7 @@
                 <label>{:lang('image')}</label>
                 <input type="text" name="image" class="image form-control" v-bind:value="items.image">
                 <input type="file" name="upload" id="upload" v-on:change="upload" class="form-control">
-                <img class="image-box" v-show="items.image" v-bind:src="items.image">
+                <img class="image-box" v-show="items.image_url" v-bind:src="items.image_url">
             </div>
 
             <div class="form-group">

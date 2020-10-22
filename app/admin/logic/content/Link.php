@@ -106,6 +106,8 @@ class Link extends BaseLogic
             return $result;
         }
 
+        UploadLog::update($receive_data['image'], 1);
+
         ModelLink::create($receive_data);
 
         $this->cache->tag('cms link list' . $receive_data['category_id'])->clear();
@@ -188,8 +190,9 @@ class Link extends BaseLogic
         ])->value('logo');
         if ($logo !== $receive_data['logo']) {
             UploadLog::remove($logo);
-            UploadLog::update($receive_data['logo'], 1);
         }
+
+        UploadLog::update($receive_data['image'], 1);
 
         ModelLink::update($receive_data, ['id' => $id]);
 

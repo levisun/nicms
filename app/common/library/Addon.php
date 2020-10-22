@@ -112,7 +112,7 @@ class Addon
     }
 
     /**
-     * 开启关闭插件
+     * 插件信息
      * @access public
      * @param  string $_namespace
      * @return array

@@ -13,6 +13,10 @@
 
 use think\facade\Route;
 
+Route::miss(function () {
+    return miss(404, false);
+});
+
 Route::group(function () {
     // office接口
     Route::post('excel/read$', 'office.Excel/read');
@@ -41,9 +45,6 @@ Route::group(function () {
     Route::get('query$', 'Query/index');        // 请求接口
     Route::post('upload$', 'Upload/index');     // 上传接口
 
-    Route::miss(function () {
-        return miss(404, false);
-    });
 })->domain('api')->ext('do')->pattern([
     'method' => '[a-z]+',
 ]);

@@ -193,7 +193,7 @@ class Article extends BaseLogic
                 ModelArticleContent::create([
                     'article_id' => $article->id,
                     'origin'     => $this->request->param('origin', ''),
-                    'content'    => $this->request->param('content', '', '\app\common\library\Filter::encode')
+                    'content'    => $this->request->param('content', '', '\app\common\library\Filter::contentEncode')
                 ]);
             }
             // 相册
@@ -271,7 +271,7 @@ class Article extends BaseLogic
                     }
                 }
                 if (isset($result['content'])) {
-                    $result['content'] = Filter::decode($result['content']);
+                    $result['content'] = Filter::contentDecode($result['content']);
                 }
 
                 // 附加字段数据
@@ -393,7 +393,7 @@ class Article extends BaseLogic
 
                 ModelArticleContent::update([
                     'origin'  => $this->request->param('origin', ''),
-                    'content' => $this->request->param('content', '', '\app\common\library\Filter::encode')
+                    'content' => $this->request->param('content', '', '\app\common\library\Filter::contentEncode')
                 ], ['article_id' => $id]);
             }
             // 相册

@@ -42,5 +42,7 @@ class UploadFileLog extends Model
     protected $field = [
         'id',
         'file',
+        'type',
+        'create_time',
     ];
 }

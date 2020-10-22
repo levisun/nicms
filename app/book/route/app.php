@@ -13,6 +13,10 @@
 
 use think\facade\Route;
 
+Route::miss(function () {
+    return miss(404, false);
+});
+
 Route::group(function () {
     // 首页
     Route::get('/$', 'Index/index');
@@ -29,9 +33,6 @@ Route::group(function () {
     // 搜索页
     Route::get('search$', 'Index/search');
 
-    Route::miss(function () {
-        return miss(404, false);
-    });
 })->domain('book')->ext('html')->pattern([
     'tid'  => '\w+',
     'bid'  => '\w+',

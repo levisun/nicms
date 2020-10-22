@@ -142,7 +142,7 @@ class Details extends BaseLogic
 
                                     // 文章内容
                                 case 'content':
-                                    $value = Filter::decode($value);
+                                    $value = Filter::contentDecode($value);
                                     $value = preg_replace_callback('/(src=")([a-zA-Z0-9&=#,_:?.\/]+)(")/si', function ($matches) {
                                         return $matches[2]
                                             ? 'src="' . Image::path($matches[2]) . '"'

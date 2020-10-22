@@ -13,6 +13,10 @@
 
 use think\facade\Route;
 
+Route::miss(function () {
+    return miss(404, false);
+});
+
 Route::group(function () {
     Route::get('/$', function () {
         return redirect(url('account/user/login'), 301);
@@ -23,9 +27,6 @@ Route::group(function () {
 
     Route::get(':logic/:action/:method/[:id]$', 'Index/index');
 
-    Route::miss(function () {
-        return miss(404, false);
-    });
 })->domain(env('admin.entry', 'admin'))->ext('html')->pattern([
     'logic'  => '[a-z]+',
     'action' => '[a-z]+',

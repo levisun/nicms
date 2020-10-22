@@ -237,8 +237,6 @@ class View implements TemplateHandlerInterface
 
 
         // 过滤变量内容
-        // $_data = Filter::encode($_data);
-        // $_data = Filter::decode($_data);
         $this->var_data = array_merge($this->var_data, $_data);
         extract($this->var_data, EXTR_OVERWRITE);
 

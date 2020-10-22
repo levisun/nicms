@@ -55,7 +55,7 @@ class Filter
      * @param  string|array $_data
      * @return string|array
      */
-    public static function encode($_data)
+    public static function contentEncode($_data)
     {
         if (is_string($_data) && $_data) {
             $_data = self::base($_data);
@@ -63,7 +63,7 @@ class Filter
             $_data = htmlspecialchars($_data, ENT_QUOTES);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::encode($value);
+                $_data[$key] = self::contentEncode($value);
             }
         }
         return $_data;
@@ -76,14 +76,14 @@ class Filter
      * @param  string|array $_data
      * @return string|array
      */
-    public static function decode($_data)
+    public static function contentDecode($_data)
     {
         if (is_string($_data) && $_data) {
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = Base64::emojiDecode($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::decode($value);
+                $_data[$key] = self::contentDecode($value);
             }
         }
         return $_data;
