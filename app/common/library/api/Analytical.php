@@ -136,15 +136,12 @@ class Analytical extends Base
      */
     public function loadLang(): void
     {
-        // 公众语言包
-        $common_lang  = $this->app->getBasePath() . 'common' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
-        $common_lang .= $this->lang->getLangSet() . '.php';
-
-        // API方法所属应用的语言包
-        $lang  = $this->app->getBasePath() . $this->appName . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
-        $lang .= $this->lang->getLangSet() . '.php';
-
-        $this->lang->load([$common_lang, $lang]);
+        $this->lang->load([
+            // 公众语言包
+            root_path('app/common/lang') . $this->lang->getLangSet() . '.php',
+            // API方法所属应用的语言包
+            root_path('app/' . $this->appName . '/lang') . $this->lang->getLangSet() . '.php',
+        ]);
     }
 
     /**

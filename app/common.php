@@ -21,7 +21,6 @@ use think\facade\Route;
 use app\common\library\Base64;
 use app\common\library\Filter;
 use app\common\model\ApiApp as ModelApiApp;
-use Lizhichao\Word\VicWord;
 
 if (!function_exists('format_hits')) {
     /**

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 红包分配算法
  *
@@ -12,6 +13,11 @@
  *
  * https://segmentfault.com/a/1190000014215229
  */
+
+declare(strict_types=1);
+
+namespace app\common\library\tools;
+
 class Coupon
 {
     /**
@@ -65,7 +71,7 @@ class Coupon
     {
         // A. 验证
         if ($this->amount < $validAmount = $this->coupon_min * $this->num) {
-            throw new Exception('红包总金额必须≥'.$validAmount.'元');
+            throw new Exception('红包总金额必须≥' . $validAmount . '元');
         }
 
         // B. 分配红包
@@ -125,7 +131,8 @@ class Coupon
         $coupon_amount = $this->decimal_number($avg_amount * (1 + $this->apportionRandRatio()));
 
         // 如果低于最低金额或超过可领取的最大金额，则重新获取
-        if ($coupon_amount < $this->coupon_min
+        if (
+            $coupon_amount < $this->coupon_min
             || $coupon_amount > $this->calcCouponAmountMax($amount, $num)
         ) {
             return $this->calcCouponAmount($avg_amount, $amount, $num);

@@ -135,16 +135,23 @@ class Async extends Base
 
     /**
      * API初始化
+     * 请勿修改执行顺序
      * @access protected
      * @return void
      */
     protected function ApiInit(): void
     {
         $this->analytical->openVersion = false;
+
+        $this->validate->timestamp();
+        $this->validate->referer();
+
         $this->analytical->authorization();
         $this->analytical->accept();
         $this->analytical->appId();
         $this->analytical->loadLang();
+
+        $this->validate->sign($this->analytical->appSecret);
 
         // 设置会话信息(用户ID,用户组)
         $this->session->setId($this->analytical->sessionId);
@@ -156,8 +163,6 @@ class Async extends Base
             $this->type = $this->analytical->appAuthKey == 'user_auth_key' ? 'user' : 'admin';
         }
 
-        $this->validate->sign($this->analytical->appSecret);
-        $this->validate->referer();
         $this->validate->fromToken();
     }
 

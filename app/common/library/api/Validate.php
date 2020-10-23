@@ -52,12 +52,6 @@ class Validate extends Base
             $this->abort('The signature is wrong.', 22002);
         }
 
-        // 请求时间
-        $timestamp = $this->request->param('timestamp/d', $this->request->time(), 'abs');
-        if ($timestamp <= strtotime('-1 hour')) {
-            $this->abort('The request timed out.', 23001);
-        }
-
         // 获得原始数据
         $params = $this->request->param('', '', 'trim');
         $params = array_merge($params, $_FILES);
@@ -81,6 +75,21 @@ class Validate extends Base
         if (!hash_equals(call_user_func($sign_type, $str), $sign)) {
             $this->abort('The signature is wrong.', 22003);
         }
+    }
+
+    /**
+     * 验证请求时间
+     * @access public
+     * @return void
+     */
+    public function timestamp(): bool
+    {
+        $timestamp = $this->request->param('timestamp/d', $this->request->time(), 'abs');
+        if ($timestamp <= strtotime('-1 minutes') && $timestamp >= strtotime('+30 seconds')) {
+            $this->abort('The request timed out.', 23001);
+        }
+
+        return true;
     }
 
     /**
