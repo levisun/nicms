@@ -111,7 +111,7 @@ class Book extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog(__METHOD__, 'admin book added');
+        $this->actionLog('admin book added');
 
         $receive_data = [
             'title'       => $this->request->param('title'),
@@ -131,7 +131,7 @@ class Book extends BaseLogic
             'create_time' => time(),
             'lang'        => $this->lang->getLangSet()
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -185,7 +185,7 @@ class Book extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin book editor');
+        $this->actionLog('admin book editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -212,7 +212,7 @@ class Book extends BaseLogic
             'origin'      => $this->request->param('origin'),
             'update_time' => time(),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -243,7 +243,7 @@ class Book extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin book remove');
+        $this->actionLog('admin book remove');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [

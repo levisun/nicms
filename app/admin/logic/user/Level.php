@@ -73,7 +73,7 @@ class Level extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog(__METHOD__, 'admin role added');
+        $this->actionLog('admin role added');
 
         $receive_data = [
             'name'       => $this->request->param('name'),
@@ -81,7 +81,7 @@ class Level extends BaseLogic
             'remark'     => $this->request->param('remark'),
             'status'     => $this->request->param('status/d', 0, 'abs'),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -124,7 +124,7 @@ class Level extends BaseLogic
      */
     public function editor()
     {
-        $this->actionLog(__METHOD__, 'admin role editor');
+        $this->actionLog('admin role editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -141,7 +141,7 @@ class Level extends BaseLogic
             'remark'     => $this->request->param('remark'),
             'status'     => $this->request->param('status/d', 0, 'abs'),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -161,7 +161,7 @@ class Level extends BaseLogic
      */
     public function remove()
     {
-        $this->actionLog(__METHOD__, 'admin role remove');
+        $this->actionLog('admin role remove');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [

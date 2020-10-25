@@ -123,7 +123,7 @@ class Recycle extends BaseLogic
      */
     public function recover(): array
     {
-        $this->actionLog(__METHOD__, 'admin content remove');
+        $this->actionLog('admin content remove');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -162,7 +162,7 @@ class Recycle extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin content remove');
+        $this->actionLog('admin content remove');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [

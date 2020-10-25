@@ -112,10 +112,7 @@ class Spider
         $this->result = Filter::php($this->result);
 
         // 添加访问网址
-        $this->result = '<!-- ' . serialize([
-            'website' => $_uri,
-            'date' => date('Y-m-d H:i:s')
-        ]) . ' -->' . PHP_EOL . $this->result;
+        $this->result = '<!-- website:' . $_uri . ' -->' . PHP_EOL . $this->result;
 
         // 添加单页支持
         $base = parse_url($_uri, PHP_URL_PATH);
@@ -149,7 +146,7 @@ class Spider
         $content = [];
         $this->crawler->filter($_selector)->each(function (Crawler $node) use (&$_extract, &$content) {
             $result = $_extract ? $node->extract($_extract) : $node->html();
-            $content[] = Filter::encode($result);
+            $content[] = htmlspecialchars($result, ENT_QUOTES);
         });
 
         return $content;

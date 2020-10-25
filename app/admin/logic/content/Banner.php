@@ -81,7 +81,7 @@ class Banner extends BaseLogic
      */
     public function added()
     {
-        $this->actionLog(__METHOD__, 'admin banner added');
+        $this->actionLog('admin banner added');
 
         $receive_data = [
             'name'        => $this->request->param('name'),
@@ -97,7 +97,7 @@ class Banner extends BaseLogic
             'lang'        => $this->lang->getLangSet()
         ];
 
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -151,7 +151,7 @@ class Banner extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin banner editor');
+        $this->actionLog('admin banner editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -173,7 +173,7 @@ class Banner extends BaseLogic
             'update_time' => time(),
         ];
 
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -214,7 +214,7 @@ class Banner extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin banner remove');
+        $this->actionLog('admin banner remove');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [

@@ -138,9 +138,9 @@ class Filter
      * @param  string $_str
      * @return string
      */
-    public static function chs_alpha(string &$_str): string
+    public static function non_chs_alpha(string &$_str): string
     {
-        $_str = (string) preg_replace_callback('/[^\x{4e00}-\x{9fa5}a-zA-Z0-9 ]+/u', function () {
+        $_str = (string) preg_replace_callback('/[^\x{4e00}-\x{9fa5}a-zA-Z\d ]+/u', function () {
             return '';
         }, trim($_str));
         return trim($_str);

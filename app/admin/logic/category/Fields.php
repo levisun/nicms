@@ -84,7 +84,7 @@ class Fields extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog(__METHOD__, 'admin fields added');
+        $this->actionLog('admin fields added');
 
         $receive_data = [
             'category_id' => $this->request->param('category_id/d', 0, 'abs'),
@@ -95,7 +95,7 @@ class Fields extends BaseLogic
             'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'remark'      => $this->request->param('remark'),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -142,7 +142,7 @@ class Fields extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin fields editor');
+        $this->actionLog('admin fields editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -162,7 +162,7 @@ class Fields extends BaseLogic
             'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'remark'      => $this->request->param('remark'),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -182,7 +182,7 @@ class Fields extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin fields remove');
+        $this->actionLog('admin fields remove');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [

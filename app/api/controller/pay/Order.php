@@ -91,8 +91,10 @@ class Order extends Async
      */
     private function orderNo(): string
     {
+        list($microtime) = explode(' ', microtime());
         return date('YmdHis') .
-            str_pad(str_replace('.', '', microtime(true)), 14, '0', STR_PAD_RIGHT) .
-            mt_rand(1111, 9999);
+            mt_rand(1000, 9999) . mt_rand(1000, 9999) .
+            str_pad(substr($microtime, 2, 6), 6, '0', STR_PAD_LEFT) .
+            mt_rand(1000, 9999);
     }
 }

@@ -67,7 +67,7 @@ class Elog extends BaseLogic
      */
     public function find(): array
     {
-        $this->actionLog(__METHOD__, 'see error log');
+        $this->actionLog('see error log');
 
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id, date('Ymd'))) {

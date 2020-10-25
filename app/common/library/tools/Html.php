@@ -64,7 +64,7 @@ class Html
     }
 
     /**
-     * 获得keywords
+     * 获得description
      * @access public
      * @return string
      */
@@ -123,8 +123,7 @@ class Html
             if (false !== preg_match($pattern, $head, $matches) && !empty($matches)) {
                 $title = strip_tags($matches[0]);
                 $title = str_replace('_', '-', $title);
-                $title = explode('-', $title);
-                $title = $title[0];
+                list($title) = explode('-', $title);
             }
         }, $this->xml);
 
@@ -254,7 +253,7 @@ class Html
 
             // 替换图片
             $body = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) {
-                return '[TAG:img' . trim($img[1], '"\'') . ']';
+                return '[TAG:img_src=' . trim($img[1], '"\'') . ']';
             }, $body);
 
             // 过滤属性
@@ -345,7 +344,7 @@ class Html
                     return '<' . $table[1] . '>';
                 }, $value);
                 // 恢复图片
-                $value = preg_replace_callback('/\[TAG:img([^<>\s]+)\]/si', function ($img) {
+                $value = preg_replace_callback('/\[TAG:img_src=([^<>\s]+)\]/si', function ($img) {
                     return '<img src="' . trim($img[1], '"\'') . '" />';
                 }, $value);
 

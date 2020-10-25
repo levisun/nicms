@@ -67,7 +67,7 @@ class Databack extends BaseLogic
      */
     public function backup(): array
     {
-        $this->actionLog(__METHOD__, 'databack backup');
+        $this->actionLog('databack backup');
 
         try {
             (new DataManage)->backup();
@@ -90,7 +90,7 @@ class Databack extends BaseLogic
      */
     public function restores(): array
     {
-        $this->actionLog(__METHOD__, 'databack backup restores');
+        $this->actionLog('databack backup restores');
 
         $msg = 'error';
         $id = $this->request->param('id');
@@ -116,7 +116,7 @@ class Databack extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'databack backup remove');
+        $this->actionLog('databack backup remove');
 
         $msg = 'error';
         $id = $this->request->param('id');

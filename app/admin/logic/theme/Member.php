@@ -77,7 +77,7 @@ class Member extends BaseLogic
 
     public function editor()
     {
-        $this->actionLog(__METHOD__, 'admin theme member editor');
+        $this->actionLog('admin theme member editor');
 
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id)) {

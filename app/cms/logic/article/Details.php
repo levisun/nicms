@@ -42,7 +42,7 @@ class Details extends BaseLogic
                 ['article.id', '=', $id],
                 ['article.is_pass', '=', 1],
                 ['article.delete_time', '=', 0],
-                ['article.access_id', '=', $this->urole],
+                ['article.access_id', '=', $this->user_role_id],
                 ['article.show_time', '<', time()],
                 ['article.lang', '=', $this->lang->getLangSet()]
             ];
@@ -53,14 +53,14 @@ class Details extends BaseLogic
                 ['article.category_id', '=', $category_id],
                 ['article.is_pass', '=', 1],
                 ['article.delete_time', '=', 0],
-                ['article.access_id', '=', $this->urole],
+                ['article.access_id', '=', $this->user_role_id],
                 ['article.show_time', '<', time()],
                 ['article.lang', '=', $this->lang->getLangSet()]
             ];
         }
 
         if ($id || $category_id) {
-            $cache_key = 'article details' . $id . $category_id . $this->urole;
+            $cache_key = 'article details' . $id . $category_id . $this->user_role_id;
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'thumb', 'username', 'access_id', 'hits', 'update_time'])
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')

@@ -52,19 +52,19 @@ class Async extends Base
      * 用户ID
      * @var int
      */
-    protected $uid = 0;
+    protected $user_id = 0;
 
     /**
      * 用户组ID
      * @var int
      */
-    protected $urole = 0;
+    protected $user_role_id = 0;
 
     /**
-     * 用户类型(用户和管理员)
+     * 用户类型(用户或管理员)
      * @var string
      */
-    protected $type = 'guest';
+    protected $user_type = 'guest';
 
     /**
      * 初始化
@@ -86,7 +86,7 @@ class Async extends Base
     {
         $this->ApiInit();
         $this->analytical->method();
-        $this->validate->RBAC($this->analytical->appName, $this->analytical->appMethod, $this->uid);
+        $this->validate->RBAC($this->analytical->appName, $this->analytical->appMethod, $this->user_id);
 
         // 执行METHOD获得返回数据
         $result = call_user_func([
@@ -158,9 +158,9 @@ class Async extends Base
         $this->session->init();
         $this->request->withSession($this->session);
         if ($this->session->has($this->analytical->appAuthKey)) {
-            $this->uid = (int) $this->session->get($this->analytical->appAuthKey);
-            $this->urole = (int) $this->session->get($this->analytical->appAuthKey . '_role');
-            $this->type = $this->analytical->appAuthKey == 'user_auth_key' ? 'user' : 'admin';
+            $this->user_id = (int) $this->session->get($this->analytical->appAuthKey);
+            $this->user_role_id = (int) $this->session->get($this->analytical->appAuthKey . '_role');
+            $this->user_type = $this->analytical->appAuthKey == 'user_auth_key' ? 'user' : 'admin';
         }
 
         $this->validate->fromToken();
@@ -225,7 +225,7 @@ class Async extends Base
                 : '',
 
             // 登录标识符
-            'flag' => $this->request->isGet() && $this->uid ? Base64::flag($this->uid) : '',
+            'flag' => $this->request->isGet() && $this->user_id ? Base64::flag($this->user_id) : '',
         ];
         $result = array_filter($result);
 

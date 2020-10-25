@@ -135,7 +135,7 @@ class Article extends BaseLogic
      */
     public function added()
     {
-        $this->actionLog(__METHOD__, 'admin content added');
+        $this->actionLog('admin content added');
 
         $thumb = $this->request->param('thumb', '');
         UploadLog::update($thumb, 1);
@@ -148,7 +148,7 @@ class Article extends BaseLogic
             'category_id' => $this->request->param('category_id/d'),
             'model_id'    => $this->request->param('model_id/d'),
             'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
-            'admin_id'    => $this->uid,
+            'admin_id'    => $this->user_id,
             'user_id'     => $this->request->param('user_id/d', 0, 'abs'),
             'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
             'attribute'   => $this->request->param('attribute/d', 0, 'abs'),
@@ -161,7 +161,7 @@ class Article extends BaseLogic
             'lang'        => $this->lang->getLangSet()
         ];
 
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -313,7 +313,7 @@ class Article extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin content editor');
+        $this->actionLog('admin content editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -342,7 +342,7 @@ class Article extends BaseLogic
             'category_id' => $this->request->param('category_id/d'),
             'model_id'    => $this->request->param('model_id/d'),
             'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
-            'admin_id'    => $this->uid,
+            'admin_id'    => $this->user_id,
             'user_id'     => $this->request->param('user_id/d', 0, 'abs'),
             'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
             'attribute'   => $this->request->param('attribute/d', 0, 'abs'),
@@ -353,7 +353,7 @@ class Article extends BaseLogic
             'update_time' => time(),
         ];
 
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -461,7 +461,7 @@ class Article extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin content recycle');
+        $this->actionLog('admin content recycle');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -500,7 +500,7 @@ class Article extends BaseLogic
      */
     public function sort(): array
     {
-        $this->actionLog(__METHOD__, 'admin content sort');
+        $this->actionLog('admin content sort');
 
         $sort_order = $this->request->param('sort_order/a');
         if (empty($sort_order)) {

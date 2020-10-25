@@ -34,7 +34,6 @@ class OfficeExcel
             return false;
         }
 
-
         $ext = strtolower(pathinfo($_file, PATHINFO_EXTENSION));
         if (in_array($ext, ['xlsx', 'xls'])) {
             $spreadsheet = IOFactory::load($_file);

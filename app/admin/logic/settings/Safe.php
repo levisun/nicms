@@ -73,7 +73,7 @@ class Safe extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin safe editor');
+        $this->actionLog('admin safe editor');
 
         $receive_data = [
             'app_upload_size' => $this->request->param('app.upload_size/d', 1, 'abs'),
@@ -81,7 +81,7 @@ class Safe extends BaseLogic
             'cache_expire'    => $this->request->param('cache.expire/d', 28800, 'abs'),
             'app_debug'       => $this->request->param('app_debug/d', 0, 'abs'),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 

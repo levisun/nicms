@@ -26,8 +26,8 @@ class Participle
 
     public function __construct(string $_txt = '')
     {
-        if (!$_txt) {
-            return;
+        if (!$_txt = Filter::non_chs_alpha($_txt)) {
+            return $_txt;
         }
 
         $this->result['words'] = $this->words($_txt, 0, 'DESC');
@@ -60,7 +60,14 @@ class Participle
         return $this->$_name;
     }
 
-    public function identity(int &$_row, string &$_txt)
+    /**
+     * 词语文字标识
+     * @access private
+     * @param  int     $_row 行号
+     * @param  string  $_txt 行内容
+     * @return array
+     */
+    private function identity(int &$_row, string &$_txt): array
     {
         $words = $this->words($_txt);
         $length = mb_strlen($_txt, 'UTF-8');
@@ -109,7 +116,7 @@ class Participle
      */
     public function words(string $_txt, int $_length = 0, string $_sort = ''): array
     {
-        if (!$_txt = Filter::chs_alpha($_txt)) {
+        if (!$_txt = Filter::non_chs_alpha($_txt)) {
             return [];
         }
 
@@ -146,11 +153,11 @@ class Participle
 
     /**
      * 提取日期
-     * @access public
+     * @access private
      * @param  string  $_txt
      * @return array
      */
-    public function date(string &$_txt): array
+    private function date(string &$_txt): array
     {
         $date = [];
         $_txt = (string) preg_replace_callback('/([\d]+[\x{4e00}-\x{9fa5}]{1})/u', function ($matches) use (&$date) {

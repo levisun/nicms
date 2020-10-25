@@ -18,7 +18,7 @@ use think\facade\Route;
  */
 Route::domain(['cdn', 'img'], function () {
     Route::miss(function () {
-        return miss(404, false);
+        return redirect(request()->scheme() . '://' . request()->rootDomain(), 302);
     });
 });
 

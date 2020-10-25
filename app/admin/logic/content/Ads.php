@@ -82,7 +82,7 @@ class Ads extends BaseLogic
      */
     public function added()
     {
-        $this->actionLog(__METHOD__, 'admin ads added');
+        $this->actionLog('admin ads added');
 
         $receive_data = [
             'name'        => $this->request->param('name'),
@@ -99,7 +99,7 @@ class Ads extends BaseLogic
             'lang'        => $this->lang->getLangSet()
         ];
 
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -150,7 +150,7 @@ class Ads extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin ads editor');
+        $this->actionLog('admin ads editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -174,7 +174,7 @@ class Ads extends BaseLogic
             'update_time' => time(),
         ];
 
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -208,7 +208,7 @@ class Ads extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin ads remove');
+        $this->actionLog('admin ads remove');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [

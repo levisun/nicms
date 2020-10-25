@@ -106,7 +106,7 @@ class Message extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin feedback editor');
+        $this->actionLog('admin feedback editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -146,7 +146,7 @@ class Message extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin content recycle');
+        $this->actionLog('admin content recycle');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [

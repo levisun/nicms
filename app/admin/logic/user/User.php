@@ -81,7 +81,7 @@ class User extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog(__METHOD__, 'admin user added');
+        $this->actionLog('admin user added');
 
         $receive_data = [
             'username'         => $this->request->param('username'),
@@ -92,7 +92,7 @@ class User extends BaseLogic
             'level_id'         => $this->request->param('level_id/d', 0, 'abs'),
             'status'           => $this->request->param('status/d', 0, 'abs'),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -142,7 +142,7 @@ class User extends BaseLogic
      */
     public function editor()
     {
-        $this->actionLog(__METHOD__, 'admin user editor');
+        $this->actionLog('admin user editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -162,7 +162,7 @@ class User extends BaseLogic
             'level_id'         => $this->request->param('level_id/d', 0, 'abs'),
             'status'           => $this->request->param('status/d', 0, 'abs'),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
         $receive_data['salt'] = Base64::flag(microtime(true) . $receive_data['password'], 6);
@@ -191,7 +191,7 @@ class User extends BaseLogic
      */
     public function remove()
     {
-        $this->actionLog(__METHOD__, 'admin user remove');
+        $this->actionLog('admin user remove');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [

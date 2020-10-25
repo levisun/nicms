@@ -96,7 +96,7 @@ class Form extends BaseLogic
                 'category_id' => $category_id,
             ];
 
-            if ($result = $this->validate(__METHOD__, $receive_data)) {
+            if ($result = $this->validate($receive_data)) {
                 return $result;
             }
 

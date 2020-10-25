@@ -41,7 +41,7 @@ class User extends BaseLogic
             'password' => $this->request->param('password'),
         ];
 
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -53,9 +53,7 @@ class User extends BaseLogic
                 ['admin.username', '=', $this->request->param('username')]
             ])
             ->whereOr([
-                ['admin.phone', '=', $this->request->param('username')]
-            ])
-            ->whereOr([
+                ['admin.phone', '=', $this->request->param('username')],
                 ['admin.email', '=', $this->request->param('username')]
             ])
             ->find();
@@ -103,15 +101,24 @@ class User extends BaseLogic
         $this->session->set($this->authKey . '_role', $user['role_id']);
         $this->session->delete('login_lock');
 
-        $this->uid = $user['id'];
-        $this->urole = $user['role_id'];
-        $this->actionLog(__METHOD__, 'admin user login');
+        $this->user_id = $user['id'];
+        $this->user_role_id = $user['role_id'];
+        $this->user_type = 'admin';
+        $this->actionLog('admin user login');
+
+        shuffle($user);
 
         return [
             'debug' => false,
             'cache' => false,
             'code'  => 10000,
-            'msg'   => 'success'
+            'msg'   => 'success',
+            'data'  => [
+                'user_id'      => Base64::encrypt($this->user_id),
+                'user_role_id' => Base64::encrypt($this->user_role_id),
+                'user_type'    => Base64::encrypt($this->user_type),
+                'token'        => sha1(implode('', array_map('sha1', $user)) . 'admin'),
+            ]
         ];
     }
 
@@ -122,9 +129,9 @@ class User extends BaseLogic
      */
     public function logout(): array
     {
-        $this->actionLog(__METHOD__, 'admin user logout');
+        $this->actionLog('admin user logout');
 
-        $this->cache->delete('AUTH' . $this->uid);
+        $this->cache->delete('AUTH' . $this->user_id);
         $this->session->delete($this->authKey);
         $this->session->delete($this->authKey . '_role');
 
@@ -142,7 +149,7 @@ class User extends BaseLogic
      */
     public function forget()
     {
-        $this->actionLog(__METHOD__, 'admin user forget');
+        $this->actionLog('admin user forget');
         # code...
     }
 
@@ -153,8 +160,8 @@ class User extends BaseLogic
      */
     public function auth(): array
     {
-        if (!$this->cache->has('AUTH' . $this->uid) || !$result = $this->cache->get('AUTH' . $this->uid)) {
-            $result = (new Rbac)->getAuth($this->uid);
+        if (!$this->cache->has('AUTH' . $this->user_id) || !$result = $this->cache->get('AUTH' . $this->user_id)) {
+            $result = (new Rbac)->getAuth($this->user_id);
             $result = $result['admin'];
             foreach ($result as $key => $value) {
                 $result[$key] = [
@@ -169,7 +176,7 @@ class User extends BaseLogic
                     ];
                 }
             }
-            $this->cache->set('AUTH' . $this->uid, $result);
+            $this->cache->set('AUTH' . $this->user_id, $result);
         }
 
         return [
@@ -189,14 +196,14 @@ class User extends BaseLogic
     {
         $result = null;
 
-        if ($this->uid) {
+        if ($this->user_id) {
             $result = ModelAdmin::view('admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
                 ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
                 ->view('role role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
                 ->where([
-                    ['admin.id', '=', $this->uid]
+                    ['admin.id', '=', $this->user_id]
                 ])
-                ->cache('ADMIN PROFILE' . $this->uid, 300, 'admin')
+                ->cache('ADMIN PROFILE' . $this->user_id, 300, 'admin')
                 ->find();
 
             if (null !== $result && $result = $result->toArray()) {

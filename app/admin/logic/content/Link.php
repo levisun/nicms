@@ -84,7 +84,7 @@ class Link extends BaseLogic
      */
     public function added()
     {
-        $this->actionLog(__METHOD__, 'admin link added');
+        $this->actionLog('admin link added');
 
         $receive_data = [
             'title'       => $this->request->param('title'),
@@ -94,7 +94,7 @@ class Link extends BaseLogic
             'category_id' => $this->request->param('category_id/d', 0, 'abs'),
             // 'model_id'    => $this->request->param('model_id/d', 0, 'abs'),
             'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
-            'admin_id'    => $this->uid,
+            'admin_id'    => $this->user_id,
             'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
             'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'update_time' => time(),
@@ -102,7 +102,7 @@ class Link extends BaseLogic
             'lang'        => $this->lang->getLangSet()
         ];
 
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -155,7 +155,7 @@ class Link extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin content editor');
+        $this->actionLog('admin content editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -174,13 +174,13 @@ class Link extends BaseLogic
             'category_id' => $this->request->param('category_id/d', 0, 'abs'),
             // 'model_id'    => $this->request->param('model_id/d', 0, 'abs'),
             'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
-            'admin_id'    => $this->uid,
+            'admin_id'    => $this->user_id,
             'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
             'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'update_time' => time(),
         ];
 
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -213,7 +213,7 @@ class Link extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin content recycle');
+        $this->actionLog('admin content recycle');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [

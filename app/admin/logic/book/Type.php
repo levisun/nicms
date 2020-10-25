@@ -111,7 +111,7 @@ class Type extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog(__METHOD__, 'admin book type added');
+        $this->actionLog('admin book type added');
 
         $pid = $this->request->param('pid/d', 0, 'abs');
 
@@ -131,7 +131,7 @@ class Type extends BaseLogic
             'create_time' => time(),
             'lang'        => $this->lang->getLangSet()
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -192,7 +192,7 @@ class Type extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin book type editor');
+        $this->actionLog('admin book type editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -215,7 +215,7 @@ class Type extends BaseLogic
             'url'         => $this->request->param('url'),
             'update_time' => time(),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -246,7 +246,7 @@ class Type extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin book type remove');
+        $this->actionLog('admin book type remove');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -286,7 +286,7 @@ class Type extends BaseLogic
      */
     public function sort(): array
     {
-        $this->actionLog(__METHOD__, 'admin book type sort');
+        $this->actionLog('admin book type sort');
 
         $sort_order = $this->request->param('sort_order/a');
         if (empty($sort_order)) {

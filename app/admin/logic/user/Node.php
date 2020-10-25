@@ -115,7 +115,7 @@ class Node extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog(__METHOD__, 'admin node added');
+        $this->actionLog('admin node added');
 
         $receive_data = [
             'name'       => $this->request->param('name'),
@@ -126,7 +126,7 @@ class Node extends BaseLogic
             'status'     => $this->request->param('status/d', 0, 'abs'),
             'sort_order' => $this->request->param('sort_order/d', 0, 'abs'),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -188,7 +188,7 @@ class Node extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin node editor');
+        $this->actionLog('admin node editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -209,7 +209,7 @@ class Node extends BaseLogic
             'status'     => $this->request->param('status/d', 0, 'abs'),
             'sort_order' => $this->request->param('sort_order/d', 0, 'abs'),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -229,7 +229,7 @@ class Node extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin node remove');
+        $this->actionLog('admin node remove');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [

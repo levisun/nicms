@@ -77,7 +77,7 @@ class Cms extends BaseLogic
 
     public function editor()
     {
-        $this->actionLog(__METHOD__, 'admin theme cms editor');
+        $this->actionLog('admin theme cms editor');
 
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id)) {

@@ -78,12 +78,22 @@ abstract class BaseLogic
     protected $authKey = 'user_auth_key';
 
     /**
-     * uid
+     * 用户ID
      * @var int
      */
-    protected $uid = 0;
-    protected $urole = 0;
-    protected $type = 'guest';
+    protected $user_id = 0;
+
+    /**
+     * 用户组ID
+     * @var int
+     */
+    protected $user_role_id = 0;
+
+    /**
+     * 用户类型(用户或管理员)
+     * @var string
+     */
+    protected $user_type = 'guest';
 
     /**
      * 构造方法
@@ -112,9 +122,9 @@ abstract class BaseLogic
 
         // 设置会话信息(用户ID,用户组)
         if ($this->session->has($this->authKey) && $this->session->has($this->authKey . '_role')) {
-            $this->uid = (int) $this->session->get($this->authKey);
-            $this->urole = (int) $this->session->get($this->authKey . '_role');
-            $this->type = $this->authKey == 'user_auth_key' ? 'user' : 'admin';
+            $this->user_id = (int) $this->session->get($this->authKey);
+            $this->user_role_id = (int) $this->session->get($this->authKey . '_role');
+            $this->user_type = $this->authKey == 'user_auth_key' ? 'user' : 'admin';
         }
 
         $this->initialize();
@@ -132,16 +142,19 @@ abstract class BaseLogic
     /**
      * 操作日志
      * @access protected
-     * @param  string  $_method
      * @param  string  $_write_log
      * @return bool|array
      */
-    protected function actionLog(string $_method, string $_write_log = '')
+    protected function actionLog(string $_write_log = '')
     {
-        $_method = str_replace(['app\\', 'logic\\', '\\', '::'], ['', '', '_', '_'], $_method);
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+        array_shift($backtrace);
+        $class  = str_replace(['app\\', 'logic\\', '\\'], ['', '', '_'], $backtrace[0]['class']);
+        $class .= '_' . $backtrace[0]['function'];
+
         // 查询操作方法
         $has = ModelAction::where([
-                ['name', '=', $_method]
+                ['name', '=', $class]
             ])
             ->find();
 
@@ -149,7 +162,7 @@ abstract class BaseLogic
         if (is_null($has)) {
             $modelAction = new ModelAction;
             $modelAction->save([
-                'name'  => $_method,
+                'name'  => $class,
                 'title' => $_write_log,
             ]);
             $has['id'] = $modelAction->id;
@@ -158,7 +171,7 @@ abstract class BaseLogic
         // 写入操作日志
         ModelActionLog::create([
                 'action_id' => $has['id'],
-                'user_id'   => $this->uid,
+                'user_id'   => $this->user_id,
                 'action_ip' => $this->request->ip(),
                 'module'    => 'admin',
                 'remark'    => $_write_log,
@@ -177,18 +190,21 @@ abstract class BaseLogic
     /**
      * 数据验证
      * @access protected
-     * @param  string  $_validate
      * @param  array   $_data
      * @return bool|string
      */
-    protected function validate(string $_validate, array $_data = [])
+    protected function validate(array $_data = [])
     {
-        $pattern = '/app\\\([a-zA-Z]+)\\\logic\\\([a-zA-Z]+)\\\([a-zA-Z]+)::([a-zA-Z]+)/si';
-        $_validate = preg_replace_callback($pattern, function ($matches) {
-            return strtolower($matches[1] . '.' . $matches[2] . '.' . $matches[3] . '.' . $matches[4]);
-        }, $_validate);
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+        array_shift($backtrace);
+        $class = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
 
-        list($app, $logic, $method) = explode('.', $_validate, 4);
+        $pattern = '/app\\\([a-zA-Z]+)\\\logic\\\([a-zA-Z]+)\\\([a-zA-Z]+)::([a-zA-Z]+)/si';
+        $class = preg_replace_callback($pattern, function ($matches) {
+            return strtolower($matches[1] . '.' . $matches[2] . '.' . $matches[3] . '.' . $matches[4]);
+        }, $class);
+
+        list($app, $logic, $method) = explode('.', $class, 4);
 
         $class = '\app\\' . $app . '\validate\\' . $logic . '\\' . ucfirst($method);
         // 校验类是否存在
@@ -228,7 +244,7 @@ abstract class BaseLogic
         $this->actionLog('upload_file', 'user upload');
 
         $result = 'upload error';
-        if ($this->request->isPost() && !empty($_FILES) && $this->uid) {
+        if ($this->request->isPost() && !empty($_FILES) && $this->user_id) {
             $size = [
                 'width'  => $this->request->param('width/d', 0, 'abs'),
                 'height' => $this->request->param('height/d', 0, 'abs'),
@@ -239,8 +255,8 @@ abstract class BaseLogic
 
             $upload = new UploadFile($size, $water, $element);
             $result = $upload->getFileInfo([
-                'user_id'   => $this->uid,
-                'user_type' => $this->type
+                'user_id'   => $this->user_id,
+                'user_type' => $this->user_type
             ]);
         }
 

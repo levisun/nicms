@@ -40,7 +40,7 @@ class Search extends BaseLogic
         $map = [
             ['article.is_pass', '=', '1'],
             ['article.delete_time', '=', '0'],
-            ['article.access_id', '=', $this->urole],
+            ['article.access_id', '=', $this->user_role_id],
             ['article.show_time', '<', time()],
             ['article.lang', '=', $this->lang->getLangSet()]
         ];
@@ -84,7 +84,7 @@ class Search extends BaseLogic
 
         $cache_key = 'article list' . $category_id .
             $attribute . $type_id . $sort_order . $search_key .
-            $query_limit . $query_page . $date_format . $this->urole;
+            $query_limit . $query_page . $date_format . $this->user_role_id;
 
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
             $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'thumb', 'username', 'access_id', 'hits', 'update_time'])

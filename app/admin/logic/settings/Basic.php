@@ -64,7 +64,7 @@ class Basic extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin basic editor');
+        $this->actionLog('admin basic editor');
 
         $receive_data = [
             'cms_sitename'    => $this->request->param('cms_sitename'),
@@ -75,7 +75,7 @@ class Basic extends BaseLogic
             'cms_beian'       => $this->request->param('cms_beian', '', '\app\common\library\Filter::contentEncode'),
             'cms_script'      => $this->request->param('cms_script', '', 'strip_tags,trim,htmlspecialchars'),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 

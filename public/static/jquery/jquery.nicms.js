@@ -293,17 +293,24 @@
     /**
      * 设置COOKIE
      */
-    jQuery.set_cookie = function (cname, cvalue, exdays = 1) {
+    jQuery.set_cookie = function (name, value, expire = 1, domain = '') {
         var d = new Date();
-        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-        document.cookie = cname + '=' + cvalue + ';expires=' + d.toUTCString() + ';path=/;SameSite=lax;domain=.' + NICMS.rootDomain.substring(2);
+        d.setTime(d.getTime() + (expire * 24 * 60 * 60 * 1000));
+        domain = domain ? domain : '.' + window.location.host.substr(window.location.host.indexOf('.') + 1);
+        document.cookie = name + '=' + value + ';expires=' + d.toUTCString() + ';path=/;SameSite=lax;domain=' + domain;
+
     };
+    // jQuery.set_cookie = function (cname, cvalue, exdays = 1) {
+    //     var d = new Date();
+    //     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    //     document.cookie = cname + '=' + cvalue + ';expires=' + d.toUTCString() + ';path=/;SameSite=lax;domain=.' + NICMS.rootDomain.substring(2);
+    // };
 
     /**
      * 获得COOKIE
      */
-    jQuery.get_cookie = function (cname) {
-        var name = cname + '=';
+    jQuery.get_cookie = function (name) {
+        name += '=';
         var decodedCookie = decodeURIComponent(document.cookie);
         var ca = decodedCookie.split(';');
         for (var i = 0; i < ca.length; i++) {
@@ -322,7 +329,8 @@
      * 删除COOKIE
      */
     jQuery.remove_cookie = function (name) {
-        document.cookie = cname + '=null;expires=-1440;path=/;SameSite=lax;domain=.' + NICMS.rootDomain.substring(2);
+        domain = domain ? domain : "." + window.location.host.substr(window.location.host.indexOf(".") + 1);
+        document.cookie = name + '=null;expires=-1440;path=/;SameSite=lax;domain=' + domain;
     };
 
     jQuery.in_array = function (needle, haystack) {

@@ -54,15 +54,15 @@ class AppMaintain
      */
     private function removeGarbage(): void
     {
-        only_execute('remove_garbage.lock', '-1 hour', function () {
+        only_execute('remove_garbage.lock', '-3 hour', function () {
             // 清除过期无效缓存
             ClearGarbage::clearCache();
 
             // 清除游客上传的文件
-            ClearGarbage::clear(public_path('storage/uploads/guest'), '-60 day');
+            ClearGarbage::clear(public_path('storage/uploads/guest'), '-30 day');
 
             // 清除生成的缩略图
-            ClearGarbage::clear(public_path('storage/uploads/thumb'), '-60 day');
+            ClearGarbage::clear(public_path('storage/uploads/thumb'), '-30 day');
 
             // 清除上传目录中的空目录
             ClearGarbage::uploadEmptyDirectory();

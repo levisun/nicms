@@ -134,7 +134,7 @@ class Category extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog(__METHOD__, 'admin category added');
+        $this->actionLog('admin category added');
 
         $pid = $this->request->param('pid/d', 0, 'abs');
 
@@ -157,7 +157,7 @@ class Category extends BaseLogic
             'create_time' => time(),
             'lang'        => $this->lang->getLangSet()
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -229,7 +229,7 @@ class Category extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog(__METHOD__, 'admin category editor');
+        $this->actionLog('admin category editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -256,7 +256,7 @@ class Category extends BaseLogic
             'url'         => $this->request->param('url'),
             'update_time' => time(),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -288,7 +288,7 @@ class Category extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog(__METHOD__, 'admin category remove');
+        $this->actionLog('admin category remove');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -328,7 +328,7 @@ class Category extends BaseLogic
      */
     public function sort(): array
     {
-        $this->actionLog(__METHOD__, 'admin category sort');
+        $this->actionLog('admin category sort');
 
         $sort_order = $this->request->param('sort_order/a');
         if (empty($sort_order)) {

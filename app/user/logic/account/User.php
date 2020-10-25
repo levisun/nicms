@@ -67,7 +67,7 @@ class User extends BaseLogic
             'level_id'         => $this->request->param('level_id/d', 0),
             'status'           => $this->request->param('status/d', 1),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 

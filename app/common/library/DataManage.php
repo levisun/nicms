@@ -46,10 +46,6 @@ class DataManage
         @ini_set('max_execution_time', '3600');
         @ini_set('memory_limit', '32M');
 
-        if (!class_exists('ZipArchive')) {
-            halt('<info>环境不支持 ZipArchive 方法,系统备份功能无法使用</info>');
-        }
-
         ignore_user_abort(true);
     }
 
@@ -66,7 +62,7 @@ class DataManage
     public function optimize(): bool
     {
         only_execute('db_optimize.lock', '-30 days', function () {
-            $tables = $this->queryTableName();
+            $tables = $this->DB->getTables();
             foreach ($tables as $name) {
                 $result = $this->DB->query('ANALYZE TABLE `' . $name . '`');
                 $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
@@ -83,7 +79,7 @@ class DataManage
     public function repair()
     {
         only_execute('db_repair.lock', '-30 days', function () {
-            $tables = $this->queryTableName();
+            $tables = $this->DB->getTables();
             foreach ($tables as $name) {
                 $result = $this->DB->query('CHECK TABLE `' . $name . '`');
                 $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
@@ -105,6 +101,11 @@ class DataManage
      */
     public function restores(string $_name)
     {
+        if (!class_exists('ZipArchive')) {
+            Log::warning('环境不支持 ZipArchive 方法,系统备份功能无法使用');
+            halt('<info>环境不支持 ZipArchive 方法,系统备份功能无法使用</info>');
+        }
+
         only_execute('db_backup.lock', false, function () use (&$_name) {
             // 清空上次残留垃圾文件
             if ($files = glob($this->tempPath . '*')) {
@@ -168,32 +169,41 @@ class DataManage
      */
     public function backup(): void
     {
+        if (!class_exists('ZipArchive')) {
+            Log::warning('环境不支持 ZipArchive 方法,系统备份功能无法使用');
+            halt('<info>环境不支持 ZipArchive 方法,系统备份功能无法使用</info>');
+        }
+
         only_execute('db_backup.lock', false, function () {
             // 清空上次残留垃圾文件
             if ($files = glob($this->tempPath . '*')) {
                 array_map('unlink', $files);
             }
 
-            $table_name = $this->queryTableName();
-            shuffle($table_name);
+            $table_name = $this->DB->getTables();
             foreach ($table_name as $name) {
                 $filename = $this->tempPath . $name . '.db_back';
 
+                $sql = '-- 备份时间 ' . date('Y-m-d H:i:s') . PHP_EOL;
+                file_put_contents($filename, $sql);
+
                 // 获得表结构SQL语句
-                $sql = '-- 备份时间 ' . date('Y-m-d H:i:s') . PHP_EOL .
-                    $this->queryTableStructure($name);
+                $sql = $this->queryTableStructure($name) . PHP_EOL;
                 file_put_contents($filename, $sql);
 
                 // 获得主键
-                $primary = $this->queryTablePrimary($name);
+                $primary = $this->DB->getPk($name);
+
                 // 表字段
-                $field = $this->queryTableField($name);
+                $field = $this->DB->getTableFields($name);
+                $field = '`' . implode('`, `', $field) . '`';
 
                 $this->DB->table($name)->order($primary . ' ASC')->chunk(10, function ($result) use (&$name, &$field, &$filename) {
                     $result = $result->toArray() ?: [];
                     if ($sql = $this->getTableData($name, $field, $result)) {
-                        file_put_contents($filename, $sql, FILE_APPEND);
+                        file_put_contents($filename, $sql . PHP_EOL, FILE_APPEND);
                     }
+
                     // 持续查询状态并不利于处理任务，每10ms执行一次，此时释放CPU，降低机器负载
                     usleep(10000);
                 });
@@ -255,44 +265,7 @@ class DataManage
             }, $value);
             $sql .= '(' . implode(',', $value) . '),';
         }
-        return rtrim($sql, ',') . ';' . PHP_EOL;
-    }
-
-    /**
-     * 查询表字段
-     * @access private
-     * @param  string $_table_name 表名
-     * @return string
-     */
-    private function queryTableField(string &$_table_name): string
-    {
-        $result = $this->DB->query('SHOW COLUMNS FROM `' . $_table_name . '`');
-        foreach ($result as $key => $value) {
-            $value = '`' . $value['Field'] . '`';
-            $result[$key] = $value;
-        }
-
-        return implode(',', $result);
-    }
-
-    /**
-     * 查询表主键
-     * @access private
-     * @param  string $_table_name 表名
-     * @return string
-     */
-    private function queryTablePrimary(string &$_table_name): string
-    {
-        $result = $this->DB->query('SHOW COLUMNS FROM `' . $_table_name . '`');
-        $primary = '';
-        foreach ($result as $key => $value) {
-            if ('PRI' === $value['Key']) {
-                $primary = $value['Field'];
-                break;
-            }
-        }
-
-        return $primary;
+        return rtrim($sql, ',') . ';';
     }
 
     /**
@@ -316,28 +289,10 @@ class DataManage
         $structure = str_replace($_table_name, 'backup_' . $_table_name, $structure);
 
         // 删除自增主键记录
-        $structure = preg_replace_callback('/(AUTO_INCREMENT=[0-9]+ DEFAULT)/si', function () {
+        $structure = preg_replace_callback('/(AUTO_INCREMENT=[\d]+ DEFAULT)/si', function () {
             return 'DEFAULT';
         }, $structure);
 
-        return $structure . PHP_EOL;
-    }
-
-    /**
-     * 查询数据库表名
-     * @access private
-     * @return array
-     */
-    private function queryTableName(): array
-    {
-        $result = $this->DB->query('SHOW TABLES FROM ' . Env::get('database.database'));
-
-        $tables = array();
-        foreach ($result as $value) {
-            $value = current($value);
-            $tables[str_replace(Env::get('database.prefix'), '', $value)] = $value;
-        }
-
-        return $tables;
+        return $structure;
     }
 }

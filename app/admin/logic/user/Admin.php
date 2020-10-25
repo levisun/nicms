@@ -85,7 +85,7 @@ class Admin extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog(__METHOD__, 'admin admin added');
+        $this->actionLog('admin admin added');
 
         $receive_data = [
             'username'         => $this->request->param('username'),
@@ -96,7 +96,7 @@ class Admin extends BaseLogic
             'role_id'          => $this->request->param('role_id/d', 0, 'abs'),
             'status'           => $this->request->param('status/d', 0, 'abs'),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -159,7 +159,7 @@ class Admin extends BaseLogic
      */
     public function editor()
     {
-        $this->actionLog(__METHOD__, 'admin admin editor');
+        $this->actionLog('admin admin editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -179,7 +179,7 @@ class Admin extends BaseLogic
             'role_id'          => $this->request->param('role_id/d', 0, 'abs'),
             'status'           => $this->request->param('status/d', 0, 'abs'),
         ];
-        if ($result = $this->validate(__METHOD__, $receive_data)) {
+        if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
@@ -215,7 +215,7 @@ class Admin extends BaseLogic
      */
     public function remove()
     {
-        $this->actionLog(__METHOD__, 'admin admin remove');
+        $this->actionLog('admin admin remove');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
