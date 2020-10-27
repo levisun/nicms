@@ -58,6 +58,8 @@ class User extends BaseLogic
             ])
             ->find();
 
+        $user = $user ? $user->toArray() : false;
+
         // 用户不存在 密码错误
         if (!$user || !Base64::verifyPassword($this->request->param('password'), $user['salt'], $user['password'])) {
             // 记录登录错误次数
@@ -117,7 +119,7 @@ class User extends BaseLogic
                 'user_id'      => Base64::encrypt($this->user_id),
                 'user_role_id' => Base64::encrypt($this->user_role_id),
                 'user_type'    => Base64::encrypt($this->user_type),
-                'token'        => sha1(implode('', array_map('sha1', $user)) . 'admin'),
+                'user_token'   => sha1(implode('', array_map('sha1', $user)) . 'admin'),
             ]
         ];
     }
