@@ -67,10 +67,8 @@ class Wechat
             'mch_id'       => !empty($config['mch_id']) ? $config['mch_id'] : '',
             'key'          => !empty($config['key']) ? $config['key'] : '',
             'sign_type'    => !empty($config['sign_type']) ? $config['sign_type'] : 'md5',
-            'sslcert_path' => !empty($config['sslcert_path']) ?
-                EXTEND_PATH . 'net' . DIRECTORY_SEPARATOR . 'pay' . DIRECTORY_SEPARATOR . $config['sslcert_path'] : '',
-            'sslkey_path'  => !empty($config['sslkey_path']) ?
-                EXTEND_PATH . 'net' . DIRECTORY_SEPARATOR . 'pay' . DIRECTORY_SEPARATOR . $config['sslkey_path'] : '',
+            'sslcert_path' => !empty($config['sslcert_path']) ? $config['sslcert_path'] : '',
+            'sslkey_path'  => !empty($config['sslkey_path']) ? $config['sslkey_path'] : '',
         ];
     }
 

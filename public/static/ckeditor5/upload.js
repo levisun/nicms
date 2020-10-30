@@ -63,6 +63,10 @@ class MyUploadAdapter {
                 return reject(response && response.error ? response.error.message : genericErrorText);
             }
 
+            if (!response && response.token) {
+                jQuery.set_cookie('CSRF_TOKEN', response.token);
+            }
+
             // If the upload is successful, resolve the upload promise with an object containing
             // at least the "default" URL, pointing to the image on the server.
             // This URL will be used to display the image in the content. Learn more in the
@@ -88,27 +92,23 @@ class MyUploadAdapter {
     // Prepares the data and sends the request.
     _sendRequest(file) {
         // Prepare the form data.
-        const data = new FormData();
+        let common = [];
+        common.push({ name: 'appid', value: jQuery('meta[name="csrf-appid"]').attr('content') });
+        common.push({ name: '__token__', value: jQuery.get_cookie('CSRF_TOKEN') });
+        common.push({ name: 'method', value: 'content.article.upload' });
+        // common.push({ name: 'width', value: 800 });
+        // common.push({ name: 'height', value: 800 });
+        common.push({ name: 'water', value: 0 });
+        common.push({ name: 'typeOption', value: 'upload_image' });
 
-        data.append('appid', jQuery('meta[name="csrf-appid"]').attr('content'));
-        data.append('__token__', jQuery.get_cookie('CSRF_TOKEN'));
-        data.append('method', 'content.article.upload');
-        data.append('width', 800);
-        data.append('height', 800);
-        data.append('water', 0);
-        data.append('typeOption', 'upload_image');
+        let from_data = new FormData();
+        for (let index in common) {
+            const element = common[index];
+            from_data.append(element.name, element.value);
+        }
 
-        var newData = [];
-        newData.push({ name: 'appid', value: jQuery('meta[name="csrf-appid"]').attr('content') });
-        newData.push({ name: '__token__', value: jQuery.get_cookie('CSRF_TOKEN') });
-        newData.push({ name: 'method', value: 'content.article.upload' });
-        newData.push({ name: 'width', value: 800 });
-        newData.push({ name: 'height', value: 800 });
-        newData.push({ name: 'water', value: 0 });
-        newData.push({ name: 'typeOption', value: 'upload_image' });
-
-        data.append('sign', jQuery.sign(newData));
-        data.append('upload', file);
+        from_data.append('sign', jQuery.sign(common));
+        from_data.append('upload', file);
 
         // Important note: This is the right place to implement security mechanisms
         // like authentication and CSRF protection. For instance, you can use
@@ -116,6 +116,6 @@ class MyUploadAdapter {
         // the CSRF token generated earlier by your application.
 
         // Send the request.
-        this.xhr.send(data);
+        this.xhr.send(from_data);
     }
 }

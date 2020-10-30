@@ -108,6 +108,7 @@ class User extends BaseLogic
         $this->user_type = 'admin';
         $this->actionLog('admin user login');
 
+        unset($user['password']);
         shuffle($user);
 
         return [

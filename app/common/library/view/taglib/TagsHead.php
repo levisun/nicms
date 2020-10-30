@@ -52,23 +52,12 @@ class TagsHead extends Taglib
             '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' .
             '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />' .
 
-            '<meta name="author" content="312630173@qq.com" />' .
-            '<meta name="generator" content="nicms" />' .
-            '<meta name="copyright" content="2013-<?php echo date(\'Y\');?> nicms all rights reserved" />' .
-
             '<meta http-equiv="Window-target" content="_top" />' .
 
             '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
             '<meta http-equiv="Cache-Control" content="no-transform" />' .
 
-            '<meta name="csrf-root" content="' . $root . '" />' .
             '<meta name="csrf-version" content="' . $this->config['tpl_config']['api_version'] . '" />' .
-            '<?php echo csrf_appid();?>' .
-
-            '<meta http-equiv="x-dns-prefetch-control" content="on" />' .           // DNS缓存
-            '<link rel="dns-prefetch" href="<?php echo config(\'app.api_host\');?>" />' .
-            '<link rel="dns-prefetch" href="<?php echo config(\'app.img_host\');?>" />' .
-            '<link rel="dns-prefetch" href="<?php echo config(\'app.cdn_host\');?>" />' .
 
             '<link href="<?php echo config(\'app.img_host\');?>/favicon.ico" rel="shortcut icon" type="image/x-icon" />' .
 
@@ -77,21 +66,7 @@ class TagsHead extends Taglib
             $this->meta() .
             $this->link() .
 
-            '<script type="text/javascript">const NICMS = {' .
-            'domain:"//"+window.location.host,' .
-            'rootDomain:"//"+window.location.host.substr(window.location.host.indexOf(".")+1),' .
-            'url:"//"+window.location.host+window.location.pathname+window.location.search,' .
-            'api_uri:"' . config("app.api_host") . '",' .
-            'param:<?php echo json_encode(app("request")->param());?>,' .
-            'static:"__STATIC__",' .
-            'theme:"__THEME__",' .
-            'css:"__CSS__",' .
-            'img:"__IMG__",' .
-            'js:"__JS__"' .
-            '}</script></head><body>';
-
-        // <style type="text/css">*{moz-user-select:-moz-none;-moz-user-select:none; -o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none; user-select:none;}</style>
-        // -webkit-filter: grayscale(100%);
+            '</head><body>';
     }
 
     private function link()

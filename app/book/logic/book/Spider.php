@@ -6,7 +6,7 @@ namespace app\book\logic\book;
 
 use app\common\controller\BaseLogic;
 use app\common\library\Filter;
-use app\common\library\Spider as LibSpider;
+use app\common\library\tools\Spider as LibSpider;
 use app\common\model\Book as ModelBook;
 use app\common\model\BookArticle as ModelBookArticle;
 use app\common\model\BookAuthor as ModelBookAuthor;
@@ -111,7 +111,7 @@ class Spider extends BaseLogic
                     }, $content);
                     $content = array_filter($content);
                     $content = '<p>' . implode('</p><p>', $content) . '</p>';
-                    $content = Filter::encode($content);
+                    $content = Filter::contentEncode($content);
 
                     $has = ModelBookArticle::where([
                         ['book_id', '=', $book_id],

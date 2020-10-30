@@ -38,11 +38,26 @@ class AppInit
 
     public function handle(Request $request, Closure $next)
     {
+        $this->request = $request;
+
         # TODO
 
         $response = $next($request);
 
-        $this->request = $request;
+
+        $content = $response->getContent();
+
+        list($root) = explode('.', $request->rootDomain(), 2);
+
+        $head = '<meta name="author" content="312630173@qq.com" /><meta name="generator" content="nicms" /><meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" /><meta http-equiv="x-dns-prefetch-control" content="on" /><link rel="dns-prefetch" href="' . config('app.api_host') . '" /><link rel="dns-prefetch" href="' . config('app.img_host') . '" /><link rel="dns-prefetch" href="' . config('app.cdn_host') . '" /><meta name="csrf-root" content="' . $root . '" />' . csrf_appid() . '<style type="text/css">body{moz-user-select:-moz-none;-moz-user-select:none;-o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;}</style><script type="text/javascript">const NICMS = {domain:"//"+window.location.host,rootDomain:"//"+window.location.host.substr(window.location.host.indexOf(".")+1),url:"//"+window.location.host+window.location.pathname+window.location.search,api_uri:"' . config("app.api_host") . '",param:' . json_encode(app("request")->param()) . '};</script>';
+
+        // 纪念日全网灰色
+        // -webkit-filter:grayscale(100%);
+
+        $content = str_ireplace('</head>', $head . '</head>', $content);
+
+        $response->content($content);
+
         $this->app_secret();
         $this->csrf_token();
         $this->authorization();
@@ -55,10 +70,11 @@ class AppInit
      * @access private
      * @return void
      */
-    private function csrf_token(): void
+    private function csrf_token()
     {
         $app_token = $this->request->buildToken('__token__', 'md5');
         Cookie::set('CSRF_TOKEN', $app_token, ['httponly' => false]);
+        return $app_token;
     }
 
     /**
@@ -66,7 +82,7 @@ class AppInit
      * @access private
      * @return void
      */
-    private function app_secret(): void
+    private function app_secret()
     {
         if ($app_name = Config::get('app.domain_bind.' . $this->request->subDomain())) {
             $api_app = ModelApiApp::field('id, secret')
@@ -80,6 +96,7 @@ class AppInit
                 $key = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
                 $app_secret = sha1($api_app['secret'] . $key);
                 Cookie::set('XSRF_TOKEN', $app_secret, ['httponly' => false]);
+                return $app_secret;
             }
         }
     }
@@ -89,7 +106,7 @@ class AppInit
      * @access private
      * @return void
      */
-    private function authorization(): void
+    private function authorization()
     {
         // 密钥
         $key = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
@@ -114,5 +131,7 @@ class AppInit
             ->getToken(new Sha256, new Key($key));
 
         Cookie::set('XSRF_AUTHORIZATION', $authorization, ['httponly' => false]);
+
+        return $authorization;
     }
 }

@@ -19,19 +19,20 @@ namespace app\common\middleware;
 use Closure;
 use think\Request;
 use think\Response;
+use think\middleware\CheckRequestCache;
 
-
-class ApiRequestCache
+class ApiRequestCache extends CheckRequestCache
 {
 
     /**
      * 设置当前地址的请求缓存
      * @access public
-     * @param  Request  $request
-     * @param  Closure  $next
+     * @param  Request $request
+     * @param  Closure $next
+     * @param  mixed   $cache
      * @return Response
      */
-    public function handle(Request $request, Closure $next)
+    public function handle($request, Closure $next, $cache = null)
     {
         // 304缓存
         if ($ms = $request->server('HTTP_IF_MODIFIED_SINCE')) {
