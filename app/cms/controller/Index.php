@@ -55,30 +55,7 @@ class Index extends BaseController
      */
     public function index()
     {
-        $result = '';
-        try {
-            $file = public_path('storage') . '222221.docx';
-            @ini_set('memory_limit', '32M');
-            $html_file = public_path('storage') . md5(pathinfo($file, PATHINFO_BASENAME)) . '.html';
-            if (!is_file($html_file)) {
-                $word = new \COM("word.application") or die("Can't start Word!");
-                $word->Visible = 0;
-                $word->Documents->Open($file);
-                $word->Documents[1]->SaveAs($html_file, 8);
-                $word->Quit();
-                unset($word);
-            }
-
-            $dir = str_replace(pathinfo($html_file, PATHINFO_EXTENSION), 'files', $html_file);
-            if ($files = glob(rtrim($dir, '\/.') . DIRECTORY_SEPARATOR . '*')) {
-                array_map('unlink', $files);
-            }
-            is_dir($dir) and rmdir($dir);
-            unlink($html_file);
-        } catch (\Exception $th) {
-            //throw $th;
-        }
-        // return $this->fetch('index');
+        return $this->fetch('index');
     }
 
     /**
