@@ -34,14 +34,10 @@ class Spider extends BaseLogic
         $keywords = $title . ',' . $author;
         $description = $title . '最新章节由网友提供，《' . $title . '》情节跌宕起伏、扣人心弦，是一本情节与文笔俱佳的小说，免费提供' . $title . '最新清爽干净的文字章节在线阅读。';
 
-        $has = ModelBook::where([
-            ['origin', '=', $_uri]
-        ])->value('id');
+        $has = ModelBook::where('origin', '=', $_uri)->value('id');
         if (!$has) {
             $book_author = new ModelBookAuthor;
-            $author_id = $book_author->where([
-                ['author', '=', $author]
-            ])->value('id');
+            $author_id = $book_author->where('author', '=', $author)->value('id');
             if (!$author_id) {
                 $book_author->save([
                     'author' => $author
@@ -63,9 +59,7 @@ class Spider extends BaseLogic
     public function jxbookarticle()
     {
         if ($book_id = $this->request->param('book_id/d', 0, '\app\common\library\Base64::url62decode')) {
-            $origin = ModelBook::where([
-                ['id', '=', $book_id]
-            ])->value('origin');
+            $origin = ModelBook::where('id', '=', $book_id)->value('origin');
 
             $spider = new LibSpider;
 
@@ -74,9 +68,7 @@ class Spider extends BaseLogic
             $spider->request('GET', $origin);
             $links = $spider->fetch('dd');
 
-            $count = ModelBookArticle::where([
-                ['book_id', '=', $book_id],
-            ])->count();
+            $count = ModelBookArticle::where('book_id', '=', $book_id)->count();
             if (count($links) <= $count) {
                 return [];
             }

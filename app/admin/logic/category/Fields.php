@@ -116,9 +116,7 @@ class Fields extends BaseLogic
     public function find(): array
     {
         if ($id = $this->request->param('id/d', 0, 'abs')) {
-            $result = ModelFields::where([
-                ['id', '=', $id],
-            ])->find();
+            $result = ModelFields::where('id', '=', $id)->find();
             $result = $result ? $result->toArray() : [];
         }
 
@@ -193,13 +191,9 @@ class Fields extends BaseLogic
             ];
         }
 
-        ModelFields::where([
-            ['id', '=', $id]
-        ])->delete();
+        ModelFields::where('id', '=', $id)->delete();
 
-        ModelFieldsExtend::where([
-            ['fields_id', '=', $id]
-        ])->delete();
+        ModelFieldsExtend::where('fields_id', '=', $id)->delete();
 
         return [
             'debug' => false,

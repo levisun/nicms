@@ -153,10 +153,7 @@ abstract class BaseLogic
         $class .= '_' . $backtrace[0]['function'];
 
         // 查询操作方法
-        $has = ModelAction::where([
-                ['name', '=', $class]
-            ])
-            ->find();
+        $has = ModelAction::where('name', '=', $class)->find();
 
         // 创建新操作方法
         if (is_null($has)) {
@@ -179,11 +176,7 @@ abstract class BaseLogic
 
         // 删除过期日志
         if (1 === mt_rand(1, 100)) {
-            ModelActionLog::where([
-                    ['create_time', '<', strtotime('-90 days')]
-                ])
-                ->limit(100)
-                ->delete();
+            ModelActionLog::where('create_time', '<', strtotime('-90 days'))->limit(100)->delete();
         }
     }
 

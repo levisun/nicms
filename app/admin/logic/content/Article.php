@@ -249,9 +249,7 @@ class Article extends BaseLogic
                 ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                 ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
                 ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
-                ->where([
-                    ['article.id', '=', $id],
-                ])
+                ->where('article.id', '=', $id)
                 ->find();
 
             if ($result && $result = $result->toArray()) {
@@ -261,9 +259,7 @@ class Article extends BaseLogic
                 $model = \think\helper\Str::studly($result['table_name']);
                 unset($result['table_name']);
                 $content = $this->app->make('\app\common\model\\' . $model);
-                $content = $content->where([
-                    ['article_id', '=', $id]
-                ])->find();
+                $content = $content->where('article_id', '=', $id)->find();
                 if ($content && $content = $content->toArray()) {
                     unset($content['id'], $content['article_id']);
                     foreach ($content as $key => $value) {
@@ -290,9 +286,7 @@ class Article extends BaseLogic
                 // 标签
                 $result['tags'] = ModelArticleTags::view('article_tags', ['tags_id'])
                     ->view('tags', ['name'], 'tags.id=article_tags.tags_id')
-                    ->where([
-                        ['article_tags.article_id', '=', $result['id']],
-                    ])
+                    ->where('article_tags.article_id', '=', $result['id'])
                     ->select()
                     ->toArray();
             }
@@ -325,9 +319,7 @@ class Article extends BaseLogic
         }
 
         // 删除旧图片
-        $old_thumb = ModelArticle::where([
-            ['id', '=', $id]
-        ])->value('thumb');
+        $old_thumb = ModelArticle::where('id', '=', $id)->value('thumb');
         $thumb = $this->request->param('thumb', '');
         if ($old_thumb !== $thumb) {
             UploadLog::remove($old_thumb);
@@ -399,9 +391,7 @@ class Article extends BaseLogic
             // 相册
             elseif (2 === $receive_data['model_id']) {
                 // 删除旧图片
-                $old_img = ModelArticleImage::where([
-                    ['article_id', '=', $id]
-                ])->value('image_url');
+                $old_img = ModelArticleImage::where('article_id', '=', $id)->value('image_url');
                 $old_img = unserialize($old_img);
                 $image_url = $this->request->param('image_url/a', '');
                 foreach ($old_img as $value) {
@@ -422,9 +412,7 @@ class Article extends BaseLogic
             // 下载
             elseif (3 === $receive_data['model_id']) {
                 // 删除旧文件
-                $old_file_url = ModelArticleFile::where([
-                    ['article_id', '=', $id]
-                ])->value('file_url');
+                $old_file_url = ModelArticleFile::where('article_id', '=', $id)->value('file_url');
                 $file_url = $this->request->param('file_url', '');
                 if ($old_file_url !== $file_url) {
                     UploadLog::remove($old_file_url);
@@ -472,9 +460,7 @@ class Article extends BaseLogic
             ];
         }
 
-        $category_id = ModelArticle::where([
-            ['id', '=', $id]
-        ])->value('category_id');
+        $category_id = ModelArticle::where('id', '=', $id)->value('category_id');
 
         if ($category_id) {
             ModelArticle::update([

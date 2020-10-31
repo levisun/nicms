@@ -109,10 +109,7 @@ class Type extends BaseLogic
     public function find(): array
     {
         if ($id = $this->request->param('id/d', 0, 'abs')) {
-            $result = ModelType::where([
-                ['id', '=', $id],
-            ])
-                ->find();
+            $result = ModelType::where('id', '=', $id)->find();
             $result = $result ? $result->toArray() : [];
         }
 
@@ -178,9 +175,7 @@ class Type extends BaseLogic
             ];
         }
 
-        ModelType::where([
-            ['id', '=', $id]
-        ])->delete();
+        ModelType::where('id', '=', $id)->delete();
 
         return [
             'debug' => false,

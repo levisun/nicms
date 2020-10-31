@@ -78,9 +78,7 @@ class TagsPage extends Taglib
 
                     $result["tags"] = \app\common\model\ArticleTags::view("article_tags", ["tags_id"])
                         ->view("tags", ["name"], "tags.id=article_tags.tags_id")
-                        ->where([
-                            ["article_tags.article_id", "=", $result["id"]],
-                        ])
+                        ->where("article_tags.article_id", "=", $result["id"])
                         ->select()
                         ->toArray();
                     foreach ($result["tags"] as $key => $tag):
@@ -88,9 +86,7 @@ class TagsPage extends Taglib
                         $result["tags"][$key] = $tag;
                     endforeach;
 
-                    $content = \app\common\model\ArticleContent::where([
-                        ["article_id", "=", $result["id"]]
-                    ])->find();
+                    $content = \app\common\model\ArticleContent::where("article_id", "=", $result["id"])->find();
                     if ($content && $content = $content->toArray()):
                         unset($content["id"], $content["article_id"]);
                         $result["thumb"] = \app\common\library\Image::path($content["thumb"]);

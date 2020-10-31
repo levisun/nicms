@@ -154,26 +154,19 @@ class Type extends BaseLogic
     public function find(): array
     {
         if ($id = $this->request->param('id/d', 0, 'abs')) {
-            $result = ModelBookType::where([
-                    ['id', '=', $id],
-                ])
-                ->find();
+            $result = ModelBookType::where('id', '=', $id)->find();
 
             if (null !== $result && $result = $result->toArray()) {
                 $result['image'] = $result['image']
                     ? $this->config->get('app.img_host') . '/' . $result['image']
                     : '';
 
-                $result['parent'] = ModelBookType::where([
-                    ['id', '=', $result['pid']]
-                ])->value('name as parent');
+                $result['parent'] = ModelBookType::where('id', '=', $result['pid'])->value('name as parent');
             }
         } else {
             $result = [];
             if ($pid = $this->request->param('pid/d', 0, 'abs')) {
-                $result['parent'] = ModelBookType::where([
-                    ['id', '=', $pid]
-                ])->value('name as parent');
+                $result['parent'] = ModelBookType::where('id', '=', $pid)->value('name as parent');
             }
         }
 
@@ -220,9 +213,7 @@ class Type extends BaseLogic
         }
 
         // 删除旧图片
-        $image = ModelBookType::where([
-            ['id', '=', $id],
-        ])->value('image');
+        $image = ModelBookType::where('id', '=', $id)->value('image');
         if ($image !== $receive_data['image']) {
             UploadLog::remove($image);
             UploadLog::update($receive_data['image'], 1);
@@ -266,9 +257,7 @@ class Type extends BaseLogic
             UploadLog::remove($image);
         }
 
-        ModelBookType::where([
-            ['id', '=', $id]
-        ])->delete();
+        ModelBookType::where('id', '=', $id)->delete();
 
         $this->cache->tag('cms nav')->clear();
 

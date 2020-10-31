@@ -63,9 +63,7 @@ class Catalog extends BaseLogic
                         $fields = ModelFields::view('fields', ['id'])
                             ->view('fields_extend', ['data'], 'fields_extend.fields_id=fields.id')
                             // ->view('fields_type', ['name' => 'fields_type'])
-                            ->where([
-                                ['fields.category_id', '=', $category_id],
-                            ])
+                            ->where('fields.category_id', '=', $category_id)
                             ->select()
                             ->toArray();
                         foreach ($fields as $val) {

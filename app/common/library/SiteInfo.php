@@ -77,16 +77,12 @@ class SiteInfo
         if ($this->appName == 'cms') {
             // 文章描述
             if ($id = Request::param('id', 0, '\app\common\library\Base64::url62decode')) {
-                $result = ModelArticle::where([
-                    ['id', '=', $id]
-                ])->value('description', '');
+                $result = ModelArticle::where('id', '=', $id)->value('description', '');
                 $description = $result ?: $description;
             }
             // 栏目描述
             elseif ($cid = Request::param('cid', 0, '\app\common\library\Base64::url62decode')) {
-                $result = ModelCategory::where([
-                    ['id', '=', $cid]
-                ])->value('description', '');
+                $result = ModelCategory::where('id', '=', $cid)->value('description', '');
                 $description = $result ?: $description;
             }
         }
@@ -110,16 +106,12 @@ class SiteInfo
         if ($this->appName == 'cms') {
             // 文章关键词
             if ($id = Request::param('id', 0, '\app\common\library\Base64::url62decode')) {
-                $result = ModelArticle::where([
-                    ['id', '=', $id]
-                ])->value('keywords', '');
+                $result = ModelArticle::where('id', '=', $id)->value('keywords', '');
                 $keywords = $result ?: $keywords;
             }
             // 栏目关键词
             elseif ($cid = Request::param('cid', 0, '\app\common\library\Base64::url62decode')) {
-                $result = ModelCategory::where([
-                    ['id', '=', $cid]
-                ])->value('keywords', '');
+                $result = ModelCategory::where('id', '=', $cid)->value('keywords', '');
                 $keywords = $result ?: $keywords;
             }
         }
@@ -139,17 +131,13 @@ class SiteInfo
         if ($this->appName == 'cms') {
             // 文章名
             if ($id = Request::param('id', 0, '\app\common\library\Base64::url62decode')) {
-                $article = ModelArticle::where([
-                    ['id', '=', $id]
-                ])->value('title', '');
+                $article = ModelArticle::where('id', '=', $id)->value('title', '');
                 $title .= $article ? $article . '-' : '';
             }
 
             // 栏目名
             if ($cid = Request::param('cid', 0, '\app\common\library\Base64::url62decode')) {
-                $category = ModelCategory::where([
-                    ['id', '=', $cid]
-                ])->value('name', '');
+                $category = ModelCategory::where('id', '=', $cid)->value('name', '');
                 $title .= $category ? $category . '-' : '';
             }
         }

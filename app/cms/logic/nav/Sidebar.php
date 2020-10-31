@@ -123,9 +123,7 @@ class Sidebar extends BaseLogic
      */
     private function parent(int $_id)
     {
-        $result = ModelCategory::where([
-            ['id', '=', $_id],
-        ])->value('pid', 0);
+        $result = ModelCategory::where('id', '=', $_id)->value('pid', 0);
 
         return $result ? $this->parent((int) $result) : $_id;
     }

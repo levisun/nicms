@@ -109,9 +109,7 @@ class Details extends BaseLogic
                     // 标签
                     $result['tags'] = ModelArticleTags::view('article_tags', ['tags_id'])
                         ->view('tags', ['name'], 'tags.id=article_tags.tags_id')
-                        ->where([
-                            ['article_tags.article_id', '=', $result['id']],
-                        ])
+                        ->where('article_tags.article_id', '=', $result['id'])
                         ->select()
                         ->toArray();
                     foreach ($result['tags'] as $key => $tag) {
@@ -123,44 +121,44 @@ class Details extends BaseLogic
                     $model = \think\helper\Str::studly($result['table_name']);
                     unset($result['table_name']);
                     $content = $this->app->make('\app\common\model\\' . $model);
-                    $content = $content->where([
-                        ['article_id', '=', $result['id']]
-                    ])->find();
+                    $content = $content->where('article_id', '=', $result['id'])->find();
                     if ($content && $content = $content->toArray()) {
                         unset($content['id'], $content['article_id']);
                         foreach ($content as $key => $value) {
-                            switch ($key) {
-                                    // 图片
-                                case 'image_url':
-                                    $value = unserialize($value);
-                                    foreach ($value as $v) {
-                                        $result[$key][] = $v ? Image::path($v) : '';
-                                    }
-                                    $result[$key] = array_unique($result[$key]);
-                                    $result[$key] = array_filter($result[$key]);
-                                    break;
-
-                                    // 文章内容
-                                case 'content':
-                                    $value = Filter::contentDecode($value);
-                                    $value = preg_replace_callback('/(src=")([a-zA-Z0-9&=#,_:?.\/]+)(")/si', function ($matches) {
-                                        return $matches[2]
-                                            ? 'src="' . Image::path($matches[2]) . '"'
-                                            : '';
-                                    }, $value);
-                                    $result[$key] = $value;
-                                    break;
-
-                                    // 下载文件
-                                case 'file_url':
-                                    $result[$key] = $value
-                                        ? $this->config->get('app.api_host') . 'download.do?file=' . filepath_encode($value)
+                            // 图片
+                            if ('image_url' === $key) {
+                                $value = unserialize($value);
+                                foreach ($value as $path) {
+                                    $result[$key][] = $path ? Image::path($path) : '';
+                                }
+                                $result[$key] = array_unique($result[$key]);
+                                $result[$key] = array_filter($result[$key]);
+                            }
+                            // 文章内容
+                            elseif ('content' === $key) {
+                                $value = Filter::contentDecode($value);
+                                $value = preg_replace_callback('/(src=")([a-zA-Z0-9&=#,_:?.\/]+)(")/si', function ($matches) {
+                                    return $matches[2]
+                                        ? 'src="' . Image::path($matches[2]) . '"'
                                         : '';
-                                    break;
-
-                                default:
-                                    $result[$key] = $value;
-                                    break;
+                                }, $value);
+                                $result[$key] = $value;
+                            }
+                            // 下载文件
+                            elseif ('file_url' === $key) {
+                                $result[$key] = $value
+                                    ? $this->config->get('app.api_host') . 'download.do?file=' . filepath_encode($value)
+                                    : '';
+                            }
+                            // 版权
+                            elseif ('origin' === $key) {
+                                $result['copyright'] = $value
+                                    ? '来源：<a href="' . $value . '" rel="nofollow" target="_blank">' . parse_url($value, PHP_URL_HOST) . '</a>'
+                                    : '未经允许不得转载';
+                            }
+                            // 其他
+                            else {
+                                $result[$key] = $value;
                             }
                         }
                     }
@@ -186,16 +184,13 @@ class Details extends BaseLogic
     public function hits(): array
     {
         if ($id = $this->request->param('id/d', 0, 'abs')) {
-            $map = [
-                ['id', '=', $id],
-            ];
 
             // 更新浏览数
-            ModelArticle::where($map)
+            ModelArticle::where('id', '=', $id)
                 ->inc('hits', 1, 60)
                 ->update();
 
-            $result = ModelArticle::where($map)->value('hits', 0);
+            $result = ModelArticle::where('id', '=', $id)->value('hits', 0);
         }
 
         return [
@@ -301,9 +296,7 @@ class Details extends BaseLogic
         $category = [];
 
         $result = ModelCategory::field('id')
-            ->where([
-                ['pid', '=', $_id]
-            ])
+            ->where('pid', '=', $_id)
             ->select();
 
         $result = $result ? $result->toArray() : [];

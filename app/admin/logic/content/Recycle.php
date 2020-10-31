@@ -134,9 +134,7 @@ class Recycle extends BaseLogic
             ];
         }
 
-        $category_id = ModelArticle::where([
-            ['id', '=', $id]
-        ])->value('category_id');
+        $category_id = ModelArticle::where('id', '=', $id)->value('category_id');
 
         if ($category_id) {
             ModelArticle::update([
@@ -175,62 +173,42 @@ class Recycle extends BaseLogic
 
         ModelArticle::transaction(function () use ($id) {
             // 删除文章模块数据
-            $thumb = ModelArticle::where([
-                ['id', '=', $id]
-            ])->value('thumb');
+            $thumb = ModelArticle::where('id', '=', $id)->value('thumb');
 
             if (!empty($thumb)) {
                 UploadLog::remove($thumb);
             }
 
-            ModelArticle::where([
-                ['id', '=', $id]
-            ])->delete();
+            ModelArticle::where('id', '=', $id)->delete();
 
-            ModelArticleContent::where([
-                ['article_id', '=', $id]
-            ])->delete();
+            ModelArticleContent::where('article_id', '=', $id)->delete();
 
 
             // 删除下载模块数据
-            $file_url = ModelArticleFile::where([
-                ['article_id', '=', $id]
-            ])->value('file_url');
+            $file_url = ModelArticleFile::where('article_id', '=', $id)->value('file_url');
             if (!empty($file_url)) {
                 UploadLog::remove($file_url);
             }
-            ModelArticleFile::where([
-                ['article_id', '=', $id]
-            ])->delete();
+            ModelArticleFile::where('article_id', '=', $id)->delete();
 
 
             // 删除相册模块数据
-            $image_url = ModelArticleImage::where([
-                ['article_id', '=', $id]
-            ])->value('image_url');
+            $image_url = ModelArticleImage::where('article_id', '=', $id)->value('image_url');
             $image_url = unserialize($image_url);
             foreach ($image_url as $value) {
                 UploadLog::remove($value);
             }
-            ModelArticleImage::where([
-                ['article_id', '=', $id]
-            ])->delete();
+            ModelArticleImage::where('article_id', '=', $id)->delete();
 
 
             // 删除标签数据
-            ModelArticleTags::where([
-                ['article_id', '=', $id]
-            ])->delete();
+            ModelArticleTags::where('article_id', '=', $id)->delete();
 
             // 删除评论
-            ModelDiscuss::where([
-                ['article_id', '=', $id]
-            ])->delete();
+            ModelDiscuss::where('article_id', '=', $id)->delete();
 
             // 删除自定义字段数据
-            ModelFieldsExtend::where([
-                ['article_id', '=', $id]
-            ])->delete();
+            ModelFieldsExtend::where('article_id', '=', $id)->delete();
         });
 
         return [

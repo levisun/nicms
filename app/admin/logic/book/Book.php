@@ -158,9 +158,7 @@ class Book extends BaseLogic
             $result = ModelBook::view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'is_pass', 'image', 'is_com', 'is_top', 'is_hot', 'sort_order', 'hits', 'author_id', 'update_time', 'lang'])
                 ->view('book_type', ['name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
-                ->where([
-                    ['book.id', '=', $id],
-                ])
+                ->where('book.id', '=', $id)
                 ->find();
 
             if ($result && $result = $result->toArray()) {
@@ -217,9 +215,7 @@ class Book extends BaseLogic
         }
 
         // 删除旧图片
-        $image = ModelBook::where([
-            ['id', '=', $id],
-        ])->value('image');
+        $image = ModelBook::where('id', '=', $id)->value('image');
         if ($image !== $receive_data['image']) {
             UploadLog::remove($image);
             UploadLog::update($receive_data['image'], 1);
@@ -263,9 +259,7 @@ class Book extends BaseLogic
             UploadLog::remove($image);
         }
 
-        ModelBook::where([
-            ['id', '=', $id]
-        ])->delete();
+        ModelBook::where('id', '=', $id)->delete();
 
         $this->cache->tag('book')->clear();
 

@@ -125,9 +125,7 @@ class Ads extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d', 0, 'abs')) {
-            $result = ModelAds::where([
-                ['id', '=', $id],
-            ])->find();
+            $result = ModelAds::where('id', '=', $id)->find();
 
             if ($result && $result = $result->toArray()) {
                 $result['start_time'] = $result['start_time'] ? date('Y-m-d', $result['start_time']) : date('Y-m-d');
@@ -179,9 +177,7 @@ class Ads extends BaseLogic
         }
 
         // 删除旧图片
-        $image = ModelAds::where([
-            ['id', '=', $id],
-        ])->value('image');
+        $image = ModelAds::where('id', '=', $id)->value('image');
 
         if ($image !== $receive_data['image']) {
             UploadLog::remove($image);
@@ -219,17 +215,13 @@ class Ads extends BaseLogic
             ];
         }
 
-        $image = ModelAds::where([
-            ['id', '=', $id]
-        ])->value('image');
+        $image = ModelAds::where('id', '=', $id)->value('image');
 
         if ($image) {
             UploadLog::remove($image);
         }
 
-        ModelAds::where([
-            ['id', '=', $id]
-        ])->delete();
+        ModelAds::where('id', '=', $id)->delete();
 
         // 清除缓存
         $this->cache->tag('cms ads')->clear();

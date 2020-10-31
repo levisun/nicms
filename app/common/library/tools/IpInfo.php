@@ -119,9 +119,7 @@ class IpInfo
             ->view('region region', ['id' => 'region_id', 'name' => 'region'], 'region.id=ipinfo.province_id')
             ->view('region city', ['id' => 'city_id', 'name' => 'city'], 'city.id=ipinfo.city_id')
             ->view('region area', ['id' => 'area_id', 'name' => 'area'], 'area.id=ipinfo.area_id', 'LEFT')
-            ->where([
-                ['ipinfo.ip', '=', bindec(Request::ip2bin($_ip))]
-            ])
+            ->where('ipinfo.ip', '=', bindec(Request::ip2bin($_ip)))
             ->find();
         $result = $result ? $result->toArray() : false;
 
@@ -215,9 +213,7 @@ class IpInfo
 
     private function added(array $_save_data): void
     {
-        $has = ModelIpInfo::where([
-            ['ip', '=', $_save_data['ip']]
-        ])->value('id');
+        $has = ModelIpInfo::where('ip', '=', $_save_data['ip'])->value('id');
 
         if (!$has) {
             ModelIpInfo::create($_save_data);

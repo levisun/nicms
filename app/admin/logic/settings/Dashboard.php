@@ -74,9 +74,7 @@ class Dashboard extends BaseLogic
     {
         $sum_ip = ModelIpInfo::count();
 
-        $day_ip = ModelIpInfo::where([
-            ['create_time', '>', strtotime(date('Y-m-d'))]
-        ])->count();
+        $day_ip = ModelIpInfo::where('create_time', '>', strtotime(date('Y-m-d')))->count();
 
 
         $browse = ModelVisit::fieldRaw('sum(count) as count')->where([

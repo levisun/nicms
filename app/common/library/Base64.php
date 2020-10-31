@@ -157,7 +157,7 @@ class Base64
             $number = bcadd((string) $number, bcmul((string) $arr[$_encode[$i]], bcpow('62', (string) ($len - $i - 1) )));
         }
 
-        return (int) $number - 1000;
+        return abs($number - 1000);
     }
 
     /**

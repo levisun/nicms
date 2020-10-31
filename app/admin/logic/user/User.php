@@ -116,15 +116,13 @@ class User extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d', 0, 'abs')) {
-            $result = ModelUser::field('id, username, phone, email, level_id, status')->where([
-                ['id', '=', $id],
-            ])->find();
+            $result = ModelUser::field('id, username, phone, email, level_id, status')
+                ->where('id', '=', $id)
+                ->find();
             $result = $result ? $result->toArray() : [];
         }
 
-        $level = ModelLevel::where([
-            ['status', '=', 1]
-        ])->select();
+        $level = ModelLevel::where('status', '=', 1)->select();
         $result['level_list'] = $level ? $level->toArray() : [];
 
         return [
@@ -202,9 +200,7 @@ class User extends BaseLogic
             ];
         }
 
-        ModelUser::where([
-            ['id', '=', $id]
-        ])->delete();
+        ModelUser::where('id', '=', $id)->delete();
 
         return [
             'debug' => false,

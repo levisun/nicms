@@ -132,9 +132,7 @@ class Link extends BaseLogic
                 ->view('category', ['name' => 'cat_name'], 'category.id=link.category_id')
                 ->view('model', ['id' => 'model_id', 'name' => 'model_name', 'table_name'], 'model.id=category.model_id')
                 ->view('type', ['name' => 'type_name'], 'type.id=link.type_id', 'LEFT')
-                ->where([
-                    ['link.id', '=', $id],
-                ])
+                ->where('link.id', '=', $id)
                 ->find();
 
             $result = $result ? $result->toArray() : [];
@@ -185,9 +183,7 @@ class Link extends BaseLogic
         }
 
         // 删除旧LOGO
-        $logo = ModelLink::where([
-            ['id', '=', $id],
-        ])->value('logo');
+        $logo = ModelLink::where('id', '=', $id)->value('logo');
         if ($logo !== $receive_data['logo']) {
             UploadLog::remove($logo);
         }
@@ -224,17 +220,13 @@ class Link extends BaseLogic
             ];
         }
 
-        $find = ModelLink::where([
-            ['id', '=', $id]
-        ])->column('logo', 'category_id');
+        $find = ModelLink::where('id', '=', $id)->column('logo', 'category_id');
 
         if ($find['logo']) {
             UploadLog::remove($find['logo']);
         }
 
-        ModelLink::where([
-            ['id', '=', $id]
-        ])->delete();
+        ModelLink::where('id', '=', $id)->delete();
 
         // 清除缓存
         $this->cache->tag('cms link list' . $find['category_id'])->clear();

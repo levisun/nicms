@@ -100,9 +100,7 @@ class Sidebar extends BaseLogic
      */
     private function parent(int $_id)
     {
-        $result = ModelBookType::where([
-            ['id', '=', $_id],
-        ])->value('pid', 0);
+        $result = ModelBookType::where('id', '=', $_id)->value('pid', 0);
 
         return $result ? $this->parent((int) $result) : $_id;
     }

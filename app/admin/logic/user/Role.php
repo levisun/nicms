@@ -34,12 +34,12 @@ class Role extends BaseLogic
     {
         $query_limit = $this->request->param('limit/d', 20, 'abs');
 
-        $result = ModelRole::where([
-            ['id', '<>', 1]
-        ])->order('id DESC')->paginate([
-            'list_rows' => $query_limit,
-            'path' => 'javascript:paging([PAGE]);',
-        ]);
+        $result = ModelRole::where('id', '<>', 1)
+            ->order('id DESC')
+            ->paginate([
+                'list_rows' => $query_limit,
+                'path' => 'javascript:paging([PAGE]);',
+            ]);
 
         $list = $result->toArray();
         $list['total'] = number_format($list['total']);
@@ -117,15 +117,11 @@ class Role extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d', 0, 'abs')) {
-            $result = ModelRole::where([
-                ['id', '=', $id],
-            ])->find();
+            $result = ModelRole::where('id', '=', $id)->find();
             $result = $result ? $result->toArray() : [];
 
             $node = ModelRoleAccess::field('node_id')
-                ->where([
-                    ['role_id', '=', $id]
-                ])
+                ->where('role_id', '=', $id)
                 ->order('node_id ASC')
                 ->select();
             if ($node = $node->toArray()) {
@@ -174,9 +170,7 @@ class Role extends BaseLogic
             ModelRole::update($receive_data, ['id' => $id]);
 
             // 删除旧数据
-            ModelRoleAccess::where([
-                ['role_id', '=', $id]
-            ])->delete();
+            ModelRoleAccess::where('role_id', '=', $id)->delete();
 
             $list = [];
             $node = $this->request->param('node/a');
@@ -215,13 +209,9 @@ class Role extends BaseLogic
         }
 
         ModelRole::transaction(function () use ($id) {
-            ModelRole::where([
-                ['id', '=', $id]
-            ])->delete();
+            ModelRole::where('id', '=', $id)->delete();
 
-            ModelRoleAccess::where([
-                ['role_id', '=', $id]
-            ])->delete();
+            ModelRoleAccess::where('role_id', '=', $id)->delete();
         });
 
         return [

@@ -135,9 +135,7 @@ class Search extends BaseLogic
                 // 标签
                 $value['tags'] = ModelArticleTags::view('article_tags', ['tags_id'])
                     ->view('tags tags', ['name'], 'tags.id=article_tags.tags_id')
-                    ->where([
-                        ['article_tags.article_id', '=', $value['id']],
-                    ])
+                    ->where('article_tags.article_id', '=', $value['id'])
                     ->select()
                     ->toArray();
                 foreach ($value['tags'] as $k => $tag) {
@@ -177,9 +175,7 @@ class Search extends BaseLogic
         $category = [];
 
         $result = ModelCategory::field('id')
-            ->where([
-                ['pid', '=', $_id]
-            ])
+            ->where('pid', '=', $_id)
             ->select();
 
         $result = $result ? $result->toArray() : [];

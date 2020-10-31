@@ -83,9 +83,7 @@ class Feedback extends BaseLogic
                 ->view('category', ['name' => 'cat_name'], 'category.id=feedback.category_id', 'LEFT')
                 ->view('type', ['name' => 'type_name'], 'type.id=feedback.type_id', 'LEFT')
                 ->view('user', ['username' => 'author'], 'user.id=feedback.user_id', 'LEFT')
-                ->where([
-                    ['feedback.id', '=', $id],
-                ])
+                ->where('feedback.id', '=', $id)
                 ->find();
 
             $result = $result ? $result->toArray() : [];
@@ -124,9 +122,7 @@ class Feedback extends BaseLogic
 
         ModelFeedback::update($receive_data, ['id' => $id]);
 
-        $category_id = ModelFeedback::where([
-            ['id', '=', $id]
-        ])->value('category_id');
+        $category_id = ModelFeedback::where('id', '=', $id)->value('category_id');
 
         // 清除缓存
         $this->cache->tag('cms feedback list' . $category_id)->clear();
@@ -156,13 +152,9 @@ class Feedback extends BaseLogic
             ];
         }
 
-        $category_id = ModelFeedback::where([
-            ['id', '=', $id]
-        ])->value('category_id');
+        $category_id = ModelFeedback::where('id', '=', $id)->value('category_id');
 
-        ModelFeedback::where([
-            ['id', '=', $id]
-        ])->delete();
+        ModelFeedback::where('id', '=', $id)->delete();
 
         // 清除缓存
         $this->cache->tag('cms feedback list' . $category_id)->clear();

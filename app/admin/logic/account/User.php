@@ -203,9 +203,7 @@ class User extends BaseLogic
             $result = ModelAdmin::view('admin', ['id', 'username', 'email', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
                 ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
                 ->view('role role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
-                ->where([
-                    ['admin.id', '=', $this->user_id]
-                ])
+                ->where('admin.id', '=', $this->user_id)
                 ->cache('ADMIN PROFILE' . $this->user_id, 300, 'admin')
                 ->find();
 

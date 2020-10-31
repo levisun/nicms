@@ -38,9 +38,7 @@ class UploadLog
         $_file = trim($_file, '\/.');
         $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
 
-        $has = ModelUploadFileLog::where([
-            ['file', '=', $_file]
-        ])->value('file');
+        $has = ModelUploadFileLog::where('file', '=', $_file)->value('file');
 
         if (!$has) {
             ModelUploadFileLog::create([
@@ -93,9 +91,7 @@ class UploadLog
             @unlink($abs_file);
         }
 
-        ModelUploadFileLog::where([
-            ['file', '=', $_file]
-        ])->delete();
+        ModelUploadFileLog::where('file', '=', $_file)->delete();
     }
 
     /**
@@ -132,9 +128,7 @@ class UploadLog
         }
 
         if (!empty($id) && 0 < count($id)) {
-            ModelUploadFileLog::where([
-                ['id', 'in', $id]
-            ])->delete();
+            ModelUploadFileLog::where('id', 'in', $id)->delete();
         }
     }
 }

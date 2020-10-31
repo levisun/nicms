@@ -184,9 +184,7 @@ class Category extends BaseLogic
         if ($id = $this->request->param('id/d', 0, 'abs')) {
             $result = ModelCategory::view('category')
                 ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
-                ->where([
-                    ['category.id', '=', $id],
-                ])
+                ->where('category.id', '=', $id)
                 ->find();
 
             if (null !== $result && $result = $result->toArray()) {
@@ -194,16 +192,12 @@ class Category extends BaseLogic
                     ? $this->config->get('app.img_host') . '/' . $result['image']
                     : '';
 
-                $result['parent'] = ModelCategory::where([
-                    ['id', '=', $result['pid']]
-                ])->value('name as parent');
+                $result['parent'] = ModelCategory::where('id', '=', $result['pid'])->value('name as parent');
             }
         } else {
             $result = [];
             if ($pid = $this->request->param('pid/d', 0, 'abs')) {
-                $result['parent'] = ModelCategory::where([
-                    ['id', '=', $pid]
-                ])->value('name as parent');
+                $result['parent'] = ModelCategory::where('id', '=', $pid)->value('name as parent');
             }
         }
 
@@ -261,9 +255,7 @@ class Category extends BaseLogic
         }
 
         // 删除旧图片
-        $image = ModelCategory::where([
-            ['id', '=', $id],
-        ])->value('image');
+        $image = ModelCategory::where('id', '=', $id)->value('image');
         if ($image !== $receive_data['image']) {
             UploadLog::remove($image);
         }
@@ -308,9 +300,7 @@ class Category extends BaseLogic
             UploadLog::remove($image);
         }
 
-        ModelCategory::where([
-            ['id', '=', $id]
-        ])->delete();
+        ModelCategory::where('id', '=', $id)->delete();
 
         $this->cache->tag('cms nav')->clear();
 

@@ -96,9 +96,7 @@ class TagsList extends Taglib
 
                     $value["tags"] = \app\common\model\ArticleTags::view("article_tags", ["tags_id"])
                         ->view("tags tags", ["name"], "tags.id=article_tags.tags_id")
-                        ->where([
-                            ["article_tags.article_id", "=", $value["id"]],
-                        ])
+                        ->where("article_tags.article_id", "=", $value["id"])
                         ->select()
                         ->toArray();
                     foreach ($value["tags"] as $k => $tag):

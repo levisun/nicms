@@ -92,9 +92,7 @@ class Sitemap
         $article = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
-            ->where([
-                ['article.delete_time', '<>', 0],
-            ])
+            ->where('article.delete_time', '<>', 0)
             ->order('article.id DESC')
             ->limit(5000)
             ->select()

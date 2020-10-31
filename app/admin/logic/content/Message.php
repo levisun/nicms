@@ -83,9 +83,7 @@ class Message extends BaseLogic
                 ->view('category', ['name' => 'cat_name'], 'category.id=message.category_id', 'LEFT')
                 ->view('type', ['name' => 'type_name'], 'type.id=message.type_id', 'LEFT')
                 ->view('user', ['username' => 'author'], 'user.id=message.user_id', 'LEFT')
-                ->where([
-                    ['message.id', '=', $id],
-                ])
+                ->where('message.id', '=', $id)
                 ->find();
 
             $result = $result ? $result->toArray() : [];
@@ -125,9 +123,7 @@ class Message extends BaseLogic
 
         ModelMessage::update($receive_data, ['id' => $id]);
 
-        $category_id = ModelMessage::where([
-            ['id', '=', $id]
-        ])->value('category_id');
+        $category_id = ModelMessage::where('id', '=', $id)->value('category_id');
 
         // 清除缓存
         $this->cache->tag('cms message list' . $category_id)->clear();
@@ -157,13 +153,9 @@ class Message extends BaseLogic
             ];
         }
 
-        $category_id = ModelMessage::where([
-            ['id', '=', $id]
-        ])->value('category_id');
+        $category_id = ModelMessage::where('id', '=', $id)->value('category_id');
 
-        ModelMessage::where([
-            ['id', '=', $id]
-        ])->delete();
+        ModelMessage::where('id', '=', $id)->delete();
 
         // 清除缓存
         $this->cache->tag('cms message list' . $category_id)->clear();
