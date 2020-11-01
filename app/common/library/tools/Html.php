@@ -25,174 +25,6 @@ class Html
         $this->xml = $_html;
     }
 
-    public function select(string $_element): string
-    {
-        $id = '';
-        $_element = (string) preg_replace_callback('/#[\w\- ]+/si', function ($matches) use (&$id) {
-            $matches[0] = trim($matches[0]);
-            $id = 'id=["\']?[^<>]*' . ltrim($matches[0], '#') . '[^<>]*[\s"\']?';
-            return;
-        }, $_element);
-
-        $class = '';
-        $_element = (string) preg_replace_callback('/\.[\w\- ]+/si', function ($matches) use (&$class) {
-            $matches[0] = trim($matches[0]);
-            $class = 'class=["\']?[^<>]*' . ltrim($matches[0], '.') . '[^<>]*[\s"\']?';
-            return;
-        }, $_element);
-
-        $sub_ele = '(.*?)';
-        $_element = (string) preg_replace_callback('/>[\w\- ]+/si', function ($matches) use (&$sub_ele) {
-            $matches[0] = trim($matches[0]);
-            $matches[0] = ltrim($matches[0], '>');
-            $sub_ele = '\s?<' . $matches[0] . '[^<>]*>(.*?)<\/' . $matches[0] . '>.*?';
-            return;
-        }, $_element);
-
-        $content = '';
-        $_element = $_element ?: '[^<>]+';
-        $pattern = '/<(' . $_element . ')[^<>]*' . $id . $class . '[^<>]*>/si';
-        preg_replace_callback($pattern, function ($matches) use ($sub_ele, &$content) {
-            // 匹配地址
-            $pattern = '/' . $matches[0] . $sub_ele . '<\/' . trim($matches[1]) . '>/si';
-            preg_match_all($pattern, $this->xml, $matches);
-
-            $content = !empty($matches[1][0]) ? trim($matches[1][0]) : '';
-        }, $this->xml);
-
-        return $content;
-    }
-
-    /**
-     * 获得description
-     * @access public
-     * @return string
-     */
-    public function description(): string
-    {
-        $description = '';
-        preg_replace_callback('/<head[^<>]*>.*?<\/head>/si', function ($head) use (&$description) {
-            $head = trim($head[0]);
-
-            // 匹配地址
-            $pattern = '/<meta[^<>]*name=["\']?description["\']?[^<>]*content=([^<>\s]+)/si';
-            if (false !== preg_match($pattern, $head, $matches) && !empty($matches)) {
-                $description = !empty($matches[1]) ? trim($matches[1], '"\'') : '';
-            }
-        }, $this->xml);
-
-        $description = trim($description, '\/.');
-        return $description;
-    }
-
-    /**
-     * 获得keywords
-     * @access public
-     * @return string
-     */
-    public function keywords(): string
-    {
-        $keywords = '';
-        preg_replace_callback('/<head[^<>]*>.*?<\/head>/si', function ($head) use (&$keywords) {
-            $head = trim($head[0]);
-
-            // 匹配地址
-            $pattern = '/<meta[^<>]*name=["\']?keywords["\']?[^<>]*content=([^<>\s]+)/si';
-            if (false !== preg_match($pattern, $head, $matches) && !empty($matches)) {
-                $keywords = !empty($matches[1]) ? trim($matches[1], '"\'') : '';
-            }
-        }, $this->xml);
-
-        $keywords = trim($keywords, '\/.');
-        return $keywords;
-    }
-
-    /**
-     * 获得title
-     * @access public
-     * @return string
-     */
-    public function title(): string
-    {
-        $title = '';
-        preg_replace_callback('/<head[^<>]*>.*?<\/head>/si', function ($head) use (&$title) {
-            $head = trim($head[0]);
-
-            // 匹配地址
-            $pattern = '/<title>[^<>]+<\/title>/si';
-            if (false !== preg_match($pattern, $head, $matches) && !empty($matches)) {
-                $title = strip_tags($matches[0]);
-                $title = str_replace('_', '-', $title);
-                list($title) = explode('-', $title);
-            }
-        }, $this->xml);
-
-        $title = trim($title, '\/.');
-        return $title;
-    }
-
-    /**
-     * 获得links
-     * @access public
-     * @return array
-     */
-    public function links(): array
-    {
-        $links = [];
-        preg_replace_callback('/<body[^<>]*>.*?<\/body>/si', function ($body) use (&$links) {
-            $body = trim($body[0]);
-
-            // 匹配地址
-            $pattern = '/<a[^<>]*href=([^<>\s]+)/si';
-            if (false !== preg_match_all($pattern, $body, $matches)) {
-                $matches = array_map('array_unique', $matches);
-
-                foreach ($matches[1] as $value) {
-                    $links[] = trim($value, '"\'');
-                }
-            }
-        }, $this->xml);
-
-        return $links;
-    }
-
-    /**
-     * 获得图片
-     * @access public
-     * @return array
-     */
-    public function imgs(): array
-    {
-        $imgs = [];
-        preg_replace_callback('/<body[^<>]*>(.*?)<\/body>/si', function ($body) use (&$imgs) {
-            $body = trim($body[1]);
-
-            // 匹配地址
-            $pattern = '/<img[^<>]*src=([^<>\s]+)[^<>]*>/si';
-            if (false !== preg_match_all($pattern, $body, $matches)) {
-                foreach ($matches[0] as $key => $value) {
-                    // 宽
-                    if (false !== preg_match('/width=([^<>%\s;]+)/si', $value, $width)) {
-                        $width = (int) trim($width[1], '"\'');
-                    }
-
-                    // 高
-                    if (false !== preg_match('/height=([^<>%\s;]+)/si', $value, $height)) {
-                        $height = (int) trim($height[1], '"\'');
-                    }
-
-                    $imgs[] = [
-                        'src'    => trim($matches[1][$key], '"\''),
-                        'width'  => isset($width) ? $width : 0,
-                        'height' => !empty($height) ? $height : 0,
-                    ];
-                }
-            }
-        }, $this->xml);
-
-        return $imgs;
-    }
-
     /**
      * 获得内容
      * @access public
@@ -359,5 +191,174 @@ class Html
         }, $this->xml);
 
         return $content;
+    }
+
+    public function select(string $_element): string
+    {
+        $id = '';
+        $_element = (string) preg_replace_callback('/#[\w\d\- ]+/si', function ($matches) use (&$id) {
+            $matches[0] = trim($matches[0]);
+            $id = 'id=["\']?[^<>]*' . ltrim($matches[0], '#') . '[^<>]*[\s"\']?';
+            return;
+        }, $_element);
+
+        $class = '';
+        $_element = (string) preg_replace_callback('/\.[\w\d\- ]+/si', function ($matches) use (&$class) {
+            $matches[0] = trim($matches[0]);
+            $class = 'class=["\']?[^<>]*' . ltrim($matches[0], '.') . '[^<>]*[\s"\']?';
+            return;
+        }, $_element);
+
+        $sub_ele = '(.*?)';
+        $_element = (string) preg_replace_callback('/>[\w\d\- ]+/si', function ($matches) use (&$sub_ele) {
+            $matches[0] = trim($matches[0]);
+            $matches[0] = ltrim($matches[0], '>');
+            $sub_ele = '\s?<' . $matches[0] . '[^<>]*>(.*?)<\/' . $matches[0] . '>.*?';
+            return;
+        }, $_element);
+
+        $content = '';
+        $_element = $_element ?: '[^<>]+';
+        $pattern = '/<(' . $_element . ')[^<>]*' . $id . $class . '[^<>]*>/si';
+        preg_replace_callback($pattern, function ($matches) use ($sub_ele, &$content) {
+            // 匹配地址
+            $pattern = '/' . $matches[0] . $sub_ele . '<\/' . trim($matches[1]) . '>/si';
+            preg_match_all($pattern, $this->xml, $matches);
+
+            $content = !empty($matches[1][0]) ? trim($matches[1][0]) : '';
+        }, $this->xml);
+
+        return $content;
+    }
+
+    /**
+     * 获得图片
+     * 无法获得懒加载图片
+     * @access public
+     * @return array
+     */
+    public function imgs(): array
+    {
+        $imgs = [];
+        preg_replace_callback('/<body[^<>]*>(.*?)<\/body>/si', function ($body) use (&$imgs) {
+            $body = trim($body[1]);
+
+            // 匹配地址
+            $pattern = '/<img[^<>]*src=([^<>\s]+)[^<>]*>/si';
+            if (false !== preg_match_all($pattern, $body, $matches)) {
+                foreach ($matches[0] as $key => $value) {
+                    // 宽
+                    if (false !== preg_match('/width=([^<>%\s;]+)/si', $value, $width)) {
+                        $width = (int) trim($width[1], '"\'');
+                    }
+
+                    // 高
+                    if (false !== preg_match('/height=([^<>%\s;]+)/si', $value, $height)) {
+                        $height = (int) trim($height[1], '"\'');
+                    }
+
+                    $imgs[] = [
+                        'src'    => trim($matches[1][$key], '"\''),
+                        'width'  => isset($width) ? $width : 0,
+                        'height' => !empty($height) ? $height : 0,
+                    ];
+                }
+            }
+        }, $this->xml);
+
+        return $imgs;
+    }
+
+    /**
+     * 获得links
+     * @access public
+     * @return array
+     */
+    public function links(): array
+    {
+        $links = [];
+        preg_replace_callback('/<body[^<>]*>.*?<\/body>/si', function ($body) use (&$links) {
+            $body = trim($body[0]);
+
+            // 匹配地址
+            $pattern = '/<a[^<>]*href=([^<>\s]+)/si';
+            if (false !== preg_match_all($pattern, $body, $matches)) {
+                $matches = array_map('array_unique', $matches);
+
+                foreach ($matches[1] as $value) {
+                    $links[] = trim($value, '"\'');
+                }
+            }
+        }, $this->xml);
+
+        return $links;
+    }
+
+    /**
+     * 获得description
+     * @access public
+     * @return string
+     */
+    public function description(): string
+    {
+        $description = '';
+        preg_replace_callback('/<head[^<>]*>.*?<\/head>/si', function ($head) use (&$description) {
+            $head = trim($head[0]);
+
+            // 匹配地址
+            $pattern = '/<meta[^<>]*name=["\']?description["\']?[^<>]*content=([^<>\s]+)/si';
+            if (false !== preg_match($pattern, $head, $matches) && !empty($matches)) {
+                $description = !empty($matches[1]) ? trim($matches[1], '"\'') : '';
+            }
+        }, $this->xml);
+
+        $description = trim($description, '\/.');
+        return $description;
+    }
+
+    /**
+     * 获得keywords
+     * @access public
+     * @return string
+     */
+    public function keywords(): string
+    {
+        $keywords = '';
+        preg_replace_callback('/<head[^<>]*>.*?<\/head>/si', function ($head) use (&$keywords) {
+            $head = trim($head[0]);
+
+            // 匹配地址
+            $pattern = '/<meta[^<>]*name=["\']?keywords["\']?[^<>]*content=([^<>\s]+)/si';
+            if (false !== preg_match($pattern, $head, $matches) && !empty($matches)) {
+                $keywords = !empty($matches[1]) ? trim($matches[1], '"\'') : '';
+            }
+        }, $this->xml);
+
+        $keywords = trim($keywords, '\/.');
+        return $keywords;
+    }
+
+    /**
+     * 获得title
+     * @access public
+     * @return string
+     */
+    public function title(): string
+    {
+        $title = '';
+        preg_replace_callback('/<head[^<>]*>.*?<\/head>/si', function ($head) use (&$title) {
+            $head = trim($head[0]);
+
+            // 匹配地址
+            $pattern = '/<title>[^<>]+<\/title>/si';
+            if (false !== preg_match($pattern, $head, $matches) && !empty($matches)) {
+                $title = strip_tags($matches[0]);
+                $title = str_replace(['_', '|'], '-', $title);
+                list($title) = explode('-', $title, 2);
+            }
+        }, $this->xml);
+
+        $title = trim($title, '\/.');
+        return $title;
     }
 }
