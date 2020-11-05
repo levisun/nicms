@@ -13,11 +13,11 @@ class Compiler extends Parse
     /**
      * 读取编译编译
      * @access public
-     * @param  string  $cacheFile 缓存的文件名
-     * @param  array   $vars 变量数组
+     * @param  string  $_compiler_file 缓存的文件名
+     * @param  array   $_vars 变量数组
      * @return void
      */
-    public function read(string $_compiler_file, array $_vars = [])
+    public function read(string $_compiler_file, array $_vars = []): void
     {
         if (!empty($_vars) && is_array($_vars)) {
             // 模板阵列变量分解成为独立变量
@@ -35,7 +35,7 @@ class Compiler extends Parse
      * @param  string $content 要解析的模板内容
      * @return void
      */
-    public function parse(string &$_content)
+    public function parse(string &$_content): void
     {
         // 内容为空不解析
         if (empty($_content)) {
@@ -47,9 +47,8 @@ class Compiler extends Parse
         $this->parseTags($_content);
         // $this->parseFunc($_content);
 
-        $this->parseVars($_content);
-
         $this->parseScript($_content);
+        $this->parseVar($_content);
     }
 
     /**
@@ -59,7 +58,7 @@ class Compiler extends Parse
      * @param  string $cacheFile 缓存文件名
      * @return void
      */
-    public function write(string &$_content, string $_compiler_file)
+    public function write(string &$_content, string $_compiler_file): void
     {
         // 判断是否启用布局
         if ($this->config['layout_on']) {
@@ -89,6 +88,7 @@ class Compiler extends Parse
 
         // 模板过滤输出
         $replace = $this->config['tpl_replace_string'];
+        $replace = array_merge($replace, $this->parseStaticUrl());
         $_content = str_replace(array_keys($replace), array_values($replace), $_content);
 
         // 添加安全代码及模板引用记录
@@ -101,7 +101,7 @@ class Compiler extends Parse
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
-        echo $_content;die();
+
         // 生成模板缓存文件
         if (false === file_put_contents($_compiler_file, $_content)) {
             throw new Exception('compiler write error:' . $_compiler_file, 11602);
@@ -148,7 +148,7 @@ class Compiler extends Parse
             return false;
         }
 
-        if (0 != $this->config['cache_time'] && time() > filemtime($_compiler_file) + $this->config['cache_time']) {
+        if (0 != $this->config['compile_time'] && time() > filemtime($_compiler_file) + $this->config['compile_time']) {
             // 缓存是否在有效期
             return false;
         }

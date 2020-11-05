@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace app\common\library\template;
 
-use Exception;
 use think\App;
 use think\contract\TemplateHandlerInterface;
 use app\common\library\template\Compiler;
 
 class Template implements TemplateHandlerInterface
 {
-    protected $template;
-    protected $content;
     protected $app;
+    protected $data = [];
 
     // 模板引擎参数
     protected $config = [
@@ -39,28 +37,22 @@ class Template implements TemplateHandlerInterface
         'default_filter'     => 'htmlentities', // 默认过滤方法 用于普通标签输出
 
         'strip_space'        => true, // 是否去除模板文件里面的html空格与换行
-
+        'theme_config'       => [],
     ];
 
-    /**
-     * 模板包含信息
-     * @var array
-     */
-    private $includeFile = [];
-
-    public function __construct(App $app, array $config = [])
+    public function __construct(App $_app, array $_config = [])
     {
-        $this->app    = $app;
-        $this->config = array_merge($this->config, (array) $config);
+        $this->app    = $_app;
+        $this->config = array_merge($this->config, $_config);
 
         $this->config['compile_path'] = $this->config['compile_path']
-            ?: $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'compiler' . DIRECTORY_SEPARATOR . $this->app->http->getName() . DIRECTORY_SEPARATOR;
+            ?: $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR . $this->app->http->getName() . DIRECTORY_SEPARATOR;
     }
 
     /**
      * 检测是否存在模板文件
      * @access public
-     * @param string $template 模板文件或者模板规则
+     * @param  string $template 模板文件或者模板规则
      * @return bool
      */
     public function exists(string $template): bool
@@ -78,8 +70,8 @@ class Template implements TemplateHandlerInterface
     /**
      * 渲染模板文件
      * @access public
-     * @param string $template 模板文件
-     * @param array  $data     模板变量
+     * @param  string $template 模板文件
+     * @param  array  $data     模板变量
      * @return void
      */
     public function fetch(string $_template, array $data = []): void
@@ -88,7 +80,7 @@ class Template implements TemplateHandlerInterface
 
         $_template = $compiler->parseTemplateFile($_template);
 
-        $compiler_file = $this->config['view_theme'] . '_' . md5($this->config['layout_on'] . $this->config['layout_name'] . $_template) . '.' . ltrim($this->config['compile_suffix'], '.');
+        $compiler_file = $this->config['compile_path'] . $this->config['view_theme'] . '_' . md5($this->config['layout_on'] . $this->config['layout_name'] . $_template) . '.' . ltrim($this->config['compile_suffix'], '.');
 
         if (!$compiler->check($compiler_file)) {
             // 缓存无效 重新模板编译
@@ -100,7 +92,11 @@ class Template implements TemplateHandlerInterface
         ob_start();
         ob_implicit_flush(0);
 
-        $compiler->read($compiler_file);
+        if (!empty($vars)) {
+            $this->data = array_merge($this->data, $vars);
+        }
+
+        $compiler->read($compiler_file, $this->data);
 
         // 获取并清空缓存
         $content = ob_get_clean();
@@ -111,22 +107,18 @@ class Template implements TemplateHandlerInterface
     /**
      * 渲染模板内容
      * @access public
-     * @param string $content 模板内容
-     * @param array  $data    模板变量
+     * @param  string $content 模板内容
+     * @param  array  $data    模板变量
      * @return void
      */
     public function display(string $content, array $data = []): void
     {
-        $this->content = $content;
-
-        extract($data, EXTR_OVERWRITE);
-        eval('?>' . $this->content);
     }
 
     /**
      * 配置模板引擎
      * @access private
-     * @param array $_config 参数
+     * @param  array $_config 参数
      * @return void
      */
     public function config(array $_config): void
@@ -137,7 +129,7 @@ class Template implements TemplateHandlerInterface
     /**
      * 获取模板引擎配置
      * @access public
-     * @param string $_name 参数名
+     * @param  string $_name 参数名
      * @return mixed
      */
     public function getConfig(string $_name)
