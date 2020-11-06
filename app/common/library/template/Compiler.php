@@ -44,11 +44,11 @@ class Compiler extends Parse
 
         $this->parseLayout($_content);
         $this->parseInclude($_content);
-        $this->parseTags($_content);
-        // $this->parseFunc($_content);
-
+        $this->parseTaglib($_content);
+        $this->parseFunc($_content);
         $this->parseScript($_content);
         $this->parseVar($_content);
+        $this->parseTag($_content);
     }
 
     /**

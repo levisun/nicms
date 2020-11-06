@@ -17,6 +17,23 @@ class Parse
     }
 
     /**
+     * 模板标签解析
+     * @access protected
+     * @param  string $_content 要解析的模板内容
+     * @return void
+     */
+    protected function parseTag(string &$_content): void
+    {
+        $_content = (string) preg_replace_callback($this->getRegex('tag'), function ($matches) {
+            if ('$' === $matches[1]) {
+                return '<?php echo $' . $matches[2] . ';?>';
+            } else {
+                return '<?php echo ' . $matches[2] . ';?>';
+            }
+        }, $_content);
+    }
+
+    /**
      * 解析模板中的脚本
      * @access protected
      * @param  string $_content 要解析的模板内容
@@ -62,7 +79,7 @@ class Parse
             $matches[1] = trim($matches[1], '.|');
 
             if (false === strpos($matches[1], '.')) {
-                return '<?php echo isset($' . $matches[1] . ') ? $' . $matches[1] . ' : \'\';?>';
+                return $this->config['tpl_begin'] . '$' . $matches[1] . $this->config['tpl_end'];
             }
 
             list($var_type, $var_name) = explode('.', $matches[1], 2);
@@ -98,43 +115,57 @@ class Parse
                     break;
             }
 
-            return '<?php echo isset(' . $vars . ') ? ' . $vars . ' : \'\';?>';
+            return $this->config['tpl_begin'] . $vars . $this->config['tpl_end'];
         }, trim($_content));
     }
 
+    /**
+     * 解析模板中的方法
+     * @access protected
+     * @param  string $_content 要解析的模板内容
+     * @return void
+     */
     protected function parseFunc(string &$_content): void
     {
         $_content = (string) preg_replace_callback($this->getRegex('function'), function ($matches) {
             $matches[2] = trim($matches[2]);
             if (!in_array($matches[2], explode(',', $this->config['tpl_deny_func_list'])) && function_exists($matches[2])) {
-                $matches[3] = trim($matches[3], '()');
-                echo $matches[3];
-                $this->parseFunc($matches[3]);
-                return $matches[2] . $matches[3];
+                // 拼接标签标记
+                $sub = $this->config['tpl_begin'] . $matches[3] . $this->config['tpl_end'];
+                // 递归解析方法
+                $this->parseFunc($sub);
+
+                // 解析变量
+                $this->parseVar($sub);
+                $sub = trim($sub, $this->config['tpl_begin'] . $this->config['tpl_end']);
+
+                return $this->config['tpl_begin'] . $matches[1] . $matches[2] . '(' . $sub . ')' . $this->config['tpl_end'];
             }
+
+            return $matches[0];
         }, trim($_content));
-        echo $_content;
     }
 
     /**
-     * 模板标签解析
+     * 模板标签库解析
      * @access protected
      * @param  string $_content 要解析的模板内容
      * @return void
      */
-    protected function parseTags(string &$_content): void
+    protected function parseTaglib(string &$_content): void
     {
         $this->config['theme_config'] = $this->parseThemeConfig();
         $tag = new \app\common\library\template\Tag($this->config);
 
-        $_content = (string) preg_replace_callback($this->getRegex('tags'), function ($matches) use (&$tag) {
+        $_content = (string) preg_replace_callback($this->getRegex('taglib'), function ($matches) use (&$tag) {
             $end = $matches[1] ? true : false;
             $function = trim($matches[2]);
             $attr = isset($matches[3]) ? trim($matches[3]) : '';
             if (in_array($function, ['foreach', 'if', 'elseif', 'else'])) {
-                return $end
-                    ? '<?php end' . $function . '; ?>'
-                    : '<?php ' . $function . '(' . $attr . '): ?>';
+                $function = $end
+                    ? 'end' . $function . ';'
+                    : $function . '(' . $attr . '):';
+                return '<?php ' . $function . '?>';
             } elseif (method_exists('\app\common\library\template\Tag', $function)) {
                 $function = $end ? 'end' . ucfirst($function) : $function;
                 return $tag->$function($attr);
@@ -196,7 +227,7 @@ class Parse
                 $regex = $_tag_name . '\s+file=["\']([\$\w\d\.\/\.\:@,\\\\]+)["\']\s+\/';
                 break;
 
-            case 'tags':
+            case 'taglib':
                 $regex = '(\/)?([\w\_]+)\s?([\w\d\.\$\(\)\!=<> ]+)?\s?\/?';
                 break;
 
@@ -205,8 +236,11 @@ class Parse
                 break;
 
             case 'function':
-                $regex = '(:)?([\w\_]+)\s?([\w\d\.\$\(\)\!=<> ]+)?\s?';
-                // $regex = ':?([\w\d]+)\(([\w\d\$\+\-]+)\)';
+                $regex = '(:)?([\w\_]+)\s?\(+([\w\d\.\$\(\)\!=<>"\' ]+)\)+\s?';
+                break;
+
+            case 'tag':
+                $regex = '([:$])?([\w\d\.\$\(\)\!=<>"\'\[\] ]+)\s?';
                 break;
 
             default:
