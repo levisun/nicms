@@ -2,7 +2,7 @@
 
 /**
  *
- * 爬虫
+ * 分词
  *
  * @package   NICMS
  * @category  app\common\library

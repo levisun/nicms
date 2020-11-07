@@ -31,11 +31,11 @@ return [
     'upload_type'      => env('app.upload_type', 'jpg,gif,png,webp,mp3,mp4,doc,docx,xls,xlsx,ppt,pptx,pdf,zip'),
 
     // API地址
-    'api_host'         => '//api.' . request()->rootDomain(),
+    'api_host'         => '//api.' . request()->rootDomain() . '/',
     // CDN地址
-    'cdn_host'         => '//cdn.' . request()->rootDomain(),
+    'cdn_host'         => '//cdn.' . request()->rootDomain() . '/',
     // IMG地址
-    'img_host'         => '//img.' . request()->rootDomain(),
+    'img_host'         => '//img.' . request()->rootDomain() . '/',
 
 
 

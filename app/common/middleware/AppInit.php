@@ -44,19 +44,8 @@ class AppInit
 
         $response = $next($request);
 
-
-        $content = $response->getContent();
-
-        list($root) = explode('.', $request->rootDomain(), 2);
-
-        $head = '<meta name="author" content="312630173@qq.com" /><meta name="generator" content="nicms" /><meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" /><meta http-equiv="x-dns-prefetch-control" content="on" /><link rel="dns-prefetch" href="' . config('app.api_host') . '" /><link rel="dns-prefetch" href="' . config('app.img_host') . '" /><link rel="dns-prefetch" href="' . config('app.cdn_host') . '" /><meta name="csrf-root" content="' . $root . '" />' . csrf_appid() . '<style type="text/css">body{moz-user-select:-moz-none;-moz-user-select:none;-o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;}</style><script type="text/javascript">const NICMS = {domain:"//"+window.location.host,rootDomain:"//"+window.location.host.substr(window.location.host.indexOf(".")+1),url:"//"+window.location.host+window.location.pathname+window.location.search,api_uri:"' . config("app.api_host") . '",param:' . json_encode(app("request")->param()) . '};</script>';
-
         // 纪念日全网灰色
         // -webkit-filter:grayscale(100%);
-
-        $content = str_ireplace('</head>', $head . '</head>', $content);
-
-        $response->content($content);
 
         $this->app_secret();
         $this->csrf_token();

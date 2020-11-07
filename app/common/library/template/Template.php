@@ -19,8 +19,8 @@ class Template implements TemplateHandlerInterface
         'view_path'          => './theme/',             // 模板路径
         'view_suffix'        => 'html',                 // 默认模板文件后缀
         'view_depr'          => DIRECTORY_SEPARATOR,
-        'tpl_deny_func_list' => 'echo,exit',            // 模板引擎禁用函数
-        'tpl_deny_php'       => false,                  // 默认模板引擎是否禁用PHP原生代码
+        // 模板引擎禁用函数
+        'tpl_deny_func_list' => 'echo,exit,include,include_once,require,require_once,',
         'tpl_begin'          => '{',                    // 模板引擎普通标签开始标记
         'tpl_end'            => '}',                    // 模板引擎普通标签结束标记
         'tpl_compile'        => true,                   // 是否开启模板编译,设为false则每次都会重新编译

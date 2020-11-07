@@ -17,6 +17,68 @@ class Parse
     }
 
     /**
+     * 模板过滤
+     * @access protected
+     * @param  string $_content 要解析的模板内容
+     * @return void
+     */
+    public function parseFilter(string &$_content): void
+    {
+        /* 去除html空格与换行 */
+        if ($this->config['strip_space']) {
+            $_content = \app\common\library\Filter::space($_content);
+        }
+
+        // 优化生成的php代码
+        $_content = preg_replace('/\?>\s*<\?php\s(?!echo\b|\bend)/s', '', $_content);
+
+        $_content = preg_replace('/<\!--.*?-->/s', '', $_content);
+    }
+
+    /**
+     * 模板替换字符解析
+     * @access protected
+     * @param  string $_content 要解析的模板内容
+     * @return void
+     */
+    protected function parseReplaceStr(string &$_content): void
+    {
+        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($this->config['view_path'], '\/.')) . DIRECTORY_SEPARATOR;
+        $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $path;
+        $path .= app('http')->getName() . DIRECTORY_SEPARATOR;
+        $path .= !empty($this->config['view_theme']) ? $this->config['view_theme'] . DIRECTORY_SEPARATOR : '';
+
+        $url  = config('app.cdn_host') . 'theme/';
+        $url .= app('http')->getName() . '/' . $this->config['view_theme'] . '/';
+
+        // 移动端目录
+        if (request()->isMobile() && is_dir($path . 'mobile')) {
+            $url .= 'mobile/';
+        } elseif (false !== stripos(request()->server('HTTP_USER_AGENT'), 'MicroMessenger') && is_dir($path . 'wechat')) {
+            $url .= 'wechat/';
+        }
+
+        $static = [
+            '__STATIC__'   => config('app.cdn_host') . 'static/',
+            '__URL__'      => request()->baseUrl(true),
+            '__LANG__'     => app('lang')->getLangSet(),
+            '__API_HOST__' => config('app.api_host'),
+            '__IMG_HOST__' => config('app.img_host'),
+            '__CDN_HOST__' => config('app.cdn_host'),
+
+            '__THEME__'    => $url,
+            '__CSS__'      => $url . 'css/',
+            '__IMG__'      => $url . 'img/',
+            '__JS__'       => $url . 'js/',
+        ];
+
+        // 模板过滤输出
+        $replace = $this->config['tpl_replace_string'];
+        $replace = array_merge($replace, $static);
+        $_content = str_replace(array_keys($replace), array_values($replace), $_content);
+    }
+
+    /**
      * 模板标签解析
      * @access protected
      * @param  string $_content 要解析的模板内容
@@ -41,10 +103,9 @@ class Parse
      */
     protected function parseScript(string &$_content): void
     {
-        $script = '';
-
         // JS引入
         $theme_config = $this->parseThemeConfig();
+        $files = '';
         foreach ($theme_config['js'] as $js) {
             // 过滤多余空格
             $js = preg_replace('/ {2,}/si', '', $js);
@@ -55,15 +116,21 @@ class Parse
             //     ? str_replace('></', ' defer="defer"></', $js)
             //     : $js;
 
-            $script .= $js;
+            $files .= $js . PHP_EOL;
         }
 
+        $script = '';
         $pattern = '/<script( type=["\']+.*?["\']+)?>(.*?)<\/script>/si';
         $_content = (string) preg_replace_callback($pattern, function ($matches) use (&$script) {
-            $matches[2] = \app\common\library\Filter::base($matches[2]);
+            $matches[2] = (string) preg_replace([
+                '/\/\/.*?(\r|\n)+/i',
+                '/\/\*.*?\*\//i',
+            ], '', $matches[2]);
             $script .= trim($matches[2]);
             return;
         }, $_content);
+
+        $_content .= $files;
         $_content .= $script ? '<script type="text/javascript">' . $script . '</script>' : '';
     }
 
@@ -94,9 +161,8 @@ class Parse
 
                 case 'const':
                     // 常量
-                    $defined = get_defined_constants();
-                    $var_name = strtoupper($var_name);
-                    $vars = isset($defined[$var_name]) ? $var_name : '<!-- ' . $matches[1] . ' -->';
+                    // $defined = get_defined_constants();
+                    $vars = strtoupper($var_name);
                     break;
 
                 case 'session':
@@ -157,9 +223,10 @@ class Parse
         $this->config['theme_config'] = $this->parseThemeConfig();
         $tag = new \app\common\library\template\Tag($this->config);
 
-        $_content = (string) preg_replace_callback($this->getRegex('taglib'), function ($matches) use (&$tag) {
+        $_content = (string) preg_replace_callback($this->getRegex('taglib'), function ($matches) use (&$tag, &$_content) {
             $end = $matches[1] ? true : false;
             $function = trim($matches[2]);
+            $function = $end ? 'end' . ucfirst($function) : $function;
             $attr = isset($matches[3]) ? trim($matches[3]) : '';
             if (in_array($function, ['foreach', 'if', 'elseif', 'else'])) {
                 $function = $end
@@ -167,8 +234,7 @@ class Parse
                     : $function . '(' . $attr . '):';
                 return '<?php ' . $function . '?>';
             } elseif (method_exists('\app\common\library\template\Tag', $function)) {
-                $function = $end ? 'end' . ucfirst($function) : $function;
-                return $tag->$function($attr);
+                return $tag->$function($attr, $_content);
             } elseif (class_exists('\extend\taglib\Tag' . ucfirst($function))) {
                 # code...
             } else {
@@ -203,6 +269,21 @@ class Parse
      */
     protected function parseLayout(string &$_content): void
     {
+        // 判断是否启用布局
+        if ($this->config['layout_on']) {
+            if (false !== strpos($_content, '{__NOLAYOUT__}')) {
+                // 可以单独定义不使用布局
+                $_content = str_replace('{__NOLAYOUT__}', '', $_content);
+            } else {
+                // 读取布局模板
+                $layout_file = $this->parseTemplateFile($this->config['layout_name']);
+                // 替换布局的主体内容
+                $_content = str_replace($this->config['layout_item'], $_content, file_get_contents($layout_file));
+            }
+        } else {
+            $_content = str_replace('{__NOLAYOUT__}', '', $_content);
+        }
+
         if (preg_match($this->getRegex('layout'), $_content, $matches)) {
             $matches[1] = $this->parseTemplateFile($matches[1]);
             $str = file_get_contents($matches[1]);
@@ -248,7 +329,7 @@ class Parse
                 break;
         }
 
-        return '/' . $this->config['tpl_begin'] . $regex  . $this->config['tpl_end'] . '/is';
+        return '/' . $this->config['tpl_begin'] . $regex  . $this->config['tpl_end'] . '/i';
     }
 
     /**
@@ -303,37 +384,6 @@ class Parse
         }
 
         throw new Exception('template not exists:' . $_template);
-    }
-
-    /**
-     * 解析模板静态资源路径
-     * @access public
-     * @return array
-     */
-    public function parseStaticUrl(): array
-    {
-        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($this->config['view_path'], '\/.')) . DIRECTORY_SEPARATOR;
-        $path = app()->getRootPath() . 'public' . DIRECTORY_SEPARATOR . $path;
-        $path .= app('http')->getName() . DIRECTORY_SEPARATOR;
-        $path .= !empty($this->config['view_theme']) ? $this->config['view_theme'] . DIRECTORY_SEPARATOR : '';
-
-        $url  = config('app.cdn_host') . '/theme/';
-        $url .= app('http')->getName() . '/' . $this->config['view_theme'] . '/';
-
-        // 移动端目录
-        if (request()->isMobile() && is_dir($path . 'mobile')) {
-            $url .= 'mobile/';
-        } elseif (false !== stripos(request()->server('HTTP_USER_AGENT'), 'MicroMessenger') && is_dir($path . 'wechat')) {
-            $url .= 'wechat/';
-        }
-
-        return [
-            '__STATIC__' => config('app.cdn_host') . '/static/',
-            '__THEME__'  => $url,
-            '__CSS__'    => $url . 'css/',
-            '__IMG__'    => $url . 'img/',
-            '__JS__'     => $url . 'js/',
-        ];
     }
 
     /**

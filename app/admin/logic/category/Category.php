@@ -189,7 +189,7 @@ class Category extends BaseLogic
 
             if (null !== $result && $result = $result->toArray()) {
                 $result['image_url'] = $result['image']
-                    ? $this->config->get('app.img_host') . '/' . $result['image']
+                    ? $this->config->get('app.img_host') . $result['image']
                     : '';
 
                 $result['parent'] = ModelCategory::where('id', '=', $result['pid'])->value('name as parent');

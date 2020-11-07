@@ -21,11 +21,13 @@ class Tag
         return $parseStr;
     }
 
-    public function head(string $_attr)
+    public function head(string $_attr, string &$_content)
     {
+
+
         list($root) = explode('.', request()->rootDomain(), 2);
         return '<!DOCTYPE html>' .
-            '<html lang="<?php echo app(\'lang\')->getLangSet();?>">' .
+            '<html lang="__LANG__">' .
             '<head>' .
             '<meta charset="UTF-8" />' .
 
@@ -36,7 +38,7 @@ class Tag
 
             '<meta property="og:title" content="__NAME__" />' .
             '<meta property="og:type" content="website" />' .
-            '<meta property="og:url" content="<?php echo request()->baseUrl(true);?>" />' .
+            '<meta property="og:url" content="__URL__" />' .
             '<meta property="og:image" content="" />' .
             '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
             '<meta name="robots" content="all" />' .                                // 蜘蛛抓取
@@ -48,23 +50,23 @@ class Tag
             '<meta name="generator" content="nicms" />' .
             '<meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" />' .
             '<meta http-equiv="x-dns-prefetch-control" content="on" />' .
-            '<link rel="dns-prefetch" href="' . config('app.api_host') . '" />' .
-            '<link rel="dns-prefetch" href="' . config('app.img_host') . '" />' .
-            '<link rel="dns-prefetch" href="' . config('app.cdn_host') . '" />' .
-            '<link href="<?php echo config(\'app.img_host\');?>/favicon.ico" rel="shortcut icon" type="image/x-icon" />' .
+            '<link rel="dns-prefetch" href="__API_HOST__" />' .
+            '<link rel="dns-prefetch" href="__IMG_HOST__" />' .
+            '<link rel="dns-prefetch" href="__CDN_HOST__" />' .
+            '<link href="__IMG_HOST__favicon.ico" rel="shortcut icon" type="image/x-icon" />' .
             '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />' .
             '<meta http-equiv="Window-target" content="_top" />' .
             '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
             '<meta http-equiv="Cache-Control" content="no-transform" />' .
-            '<meta name="csrf-root" content="' . $root . '" />' .
             '<meta name="csrf-version" content="' . $this->config['theme_config']['api_version'] . '" />' .
             csrf_appid() .
             $this->meta() .
             $this->link() .
             '<style type="text/css">body{moz-user-select:-moz-none;-moz-user-select:none;-o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;}</style>' .
-            '<script type="text/javascript">const NICMS = {domain:"//"+window.location.host,rootDomain:"//"+window.location.host.substr(window.location.host.indexOf(".")+1),url:"//"+window.location.host+window.location.pathname+window.location.search,api_uri:"' . config("app.api_host") . '",param:' . json_encode(app("request")->param()) . '};</script>' .
+            '<script type="text/javascript">const NICMS = {domain:"//"+window.location.host+"/",rootDomain:"//"+window.location.host.substr(window.location.host.indexOf(".")+1)+"/",url:"//"+window.location.host+window.location.pathname+window.location.search,api_uri:"__API_HOST__",param:' . json_encode(app("request")->param()) . '};</script>' .
 
-            '</head><body>';
+            '</head>' . (stripos($_content, '<body') ? '' : '<body>');
+
     }
 
     public function endHead()

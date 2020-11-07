@@ -14,15 +14,16 @@
 
 return [
     // 模板引擎类型使用Think
-    'type' => \app\common\library\view\View::class,
+    // 'type' => \app\common\library\view\View::class,
+    'type' => \app\common\library\template\Template::class,
 
 
     // 模板引擎类型
     // 'type'         => 'Think',
     // 模板路径
-    // 'view_path'    => './theme/',
+    'view_path'    => './theme/',
     // 模板后缀
-    // 'view_suffix'  => 'html',
+    'view_suffix'  => 'html',
     // 模板文件名分隔符
     // 'view_depr'    => '/',
     // 模板引擎普通标签开始标记

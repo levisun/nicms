@@ -76,7 +76,9 @@
 
         // 设置头部
         _params.beforeSend = function (xhr) {
-            xhr.setRequestHeader('Accept', 'application/vnd.' + jQuery('meta[name="csrf-root"]').attr('content') + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
+            let root = window.location.host.substr(window.location.host.indexOf(".")+1);
+                root = root.substr(0, root.indexOf("."));
+            xhr.setRequestHeader('Accept', 'application/vnd.' + root + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
             xhr.setRequestHeader('Authorization', 'Bearer ' + jQuery.get_cookie('XSRF_AUTHORIZATION'));
         }
 
@@ -134,7 +136,9 @@
 
         // 设置头部
         _params.beforeSend = function (xhr) {
-            xhr.setRequestHeader('Accept', 'application/vnd.' + jQuery('meta[name="csrf-root"]').attr('content') + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
+            let root = window.location.host.substr(window.location.host.indexOf(".")+1);
+                root = root.substr(0, root.indexOf("."));
+            xhr.setRequestHeader('Accept', 'application/vnd.' + root + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
             xhr.setRequestHeader('Authorization', 'Bearer ' + jQuery.get_cookie('XSRF_AUTHORIZATION'));
         }
 
@@ -143,6 +147,9 @@
                 var result = JSON.parse(xhr.responseText);
                 if ('undefined' !== typeof (result.token)) {
                     jQuery.set_cookie('CSRF_TOKEN', result.token);
+                }
+                if ('undefined' !== typeof (result.user_token)) {
+                    jQuery.set_storage('USER_TOKEN', result.user_token);
                 }
             }
         }

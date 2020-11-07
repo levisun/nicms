@@ -192,7 +192,7 @@ class UploadFile
             $save_file = $this->toExt($_files->extension(), $save_file);
         }
 
-        $save_file = str_replace(DIRECTORY_SEPARATOR, '/', $save_file);
+        $save_file = str_replace(DIRECTORY_SEPARATOR, '/', ltrim($save_file, '/'));
 
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
 

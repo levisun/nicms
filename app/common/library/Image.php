@@ -60,7 +60,7 @@ class Image
             unset($image);
         }
 
-        return Config::get('app.img_host') . '/storage/uploads/thumb/' . str_replace(DIRECTORY_SEPARATOR, '/', $new_file);
+        return Config::get('app.img_host') . 'storage/uploads/thumb/' . str_replace(DIRECTORY_SEPARATOR, '/', $new_file);
     }
 
     /**
@@ -118,7 +118,7 @@ class Image
         $_img = Filter::safe($_img);
         $_img = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_img);
         if ($_img && is_file(public_path() . $_img)) {
-            return Config::get('app.img_host') . '/' . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
+            return Config::get('app.img_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
         }
 
         return false;

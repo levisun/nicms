@@ -163,7 +163,7 @@ class Book extends BaseLogic
 
             if ($result && $result = $result->toArray()) {
                 $result['image'] = $result['image']
-                    ? $this->config->get('app.img_host') . '/' . $result['image']
+                    ? $this->config->get('app.img_host') . $result['image']
                     : '';
             }
         }

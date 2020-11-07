@@ -29,29 +29,6 @@ class Compiler extends Parse
     }
 
     /**
-     * 模板解析入口
-     * 支持普通标签和TagLib解析 支持自定义标签库
-     * @access public
-     * @param  string $content 要解析的模板内容
-     * @return void
-     */
-    public function parse(string &$_content): void
-    {
-        // 内容为空不解析
-        if (empty($_content)) {
-            return;
-        }
-
-        $this->parseLayout($_content);
-        $this->parseInclude($_content);
-        $this->parseTaglib($_content);
-        $this->parseFunc($_content);
-        $this->parseScript($_content);
-        $this->parseVar($_content);
-        $this->parseTag($_content);
-    }
-
-    /**
      * 编译模板文件内容
      * @access public
      * @param  string $content 模板内容
@@ -60,36 +37,8 @@ class Compiler extends Parse
      */
     public function write(string &$_content, string $_compiler_file): void
     {
-        // 判断是否启用布局
-        if ($this->config['layout_on']) {
-            if (false !== strpos($_content, '{__NOLAYOUT__}')) {
-                // 可以单独定义不使用布局
-                $_content = str_replace('{__NOLAYOUT__}', '', $_content);
-            } else {
-                // 读取布局模板
-                $layout_file = $this->parseTemplateFile($this->config['layout_name']);
-                // 替换布局的主体内容
-                $_content = str_replace($this->config['layout_item'], $_content, file_get_contents($layout_file));
-            }
-        } else {
-            $_content = str_replace('{__NOLAYOUT__}', '', $_content);
-        }
-
         // 模板解析
         $this->parse($_content);
-
-        if ($this->config['strip_space']) {
-            /* 去除html空格与换行 */
-            $_content = \app\common\library\Filter::space($_content);
-        }
-
-        // 优化生成的php代码
-        $_content = preg_replace('/\?>\s*<\?php\s(?!echo\b|\bend)/s', '', $_content);
-
-        // 模板过滤输出
-        $replace = $this->config['tpl_replace_string'];
-        $replace = array_merge($replace, $this->parseStaticUrl());
-        $_content = str_replace(array_keys($replace), array_values($replace), $_content);
 
         // 添加安全代码及模板引用记录
         $_content = '<?php /*' . serialize($this->includeFile) . '*/ ?>' . "\n" . $_content;
@@ -154,5 +103,30 @@ class Compiler extends Parse
         }
 
         return true;
+    }
+
+    /**
+     * 模板解析入口
+     * 支持普通标签和TagLib解析 支持自定义标签库
+     * @access public
+     * @param  string $content 要解析的模板内容
+     * @return void
+     */
+    public function parse(string &$_content): void
+    {
+        // 内容为空不解析
+        if (empty($_content)) {
+            return;
+        }
+
+        $this->parseLayout($_content);
+        $this->parseInclude($_content);
+        $this->parseTaglib($_content);
+        $this->parseFunc($_content);
+        $this->parseScript($_content);
+        $this->parseVar($_content);
+        $this->parseTag($_content);
+        $this->parseReplaceStr($_content);
+        $this->parseFilter($_content);
     }
 }

@@ -37,12 +37,12 @@ class Html
             $body = trim($body[1]);
 
             // 过滤Emoji
-            $content = (string) preg_replace_callback('/./u', function (array $matches) {
+            $body = (string) preg_replace_callback('/./u', function (array $matches) {
                 return strlen($matches[0]) >= 4 ? '' : $matches[0];
-            }, $content);
+            }, $body);
             // 空格
-            $content = (string) str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($content));
-            $content = (string) json_decode($content);
+            $body = (string) str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($body));
+            $body = (string) json_decode($body);
 
             // 过滤脚本,样式,a标签和ul标签
             // 过滤空格回车等

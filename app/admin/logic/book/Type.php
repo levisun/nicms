@@ -158,7 +158,7 @@ class Type extends BaseLogic
 
             if (null !== $result && $result = $result->toArray()) {
                 $result['image'] = $result['image']
-                    ? $this->config->get('app.img_host') . '/' . $result['image']
+                    ? $this->config->get('app.img_host') . $result['image']
                     : '';
 
                 $result['parent'] = ModelBookType::where('id', '=', $result['pid'])->value('name as parent');
