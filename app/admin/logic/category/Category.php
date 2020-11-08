@@ -262,7 +262,7 @@ class Category extends BaseLogic
 
         UploadLog::update($receive_data['image'], 1);
 
-        ModelCategory::update($receive_data, ['id' => $id]);
+        ModelCategory::where('id', '=', $id)->limit(1)->update($receive_data);
 
         $this->cache->tag('cms nav')->clear();
 
@@ -300,7 +300,7 @@ class Category extends BaseLogic
             UploadLog::remove($image);
         }
 
-        ModelCategory::where('id', '=', $id)->delete();
+        ModelCategory::where('id', '=', $id)->limit(1)->delete();
 
         $this->cache->tag('cms nav')->clear();
 

@@ -129,9 +129,13 @@ class Parse
             $script .= trim($matches[2]);
             return;
         }, $_content);
+        $script .= $script ? '<script type="text/javascript">' . $script . '</script>' : '';
 
-        $_content .= $files;
-        $_content .= $script ? '<script type="text/javascript">' . $script . '</script>' : '';
+        if (false !== strpos($_content, '</body>')) {
+            $_content = str_replace('</body>', $files . $script . '</body>', $_content);
+        } else {
+            $_content .= $files . $script;
+        }
     }
 
     /**

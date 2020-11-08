@@ -190,7 +190,7 @@ class Link extends BaseLogic
 
         UploadLog::update($receive_data['image'], 1);
 
-        ModelLink::update($receive_data, ['id' => $id]);
+        ModelLink::where('id', '=', $id)->limit(1)->update($receive_data);
 
         // 清除缓存
         $this->cache->tag('cms link list' . $receive_data['category_id'])->clear();
@@ -226,7 +226,7 @@ class Link extends BaseLogic
             UploadLog::remove($find['logo']);
         }
 
-        ModelLink::where('id', '=', $id)->delete();
+        ModelLink::where('id', '=', $id)->limit(1)->delete();
 
         // 清除缓存
         $this->cache->tag('cms link list' . $find['category_id'])->clear();

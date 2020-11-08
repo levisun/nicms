@@ -195,7 +195,7 @@ class Banner extends BaseLogic
         $receive_data['image_url'] = serialize($receive_data['image_url']);
         $receive_data['url'] = serialize($receive_data['url']);
 
-        ModelBanner::update($receive_data, ['id' => $id]);
+        ModelBanner::where('id', '=', $id)->limit(1)->update($receive_data;
 
         // 清除缓存
         $this->cache->tag('cms banner')->clear();
@@ -235,9 +235,7 @@ class Banner extends BaseLogic
             UploadLog::remove($img);
         }
 
-        ModelBanner::where([
-            ['id', '=', $id]
-        ])->delete();
+        ModelBanner::where('id', '=', $id)->limit(1)->delete();
 
         // 清除缓存
         $this->cache->tag('cms banner')->clear();

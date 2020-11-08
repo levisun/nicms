@@ -224,14 +224,14 @@ class IpInfo
 
     private function update(array $_save_data): void
     {
-        ModelIpInfo::update([
+        ModelIpInfo::where('ip', '=', $_save_data['ip'])->limit(1)->update([
             'country_id'  => $_save_data['country_id'],
             'province_id' => $_save_data['province_id'],
             'city_id'     => $_save_data['city_id'],
             'area_id'     => $_save_data['area_id'],
             'isp'         => $_save_data['isp'],
             'update_time' => time(),
-        ], ['ip' => $_save_data['ip']]);
+        ]);
     }
 
     private function get_curl(string $_url): string

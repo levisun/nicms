@@ -86,12 +86,14 @@ class User extends BaseLogic
 
         // 更新登录信息
         $info = (new IpInfo)->get($this->request->ip());
-        ModelAdmin::update([
-            'flag'               => $this->session->getId(false),
-            'last_login_time'    => time(),
-            'last_login_ip'      => $info['ip'],
-            'last_login_ip_attr' => isset($info['country_id']) ? $info['region'] . $info['city'] . $info['area'] : ''
-        ], ['id' => $user['id']]);
+        ModelAdmin::where('id', '=', $user['id'])
+            ->limit(1)
+            ->update([
+                'flag'               => $this->session->getId(false),
+                'last_login_time'    => time(),
+                'last_login_ip'      => $info['ip'],
+                'last_login_ip_attr' => isset($info['country_id']) ? $info['region'] . $info['city'] . $info['area'] : ''
+            ]);
 
         // 唯一登录
         if ($user['flag'] && $user['flag'] !== $this->session->getId(false)) {

@@ -148,7 +148,7 @@ class Type extends BaseLogic
             return $result;
         }
 
-        ModelType::update($receive_data, ['id' => $id]);
+        ModelType::where('id', '=', $id)->limit(1)->update($receive_data);
 
         return [
             'debug' => false,
@@ -175,7 +175,7 @@ class Type extends BaseLogic
             ];
         }
 
-        ModelType::where('id', '=', $id)->delete();
+        ModelType::where('id', '=', $id)->limit(1)->delete();
 
         return [
             'debug' => false,

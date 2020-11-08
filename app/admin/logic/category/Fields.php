@@ -164,7 +164,7 @@ class Fields extends BaseLogic
             return $result;
         }
 
-        ModelFields::update($receive_data, ['id' => $id]);
+        ModelFields::where('id', '=', $id)->limit(1)->update($receive_data);
 
         return [
             'debug' => false,
@@ -191,7 +191,7 @@ class Fields extends BaseLogic
             ];
         }
 
-        ModelFields::where('id', '=', $id)->delete();
+        ModelFields::where('id', '=', $id)->limit(1)->delete();
 
         ModelFieldsExtend::where('fields_id', '=', $id)->delete();
 

@@ -185,7 +185,7 @@ class Ads extends BaseLogic
 
         UploadLog::update($receive_data['image'], 1);
 
-        ModelAds::update($receive_data, ['id' => $id]);
+        ModelAds::where('id', '=', $id)->limit(1)->update($receive_data);
 
         // 清除缓存
         $this->cache->tag('cms ads')->clear();
@@ -221,7 +221,7 @@ class Ads extends BaseLogic
             UploadLog::remove($image);
         }
 
-        ModelAds::where('id', '=', $id)->delete();
+        ModelAds::where('id', '=', $id)->limit(1)->delete();
 
         // 清除缓存
         $this->cache->tag('cms ads')->clear();

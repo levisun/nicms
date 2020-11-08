@@ -183,18 +183,18 @@ class Admin extends BaseLogic
             $receive_data['salt'] = Base64::flag(microtime(true) . $receive_data['password'], 6);
             $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
 
-            ModelAdmin::update([
+            ModelAdmin::where('id', '=', $id)->limit(1)->update([
                 'username' => $receive_data['username'],
                 'password' => $receive_data['password'],
-                'salt' => $receive_data['salt'],
-                'phone' => $receive_data['phone'],
-                'email' => $receive_data['email'],
-                'status' => $receive_data['status']
-            ], ['id' => $id]);
+                'salt'     => $receive_data['salt'],
+                'phone'    => $receive_data['phone'],
+                'email'    => $receive_data['email'],
+                'status'   => $receive_data['status']
+            ]);
 
-            ModelRoleAdmin::update([
+            ModelRoleAdmin::where('user_id', '=', $id)->limit(1)->update([
                 'role_id' => $receive_data['role_id']
-            ], ['user_id' => $id]);
+            ]);
         });
 
         return [
@@ -223,8 +223,8 @@ class Admin extends BaseLogic
         }
 
         ModelAdmin::transaction(function () use ($id) {
-            ModelAdmin::where('id', '=', $id)->delete();
-            ModelRoleAdmin::where('user_id', '=', $id)->delete();
+            ModelAdmin::where('id', '=', $id)->limit(1)->delete();
+            ModelRoleAdmin::where('user_id', '=', $id)->limit(1)->delete();
         });
 
         return [

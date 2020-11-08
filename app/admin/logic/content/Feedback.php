@@ -120,7 +120,7 @@ class Feedback extends BaseLogic
             'update_time' => time(),
         ];
 
-        ModelFeedback::update($receive_data, ['id' => $id]);
+        ModelFeedback::where('id', '=', $id)->limit(1)->update($receive_data);
 
         $category_id = ModelFeedback::where('id', '=', $id)->value('category_id');
 
@@ -154,7 +154,7 @@ class Feedback extends BaseLogic
 
         $category_id = ModelFeedback::where('id', '=', $id)->value('category_id');
 
-        ModelFeedback::where('id', '=', $id)->delete();
+        ModelFeedback::where('id', '=', $id)->limit(1)->delete();
 
         // 清除缓存
         $this->cache->tag('cms feedback list' . $category_id)->clear();

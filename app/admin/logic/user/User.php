@@ -166,14 +166,14 @@ class User extends BaseLogic
         $receive_data['salt'] = Base64::flag(microtime(true) . $receive_data['password'], 6);
         $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
 
-        ModelUser::update([
+        ModelUser::where('id', '=', $id)->limit(1)->update([
             'username' => $receive_data['username'],
             'password' => $receive_data['password'],
             'phone'    => $receive_data['phone'],
             'email'    => $receive_data['email'],
             'level_id' => $receive_data['level_id'],
             'status'   => $receive_data['status'],
-        ], ['id' => $id]);
+        ]);
 
         return [
             'debug' => false,
@@ -200,7 +200,7 @@ class User extends BaseLogic
             ];
         }
 
-        ModelUser::where('id', '=', $id)->delete();
+        ModelUser::where('id', '=', $id)->limit(1)->delete();
 
         return [
             'debug' => false,

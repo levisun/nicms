@@ -83,9 +83,9 @@ class Member extends BaseLogic
         if ($id && $id = Base64::decrypt($id)) {
             $path = $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . 'user' . DIRECTORY_SEPARATOR;
             if (is_dir($path . $id)) {
-                ModelConfig::update([
+                ModelConfig::where('name', '=', 'user_theme')->limit(1)->update([
                     'value' => $id
-                ], ['name' => 'user_theme']);
+                ]);
             }
         }
 

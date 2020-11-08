@@ -203,7 +203,7 @@ class Node extends BaseLogic
             return $result;
         }
 
-        ModelNode::update($receive_data, ['id' => $id]);
+        ModelNode::where('id', '=', $id)->limit(1)->update($receive_data);
 
         return [
             'debug' => false,
@@ -230,7 +230,7 @@ class Node extends BaseLogic
             ];
         }
 
-        ModelNode::where('id', '=', $id)->delete();
+        ModelNode::where('id', '=', $id)->limit(1)->delete();
 
         return [
             'debug' => false,

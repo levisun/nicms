@@ -353,7 +353,7 @@ class Article extends BaseLogic
             $model_id = $receive_data['model_id'];
             unset($receive_data['model_id']);
 
-            ModelArticle::update($receive_data, ['id' => $id]);
+            ModelArticle::where('id', '=', $id)->limit(1)->update($receive_data);
 
             $receive_data['model_id'] = $model_id;
             unset($model);
@@ -366,9 +366,12 @@ class Article extends BaseLogic
                         ['fields_id', '=', $key]
                     ])->value('id');
                     if ($has) {
-                        ModelFieldsExtend::update([
+                        ModelFieldsExtend::where([
+                            ['article_id', '=', $id],
+                            ['fields_id', '=', $key],
+                        ])->limit(1)->update([
                             'data' => $value
-                        ], ['article_id' => $id, 'fields_id' => $key]);
+                        ]);
                     } else {
                         ModelFieldsExtend::create([
                             'article_id' => $id,
@@ -383,10 +386,10 @@ class Article extends BaseLogic
             if (1 === $receive_data['model_id'] || 4 === $receive_data['model_id']) {
 
 
-                ModelArticleContent::update([
+                ModelArticleContent::where('article_id', '=', $id)->limit(1)->update([
                     'origin'  => $this->request->param('origin', ''),
                     'content' => $this->request->param('content', '', '\app\common\library\Filter::contentEncode')
-                ], ['article_id' => $id]);
+                ]);
             }
             // 相册
             elseif (2 === $receive_data['model_id']) {
@@ -403,11 +406,11 @@ class Article extends BaseLogic
                     UploadLog::update($value, 1);
                 }
 
-                ModelArticleImage::update([
+                ModelArticleImage::where('article_id', '=', $id)->limit(1)->update([
                     'image_url'    => serialize($this->request->param('image_url/a', '')),
                     'image_width'  => $this->request->param('image_width/d', 0, 'abs'),
                     'image_height' => $this->request->param('image_height/d', 0, 'abs'),
-                ], ['article_id' => $id]);
+                ]);
             }
             // 下载
             elseif (3 === $receive_data['model_id']) {
@@ -419,7 +422,7 @@ class Article extends BaseLogic
                     UploadLog::update($file_url, 1);
                 }
 
-                ModelArticleFile::update([
+                ModelArticleFile::where('article_id', '=', $id)->limit(1)->update([
                     'file_url'   => $file_url,
                     'file_size'  => $this->request->param('file_size', ''),
                     'file_ext'   => $this->request->param('file_ext', ''),
@@ -427,7 +430,7 @@ class Article extends BaseLogic
                     'file_mime'  => $this->request->param('file_mime', ''),
                     'uhash'      => $this->request->param('uhash', ''),
                     'md5file'    => $this->request->param('md5file', ''),
-                ], ['article_id' => $id]);
+                ]);
             }
 
             // 清除缓存
@@ -463,9 +466,9 @@ class Article extends BaseLogic
         $category_id = ModelArticle::where('id', '=', $id)->value('category_id');
 
         if ($category_id) {
-            ModelArticle::update([
+            ModelArticle::where('id', '=', $id)->limit(1)->update([
                 'delete_time' => time()
-            ], ['id' => $id]);
+            ]);
 
             // 清除缓存
             $this->cache->tag('cms article list' . $category_id)->clear();

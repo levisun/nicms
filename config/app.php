@@ -21,23 +21,19 @@ return [
     // 后台入口域名
     'entry'            => env('admin.entry', 'admin'),
 
-    // 调试
-    'debug'            => env('app_debug', false),
-    // 加密密钥
-    'secretkey'        => hash_hmac('sha256', env('app.secretkey', 'nicms'), sha1(request()->rootDomain() . __DIR__)),
-    // 上传文件大小,单位MB
+    // 上传设置
     'upload_size'      => env('app.upload_size', 3),
-    // 上传文件类型(扩展名)
     'upload_type'      => env('app.upload_type', 'jpg,gif,png,webp,mp3,mp4,doc,docx,xls,xlsx,ppt,pptx,pdf,zip'),
 
-    // API地址
+    // API CDN IMG地址
     'api_host'         => '//api.' . request()->rootDomain() . '/',
-    // CDN地址
     'cdn_host'         => '//cdn.' . request()->rootDomain() . '/',
-    // IMG地址
     'img_host'         => '//img.' . request()->rootDomain() . '/',
 
-
+    // 加密密钥
+    'secretkey'        => hash_hmac('sha256', env('app.secretkey', 'nicms'), sha1(request()->rootDomain() . __DIR__)),
+    // 调试
+    'debug'            => env('app_debug', false),
 
     // 应用地址
     'app_host'         => env('app.host', '//www.' . request()->rootDomain()),

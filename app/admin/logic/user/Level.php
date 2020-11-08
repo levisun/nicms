@@ -143,7 +143,7 @@ class Level extends BaseLogic
             return $result;
         }
 
-        ModelLevel::update($receive_data, ['id' => $id]);
+        ModelLevel::where('id', '=', $id)->limit(1)->update($receive_data);
 
         return [
             'debug' => false,
@@ -170,7 +170,7 @@ class Level extends BaseLogic
             ];
         }
 
-        ModelLevel::where('id', '=', $id)->delete();
+        ModelLevel::where('id', '=', $id)->limit(1)->delete();
 
         return [
             'debug' => false,

@@ -219,7 +219,7 @@ class Type extends BaseLogic
             UploadLog::update($receive_data['image'], 1);
         }
 
-        ModelBookType::update($receive_data, ['id' => $id]);
+        ModelBookType::where('id', '=', $id)->limit(1)->update($receive_data);
 
         $this->cache->tag('cms nav')->clear();
 
@@ -257,7 +257,7 @@ class Type extends BaseLogic
             UploadLog::remove($image);
         }
 
-        ModelBookType::where('id', '=', $id)->delete();
+        ModelBookType::where('id', '=', $id)->limit(1)->delete();
 
         $this->cache->tag('cms nav')->clear();
 

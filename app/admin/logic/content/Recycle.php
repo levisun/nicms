@@ -137,9 +137,9 @@ class Recycle extends BaseLogic
         $category_id = ModelArticle::where('id', '=', $id)->value('category_id');
 
         if ($category_id) {
-            ModelArticle::update([
+            ModelArticle::where('id', '=', $id)->limit(1)->update([
                 'delete_time' => 0
-            ], ['id' => $id]);
+            ]);
 
             // 清除缓存
             $this->cache->tag('cms article list' . $category_id)->clear();
@@ -179,9 +179,9 @@ class Recycle extends BaseLogic
                 UploadLog::remove($thumb);
             }
 
-            ModelArticle::where('id', '=', $id)->delete();
+            ModelArticle::where('id', '=', $id)->limit(1)->delete();
 
-            ModelArticleContent::where('article_id', '=', $id)->delete();
+            ModelArticleContent::where('article_id', '=', $id)->limit(1)->delete();
 
 
             // 删除下载模块数据
@@ -189,7 +189,7 @@ class Recycle extends BaseLogic
             if (!empty($file_url)) {
                 UploadLog::remove($file_url);
             }
-            ModelArticleFile::where('article_id', '=', $id)->delete();
+            ModelArticleFile::where('article_id', '=', $id)->limit(1)->delete();
 
 
             // 删除相册模块数据

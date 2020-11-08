@@ -221,7 +221,7 @@ class Book extends BaseLogic
             UploadLog::update($receive_data['image'], 1);
         }
 
-        ModelBook::update($receive_data, ['id' => $id]);
+        ModelBook::where('id', '=', $id)->limit(1)->update($receive_data);
 
         $this->cache->tag('book')->clear();
 
@@ -259,7 +259,7 @@ class Book extends BaseLogic
             UploadLog::remove($image);
         }
 
-        ModelBook::where('id', '=', $id)->delete();
+        ModelBook::where('id', '=', $id)->limit(1)->delete();
 
         $this->cache->tag('book')->clear();
 

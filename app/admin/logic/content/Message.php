@@ -121,7 +121,7 @@ class Message extends BaseLogic
             'update_time' => time(),
         ];
 
-        ModelMessage::update($receive_data, ['id' => $id]);
+        ModelMessage::where('id', '=', $id)->limit(1)->update($receive_data);
 
         $category_id = ModelMessage::where('id', '=', $id)->value('category_id');
 
@@ -155,7 +155,7 @@ class Message extends BaseLogic
 
         $category_id = ModelMessage::where('id', '=', $id)->value('category_id');
 
-        ModelMessage::where('id', '=', $id)->delete();
+        ModelMessage::where('id', '=', $id)->limit(1)->delete();
 
         // 清除缓存
         $this->cache->tag('cms message list' . $category_id)->clear();

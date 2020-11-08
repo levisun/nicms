@@ -46,9 +46,9 @@ class UploadLog
                 'type' => $_type
             ]);
         } else {
-            ModelUploadFileLog::update([
+            ModelUploadFileLog::where('file', '=', $_file)->limit(1)->update([
                 'type' => $_type
-            ], ['file' => $_file]);
+            ]);
         }
     }
 
@@ -68,9 +68,9 @@ class UploadLog
 
         $_file = trim($_file, '\/.');
         $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
-        ModelUploadFileLog::update([
+        ModelUploadFileLog::where('file', '=', $_file)->limit(1)->update([
             'type' => $_type
-        ], ['file' => $_file]);
+        ]);
     }
 
     /**
@@ -91,7 +91,7 @@ class UploadLog
             @unlink($abs_file);
         }
 
-        ModelUploadFileLog::where('file', '=', $_file)->delete();
+        ModelUploadFileLog::where('file', '=', $_file)->limit(1)->delete();
     }
 
     /**
@@ -128,7 +128,7 @@ class UploadLog
         }
 
         if (!empty($id) && 0 < count($id)) {
-            ModelUploadFileLog::where('id', 'in', $id)->delete();
+            ModelUploadFileLog::where('id', 'in', $id)->limit(1)->delete();
         }
     }
 }

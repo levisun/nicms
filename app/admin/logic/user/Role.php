@@ -167,10 +167,10 @@ class Role extends BaseLogic
         }
 
         ModelRole::transaction(function () use ($receive_data, $id) {
-            ModelRole::update($receive_data, ['id' => $id]);
+            ModelRole::where('id', '=', $id)->limit(1)->update($receive_data);
 
             // 删除旧数据
-            ModelRoleAccess::where('role_id', '=', $id)->delete();
+            ModelRoleAccess::where('role_id', '=', $id)->limit(1)->delete();
 
             $list = [];
             $node = $this->request->param('node/a');
@@ -209,9 +209,9 @@ class Role extends BaseLogic
         }
 
         ModelRole::transaction(function () use ($id) {
-            ModelRole::where('id', '=', $id)->delete();
+            ModelRole::where('id', '=', $id)->limit(1)->delete();
 
-            ModelRoleAccess::where('role_id', '=', $id)->delete();
+            ModelRoleAccess::where('role_id', '=', $id)->limit(1)->delete();
         });
 
         return [
