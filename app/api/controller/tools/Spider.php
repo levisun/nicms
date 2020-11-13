@@ -42,11 +42,14 @@ class Spider extends Async
         $uri = str_replace('&nbsp;', '', $uri);
 
         try {
-            $spider = new LibSpider;
-            if ($spider->request($method, $uri)) {
-                $result = $selector
-                    ? $spider->fetch($selector, $extract)
-                    : $spider->html();
+            if (!$this->cache->has($uri) || !$result = $this->cache->get($uri)) {
+                $spider = new LibSpider;
+                if ($spider->request($method, $uri)) {
+                    $result = $selector
+                        ? $spider->fetch($selector, $extract)
+                        : $spider->html();
+                    $this->cache->set($uri, $result);
+                }
             }
         } catch (\Exception $e) {
             trace($uri, 'error');

@@ -163,10 +163,24 @@ if (!function_exists('is_wechat')) {
 
 if (!function_exists('csrf_appid')) {
     /**
-     * APP密钥
+     * APPID
      * @return string
      */
     function csrf_appid(): string
+    {
+        if ($api_app = app_secret()) {
+            return '<meta name="csrf-appid" content="' . $api_app['id'] . '" />';
+        }
+        return '';
+    }
+}
+
+if (!function_exists('app_secret')) {
+    /**
+     * APPID与密钥
+     * @return array
+     */
+    function app_secret(): array
     {
         $app_name = app('http')->getName();
         $api_app = ModelApiApp::field('id, secret')
@@ -177,10 +191,11 @@ if (!function_exists('csrf_appid')) {
             ->cache('app secret' . $app_name)
             ->find();
         if ($api_app && $api_app = $api_app->toArray()) {
-            return '<meta name="csrf-appid" content="' . ($api_app['id'] + 1000000) . '" />';
+            $api_app['id'] += 1000000;
+            return $api_app;
+        } else {
+            return [];
         }
-
-        return '';
     }
 }
 

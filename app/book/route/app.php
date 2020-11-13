@@ -20,7 +20,9 @@ Route::miss(function () {
 Route::group(function () {
     // 首页
     Route::get('/$', 'Index/index');
-    Route::get('index$', 'Index/index');
+    Route::get('index$', function () {
+        return redirect('/', 302);
+    });
 
 
     // 列表页

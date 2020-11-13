@@ -30,7 +30,7 @@ Route::group(function () {
     // 首页
     Route::get('/$', 'index');
     Route::get('index$', function () {
-        return redirect('/', 301);
+        return redirect('/', 302);
     });
 
     // 列表页

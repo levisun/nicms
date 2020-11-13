@@ -15,7 +15,9 @@ use think\facade\Route;
 
 Route::group(function () {
     Route::get('/$', 'Index/index');
-    Route::get('index$', 'Index/index');
+    Route::get('index$', function () {
+        return redirect('/', 302);
+    });
 
     Route::get(':logic/:action/:method/[:id]$', 'Index/index');
 
