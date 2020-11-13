@@ -123,9 +123,9 @@ class Compiler extends Parse
         $this->parseInclude($_content);
         $this->parseTaglib($_content);
         $this->parseFunc($_content);
-        $this->parseScript($_content);
         $this->parseVar($_content);
         $this->parseTag($_content);
+        $this->parseScript($_content);
         $this->parseReplaceStr($_content);
         $this->parseFilter($_content);
     }

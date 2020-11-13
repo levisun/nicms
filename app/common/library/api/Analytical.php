@@ -167,7 +167,7 @@ class Analytical extends Base
 
         if (null !== $result && $result = $result->toArray()) {
             $this->appName = $result['name'];
-            $this->appSecret = $result['secret'];
+            $this->appSecret = sha1($result['secret'] . Base64::asyncSecret());
             $this->appAuthKey = $result['authkey'];
         } else {
             $this->abort('The appid parameter is wrong.', 21002);
@@ -245,8 +245,8 @@ class Analytical extends Base
         // 校验authorization合法性
         $token = (new Parser)->parse($authorization);
         // 密钥
-        $key  = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
-        $key = sha1(Base64::encrypt($key));
+        // $key  = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
+        // $key = sha1(Base64::encrypt($key));
 
         $data = new ValidationData;
         $data->setIssuer($this->request->rootDomain());
@@ -254,7 +254,7 @@ class Analytical extends Base
         $data->setId($token->getClaim('jti'));
         $data->setCurrentTime($this->request->time() + 2880);
 
-        if (false === $token->verify(new Sha256, $key) || false === $token->validate($data)) {
+        if (false === $token->verify(new Sha256, Base64::asyncSecret()) || false === $token->validate($data)) {
             $this->abort('The authentication information is incorrect.', 20002);
         }
 

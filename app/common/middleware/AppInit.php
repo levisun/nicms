@@ -21,25 +21,19 @@ namespace app\common\middleware;
 use Closure;
 use think\Request;
 
-use think\facade\Config;
 use think\facade\Cookie;
 use think\facade\Session;
+use app\common\library\Base64;
 
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 
-use app\common\library\Base64;
-use app\common\model\ApiApp as ModelApiApp;
-
 class AppInit
 {
-    private $request = null;
 
     public function handle(Request $request, Closure $next)
     {
-        $this->request = $request;
-
         # TODO
 
         $response = $next($request);
@@ -47,80 +41,33 @@ class AppInit
         // 纪念日全网灰色
         // -webkit-filter:grayscale(100%);
 
-        $this->app_secret();
-        $this->csrf_token();
-        $this->authorization();
-
-        return $response;
-    }
-
-    /**
-     * API POST请求表单签名
-     * @access private
-     * @return void
-     */
-    private function csrf_token()
-    {
-        $app_token = $this->request->buildToken('__token__', 'md5');
-        Cookie::set('CSRF_TOKEN', $app_token, ['httponly' => false]);
-        return $app_token;
-    }
-
-    /**
-     * API请求sign签名加密密钥
-     * @access private
-     * @return void
-     */
-    private function app_secret()
-    {
-        if ($app_name = Config::get('app.domain_bind.' . $this->request->subDomain())) {
-            $api_app = ModelApiApp::field('id, secret')
-                ->where([
-                    ['name', '=', $app_name],
-                    ['status', '=', 1]
-                ])
-                ->cache('app secret' . $app_name)
-                ->find();
-            if ($api_app && $api_app = $api_app->toArray()) {
-                $key = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
-                $app_secret = sha1($api_app['secret'] . $key);
-                Cookie::set('XSRF_TOKEN', $app_secret, ['httponly' => false]);
-                return $app_secret;
-            }
-        }
-    }
-
-    /**
-     * API请求认证标识
-     * @access private
-     * @return void
-     */
-    private function authorization()
-    {
-        // 密钥
-        $key = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
-        $key = sha1(Base64::encrypt($key));
-
         $authorization = (string) (new Builder)
             // 签发者
-            ->issuedBy($this->request->rootDomain())
+            ->issuedBy($request->rootDomain())
             // 接收者
-            ->permittedFor($this->request->host())
+            ->permittedFor($request->host())
             // 身份标识(SessionID)
             ->identifiedBy(Base64::encrypt(Session::getId()), false)
             // 签发时间
-            ->issuedAt($this->request->time())
+            ->issuedAt($request->time())
             // 令牌使用时间
-            ->canOnlyBeUsedAfter($this->request->time() + 2880)
+            ->canOnlyBeUsedAfter($request->time() + 2880)
             // 签发过期时间
-            ->expiresAt($this->request->time() + 28800)
+            ->expiresAt($request->time() + 28800)
             // 客户端ID
             ->withClaim('uid', client_id())
             // 生成token
-            ->getToken(new Sha256, new Key($key));
+            ->getToken(new Sha256, new Key(Base64::asyncSecret()));
 
         Cookie::set('XSRF_AUTHORIZATION', $authorization, ['httponly' => false]);
 
-        return $authorization;
+        $secret = app_secret();
+        $secret = sha1($secret['secret'] . Base64::asyncSecret());
+        Cookie::set('XSRF_TOKEN', $secret, ['httponly' => false]);
+
+        $app_token = $request->buildToken('__token__', 'md5');
+        Cookie::set('CSRF_TOKEN', $app_token, ['httponly' => false]);
+
+        return $response;
     }
 }

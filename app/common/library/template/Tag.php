@@ -13,17 +13,48 @@ class Tag
         $this->config = $_config;
     }
 
+    public function links(string $_attr)
+    {
+        $parseStr  = '<?php $links = app(\'\app\cms\logic\link\Catalog\')->query();';
+        $parseStr .= 'if (empty($links[\'data\'])): miss(404, true, true); endif;';
+        $parseStr .= '$links = !empty($links[\'data\']) ? $links[\'data\'] : [];?>';
+        return $parseStr;
+    }
+
     public function details(string $_attr)
     {
         $parseStr  = '<?php $details = app(\'\app\cms\logic\article\Details\')->query();';
         $parseStr .= 'if (empty($details[\'data\'])): miss(404, true, true); endif;';
-        $parseStr .= '$details = !empty($details[\'data\']) ? $details[\'data\'] : []; ?>';
+        $parseStr .= '$details = !empty($details[\'data\']) ? $details[\'data\'] : [];?>';
         return $parseStr;
     }
 
     public function head(string $_attr, string &$_content)
     {
+        $meta = '';
+        if (!empty($this->config['theme_config']['meta'])) {
+            foreach ($this->config['theme_config']['meta'] as $value) {
+                $meta .= str_replace('\'', '"', $value) . PHP_EOL;
+            }
+        }
 
+        $link = '';
+        if (!empty($this->config['theme_config']['js'])) {
+            foreach ($this->config['theme_config']['js'] as $js) {
+                $js = preg_replace('/ {2,}/si', '', $js);
+                $link .= str_replace('\'', '"', $js) . PHP_EOL;
+            }
+        }
+        if (!empty($this->config['theme_config']['link'])) {
+            foreach ($this->config['theme_config']['link'] as $value) {
+                $value = preg_replace('/ {2,}/si', '', $value);
+                $link .= str_replace('\'', '"', $value) . PHP_EOL;
+
+                // $value = false === stripos($value, 'preload') && false === stripos($value, 'prefetch')
+                // ? str_replace('rel="', 'as="style" rel="preload ', $value)
+                // : $value;
+            }
+        }
 
         list($root) = explode('.', request()->rootDomain(), 2);
         return '<!DOCTYPE html>' .
@@ -60,48 +91,15 @@ class Tag
             '<meta http-equiv="Cache-Control" content="no-transform" />' .
             '<meta name="csrf-version" content="' . $this->config['theme_config']['api_version'] . '" />' .
             csrf_appid() .
-            $this->meta() .
-            $this->link() .
+            $meta . $link .
             '<style type="text/css">body{moz-user-select:-moz-none;-moz-user-select:none;-o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;}</style>' .
             '<script type="text/javascript">const NICMS = {domain:"//"+window.location.host+"/",rootDomain:"//"+window.location.host.substr(window.location.host.indexOf(".")+1)+"/",url:"//"+window.location.host+window.location.pathname+window.location.search,api_uri:"__API_HOST__",param:' . json_encode(app("request")->param()) . '};</script>' .
 
             '</head>' . (stripos($_content, '<body') ? '' : '<body>');
-
     }
 
     public function endHead()
     {
         return '</body></html>';
-    }
-
-    public function link()
-    {
-        $link = '';
-        if (!empty($this->config['theme_config']['link'])) {
-            foreach ($this->config['theme_config']['link'] as $value) {
-                // 过滤多余空格
-                $value = preg_replace('/ {2,}/si', '', $value);
-                // 替换引号
-                $value = str_replace('\'', '"', $value);
-
-                // $value = false === stripos($value, 'preload') && false === stripos($value, 'prefetch')
-                //     ? str_replace('rel="', 'rel="preload ', $value)
-                //     : $value;
-
-                $link .= $value;
-            }
-        }
-        return $link;
-    }
-
-    public function meta()
-    {
-        $meta = '';
-        if (!empty($this->config['theme_config']['meta'])) {
-            foreach ($this->config['theme_config']['meta'] as $value) {
-                $meta .= str_replace('\'', '"', $value);
-            }
-        }
-        return $meta;
     }
 }

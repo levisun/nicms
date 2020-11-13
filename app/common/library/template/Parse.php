@@ -78,6 +78,40 @@ class Parse
         $_content = str_replace(array_keys($replace), array_values($replace), $_content);
     }
 
+     /**
+     * 解析模板中的脚本
+     * @access protected
+     * @param  string $_content 要解析的模板内容
+     * @return void
+     */
+    protected function parseScript(string &$_content): void
+    {
+        $files = '';
+        $pattern = '/<script[^<>]+src=["\']+([^<> ]+)["\']+[^<>]*><\/script>/si';
+        $_content = (string) preg_replace_callback($pattern, function ($matches) use (&$files) {
+            $files .= '<script src="' . $matches[1] . '"></script>';
+            return;
+        }, $_content);
+
+        $script = '';
+        $pattern = '/<script( type=["\']+.*?["\']+)?>(.*?)<\/script>/si';
+        $_content = (string) preg_replace_callback($pattern, function ($matches) use (&$script) {
+            $matches[2] = (string) preg_replace([
+                '/\/\/.*?(\r|\n)+/i',
+                '/\/\*.*?\*\//i',
+            ], '', $matches[2]);
+            $script .= trim($matches[2]);
+            return;
+        }, $_content);
+        $script = $script ? '<script type="text/javascript">' . $script . '</script>' : '';
+
+        if (false !== strpos($_content, '</body>')) {
+            $_content = str_replace('</body>', $files . $script . '</body>', $_content);
+        } else {
+            $_content .= $files . $script;
+        }
+    }
+
     /**
      * 模板标签解析
      * @access protected
@@ -93,49 +127,6 @@ class Parse
                 return '<?php echo ' . $matches[2] . ';?>';
             }
         }, $_content);
-    }
-
-    /**
-     * 解析模板中的脚本
-     * @access protected
-     * @param  string $_content 要解析的模板内容
-     * @return void
-     */
-    protected function parseScript(string &$_content): void
-    {
-        // JS引入
-        $theme_config = $this->parseThemeConfig();
-        $files = '';
-        foreach ($theme_config['js'] as $js) {
-            // 过滤多余空格
-            $js = preg_replace('/ {2,}/si', '', $js);
-            // 替换引号
-            $js = str_replace('\'', '"', $js);
-            // 添加defer属性
-            // $js = false === stripos($js, 'defer') && false === stripos($js, 'async')
-            //     ? str_replace('></', ' defer="defer"></', $js)
-            //     : $js;
-
-            $files .= $js . PHP_EOL;
-        }
-
-        $script = '';
-        $pattern = '/<script( type=["\']+.*?["\']+)?>(.*?)<\/script>/si';
-        $_content = (string) preg_replace_callback($pattern, function ($matches) use (&$script) {
-            $matches[2] = (string) preg_replace([
-                '/\/\/.*?(\r|\n)+/i',
-                '/\/\*.*?\*\//i',
-            ], '', $matches[2]);
-            $script .= trim($matches[2]);
-            return;
-        }, $_content);
-        $script .= $script ? '<script type="text/javascript">' . $script . '</script>' : '';
-
-        if (false !== strpos($_content, '</body>')) {
-            $_content = str_replace('</body>', $files . $script . '</body>', $_content);
-        } else {
-            $_content .= $files . $script;
-        }
     }
 
     /**

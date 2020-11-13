@@ -161,6 +161,18 @@ class Base64
     }
 
     /**
+     * 异步加密密钥
+     * @access public
+     * @static
+     * @return string
+     */
+    public static function asyncSecret(): string
+    {
+        $secret = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        return sha1(self::encrypt($secret));
+    }
+
+    /**
      * 数据加密
      * @access public
      * @static

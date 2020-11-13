@@ -68,17 +68,18 @@ class Throttle
         if (200 !== $_response->getCode()) {
             return;
         }
-        $last_time = $_request->time(true);
 
         $cache_key = 'an minute total' . $_request->ip() . $_request->ext();
-        if (Cache::has($cache_key)) {
-            $last_time = (float) Cache::get($cache_key);
-        } else {
+
+        if (!Cache::has($cache_key)) {
+            $last_time = $_request->time(true);
             Cache::set($cache_key, $last_time, 60);
         }
 
-        // 平均 n 秒一个请求
+        $last_time = (float) Cache::get($cache_key);
         $last_time = round($_request->time(true) - $last_time, 3);
+
+        // 平均 n 秒一个请求
         $rate = round(60 / 1200, 3);
         if (0 < $last_time && $last_time < $rate) {
             trace('lock' . $_request->ip() . ' ' . date('Y-m-d H:i:s') . ' ' . $last_time . '<' . $rate);
@@ -110,9 +111,9 @@ class Throttle
             Cache::set($cache_key, 1, 86400);
         }
 
-        // IP一小时访问超过一定数量抛出
+        // IP一小时访问超过一定数量锁定
         if (1000 <= $total) {
-            Cache::set($_request->ip() . 'lock', 'IP:' . date('Y-m-d H:i:s'), 28800);
+            Cache::set($_request->ip() . 'lock', 'IP:' . date('Y-m-d H:i:s'), 1440);
         }
     }
 

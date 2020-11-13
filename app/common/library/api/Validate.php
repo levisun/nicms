@@ -69,8 +69,9 @@ class Validate extends Base
         }
         $str  = rtrim($str, '&');
 
-        $key = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
-        $str .= sha1($_app_secret . $key);
+        // $key = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
+        // $str .= sha1($_app_secret . $key);
+        $str .= $_app_secret;
 
         if (!hash_equals(call_user_func($sign_type, $str), $sign)) {
             $this->abort('The signature is wrong.', 22003);

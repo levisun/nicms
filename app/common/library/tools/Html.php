@@ -5,7 +5,7 @@
  * 获取HTML文档内容
  *
  * @package   NICMS
- * @category  app\common\library
+ * @category  app\common\library\tools
  * @author    失眠小枕头 [312630173@qq.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -36,13 +36,75 @@ class Html
         preg_replace_callback('/<body[^<>]*>(.*?)<\/body>/si', function ($body) use (&$content, &$_length) {
             $body = trim($body[1]);
 
+            // 过滤脚本,样式,a标签和ul标签
+            $body = (string) preg_replace([
+                '/<script.*?\/script>/si',
+                '/<style.*?\/style>/si',
+                '/<a.*?\/a>/si',
+                '/<ul.*?\/ul>/si',
+                '/<ol.*?\/ol>/si',
+                '/[|]+/si',
+            ], '', $body);
+
             // 过滤Emoji
             $body = (string) preg_replace_callback('/./u', function (array $matches) {
                 return strlen($matches[0]) >= 4 ? '' : $matches[0];
             }, $body);
-            // 空格
+
+            // 过滤空格回车等
             $body = (string) str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($body));
             $body = (string) json_decode($body);
+            $pattern = [
+                '/>\s+</'                 => '><',
+                '/>\s+/'                  => '>',
+                '/\s+</'                  => '<',
+                '/　/si'                  => ' ',
+                '/ {2,}/si'               => ' ',
+            ];
+            $body = (string) preg_replace(array_keys($pattern), array_values($pattern), $body);
+
+            // 清除多余标签
+            $body = (string) preg_replace_callback('/<\/?([\w]+)([^<>]*)>/si', function ($ele) {
+                if (in_array($ele[1], ['article', 'div', 'p', 'br', 'span', 'table', 'tr', 'td', 'th'])) {
+                    return '<' . $ele[1] . '>';
+                } elseif ('img' == $ele[1]) {
+                    return $ele[0];
+                }
+            }, $body);
+            while (preg_match('/<div[^<>]*><div/si', $body)) {
+                $body = preg_replace('/<div[^<>]*><div/si', '<div', $body);
+            }
+            while (preg_match('/<div[^<>]*><\/div>/si', $body)) {
+                $body = preg_replace('/<div[^<>]*><\/div>/si', '', $body);
+            }
+            while (preg_match('/<\/div><\/div>/si', $body)) {
+                $body = preg_replace('/<\/div><\/div>/si', '</div>', $body);
+            }
+
+            // 替换图片
+            $body = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) {
+                return '[TAG:img_src=' . trim($img[1], '"\'') . ']';
+            }, $body);
+
+            // 替换表格
+            $body = preg_replace_callback('/<table[^<>]*>(.*?)<\/table[^<>]*>/si', function ($table) {
+                $table[1] = strip_tags($table[1], '<tr><td><th><br><p>');
+                $table[1] = preg_replace_callback('/<(\/)?(tr|td|th)>/si', function ($tr) {
+                    return '[TAG:' . $tr[1] . $tr[2] . ']';
+                }, $table[1]);
+                return '[TAG:table]' . $table[1] . '[TAG:/table]';
+            }, $body);
+
+            // 清除无用标签
+            $body = preg_replace([
+                '/<span>[\d]{4,}<\/span>/si',
+                '/<\/?span>/si',
+            ], '', $body);
+
+            // 标签转回车
+            $body = str_ireplace(['<p>', '</p>', '<br>', '<br />', '<br/>'], PHP_EOL, $body);
+
+            halt($body);
 
             // 过滤脚本,样式,a标签和ul标签
             // 过滤空格回车等
