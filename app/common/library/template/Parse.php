@@ -25,7 +25,7 @@ class Parse
     public function parseFilter(string &$_content): void
     {
         /* 去除html空格与换行 */
-        if ($this->config['strip_space']) {
+        if ($this->config['strip_space'] && $this->config['tpl_compile']) {
             $_content = \app\common\library\Filter::space($_content);
         }
 
@@ -78,7 +78,7 @@ class Parse
         $_content = str_replace(array_keys($replace), array_values($replace), $_content);
     }
 
-     /**
+    /**
      * 解析模板中的脚本
      * @access protected
      * @param  string $_content 要解析的模板内容
@@ -87,9 +87,9 @@ class Parse
     protected function parseScript(string &$_content): void
     {
         $files = '';
-        $pattern = '/<script[^<>]+src=["\']+([^<> ]+)["\']+[^<>]*><\/script>/si';
+        $pattern = '/<script[^<>]+src=["\']+([^<> ]+)["\']+([^<>]*)><\/script>/si';
         $_content = (string) preg_replace_callback($pattern, function ($matches) use (&$files) {
-            $files .= '<script src="' . $matches[1] . '"></script>';
+            $files .= '<script src="' . $matches[1] . '" ' . trim($matches[2]) . '></script>';
             return;
         }, $_content);
 
@@ -216,22 +216,33 @@ class Parse
     protected function parseTaglib(string &$_content): void
     {
         $this->config['theme_config'] = $this->parseThemeConfig();
-        $tag = new \app\common\library\template\Tag($this->config);
 
         $_content = (string) preg_replace_callback($this->getRegex('taglib'), function ($matches) use (&$tag, &$_content) {
             $end = $matches[1] ? true : false;
+
             $function = trim($matches[2]);
             $function = $end ? 'end' . ucfirst($function) : $function;
-            $attr = isset($matches[3]) ? trim($matches[3]) : '';
+
+            $attr = [];
+            if (isset($matches[3])) {
+                $attr = trim($matches[3]);
+                $attr = str_replace(['"', '\''], '', $attr);
+                $attr = str_replace(' ', '&', $attr);
+                parse_str($attr, $attr);
+            }
+
             if (in_array($function, ['foreach', 'if', 'elseif', 'else'])) {
                 $function = $end
                     ? 'end' . $function . ';'
                     : $function . '(' . $attr . '):';
                 return '<?php ' . $function . '?>';
             } elseif (method_exists('\app\common\library\template\Tag', $function)) {
+                $tag = new \app\common\library\template\Tag($this->config);
                 return $tag->$function($attr, $_content);
             } elseif (class_exists('\extend\taglib\Tag' . ucfirst($function))) {
-                # code...
+                $namespace = '\extend\taglib\Tag' . ucfirst($function);
+                $tag = new $namespace($this->config);
+                return $tag->$function($attr, $_content);
             } else {
                 return $matches[0];
             }
@@ -304,7 +315,7 @@ class Parse
                 break;
 
             case 'taglib':
-                $regex = '(\/)?([\w\_]+)\s?([\w\d\.\$\(\)\!=<> ]+)?\s?\/?';
+                $regex = '(\/)?([\w\_]+)\s?([\w\d\.\$\(\)\!=<>"\' ]+)?\s?\/?';
                 break;
 
             case 'vars':

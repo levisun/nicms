@@ -41,7 +41,7 @@ class Throttle
         }
 
         if (Cache::has($request->ip() . 'lock')) {
-            $this->abort(Cache::get($request->ip() . 'lock'));
+            // $this->abort(Cache::get($request->ip() . 'lock'));
         }
 
         if (Cache::has($request->domain() . $request->ip() . 'login_lock')) {
@@ -50,8 +50,10 @@ class Throttle
 
         $response = $next($request);
 
-        $this->checkAnHourIpTotal($request, $response);
-        $this->checkAnMinuteUserTotal($request, $response);
+        if (200 === $response->getCode()) {
+            $this->checkAnHourIpTotal($request);
+            $this->checkAnMinuteUserTotal($request);
+        }
 
         return $response;
     }
@@ -63,12 +65,8 @@ class Throttle
      * @param  Response $_response
      * @return void
      */
-    private function checkAnMinuteUserTotal(Request $_request, Response $_response)
+    private function checkAnMinuteUserTotal(Request &$_request)
     {
-        if (200 !== $_response->getCode()) {
-            return;
-        }
-
         $cache_key = 'an minute total' . $_request->ip() . $_request->ext();
 
         if (!Cache::has($cache_key)) {
@@ -80,7 +78,7 @@ class Throttle
         $last_time = round($_request->time(true) - $last_time, 3);
 
         // 平均 n 秒一个请求
-        $rate = round(60 / 1200, 3);
+        $rate = round(60 / 600, 3);
         if (0 < $last_time && $last_time < $rate) {
             trace('lock' . $_request->ip() . ' ' . date('Y-m-d H:i:s') . ' ' . $last_time . '<' . $rate);
             Cache::set($_request->ip() . 'lock', date('Y-m-d H:i:s'), 1440);
@@ -94,12 +92,8 @@ class Throttle
      * @param  Response $_response
      * @return void
      */
-    private function checkAnHourIpTotal(Request $_request, Response $_response): void
+    private function checkAnHourIpTotal(Request &$_request): void
     {
-        if (200 !== $_response->getCode()) {
-            return;
-        }
-
         // 记录IP一小时访问总量
         $cache_key = 'an hour ip total' . $_request->ip();
         $total = 0;

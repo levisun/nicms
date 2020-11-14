@@ -1,9 +1,9 @@
 <div class="row">
-    {include file="sidebar.html"}
+    {include file="sidebar" /}
     <div id="list" class="col-md-9">
-        {include file="breadcrumb.html"}
+        {include file="breadcrumb" /}
         <div id="layout-details" class="card">
-            {tags:details /}
+            {details /}
             <div class="card-body">
                 <h3><a href="{$details.url}">{$details.title}</a></h3>
                 <p class="text-muted">

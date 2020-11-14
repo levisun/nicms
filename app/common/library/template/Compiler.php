@@ -41,7 +41,7 @@ class Compiler extends Parse
         $this->parse($_content);
 
         // 添加安全代码及模板引用记录
-        $_content = '<?php /*' . serialize($this->includeFile) . '*/ ?>' . "\n" . $_content;
+        $_content = '<?php /*' . serialize($this->includeFile) . '*/ ?>' . PHP_EOL . $_content;
         $this->includeFile = [];
 
         // 检测模板目录

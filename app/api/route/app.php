@@ -41,6 +41,9 @@ Route::group(function () {
     Route::get('pay/notify/:method$', 'pay.Notify/index');
 
 
+    Route::delete('handle$', 'Handle/remove');  // 操作接口
+    Route::patch('handle$', 'Handle/editor');   // 操作接口
+    Route::put('handle$', 'Handle/added');      // 操作接口
     Route::post('handle$', 'Handle/index');     // 操作接口
     Route::get('query$', 'Query/index');        // 请求接口
     Route::post('upload$', 'Upload/index');     // 上传接口
