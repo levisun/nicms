@@ -70,7 +70,7 @@ if (!function_exists('filepath_decode')) {
      */
     function filepath_decode(string $_file, bool $_abs = false): string
     {
-        $salt = date('Y') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $salt = date('Ymd') . bindec(Request::ip2bin(Request::ip())) . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         $salt = sha1($salt);
 
         $_file = $_file ? Base64::decrypt($_file, $salt) : '';
@@ -105,7 +105,7 @@ if (!function_exists('filepath_encode')) {
         $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
         $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
 
-        $salt = date('Y') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $salt = date('Ymd') . bindec(Request::ip2bin(Request::ip())) . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         $salt = sha1($salt);
 
         if (is_file($path . $_file)) {
@@ -241,6 +241,11 @@ if (!function_exists('miss')) {
             ? file_get_contents($file)
             : '<!DOCTYPE html><html lang="zh-cn"><head><meta charset="UTF-8"><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>' . $_code . '</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2 class="miss">o(╥﹏╥)o ' . $_code . '</h2></section></body></html>';
 
+            $content = Filter::symbol($content);
+            $content = Filter::space($content);
+            $content = Filter::php($content);
+            $content = Filter::fun($content);
+
         $return_url = '<script type="text/javascript">setTimeout(function(){location.href = "//' . Request::rootDomain() . '";},3000);</script>';
         $content = true === $_redirect ? str_replace('</body>', $return_url . '</body>', $content) : $content;
 
@@ -249,6 +254,20 @@ if (!function_exists('miss')) {
         }
 
         return $content;
+    }
+}
+
+if (!function_exists('url')) {
+    /**
+     * Url生成
+     * @param  string $_url  路由地址
+     * @param  array  $_vars 变量
+     * @return string
+     */
+    function url(string $_url = '', array $_vars = []): string
+    {
+        $_url = $_url ? '/' . trim($_url, '\/.') : '';
+        return (string) Route::buildUrl($_url, $_vars)->suffix(true)->domain(false);
     }
 }
 
@@ -297,19 +316,5 @@ if (!function_exists('root_path')) {
         $_path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_path);
         $_path = $_path ? $_path . DIRECTORY_SEPARATOR : '';
         return app()->getRootPath() . $_path;
-    }
-}
-
-if (!function_exists('url')) {
-    /**
-     * Url生成
-     * @param  string $_url  路由地址
-     * @param  array  $_vars 变量
-     * @return string
-     */
-    function url(string $_url = '', array $_vars = []): string
-    {
-        $_url = $_url ? '/' . trim($_url, '\/.') : '';
-        return (string) Route::buildUrl($_url, $_vars)->suffix(true)->domain(false);
     }
 }

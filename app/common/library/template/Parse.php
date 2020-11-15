@@ -97,8 +97,8 @@ class Parse
         $pattern = '/<script( type=["\']+.*?["\']+)?>(.*?)<\/script>/si';
         $_content = (string) preg_replace_callback($pattern, function ($matches) use (&$script) {
             $matches[2] = (string) preg_replace([
-                '/\/\/.*?(\r|\n)+/i',
-                '/\/\*.*?\*\//i',
+                '/[^:]\/\/ *.+\s+/i',
+                '/\/\*.*?\*\//s',
             ], '', $matches[2]);
             $script .= trim($matches[2]);
             return;
@@ -219,13 +219,14 @@ class Parse
 
         $_content = (string) preg_replace_callback($this->getRegex('taglib'), function ($matches) use (&$tag, &$_content) {
             $end = $matches[1] ? true : false;
+            $class = $matches[2] ? ucfirst(trim($matches[2], ':')) : 'Tag';
 
-            $function = trim($matches[2]);
+            $function = trim($matches[3]);
             $function = $end ? 'end' . ucfirst($function) : $function;
 
             $attr = [];
-            if (isset($matches[3])) {
-                $attr = trim($matches[3]);
+            if (isset($matches[4])) {
+                $attr = trim($matches[4]);
                 $attr = str_replace(['"', '\''], '', $attr);
                 $attr = str_replace(' ', '&', $attr);
                 parse_str($attr, $attr);
@@ -236,16 +237,20 @@ class Parse
                     ? 'end' . $function . ';'
                     : $function . '(' . $attr . '):';
                 return '<?php ' . $function . '?>';
-            } elseif (method_exists('\app\common\library\template\Tag', $function)) {
-                $tag = new \app\common\library\template\Tag($this->config);
-                return $tag->$function($attr, $_content);
-            } elseif (class_exists('\extend\taglib\Tag' . ucfirst($function))) {
-                $namespace = '\extend\taglib\Tag' . ucfirst($function);
+            }
+
+            if (class_exists('\app\common\library\template\\' . $class)) {
+                $namespace = '\app\common\library\template\\' . $class;
+            } elseif (class_exists('\extend\taglib\\' . $class)) {
+                $namespace = '\extend\taglib\\' . $class;
+            }
+
+            if (isset($namespace) && method_exists($namespace, $function)) {
                 $tag = new $namespace($this->config);
                 return $tag->$function($attr, $_content);
-            } else {
-                return $matches[0];
             }
+
+            return $matches[0];
         }, trim($_content));
     }
 
@@ -316,6 +321,7 @@ class Parse
 
             case 'taglib':
                 $regex = '(\/)?([\w\_]+)\s?([\w\d\.\$\(\)\!=<>"\' ]+)?\s?\/?';
+                $regex = '(\/)?([\w]+:)?([\w\_]+)\s?([\w\d\.\$\(\)\!=<>"\' ]+)?\s?\/?';
                 break;
 
             case 'vars':

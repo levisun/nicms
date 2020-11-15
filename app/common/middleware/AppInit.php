@@ -34,12 +34,13 @@ class AppInit
 
     public function handle(Request $request, Closure $next)
     {
-        # TODO
+        // IP进入显示空页面
+        $has = !$request->rootDomain() || $request->isValidIP($request->host(true), 'ipv4') || $request->isValidIP($request->host(true), 'ipv6');
+        if ($has) {
+            miss(404, false, true);
+        }
 
         $response = $next($request);
-
-        // 纪念日全网灰色
-        // -webkit-filter:grayscale(100%);
 
         $authorization = (string) (new Builder)
             // 签发者

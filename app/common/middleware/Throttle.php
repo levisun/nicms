@@ -35,11 +35,6 @@ class Throttle
      */
     public function handle(Request $request, Closure $next)
     {
-        // IP进入显示空页面
-        if ($request->isValidIP($request->host(true), 'ipv4') || $request->isValidIP($request->host(true), 'ipv6')) {
-            miss(404, false, true);
-        }
-
         if (Cache::has($request->ip() . 'lock')) {
             // $this->abort(Cache::get($request->ip() . 'lock'));
         }

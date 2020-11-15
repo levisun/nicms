@@ -205,7 +205,7 @@ class Tag
         $meta = '';
         if (!empty($this->config['theme_config']['meta'])) {
             foreach ($this->config['theme_config']['meta'] as $value) {
-                $meta .= str_replace('\'', '"', $value) . PHP_EOL;
+                $meta .= str_replace('\'', '"', $value);
             }
         }
 
@@ -213,13 +213,13 @@ class Tag
         if (!empty($this->config['theme_config']['js'])) {
             foreach ($this->config['theme_config']['js'] as $js) {
                 $js = preg_replace('/ {2,}/si', '', $js);
-                $link .= str_replace('\'', '"', $js) . PHP_EOL;
+                $link .= str_replace('\'', '"', $js);
             }
         }
         if (!empty($this->config['theme_config']['link'])) {
             foreach ($this->config['theme_config']['link'] as $value) {
                 $value = preg_replace('/ {2,}/si', '', $value);
-                $link .= str_replace('\'', '"', $value) . PHP_EOL;
+                $link .= str_replace('\'', '"', $value);
 
                 // $value = false === stripos($value, 'preload') && false === stripos($value, 'prefetch')
                 // ? str_replace('rel="', 'as="style" rel="preload ', $value)
@@ -265,7 +265,9 @@ class Tag
             $meta . $link .
             '<style type="text/css">body{moz-user-select:-moz-none;-moz-user-select:none;-o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;}</style>' .
             '<script type="text/javascript">const NICMS = {domain:"//"+window.location.host+"/",rootDomain:"//"+window.location.host.substr(window.location.host.indexOf(".")+1)+"/",url:"//"+window.location.host+window.location.pathname+window.location.search,api_uri:"__API_HOST__",param:' . json_encode(app("request")->param()) . '};</script>' .
-            '<script src="__API_HOST__tools/ip.do" async></script>' .
+
+            '<script src="__API_HOST__tools/ip.do?token=' . md5(request()->url(true)) . '" async></script>' .
+            ('admin' !== app('http')->getName() ? '<script src="__API_HOST__tools/record.do?token=' . md5(request()->url(true)) . '" async></script>' : '') .
 
             '</head>' . (stripos($_content, '<body') ? '' : '<body>');
     }
