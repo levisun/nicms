@@ -1,5 +1,17 @@
 <?php
 
+/**
+ *
+ * 模板默认标签库
+ *
+ * @package   NICMS
+ * @category  app\common\library\template
+ * @author    失眠小枕头 [312630173@qq.com]
+ * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
+ * @link      www.NiPHP.com
+ * @since     2020
+ */
+
 declare(strict_types=1);
 
 namespace app\common\library\template;
@@ -46,18 +58,18 @@ class Tag
                 ->where("article.delete_time", "=", 0)
                 ->where("article.show_time", "<", time())
                 ->where("article.lang", "=", app("lang")->getLangSet())';
-                if (isset($_attr['cid'])) {
-                    $child = app('\app\cms\logic\article\Category')->child($_attr["cid"]);
-                    $parseStr .= '->where("article.category_id", "in", "' . implode(',', $child) . '")';
-                }
-                if ($_attr['attribute']) {
-                    $parseStr .= '->where("article.attribute", "=", "' . $_attr['attribute'] . '")';
-                }
+            if (isset($_attr['cid'])) {
+                $child = app('\app\cms\logic\article\Category')->child($_attr["cid"]);
+                $parseStr .= '->where("article.category_id", "in", "' . implode(',', $child) . '")';
+            }
+            if ($_attr['attribute']) {
+                $parseStr .= '->where("article.attribute", "=", "' . $_attr['attribute'] . '")';
+            }
 
-                if (isset($_attr['tid'])) {
-                    $parseStr .= '->where("article.type_id", "=", "' . $_attr['tid'] . '")';
-                }
-                $parseStr .= '
+            if (isset($_attr['tid'])) {
+                $parseStr .= '->where("article.type_id", "=", "' . $_attr['tid'] . '")';
+            }
+            $parseStr .= '
                 ])
                 ->order("' . $sort_order . '")
                 ->paginate([

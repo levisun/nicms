@@ -19,10 +19,10 @@ Route::miss(function () {
 
 Route::group(function () {
     Route::get('/$', function () {
-        return redirect(url('account/user/login'), 302);
+        return redirect(url('account/user/login'), 301);
     });
     Route::get('index$', function () {
-        return redirect('/', 302);
+        return redirect('/', 301);
     });
 
     Route::get(':logic/:action/:method/[:id]$', 'Index/index');

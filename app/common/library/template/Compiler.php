@@ -1,5 +1,17 @@
 <?php
 
+/**
+ *
+ * 模板编译类
+ *
+ * @package   NICMS
+ * @category  app\common\library\template
+ * @author    失眠小枕头 [312630173@qq.com]
+ * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
+ * @link      www.NiPHP.com
+ * @since     2020
+ */
+
 declare(strict_types=1);
 
 namespace app\common\library\template;
@@ -11,7 +23,7 @@ class Compiler extends Parse
 {
 
     /**
-     * 读取编译编译
+     * 读取编译
      * @access public
      * @param  string  $_compiler_file 缓存的文件名
      * @param  array   $_vars 变量数组

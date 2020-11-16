@@ -1,5 +1,17 @@
 <?php
 
+/**
+ *
+ * 模板解析类
+ *
+ * @package   NICMS
+ * @category  app\common\library\template
+ * @author    失眠小枕头 [312630173@qq.com]
+ * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
+ * @link      www.NiPHP.com
+ * @since     2020
+ */
+
 declare(strict_types=1);
 
 namespace app\common\library\template;
@@ -86,6 +98,18 @@ class Parse
      */
     protected function parseScript(string &$_content): void
     {
+        $style = '';
+        $pattern = '/<style( type=["\']+.*?["\']+)?>(.*?)<\/style>/si';
+        $_content = (string) preg_replace_callback($pattern, function ($matches) use (&$style) {
+            $matches[2] = (string) preg_replace([
+                '/[^:]\/\/ *.+\s+/i',
+                '/\/\*.*?\*\//s',
+            ], '', $matches[2]);
+            $style .= trim($matches[2]);
+            return;
+        }, $_content);
+        $_content = str_replace('</head>', '<style type="text/css">' . $style . '</style></head>', $_content);
+
         $files = '';
         $pattern = '/<script[^<>]+src=["\']+([^<> ]+)["\']+([^<>]*)><\/script>/si';
         $_content = (string) preg_replace_callback($pattern, function ($matches) use (&$files) {
@@ -149,6 +173,7 @@ class Parse
                 case 'get':
                     $var_type = '';
                 case 'post':
+                case 'param':
                 case 'cookie':
                     $var_type = $var_type ? $var_type . '.' : '';
                     $vars = 'input(\'' . $var_type . $var_name . '\')';
@@ -320,7 +345,6 @@ class Parse
                 break;
 
             case 'taglib':
-                $regex = '(\/)?([\w\_]+)\s?([\w\d\.\$\(\)\!=<>"\' ]+)?\s?\/?';
                 $regex = '(\/)?([\w]+:)?([\w\_]+)\s?([\w\d\.\$\(\)\!=<>"\' ]+)?\s?\/?';
                 break;
 

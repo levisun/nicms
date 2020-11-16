@@ -36,7 +36,7 @@ class Throttle
     public function handle(Request $request, Closure $next)
     {
         if (Cache::has($request->ip() . 'lock')) {
-            // $this->abort(Cache::get($request->ip() . 'lock'));
+            $this->abort(Cache::get($request->ip() . 'lock'));
         }
 
         if (Cache::has($request->domain() . $request->ip() . 'login_lock')) {
@@ -70,13 +70,13 @@ class Throttle
         }
 
         $last_time = (float) Cache::get($cache_key);
-        $last_time = round($_request->time(true) - $last_time, 3);
+        $last_time = round($_request->time(true) - $last_time, 2);
 
         // 平均 n 秒一个请求
         $rate = round(60 / 600, 3);
-        if (0 < $last_time && $last_time < $rate) {
-            trace('lock' . $_request->ip() . ' ' . date('Y-m-d H:i:s') . ' ' . $last_time . '<' . $rate);
-            Cache::set($_request->ip() . 'lock', date('Y-m-d H:i:s'), 1440);
+        if (!!$last_time && $last_time < $rate) {
+            trace('lock IR:' . $_request->ip() . ' ' . date('Y-m-d H:i:s') . ' ' . $last_time . '<' . $rate);
+            Cache::set($_request->ip() . 'lock', 'UR', 1440);
         }
     }
 
@@ -102,7 +102,8 @@ class Throttle
 
         // IP一小时访问超过一定数量锁定
         if (1000 <= $total) {
-            Cache::set($_request->ip() . 'lock', 'IP:' . date('Y-m-d H:i:s'), 1440);
+            trace('lock IR:' . $_request->ip() . ' ' . date('Y-m-d H:i:s'));
+            Cache::set($_request->ip() . 'lock', 'IR', 1440);
         }
     }
 
@@ -115,7 +116,7 @@ class Throttle
     private function abort(string $_msg = '')
     {
         $_msg = $_msg ? '<p>' . $_msg . '</p>' : '';
-        $content = '<!DOCTYPE html><html lang="zh-cn"><head><meta charset="UTF-8" /><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>请勿频繁操作</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2 class="miss">o(╥﹏╥)o 请勿频繁操作</h2>' . $_msg . '<p>' . date('Y-m-d H:i:s') . '</p></section></body></html>';
+        $content = '<!DOCTYPE html><html lang="zh-cn"><head><meta charset="UTF-8" /><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>请勿频繁操作</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2 class="miss">o(╥﹏╥)o 请勿频繁操作</h2>' . $_msg . '</section></body></html>';
         throw new HttpResponseException(Response::create($content, 'html')->allowCache(true));
     }
 }

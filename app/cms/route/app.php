@@ -18,7 +18,7 @@ use think\facade\Route;
  */
 Route::domain(['cdn', 'img'], function () {
     Route::miss(function () {
-        return redirect(request()->scheme() . '://' . request()->rootDomain(), 302);
+        return redirect(request()->scheme() . '://' . request()->rootDomain(), 301);
     });
 });
 
@@ -30,7 +30,7 @@ Route::group(function () {
     // 首页
     Route::get('/$', 'index');
     Route::get('index$', function () {
-        return redirect('/', 302);
+        return redirect('/', 301);
     });
 
     // 列表页

@@ -120,12 +120,8 @@ abstract class BaseLogic
         @ini_set('max_execution_time', '30');
         @ini_set('memory_limit', '16M');
 
-        // 设置会话信息(用户ID,用户组)
-        if ($this->session->has($this->authKey) && $this->session->has($this->authKey . '_role')) {
-            $this->user_id = (int) $this->session->get($this->authKey);
-            $this->user_role_id = (int) $this->session->get($this->authKey . '_role');
-            $this->user_type = $this->authKey == 'user_auth_key' ? 'user' : 'admin';
-        }
+        // 用户会话信息(用户ID,用户组)
+        $this->getUserSession();
 
         $this->initialize();
     }
@@ -137,6 +133,48 @@ abstract class BaseLogic
      */
     protected function initialize()
     {
+    }
+
+    /**
+     * 设置用户会话信息
+     * @access protected
+     * @param  int    $_id
+     * @param  int    $_role
+     * @param  string $_type
+     * @return array
+     */
+    protected function setUserSession(int $_id, int $_role, string $_type = '')
+    {
+        $this->session->set($this->authKey, $_id);
+        $this->session->set($this->authKey . '_role', $_role);
+
+        if (!$_type) {
+            $_type = $this->authKey == 'user_auth_key' ? 'user' : 'admin';
+        }
+
+        $this->session->set($this->authKey . '_type', $_type);
+
+        $this->getUserSession();
+    }
+
+    /**
+     * 获得用户会话信息
+     * @access protected
+     * @return array
+     */
+    protected function getUserSession(): array
+    {
+        if ($this->session->has($this->authKey) && $this->session->has($this->authKey . '_role')) {
+            $this->user_id = (int) $this->session->get($this->authKey);
+            $this->user_role_id = (int) $this->session->get($this->authKey . '_role');
+            $this->user_type = $this->session->get($this->authKey . '_type');
+        }
+
+        return [
+            'user_id'      => $this->user_id,
+            'user_role_id' => $this->user_role_id,
+            'user_type'    => $this->user_type,
+        ];
     }
 
     /**
@@ -167,12 +205,12 @@ abstract class BaseLogic
 
         // 写入操作日志
         ModelActionLog::create([
-                'action_id' => $has['id'],
-                'user_id'   => $this->user_id,
-                'action_ip' => $this->request->ip(),
-                'module'    => 'admin',
-                'remark'    => $_write_log,
-            ]);
+            'action_id' => $has['id'],
+            'user_id'   => $this->user_id,
+            'action_ip' => $this->request->ip(),
+            'module'    => 'admin',
+            'remark'    => $_write_log,
+        ]);
 
         // 删除过期日志
         if (1 === mt_rand(1, 100)) {

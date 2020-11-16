@@ -14,7 +14,7 @@
 use think\facade\Route;
 
 Route::miss(function () {
-    return redirect(request()->scheme() . '://' . request()->rootDomain(), 302);
+    return redirect(request()->scheme() . '://' . request()->rootDomain(), 301);
 });
 
 Route::group(function () {

@@ -21,7 +21,7 @@ Route::group(function () {
     // 首页
     Route::get('/$', 'Index/index');
     Route::get('index$', function () {
-        return redirect('/', 302);
+        return redirect('/', 301);
     });
 
 

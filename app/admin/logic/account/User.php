@@ -101,13 +101,9 @@ class User extends BaseLogic
         }
 
         // 登录令牌
-        $this->session->set($this->authKey, $user['id']);
-        $this->session->set($this->authKey . '_role', $user['role_id']);
         $this->session->delete('login_lock');
+        $this->setUserSession($user['id'], $user['role_id'], 'admin');
 
-        $this->user_id = $user['id'];
-        $this->user_role_id = $user['role_id'];
-        $this->user_type = 'admin';
         $this->actionLog('admin user login');
 
         unset($user['password']);
