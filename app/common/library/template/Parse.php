@@ -111,7 +111,7 @@ class Parse
         $_content = str_replace('</head>', '<style type="text/css">' . $style . '</style></head>', $_content);
 
         $files = '';
-        $pattern = '/<script[^<>]+src=["\']+([^<> ]+)["\']+([^<>]*)><\/script>/si';
+        $pattern = '/<script[^<>]+src=["\']+(.+)["\']+([^<>]*)><\/script>/si';
         $_content = (string) preg_replace_callback($pattern, function ($matches) use (&$files) {
             $files .= '<script src="' . $matches[1] . '" ' . trim($matches[2]) . '></script>';
             return;
@@ -121,7 +121,7 @@ class Parse
         $pattern = '/<script( type=["\']+.*?["\']+)?>(.*?)<\/script>/si';
         $_content = (string) preg_replace_callback($pattern, function ($matches) use (&$script) {
             $matches[2] = (string) preg_replace([
-                '/[^:]\/\/ *.+\s+/i',
+                '/[^:"\']\/\/ *.+\s+/i',
                 '/\/\*.*?\*\//s',
             ], '', $matches[2]);
             $script .= trim($matches[2]);

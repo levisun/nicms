@@ -34,13 +34,6 @@ class Catalog extends BaseLogic
     public function query(): array
     {
         $book_id = $this->request->param('id', 0, '\app\common\library\Base64::url62decode');
-        $map = [
-            ['is_pass', '=', '1'],
-            ['delete_time', '=', '0'],
-            ['show_time', '<', time()],
-            // 安书籍查询
-            ['book_id', '=', $book_id]
-        ];
 
         $query_limit = $this->request->param('limit/d', 20, 'abs');
         $query_page = $this->request->param('page/d', 1, 'abs');
@@ -49,7 +42,7 @@ class Catalog extends BaseLogic
 
         $cache_key = 'book article list' . $book_id . $query_limit . $query_page . $date_format;
 
-        if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
+        if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
             // 书籍信息
             $book = (new ModelBook)
                 ->view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'image', 'hits', 'origin', 'status', 'update_time'])
@@ -67,7 +60,13 @@ class Catalog extends BaseLogic
 
                 // 书籍章节
                 $result = ModelBookArticle::field(['id', 'book_id', 'title', 'update_time'])
-                    ->where($map)
+                    ->where([
+                        ['is_pass', '=', '1'],
+                        ['delete_time', '=', '0'],
+                        ['show_time', '<', time()],
+                        // 安书籍查询
+                        ['book_id', '=', $book_id]
+                    ])
                     ->order($sort_order)
                     ->paginate([
                         'list_rows' => $query_limit,

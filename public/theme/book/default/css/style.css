@@ -1,8 +1,18 @@
 body {
     background-color: #f6f1e7;
 }
+.pagination li {
+    padding: 12px;
+}
 #content {
+    color: #595959;
+    letter-spacing: 1px;
+    word-spacing: .1em;
+    word-wrap: break-word;
+    word-break: break-all;
     font-size: 1.3rem;
+    font-family: Raleway,Arial,"Microsoft YaHei",sans-serif;
+
     background-color: #f6f1e7;
     padding-top: 20px;
     padding-bottom: 20px;
