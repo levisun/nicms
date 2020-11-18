@@ -97,6 +97,8 @@ class Article extends BaseLogic
         if ($result && $result = $result->toArray()) {
             $result['url'] = url('article/' . Base64::url62encode($result['book_id']) . '/' . Base64::url62encode($result['id']));
             $result['cat_url'] = url('list/' . Base64::url62encode($result['book_id']));
+            $result['id'] = Base64::url62encode($result['id']);
+            $result['book_id'] = Base64::url62encode($result['book_id']);
         } else {
             $result = [
                 'title'   => $this->lang->get('not next'),
@@ -134,6 +136,8 @@ class Article extends BaseLogic
         if ($result && $result = $result->toArray()) {
             $result['url'] = url('article/' . Base64::url62encode($result['book_id']) . '/' . Base64::url62encode($result['id']));
             $result['cat_url'] = url('list/' . Base64::url62encode($result['book_id']));
+            $result['id'] = Base64::url62encode($result['id']);
+            $result['book_id'] = Base64::url62encode($result['book_id']);
         } else {
             $result = [
                 'title'   => $this->lang->get('not next'),

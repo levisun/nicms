@@ -58,7 +58,7 @@ class Index extends BaseController
      */
     public function book()
     {
-        return $this->fetch('list');
+        return $this->fetch('book_article_list');
     }
 
     /**
@@ -68,7 +68,7 @@ class Index extends BaseController
      */
     public function article()
     {
-        return $this->fetch('article');
+        return $this->fetch('book_article');
     }
 
     /**

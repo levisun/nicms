@@ -7,13 +7,13 @@
 
     <div class="row">
         <div class="col">
-            <a v-if="items.prev" v-bind:href="items.prev.url">上一页</a>
+            <a v-if="items.prev" v-bind:href="items.prev.url">{:lang('prev')}</a>
         </div>
         <div class="col" style="text-align: center;">
-            <a v-bind:href="items.cat_url">目录</a>
+            <a v-bind:href="items.cat_url">{:lang('index')}</a>
         </div>
         <div class="col" style="text-align: right;">
-            <a v-if="items.next" v-bind:href="items.next.url">下一页</a>
+            <a v-if="items.next" v-bind:href="items.next.url">{:lang('next')}</a>
         </div>
     </div>
 
@@ -25,13 +25,13 @@
 
     <div class="row">
         <div class="col">
-            <a v-if="items.prev" v-bind:href="items.prev.url">上一页</a>
+            <a v-if="items.prev" v-on:click="prevOrNext(items.prev.id)">{:lang('prev')}</a>
         </div>
         <div class="col" style="text-align: center;">
-            <a v-bind:href="items.cat_url">目录</a>
+            <a v-bind:href="items.cat_url">{:lang('index')}</a>
         </div>
         <div class="col" style="text-align: right;">
-            <a v-if="items.next" v-bind:href="items.next.url">下一页</a>
+            <a v-if="items.next" v-on:click="prevOrNext(items.next.id)">{:lang('next')}</a>
         </div>
     </div>
 </div>
@@ -44,6 +44,23 @@
             items: []
         },
         methods: {
+            prevOrNext: function (_id) {
+                jQuery.pjax({
+                    url: NICMS.api_uri + '/query.do',
+                    type: 'GET',
+                    push: true,
+                    requestUrl: NICMS.domain + 'article/' + NICMS.param.book_id + '/' + _id + '.html',
+                    data: [
+                        { name: 'method', value: 'book.article.query' },
+                        { name: 'id', value: _id },
+                        { name: 'book_id', value: NICMS.param.book_id },
+                    ],
+                    success: function (result) {
+                        jQuery("html,body").animate({ scrollTop: 0 }, 100);
+                        article.items = result.data;
+                    }
+                });
+            },
             load: function () {
                 jQuery.pjax({
                     url: NICMS.api_uri + '/query.do',

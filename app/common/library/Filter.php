@@ -215,7 +215,8 @@ class Filter
      */
     public static function html_attr(string &$_str): string
     {
-        // [ onclick="alert(1)" onload=eval(ssltest.title) data-d={1:\'12 3213\',22=2:\' dabdd\'} ]在做修改时,请保证括号内代码成功过滤!有新结构体,请追加在括号内!
+        // 做修改时,请保证括号内代码成功过滤!有新结构体,请追加在括号内!
+        // [ onclick="alert(1)" onload=eval(ssltest.title) data-d={1:\'12 3213\',22=2:\' dabdd\'} ]
 
         return (string) preg_replace_callback('/(<\/?[\w\d!]+)([\w\d\- ]+=[^>]*)/si', function ($attr) {
             $attr = array_map('trim', $attr);

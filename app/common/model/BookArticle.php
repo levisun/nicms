@@ -47,6 +47,7 @@ class BookArticle extends Model
     protected $autoWriteTimestamp = true;
     protected $updateTime = 'update_time';
     protected $deleteTime = 'delete_time';
+    protected $dateFormat = false;
     protected $defaultSoftDelete = 0;
     protected $pk = 'id';
     protected $type = [

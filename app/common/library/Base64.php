@@ -129,10 +129,12 @@ class Base64
         $base62 = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $encode = '';
         $_number += 1000;
-        while($_number > 0) {
-            if ($mod = bcmod((string) $_number, '62')) {
+        $_number = (string) $_number;
+        while ($_number > 0) {
+            $mod = bcmod($_number, '62');
+            if (null !== $mod) {
                 $encode .= $base62[$mod];
-                $_number = bcdiv((string) bcsub((string) $_number, $mod), '62');
+                $_number = bcdiv(bcsub($_number, $mod), '62');
             }
         }
 
@@ -153,8 +155,8 @@ class Base64
         $arr = array_flip(str_split($base62));
 
         $number = '';
-        for($i = 0; $i < $len; $i ++) {
-            $number = bcadd((string) $number, bcmul((string) $arr[$_encode[$i]], bcpow('62', (string) ($len - $i - 1) )));
+        for ($i = 0; $i < $len; $i++) {
+            $number = bcadd($number, bcmul((string) $arr[$_encode[$i]], bcpow('62', (string) ($len - $i - 1))));
         }
 
         return abs($number - 1000);

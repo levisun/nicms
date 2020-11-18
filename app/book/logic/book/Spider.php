@@ -20,22 +20,16 @@ class Spider extends BaseLogic
         ignore_user_abort(false);
     }
 
-    public function JXBookAdded(string $_uri)
+    public function jxbookadded(string $_uri)
     {
-        $spider = new LibSpider;
-        $spider->request('GET', $this->bookURI . $_uri);
-        $title = $spider->fetch('div#info h1');
-        $title = Filter::safe($title[0]);
-
-        $author = $spider->fetch('div#info p');
-        $author = substr($author[0], strpos($author[0], ':') + 1);
-        $author = Filter::safe($author);
-
-        $keywords = $title . ',' . $author;
-        $description = $title . '最新章节由网友提供，《' . $title . '》情节跌宕起伏、扣人心弦，是一本情节与文笔俱佳的小说，免费提供' . $title . '最新清爽干净的文字章节在线阅读。';
-
-        $has = ModelBook::where('origin', '=', $_uri)->value('id');
+        $has = ModelBook::where('origin', '=', $this->bookURI . $_uri)->value('id');
         if (!$has) {
+            $spider = new LibSpider;
+
+            $author = $spider->request('GET', $this->bookURI . $_uri)->fetch('div#info p');
+            $author = substr($author[0], strpos($author[0], ':') + 1);
+            $author = Filter::safe($author);
+
             $book_author = new ModelBookAuthor;
             $author_id = $book_author->where('author', '=', $author)->value('id');
             if (!$author_id) {
@@ -45,11 +39,17 @@ class Spider extends BaseLogic
                 $author_id = $book_author->id;
             }
 
+            $title = $spider->request('GET', $this->bookURI . $_uri)->fetch('div#info h1');
+            $title = Filter::safe($title[0]);
+
+            $keywords = $title . ',' . $author;
+            $description = $title . '最新章节由网友提供，《' . $title . '》情节跌宕起伏、扣人心弦，是一本情节与文笔俱佳的小说，免费提供' . $title . '最新清爽干净的文字章节在线阅读。';
+
             ModelBook::create([
                 'title'       => $title,
                 'keywords'    => $keywords,
                 'description' => $description,
-                'origin'      => $_uri,
+                'origin'      => $this->bookURI . $_uri,
                 'author_id'   => $author_id,
                 'is_pass'     => 1,
             ]);
@@ -65,8 +65,7 @@ class Spider extends BaseLogic
 
             @set_time_limit(0);
 
-            $spider->request('GET', $origin);
-            $links = $spider->fetch('dd');
+            $links = $spider->request('GET', $origin)->fetch('dd');
 
             $count = ModelBookArticle::where('book_id', '=', $book_id)->count();
             if (count($links) <= $count) {

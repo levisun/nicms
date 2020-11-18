@@ -1,5 +1,10 @@
 body {
-    background-color: #f6f1e7;
+    background-color: #333;
+    color: #595959;
+}
+body a,
+body a:hover {
+    color: #595959;
 }
 .pagination li {
     padding: 12px;
@@ -13,10 +18,10 @@ body {
     font-size: 1.3rem;
     font-family: Raleway,Arial,"Microsoft YaHei",sans-serif;
 
-    background-color: #f6f1e7;
     padding-top: 20px;
     padding-bottom: 20px;
 }
+
 #content p {
     text-indent: 3rem;
 }

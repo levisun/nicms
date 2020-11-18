@@ -72,6 +72,7 @@ class Catalog extends BaseLogic
                         'list_rows' => $query_limit,
                         'path' => 'javascript:paging([PAGE]);',
                     ]);
+
                 if ($result && $list = $result->toArray()) {
                     $list['render'] = $result->render();
                     $list['total'] = number_format($list['total']);
@@ -89,7 +90,6 @@ class Catalog extends BaseLogic
                     }
 
                     $list['book'] = $book;
-
                     $this->cache->tag(['book', 'book article list' . $book_id])->set($cache_key, $list);
                 }
             }

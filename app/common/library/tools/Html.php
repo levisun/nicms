@@ -25,43 +25,34 @@ class Html
         $this->xml = $_html;
     }
 
-    /**
-     * 获得内容
-     * @access public
-     * @return string
-     */
-    public function content(int $_length = 0): string
+    public function article(int $_length = 0)
     {
         $content = '';
-        preg_replace_callback('/<body[^<>]*>(.*?)<\/body>/si', function ($body) use (&$content, &$_length) {
+
+        $regex = '/<body[^<>]*>(.*?)<\/body>/si';
+        preg_replace_callback($regex, function ($body) use (&$content, &$_length) {
             $body = trim($body[1]);
 
-            // 过滤脚本,样式,a标签和ul标签
-            $body = (string) preg_replace([
-                '/<script.*?\/script>/si',
-                '/<style.*?\/style>/si',
-                '/<a.*?\/a>/si',
-                '/<ul.*?\/ul>/si',
-                '/<ol.*?\/ol>/si',
-                '/[|]+/si',
-            ], '', $body);
-
-            // 过滤Emoji
-            $body = (string) preg_replace_callback('/./u', function (array $matches) {
-                return strlen($matches[0]) >= 4 ? '' : $matches[0];
-            }, $body);
-
-            // 过滤空格回车等
-            $body = (string) str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($body));
-            $body = (string) json_decode($body);
+            // 过滤有害标签及内容
             $pattern = [
-                '/>\s+</'                 => '><',
-                '/>\s+/'                  => '>',
-                '/\s+</'                  => '<',
-                '/　/si'                  => ' ',
-                '/ {2,}/si'               => ' ',
+                '/<script[^<>]*>.*?<\/script>/si',
+                '/<style[^<>]*>.*?<\/style>/si',
+                '/<ul[^<>]*>.*?<\/ul>/si',
+                '/<ol[^<>]*>.*?<\/ol>/si',
+                '/<a[^<>]*>/si',
+                '/<\/a>/si',
             ];
-            $body = (string) preg_replace(array_keys($pattern), array_values($pattern), $body);
+            $body = preg_replace($pattern, '', $body);
+
+            $pattern = [
+                '/>\s+/' => '>',
+                '/\s+</' => '<',
+                '/　/si' => ' ',
+                '/ {2,}/si' => ' ',
+                '/<article/si' => '<div',
+                '/(\x{00a0}|\x{0020}|\x{3000}|\x{feff})/u' => ' ',
+            ];
+            $body = preg_replace(array_keys($pattern), array_values($pattern), $body);
 
             // 清除多余标签
             $body = (string) preg_replace_callback('/<\/?([\w]+)([^<>]*)>/si', function ($ele) {
@@ -83,105 +74,17 @@ class Html
 
             // 替换图片
             $body = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) {
-                return '[TAG:img_src=' . trim($img[1], '"\'') . ']';
+                return '{TAG:img_src=' . trim($img[1], '"\'') . '}';
             }, $body);
 
             // 替换表格
             $body = preg_replace_callback('/<table[^<>]*>(.*?)<\/table[^<>]*>/si', function ($table) {
                 $table[1] = strip_tags($table[1], '<tr><td><th><br><p>');
                 $table[1] = preg_replace_callback('/<(\/)?(tr|td|th)>/si', function ($tr) {
-                    return '[TAG:' . $tr[1] . $tr[2] . ']';
+                    return '{TAG:' . $tr[1] . $tr[2] . '}';
                 }, $table[1]);
-                return '[TAG:table]' . $table[1] . '[TAG:/table]';
+                return '{TAG:table}' . $table[1] . '{TAG:/table}';
             }, $body);
-
-            // 清除无用标签
-            $body = preg_replace([
-                '/<span>[\d]{4,}<\/span>/si',
-                '/<\/?span>/si',
-            ], '', $body);
-
-            // 标签转回车
-            $body = str_ireplace(['<p>', '</p>', '<br>', '<br />', '<br/>'], PHP_EOL, $body);
-
-            halt($body);
-
-            // 过滤脚本,样式,a标签和ul标签
-            // 过滤空格回车等
-            $pattern = [
-                '/<script.*?\/script>/si' => '',
-                '/<style.*?\/style>/si'   => '',
-                '/<a.*?\/a>/si'           => '',
-                '/<ul.*?\/ul>/si'         => '',
-                '/<ol.*?\/ol>/si'         => '',
-                '/>\s+</'                 => '><',
-                '/>\s+/'                  => '>',
-                '/\s+</'                  => '<',
-                '/　/si'                  => ' ',
-                '/ {2,}/si'               => ' ',
-
-
-                // 清除日期和时间
-                '/[\d]{2,4}[\-\/\.]+[\d]{1,2}[\-\/\.]+[\d]{1,2}/si' => '',
-                '/[\d]{1,2}:[\d]{1,2}:[\d]{1,2}/si' => '',
-                '/[\d]{1,2}:[\d]{1,2}/si' => '',
-
-                '/[\d]{4}[\x{4e00}-\x{9fa5}]{1}[\d]{2}[\x{4e00}-\x{9fa5}]{1}[\d]{2}[\x{4e00}-\x{9fa5}]{1}/u' => '',
-
-                // 清除电话
-                '/[\d]{11}+/si' => '',
-                '/[\d]{3}-[\d]{3,4}-[\d]{3,4}+/si' => '',
-                '/[\d]{3,4}-[\d]{8}/si' => '',
-
-
-                '/[a-zA-Z0-9]{20,}/si' => '',
-                '/[|]+/si' => '',
-            ];
-            $body = (string) preg_replace(array_keys($pattern), array_values($pattern), $body);
-
-            // 替换article标签为div
-            $body = str_replace('article', 'div', $body);
-
-            // 清除多余标签
-            $body = strip_tags($body, '<div><p><br><span><img><table><tr><td><th>');
-
-            // 替换图片
-            $body = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) {
-                return '[TAG:img_src=' . trim($img[1], '"\'') . ']';
-            }, $body);
-
-            // 过滤属性
-            $body = preg_replace_callback('/(<[\w\d!]+)([\w\d\- ]+=[^>]*)/si', function ($attr) {
-                return $attr[1];
-            }, $body);
-
-            // 替换表格
-            $body = preg_replace_callback('/<table[^<>]*>(.*?)<\/table[^<>]*>/si', function ($table) {
-                $table[1] = strip_tags($table[1], '<tr><td><th><br><p>');
-                $table[1] = preg_replace_callback('/<(\/)?(tr|td|th)>/si', function ($tr) {
-                    return '[TAG:' . $tr[1] . $tr[2] . ']';
-                }, $table[1]);
-                return '[TAG:table]' . $table[1] . '[TAG:/table]';
-            }, $body);
-
-            // 清除无用标签
-            $body = preg_replace([
-                '/<span>[\d]{4,}<\/span>/si',
-                '/<\/?span>/si',
-            ], '', $body);
-            while (preg_match('/<div[^<>]*><div/si', $body)) {
-                $body = preg_replace('/<div[^<>]*><div/si', '<div', $body);
-            }
-            while (preg_match('/<div[^<>]*><\/div>/si', $body)) {
-                $body = preg_replace('/<div[^<>]*><\/div>/si', '', $body);
-            }
-            while (preg_match('/<\/div><\/div>/si', $body)) {
-                $body = preg_replace('/<\/div><\/div>/si', '</div>', $body);
-            }
-            // 清除空格
-            // while (preg_match('/<[\w\d!]+>\s?<\/[\w\d!]+>/si', $body)) {
-            //     $body = preg_replace('/<[\w\d!]+>\s?<\/[\w\d!]+>/si', '', $body);
-            // }
 
             // 标签转回车
             $body = str_ireplace(['<p>', '</p>', '<br>', '<br />', '<br/>'], PHP_EOL, $body);
@@ -197,7 +100,7 @@ class Html
 
                 // 截取
                 if ($_length && $_length < mb_strlen($content, 'utf-8')) {
-                    if ($position = mb_strpos($content, '[TAG:/table]', $_length, 'utf-8')) {
+                    if ($position = mb_strpos($content, '{TAG:/table}', $_length, 'utf-8')) {
                         $content = mb_substr($content, 0, $position + 12, 'utf-8');
                     } elseif ($position = mb_strpos($content, '。', $_length, 'utf-8')) {
                         $content = mb_substr($content, 0, $position + 1, 'utf-8');
@@ -214,42 +117,30 @@ class Html
                 $content = explode('<br />', nl2br((string) $content));
                 $content = array_map('trim', $content);
                 $content = array_filter($content);
+                $content = '<p>' . implode('</p><p>', $content) . '</p>';
 
-                // 跳过字符
-                $jump = [
-                    '版权', '@', 'copyright', 'ICP', '办理工商登记', '举报原因',
-                    '可选中1个或多个下面的关键词', '大脑最佳状态搜索资料', '发布者',
-                    '扫码支付', '微信支付', '举报电话', '订单号', '商户单号', '支付宝', '悬赏分',
+                // 清除版权等信息
+                $pattern = [
+                    // 版权
+                    '/[^<>]*(©|copyright|&copy;)+[^<>]+/i',
+                    // 备案号
+                    '/[^<>]*\x{5907}\x{6848}\x{53f7}[^<>]+/u',
+                    // 许可证
+                    '/[^<>]*\x{8bb8}\x{53ef}\x{8bc1}[^<>]+/u',
+                    // 空标签
+                    '/<[\w]+><\/[\w]+>/si',
                 ];
-                foreach ($content as $key => $value) {
-                    foreach ($jump as $needle) {
-                        if (mb_stripos($value, $needle, 0, 'utf-8')) {
-                            $content[$key] = '';
-                        }
-                    }
-                }
-                $content = array_map('trim', $content);
-                $content = array_filter($content);
-            }
+                $content = (string) preg_replace($pattern, '', $content);
 
-            foreach ($content as $key => $value) {
                 // 恢复表格
-                $value = preg_replace_callback('/\[TAG:([\w\/]+)\]/si', function ($table) {
+                $content = preg_replace_callback('/\{TAG:([\w\/]+)\}/si', function ($table) {
                     return '<' . $table[1] . '>';
-                }, $value);
+                }, $content);
                 // 恢复图片
-                $value = preg_replace_callback('/\[TAG:img_src=([^<>\s]+)\]/si', function ($img) {
+                $content = preg_replace_callback('/\{TAG:img_src=([^<>\s]+)\}/si', function ($img) {
                     return '<img src="' . trim($img[1], '"\'') . '" />';
-                }, $value);
-
-
-                if (false === mb_strpos($value, '<', 0, 'utf-8') && false === mb_strpos($value, '>', mb_strlen($value, 'utf-8') - 1, 'utf-8')) {
-                    $value = '<p>' . $value . '</p>';
-                }
-                $content[$key] = $value;
+                }, $content);
             }
-
-            $content = implode('', $content);
         }, $this->xml);
 
         return $content;
