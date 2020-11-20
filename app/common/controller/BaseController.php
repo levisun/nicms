@@ -19,7 +19,6 @@ namespace app\common\controller;
 use think\App;
 use think\Response;
 use think\exception\HttpResponseException;
-use app\common\library\SiteInfo;
 
 abstract class BaseController
 {
@@ -100,28 +99,6 @@ abstract class BaseController
         @set_time_limit(30);
         @ini_set('max_execution_time', '30');
         @ini_set('memory_limit', '16M');
-
-        $app_name = app('http')->getName();
-
-        // 初始化视图
-        $result = (new SiteInfo)->query($app_name);
-        $this->view->config([
-            'view_theme' => $result['theme'],
-            'tpl_replace_string' => [
-                '__NAME__'        => $result['name'],
-                '__TITLE__'       => $result['title'],
-                '__KEYWORDS__'    => $result['keywords'],
-                '__DESCRIPTION__' => $result['description'],
-                '__FOOTER_MSG__'  => $result['footer'],
-                '__COPYRIGHT__'   => $result['copyright'],
-                '__SCRIPT__'      => $result['script'],
-            ]
-        ]);
-        $this->view->assign([
-            'web_title'       => $result['title'],
-            'web_keywords'    => $result['keywords'],
-            'web_description' => $result['description'],
-        ]);
 
         // 控制器初始化
         $this->initialize();

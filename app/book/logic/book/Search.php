@@ -3,10 +3,10 @@
 /**
  *
  * API接口层
- * 书籍目录
+ * 文章列表
  *
  * @package   NICMS
- * @category  app\book\logic\book
+ * @category  app\book\logic\article
  * @author    失眠小枕头 [312630173@qq.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -18,12 +18,13 @@ declare(strict_types=1);
 namespace app\book\logic\book;
 
 use app\common\controller\BaseLogic;
+use app\common\library\tools\Participle;
 use app\common\library\Base64;
 use app\common\library\Image;
 use app\common\model\Book as ModelBook;
 use app\common\model\BookArticle as ModelBookArticle;
 
-class Catalog extends BaseLogic
+class Search extends BaseLogic
 {
 
     /**
@@ -33,14 +34,23 @@ class Catalog extends BaseLogic
      */
     public function query(): array
     {
-        $book_id = $this->request->param('book_id', 0, '\app\common\library\Base64::url62decode');
+        // 搜索
+        if ($search_key = $this->request->param('key')) {
+            $search_key = htmlspecialchars_decode($search_key, ENT_QUOTES);
+            $search_key = str_replace('&nbsp;', '', $search_key);
+            // 搜索5个词
+            $search_key = (new Participle)->words($search_key, 5);
+            if ($search_key = implode('|', $search_key)) {
+                $map[] = ['article.title', 'regexp', $search_key];
+            }
+        }
 
         $query_limit = $this->request->param('limit/d', 20, 'abs');
         $query_page = $this->request->param('page/d', 1, 'abs');
         $date_format = $this->request->param('date_format', 'Y-m-d');
         $sort_order = 'sort_order ASC, id ASC';
 
-        $cache_key = 'book article list' . $book_id . $query_limit . $query_page . $date_format;
+        $cache_key = 'book article list' . $search_key . $query_limit . $query_page . $date_format;
 
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
             // 书籍信息
@@ -48,10 +58,8 @@ class Catalog extends BaseLogic
                 ->view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'image', 'hits', 'origin', 'status', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
-                ->where([
-                    ['book.id', '=', $book_id],
-                    ['is_pass', '=', '1'],
-                ])
+                ->where('is_pass', '=', 1)
+                ->where('title', 'regexp', $search_key)
                 ->find();
 
             if ($book && $book = $book->toArray()) {

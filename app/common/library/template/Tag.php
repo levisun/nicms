@@ -239,7 +239,6 @@ class Tag
             }
         }
 
-        list($root) = explode('.', request()->rootDomain(), 2);
         return '<!DOCTYPE html>' .
             '<html lang="__LANG__">' .
             '<head>' .

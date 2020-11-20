@@ -26,10 +26,16 @@ class Spider
     private $client = null;
     private $crawler = null;
     private $result = '';
+    private $agent = '';
 
     public function __construct()
     {
         @ini_set('memory_limit', '16M');
+    }
+
+    public function __set(string $_name, string $_value)
+    {
+        $this->$_name = $_value;
     }
 
     public function __destruct()
@@ -56,16 +62,11 @@ class Spider
         $this->client->followRedirects();
         $this->client->setMaxRedirects(5);
         $this->client->followMetaRefresh();
-        $agent = [
-            'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0',
-            'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36 Edg/84.0.522.40',
-            'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36',
-            Request::header('user_agent'),
-        ];
-        shuffle($agent);
+        $this->agent = $this->agent ?: Request::header('user_agent');
+
         $this->client->setServerParameters([
             'HTTP_HOST'            => parse_url($_uri, PHP_URL_HOST),
-            'HTTP_USER_AGENT'      => $agent[array_rand($agent, 1)],
+            'HTTP_USER_AGENT'      => $this->agent,
             'HTTP_REFERER'         => parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . '/',
             'HTTP_ACCEPT'          => Request::header('accept'),
             'HTTP_ACCEPT_LANGUAGE' => Request::header('accept_language'),
@@ -134,6 +135,46 @@ class Spider
         return $this->crawler;
     }
 
+    public function select(string $_element): array
+    {
+        $_element = (string) preg_replace_callback('/#([\w\d\-]+)/si', function ($matches) {
+            $matches[1] = trim($matches[1]);
+            return '[contains(@id,"' . trim($matches[1], '#.:') . '")]';
+        }, $_element);
+
+        $_element = (string) preg_replace_callback('/\.([\w\d\-]+)/si', function ($matches) {
+            $matches[1] = trim($matches[1]);
+            return '[contains(@class,"' . trim($matches[1], '#.:') . '")]';
+        }, $_element);
+
+        $_element = (string) preg_replace_callback('/:([\w\d\-]+)/si', function ($matches) {
+            $matches[1] = trim($matches[1]);
+            return '[contains(@name,"' . trim($matches[1], '#.:') . '")]';
+        }, $_element);
+
+        $_element = (string) str_replace([' ', '>'], '/', $_element);
+
+        if (0 === strpos($_element, '[')) {
+            $_element = '*' . trim($_element, '#.:');
+        }
+
+        $dom = new \DOMDocument();
+        libxml_use_internal_errors(true);
+        $dom->loadHTML(htmlspecialchars_decode($this->result, ENT_QUOTES));
+        libxml_clear_errors();
+
+        $xpath = new \DOMXPath($dom);
+        $nodeList = $xpath->query('//' . $_element);
+
+        $result = [];
+        foreach ($nodeList as $node) {
+            $node = $dom->saveHTML($node);
+            $result[] = htmlspecialchars($node, ENT_QUOTES);
+        }
+
+        return $result;
+    }
+
     /**
      * 获得响应数据
      * @access public
@@ -144,6 +185,7 @@ class Spider
     public function fetch(string $_selector, array $_extract = []): array
     {
         $content = [];
+        $this->crawler = $this->crawler ?: $this->getCrawler();
         $this->crawler->filter($_selector)->each(function (Crawler $node) use (&$_extract, &$content) {
             $result = $_extract ? $node->extract($_extract) : $node->html();
             $content[] = htmlspecialchars($result, ENT_QUOTES);

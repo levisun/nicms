@@ -53,11 +53,14 @@ class Article extends BaseLogic
                 $result['content'] = Filter::contentDecode($result['content']);
                 // 时间格式
                 $result['update_time'] = date($date_format, (int) $result['update_time']);
+                // 标识符
+                $result['flag'] = Base64::flag($result['book_id'] . $result['id'], 7);
 
                 $result['next'] = $this->next($result['id'], $result['book_id']);
                 $result['prev'] = $this->prev($result['id'], $result['book_id']);
 
-                unset($result['id'], $result['book_id']);
+                $result['id'] = Base64::url62encode($result['id']);
+                $result['book_id'] = Base64::url62encode($result['book_id']);
 
                 $this->cache->tag(['book', 'book article list' . $book_id])->set($cache_key, $result);
             }
@@ -95,15 +98,16 @@ class Article extends BaseLogic
             ])->find();
 
         if ($result && $result = $result->toArray()) {
-            $result['url'] = url('article/' . Base64::url62encode($result['book_id']) . '/' . Base64::url62encode($result['id']));
-            $result['cat_url'] = url('list/' . Base64::url62encode($result['book_id']));
             $result['id'] = Base64::url62encode($result['id']);
             $result['book_id'] = Base64::url62encode($result['book_id']);
+            $result['flag'] = Base64::flag($result['book_id'] . $result['id'], 7);
+            $result['url'] = url('article/' . $result['book_id'] . '/' . $result['id']);
+            $result['cat_url'] = url('list/' . $result['book_id']);
         } else {
             $result = [
                 'title'   => $this->lang->get('not next'),
-                'url'     => url('article/' . $_book_id . '/' . $_article_id),
-                'cat_url' => url('list/' . $_book_id),
+                'url'     => url('article/' . Base64::url62encode($_book_id) . '/' . Base64::url62encode($_article_id)),
+                'cat_url' => url('list/' . Base64::url62encode($_book_id)),
             ];
         }
 
@@ -134,15 +138,16 @@ class Article extends BaseLogic
             ])->find();
 
         if ($result && $result = $result->toArray()) {
-            $result['url'] = url('article/' . Base64::url62encode($result['book_id']) . '/' . Base64::url62encode($result['id']));
-            $result['cat_url'] = url('list/' . Base64::url62encode($result['book_id']));
             $result['id'] = Base64::url62encode($result['id']);
             $result['book_id'] = Base64::url62encode($result['book_id']);
+            $result['flag'] = Base64::flag($result['book_id'] . $result['id'], 7);
+            $result['url'] = url('article/' . $result['book_id'] . '/' . $result['id']);
+            $result['cat_url'] = url('list/' . $result['book_id']);
         } else {
             $result = [
                 'title'   => $this->lang->get('not next'),
-                'url'     => url('article/' . $_book_id . '/' . $_article_id),
-                'cat_url' => url('list/' . $_book_id),
+                'url'     => url('article/' . Base64::url62encode($_book_id) . '/' . Base64::url62encode($_article_id)),
+                'cat_url' => url('list/' . Base64::url62encode($_book_id)),
             ];
         }
 

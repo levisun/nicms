@@ -163,6 +163,9 @@ class Details extends BaseLogic
                         }
                     }
 
+                    $result['id'] = Base64::url62encode($result['id']);
+                    $result['category_id'] = Base64::url62encode($result['category_id']);
+
                     $this->cache->tag('cms article details')->set($cache_key, $result);
                 }
             }
@@ -183,7 +186,7 @@ class Details extends BaseLogic
      */
     public function hits(): array
     {
-        if ($id = $this->request->param('id/d', 0, 'abs')) {
+        if ($id = $this->request->param('id', 0, '\app\common\library\Base64::url62decode')) {
 
             // 更新浏览数
             ModelArticle::where('id', '=', $id)
@@ -230,9 +233,11 @@ class Details extends BaseLogic
             ->find();
 
         if (null !== $result && $result = $result->toArray()) {
+            $result['id'] = Base64::url62encode($result['id']);
+            $result['category_id'] = Base64::url62encode($result['category_id']);
             $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
-            $result['url'] = url('details/' . Base64::url62encode($result['category_id']) . '/' . Base64::url62encode($result['id']));
-            $result['cat_url'] = url('list/' . Base64::url62encode($result['category_id']));
+            $result['url'] = url('details/' . $result['category_id'] . '/' . $result['id']);
+            $result['cat_url'] = url('list/' . $result['category_id']);
         } else {
             $result = [
                 'title'   => $this->lang->get('not next'),
@@ -272,9 +277,11 @@ class Details extends BaseLogic
             ->find();
 
         if (null !== $result && $result = $result->toArray()) {
+            $result['id'] = Base64::url62encode($result['id']);
+            $result['category_id'] = Base64::url62encode($result['category_id']);
             $result['flag'] = Base64::flag($result['category_id'] . $result['id'], 7);
-            $result['url'] = url('details/' . Base64::url62encode($result['category_id']) . '/' . Base64::url62encode($result['id']));
-            $result['cat_url'] = url('list/' . Base64::url62encode($result['category_id']));
+            $result['url'] = url('details/' . $result['category_id'] . '/' . $result['id']);
+            $result['cat_url'] = url('list/' . $result['category_id']);
         } else {
             $result = [
                 'title'   => $this->lang->get('not prev'),

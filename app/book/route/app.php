@@ -27,7 +27,7 @@ Route::group(function () {
 
     // 列表页
     Route::get('category/:tid$', 'Index/category');
-    Route::get('book/:id$', 'Index/book');
+    Route::get('book/:book_id$', 'Index/book');
 
     // 详情页
     Route::get('article/:book_id/:id$', 'Index/article');

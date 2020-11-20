@@ -63,6 +63,20 @@ class Index extends BaseController
         elseif (!$this->session->has($this->authKey) && !in_array($method, ['login', 'forget'])) {
             $this->redirect('account/user/login');
         }
+
+        // 初始化视图
+        $this->view->config([
+            'view_theme' => env('admin.theme', 'default'),
+            'tpl_replace_string' => [
+                '__NAME__'        => 'NICMS',
+                '__TITLE__'       => 'NICMS',
+                '__KEYWORDS__'    => '',
+                '__DESCRIPTION__' => '',
+                '__FOOTER_MSG__'  => '',
+                '__COPYRIGHT__'   => '',
+                '__SCRIPT__'      => '',
+            ]
+        ]);
     }
 
     /**

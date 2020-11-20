@@ -55,7 +55,7 @@ class Category extends BaseLogic
 
         $cache_key = 'book list' . $attribute . $status . $type_id . $query_limit . $query_page . $date_format;
 
-        // if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
+        if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
             $result = ModelBook::view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'hits', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
@@ -79,7 +79,7 @@ class Category extends BaseLogic
 
                 $this->cache->tag('book')->set($cache_key, $list);
             }
-        // }
+        }
 
         return [
             'debug' => false,

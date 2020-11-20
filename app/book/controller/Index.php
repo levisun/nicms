@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\book\controller;
 
 use app\common\controller\BaseController;
+use app\book\controller\SiteInfo;
 
 class Index extends BaseController
 {
@@ -29,6 +30,20 @@ class Index extends BaseController
      */
     public function initialize()
     {
+        // 初始化视图
+        $result = (new SiteInfo)->query();
+        $this->view->config([
+            'view_theme' => $result['theme'],
+            'tpl_replace_string' => [
+                '__NAME__'        => $result['name'],
+                '__TITLE__'       => $result['title'],
+                '__KEYWORDS__'    => $result['keywords'],
+                '__DESCRIPTION__' => $result['description'],
+                '__FOOTER_MSG__'  => $result['footer'],
+                '__COPYRIGHT__'   => $result['copyright'],
+                '__SCRIPT__'      => $result['script'],
+            ]
+        ]);
     }
 
     /**
@@ -78,8 +93,22 @@ class Index extends BaseController
      */
     public function search()
     {
-        // $query = $this->request->param('q');
-        // $content = (new Book)->search($query);
+        $query = $this->request->param('q');
+        if (false !== filter_var($query, FILTER_VALIDATE_URL)) {
+            $uri = parse_url($query, PHP_URL_PATH);
+            $book_id = call_user_func([
+                $this->app->make('\app\book\logic\book\Spider'),
+                'book'
+            ], $uri);
+
+            $result = call_user_func([
+                $this->app->make('\app\book\logic\book\Spider'),
+                'article'
+            ], $book_id);
+            halt($result);
+        }
+
+        halt($query);
 
         return $this->fetch('search');
     }

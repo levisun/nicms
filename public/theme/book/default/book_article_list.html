@@ -46,7 +46,7 @@
                     requestUrl: request,
                     data: [
                         { name: 'method', value: 'book.catalog.query' },
-                        { name: 'id', value: NICMS.param.id },
+                        { name: 'book_id', value: NICMS.param.book_id },
                         { name: 'page', value: _p },
                     ],
                     success: function (result) {
@@ -62,7 +62,7 @@
                                     type: 'GET',
                                     data: [
                                         { name: 'method', value: 'book.spider.jxbookarticle' },
-                                        { name: 'book_id', value: NICMS.param.id }
+                                        { name: 'book_id', value: NICMS.param.book_id }
                                     ],
                                     success: function (res) {
 

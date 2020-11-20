@@ -110,15 +110,8 @@ class Parse
         }, $_content);
         $_content = str_replace('</head>', '<style type="text/css">' . $style . '</style></head>', $_content);
 
-        $files = '';
-        $pattern = '/<script[^<>]+src=["\']+(.+)["\']+([^<>]*)><\/script>/si';
-        $_content = (string) preg_replace_callback($pattern, function ($matches) use (&$files) {
-            $files .= '<script src="' . $matches[1] . '" ' . trim($matches[2]) . '></script>';
-            return;
-        }, $_content);
-
         $script = '';
-        $pattern = '/<script( type=["\']+.*?["\']+)?>(.*?)<\/script>/si';
+        $pattern = '/<script( type=["\']+[^<>]+["\']+)?>(.*?)<\/script>/si';
         $_content = (string) preg_replace_callback($pattern, function ($matches) use (&$script) {
             $matches[2] = (string) preg_replace([
                 '/[^:"\']\/\/ *.+\s+/i',
@@ -128,6 +121,13 @@ class Parse
             return;
         }, $_content);
         $script = $script ? '<script type="text/javascript">' . $script . '</script>' : '';
+
+        $files = '';
+        $pattern = '/<script[^<>]+src=["\']+([^<>]+)["\']+><\/script>/si';
+        $_content = (string) preg_replace_callback($pattern, function ($matches) use (&$files) {
+            $files .= $matches[0];
+            return;
+        }, $_content);
 
         if (false !== strpos($_content, '</body>')) {
             $_content = str_replace('</body>', $files . $script . '</body>', $_content);
