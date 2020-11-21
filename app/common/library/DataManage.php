@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
-use think\facade\Env;
 use think\facade\Log;
 
 class DataManage
@@ -199,13 +198,18 @@ class DataManage
                 $field = '`' . implode('`, `', $field) . '`';
 
                 $this->DB->table($name)->order($primary . ' ASC')->chunk(10, function ($result) use (&$name, &$field, &$filename) {
-                    $result = $result->toArray() ?: [];
-                    if ($sql = $this->getTableData($name, $field, $result)) {
-                        file_put_contents($filename, $sql . PHP_EOL, FILE_APPEND);
-                    }
+                    try {
+                        $result = $result->toArray() ?: [];
+                        if ($sql = $this->getTableData($name, $field, $result)) {
+                            file_put_contents($filename, $sql . PHP_EOL, FILE_APPEND);
+                        }
 
-                    // 持续查询状态并不利于处理任务，每10ms执行一次，此时释放CPU，降低机器负载
-                    usleep(10000);
+                        // 持续查询状态并不利于处理任务，每10ms执行一次，此时释放CPU，降低机器负载
+                        usleep(10000);
+                    } catch (\Exception $e) {
+                        Log::warning($e->getMessage());
+                        halt($e->getMessage());
+                    }
                 });
             }
 
@@ -259,7 +263,7 @@ class DataManage
                 } elseif (is_null($vo) || $vo === 'null' || $vo === 'NULL') {
                     $vo = 'NULL';
                 } else {
-                    $vo = '\'' . addslashes($vo) . '\'';
+                    $vo = '\'' . addslashes((string) $vo) . '\'';
                 }
                 return $vo;
             }, $value);

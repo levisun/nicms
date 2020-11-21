@@ -107,6 +107,7 @@ class Spider extends BaseLogic
                         $content = array_map(function ($value) {
                             $value = htmlspecialchars_decode($value, ENT_QUOTES);
                             $value = strip_tags($value);
+                            $value = str_replace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;', '&nbsp;'], '', $value);
                             return trim($value);
                         }, $content);
                         $content = array_filter($content);

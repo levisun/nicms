@@ -36,7 +36,7 @@ class Throttle
     public function handle(Request $request, Closure $next)
     {
         if (Cache::has($request->ip() . 'lock')) {
-            $this->abort(Cache::get($request->ip() . 'lock'));
+            // $this->abort(Cache::get($request->ip() . 'lock'));
         }
 
         if (Cache::has($request->domain() . $request->ip() . 'login_lock')) {
@@ -64,12 +64,10 @@ class Throttle
     {
         $cache_key = 'an minute total' . $_request->ip() . $_request->ext();
 
-        if (!Cache::has($cache_key)) {
-            $last_time = $_request->time(true);
-            Cache::set($cache_key, $last_time, 60);
-        }
+        $last_time = Cache::has($cache_key)
+            ? (float) Cache::get($cache_key)
+            : $_request->time(true);
 
-        $last_time = (float) Cache::get($cache_key);
         $last_time = round($_request->time(true) - $last_time, 2);
 
         // 平均 n 秒一个请求
@@ -77,6 +75,10 @@ class Throttle
         if (!!$last_time && $last_time < $rate) {
             trace('lock IR:' . $_request->ip() . ' ' . date('Y-m-d H:i:s') . ' ' . $last_time . '<' . $rate);
             Cache::set($_request->ip() . 'lock', 'UR', 1440);
+        }
+
+        if (!Cache::has($cache_key)) {
+            Cache::set($cache_key, $last_time, 60);
         }
     }
 

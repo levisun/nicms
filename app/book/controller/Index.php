@@ -108,7 +108,7 @@ class Index extends BaseController
             halt($result);
         }
 
-        halt($query);
+        halt(1);
 
         return $this->fetch('search');
     }

@@ -1,16 +1,16 @@
 body {
     background-color: #333;
-    color: #595959;
+    color: #858585;
 }
 body a,
 body a:hover {
-    color: #595959;
+    color: #858585;
 }
 .pagination li {
     padding: 12px;
 }
 #content {
-    color: #595959;
+    color: #858585;
     letter-spacing: 1px;
     word-spacing: .1em;
     word-wrap: break-word;
