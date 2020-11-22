@@ -36,7 +36,7 @@ class Throttle
     public function handle(Request $request, Closure $next)
     {
         if (Cache::has($request->ip() . 'lock')) {
-            // $this->abort(Cache::get($request->ip() . 'lock'));
+            $this->abort(Cache::get($request->ip() . 'lock'));
         }
 
         if (Cache::has($request->domain() . $request->ip() . 'login_lock')) {
@@ -69,6 +69,7 @@ class Throttle
             : $_request->time(true);
 
         $last_time = round($_request->time(true) - $last_time, 2);
+        $last_time = abs($last_time);
 
         // 平均 n 秒一个请求
         $rate = round(60 / 600, 3);
