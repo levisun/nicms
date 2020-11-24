@@ -38,7 +38,6 @@ class Catalog extends BaseLogic
         $query_limit = $this->request->param('limit/d', 20, 'abs');
         $query_page = $this->request->param('page/d', 1, 'abs');
         $date_format = $this->request->param('date_format', 'Y-m-d');
-        $sort_order = 'sort_order ASC, id ASC';
 
         $cache_key = 'book article list' . $book_id . $query_limit . $query_page . $date_format;
 
@@ -67,7 +66,7 @@ class Catalog extends BaseLogic
                         // 安书籍查询
                         ['book_id', '=', $book_id]
                     ])
-                    ->order($sort_order)
+                    ->order('sort_order ASC, id ASC')
                     ->paginate([
                         'list_rows' => $query_limit,
                         'path' => 'javascript:paging([PAGE]);',

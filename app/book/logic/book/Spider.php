@@ -18,7 +18,6 @@ class Spider extends BaseLogic
 
     public function __destruct()
     {
-        ignore_user_abort(false);
     }
 
     public function book(string $_uri)
@@ -71,60 +70,62 @@ class Spider extends BaseLogic
             $spider->agent = 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69';
 
             @set_time_limit(0);
+            ignore_user_abort(true);
 
-            $links = $spider->request('GET', $origin)->select('ul.section-list>li');
-
-            $count = ModelBookArticle::where('book_id', '=', $book_id)->count();
-            if (count($links) <= $count) {
-                return [];
-            }
-
-            foreach ($links as $key => $value) {
-                if ($key < 9) {
-                    continue;
+            $page = 1;
+            do {
+                $links = $spider->request('GET', $origin . 'index_' . $page . '.html')->select('ul.section-list');
+                if (empty($links[1])) {
+                    break;
                 }
 
-                $value = htmlspecialchars_decode($value, ENT_QUOTES);
-                if (preg_match('/href="(.*?)"/si', $value, $matches)) {
-                    usleep(rand(1000000, 1500000));
-                    $title = $spider->request('GET', $this->bookURI . $matches[1])->select('h1.title');
-                    $title = Filter::safe($title[0]);
+                $links[1] = htmlspecialchars_decode($links[1], ENT_QUOTES);
+                if (false !== preg_match_all('/href="(.*?)"/si', $links[1], $matches) && !empty($matches[1])) {
+                    foreach ($matches[1] as $key => $value) {
+                        usleep(rand(1000000, 3500000));
+                        $title = $spider->request('GET', $this->bookURI . $value)->select('h1.title');
+                        $title = Filter::safe($title[0]);
 
-                    $has = ModelBookArticle::where([
-                        ['book_id', '=', $book_id],
-                        ['title', '=', $title],
-                    ])->value('id');
-                    if (!$has) {
-                        $content = $spider->select('div#content');
-                        $content = htmlspecialchars_decode($content[0], ENT_QUOTES);
-                        $content = Filter::base($content);
-                        $content = preg_replace([
-                            '/<div[^<>]*class="posterror"[^<>]*>.*?<\/div>/si',
-                            '/<div[^<>]*>/si',
-                            '/<\/div>/si',
-                        ], '', $content);
-                        $content = explode('<br>', $content);
-                        $content = array_map(function ($value) {
-                            $value = htmlspecialchars_decode($value, ENT_QUOTES);
-                            $value = strip_tags($value);
-                            $value = str_replace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;', '&nbsp;'], '', $value);
-                            return trim($value);
-                        }, $content);
-                        $content = array_filter($content);
-                        $content = '<p>' . implode('</p><p>', $content) . '</p>';
-                        $content = Filter::contentEncode($content);
+                        $has = ModelBookArticle::where([
+                            ['book_id', '=', $book_id],
+                            ['title', '=', $title],
+                        ])->value('id');
+                        if (!$has) {
+                            $content = $spider->select('div#content');
+                            $content = htmlspecialchars_decode($content[0], ENT_QUOTES);
+                            $content = Filter::base($content);
+                            $content = preg_replace([
+                                '/<div[^<>]*class="posterror"[^<>]*>.*?<\/div>/si',
+                                '/<div[^<>]*>/si',
+                                '/<\/div>/si',
+                            ], '', $content);
+                            $content = explode('<br>', $content);
+                            $content = array_map(function ($value) {
+                                $value = htmlspecialchars_decode($value, ENT_QUOTES);
+                                $value = strip_tags($value);
+                                $value = str_replace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;', '&nbsp;'], '', $value);
+                                return trim($value);
+                            }, $content);
+                            $content = array_filter($content);
+                            $content = '<p>' . implode('</p><p>', $content) . '</p>';
+                            $content = Filter::contentEncode($content);
 
-                        ModelBookArticle::create([
-                            'book_id'    => $book_id,
-                            'title'      => $title,
-                            'content'    => $content,
-                            'is_pass'    => 1,
-                            'sort_order' => $key,
-                            'show_time'  => time(),
-                        ]);
+                            ModelBookArticle::create([
+                                'book_id'    => $book_id,
+                                'title'      => $title,
+                                'content'    => $content,
+                                'is_pass'    => 1,
+                                'sort_order' => ($page - 1) * ($key + 1) + $key + 1,
+                                'show_time'  => time(),
+                            ]);
+                        }
                     }
                 }
-            }
+
+                $page++;
+            } while (!empty($links[1]));
+
+            ignore_user_abort(false);
         }
 
         return [];

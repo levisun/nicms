@@ -94,21 +94,20 @@ class Index extends BaseController
     public function search()
     {
         $query = $this->request->param('q');
-        if (false !== filter_var($query, FILTER_VALIDATE_URL)) {
-            $uri = parse_url($query, PHP_URL_PATH);
-            $book_id = call_user_func([
-                $this->app->make('\app\book\logic\book\Spider'),
-                'book'
-            ], $uri);
+        if (false !== filter_var($query, FILTER_VALIDATE_URL) && 'www.jx.la' === parse_url($query, PHP_URL_HOST)) {
+            only_execute('spider.lock', false, function () use($query) {
+                $uri = parse_url($query, PHP_URL_PATH);
+                $book_id = call_user_func([
+                    $this->app->make('\app\book\logic\book\Spider'),
+                    'book'
+                ], $uri);
 
-            $result = call_user_func([
-                $this->app->make('\app\book\logic\book\Spider'),
-                'article'
-            ], $book_id);
-            halt($result);
+                $result = call_user_func([
+                    $this->app->make('\app\book\logic\book\Spider'),
+                    'article'
+                ], $book_id);
+            });
         }
-
-        halt(1);
 
         return $this->fetch('search');
     }

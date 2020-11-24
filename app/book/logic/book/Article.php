@@ -88,7 +88,7 @@ class Article extends BaseLogic
             ['show_time', '<', time()],
             ['id', '>', $_article_id],
             ['book_id', '=', $_book_id],
-        ])->min('id');
+        ])->order('sort_order ASC, id ASC')->min('id');
 
         $result = ModelBookArticle::field('id, title, book_id')
             ->where([
@@ -128,7 +128,7 @@ class Article extends BaseLogic
             ['show_time', '<', time()],
             ['id', '<', $_article_id],
             ['book_id', '=', $_book_id],
-        ])->max('id');
+        ])->order('sort_order ASC, id ASC')->max('id');
 
         $result = ModelBookArticle::field('id, title, book_id')
             ->where([
