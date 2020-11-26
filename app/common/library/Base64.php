@@ -17,9 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use think\facade\Config;
-use think\facade\Cookie;
 use think\facade\Request;
-use think\facade\Session;
 
 class Base64
 {

@@ -21,6 +21,30 @@ use app\common\library\template\Parse;
 
 class Compiler extends Parse
 {
+    /**
+     * 清空编译文件
+     * @access public
+     * @param  string $_path
+     * @return void
+     */
+    public function clear(string $_path = ''): void
+    {
+        $_path = $_path ?: $this->config['compile_path'];
+
+        if (is_dir($_path)) {
+            $files = scandir($_path);
+            foreach ($files as $dir_name) {
+                if ('.' == $dir_name || '..' == $dir_name) {
+                    continue;
+                } elseif (is_dir($_path . $dir_name)) {
+                    $this->clear($_path . $dir_name . DIRECTORY_SEPARATOR);
+                    rmdir($_path . $dir_name);
+                } elseif (is_file($_path . $dir_name)) {
+                    unlink($_path . $dir_name);
+                }
+            }
+        }
+    }
 
     /**
      * 读取编译

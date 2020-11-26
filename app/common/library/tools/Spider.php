@@ -36,7 +36,7 @@ class Spider
     public function pageInfo(int $_length = 0)
     {
         $result = [];
-        if (false !== preg_match('/<!\-\- website:([^<>]+)\-\->/si', htmlspecialchars_decode($this->html(), ENT_QUOTES), $matches) && !empty($matches)) {
+        if (false !== preg_match('/<!\-\- website:([^<>]+)\-\->/si', htmlspecialchars_decode($this->getHtml(), ENT_QUOTES), $matches) && !empty($matches)) {
             $result['url'] = trim($matches[1]);
         }
 
@@ -47,21 +47,36 @@ class Spider
         $result['title'] = $title;
 
         $keywords = $this->select('meta:keywords', ['content']);
-        $result['keywords'] = strip_tags(htmlspecialchars_decode($keywords[0]['content'], ENT_QUOTES));
+        $result['keywords'] = isset($keywords[0]) ? strip_tags(htmlspecialchars_decode($keywords[0]['content'], ENT_QUOTES)) : '';
 
         $description = $this->select('meta:description', ['content']);
-        $result['description'] = strip_tags(htmlspecialchars_decode($description[0]['content'], ENT_QUOTES));
+        $result['description'] = isset($description[0]) ? strip_tags(htmlspecialchars_decode($description[0]['content'], ENT_QUOTES)) : '';
 
         $links = $this->select('a', ['href']);
+        $host = parse_url($result['url'], PHP_URL_SCHEME) . '://' . parse_url($result['url'], PHP_URL_HOST);
         foreach ($links as $value) {
-            $result['links'][] = htmlspecialchars_decode($value['href'], ENT_QUOTES);
+            $value['href'] = isset($value['href']) ? htmlspecialchars_decode($value['href'], ENT_QUOTES) : '';
+            if (false !== strpos($value['href'], 'javascript')) {
+                $value['href'] = '';
+            }
+            if (0 === strpos($value['href'], '#')) {
+                $value['href'] = '';
+            }
+            if (0 === strpos($value['href'], '/')) {
+                $value['href'] = $host . $value['href'];
+            }
+            $result['links'][] = $value['href'];
         }
         $result['links'] = array_unique($result['links']);
         $result['links'] = array_filter($result['links']);
 
         $imgs = $this->select('img', ['src']);
         foreach ($imgs as $value) {
-            $result['imgs'][] = htmlspecialchars_decode($value['src'], ENT_QUOTES);
+            $value['src'] = isset($value['src']) ? htmlspecialchars_decode($value['src'], ENT_QUOTES) : '';
+            if (0 === strpos($value['src'], '/')) {
+                $value['src'] = $host . $value['src'];
+            }
+            $result['imgs'][] = $value['src'];
         }
         $result['imgs'] = array_unique($result['imgs']);
         $result['imgs'] = array_filter($result['imgs']);
@@ -70,29 +85,33 @@ class Spider
         $body = htmlspecialchars_decode($body[0], ENT_QUOTES);
         $body = preg_replace([
             '/<\/?body[^<>]*>/i',
-            '/<script[^<>]*>.*?<\/script>/si',
+            '/<!\-\-.*?\-\->/si',
             '/<style[^<>]*>.*?<\/style>/si',
             '/<ul[^<>]*>.*?<\/ul>/si',
             '/<ol[^<>]*>.*?<\/ol>/si',
             '/<a[^<>]*>/si',
             '/<\/a>/si',
-            '/<!\-\-.*?\-\->/si',
+            '/<script[^<>]*>.*?<\/script>/si',
+            // 百度知道
+            '/<span class="[\w\d]{10,}">[\d]{4,}<\/span>/si',
         ], '', $body);
 
         $pattern = [
             '/>\s+/' => '>',
             '/\s+</' => '<',
-            '/<article/si' => '<div',
-            '/<\/article/si' => '</div',
             '/(\x{00a0}|\x{0020}|\x{3000}|\x{feff})/u' => ' ',
             '/　/si' => ' ',
             '/ {2,}/si' => ' ',
+            '/<article/si' => '<div',
+            '/<\/article/si' => '</div',
+            '/<h[\d]{1}/si' => '<p',
+            '/<\/h[\d]{1}/si' => '</p',
         ];
         $body = preg_replace(array_keys($pattern), array_values($pattern), $body);
 
         // 清除多余标签
         $body = (string) preg_replace_callback('/<(\/?)([\w]+)([^<>]*)>/si', function ($ele) {
-            if (in_array($ele[2], ['article', 'div', 'p', 'br', 'span', 'table', 'tr', 'td', 'th'])) {
+            if (in_array($ele[2], ['div', 'p', 'br', 'span', 'table', 'tr', 'td', 'th'])) {
                 return '<' . $ele[1] . $ele[2] . '>';
             } elseif ('img' == $ele[2]) {
                 return $ele[0];
@@ -163,8 +182,21 @@ class Spider
                 '/[^<>]*\x{5907}\x{6848}\x{53f7}[^<>]+/u',
                 // 许可证
                 '/[^<>]*\x{8bb8}\x{53ef}\x{8bc1}[^<>]+/u',
-                // 空标签
-                '/<[\w]+><\/[\w]+>/si',
+                // 百度
+                '/[^<>]*\x{767e}\x{5ea6}[^<>]*/u',
+                // 关注
+                '/[^<>]*\x{5173}\x{6ce8}[^<>]*/u',
+                // 公众号
+                '/[^<>]*\x{516c}\x{4f17}\x{53f7}[^<>]*/u',
+                // 域名
+                '/[^<>]*[htps]{4,5}:\/\/[^\s]*[^<>]*/i',
+                '/[\w]+(\.[\w]{2,4})+/i',
+                // 无用字符
+                '/[a-zA-Z0-9]{10,}/i',
+
+                // 空行
+                '/<[\w]+>(<br *\/*>)*<\/[\w]+>/si',
+                '/<[\w]+>.{1,2}<\/[\w]+>/si',
             ];
             $content = (string) preg_replace($pattern, '', $content);
 
@@ -267,7 +299,7 @@ class Spider
      * @access public
      * @return string
      */
-    public function html(): string
+    public function getHtml(): string
     {
         return $this->result;
     }
@@ -294,6 +326,7 @@ class Spider
         if (false === filter_var($_uri, FILTER_VALIDATE_URL)) {
             return false;
         }
+        usleep(rand(100, 150) * 10000);
 
         $this->client = new HttpBrowser;
         $this->client->followRedirects();
@@ -322,6 +355,7 @@ class Spider
 
         // 获得实际URI
         $_uri = $this->client->getHistory()->current()->getUri();
+        trace($_uri, 'info');
 
         // 获得HTML文档内容
         $this->result = $this->client->getInternalResponse()->getContent();

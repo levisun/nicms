@@ -23,7 +23,7 @@ class Parse
     protected $config = [];
     protected $includeFile = [];
 
-    public function __construct(array $_config)
+    public function __construct(array $_config = [])
     {
         $this->config = $_config;
     }

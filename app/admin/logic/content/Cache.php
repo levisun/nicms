@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
-use app\common\library\view\Compiler;
+use app\common\library\template\Compiler;
 
 class Cache extends BaseLogic
 {

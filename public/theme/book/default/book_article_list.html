@@ -12,7 +12,7 @@
     <div class="row">
         <template v-for="vo in items">
             <div class="col-6">
-                <a v-bind:href="vo.url" v-text="vo.title"></a>
+                <a style="margin:10px 0;display:flex;" v-bind:href="vo.url" v-text="vo.title"></a>
             </div>
         </template>
     </div>
@@ -54,24 +54,9 @@
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
-
                             app.items = result.data.list;
                             app.page = result.data.page;
                             app.book = result.data.book;
-
-                            if (!!!app.items.length) {
-                                jQuery.pjax({
-                                    url: NICMS.api_uri + '/query.do',
-                                    type: 'GET',
-                                    data: [
-                                        { name: 'method', value: 'book.spider.jxbookarticle' },
-                                        { name: 'book_id', value: NICMS.param.book_id }
-                                    ],
-                                    success: function (res) {
-
-                                    }
-                                });
-                            }
                         }
 
                     }
