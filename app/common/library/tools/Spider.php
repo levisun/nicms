@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library\tools;
 
+use think\facade\Cache;
 use think\facade\Request;
 use app\common\library\Filter;
 use Symfony\Component\BrowserKit\HttpBrowser;
@@ -326,73 +327,84 @@ class Spider
         if (false === filter_var($_uri, FILTER_VALIDATE_URL)) {
             return false;
         }
-        usleep(rand(100, 150) * 10000);
 
-        $this->client = new HttpBrowser;
-        $this->client->followRedirects();
-        $this->client->setMaxRedirects(5);
-        $this->client->followMetaRefresh();
-        $this->agent = $this->agent ?: Request::header('user_agent');
+        $cache_key = 'spider request' . $_uri;
+        if (!Cache::has($cache_key) || !$this->result = Cache::get($cache_key)) {
+            usleep(rand(50, 150) * 10000);
 
-        $this->client->setServerParameters([
-            'HTTP_HOST'            => parse_url($_uri, PHP_URL_HOST),
-            'HTTP_USER_AGENT'      => $this->agent,
-            'HTTP_REFERER'         => parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . '/',
-            'HTTP_ACCEPT'          => Request::header('accept'),
-            'HTTP_ACCEPT_LANGUAGE' => Request::header('accept_language'),
-            'HTTP_CONNECTION'      => Request::header('connection'),
-            // 'CLIENT_IP'            => '117.117.117.117',
-            // 'X_FORWARDED_FOR'      => '117.117.117.117',
-            // 'HTTP_ACCEPT_ENCODING' => Request::header('accept-encoding'),
-        ]);
+            $this->client = new HttpBrowser;
+            $this->client->followRedirects();
+            $this->client->setMaxRedirects(5);
+            $this->client->followMetaRefresh();
+            $this->agent = $this->agent ?: Request::header('user_agent');
 
-        $this->client->request(strtoupper($_method), $_uri);
+            $this->client->setServerParameters([
+                'HTTP_HOST'            => parse_url($_uri, PHP_URL_HOST),
+                'HTTP_USER_AGENT'      => $this->agent,
+                'HTTP_REFERER'         => parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . '/',
+                'HTTP_ACCEPT'          => Request::header('accept'),
+                'HTTP_ACCEPT_LANGUAGE' => Request::header('accept_language'),
+                'HTTP_CONNECTION'      => Request::header('connection'),
+                // 'CLIENT_IP'            => '117.117.117.117',
+                // 'X_FORWARDED_FOR'      => '117.117.117.117',
+                // 'HTTP_ACCEPT_ENCODING' => Request::header('accept-encoding'),
+            ]);
 
-        // 请求失败
-        if (200 !== $this->client->getInternalResponse()->getStatusCode()) {
-            return false;
+            $this->client->request(strtoupper($_method), $_uri);
+
+            // 请求失败
+            if (200 !== $this->client->getInternalResponse()->getStatusCode()) {
+                return false;
+            }
+
+            // 获得实际URI
+            $_uri = $this->client->getHistory()->current()->getUri();
+            trace($_uri, 'info');
+
+            // 获得HTML文档内容
+            $this->result = $this->client->getInternalResponse()->getContent();
+
+            // 检查字符编码
+            $headers = $this->client->getInternalResponse()->getHeaders();
+            if (isset($headers['content-type'][0]) && preg_match('/charset=([\w\-]+)/si', $headers['content-type'][0], $charset) && !empty($charset)) {
+                $charset = strtoupper($charset[1]);
+            } elseif (preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->result, $charset) && !empty($charset)) {
+                $charset = strtoupper($charset[1]);
+            }
+
+            if ($charset !== 'UTF-8') {
+                $charset = 0 === stripos($charset, 'GB') ? 'GBK' : $charset;
+                $this->result = @iconv($charset, 'UTF-8//IGNORE', (string) $this->result);
+            }
+
+            $this->result = preg_replace_callback('/charset=["\']?([\w\-]{1,})["\']?/si', function ($charset) {
+                return str_replace($charset[1], 'UTF-8', $charset[0]);
+            }, $this->result);
+
+
+            // 过滤回车和多余空格
+            $this->result = Filter::symbol($this->result);
+            $this->result = Filter::space($this->result);
+            $this->result = Filter::php($this->result);
+
+            // 添加访问网址
+            $this->result = '<!-- website:' . $_uri . ' -->' . PHP_EOL . $this->result;
+
+            // 添加单页支持
+            $base = parse_url($_uri, PHP_URL_PATH);
+            $base = $base ? str_replace('\\', '/', rtrim(dirname($base), '\/')) . '/' : '';
+            $base = parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . $base;
+            $this->result = str_replace('<head>', '<head>' . '<base href="' . $base . '" />', $this->result);
+
+            $length = mb_strlen(strip_tags($this->result), 'utf-8');
+
+            $this->result = htmlspecialchars($this->result, ENT_QUOTES);
+
+            if (300 < $length) {
+                Cache::set($cache_key, $this->result, 28800);
+            }
         }
 
-        // 获得实际URI
-        $_uri = $this->client->getHistory()->current()->getUri();
-        trace($_uri, 'info');
-
-        // 获得HTML文档内容
-        $this->result = $this->client->getInternalResponse()->getContent();
-
-        // 检查字符编码
-        $headers = $this->client->getInternalResponse()->getHeaders();
-        if (isset($headers['content-type'][0]) && preg_match('/charset=([\w\-]+)/si', $headers['content-type'][0], $charset) && !empty($charset)) {
-            $charset = strtoupper($charset[1]);
-        } elseif (preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->result, $charset) && !empty($charset)) {
-            $charset = strtoupper($charset[1]);
-        }
-
-        if ($charset !== 'UTF-8') {
-            $charset = 0 === stripos($charset, 'GB') ? 'GBK' : $charset;
-            $this->result = @iconv($charset, 'UTF-8//IGNORE', (string) $this->result);
-        }
-
-        $this->result = preg_replace_callback('/charset=["\']?([\w\-]{1,})["\']?/si', function ($charset) {
-            return str_replace($charset[1], 'UTF-8', $charset[0]);
-        }, $this->result);
-
-
-        // 过滤回车和多余空格
-        $this->result = Filter::symbol($this->result);
-        $this->result = Filter::space($this->result);
-        $this->result = Filter::php($this->result);
-
-        // 添加访问网址
-        $this->result = '<!-- website:' . $_uri . ' -->' . PHP_EOL . $this->result;
-
-        // 添加单页支持
-        $base = parse_url($_uri, PHP_URL_PATH);
-        $base = $base ? str_replace('\\', '/', rtrim(dirname($base), '\/')) . '/' : '';
-        $base = parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . $base;
-        $this->result = str_replace('<head>', '<head>' . '<base href="' . $base . '" />', $this->result);
-
-        $this->result = htmlspecialchars($this->result, ENT_QUOTES);
 
         return $this;
     }
