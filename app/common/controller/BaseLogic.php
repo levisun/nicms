@@ -116,8 +116,8 @@ abstract class BaseLogic
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\Filter::safe');
         // 请勿更改参数(超时,执行内存)
-        @set_time_limit(30);
-        @ini_set('max_execution_time', '30');
+        @set_time_limit(60);
+        @ini_set('max_execution_time', '60');
         @ini_set('memory_limit', '16M');
 
         // 用户会话信息(用户ID,用户组)

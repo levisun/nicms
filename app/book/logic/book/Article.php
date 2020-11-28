@@ -39,10 +39,12 @@ class Article extends BaseLogic
         $cache_key = 'book article' . $book_id . $id . $date_format;
 
         if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
-            $result = ModelBookArticle::where([
-                ['book_id', '=', $book_id],
-                ['id', '=', $id],
-            ])->find();
+            $result = ModelBookArticle::view('book_article', ['id', 'book_id', 'title', 'content', 'update_time'])
+                ->view('book', ['title' => 'book_title', 'keywords' => 'book_keywords', 'description' => 'book_description', 'hits', 'origin', 'status'], 'book.id=book_article.book_id')
+                ->where([
+                    ['book_article.book_id', '=', $book_id],
+                    ['book_article.id', '=', $id],
+                ])->find();
 
             if ($result && $result = $result->toArray()) {
                 // 书籍文章列表链接

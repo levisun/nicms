@@ -16,6 +16,7 @@ body a:hover {
     word-wrap: break-word;
     word-break: break-all;
     font-size: 1.3rem;
+    line-height: 2.3rem;
     font-family: Raleway,Arial,"Microsoft YaHei",sans-serif;
 
     padding-top: 20px;

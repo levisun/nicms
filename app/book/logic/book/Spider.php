@@ -71,11 +71,12 @@ class Spider extends BaseLogic
             $_book_id = $_book_id ?: $this->request->param('book_id/d', 0, '\app\common\library\Base64::url62decode');
             $_page = $_page ?: $this->request->param('page/d', 20);
 
-            if ($origin = ModelBook::where('id', '=', $_book_id)->value('origin')) {
+            if ($origin = ModelBook::where('id', '=', $_book_id)->cache(true)->value('origin')) {
                 $spider = new LibSpider;
                 $spider->agent = 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69';
 
                 @set_time_limit(0);
+                @ini_set('max_execution_time', '0');
                 ignore_user_abort(true);
 
                 $total = ModelBookArticle::where('book_id', '=', $_book_id)->count();
@@ -117,24 +118,28 @@ class Spider extends BaseLogic
                                 $content = array_filter($content);
                                 $content = '<p>' . implode('</p><p>', $content) . '</p>';
 
-                                $sub = $spider->request('GET', $this->bookURI . substr($value, 0, -5) . '_2.html')->select('div#content');
-                                $sub = htmlspecialchars_decode($sub[0], ENT_QUOTES);
-                                $sub = Filter::base($sub);
-                                $sub = preg_replace([
+                                $next = $spider->request('GET', $this->bookURI . substr($value, 0, -5) . '_2.html')->select('div#content');
+                                if (empty($next[0])) {
+                                    trace($this->bookURI . substr($value, 0, -5) . '_2.html 采集错误', 'info');
+                                    return [];
+                                }
+                                $next = htmlspecialchars_decode($next[0], ENT_QUOTES);
+                                $next = Filter::base($next);
+                                $next = preg_replace([
                                     '/<div[^<>]*class="posterror"[^<>]*>.*?<\/div>/si',
                                     '/<div[^<>]*>/si',
                                     '/<\/div>/si',
-                                ], '', $sub);
-                                $sub = explode('<br>', $sub);
-                                $sub = array_map(function ($value) {
+                                ], '', $next);
+                                $next = explode('<br>', $next);
+                                $next = array_map(function ($value) {
                                     $value = htmlspecialchars_decode($value, ENT_QUOTES);
                                     $value = strip_tags($value);
                                     $value = str_replace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;', '&nbsp;'], '', $value);
                                     return trim($value);
-                                }, $sub);
-                                $sub = array_filter($sub);
-                                $sub = '<p>' . implode('</p><p>', $sub) . '</p>';
-                                $content .= $sub;
+                                }, $next);
+                                $next = array_filter($next);
+                                $next = '<p>' . implode('</p><p>', $next) . '</p>';
+                                $content .= $next;
 
                                 $content = Filter::contentEncode($content);
                                 if (strip_tags($content)) {
@@ -143,7 +148,7 @@ class Spider extends BaseLogic
                                         'title'      => $title,
                                         'content'    => $content,
                                         'is_pass'    => 1,
-                                        'sort_order' => ($_page - 1) * count($matches[1]) + $key + 1,
+                                        'sort_order' => ($_page + $i - 1) * count($matches[1]) + $key + 1,
                                         'show_time'  => time(),
                                     ]);
                                 }
@@ -155,7 +160,6 @@ class Spider extends BaseLogic
                 ignore_user_abort(false);
             }
         });
-
 
         return [];
     }

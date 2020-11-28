@@ -73,8 +73,8 @@ class Throttle
 
         // 平均 n 秒一个请求
         $rate = round(60 / 600, 3);
-        if (!!$last_time && $last_time < $rate) {
-            trace('lock IR:' . $_request->ip() . ' ' . date('Y-m-d H:i:s') . ' ' . $last_time . '<' . $rate);
+        if ($last_time && $last_time < $rate) {
+            trace('lock UR:' . $_request->ip() . ' ' . date('Y-m-d H:i:s') . ' ' . $last_time . '<' . $rate);
             Cache::set($_request->ip() . 'lock', 'UR', 1440);
         }
 

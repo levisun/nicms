@@ -36,21 +36,24 @@ class Hook
 
         $response = $next($request);
 
-        $content = $response->getContent();
+        if ('api' !== $request->controller(true)) {
+            $content = $response->getContent();
 
-        $type = app('http')->getName() . '.' . $request->controller(true) . '.' . $request->action(true);
+            $type = app('http')->getName() . '.' . $request->controller(true) . '.' . $request->action(true);
 
-        $addon = new Addon;
-        $items = $addon->getOpenList();
-        foreach ($items as $namespace => $config) {
-            if ($config['type'] !== 'all' && false === stripos($type, $config['type'])) {
-                continue;
+            $addon = new Addon;
+            $items = $addon->getOpenList();
+            foreach ($items as $namespace => $config) {
+                if ($config['type'] !== 'all' && false === stripos($type, $config['type'])) {
+                    continue;
+                }
+
+                $content = $addon->run($namespace, $content, $config['settings']);
             }
 
-            $content = $addon->run($namespace, $content, $config['settings']);
+            $response->content($content);
         }
 
-        $response->content($content);
 
         return $response;
     }

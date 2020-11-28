@@ -59,18 +59,19 @@
                         article.items = result.data;
                     }
                 });
+                if (1 === article.items.status) {
+                    jQuery.pjax({
+                        url: NICMS.api_uri + '/query.do',
+                        type: 'GET',
+                        data: [
+                            { name: 'method', value: 'book.spider.article' },
+                            { name: 'book_id', value: NICMS.param.book_id }
+                        ],
+                        success: function (res) {
 
-                jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
-                    type: 'GET',
-                    data: [
-                        { name: 'method', value: 'book.spider.article' },
-                        { name: 'book_id', value: NICMS.param.book_id }
-                    ],
-                    success: function (res) {
-
-                    }
-                });
+                        }
+                    });
+                }
             },
             load: function () {
                 jQuery.pjax({
@@ -83,6 +84,20 @@
                     ],
                     success: function (result) {
                         article.items = result.data;
+
+                        if (1 === article.items.status) {
+                            jQuery.pjax({
+                                url: NICMS.api_uri + '/query.do',
+                                type: 'GET',
+                                data: [
+                                    { name: 'method', value: 'book.spider.article' },
+                                    { name: 'book_id', value: NICMS.param.book_id }
+                                ],
+                                success: function (res) {
+
+                                }
+                            });
+                        }
                     }
                 });
             }

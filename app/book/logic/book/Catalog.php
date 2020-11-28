@@ -43,8 +43,7 @@ class Catalog extends BaseLogic
 
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
             // 书籍信息
-            $book = (new ModelBook)
-                ->view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'image', 'hits', 'origin', 'status', 'update_time'])
+            $book = ModelBook::view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'image', 'hits', 'origin', 'status', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
                 ->where([
