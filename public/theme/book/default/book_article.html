@@ -12,8 +12,12 @@
         <div class="col" style="text-align: center;">
             <a v-bind:href="items.cat_url">{:lang('index')}</a>
         </div>
-        <div class="col" style="text-align: right;">
+        <div class="col" style="text-align: center;">
             <a v-if="items.next" v-on:click="prevOrNext(items.next.id)">{:lang('next')}</a>
+        </div>
+        <div class="col">
+            <a v-on:click="bright">开灯</a>
+            <a v-on:click="dark">关灯</a>
         </div>
     </div>
 
@@ -27,12 +31,13 @@
         <div class="col">
             <a v-if="items.prev" v-on:click="prevOrNext(items.prev.id)">{:lang('prev')}</a>
         </div>
+        <div class="col">
+            <a v-if="items.next" v-on:click="prevOrNext(items.next.id)">{:lang('next')}</a>
+        </div>
         <div class="col" style="text-align: center;">
             <a v-bind:href="items.cat_url">{:lang('index')}</a>
         </div>
-        <div class="col" style="text-align: right;">
-            <a v-if="items.next" v-on:click="prevOrNext(items.next.id)">{:lang('next')}</a>
-        </div>
+        <div class="col"></div>
     </div>
 </div>
 
@@ -43,6 +48,12 @@
             items: []
         },
         methods: {
+            bright: function () {
+                jQuery("body").removeClass("dark");
+            },
+            dark: function () {
+                jQuery("body").addClass("dark");
+            },
             prevOrNext: function (_id) {
                 jQuery.pjax({
                     url: NICMS.api_uri + '/query.do',

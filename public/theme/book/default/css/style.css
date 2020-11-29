@@ -1,9 +1,8 @@
-body {
-    background-color: #333;
+body, a, a:hover {
     color: #858585;
 }
-body a,
-body a:hover {
+.dark {
+    background-color: #333;
     color: #858585;
 }
 .pagination li {

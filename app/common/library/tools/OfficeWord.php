@@ -17,10 +17,10 @@ declare(strict_types=1);
 namespace app\common\library\tools;
 
 use app\common\library\Filter;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\IOFactory;
 
-class OfficeExcel
+class OfficeWord
 {
 
     /**
@@ -50,31 +50,31 @@ class OfficeExcel
      * @param
      * @return mixed
      */
-    public function write(array $_data, int $_sheet = 0)
+    public function write(string $_data)
     {
         if (!$_data) {
             return false;
         }
 
-        $spreadsheet = new Spreadsheet;
-        $worksheet = $spreadsheet->getActiveSheet();
-        $worksheet->setTitle($_sheet);
+        $_data = nl2br($_data);
+        $_data = explode('<br />', $_data);
+        $_data = array_map(function ($value) {
+            return Filter::safe($value);
+        }, $_data);
 
-        foreach ($_data as $line_no => $column) {
-            if (!empty($column)) {
-                $line_no += 1;
-                foreach ($column as $column_no => $value) {
-                    $value = Filter::safe($value);
-                    if (!empty($value)) {
-                        $column_no += 1;
-                        $worksheet->setCellValueByColumnAndRow($column_no, $line_no, $value);
-                    }
-                }
+        $php_word = new PhpWord;
+        $section = $php_word->addSection();
+
+        foreach ($_data as $key => $value) {
+            if (0 === $key) {
+                $section->addText($value, ['size' => 14, 'bold' => true]);
+            } else {
+                $section->addText($value, ['size' => 12]);
             }
         }
 
-        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-        $file = runtime_path('temp') . uniqid() . '.xlsx';
+        $writer = IOFactory::createWriter($php_word, 'Word2007');
+        $file = runtime_path('temp') . uniqid() . '.docx';
         $writer->save($file);
 
         return $file;

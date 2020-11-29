@@ -59,16 +59,6 @@ class UploadFile
     private $element = null;
 
     /**
-     * 裁减大小
-     * @var array
-     */
-    private $cutSize = [
-        'width'  => 0,
-        'height' => 0,
-        'type'   => false,
-    ];
-
-    /**
      * 图片宽
      * @var int
      */
