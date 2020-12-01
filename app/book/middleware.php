@@ -21,4 +21,6 @@ return [
     \app\common\middleware\AppInit::class,
     // 全局请求缓存
     \think\middleware\CheckRequestCache::class,
+    // 插件
+    \app\common\middleware\Hook::class,
 ];

@@ -83,6 +83,8 @@ class Spider extends BaseLogic
                 $_page = $total ? ceil($total / $_page) : 1;
                 $_page = abs($_page);
 
+                $spider_total = 0;
+
                 for ($i = 0; $i < 2; $i++) {
                     $links = $spider->request('GET', $origin . 'index_' . ($_page + $i) . '.html')->select('ul.section-list');
                     if (empty($links[1])) {
@@ -92,6 +94,10 @@ class Spider extends BaseLogic
                     $links[1] = htmlspecialchars_decode($links[1], ENT_QUOTES);
                     if (false !== preg_match_all('/href="(.*?)"/si', $links[1], $matches) && !empty($matches[1])) {
                         foreach ($matches[1] as $key => $value) {
+                            if (7 < $spider_total) {
+                                break;
+                            }
+
                             $title = $spider->request('GET', $this->bookURI . $value)->select('h1.title');
                             $title = Filter::safe($title[0]);
 
@@ -143,6 +149,7 @@ class Spider extends BaseLogic
 
                                 $content = Filter::contentEncode($content);
                                 if (strip_tags($content)) {
+                                    $spider_total++;
                                     ModelBookArticle::create([
                                         'book_id'    => $_book_id,
                                         'title'      => $title,

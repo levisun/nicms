@@ -105,15 +105,9 @@ class Article extends BaseLogic
             $result['flag'] = Base64::flag($result['book_id'] . $result['id'], 7);
             $result['url'] = url('article/' . $result['book_id'] . '/' . $result['id']);
             $result['cat_url'] = url('list/' . $result['book_id']);
-        } else {
-            $result = [
-                'title'   => $this->lang->get('not next'),
-                'url'     => url('article/' . Base64::url62encode($_book_id) . '/' . Base64::url62encode($_article_id)),
-                'cat_url' => url('list/' . Base64::url62encode($_book_id)),
-            ];
         }
 
-        return $result;
+        return $result ?: '';
     }
 
     /**
@@ -145,14 +139,8 @@ class Article extends BaseLogic
             $result['flag'] = Base64::flag($result['book_id'] . $result['id'], 7);
             $result['url'] = url('article/' . $result['book_id'] . '/' . $result['id']);
             $result['cat_url'] = url('list/' . $result['book_id']);
-        } else {
-            $result = [
-                'title'   => $this->lang->get('not next'),
-                'url'     => url('article/' . Base64::url62encode($_book_id) . '/' . Base64::url62encode($_article_id)),
-                'cat_url' => url('list/' . Base64::url62encode($_book_id)),
-            ];
         }
 
-        return $result;
+        return $result ?: '';
     }
 }

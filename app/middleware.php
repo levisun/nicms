@@ -15,6 +15,4 @@
 return [
     // 访问限制
     \app\common\middleware\Throttle::class,
-    // 插件
-    \app\common\middleware\Hook::class,
 ];

@@ -330,7 +330,7 @@ class Spider
 
         $cache_key = 'spider request' . $_uri;
         if (!Cache::has($cache_key) || !$this->result = Cache::get($cache_key)) {
-            usleep(rand(150, 300) * 10000);
+            usleep(rand(100, 150) * 10000);
 
             $this->client = new HttpBrowser;
             $this->client->followRedirects();
@@ -404,7 +404,6 @@ class Spider
                 Cache::set($cache_key, $this->result, 28800);
             }
         }
-
 
         return $this;
     }
