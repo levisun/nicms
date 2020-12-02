@@ -40,7 +40,7 @@ class Article extends BaseLogic
 
         if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
             $result = ModelBookArticle::view('book_article', ['id', 'book_id', 'title', 'content', 'update_time'])
-                ->view('book', ['title' => 'book_title', 'keywords' => 'book_keywords', 'description' => 'book_description', 'hits', 'origin', 'status'], 'book.id=book_article.book_id')
+                ->view('book', ['title' => 'book_title', 'hits', 'origin', 'status'], 'book.id=book_article.book_id')
                 ->where([
                     ['book_article.book_id', '=', $book_id],
                     ['book_article.id', '=', $id],
@@ -48,7 +48,7 @@ class Article extends BaseLogic
 
             if ($result && $result = $result->toArray()) {
                 // 书籍文章列表链接
-                $result['cat_url'] = url('book/' . Base64::url62encode($result['book_id']));
+                $result['book_url'] = url('book/' . Base64::url62encode($result['book_id']));
                 // 书籍文章文章链接
                 $result['url'] = url('article/' . Base64::url62encode($result['book_id']) . '/' . Base64::url62encode($result['id']));
                 // 内容

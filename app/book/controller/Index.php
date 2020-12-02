@@ -36,13 +36,17 @@ class Index extends BaseController
             'view_theme' => $result['theme'],
             'tpl_replace_string' => [
                 '__NAME__'        => $result['name'],
-                '__TITLE__'       => $result['title'],
-                '__KEYWORDS__'    => $result['keywords'],
-                '__DESCRIPTION__' => $result['description'],
                 '__FOOTER_MSG__'  => $result['footer'],
                 '__COPYRIGHT__'   => $result['copyright'],
                 '__SCRIPT__'      => $result['script'],
             ]
+        ]);
+
+        $this->view->engine()->assign([
+            'TITLE'       => $result['title'],
+            'KEYWORDS'    => $result['keywords'],
+            'DESCRIPTION' => $result['description'],
+            'URL'         => request()->baseUrl(true),
         ]);
     }
 

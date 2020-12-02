@@ -69,13 +69,17 @@ class Index extends BaseController
             'view_theme' => env('admin.theme', 'default'),
             'tpl_replace_string' => [
                 '__NAME__'        => 'NICMS',
-                '__TITLE__'       => 'NICMS',
-                '__KEYWORDS__'    => '',
-                '__DESCRIPTION__' => '',
                 '__FOOTER_MSG__'  => '',
                 '__COPYRIGHT__'   => '',
                 '__SCRIPT__'      => '',
             ]
+        ]);
+
+        $this->view->engine()->assign([
+            'TITLE'       => 'NICMS',
+            'KEYWORDS'    => '',
+            'DESCRIPTION' => '',
+            'URL'         => request()->baseUrl(true),
         ]);
     }
 

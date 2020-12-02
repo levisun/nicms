@@ -128,6 +128,24 @@ class Template implements TemplateHandlerInterface
     }
 
     /**
+     * 模板变量赋值
+     * @access public
+     * @param string|array $name  模板变量
+     * @param mixed        $value 变量值
+     * @return $this
+     */
+    public function assign($name, $value = null)
+    {
+        if (is_array($name)) {
+            $this->data = array_merge($this->data, $name);
+        } else {
+            $this->data[$name] = $value;
+        }
+
+        return $this;
+    }
+
+    /**
      * 配置模板引擎
      * @access private
      * @param  array $_config 参数

@@ -245,13 +245,13 @@ class Tag
             '<meta charset="UTF-8" />' .
 
             // 网站标题 关键词 描述
-            '<title>__TITLE__</title>' .
-            '<meta name="keywords" content="__KEYWORDS__" />' .
-            '<meta name="description" content="__DESCRIPTION__" />' .
+            '<title>{$TITLE}</title>' .
+            '<meta name="keywords" content="{$KEYWORDS}" />' .
+            '<meta name="description" content="{$DESCRIPTION}" />' .
 
             '<meta property="og:title" content="__NAME__" />' .
             '<meta property="og:type" content="website" />' .
-            '<meta property="og:url" content="__URL__" />' .
+            '<meta property="og:url" content="{$URL}" />' .
             '<meta property="og:image" content="" />' .
             '<meta name="fragment" content="!" />' .                                // 支持蜘蛛ajax
             '<meta name="robots" content="all" />' .                                // 蜘蛛抓取
