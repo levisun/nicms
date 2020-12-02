@@ -1,8 +1,9 @@
 <div id="app">
+    <div class="row">
     <template v-for="vo in items">
-        <p>
+        <div class="col-4">
             <a v-bind:href="vo.url" v-text="vo.title"></a>
-        </p>
+        </div>
     </template>
 </div>
 
