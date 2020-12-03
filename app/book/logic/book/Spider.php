@@ -20,7 +20,7 @@ class Spider extends BaseLogic
     {
     }
 
-    public function book(string $_uri)
+    public function book(string $_uri): int
     {
         $book_id = 0;
         only_execute('spider.lock', false, function () use ($_uri, &$book_id) {
@@ -65,7 +65,7 @@ class Spider extends BaseLogic
         return $book_id;
     }
 
-    public function article(int $_book_id = 0, int $_page = 20)
+    public function article(int $_book_id = 0, int $_page = 20): array
     {
         only_execute('spider.lock', false, function () use ($_book_id, $_page) {
             $_book_id = $_book_id ?: $this->request->param('book_id/d', 0, '\app\common\library\Base64::url62decode');
@@ -88,17 +88,22 @@ class Spider extends BaseLogic
                 for ($i = 0; $i < 2; $i++) {
                     $links = $spider->request('GET', $origin . 'index_' . ($_page + $i) . '.html')->select('ul.section-list');
                     if (empty($links[1])) {
+                        trace($origin . 'index_' . ($_page + $i) . '.html' . ' 采集错误', 'info');
                         break;
                     }
 
                     $links[1] = htmlspecialchars_decode($links[1], ENT_QUOTES);
                     if (false !== preg_match_all('/href="(.*?)"/si', $links[1], $matches) && !empty($matches[1])) {
                         foreach ($matches[1] as $key => $value) {
-                            if (7 < $spider_total) {
+                            if (4 < $spider_total) {
                                 break;
                             }
 
                             $title = $spider->request('GET', $this->bookURI . $value)->select('h1.title');
+                            if (empty($title[0])) {
+                                trace($this->bookURI . $value . ' 采集错误', 'info');
+                                return;
+                            }
                             $title = Filter::safe($title[0]);
 
                             $has = ModelBookArticle::where([
@@ -127,7 +132,7 @@ class Spider extends BaseLogic
                                 $next = $spider->request('GET', $this->bookURI . substr($value, 0, -5) . '_2.html')->select('div#content');
                                 if (empty($next[0])) {
                                     trace($this->bookURI . substr($value, 0, -5) . '_2.html 采集错误', 'info');
-                                    return [];
+                                    return;
                                 }
                                 $next = htmlspecialchars_decode($next[0], ENT_QUOTES);
                                 $next = Filter::base($next);
@@ -150,12 +155,13 @@ class Spider extends BaseLogic
                                 $content = Filter::contentEncode($content);
                                 if (strip_tags($content)) {
                                     $spider_total++;
+                                    $total = ModelBookArticle::where('book_id', '=', $_book_id)->count();
                                     ModelBookArticle::create([
                                         'book_id'    => $_book_id,
                                         'title'      => $title,
                                         'content'    => $content,
                                         'is_pass'    => 1,
-                                        'sort_order' => ($_page + $i - 1) * count($matches[1]) + $key + 1,
+                                        'sort_order' => $total + 1,
                                         'show_time'  => time(),
                                     ]);
                                 }
@@ -168,6 +174,11 @@ class Spider extends BaseLogic
             }
         });
 
-        return [];
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'spider book',
+            'data'  => []
+        ];
     }
 }

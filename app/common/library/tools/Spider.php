@@ -330,7 +330,7 @@ class Spider
 
         $cache_key = 'spider request' . $_uri;
         if (!Cache::has($cache_key) || !$this->result = Cache::get($cache_key)) {
-            usleep(rand(100, 150) * 10000);
+            usleep(rand(150, 200) * 10000);
 
             $this->client = new HttpBrowser;
             $this->client->followRedirects();
@@ -354,6 +354,7 @@ class Spider
 
             // 请求失败
             if (200 !== $this->client->getInternalResponse()->getStatusCode()) {
+                trace($_uri, 'warning');
                 return false;
             }
 

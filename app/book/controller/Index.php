@@ -105,10 +105,12 @@ class Index extends BaseController
                 'book'
             ], $uri);
 
-            $result = call_user_func([
-                $this->app->make('\app\book\logic\book\Spider'),
-                'article'
-            ], $book_id);
+            if ($book_id) {
+                $result = call_user_func([
+                    $this->app->make('\app\book\logic\book\Spider'),
+                    'article'
+                ], $book_id);
+            }
         }
 
         return $this->fetch('search');

@@ -10,7 +10,7 @@
             <a v-if="items.prev" v-on:click="prevOrNext(items.prev.id)">上一章</a>
         </div>
         <div class="col" style="text-align: center;">
-            <a v-bind:href="items.cat_url">目录</a>
+            <a v-bind:href="items.book_url">目录</a>
         </div>
         <div class="col" style="text-align: center;">
             <a v-if="items.next" v-on:click="prevOrNext(items.next.id)">下一章</a>
@@ -35,7 +35,7 @@
             <a v-if="items.next" v-on:click="prevOrNext(items.next.id)">下一章</a>
         </div>
         <div class="col" style="text-align: center;">
-            <a v-bind:href="items.cat_url">目录</a>
+            <a v-bind:href="items.book_url">目录</a>
         </div>
         <div class="col"></div>
     </div>

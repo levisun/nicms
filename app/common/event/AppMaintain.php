@@ -65,7 +65,7 @@ class AppMaintain
             ClearGarbage::clear(public_path('storage/uploads/thumb'), '-30 day');
 
             // 清除临时文件
-            ClearGarbage::clear(runtime_path('temp'), '-30 day');
+            ClearGarbage::clear(runtime_path('temp'), '-10 day');
 
             // 清除上传目录中的空目录
             ClearGarbage::uploadEmptyDirectory();
