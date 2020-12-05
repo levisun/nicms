@@ -21,14 +21,15 @@
         "topthink/think-captcha": "^3.0",
         "topthink/think-multi-app": "^1.0",
         "topthink/think-trace": "^1.1",
-        "lcobucci/jwt": "^3.3",
+        "lcobucci/jwt": "3.3.3",
         "lizhichao/word": "^2.0",
         "symfony/css-selector": "^5.1",
         "symfony/http-client": "^5.1",
         "symfony/browser-kit": "^5.1",
         "symfony/mime": "^5.1",
         "phpoffice/phpspreadsheet": "^1.13",
-        "symfony/var-dumper": "^5.1"
+        "symfony/var-dumper": "^5.1",
+        "phpoffice/phpword": "^0.17.0"
     },
     "require-dev": {
     },

@@ -98,35 +98,50 @@ class Filter
      */
     public static function sensitive(string &$_str): string
     {
-        $words = [];
+        $filename = root_path('extend') . 'sensitive.txt';
+        if (!is_file($filename)) {
+            return $_str;
+        }
 
-        $file = root_path('extend') . 'sensitive.txt';
-        if (is_file($file) && $words = file_get_contents($file)) {
+        $file = fopen($filename, 'r');
+        while (!feof($file) && $words = fgets($file)) {
+            $words = trim($words);
+
+            if (0 === strpos($words, '--')) {
+                continue;
+            }
+
             $words = self::symbol($words);
             $words = self::space($words);
-            $words = preg_replace('/--\s?.*?\s+/i', '', $words);
             $words = explode(',', $words);
-        }
+            sort($words);
+            $words = array_map(function ($value) {
+                return strtolower(trim($value));
+            }, $words);
+            $words = array_filter($words);
+            $words = array_unique($words);
 
-        sort($words);
-        $words = array_map(function ($value) {
-            return strtolower(trim($value));
-        }, $words);
-        $words = array_filter($words);
-        $words = array_unique($words);
+            $length = [];
+            foreach ($words as $key => $value) {
+                $length[$key] = mb_strlen($value, 'utf-8');
+            }
+            array_multisort($length, SORT_DESC, $words);
 
-        $length = [];
-        foreach ($words as $key => $value) {
-            $length[$key] = mb_strlen($value, 'utf-8');
-        }
-        array_multisort($length, SORT_DESC, $words);
+            $num = 0;
+            while ($regex = array_slice($words, 100 * $num, 100)) {
+                $num++;
+                $regex = implode('|', $regex);
+                $regex = (string) preg_replace_callback('/\\\u([0-9a-f]{4})/si', function ($matches) {
+                    return '\x{' . $matches[1] . '}';
+                }, json_encode($regex));
+                $regex = trim($regex, '"');
 
-        $length = 200;
-        $num = 0;
-        while ($pattern = array_slice($words, $length * $num, $length)) {
-            $num++;
-            $_str = preg_replace('/' . implode('|', $pattern) . '/i', '&#42;', $_str);
+                $_str = (string) preg_replace_callback('/' . $regex . '/u', function () {
+                    return '&#42;&#42;';
+                }, $_str);
+            }
         }
+        fclose($file);
 
         return $_str;
     }
@@ -175,11 +190,26 @@ class Filter
      */
     public static function fun(string &$_str): string
     {
-        $regex = '/' . implode('\(|', self::$func) . '/si';
+        return (string) preg_replace_callback('/\(|\)/i', function ($matches) {
+            switch ($matches[0]) {
+                case '(':
+                    return '&#40;';
+                    break;
 
-        $_str = (string) preg_replace_callback($regex, function ($matches) {
-            return str_replace('(', '&nbsp;(', trim($matches[0]));
+                case ')':
+                    return '&#41;';
+                    break;
+
+                default:
+                    # code...
+                    break;
+            }
         }, $_str);
+
+        // $regex = '/' . implode('\(|', self::$func) . '/si';
+        // $_str = (string) preg_replace_callback($regex, function ($matches) {
+        //     return str_replace('(', '&nbsp;(', trim($matches[0]));
+        // }, $_str);
 
         return trim($_str);
     }
@@ -218,7 +248,7 @@ class Filter
         // 做修改时,请保证括号内代码成功过滤!有新结构体,请追加在括号内!
         // [ onclick="alert(1)" onload=eval(ssltest.title) data-d={1:\'12 3213\',22=2:\' dabdd\'} ]
 
-        return (string) preg_replace_callback('/(<\/?[\w\d!]+)([\w\d\- ]+=[^>]*)/si', function ($attr) {
+        return (string) preg_replace_callback('/<(\/?[\w\d!]+)([\w\d\- ]+=[^>]*)>/si', function ($attr) {
             $attr = array_map('trim', $attr);
 
             // 过滤json数据
@@ -245,7 +275,7 @@ class Filter
             $attr[2] = trim($attr[2]);
 
             $attr[2] = !empty($attr[2]) ? ' ' . $attr[2] : '';
-            return $attr[1] . $attr[2];
+            return '<' . $attr[1] . $attr[2] . '>';
         }, $_str);
     }
 

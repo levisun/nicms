@@ -158,7 +158,7 @@ class Wechat
         $result = $this->unifiedOrder();
 
         if ($result['return_code'] === 'FAIL') {
-            return $result['return_msg'];
+            return $result;
         } else {
             return $result['mweb_url'] . '&redirect_url=' . urlencode($respond_url);
         }
@@ -224,9 +224,9 @@ class Wechat
 
         $result = $this->unifiedOrder();
         if ($result['return_code'] === 'FAIL') {
-            return $result['return_msg'];
+            return $result;
         } elseif ($result['result_code'] === 'FAIL') {
-            return $result['err_code_des'];
+            return $result;
         }
         return $result['code_url'];
     }

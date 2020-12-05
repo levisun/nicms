@@ -60,7 +60,7 @@ class Category extends BaseLogic
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
                 ->where($map)
-                ->order('book.attribute DESC, book.sort_order DESC')
+                ->order('book.attribute DESC, book.sort_order DESC, book.id DESC')
                 ->paginate([
                     'list_rows' => $query_limit,
                     'path' => 'javascript:paging([PAGE]);',

@@ -37,7 +37,7 @@ class Spider
     public function pageInfo(int $_length = 0)
     {
         $result = [];
-        if (false !== preg_match('/<!\-\- website:([^<>]+)\-\->/si', htmlspecialchars_decode($this->getHtml(), ENT_QUOTES), $matches) && !empty($matches)) {
+        if (preg_match('/<!\-\- website:([^<>]+) \-\->/si', htmlspecialchars_decode($this->getHtml(), ENT_QUOTES), $matches)) {
             $result['url'] = trim($matches[1]);
         }
 
@@ -84,29 +84,28 @@ class Spider
 
         $body = $this->select('body');
         $body = htmlspecialchars_decode($body[0], ENT_QUOTES);
+        $body = preg_replace('/<\/?body[^<>]*>/i', '', $body);
+        $body = Filter::base($body);
+
         $body = preg_replace([
-            '/<\/?body[^<>]*>/i',
-            '/<!\-\-.*?\-\->/si',
-            '/<style[^<>]*>.*?<\/style>/si',
             '/<ul[^<>]*>.*?<\/ul>/si',
             '/<ol[^<>]*>.*?<\/ol>/si',
             '/<a[^<>]*>/si',
             '/<\/a>/si',
-            '/<script[^<>]*>.*?<\/script>/si',
             // 百度知道
             '/<span class="[\w\d]{10,}">[\d]{4,}<\/span>/si',
         ], '', $body);
 
         $pattern = [
-            '/>\s+/' => '>',
-            '/\s+</' => '<',
+            '/>\s+/'                                   => '>',
+            '/\s+</'                                   => '<',
             '/(\x{00a0}|\x{0020}|\x{3000}|\x{feff})/u' => ' ',
-            '/　/si' => ' ',
-            '/ {2,}/si' => ' ',
-            '/<article/si' => '<div',
-            '/<\/article/si' => '</div',
-            '/<h[\d]{1}/si' => '<p',
-            '/<\/h[\d]{1}/si' => '</p',
+            '/　/si'                                   => ' ',
+            '/ {2,}/si'                                => ' ',
+            '/<article/si'                             => '<div',
+            '/<\/article/si'                           => '</div',
+            '/<h[\d]{1}/si'                            => '<p',
+            '/<\/h[\d]{1}/si'                          => '</p',
         ];
         $body = preg_replace(array_keys($pattern), array_values($pattern), $body);
 
@@ -153,7 +152,6 @@ class Spider
                 $content[$key] = trim($value, '><') . PHP_EOL;
             }
             $content = implode('', $content);
-
             // 截取
             if ($_length && $_length < mb_strlen($content, 'utf-8')) {
                 if ($position = mb_strpos($content, '{TAG:/table}', $_length, 'utf-8')) {
@@ -189,25 +187,22 @@ class Spider
                 '/[^<>]*\x{5173}\x{6ce8}[^<>]*/u',
                 // 公众号
                 '/[^<>]*\x{516c}\x{4f17}\x{53f7}[^<>]*/u',
-                // 域名
-                '/[^<>]*[htps]{4,5}:\/\/[^\s]*[^<>]*/i',
-                '/[\w]+(\.[\w]{2,4})+/i',
                 // 无用字符
-                '/[a-zA-Z0-9]{10,}/i',
+                // '/[\w\d]{10,}/i',
 
                 // 空行
                 '/<[\w]+>(<br *\/*>)*<\/[\w]+>/si',
-                '/<[\w]+>.{1,2}<\/[\w]+>/si',
             ];
             $content = (string) preg_replace($pattern, '', $content);
+
+            // 恢复图片
+            $content = preg_replace_callback('/\{TAG:img_src=([^<>\s]+)\}/si', function ($img) {
+                return '<img src="' . trim($img[1], '"\'') . '" />';
+            }, $content);
 
             // 恢复表格
             $content = preg_replace_callback('/\{TAG:([\w\/]+)\}/si', function ($table) {
                 return '<' . $table[1] . '>';
-            }, $content);
-            // 恢复图片
-            $content = preg_replace_callback('/\{TAG:img_src=([^<>\s]+)\}/si', function ($img) {
-                return '<img src="' . trim($img[1], '"\'') . '" />';
             }, $content);
         }
         $result['content'] = htmlspecialchars($content, ENT_QUOTES);
@@ -241,9 +236,9 @@ class Spider
 
         $_element = (string) str_replace([' ', '>'], '//', $_element);
 
-        if (0 === strpos($_element, '[')) {
-            $_element = '*' . trim($_element, '#.:');
-        }
+        $_element = 0 === strpos($_element, '[')
+            ? '*' . trim($_element, '#.:')
+            : trim($_element, '#.:');
 
         $dom = new \DOMDocument();
         libxml_use_internal_errors(true);
