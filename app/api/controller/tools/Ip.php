@@ -19,7 +19,7 @@ namespace app\api\controller\tools;
 
 use think\Response;
 use app\common\library\api\Async;
-use app\common\library\tools\IpInfo;
+use app\common\library\IpInfo;
 
 class Ip extends Async
 {

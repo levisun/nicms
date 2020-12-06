@@ -206,18 +206,13 @@ class UploadFile
     {
         $save_dir  = 'uploads' . DIRECTORY_SEPARATOR;
 
-        // 用户类型目录
-        $save_dir .= !empty($_user['user_type'])
-            ? Base64::flag($_user['user_type'], 7) . DIRECTORY_SEPARATOR
-            : 'guest' . DIRECTORY_SEPARATOR;
-
-        // 用户ID目录
-        $user_dir = !empty($_user['user_id'])
-            ? Base64::url62encode((int) $_user['user_id'])
-            : '';
-        $save_dir .= $user_dir
-            ? substr($user_dir, 0, 2) . DIRECTORY_SEPARATOR . $user_dir . DIRECTORY_SEPARATOR
-            : '';
+        // 用户类型ID目录
+        if (!empty($_user['user_type']) && !empty($_user['user_id'])) {
+            $save_dir .= Base64::flag($_user['user_type'], 7) . Base64::url62encode((int) $_user['user_id']) . DIRECTORY_SEPARATOR;
+            $save_dir .= substr(md5($_user['user_type'] . $_user['user_id']), 0, 7) . DIRECTORY_SEPARATOR;
+        } else {
+            $save_dir .= 'guest' . DIRECTORY_SEPARATOR;
+        }
 
         // 日期目录
         $save_dir .= Base64::url62encode((int) date('Ym'));

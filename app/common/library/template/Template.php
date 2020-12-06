@@ -58,7 +58,7 @@ class Template implements TemplateHandlerInterface
         $this->config = array_merge($this->config, $_config);
 
         $this->config['compile_path'] = $this->config['compile_path']
-            ?: $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR . $this->app->http->getName() . DIRECTORY_SEPARATOR;
+            ?: $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR . $this->app->http->getName() . app('lang')->getLangSet();
     }
 
     /**

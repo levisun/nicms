@@ -37,8 +37,10 @@ class MyUploadAdapter {
         // could be different.
         // xhr.open('POST', 'http://example.com/image/upload/path', true);
         xhr.open('POST', NICMS.api_uri + '/upload.do', true);
-        xhr.setRequestHeader('Accept', 'application/vnd.' + jQuery('meta[name="csrf-root"]').attr('content') + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
-        xhr.setRequestHeader('Authorization', 'Bearer ' + jQuery.get_cookie('XSRF_AUTHORIZATION'));
+        let root = window.location.host.substr(window.location.host.indexOf(".")+1);
+            root = root.substr(0, root.indexOf("."));
+        xhr.setRequestHeader('Accept', 'application/vnd.' + root + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + window.atob(jQuery.get_cookie('XSRF_AUTHORIZATION')));
         xhr.responseType = 'json';
     }
 

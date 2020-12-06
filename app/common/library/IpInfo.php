@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace app\common\library\tools;
+namespace app\common\library;
 
 use think\facade\Cache;
 use think\facade\Request;

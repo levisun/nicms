@@ -40,7 +40,7 @@ class async {
         this.xhr = new window.XMLHttpRequest();
 
         if (false === this.options.cache) {
-            this.options.url += -1 === this.options.url.indexOf("?") ? '?_' + this.timestamp() : '&_' + this.timestamp();
+            this.options.url += -1 === this.options.url.indexOf("?") ? '?_=' + this.timestamp() : '&_=' + this.timestamp();
         }
 
         this.xhr.open(

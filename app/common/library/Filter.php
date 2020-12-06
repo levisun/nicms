@@ -190,26 +190,10 @@ class Filter
      */
     public static function fun(string &$_str): string
     {
-        return (string) preg_replace_callback('/\(|\)/i', function ($matches) {
-            switch ($matches[0]) {
-                case '(':
-                    return '&#40;';
-                    break;
-
-                case ')':
-                    return '&#41;';
-                    break;
-
-                default:
-                    # code...
-                    break;
-            }
+        $regex = '/' . implode('|', self::$func) . '/si';
+        $_str = (string) preg_replace_callback($regex, function ($matches) {
+            return $matches[0] . '&nbsp;';
         }, $_str);
-
-        // $regex = '/' . implode('\(|', self::$func) . '/si';
-        // $_str = (string) preg_replace_callback($regex, function ($matches) {
-        //     return str_replace('(', '&nbsp;(', trim($matches[0]));
-        // }, $_str);
 
         return trim($_str);
     }
@@ -366,6 +350,7 @@ class Filter
 
             // 特殊字符转HTML实体
             '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;', '`' => '&acute;',
+            '(' => '&#40;', ')' => '&#41;', '_' => '&#95;',
             // '`' => '&#96;',
 
             // '"' => '&#34;', '\'' => '&#39;',
