@@ -45,6 +45,38 @@
             </div>
 
             <div class="form-group">
+                <label>{:lang('status')}</label>
+                <label>
+                    <input type="radio" name="status" value="1" v-bind:checked="1==items.status ? true : false">
+                    更新
+                </label>
+                <label>
+                    <input type="radio" name="status" value="2" v-bind:checked="2==items.status ? true : false">
+                    完结
+                </label>
+                <label>
+                    <input type="radio" name="status" value="3" v-bind:checked="3==items.status ? true : false">
+                    太监
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('attribute')}</label>
+                <label>
+                    <input type="radio" name="attribute" value="1" v-bind:checked="1==items.attribute ? true : false">{:lang('commend')}
+                </label>
+                <label>
+                    <input type="radio" name="attribute" value="2" v-bind:checked="2==items.attribute ? true : false">{:lang('top')}
+                </label>
+                <label>
+                    <input type="radio" name="attribute" value="3" v-bind:checked="3==items.attribute ? true : false">{:lang('hot')}
+                </label>
+                <label>
+                    <input type="radio" name="attribute" value="0" v-bind:checked="0==items.attribute ? true : false"> {:lang('no')}
+                </label>
+            </div>
+
+            <div class="form-group">
                 <label>{:lang('commend')}</label>
                 <label>
                     <input type="radio" name="is_com" value="1" v-bind:checked="1==items.is_com ? true : false">
@@ -102,25 +134,24 @@
                     url: NICMS.api_uri + '/query.do',
                     type: 'GET',
                     data: [
+                        { name: 'method', value: 'book.type.query' },
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            book.type_list = result.data.list;
+                        }
+                    }
+                });
+                jQuery.pjax({
+                    url: NICMS.api_uri + '/query.do',
+                    type: 'GET',
+                    data: [
                         { name: 'method', value: 'book.book.find' },
                         { name: 'id', value: NICMS.param.id }
                     ],
                     success: function (result) {
                         if (10000 == result.code) {
                             book.items = result.data;
-                        }
-                    }
-                });
-
-                jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
-                    type: 'GET',
-                    data: [
-                        { name: 'method', value: 'book.type.query' },
-                    ],
-                    success: function (result) {
-                        if (10000 == result.code) {
-                            book.type_list = result.data.list;
                         }
                     }
                 });

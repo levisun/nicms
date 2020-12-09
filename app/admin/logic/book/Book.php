@@ -21,6 +21,7 @@ use app\common\controller\BaseLogic;
 use app\common\library\tools\Participle;
 use app\common\library\UploadLog;
 use app\common\model\Book as ModelBook;
+use app\common\model\BookType as ModelBookType;
 
 class Book extends BaseLogic
 {
@@ -58,11 +59,11 @@ class Book extends BaseLogic
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
-        $result = ModelBook::view('book', ['id', 'title', 'type_id', 'is_pass', 'is_com', 'is_hot', 'is_top', 'hits', 'sort_order', 'update_time'])
+        $result = ModelBook::view('book', ['id', 'title', 'type_id', 'is_pass', 'attribute', 'status', 'hits', 'sort_order', 'update_time'])
             ->view('book_type', ['name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
             ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
             ->where($map)
-            ->order('book.is_pass ASC, book.is_top DESC, book.is_hot DESC , book.is_com DESC, book.sort_order DESC, book.update_time DESC')
+            ->order('book.is_pass ASC, book.status DESC, book.attribute DESC, book.sort_order DESC, book.id DESC')
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
@@ -121,9 +122,7 @@ class Book extends BaseLogic
             'author_id'   => $this->request->param('author_id/d', 1, 'abs'),
             'type_id'     => $this->request->param('type_id/d', 1, 'abs'),
             'is_pass'     => $this->request->param('is_pass/d', 1, 'abs'),
-            'is_com'      => $this->request->param('is_com/d', 0, 'abs'),
-            'is_top'      => $this->request->param('is_top/d', 0, 'abs'),
-            'is_hot'      => $this->request->param('is_hot/d', 0, 'abs'),
+            'attribute'   => $this->request->param('attribute/d', 0, 'abs'),
             'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'status'      => $this->request->param('status/d', 0, 'abs'),
             'origin'      => $this->request->param('origin'),
@@ -155,7 +154,7 @@ class Book extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d', 0, 'abs')) {
-            $result = ModelBook::view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'is_pass', 'image', 'is_com', 'is_top', 'is_hot', 'sort_order', 'hits', 'author_id', 'update_time', 'lang'])
+            $result = ModelBook::view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'is_pass', 'image', 'attribute', 'status', 'sort_order', 'hits', 'author_id', 'update_time', 'lang'])
                 ->view('book_type', ['name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
                 ->where('book.id', '=', $id)
@@ -202,9 +201,7 @@ class Book extends BaseLogic
             'author_id'   => $this->request->param('author_id/d', 1, 'abs'),
             'type_id'     => $this->request->param('type_id/d', 1, 'abs'),
             'is_pass'     => $this->request->param('is_pass/d', 1, 'abs'),
-            'is_com'      => $this->request->param('is_com/d', 0, 'abs'),
-            'is_top'      => $this->request->param('is_top/d', 0, 'abs'),
-            'is_hot'      => $this->request->param('is_hot/d', 0, 'abs'),
+            'attribute'   => $this->request->param('attribute/d', 0, 'abs'),
             'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'status'      => $this->request->param('status/d', 0, 'abs'),
             'origin'      => $this->request->param('origin'),
