@@ -38,7 +38,7 @@ class Spider extends BaseLogic
                     $book_author->save([
                         'author' => $author
                     ]);
-                    $author_id = $book_author->id;
+                    $author_id = (int) $book_author->id;
                 }
 
                 $title = $spider->select('div.top>h1');
@@ -58,7 +58,7 @@ class Spider extends BaseLogic
                     'is_pass'     => 1,
                 ]);
 
-                $book_id = $book->id;
+                $book_id = (int) $book->id;
             }
         });
 

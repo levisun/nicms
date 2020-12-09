@@ -59,6 +59,7 @@
                     url: NICMS.api_uri + '/query.do',
                     type: 'GET',
                     push: true,
+                    async: false,
                     requestUrl: NICMS.domain + 'article/' + NICMS.param.book_id + '/' + _id + '.html',
                     data: [
                         { name: 'method', value: 'book.article.query' },

@@ -44,13 +44,31 @@ class DataManage
         @set_time_limit(3600);
         @ini_set('max_execution_time', '3600');
         @ini_set('memory_limit', '32M');
-
-        ignore_user_abort(true);
     }
 
     public function __destruct()
     {
         ignore_user_abort(false);
+    }
+
+    public function processList()
+    {
+        only_execute('db_process_list.lock', '-1 hour', function () {
+            $result = $this->DB->query('show full processlist');
+            foreach ($result as $value) {
+                if (1440 > $value['Time']) {
+                    continue;
+                }
+
+                if ('sleep' === strtolower($value['Command'])) {
+                    // system('kill '. $value['Id']);
+                } elseif ('locked' === strtolower($value['State'])) {
+                    // system('kill '. $value['Id']);
+                }
+
+                Log::alert(json_encode($value));
+            }
+        });
     }
 
     /**
@@ -67,7 +85,7 @@ class DataManage
                 $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
                 if (false === $result) {
                     $this->DB->query('OPTIMIZE TABLE `' . $name . '`');
-                    Log::alert('[AUTO BACKUP] 优化表' . $name);
+                    Log::alert('优化表' . $name);
                 }
             }
         });
@@ -84,7 +102,7 @@ class DataManage
                 $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
                 if (false === $result) {
                     $this->DB->query('REPAIR TABLE `' . $name . '`');
-                    Log::alert('[AUTO BACKUP] 修复表' . $name);
+                    Log::alert('修复表' . $name);
                 }
             }
         });
@@ -110,6 +128,8 @@ class DataManage
             if ($files = glob($this->tempPath . '*')) {
                 array_map('unlink', $files);
             }
+
+            ignore_user_abort(true);
 
             // 打开压缩包并解压文件到指定目录
             $zip = new \ZipArchive;
@@ -156,6 +176,8 @@ class DataManage
                     unlink($filename);
                 }
             }
+
+            ignore_user_abort(false);
         });
 
         return !empty($this->error_log) ? $this->error_log : false;
@@ -178,6 +200,8 @@ class DataManage
             if ($files = glob($this->tempPath . '*')) {
                 array_map('unlink', $files);
             }
+
+            ignore_user_abort(true);
 
             $table_name = $this->DB->getTables();
             foreach ($table_name as $name) {
@@ -233,6 +257,8 @@ class DataManage
                     }
                 }
             }
+
+            ignore_user_abort(false);
         });
     }
 

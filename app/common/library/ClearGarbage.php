@@ -128,7 +128,7 @@ class ClearGarbage
     public static function uploadEmptyDirectory(string $_dir = ''): void
     {
         $_dir = $_dir ? $_dir : public_path('storage/uploads');
-        if ($files = glob($_dir . '*')) {
+        if ($files = glob(rtrim($_dir, '\/.') . DIRECTORY_SEPARATOR . '*')) {
             foreach ($files as $file) {
                 if (is_dir($file)) {
                     self::uploadEmptyDirectory($file . DIRECTORY_SEPARATOR);

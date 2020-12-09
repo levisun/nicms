@@ -18,9 +18,9 @@ declare(strict_types=1);
 namespace app\api\controller\tools;
 
 use app\common\library\api\Async;
-use app\common\library\tools\Participle;
+use app\common\library\tools\Participle as LibParticiple;
 
-class Words extends Async
+class Participle extends Async
 {
 
     public function index()
@@ -31,7 +31,7 @@ class Words extends Async
 
         if (mb_strlen($txt, 'UTF-8') <= 500) {
             if (!$this->cache->has($txt) || !$result = $this->cache->get($txt)) {
-                $participle = new Participle($txt);
+                $participle = new LibParticiple($txt);
                 $this->cache->set($txt, $participle->result);
             }
 

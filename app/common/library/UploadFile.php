@@ -174,12 +174,16 @@ class UploadFile
         $path = $this->savePath($_user);
         $save_file = $save_path . Filesystem::disk('public')->putFile($path, $_files, 'uniqid');
 
-        UploadLog::write($save_file);   // 记录上传文件日志
+        // 记录上传文件日志
+        UploadLog::write($save_file);
 
         if (false !== stripos($_files->getMime(), 'image/')) {
             $save_file = $this->tailoring($save_file);
             $save_file = $this->water($save_file);
-            $save_file = $this->toExt($_files->extension(), $save_file);
+            $save_file = $this->toExt($save_file);
+            $host = Config::get('app.img_host');
+        } else {
+            $host = Config::get('app.cdn_host');
         }
 
         $save_file = str_replace(DIRECTORY_SEPARATOR, '/', ltrim($save_file, '/'));
@@ -192,7 +196,7 @@ class UploadFile
             'save_path' => $save_file,
             'size'      => filesize(public_path() . $save_file),
             'type'      => finfo_file($finfo, public_path() . $save_file),
-            'url'       => Config::get('app.img_host') . $save_file,
+            'url'       => $host . $save_file,
         ];
     }
 
@@ -208,8 +212,7 @@ class UploadFile
 
         // 用户类型ID目录
         if (!empty($_user['user_type']) && !empty($_user['user_id'])) {
-            $save_dir .= Base64::flag($_user['user_type'], 7) . Base64::url62encode((int) $_user['user_id']) . DIRECTORY_SEPARATOR;
-            $save_dir .= substr(md5($_user['user_type'] . $_user['user_id']), 0, 7) . DIRECTORY_SEPARATOR;
+            $save_dir .= Base64::flag($_user['user_type'], 3) . Base64::url62encode((int) $_user['user_id']) . DIRECTORY_SEPARATOR;
         } else {
             $save_dir .= 'guest' . DIRECTORY_SEPARATOR;
         }
@@ -223,16 +226,30 @@ class UploadFile
     /**
      * 转换图片格式
      * @access private
-     * @param  string $_extension 扩展名
      * @param  string $_save_file 文件名
      * @return void
      */
-    private function toExt(string $_extension, string $_save_file): string
+    private function toExt(string $_save_file): string
     {
-        $image = Image::open(public_path() . $_save_file);
-
+        $extension = pathinfo($_save_file, PATHINFO_EXTENSION);
         $new_file = $_save_file;
+
+        $new_ext = false;
         if (function_exists('imagewebp')) {
+            $new_ext = 'webp';
+        } elseif ('gif' !== $extension) {
+            $new_ext = 'jpg';
+        }
+
+        if ($new_ext) {
+            $new_file = str_replace('.' . $extension, '.' . $new_ext, $_save_file);
+            $image = Image::open(public_path() . $_save_file);
+            $image->save(public_path() . $new_file, $new_ext);
+            unlink(public_path() . $_save_file);
+        }
+
+
+        /*      if (function_exists('imagewebp')) {
             $new_file = str_replace('.' . $_extension, '.webp', $_save_file);
             $image->save(public_path() . $new_file, 'webp');
             unlink(public_path() . $_save_file);
@@ -240,9 +257,10 @@ class UploadFile
             $new_file = str_replace('.' . $_extension, '.jpg', $_save_file);
             $image->save(public_path() . $new_file, 'jpg');
             unlink(public_path() . $_save_file);
-        }
+        } */
 
-        UploadLog::write($new_file);   // 记录上传文件日志
+        // 记录上传文件日志
+        UploadLog::write($new_file);
 
         return $new_file;
     }
@@ -255,15 +273,13 @@ class UploadFile
      */
     private function water(string $_save_file): string
     {
-        $image = Image::open(public_path() . $_save_file);
-
         // 添加水印
         if (true === $this->imgWater) {
             $ttf = root_path('extend/font') . 'simhei.ttf';
+            $image = Image::open(public_path() . $_save_file);
             $image->text(Request::rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9));
+            $image->save(public_path() . $_save_file);
         }
-
-        $image->save(public_path() . $_save_file);
 
         return $_save_file;
     }

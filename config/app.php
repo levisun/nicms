@@ -16,6 +16,9 @@ return [
     // CB|Alpha 内测版, RC|Beta  正式候选版, Demo 演示版, Stable 稳定版, Release 正式版
     'version'          => '1.0.1RC200412',
 
+    // 调试
+    'debug'            => env('app_debug', false),
+
     // 后台模板
     'theme'            => env('admin.theme', 'default'),
     // 后台入口域名
@@ -30,10 +33,10 @@ return [
     'cdn_host'         => '//cdn.' . request()->rootDomain() . '/',
     'img_host'         => '//img.' . request()->rootDomain() . '/',
 
-    // 加密密钥
+    // URL加密密钥(不可修改,否则会出现无法修复的错误)
+    'url62secret'      => env('app.url62secret', '02GcWtlRUHhixEqokMBue1FPbJsZfOLTa4DjpIrg5KC38NmS9nV7d6QwAzXYyv'),
+    // 加密密钥(不可修改,否则会出现无法修复的错误)
     'secretkey'        => hash_hmac('sha256', env('app.secretkey', 'nicms'), sha1(request()->rootDomain() . __DIR__)),
-    // 调试
-    'debug'            => env('app_debug', false),
 
     // 应用地址
     'app_host'         => env('app.host', '//www.' . request()->rootDomain()),

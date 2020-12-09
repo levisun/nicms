@@ -35,7 +35,7 @@ class Image
     public static function thumb(string $_img, int $_size = 100): string
     {
         if (!self::has($_img)) {
-            return $_img;
+            return self::miss();
         }
 
         $_size = intval($_size / 10) * 10;

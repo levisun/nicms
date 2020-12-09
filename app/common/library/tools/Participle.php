@@ -61,7 +61,7 @@ class Participle
     }
 
     /**
-     * 词语文字标识
+     * 词语文字指纹
      * @access private
      * @param  int     $_row 行号
      * @param  string  $_txt 行内容

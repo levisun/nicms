@@ -293,7 +293,7 @@ class Filter
             foreach ($ele[1] as $value) {
                 if (!in_array($value, self::$elements)) {
                     $preg[] = '/<' . $value . '[^<>]*>.*?<\/' . $value . '>/si';
-                    $preg[] = '/<' . $value . '[^<>]*>/si';
+                    $preg[] = '/<\/?' . $value . '[^<>]*>/si';
                 }
             }
 

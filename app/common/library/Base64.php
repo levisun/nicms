@@ -124,7 +124,7 @@ class Base64
      */
     public static function url62encode(int $_number): string
     {
-        $base62 = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $base62 = Config::get('app.url62secret', '02GcWtlRUHhixEqokMBue1FPbJsZfOLTa4DjpIrg5KC38NmS9nV7d6QwAzXYyv');
         $encode = '';
         $_number += 1000;
         $_number = (string) $_number;
@@ -148,7 +148,7 @@ class Base64
      */
     public static function url62decode(string $_encode): int
     {
-        $base62 = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $base62 = Config::get('app.url62secret', '02GcWtlRUHhixEqokMBue1FPbJsZfOLTa4DjpIrg5KC38NmS9nV7d6QwAzXYyv');
         $len = strlen($_encode);
         $arr = array_flip(str_split($base62));
 

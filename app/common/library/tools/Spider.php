@@ -128,8 +128,14 @@ class Spider
         }
 
         // 替换图片
-        $body = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) {
-            return '{TAG:img_src=' . trim($img[1], '"\'') . '}';
+        $body = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) use($host) {
+            $img[1] = trim($img[1], '"\'');
+            if (0 === strpos($img[1], '//')) {
+                $img[1] = parse_url($host, PHP_URL_SCHEME) . ':' . $img[1];
+            } elseif (0 === strpos($img[1], '/')) {
+                $img[1] = $host . $img[1];
+            }
+            return '{TAG:img_src=' . $img[1] . '}';
         }, $body);
 
         // 替换表格
