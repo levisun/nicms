@@ -20,8 +20,6 @@ use think\facade\Log;
 
 class DataManage
 {
-    private $DB = null;
-
     private $savePath;
     private $tempPath;
     private $lockPath;
@@ -30,8 +28,6 @@ class DataManage
 
     public function __construct()
     {
-        $this->DB = app('think\DbManager');
-
         $this->savePath = runtime_path('backup');
         is_dir($this->savePath) or mkdir($this->savePath, 0755, true);
 
@@ -53,10 +49,10 @@ class DataManage
 
     public function processList()
     {
-        only_execute('db_process_list.lock', '-1 hour', function () {
-            $result = $this->DB->query('show full processlist');
+        // only_execute('db_process_list.lock', '-1 hour', function () {
+            $result = app('think\DbManager')->query('show full processlist');
             foreach ($result as $value) {
-                if (1440 > $value['Time']) {
+                if (5 > $value['Time']) {
                     continue;
                 }
 
@@ -66,9 +62,12 @@ class DataManage
                     // system('kill '. $value['Id']);
                 }
 
-                Log::alert(json_encode($value));
+                $log = request()->ip() . ' ' . request()->method(true) . ' ' . $value['Time'] . 's ' .
+                request()->url(true) . PHP_EOL . $value['Info'];
+
+                Log::sql($log);
             }
-        });
+        // });
     }
 
     /**
@@ -79,12 +78,12 @@ class DataManage
     public function optimize(): bool
     {
         only_execute('db_optimize.lock', '-30 days', function () {
-            $tables = $this->DB->getTables();
+            $tables = app('think\DbManager')->getTables();
             foreach ($tables as $name) {
-                $result = $this->DB->query('ANALYZE TABLE `' . $name . '`');
+                $result = app('think\DbManager')->query('ANALYZE TABLE `' . $name . '`');
                 $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
                 if (false === $result) {
-                    $this->DB->query('OPTIMIZE TABLE `' . $name . '`');
+                    app('think\DbManager')->query('OPTIMIZE TABLE `' . $name . '`');
                     Log::alert('优化表' . $name);
                 }
             }
@@ -96,12 +95,12 @@ class DataManage
     public function repair()
     {
         only_execute('db_repair.lock', '-30 days', function () {
-            $tables = $this->DB->getTables();
+            $tables = app('think\DbManager')->getTables();
             foreach ($tables as $name) {
-                $result = $this->DB->query('CHECK TABLE `' . $name . '`');
+                $result = app('think\DbManager')->query('CHECK TABLE `' . $name . '`');
                 $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
                 if (false === $result) {
-                    $this->DB->query('REPAIR TABLE `' . $name . '`');
+                    app('think\DbManager')->query('REPAIR TABLE `' . $name . '`');
                     Log::alert('修复表' . $name);
                 }
             }
@@ -154,7 +153,7 @@ class DataManage
 
                         // 执行SQL
                         try {
-                            $this->DB->query($sql);
+                            app('think\DbManager')->query($sql);
                         } catch (\Exception $e) {
                             Log::warning('数据库还原错误' . $sql);
                             $this->error_log[] = $sql;
@@ -165,9 +164,9 @@ class DataManage
                     // 修改原表名为旧数据表,并修改备份表名为原表名,保证还原时不会损坏原数据
                     try {
                         $table_name = pathinfo($filename, PATHINFO_FILENAME);
-                        $this->DB->query('ALTER  TABLE `' . $table_name . '` RENAME TO `old_' . $table_name . '`');
-                        $this->DB->query('ALTER  TABLE `backup_' . $table_name . '` RENAME TO `' . $table_name . '`');
-                        $this->DB->query('DROP TABLE `old_' . $table_name . '`');
+                        app('think\DbManager')->query('ALTER  TABLE `' . $table_name . '` RENAME TO `old_' . $table_name . '`');
+                        app('think\DbManager')->query('ALTER  TABLE `backup_' . $table_name . '` RENAME TO `' . $table_name . '`');
+                        app('think\DbManager')->query('DROP TABLE `old_' . $table_name . '`');
                     } catch (\Exception $e) {
                         Log::warning('数据库还原错误' . $sql);
                         $this->error_log[] = $sql;
@@ -203,7 +202,7 @@ class DataManage
 
             ignore_user_abort(true);
 
-            $table_name = $this->DB->getTables();
+            $table_name = app('think\DbManager')->getTables();
             foreach ($table_name as $name) {
                 $filename = $this->tempPath . $name . '.db_back';
 
@@ -215,13 +214,13 @@ class DataManage
                 file_put_contents($filename, $sql);
 
                 // 获得主键
-                $primary = $this->DB->getPk($name);
+                $primary = app('think\DbManager')->getPk($name);
 
                 // 表字段
-                $field = $this->DB->getTableFields($name);
+                $field = app('think\DbManager')->getTableFields($name);
                 $field = '`' . implode('`, `', $field) . '`';
 
-                $this->DB->table($name)->order($primary . ' ASC')->chunk(10, function ($result) use (&$name, &$field, &$filename) {
+                app('think\DbManager')->table($name)->order($primary . ' ASC')->chunk(10, function ($result) use (&$name, &$field, &$filename) {
                     try {
                         $result = $result->toArray() ?: [];
                         if ($sql = $this->getTableData($name, $field, $result)) {
@@ -306,7 +305,7 @@ class DataManage
      */
     private function queryTableStructure(string &$_table_name)
     {
-        $tableRes = $this->DB->query('SHOW CREATE TABLE `' . $_table_name . '`');
+        $tableRes = app('think\DbManager')->query('SHOW CREATE TABLE `' . $_table_name . '`');
         if (empty($tableRes[0]['Create Table'])) {
             return false;
         }

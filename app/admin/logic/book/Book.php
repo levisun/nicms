@@ -21,6 +21,7 @@ use app\common\controller\BaseLogic;
 use app\common\library\tools\Participle;
 use app\common\library\UploadLog;
 use app\common\model\Book as ModelBook;
+use app\common\model\BookArticle as ModelBookArticle;
 use app\common\model\BookType as ModelBookType;
 
 class Book extends BaseLogic
@@ -63,7 +64,7 @@ class Book extends BaseLogic
             ->view('book_type', ['name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
             ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
             ->where($map)
-            ->order('book.is_pass ASC, book.status DESC, book.attribute DESC, book.sort_order DESC, book.id DESC')
+            ->order('book.is_pass ASC, book.status ASC, book.attribute DESC, book.sort_order DESC, book.id DESC')
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
@@ -119,9 +120,9 @@ class Book extends BaseLogic
             'keywords'    => $this->request->param('keywords'),
             'description' => $this->request->param('description'),
             'image'       => $this->request->param('image'),
-            'author_id'   => $this->request->param('author_id/d', 1, 'abs'),
-            'type_id'     => $this->request->param('type_id/d', 1, 'abs'),
-            'is_pass'     => $this->request->param('is_pass/d', 1, 'abs'),
+            'author_id'   => $this->request->param('author_id/d', 0, 'abs'),
+            'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
+            'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
             'attribute'   => $this->request->param('attribute/d', 0, 'abs'),
             'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'status'      => $this->request->param('status/d', 0, 'abs'),
@@ -198,9 +199,9 @@ class Book extends BaseLogic
             'keywords'    => $this->request->param('keywords'),
             'description' => $this->request->param('description'),
             'image'       => $this->request->param('image'),
-            'author_id'   => $this->request->param('author_id/d', 1, 'abs'),
-            'type_id'     => $this->request->param('type_id/d', 1, 'abs'),
-            'is_pass'     => $this->request->param('is_pass/d', 1, 'abs'),
+            'author_id'   => $this->request->param('author_id/d', 0, 'abs'),
+            'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
+            'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
             'attribute'   => $this->request->param('attribute/d', 0, 'abs'),
             'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
             'status'      => $this->request->param('status/d', 0, 'abs'),
@@ -247,16 +248,14 @@ class Book extends BaseLogic
             ];
         }
 
-        $image = ModelBook::where([
-            ['id', '=', $id],
-            ['lang', '=', $this->lang->getLangSet()]
-        ])->value('image');
+        $image = ModelBook::where('id', '=', $id)->value('image');
 
         if (null !== $image && $image) {
             UploadLog::remove($image);
         }
 
         ModelBook::where('id', '=', $id)->limit(1)->delete();
+        ModelBookArticle::where('book_id', '=', $id)->delete();
 
         $this->cache->tag('book')->clear();
 

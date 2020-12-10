@@ -77,42 +77,6 @@
             </div>
 
             <div class="form-group">
-                <label>{:lang('commend')}</label>
-                <label>
-                    <input type="radio" name="is_com" value="1" v-bind:checked="1==items.is_com ? true : false">
-                    {:lang('yes')}
-                </label>
-                <label>
-                    <input type="radio" name="is_com" value="0" v-bind:checked="0==items.is_com ? true : false">
-                    {:lang('no')}
-                </label>
-            </div>
-
-            <div class="form-group">
-                <label>{:lang('top')}</label>
-                <label>
-                    <input type="radio" name="is_top" value="1" v-bind:checked="1==items.is_top ? true : false">
-                    {:lang('yes')}
-                </label>
-                <label>
-                    <input type="radio" name="is_top" value="0" v-bind:checked="0==items.is_top ? true : false">
-                    {:lang('no')}
-                </label>
-            </div>
-
-            <div class="form-group">
-                <label>{:lang('hot')}</label>
-                <label>
-                    <input type="radio" name="is_hot" value="1" v-bind:checked="1==items.is_hot ? true : false">
-                    {:lang('yes')}
-                </label>
-                <label>
-                    <input type="radio" name="is_hot" value="0" v-bind:checked="0==items.is_hot ? true : false">
-                    {:lang('no')}
-                </label>
-            </div>
-
-            <div class="form-group">
                 <label>{:lang('sort')}</label>
                 <input type="text" name="sort_order" class="form-control" v-bind:value="items.sort_order">
             </div>
@@ -126,6 +90,7 @@
     var book = new Vue({
         el: '.box',
         data: {
+            type_list: [],
             items: [],
         },
         methods: {

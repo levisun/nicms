@@ -65,7 +65,7 @@ class Catalog extends BaseLogic
                         // 安书籍查询
                         ['book_id', '=', $book_id]
                     ])
-                    ->order('id ASC, sort_order ASC')
+                    ->order('sort_order ASC, id ASC')
                     ->paginate([
                         'list_rows' => $query_limit,
                         'path' => 'javascript:paging([PAGE]);',
