@@ -70,7 +70,7 @@
         methods: {
             find: function() {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.fields.find' },
@@ -83,7 +83,7 @@
                 });
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.category.query' }
@@ -99,7 +99,7 @@
                 var data = jQuery('#fields').serializeArray();
                 data.push({ name: 'method', value: 'category.fields.added' });
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {

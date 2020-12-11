@@ -63,7 +63,7 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'user.user.find' }
@@ -79,7 +79,7 @@
                 var data = jQuery('#admin').serializeArray();
                 data.push({ name: 'method', value: 'user.user.added' });
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {

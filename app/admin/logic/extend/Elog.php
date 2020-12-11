@@ -36,6 +36,7 @@ class Elog extends BaseLogic
         $salt = date('Ymd');
 
         $result = [];
+        $length = [];
         if ($files = glob(runtime_path('log') . '*')) {
             foreach ($files as $value) {
                 $result[] = [
@@ -44,10 +45,11 @@ class Elog extends BaseLogic
                     'date' => date($date_format, filectime($value)),
                     'size' => number_format(filesize($value) / 1024, 2) . 'KB',
                 ];
+                $length[] = filectime($value);
             }
         }
 
-        rsort($result);
+        array_multisort($length, SORT_DESC, $result);
 
         return [
             'debug' => false,

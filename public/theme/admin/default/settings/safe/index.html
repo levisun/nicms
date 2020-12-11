@@ -107,7 +107,7 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'settings.safe.query' }
@@ -123,7 +123,7 @@
                 var data = jQuery('#safe-config').serializeArray();
                 data.push({ name: 'method', value: 'settings.safe.editor' });
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {

@@ -50,23 +50,23 @@ class DataManage
     public function processList()
     {
         // only_execute('db_process_list.lock', '-1 hour', function () {
-            $result = app('think\DbManager')->query('show full processlist');
-            foreach ($result as $value) {
-                if (5 > $value['Time']) {
-                    continue;
-                }
+        $result = app('think\DbManager')->query('show full processlist');
+        foreach ($result as $value) {
+            if (5 > $value['Time']) {
+                continue;
+            }
 
-                if ('sleep' === strtolower($value['Command'])) {
-                    // system('kill '. $value['Id']);
-                } elseif ('locked' === strtolower($value['State'])) {
-                    // system('kill '. $value['Id']);
-                }
+            if ('sleep' === strtolower($value['Command'])) {
+                // system('kill '. $value['Id']);
+            } elseif ('locked' === strtolower($value['State'])) {
+                // system('kill '. $value['Id']);
+            }
 
-                $log = request()->ip() . ' ' . request()->method(true) . ' ' . $value['Time'] . 's ' .
+            $log = request()->ip() . ' ' . request()->method(true) . ' ' . $value['Time'] . 's ' .
                 request()->url(true) . PHP_EOL . $value['Info'];
 
-                Log::sql($log);
-            }
+            Log::sql($log);
+        }
         // });
     }
 
@@ -107,6 +107,55 @@ class DataManage
         });
 
         return true;
+    }
+
+    public function site(string $_dir = '')
+    {
+        $each = function (string $_dir, array &$_files) use (&$each) {
+            if ($result = glob($_dir . '*')) {
+                foreach ($result as $filename) {
+                    if (is_file($filename)) {
+                        $_files[] = $filename;
+                    } elseif (is_dir($filename)) {
+                        $each($filename . DIRECTORY_SEPARATOR, $_files);
+                    }
+                }
+            }
+        };
+
+        $zip_files = [];
+        if ($_dir) {
+            $each($_dir, $zip_files);
+        } else {
+            $each(root_path('app'), $zip_files);
+            $each(root_path('config'), $zip_files);
+            $each(root_path('extend'), $zip_files);
+            $each(public_path('static'), $zip_files);
+            $each(public_path('theme'), $zip_files);
+            $each(root_path('vendor'), $zip_files);
+            if ($result = glob(public_path() . '*')) {
+                foreach ($result as $filename) {
+                    if (is_file($filename)) {
+                        $zip_files[] = $filename;
+                    }
+                }
+            }
+            if ($result = glob(root_path() . '*')) {
+                foreach ($result as $filename) {
+                    if (is_file($filename)) {
+                        $zip_files[] = $filename;
+                    }
+                }
+            }
+        }
+
+        $zip = new \ZipArchive;
+        $zip_name = $this->savePath . uniqid() . '_web.zip';
+        $zip->open($zip_name, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        foreach ($zip_files as $filename) {
+            $zip->addFile($filename, str_replace(root_path(), '', $filename));
+        }
+        $zip->close();
     }
 
     /**
@@ -244,7 +293,7 @@ class DataManage
                 }
 
                 if (!empty($files)) {
-                    $zip_name = $this->savePath . uniqid() . '.zip';
+                    $zip_name = $this->savePath . uniqid() . '_db.zip';
                     $zip = new \ZipArchive;
                     $zip->open($zip_name, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
                     foreach ($files as $filename) {

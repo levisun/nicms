@@ -101,12 +101,9 @@ class Addon
         $result = Filter::space($result);
         $result = Filter::php($result);
 
-        $pos = strripos($_content, '</body>');
-        if (false !== $pos) {
-            $_content = substr($_content, 0, $pos) . $result . substr($_content, $pos);
-        } else {
-            $_content = $_content . $result;
-        }
+        $_content = false !== strripos($_content, '</body>')
+            ? str_replace('</body>', $result . '</body>', $_content)
+            : $_content . $result;
 
         return $_content;
     }

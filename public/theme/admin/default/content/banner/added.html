@@ -51,7 +51,7 @@
                 var data = jQuery('#banner').serializeArray();
                 data.push({ name: 'method', value: 'content.banner.added' });
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {
@@ -76,7 +76,7 @@
                 data.append('water', false);
 
                 jQuery.upload({
-                    url: NICMS.api_uri + '/upload.do',
+                    url: NICMS.api_uri + 'upload.do',
                     file: 'banner',
                     data: data,
                     success: function (result) {

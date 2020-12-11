@@ -25,19 +25,22 @@ class Participle extends Async
 
     public function index()
     {
-        if (!$this->validate->referer() || !$txt = $this->request->param('txt')) {
+        if (!$this->validate->referer()) {
             return miss(404, false);
         }
 
-        if (mb_strlen($txt, 'UTF-8') <= 500) {
+        $result = '';
+        $txt = $this->request->param('txt');
+        if ($txt && mb_strlen($txt, 'UTF-8') <= 500) {
             if (!$this->cache->has($txt) || !$result = $this->cache->get($txt)) {
                 $participle = new LibParticiple($txt);
-                $this->cache->set($txt, $participle->result);
+                $result = $participle->result;
+                $this->cache->set($txt, $result);
             }
-
-            return $result
-                ? $this->cache(true)->success('Words success', $result)
-                : $this->error('Words error');
         }
+
+        return $result
+            ? $this->cache(true)->success('Words success', $result)
+            : $this->error('Words error');
     }
 }

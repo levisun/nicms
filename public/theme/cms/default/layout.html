@@ -51,7 +51,7 @@
         methods: {
             navbar: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     method: 'get',
                     data: [
                         { name: 'method', value: 'nav.main.query' }
@@ -63,7 +63,7 @@
                     }
                 });
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     method: 'get',
                     data: [
                         { name: 'method', value: 'nav.foot.query' }
@@ -121,7 +121,7 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     method: 'get',
                     data: [
                         { name: 'method', value: 'nav.foot.query' }

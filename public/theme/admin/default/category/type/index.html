@@ -43,7 +43,7 @@
         methods: {
             load: function (_p) {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     push: true,
                     replace: true,
@@ -64,7 +64,7 @@
             },
             remove: function (id) {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: [
                         { name: 'method', value: 'category.type.remove' },

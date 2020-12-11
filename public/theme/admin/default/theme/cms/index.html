@@ -26,7 +26,7 @@
         methods: {
             load() {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'theme.cms.query' }
@@ -40,7 +40,7 @@
             },
             editor(_id) {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: [
                         { name: 'method', value: 'theme.cms.editor' },

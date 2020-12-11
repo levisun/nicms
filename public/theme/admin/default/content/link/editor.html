@@ -96,7 +96,7 @@
         methods: {
             find: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.category.query' }
@@ -109,7 +109,7 @@
                 });
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'content.link.find' },
@@ -128,7 +128,7 @@
             },
             filterType: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.type.query' },
@@ -147,7 +147,7 @@
                 });
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.fields.query' },
@@ -171,7 +171,7 @@
                 data.push({ name: 'model_id', value: link.model_id });
                 data.push({ name: 'id', value: NICMS.param.id });
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {
@@ -190,7 +190,7 @@
                 data.append('water', false);
 
                 jQuery.upload({
-                    url: NICMS.api_uri + '/upload.do',
+                    url: NICMS.api_uri + 'upload.do',
                     file: 'link',
                     data: data,
                     success: function (result) {

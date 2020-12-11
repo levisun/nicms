@@ -46,7 +46,7 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'extend.addon.query' }
@@ -60,7 +60,7 @@
             },
             addon: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: [
                         { name: 'method', value: 'extend.addon.backup' }
@@ -74,7 +74,7 @@
             },
             remove: function (_id) {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: [
                         { name: 'method', value: 'extend.addon.remove' },

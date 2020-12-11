@@ -115,7 +115,7 @@
         methods: {
             loadCategory: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.category.query' }
@@ -129,7 +129,7 @@
             },
             loadModel: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.model.query' }
@@ -172,7 +172,7 @@
                 }
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     push: true,
                     replace: true,
@@ -198,7 +198,7 @@
                 var data = jQuery('#article').serializeArray();
                 data.push({ name: 'method', value: 'content.article.sort' });
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {
@@ -210,7 +210,7 @@
             },
             remove: function (id) {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: [
                         { name: 'method', value: 'content.article.remove' },

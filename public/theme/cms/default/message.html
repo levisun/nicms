@@ -41,7 +41,7 @@
         methods: {
             verify: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/verify/img.do',
+                    url: NICMS.api_uri + 'verify/img.do',
                     type: 'get',
                     success: function (result) {
                         jQuery('#img-verify').attr('src', result);
@@ -50,7 +50,7 @@
             },
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'get',
                     data: [
                         { name: 'method', value: 'message.catalog.query' },
@@ -63,7 +63,7 @@
                 });
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'get',
                     data: [
                         { name: 'method', value: 'message.form.query' },
@@ -89,7 +89,7 @@
                 }
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'post',
                     data: [
                         { name: 'method', value: 'message.form.record' },

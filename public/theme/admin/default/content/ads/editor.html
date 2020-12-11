@@ -62,7 +62,7 @@
         methods: {
             find: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'content.ads.find' },
@@ -80,7 +80,7 @@
                 data.push({ name: 'method', value: 'content.ads.editor' });
                 data.push({ name: 'id', value: NICMS.param.id });
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {
@@ -105,7 +105,7 @@
                 data.append('water', false);
 
                 jQuery.upload({
-                    url: NICMS.api_uri + '/upload.do',
+                    url: NICMS.api_uri + 'upload.do',
                     file: 'ads',
                     data: data,
                     success: function (result) {

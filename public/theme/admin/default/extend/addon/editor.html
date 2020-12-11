@@ -47,7 +47,7 @@
         methods: {
             find: function() {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'extend.addon.find' },
@@ -65,7 +65,7 @@
                 data.push({ name: 'method', value: 'extend.addon.editor' });
                 data.push({ name: 'id', value: NICMS.param.id });
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {

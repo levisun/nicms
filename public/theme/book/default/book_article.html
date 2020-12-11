@@ -56,7 +56,7 @@
             },
             prevOrNext: function (_id) {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     push: true,
                     async: false,
@@ -73,7 +73,7 @@
                 });
                 if (1 === article.items.status) {
                     jQuery.pjax({
-                        url: NICMS.api_uri + '/query.do',
+                        url: NICMS.api_uri + 'query.do',
                         type: 'GET',
                         data: [
                             { name: 'method', value: 'book.spider.article' },
@@ -87,7 +87,7 @@
             },
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'book.article.query' },
@@ -99,7 +99,7 @@
 
                         if (1 === article.items.status) {
                             jQuery.pjax({
-                                url: NICMS.api_uri + '/query.do',
+                                url: NICMS.api_uri + 'query.do',
                                 type: 'GET',
                                 data: [
                                     { name: 'method', value: 'book.spider.article' },

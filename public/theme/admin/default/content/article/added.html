@@ -189,7 +189,7 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.category.query' }
@@ -201,7 +201,7 @@
                     }
                 });
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'user.level.query' },
@@ -286,7 +286,7 @@
                 if (article.model_id == 1) {
                 }
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.type.query' },
@@ -305,7 +305,7 @@
                 });
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/query.do',
+                    url: NICMS.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.fields.query' },
@@ -330,7 +330,7 @@
                 data.push({ name: 'content', value: window.editor.getData() });
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + '/handle.do',
+                    url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {
@@ -362,7 +362,7 @@
                 }
 
                 jQuery.upload({
-                    url: NICMS.api_uri + '/upload.do',
+                    url: NICMS.api_uri + 'upload.do',
                     file: 'article',
                     data: data,
                     success: function (result) {

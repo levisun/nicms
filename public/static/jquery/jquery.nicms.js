@@ -61,7 +61,7 @@
         _params.data.append('appid', jQuery('meta[name="csrf-appid"]').attr('content'));
 
         if ('POST' == _params.type || 'post' == _params.type) {
-            _params.data.append('__token__', jQuery.get_cookie('CSRF_TOKEN'));
+            _params.data.append('__token__', window.localStorage.getItem('CSRF_TOKEN'));
         }
 
         let newData = [];
@@ -79,14 +79,14 @@
             let root = window.location.host.substr(window.location.host.indexOf(".")+1);
                 root = root.substr(0, root.indexOf("."));
             xhr.setRequestHeader('Accept', 'application/vnd.' + root + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
-            xhr.setRequestHeader('Authorization', 'Bearer ' + window.atob(jQuery.get_cookie('XSRF_AUTHORIZATION')));
+            xhr.setRequestHeader('Authorization', 'Bearer ' + window.atob(window.localStorage.getItem('XSRF_AUTHORIZATION')));
         }
 
         _params.complete = function (xhr) {
             if ('undefined' !== typeof (xhr.responseText)) {
                 var result = JSON.parse(xhr.responseText);
                 if ('undefined' !== typeof (result.token)) {
-                    jQuery.set_cookie('CSRF_TOKEN', result.token);
+                    window.localStorage.setItem('CSRF_TOKEN', result.token);
                 }
             }
         }
@@ -129,7 +129,7 @@
 
         if ('POST' == _params.type || 'post' == _params.type) {
             _params.data.push({ name: 'timestamp', value: jQuery.timestamp() });
-            _params.data.push({ name: '__token__', value: jQuery.get_cookie('CSRF_TOKEN') });
+            _params.data.push({ name: '__token__', value: window.localStorage.getItem('CSRF_TOKEN') });
         }
 
         _params.data.push({ name: 'sign', value: jQuery.sign(_params.data) });
@@ -139,17 +139,17 @@
             let root = window.location.host.substr(window.location.host.indexOf(".")+1);
                 root = root.substr(0, root.indexOf("."));
             xhr.setRequestHeader('Accept', 'application/vnd.' + root + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
-            xhr.setRequestHeader('Authorization', 'Bearer ' + window.atob(jQuery.get_cookie('XSRF_AUTHORIZATION')));
+            xhr.setRequestHeader('Authorization', 'Bearer ' + window.atob(window.localStorage.getItem('XSRF_AUTHORIZATION')));
         }
 
         _params.complete = function (xhr) {
             if ('undefined' !== typeof (xhr.responseText)) {
                 var result = JSON.parse(xhr.responseText);
                 if ('undefined' !== typeof (result.token)) {
-                    jQuery.set_cookie('CSRF_TOKEN', result.token);
+                    window.localStorage.setItem('CSRF_TOKEN', result.token);
                 }
                 if ('undefined' !== typeof (result.user_token)) {
-                    jQuery.set_storage('USER_TOKEN', result.user_token);
+                    window.localStorage.setItem('USER_TOKEN', result.user_token);
                 }
             }
         }
@@ -212,7 +212,7 @@
             }
         });
         sign = sign.substr(0, sign.length - 1);
-        sign += jQuery.get_cookie('XSRF_TOKEN');
+        sign += window.localStorage.getItem('XSRF_TOKEN');
         // console.log(sign);
 
         return md5(sign);
