@@ -63,7 +63,8 @@ class DataManage
             }
 
             $log = request()->ip() . ' ' . request()->method(true) . ' ' . $value['Time'] . 's ' .
-                request()->url(true) . PHP_EOL . $value['Info'];
+                request()->url(true) . PHP_EOL .
+                'command:' . $value['Command'] . ' State:' . $value['State'] . ' Sql:' . $value['Info'];
 
             Log::sql($log);
         }

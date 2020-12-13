@@ -4,25 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-version" content="testing">
+    <meta name="csrf-version" content="1.0.0">
     <title>Document</title>
     <script src="async.js"></script>
-    <script src="extend.js"></script>
     <script src="cookie.js"></script>
     <script>
         new async({
-            type: 'post',
+            type: 'get',
             cache: false,
-            url: "//baidu.com/",
-            test: {
-                has: false,
-                arr: [1, 2, 3],
-                N: null,
-                test: {
-                    has: false,
-                    arr: [],
-                    N: null,
-                }
+            url: "http://api.nicms.com/query.do",
+            data: {
+                method: 'book.category.query'
+            },
+
+            success: function (result) {
+                console.log(result);
             }
         });
     </script>

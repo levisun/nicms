@@ -53,10 +53,8 @@ class Index extends BaseController
             // 获得栏目对应模板
             $this->model_name = ModelCategory::view('category', ['id'])
                 ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')
-                ->where([
-                    ['category.is_show', '=', 1],
-                    ['category.id', '=', $category_id],
-                ])
+                ->where('category.is_show', '=', 1)
+                ->where('category.id', '=', $category_id)
                 ->cache('theme_' . (string) $category_id)
                 ->value('model.name');
 

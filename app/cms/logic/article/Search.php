@@ -122,10 +122,8 @@ class Search extends BaseLogic
                 // 附加字段数据
                 $fields = ModelFieldsExtend::view('fields_extend', ['data'])
                     ->view('fields', ['name' => 'fields_name'], 'fields.id=fields_extend.fields_id')
-                    ->where([
-                        ['fields_extend.article_id', '=', $value['id']],
-                        ['fields.category_id', '=', $value['category_id']],
-                    ])
+                    ->where('fields_extend.article_id', '=', $value['id'])
+                    ->where('fields.category_id', '=', $value['category_id'])
                     ->select()
                     ->toArray();
                 foreach ($fields as $val) {

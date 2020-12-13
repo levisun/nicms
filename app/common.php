@@ -184,10 +184,8 @@ if (!function_exists('app_secret')) {
     {
         $app_name = app('http')->getName();
         $api_app = ModelApiApp::field('id, secret')
-            ->where([
-                ['name', '=', $app_name],
-                ['status', '=', 1]
-            ])
+            ->where('name', '=', $app_name)
+            ->where('status', '=', 1)
             ->cache('app secret' . $app_name)
             ->find();
         if ($api_app && $api_app = $api_app->toArray()) {

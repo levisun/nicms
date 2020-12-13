@@ -41,10 +41,9 @@ class Article extends BaseLogic
         if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
             $result = ModelBookArticle::view('book_article', ['id', 'book_id', 'title', 'content', 'update_time'])
                 ->view('book', ['title' => 'book_title', 'hits', 'origin', 'status'], 'book.id=book_article.book_id')
-                ->where([
-                    ['book_article.book_id', '=', $book_id],
-                    ['book_article.id', '=', $id],
-                ])->find();
+                ->where('book_article.book_id', '=', $book_id)
+                ->where('book_article.id', '=', $id)
+                ->find();
 
             if ($result && $result = $result->toArray()) {
                 // 书籍文章列表链接
@@ -93,11 +92,10 @@ class Article extends BaseLogic
         ])->order('sort_order ASC, id ASC')->min('id');
 
         $result = ModelBookArticle::field('id, title, book_id')
-            ->where([
-                ['is_pass', '=', 1],
-                ['show_time', '<', time()],
-                ['id', '=', $next_id]
-            ])->find();
+            ->where('is_pass', '=', 1)
+            ->where('show_time', '<', time())
+            ->where('id', '=', $next_id)
+            ->find();
 
         if ($result && $result = $result->toArray()) {
             $result['id'] = Base64::url62encode($result['id']);
@@ -127,11 +125,10 @@ class Article extends BaseLogic
         ])->order('sort_order ASC, id ASC')->max('id');
 
         $result = ModelBookArticle::field('id, title, book_id')
-            ->where([
-                ['is_pass', '=', 1],
-                ['show_time', '<', time()],
-                ['id', '=', $prev_id]
-            ])->find();
+            ->where('is_pass', '=', 1)
+            ->where('show_time', '<', time())
+            ->where('id', '=', $prev_id)
+            ->find();
 
         if ($result && $result = $result->toArray()) {
             $result['id'] = Base64::url62encode($result['id']);

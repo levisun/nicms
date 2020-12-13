@@ -36,10 +36,8 @@ class Type extends BaseLogic
     public function query(): array
     {
         $result = ModelBookType::field(['id', 'name', 'is_show', 'sort_order'])
-            ->where([
-                ['pid', '=', 0],
-                ['lang', '=', $this->lang->getLangSet()]
-            ])
+            ->where('pid', '=', 0)
+            ->where('lang', '=', $this->lang->getLangSet())
             ->order('sort_order ASC, id DESC')
             ->select();
 
@@ -78,10 +76,8 @@ class Type extends BaseLogic
         $this->layer++;
 
         $result = ModelBookType::field(['id', 'name', 'type_id', 'is_show', 'is_channel', 'sort_order'])
-            ->where([
-                ['pid', '=', $_pid],
-                ['lang', '=', $this->lang->getLangSet()]
-            ])
+            ->where('pid', '=', $_pid)
+            ->where('lang', '=', $this->lang->getLangSet())
             ->order('sort_order ASC, id DESC')
             ->select();
 

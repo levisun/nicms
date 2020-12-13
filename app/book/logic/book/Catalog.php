@@ -46,10 +46,8 @@ class Catalog extends BaseLogic
             $book = ModelBook::view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'image', 'hits', 'origin', 'status', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
-                ->where([
-                    ['book.id', '=', $book_id],
-                    ['is_pass', '=', '1'],
-                ])
+                ->where('book.id', '=', $book_id)
+                ->where('is_pass', '=', '1')
                 ->find();
 
             if ($book && $book = $book->toArray()) {
@@ -58,13 +56,11 @@ class Catalog extends BaseLogic
 
                 // 书籍章节
                 $result = ModelBookArticle::field(['id', 'book_id', 'title', 'update_time'])
-                    ->where([
-                        ['is_pass', '=', '1'],
-                        ['delete_time', '=', '0'],
-                        ['show_time', '<', time()],
-                        // 安书籍查询
-                        ['book_id', '=', $book_id]
-                    ])
+                    ->where('is_pass', '=', '1')
+                    ->where('delete_time', '=', '0')
+                    ->where('show_time', '<', time())
+                    // 安书籍查询
+                    ->where('book_id', '=', $book_id)
                     ->order('sort_order ASC, id ASC')
                     ->paginate([
                         'list_rows' => $query_limit,

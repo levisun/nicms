@@ -68,13 +68,11 @@ class Search extends BaseLogic
 
                 // 书籍章节
                 $result = ModelBookArticle::field(['id', 'book_id', 'title', 'update_time'])
-                    ->where([
-                        ['is_pass', '=', '1'],
-                        ['delete_time', '=', '0'],
-                        ['show_time', '<', time()],
+                    ->where('is_pass', '=', '1')
+                    ->where('delete_time', '=', '0')
+                    ->where('show_time', '<', time())
                         // 安书籍查询
-                        ['book_id', '=', $book_id]
-                    ])
+                    // ->where('book_id', '=', $book_id)
                     ->order($sort_order)
                     ->paginate([
                         'list_rows' => $query_limit,

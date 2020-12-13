@@ -37,9 +37,7 @@ class Banner extends BaseLogic
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
         $result = ModelBanner::view('banner', ['id', 'name', 'width', 'height'])
-            ->where([
-                ['id', '=', 0]
-            ])
+            ->where('id', '=', 0)
             ->order('banner.update_time DESC')
             ->paginate([
                 'list_rows' => $query_limit,

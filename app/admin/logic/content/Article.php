@@ -273,10 +273,8 @@ class Article extends BaseLogic
                 // 附加字段数据
                 $fields = ModelFieldsExtend::view('fields_extend', ['data'])
                     ->view('fields', ['id'], 'fields.id=fields_extend.fields_id')
-                    ->where([
-                        ['fields.category_id', '=', $result['category_id']],
-                        ['fields_extend.article_id', '=', $result['id']],
-                    ])
+                    ->where('fields.category_id', '=', $result['category_id'])
+                    ->where('fields_extend.article_id', '=', $result['id'])
                     ->select()
                     ->toArray();
                 foreach ($fields as $key => $value) {

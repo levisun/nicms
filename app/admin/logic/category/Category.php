@@ -37,10 +37,8 @@ class Category extends BaseLogic
     {
         $result = ModelCategory::view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
-            ->where([
-                ['category.pid', '=', 0],
-                ['category.lang', '=', $this->lang->getLangSet()]
-            ])
+            ->where('category.pid', '=', 0)
+            ->where('category.lang', '=', $this->lang->getLangSet())
             ->order('category.type_id ASC, category.sort_order ASC, category.id DESC')
             ->select();
 
@@ -81,10 +79,8 @@ class Category extends BaseLogic
 
         $result = ModelCategory::view('category', ['id', 'name', 'type_id', 'model_id', 'is_show', 'is_channel', 'sort_order'])
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
-            ->where([
-                ['category.pid', '=', $_pid],
-                ['category.lang', '=', $this->lang->getLangSet()]
-            ])
+            ->where('category.pid', '=', $_pid)
+            ->where('category.lang', '=', $this->lang->getLangSet())
             ->order('category.sort_order ASC, category.id DESC')
             ->select();
 

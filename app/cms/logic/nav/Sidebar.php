@@ -40,10 +40,8 @@ class Sidebar extends BaseLogic
                 $result = ModelCategory::view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
                     ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
                     ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
-                    ->where([
-                        ['category.is_show', '=', 1],
-                        ['category.id', '=', $id],
-                    ])
+                    ->where('category.is_show', '=', 1)
+                    ->where('category.id', '=', $id)
                     ->find();
 
                 if ($result && $result = $result->toArray()) {
@@ -85,10 +83,8 @@ class Sidebar extends BaseLogic
         $result = ModelCategory::view('category', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
             ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
-            ->where([
-                ['category.is_show', '=', 1],
-                ['category.pid', '=', $_id],
-            ])
+            ->where('category.is_show', '=', 1)
+            ->where('category.pid', '=', $_id)
             ->order('category.sort_order ASC, category.id DESC')
             ->select()
             ->toArray();

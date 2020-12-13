@@ -33,10 +33,8 @@ class Basic extends BaseLogic
     public function query(): array
     {
         $result = ModelConfig::field(['name', 'value'])
-            ->where([
-                ['lang', '=', $this->lang->getLangSet()],
-                ['name', 'in', 'cms_sitename,cms_keywords,cms_description,cms_footer,cms_copyright,cms_beian,cms_script']
-            ])
+            ->where('name', 'in', 'cms_sitename,cms_keywords,cms_description,cms_footer,cms_copyright,cms_beian,cms_script')
+            ->where('lang', '=', $this->lang->getLangSet())
             ->select();
 
         $result = $result ? $result->toArray() : [];

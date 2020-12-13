@@ -179,11 +179,9 @@ class Rbac
     {
         if ($this->config['auth_founder'] == $_uid) {
             $result = ModelNode::field(['id', 'name'])
-                ->where([
-                    ['status', '=', 1],
-                    ['level', '=', $_level],
-                    ['pid', '=', $_pid],
-                ])
+                ->where('status', '=', 1)
+                ->where('level', '=', $_level)
+                ->where('pid', '=', $_pid)
                 ->cache('NODE_FOUNDER' . $_uid . $_level . $_pid, null, 'system')
                 ->select();
         } else {
@@ -191,11 +189,9 @@ class Rbac
                 ->view('role_admin', [], 'role_admin.user_id=' . $_uid . '')
                 ->view('role', [], 'role.status=1 AND role.id=role_admin.role_id')
                 ->view('access', [], 'access.role_id=role.id AND access.node_id=node.id')
-                ->where([
-                    ['node.status', '=', 1],
-                    ['node.level', '=', $_level],
-                    ['node.pid', '=', $_pid],
-                ])
+                ->where('node.status', '=', 1)
+                ->where('node.level', '=', $_level)
+                ->where('node.pid', '=', $_pid)
                 ->cache('NODE' . $_uid . $_level . $_pid, null, 'system')
                 ->select();
         }

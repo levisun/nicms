@@ -64,10 +64,8 @@ class Breadcrumb extends BaseLogic
         $result = ModelCategory::view('category', ['id', 'name', 'pid', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
             ->view('level', ['name' => 'level_name'], 'level.id=category.access_id', 'LEFT')
-            ->where([
-                ['category.is_show', '=', 1],
-                ['category.id', '=', $_pid],
-            ])
+            ->where('category.is_show', '=', 1)
+            ->where('category.id', '=', $_pid)
             ->find();
 
         if ($result && $result = $result->toArray()) {

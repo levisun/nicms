@@ -103,10 +103,8 @@ class UploadLog
     public static function clearGarbage(): void
     {
         $result = ModelUploadFileLog::field(['id', 'file'])
-            ->where([
-                ['type', '=', 0],
-                ['create_time', '<=', strtotime('-1 days')]
-            ])
+            ->where('type', '=', 0)
+            ->where('create_time', '<=', strtotime('-1 days'))
             ->order('id ASC')
             ->limit(10)
             ->select();

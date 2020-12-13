@@ -48,14 +48,10 @@ class User extends BaseLogic
         $user = ModelAdmin::view('admin', ['id', 'username', 'password', 'salt', 'flag'])
             ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
             ->view('role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
-            ->where([
-                ['admin.status', '=', 1],
-                ['admin.username', '=', $this->request->param('username')]
-            ])
-            ->whereOr([
-                ['admin.phone', '=', $this->request->param('username')],
-                ['admin.email', '=', $this->request->param('username')]
-            ])
+            ->where('admin.status', '=', 1)
+            ->where('admin.username', '=', $this->request->param('username'))
+            ->whereOR('admin.phone', '=', $this->request->param('username'))
+            ->whereOR('admin.email', '=', $this->request->param('username'))
             ->find();
 
         $user = $user ? $user->toArray() : false;

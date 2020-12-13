@@ -38,12 +38,10 @@ class Top extends BaseLogic
             $result = ModelCategory::view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
                 ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
                 ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
-                ->where([
-                    ['c.is_show', '=', 1],
-                    ['c.type_id', '=', 1],
-                    ['c.pid', '=', 0],
-                    ['c.lang', '=', $this->lang->getLangSet()]
-                ])
+                ->where('c.is_show', '=', 1)
+                ->where('c.type_id', '=', 1)
+                ->where('c.pid', '=', 0)
+                ->where('c.lang', '=', $this->lang->getLangSet())
                 ->order('c.sort_order ASC, c.id DESC')
                 ->select();
 
@@ -88,11 +86,9 @@ class Top extends BaseLogic
         $result = ModelCategory::view('category c', ['id', 'name', 'aliases', 'image', 'is_channel', 'access_id'])
             ->view('model m', ['name' => 'action_name'], 'm.id=c.model_id')
             ->view('level level', ['name' => 'level_name'], 'level.id=c.access_id', 'LEFT')
-            ->where([
-                ['c.is_show', '=', 1],
-                ['c.type_id', '=', 1],
-                ['c.pid', '=', $_pid],
-            ])
+            ->where('c.is_show', '=', 1)
+            ->where('c.type_id', '=', 1)
+            ->where('c.pid', '=', $_pid)
             ->order('c.sort_order ASC, c.id DESC')
             ->select()
             ->toArray();

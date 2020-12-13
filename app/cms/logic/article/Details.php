@@ -36,26 +36,28 @@ class Details extends BaseLogic
      */
     public function query(): array
     {
-        $id = $category_id = false;
         if ($id = $this->request->param('id', 0, '\app\common\library\Base64::url62decode')) {
             $map = [
                 ['article.id', '=', $id],
-                ['article.is_pass', '=', 1],
-                ['article.delete_time', '=', 0],
-                ['article.access_id', '=', $this->user_role_id],
-                ['article.show_time', '<', time()],
-                ['article.lang', '=', $this->lang->getLangSet()]
             ];
         }
         // 单页
         elseif ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
             $map = [
                 ['article.category_id', '=', $category_id],
-                ['article.is_pass', '=', 1],
-                ['article.delete_time', '=', 0],
-                ['article.access_id', '=', $this->user_role_id],
-                ['article.show_time', '<', time()],
-                ['article.lang', '=', $this->lang->getLangSet()]
+            ];
+        }
+
+        $id = $category_id = false;
+        if ($id = $this->request->param('id', 0, '\app\common\library\Base64::url62decode')) {
+            $map = [
+                ['article.id', '=', $id],
+            ];
+        }
+        // 单页
+        elseif ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
+            $map = [
+                ['article.category_id', '=', $category_id],
             ];
         }
 
@@ -68,6 +70,11 @@ class Details extends BaseLogic
                     ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                     ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
                     ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
+                    ->where('article.is_pass', '=', 1)
+                    ->where('article.delete_time', '=', 0)
+                    ->where('article.access_id', '=', $this->user_role_id)
+                    ->where('article.show_time', '<', time())
+                    ->where('article.lang', '=', $this->lang->getLangSet())
                     ->where($map)
                     ->find();
 
@@ -96,10 +103,8 @@ class Details extends BaseLogic
                     // 附加字段数据
                     $fields = ModelFieldsExtend::view('fields_extend', ['data'])
                         ->view('fields', ['name' => 'fields_name'], 'fields.id=fields_extend.fields_id')
-                        ->where([
-                            ['fields_extend.article_id', '=', $result['id']],
-                            ['fields.category_id', '=', $result['category_id']],
-                        ])
+                        ->where('fields_extend.article_id', '=', $result['id'])
+                        ->where('fields.category_id', '=', $result['category_id'])
                         ->select()
                         ->toArray();
                     foreach ($fields as $value) {
@@ -225,11 +230,9 @@ class Details extends BaseLogic
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
-            ->where([
-                ['article.is_pass', '=', 1],
-                ['article.show_time', '<', time()],
-                ['article.id', '=', $next_id]
-            ])
+            ->where('article.is_pass', '=', 1)
+            ->where('article.show_time', '<', time())
+            ->where('article.id', '=', $next_id)
             ->find();
 
         if (null !== $result && $result = $result->toArray()) {
@@ -269,11 +272,9 @@ class Details extends BaseLogic
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
-            ->where([
-                ['article.is_pass', '=', 1],
-                ['article.show_time', '<', time()],
-                ['article.id', '=', $prev_id]
-            ])
+            ->where('article.is_pass', '=', 1)
+            ->where('article.show_time', '<', time())
+            ->where('article.id', '=', $prev_id)
             ->find();
 
         if (null !== $result && $result = $result->toArray()) {
