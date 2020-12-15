@@ -33,7 +33,7 @@ class IpInfo
      */
     public function get(string $_ip = ''): array
     {
-        $region = [
+        $default = [
             'ip'          => $_ip,
             'country'     => '',
             'province'    => '',
@@ -50,20 +50,15 @@ class IpInfo
         if ($_ip && $this->validate($_ip)) {
             $cache_key = __METHOD__ . $_ip;
             if (!Cache::has($cache_key) || !$region = Cache::get($cache_key)) {
-                // 查询IP地址库
-                if (!$query_region = $this->query($_ip)) {
-                    // 获得信息并录入信息
-                    if ($query_region = $this->getIpInfo($_ip)) {
-                        unset($query_region['id'], $query_region['update_time']);
-                        $query_region['ip'] = $_ip;
-
-                        Cache::tag('system')->set($cache_key, $query_region);
-                    }
+                if (!$region = $this->query($_ip)) {
+                    $region = $this->getIpInfo($_ip);
                 }
+
+                Cache::tag('system')->set($cache_key, $region);
             }
         }
 
-        return $region;
+        return !empty($region) ? $region : $default;;
     }
 
     /**
@@ -75,7 +70,7 @@ class IpInfo
     private function validate(string $_ip): bool
     {
         // 判断合法IP
-        if (false === Request::isValidIP($_ip, 'ipv4') ) {
+        if (false === Request::isValidIP($_ip, 'ipv4')) {
             return false;
         }
 
@@ -121,13 +116,16 @@ class IpInfo
             ->view('region area', ['id' => 'area_id', 'name' => 'area'], 'area.id=ipinfo.area_id', 'LEFT')
             ->where('ipinfo.ip', '=', bindec(Request::ip2bin($_ip)))
             ->find();
-        $result = $result ? $result->toArray() : false;
+        if ($result && $result = $result->toArray()) {
+            $result['ip'] = $_ip;
 
-        // 更新信息
-        if ($result && $result['update_time'] < strtotime('-90 days')) {
-            // $this->getIpInfo($_ip);
+            // 更新信息
+            if ($result['update_time'] < strtotime('-90 days')) {
+                // $this->getIpInfo($_ip);
+            }
+
+            unset($result['id'], $result['update_time']);
         }
-
 
         return $result;
     }
@@ -158,7 +156,8 @@ class IpInfo
      */
     private function getIpInfo(string &$_ip)
     {
-        $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
+        // $result = $this->get_curl('http://ip.taobao.com/service/getIpInfo.php?ip=' . $_ip);
+        $result = $this->get_curl('http://ip.taobao.com/outGetIpInfo?ip=' . $_ip . '&accessKey=alibaba-inc');
         $result = $result ? json_decode($result, true) : null;
 
         if (!is_array($result) || empty($result) || $result['code'] !== 0) {
@@ -193,7 +192,7 @@ class IpInfo
         $temp = explode('.', $_ip, 4);
         unset($temp[3]);
         $temp = implode('.', $temp) . '.';
-        for ($i=1; $i <= 255; $i++) {
+        for ($i = 0; $i <= 255; $i++) {
             $binip = bindec(Request::ip2bin($temp . $i));
             $save_data = [
                 'ip'          => $binip,

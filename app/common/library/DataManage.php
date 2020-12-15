@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use think\facade\Db;
 use think\facade\Log;
 
 class DataManage
@@ -50,7 +51,7 @@ class DataManage
     public function processList()
     {
         // only_execute('db_process_list.lock', '-1 hour', function () {
-        $result = app('think\DbManager')->query('show full processlist');
+        $result = Db::query('show full processlist');
         foreach ($result as $value) {
             if (5 > $value['Time']) {
                 continue;
@@ -79,12 +80,12 @@ class DataManage
     public function optimize(): bool
     {
         only_execute('db_optimize.lock', '-30 days', function () {
-            $tables = app('think\DbManager')->getTables();
+            $tables = Db::getTables();
             foreach ($tables as $name) {
-                $result = app('think\DbManager')->query('ANALYZE TABLE `' . $name . '`');
+                $result = Db::query('ANALYZE TABLE `' . $name . '`');
                 $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
                 if (false === $result) {
-                    app('think\DbManager')->query('OPTIMIZE TABLE `' . $name . '`');
+                    Db::query('OPTIMIZE TABLE `' . $name . '`');
                     Log::alert('优化表' . $name);
                 }
             }
@@ -96,12 +97,12 @@ class DataManage
     public function repair()
     {
         only_execute('db_repair.lock', '-30 days', function () {
-            $tables = app('think\DbManager')->getTables();
+            $tables = Db::getTables();
             foreach ($tables as $name) {
-                $result = app('think\DbManager')->query('CHECK TABLE `' . $name . '`');
+                $result = Db::query('CHECK TABLE `' . $name . '`');
                 $result = isset($result[0]['Msg_type']) ? strtolower($result[0]['Msg_type']) === 'status' : true;
                 if (false === $result) {
-                    app('think\DbManager')->query('REPAIR TABLE `' . $name . '`');
+                    Db::query('REPAIR TABLE `' . $name . '`');
                     Log::alert('修复表' . $name);
                 }
             }
@@ -203,7 +204,7 @@ class DataManage
 
                         // 执行SQL
                         try {
-                            app('think\DbManager')->query($sql);
+                            Db::query($sql);
                         } catch (\Exception $e) {
                             Log::warning('数据库还原错误' . $sql);
                             $this->error_log[] = $sql;
@@ -214,9 +215,9 @@ class DataManage
                     // 修改原表名为旧数据表,并修改备份表名为原表名,保证还原时不会损坏原数据
                     try {
                         $table_name = pathinfo($filename, PATHINFO_FILENAME);
-                        app('think\DbManager')->query('ALTER  TABLE `' . $table_name . '` RENAME TO `old_' . $table_name . '`');
-                        app('think\DbManager')->query('ALTER  TABLE `backup_' . $table_name . '` RENAME TO `' . $table_name . '`');
-                        app('think\DbManager')->query('DROP TABLE `old_' . $table_name . '`');
+                        Db::query('ALTER  TABLE `' . $table_name . '` RENAME TO `old_' . $table_name . '`');
+                        Db::query('ALTER  TABLE `backup_' . $table_name . '` RENAME TO `' . $table_name . '`');
+                        Db::query('DROP TABLE `old_' . $table_name . '`');
                     } catch (\Exception $e) {
                         Log::warning('数据库还原错误' . $sql);
                         $this->error_log[] = $sql;
@@ -252,7 +253,7 @@ class DataManage
 
             ignore_user_abort(true);
 
-            $table_name = app('think\DbManager')->getTables();
+            $table_name = Db::getTables();
             foreach ($table_name as $name) {
                 $filename = $this->tempPath . $name . '.db_back';
 
@@ -264,13 +265,13 @@ class DataManage
                 file_put_contents($filename, $sql);
 
                 // 获得主键
-                $primary = app('think\DbManager')->getPk($name);
+                $primary = Db::getPk($name);
 
                 // 表字段
-                $field = app('think\DbManager')->getTableFields($name);
+                $field = Db::getTableFields($name);
                 $field = '`' . implode('`, `', $field) . '`';
 
-                app('think\DbManager')->table($name)->order($primary . ' ASC')->chunk(10, function ($result) use (&$name, &$field, &$filename) {
+                Db::table($name)->order($primary . ' ASC')->chunk(10, function ($result) use (&$name, &$field, &$filename) {
                     try {
                         $result = $result->toArray() ?: [];
                         if ($sql = $this->getTableData($name, $field, $result)) {
@@ -355,7 +356,7 @@ class DataManage
      */
     private function queryTableStructure(string &$_table_name)
     {
-        $tableRes = app('think\DbManager')->query('SHOW CREATE TABLE `' . $_table_name . '`');
+        $tableRes = Db::query('SHOW CREATE TABLE `' . $_table_name . '`');
         if (empty($tableRes[0]['Create Table'])) {
             return false;
         }

@@ -419,7 +419,7 @@ class Parse
             }
         }
 
-        throw new Exception('template not exists:' . $_template);
+        throw new Exception('template not exists:' . str_replace(public_path() . 'theme ', '', $_template));
     }
 
     /**

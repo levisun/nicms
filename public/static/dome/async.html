@@ -6,10 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-version" content="1.0.0">
     <title>Document</title>
-    <script src="async.js"></script>
+    <script src="nicms.js"></script>
     <script src="cookie.js"></script>
     <script>
-        new async({
+        let app = new nicms();
+        app.async({
             type: 'get',
             cache: false,
             url: "http://api.nicms.com/query.do",

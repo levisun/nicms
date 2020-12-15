@@ -43,7 +43,7 @@ return [
                 \PDO::ATTR_PERSISTENT               => false,       // 长链接
                 \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,        // 查询缓存
                 \PDO::ATTR_TIMEOUT                  => 30,          // 链接超时
-                // \PDO::ATTR_EMULATE_PREPARES         => true,
+                \PDO::ATTR_EMULATE_PREPARES         => false,
             ],
             // 数据库编码默认采用utf8
             'charset'           => env('database.charset', 'utf8mb4'),

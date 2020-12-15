@@ -50,7 +50,7 @@ return [
     'external'        => '外部',
 
     'channel'         => '频道',
-    'select'          => '请点击选择',
+    'select'          => '请选择',
 
     'title'           => '标题',
     'keywords'        => '关键词',
@@ -67,6 +67,7 @@ return [
     'last login ip'   => '登录IP',
     'last login time' => '登录时间',
 
+    'pass'            => '审核',
     'is_pass'         => '已审核',
     'not_pass'        => '未审核',
 ];
