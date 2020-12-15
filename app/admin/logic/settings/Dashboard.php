@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\settings;
 
 use app\common\controller\BaseLogic;
-use app\common\model\IpInfo as ModelIpInfo;
+use app\common\model\Ipv4 as ModelIpv4;
 use app\common\model\Visit as ModelVisit;
 
 class Dashboard extends BaseLogic
@@ -72,9 +72,9 @@ class Dashboard extends BaseLogic
 
     private function total()
     {
-        $sum_ip = ModelIpInfo::count();
+        $sum_ip = ModelIpv4::count();
 
-        $day_ip = ModelIpInfo::where('create_time', '>', strtotime(date('Y-m-d')))->count();
+        $day_ip = ModelIpv4::where('create_time', '>', strtotime(date('Y-m-d')))->count();
 
         $browse = ModelVisit::fieldRaw('sum(count) as count')
             ->where('name', '=', '')
