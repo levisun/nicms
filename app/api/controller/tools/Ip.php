@@ -24,7 +24,6 @@ use app\common\library\Ipv4;
 
 class Ip extends Async
 {
-    private $token = [];
 
     public function index()
     {
@@ -33,12 +32,13 @@ class Ip extends Async
             $url = $this->request->baseUrl(true) . '?ip=' . $this->request->ip();
             return Response::create($url, 'redirect', 302);
         }
-        $referer = $this->request->server('HTTP_REFERER');
-        if (!$referer || false === stripos($referer, $this->request->rootDomain())) {
-            $token = parse_url($this->request->server('HTTP_REFERER'), PHP_URL_HOST);
-            if (!in_array($token, $this->token)) {
-                return miss(404, false);
-            }
+
+        if (0 < date('H') && 7 > date('H')) {
+            return miss(404, false);
+        }
+
+        if (0 === rand(0, 10)) {
+            return miss(404, false);
         }
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
