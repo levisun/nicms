@@ -20,9 +20,11 @@ namespace app\api\controller\tools;
 use think\Response;
 use app\common\library\api\Async;
 use app\common\library\IpInfo;
+use app\common\library\Ipv4;
 
 class Ip extends Async
 {
+    private $token = [];
 
     public function index()
     {
@@ -31,9 +33,16 @@ class Ip extends Async
             $url = $this->request->baseUrl(true) . '?ip=' . $this->request->ip();
             return Response::create($url, 'redirect', 302);
         }
+        $referer = $this->request->server('HTTP_REFERER');
+        if (!$referer || false === stripos($referer, $this->request->rootDomain())) {
+            $token = parse_url($this->request->server('HTTP_REFERER'), PHP_URL_HOST);
+            if (!in_array($token, $this->token)) {
+                return miss(404, false);
+            }
+        }
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
-        if ($ip = (new IpInfo)->get($ip)) {
+        if ($ip = (new Ipv4)->get($ip)) {
             $timestamp = $this->request->time() + 3600 * 6;
             return Response::create('const IP = ' . json_encode($ip))
                 ->allowCache(true)

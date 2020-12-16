@@ -102,6 +102,27 @@ class nicms {
         }
     }
 
+    water(img_path, content, elementId, font_size = "20px", x = 10, y = 10) {
+        let img = new Image();
+        img.src = img_path;
+        img.crossOrigin = "*";
+        img.onload = function () {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+
+            ctx.drawImage(img, 0, 0, img.width, img.height);
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            ctx.font = font_size + " Microsoft Yahei";
+            ctx.fillStyle = "rgba(255, 0, 0, 1)";
+            ctx.fillText(content, x, y);
+
+            document.getElementById(elementId).src = canvas.toDataURL();
+        }
+    }
+
     // 复制
     copy(content, message = "copy success") {
         let aux = document.createElement("input");

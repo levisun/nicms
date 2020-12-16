@@ -32,16 +32,18 @@ class ClearGarbage
         $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_dir) . DIRECTORY_SEPARATOR;
         $timestamp = $_expire ? strtotime($_expire) : 0;
 
-        if ($files = glob(rtrim($_dir, '\/.') . DIRECTORY_SEPARATOR . '*')) {
-            foreach ($files as $filename) {
-                if (is_dir($filename)) {
-                    self::clear($filename . DIRECTORY_SEPARATOR, $_expire);
-                    @rmdir($filename);
-                } elseif (is_file($filename) && 0 === $timestamp) {
-                    @unlink($filename);
-                } elseif (is_file($filename) && filemtime($filename) <= $timestamp) {
-                    @unlink($filename);
-                }
+        clearstatcache();
+        $glob = glob2each($_dir);
+        while ($glob->valid()) {
+            $filename = $glob->current();
+            $glob->next();
+
+            if (is_file($filename) && 0 === $timestamp) {
+                @unlink($filename);
+            } elseif (is_file($filename) && filemtime($filename) <= $timestamp) {
+                @unlink($filename);
+            } elseif (is_dir($filename)) {
+                @rmdir($filename);
             }
         }
     }
@@ -55,18 +57,19 @@ class ClearGarbage
     public static function clearCache(string $_dir = '')
     {
         $_dir = $_dir ?: runtime_path('cache');
-        if ($files = glob(rtrim($_dir, '\/.') . DIRECTORY_SEPARATOR . '*')) {
-            foreach ($files as $filename) {
-                if (is_dir($filename)) {
-                    self::clearCache($filename . DIRECTORY_SEPARATOR);
-                } elseif (is_file($filename) && strtotime('-1 day') > filemtime($filename)) {
-                    @unlink($filename);
-                } elseif (is_file($filename) && strtotime('-12 hour') > filemtime($filename)) {
-                    if ($content = @file_get_contents($filename)) {
-                        $expire = (int) substr($content, 8, 12);
-                        if (0 != $expire && time() - $expire > filemtime($filename)) {
-                            @unlink($filename);
-                        }
+        $glob = glob2each($_dir);
+        clearstatcache();
+        while ($glob->valid()) {
+            $filename = $glob->current();
+            $glob->next();
+
+            if (is_file($filename) && strtotime('-12 hour') > filemtime($filename)) {
+                @unlink($filename);
+            } elseif (is_file($filename) && strtotime('-3 hour') > filemtime($filename)) {
+                if ($content = @file_get_contents($filename)) {
+                    $expire = (int) substr($content, 8, 12);
+                    if (0 != $expire && time() - $expire > filemtime($filename)) {
+                        @unlink($filename);
                     }
                 }
             }
