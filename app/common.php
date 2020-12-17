@@ -282,8 +282,9 @@ if (!function_exists('glob2each')) {
         if (is_readable($_dir)) {
             $dh = opendir($_dir);
             while (($file = readdir($dh)) !== false) {
-                if (substr($file, 0, 1) == '.')
+                if ('.' === substr($file, 0, 1)) {
                     continue;
+                }
 
                 $path = $_dir . DIRECTORY_SEPARATOR . $file;
                 if (is_dir($path)) {

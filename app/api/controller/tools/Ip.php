@@ -37,9 +37,11 @@ class Ip extends Async
             return miss(404, false);
         }
 
-        if (0 === rand(0, 10)) {
+        if (0 === rand(0, 100)) {
             return miss(404, false);
         }
+
+        usleep(500000);
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
         if ($ip = (new Ipv4)->get($ip)) {

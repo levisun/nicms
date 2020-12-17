@@ -42,9 +42,7 @@ class RequestLog
         $this->api();
         $this->log();
 
-        if (1 === mt_rand(1, 100)) {
-            ModelVisit::where('date', '<', strtotime('-30 days'))->limit(100)->delete();
-        }
+        ModelVisit::where('date', '<', strtotime('-30 days'))->limit(100)->delete();
     }
 
     /**

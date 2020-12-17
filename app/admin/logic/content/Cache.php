@@ -19,6 +19,7 @@ namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
 use app\common\library\template\Compiler;
+use app\common\library\ClearGarbage;
 
 class Cache extends BaseLogic
 {
@@ -52,7 +53,7 @@ class Cache extends BaseLogic
         $this->actionLog('request cache remove');
 
         $this->cache->tag('request')->clear();
-        $this->out();
+        ClearGarbage::clearCache();
 
         return [
             'debug' => false,
@@ -75,31 +76,12 @@ class Cache extends BaseLogic
         } else {
             $this->cache->clear();
         }
-        $this->out();
+        ClearGarbage::clearCache();
 
         return [
             'debug' => false,
             'cache' => false,
             'msg'   => 'success'
         ];
-    }
-
-    public function out()
-    {
-        $glob = glob2each(runtime_path('cache'));
-        while ($glob->valid()) {
-            $filename = $glob->current();
-            $glob->next();
-
-            clearstatcache();
-            if (is_file($filename) && strtotime('-3 hour') > filemtime($filename)) {
-                if ($content = @file_get_contents($filename)) {
-                    $expire = (int) substr($content, 8, 12);
-                    if (0 != $expire && time() - $expire > filemtime($filename)) {
-                        @unlink($filename);
-                    }
-                }
-            }
-        }
     }
 }
