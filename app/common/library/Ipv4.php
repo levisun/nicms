@@ -48,7 +48,7 @@ class Ipv4
         }
         if (!Cache::has($_ip) || !$region = Cache::get($_ip)) {
             $region = $this->query($_ip);
-            Cache::tag('system')->set($_ip, $region);
+            Cache::tag('request')->set($_ip, $region);
         }
 
         return $region ?: array_merge($this->default, ['ip' => $_ip]);
@@ -195,10 +195,9 @@ class Ipv4
     {
         $_name = Filter::safe($_name);
 
-        $result = ModelRegion::where([
-            ['pid', '=', $_pid],
-            ['name', 'LIKE', $_name . '%']
-        ])->value('id');
+        $result = ModelRegion::where('pid', '=', $_pid)
+            ->where('name', 'LIKE', $_name . '%')
+            ->value('id');
 
         return $result ? (int) $result : 0;
     }

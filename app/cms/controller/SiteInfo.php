@@ -43,7 +43,7 @@ class SiteInfo
                 'name'      => $this->siteName(),
             ];
 
-            Cache::tag('system')->set($cache_key, $common);
+            Cache::tag('request')->set($cache_key, $common);
         }
 
         $cache_key .= Request::param('id', 0) . Request::param('cid', 0);
@@ -54,7 +54,7 @@ class SiteInfo
                 'description' => $this->description(),
             ];
 
-            Cache::tag('system')->set($cache_key, $result);
+            Cache::tag('request')->set($cache_key, $result);
         }
 
         return array_merge($common, $result);
@@ -68,10 +68,9 @@ class SiteInfo
     private function description(): string
     {
         // 默认
-        $description = ModelConfig::where([
-            ['name', '=', $this->appName . '_description'],
-            ['lang', '=', $this->langSet]
-        ])->value('value', '');
+        $description = ModelConfig::where('name', '=', $this->appName . '_description')
+            ->where('lang', '=', $this->langSet)
+            ->value('value', '');
 
         // 文章描述
         if ($id = Request::param('id', 0, '\app\common\library\Base64::url62decode')) {
@@ -95,10 +94,9 @@ class SiteInfo
     private function keywords(): string
     {
         // 默认
-        $keywords = ModelConfig::where([
-            ['name', '=', $this->appName . '_keywords'],
-            ['lang', '=', $this->langSet]
-        ])->value('value', '');
+        $keywords = ModelConfig::where('name', '=', $this->appName . '_keywords')
+            ->where('lang', '=', $this->langSet)
+            ->value('value', '');
 
         // 文章关键词
         if ($id = Request::param('id', 0, '\app\common\library\Base64::url62decode')) {
@@ -148,10 +146,9 @@ class SiteInfo
      */
     private function siteName(): string
     {
-        $site = ModelConfig::where([
-            ['name', '=', $this->appName . '_sitename'],
-            ['lang', '=', $this->langSet]
-        ])->value('value', 'NICMS');
+        $site = ModelConfig::where('name', '=', $this->appName . '_sitename')
+            ->where('lang', '=', $this->langSet)
+            ->value('value', 'NICMS');
 
         return strip_tags(htmlspecialchars_decode($site));
     }
@@ -163,15 +160,13 @@ class SiteInfo
      */
     private function copyright(): string
     {
-        $copyright = ModelConfig::where([
-            ['name', '=', $this->appName . '_copyright'],
-            ['lang', '=', $this->langSet]
-        ])->value('value', '');
+        $copyright = ModelConfig::where('name', '=', $this->appName . '_copyright')
+            ->where('lang', '=', $this->langSet)
+            ->value('value', '');
 
-        $beian = ModelConfig::where([
-            ['name', '=', $this->appName . '_beian'],
-            ['lang', '=', $this->langSet]
-        ])->value('value', '');
+        $beian = ModelConfig::where('name', '=', $this->appName . '_beian')
+            ->where('lang', '=', $this->langSet)
+            ->value('value', '');
 
         return
             Filter::contentDecode($copyright) . '&nbsp;' .
@@ -187,10 +182,9 @@ class SiteInfo
      */
     private function footer(): string
     {
-        $footer = ModelConfig::where([
-            ['name', '=', $this->appName . '_footer'],
-            ['lang', '=', $this->langSet]
-        ])->value('value', '');
+        $footer = ModelConfig::where('name', '=', $this->appName . '_footer')
+            ->where('lang', '=', $this->langSet)
+            ->value('value', '');
 
         return htmlspecialchars_decode($footer);
     }
@@ -202,10 +196,9 @@ class SiteInfo
      */
     private function script(): string
     {
-        $result = ModelConfig::where([
-            ['name', '=', $this->appName . '_script'],
-            ['lang', '=', $this->langSet]
-        ])->value('value', '');
+        $result = ModelConfig::where('name', '=', $this->appName . '_script')
+            ->where('lang', '=', $this->langSet)
+            ->value('value', '');
 
         $result = preg_replace([
             '/(\s+\n|\r)/s',
@@ -225,10 +218,9 @@ class SiteInfo
      */
     private function theme(): string
     {
-        $theme = ModelConfig::where([
-            ['name', '=', $this->appName . '_theme'],
-            ['lang', '=', $this->langSet]
-        ])->value('value', 'default');
+        $theme = ModelConfig::where('name', '=', $this->appName . '_theme')
+            ->where('lang', '=', $this->langSet)
+            ->value('value', 'default');
 
         return strip_tags(htmlspecialchars_decode($theme));
     }

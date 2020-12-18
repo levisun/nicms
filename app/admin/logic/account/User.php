@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\account;
 
 use app\common\controller\BaseLogic;
-use app\common\library\IpInfo;
+use app\common\library\Ipv4;
 use app\common\library\Base64;
 use app\common\library\Image;
 use app\common\library\Rbac;
@@ -81,7 +81,7 @@ class User extends BaseLogic
         }
 
         // 更新登录信息
-        $info = (new IpInfo)->get($this->request->ip());
+        $info = (new Ipv4)->get($this->request->ip());
         ModelAdmin::where('id', '=', $user['id'])
             ->limit(1)
             ->update([

@@ -359,17 +359,16 @@ class Article extends BaseLogic
             // 自定义字段
             if ($field = $this->request->param('fields/a', false)) {
                 foreach ($field as $key => $value) {
-                    $has = ModelFieldsExtend::where([
-                        ['article_id', '=', $id],
-                        ['fields_id', '=', $key]
-                    ])->value('id');
+                    $has = ModelFieldsExtend::where('article_id', '=', $id)
+                        ->where('fields_id', '=', $key)
+                        ->value('id');
                     if ($has) {
-                        ModelFieldsExtend::where([
-                            ['article_id', '=', $id],
-                            ['fields_id', '=', $key],
-                        ])->limit(1)->update([
-                            'data' => $value
-                        ]);
+                        ModelFieldsExtend::where('article_id', '=', $id)
+                            ->where('fields_id', '=', $key)
+                            ->limit(1)
+                            ->update([
+                                'data' => $value
+                            ]);
                     } else {
                         ModelFieldsExtend::create([
                             'article_id' => $id,

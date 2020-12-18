@@ -75,11 +75,11 @@ class Throttle
         $rate = round(60 / 600, 3);
         if ($last_time && $last_time < $rate) {
             trace('lock UR:' . $_request->ip() . ' ' . date('Y-m-d H:i:s') . ' ' . $last_time . '<' . $rate);
-            Cache::set($_request->ip() . 'lock', 'UR', 1440);
+            Cache::tag('request')->set($_request->ip() . 'lock', 'UR', 1440);
         }
 
         if (!Cache::has($cache_key)) {
-            Cache::set($cache_key, $last_time, 60);
+            Cache::tag('request')->set($cache_key, $last_time, 60);
         }
     }
 
@@ -95,18 +95,17 @@ class Throttle
         // 记录IP一小时访问总量
         $cache_key = 'an hour ip total' . $_request->ip();
         $total = 0;
-        if (Cache::has($cache_key . 'last time') && Cache::has($cache_key)) {
+        if (Cache::has($cache_key)) {
             $total = (int) Cache::get($cache_key);
             Cache::inc($cache_key);
         } else {
-            Cache::set($cache_key . 'last time', date('Y-m-d H:i:s'), 3600);
-            Cache::set($cache_key, 1, 86400);
+            Cache::tag('request')->set($cache_key, 1, 3600);
         }
 
         // IP一小时访问超过一定数量锁定
-        if (1000 <= $total) {
+        if (1000 < $total) {
             trace('lock IR:' . $_request->ip() . ' ' . date('Y-m-d H:i:s'));
-            Cache::set($_request->ip() . 'lock', 'IR', 1440);
+            Cache::tag('request')->set($_request->ip() . 'lock', 'IR', 1440);
         }
     }
 

@@ -218,13 +218,12 @@ class Details extends BaseLogic
      */
     private function next(int $_article_id, int $_category_id)
     {
-        $next_id = ModelArticle::where([
-            ['is_pass', '=', 1],
-            ['category_id', 'in', $this->child($_category_id)],
-            ['show_time', '<', time()],
-            ['id', '>', $_article_id],
-            ['lang', '=', $this->lang->getLangSet()]
-        ])->min('id');
+        $next_id = ModelArticle::where('is_pass', '=', 1)
+            ->where('category_id', 'in', $this->child($_category_id))
+            ->where('show_time', '<', time())
+            ->where('id', '>', $_article_id)
+            ->where('lang', '=', $this->lang->getLangSet())
+            ->min('id');
         // ->order('is_top DESC, is_hot DESC, is_com DESC, sort_order DESC, update_time DESC')
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
@@ -261,13 +260,12 @@ class Details extends BaseLogic
      */
     private function prev(int $_article_id, int $_category_id)
     {
-        $prev_id = ModelArticle::where([
-            ['is_pass', '=', 1],
-            ['category_id', 'in', $this->child($_category_id)],
-            ['show_time', '<', time()],
-            ['id', '<', $_article_id],
-            ['lang', '=', $this->lang->getLangSet()]
-        ])->max('id');
+        $prev_id = ModelArticle::where('is_pass', '=', 1)
+            ->where('category_id', 'in', $this->child($_category_id))
+            ->where('show_time', '<', time())
+            ->where('id', '<', $_article_id)
+            ->where('lang', '=', $this->lang->getLangSet())
+            ->max('id');
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')

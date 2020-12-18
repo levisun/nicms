@@ -106,10 +106,9 @@ class Spider extends BaseLogic
                             }
                             $title = Filter::safe($title[0]);
 
-                            $has = ModelBookArticle::where([
-                                ['book_id', '=', $_book_id],
-                                ['title', '=', $title],
-                            ])->value('id');
+                            $has = ModelBookArticle::where('book_id', '=', $_book_id)
+                                ->where('title', '=', $title)
+                                ->value('id');
                             if (!$has) {
                                 $content = $spider->select('div#content');
                                 $content = htmlspecialchars_decode($content[0], ENT_QUOTES);

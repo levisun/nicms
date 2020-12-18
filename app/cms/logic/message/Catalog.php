@@ -41,10 +41,8 @@ class Catalog extends BaseLogic
             $cache_key = 'cms message list' . $category_id . $query_limit . $query_page . $date_format;
 
             if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
-                $result = ModelMessage::where([
-                    ['is_pass', '=', 1],
-                    ['category_id', '=', $category_id],
-                ])
+                $result = ModelMessage::where('is_pass', '=', 1)
+                    ->where('category_id', '=', $category_id)
                     ->order('id DESC')
                     ->paginate([
                         'list_rows' => $query_limit,

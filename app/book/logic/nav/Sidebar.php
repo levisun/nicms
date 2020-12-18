@@ -37,10 +37,8 @@ class Sidebar extends BaseLogic
             $cache_key = 'book nav sidebar' . $cid;
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $id = $this->parent((int) $cid);
-                $result = ModelBookType::where([
-                        ['is_show', '=', 1],
-                        ['id', '=', $id],
-                    ])
+                $result = ModelBookType::where('is_show', '=', 1)
+                    ->where('id', '=', $id)
                     ->find();
 
                 if (null !== $result && $result = $result->toArray()) {
@@ -71,10 +69,8 @@ class Sidebar extends BaseLogic
      */
     private function child(int $_id): array
     {
-        $result = ModelBookType::where([
-                ['is_show', '=', 1],
-                ['pid', '=', $_id],
-            ])
+        $result = ModelBookType::where('is_show', '=', 1)
+            ->where('pid', '=', $_id)
             ->order('sort_order ASC, id DESC')
             ->select()
             ->toArray();

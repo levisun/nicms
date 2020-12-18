@@ -127,9 +127,7 @@ class Banner extends BaseLogic
         $result = [];
 
         if ($id = $this->request->param('id/d', 0, 'abs')) {
-            $result = ModelBanner::where([
-                ['id', '=', $id],
-            ])->find();
+            $result = ModelBanner::where('id', '=', $id)->find();
             $result['image_url'] = unserialize($result['image_url']);
             $result['url'] = unserialize($result['url']);
         }
@@ -176,9 +174,7 @@ class Banner extends BaseLogic
         }
 
         // 删除旧图片
-        $image_url = ModelBanner::where([
-            ['id', '=', $id],
-        ])->value('image_url');
+        $image_url = ModelBanner::where('id', '=', $id)->value('image_url');
         $image_url = unserialize($image_url);
 
         foreach ($image_url as $img) {
@@ -224,9 +220,7 @@ class Banner extends BaseLogic
         }
 
         // 删除图片
-        $image_url = ModelBanner::where([
-            ['id', '=', $id],
-        ])->value('image_url');
+        $image_url = ModelBanner::where('id', '=', $id)->value('image_url');
         $image_url = unserialize($image_url);
 
         foreach ($image_url as $img) {

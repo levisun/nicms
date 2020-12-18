@@ -34,6 +34,9 @@ class AppInit
 
     public function handle(Request $request, Closure $next)
     {
+        if (!$request->rootDomain()) {
+            miss(404, false, true);
+        }
         // IP进入显示空页面
         if ($request->isValidIP($request->host(true), 'ipv4') || $request->isValidIP($request->host(true), 'ipv6')) {
             miss(404, false, true);

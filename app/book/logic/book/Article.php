@@ -84,12 +84,12 @@ class Article extends BaseLogic
      */
     private function next(int $_article_id, int $_book_id)
     {
-        $next_id = ModelBookArticle::where([
-            ['is_pass', '=', 1],
-            ['show_time', '<', time()],
-            ['id', '>', $_article_id],
-            ['book_id', '=', $_book_id],
-        ])->order('sort_order ASC, id ASC')->min('id');
+        $next_id = ModelBookArticle::where('is_pass', '=', 1)
+            ->where('show_time', '<', time())
+            ->where('id', '>', $_article_id)
+            ->where('book_id', '=', $_book_id)
+            ->order('sort_order ASC, id ASC')
+            ->min('id');
 
         $result = ModelBookArticle::field('id, title, book_id')
             ->where('is_pass', '=', 1)
@@ -117,12 +117,12 @@ class Article extends BaseLogic
      */
     private function prev(int $_article_id, int $_book_id)
     {
-        $prev_id = ModelBookArticle::where([
-            ['is_pass', '=', 1],
-            ['show_time', '<', time()],
-            ['id', '<', $_article_id],
-            ['book_id', '=', $_book_id],
-        ])->order('sort_order ASC, id ASC')->max('id');
+        $prev_id = ModelBookArticle::where('is_pass', '=', 1)
+            ->where('show_time', '<', time())
+            ->where('id', '<', $_article_id)
+            ->where('book_id', '=', $_book_id)
+            ->order('sort_order ASC, id ASC')
+            ->max('id');
 
         $result = ModelBookArticle::field('id, title, book_id')
             ->where('is_pass', '=', 1)

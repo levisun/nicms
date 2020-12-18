@@ -61,10 +61,8 @@ class Breadcrumb extends BaseLogic
      */
     private function parentCate(int $_pid)
     {
-        $result = ModelBookType::where([
-                ['is_show', '=', 1],
-                ['id', '=', $_pid],
-            ])
+        $result = ModelBookType::where('is_show', '=', 1)
+            ->where('id', '=', $_pid)
             ->find();
 
         if (null !== $result && $result = $result->toArray()) {

@@ -33,20 +33,24 @@ class Ip extends Async
             return Response::create($url, 'redirect', 302);
         }
 
-        if (0 < date('H') && 7 > date('H')) {
-            return miss(404, false);
-        }
-
-        if (0 === rand(0, 100)) {
-            return miss(404, false);
-        }
-
         usleep(500000);
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
-        if ($ip = (new Ipv4)->get($ip)) {
+
+        if (!$this->request->param('true')) {
+            $old = $ip;
+            $ip = explode('.', $ip, 4);
+            unset($ip[3]);
+            $ip = implode('.', $ip) . '.0';
+        }
+
+        if ($result = (new Ipv4)->get($ip)) {
+            if (isset($old)) {
+                $result['ip'] = $old;
+            }
+
             $timestamp = $this->request->time() + 3600 * 6;
-            return Response::create('const IP = ' . json_encode($ip))
+            return Response::create('const IP = ' . json_encode($result))
                 ->allowCache(true)
                 ->cacheControl('max-age=28800,must-revalidate')
                 ->expires(gmdate('D, d M Y H:i:s', $timestamp + 28800) . ' GMT')

@@ -244,10 +244,9 @@ class Type extends BaseLogic
             ];
         }
 
-        $image = ModelBookType::where([
-            ['id', '=', $id],
-            ['lang', '=', $this->lang->getLangSet()]
-        ])->value('image');
+        $image = ModelBookType::where('id', '=', $id)
+            ->where('lang', '=', $this->lang->getLangSet())
+            ->value('image');
 
         if (null !== $image && $image) {
             UploadLog::remove($image);

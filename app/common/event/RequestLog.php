@@ -62,15 +62,15 @@ class RequestLog
         }
 
         if ($spider) {
-            $has = ModelVisit::where([
-                ['name', '=', $spider],
-                ['date', '=', strtotime(date('Y-m-d'))]
-            ])->value('name');
+            $has = ModelVisit::where('name', '=', $spider)
+                ->where('date', '=', strtotime(date('Y-m-d')))
+                ->value('name');
             if ($has) {
-                ModelVisit::where([
-                    ['name', '=', $spider],
-                    ['date', '=', strtotime(date('Y-m-d'))]
-                ])->inc('count', 1)->update();
+                ModelVisit::where('name', '=', $spider)
+                    ->where('date', '=', strtotime(date('Y-m-d')))
+                    ->inc('count', 1)
+                    ->limit(1)
+                    ->update();
             } else {
                 ModelVisit::create([
                     'name' => $spider,
@@ -92,38 +92,21 @@ class RequestLog
             $method  = 'API:' . ltrim(Request::baseUrl(), '/');
             $method .= Request::param('method') ? '::' . Request::param('method') : '';
 
-            $has = ModelVisit::where([
-                ['name', '=', $method],
-                ['date', '=', strtotime(date('Y-m-d'))]
-            ])->value('name');
+            $has = ModelVisit::where('name', '=', $method)
+                ->where('date', '=', strtotime(date('Y-m-d')))
+                ->value('name');
             if ($has) {
-                ModelVisit::where([
-                    ['name', '=', $method],
-                    ['date', '=', strtotime(date('Y-m-d'))]
-                ])->inc('count', 1)->update();
+                ModelVisit::where('name', '=', $method)
+                    ->where('date', '=', strtotime(date('Y-m-d')))
+                    ->inc('count', 1)
+                    ->limit(1)
+                    ->update();
             } else {
                 ModelVisit::create([
                     'name' => $method,
                     'date' => strtotime(date('Y-m-d'))
                 ]);
             }
-
-            // $ip = 'API:' .  Request::ip();
-            // $has = ModelVisit::where([
-            //     ['name', '=', $ip],
-            //     ['date', '=', strtotime(date('Y-m-d'))]
-            // ])->value('name');
-            // if ($has) {
-            //     ModelVisit::where([
-            //         ['name', '=', $ip],
-            //         ['date', '=', strtotime(date('Y-m-d'))]
-            //     ])->inc('count', 1)->update();
-            // } else {
-            //     ModelVisit::create([
-            //         'name' => $ip,
-            //         'date' => strtotime(date('Y-m-d'))
-            //     ]);
-            // }
         }
     }
 

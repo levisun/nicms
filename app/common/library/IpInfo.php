@@ -54,7 +54,7 @@ class IpInfo
                     $region = $this->getIpInfo($_ip);
                 }
 
-                Cache::tag('system')->set($cache_key, $region);
+                Cache::tag('request')->set($cache_key, $region);
             }
         }
 

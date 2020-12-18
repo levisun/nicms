@@ -134,10 +134,9 @@ class Admin extends BaseLogic
             $result = $result ? $result->toArray() : [];
         }
 
-        $role = ModelRole::where([
-            ['id', '<>', 1],
-            ['status', '=', 1]
-        ])->select();
+        $role = ModelRole::where('id', '<>', 1)
+            ->where('status', '=', 1)
+            ->select();
         $result['role_list'] = $role ? $role->toArray() : [];
 
         return [

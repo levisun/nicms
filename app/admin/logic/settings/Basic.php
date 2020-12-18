@@ -78,12 +78,12 @@ class Basic extends BaseLogic
         }
 
         foreach ($receive_data as $key => $value) {
-            ModelConfig::where([
-                ['name', '=', $key],
-                ['lang', '=', $this->lang->getLangSet()],
-            ])->limit(1)->update([
-                'value' => $value
-            ]);
+            ModelConfig::where('name', '=', $key)
+                ->where('lang', '=', $this->lang->getLangSet())
+                ->limit(1)
+                ->update([
+                    'value' => $value
+                ]);
         }
 
         $this->cache->tag('system')->clear();

@@ -35,11 +35,9 @@ class Main extends BaseLogic
     {
         $cache_key = 'book nav main' . $this->lang->getLangSet();
         if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
-            $result = ModelBookType::where([
-                    ['is_show', '=', 1],
-                    ['pid', '=', 0],
-                    ['lang', '=', $this->lang->getLangSet()]
-                ])
+            $result = ModelBookType::where('is_show', '=', 1)
+                ->where('pid', '=', 0)
+                ->where('lang', '=', $this->lang->getLangSet())
                 ->order('sort_order ASC, id DESC')
                 ->select()
                 ->toArray();
@@ -72,10 +70,8 @@ class Main extends BaseLogic
      */
     private function child(int $_pid): array
     {
-        $result = ModelBookType::where([
-                ['is_show', '=', 1],
-                ['pid', '=', $_pid],
-            ])
+        $result = ModelBookType::where('is_show', '=', 1)
+            ->where('pid', '=', $_pid)
             ->order('sort_order ASC, id DESC')
             ->select()
             ->toArray();

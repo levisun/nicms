@@ -83,6 +83,7 @@ class Filter
         if (is_string($_data) && $_data) {
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = Base64::emojiDecode($_data);
+            $_data = self::sensitive($_data);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::contentDecode($value);
@@ -116,10 +117,19 @@ class Filter
             $words = self::symbol($words);
             $words = self::space($words);
             $words = explode(',', $words);
-            sort($words);
-            $words = array_map(function ($value) {
-                return strtolower(trim($value));
-            }, $words);
+            foreach ($words as $key => $value) {
+                $value = strtolower(trim($value));
+                $value = (string) preg_replace_callback('/./u', function (array $matches) {
+                    return $matches[0] . ' ';
+                }, $value);
+
+                $value = (string) preg_replace_callback('/\\\u([0-9a-f]{4})/si', function ($matches) {
+                    return '\x{' . $matches[1] . '}';
+                }, json_encode($value));
+                $value = trim($value, '"');
+                $value = str_replace(' ', '\s*', $value);
+                $words[$key] = $value;
+            }
             $words = array_filter($words);
             $words = array_unique($words);
 
@@ -133,11 +143,6 @@ class Filter
             while ($regex = array_slice($words, 100 * $num, 100)) {
                 $num++;
                 $regex = implode('|', $regex);
-                $regex = (string) preg_replace_callback('/\\\u([0-9a-f]{4})/si', function ($matches) {
-                    return '\x{' . $matches[1] . '}';
-                }, json_encode($regex));
-                $regex = trim($regex, '"');
-
                 $_str = (string) preg_replace_callback('/' . $regex . '/u', function () {
                     return '&#42;&#42;';
                 }, $_str);

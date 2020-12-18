@@ -97,8 +97,9 @@ class Addon
         }
 
         // 安全过滤
-        $result = Filter::symbol($result);
+        // $result = Filter::symbol($result);
         $result = Filter::space($result);
+        $result = Filter::html_attr($result);
         $result = Filter::php($result);
 
         $_content = false !== strripos($_content, '</body>')
@@ -148,7 +149,7 @@ class Addon
                     continue;
                 }
             }
-            Cache::tag('system')->set($cache_key, $result);
+            Cache::tag('request')->set($cache_key, $result);
         }
 
         return $result;

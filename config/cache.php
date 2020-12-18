@@ -25,7 +25,7 @@ return [
             // 缓存前缀
             'prefix'        => '',
             // 缓存有效期 0表示永久缓存
-            'expire'        => env('cache.expire', 1440) - mt_rand(1, 60),
+            'expire'        => env('cache.expire', 1440),
             // 关闭子目录
             'cache_subdir'  => true,
             // 启用数据压缩
@@ -44,7 +44,7 @@ return [
             // 端口
             'port'   => 6379,
             // 缓存有效期 0表示永久缓存
-            'expire' => env('cache.expire', 1440) - mt_rand(1, 60),
+            'expire' => env('cache.expire', 1440),
         ],
         // 更多的缓存连接
     ],

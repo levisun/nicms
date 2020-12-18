@@ -19,7 +19,7 @@ namespace app\api\controller\tools;
 
 use think\Response;
 use app\common\library\api\Async;
-use app\common\library\IpInfo;
+use app\common\library\Ipv4;
 use app\common\model\Visit as ModelVisit;
 
 class Record extends Async
@@ -32,18 +32,18 @@ class Record extends Async
         }
 
         $user_agent = strtolower($this->request->server('HTTP_USER_AGENT'));
-        $ip = (new IpInfo)->get($this->request->ip());
-        $has = ModelVisit::where([
-            ['ip', '=', $ip['ip']],
-            ['user_agent', '=', md5($user_agent)],
-            ['date', '=', strtotime(date('Y-m-d'))]
-        ])->value('ip');
+        $ip = (new Ipv4)->get($this->request->ip());
+        $has = ModelVisit::where('ip', '=', $ip['ip'])
+            ->where('user_agent', '=', md5($user_agent))
+            ->where('date', '=', strtotime(date('Y-m-d')))
+            ->value('ip');
         if ($has) {
-            ModelVisit::where([
-                ['ip', '=', $ip['ip']],
-                ['user_agent', '=', md5($user_agent)],
-                ['date', '=', strtotime(date('Y-m-d'))]
-            ])->inc('count', 1)->update();
+            ModelVisit::where('ip', '=', $ip['ip'])
+                ->where('user_agent', '=', md5($user_agent))
+                ->where('date', '=', strtotime(date('Y-m-d')))
+                ->inc('count', 1)
+                ->limit(1)
+                ->update();
         } else {
             ModelVisit::create([
                 'ip'         => $ip['ip'],
@@ -52,6 +52,25 @@ class Record extends Async
                 'date'       => strtotime(date('Y-m-d'))
             ]);
         }
+
+        if ($referer = $this->request->param('url')) {
+            $has = ModelVisit::where('name', '=', $referer)
+                ->where('date', '=', strtotime(date('Y-m-d')))
+                ->value('name');
+            if ($has) {
+                ModelVisit::where('name', '=', $referer)
+                    ->where('date', '=', strtotime(date('Y-m-d')))
+                    ->inc('count', 1)
+                    ->limit(1)
+                    ->update();
+            } else {
+                ModelVisit::create([
+                    'name' => $referer,
+                    'date' => strtotime(date('Y-m-d'))
+                ]);
+            }
+        }
+
 
         $timestamp = $this->request->time() + 3600 * 6;
         return Response::create()->allowCache(true)

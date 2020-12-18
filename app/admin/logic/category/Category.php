@@ -287,10 +287,9 @@ class Category extends BaseLogic
             ];
         }
 
-        $image = ModelCategory::where([
-            ['id', '=', $id],
-            ['lang', '=', $this->lang->getLangSet()]
-        ])->value('image');
+        $image = ModelCategory::where('id', '=', $id)
+            ->where('lang', '=', $this->lang->getLangSet())
+            ->value('image');
 
         if (null !== $image && $image) {
             UploadLog::remove($image);
