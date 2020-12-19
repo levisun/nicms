@@ -27,9 +27,10 @@ Route::group(function () {
     Route::get('tools/download$', 'tools.Download/index');      // 下载接口
     Route::get('ip$', 'tools.Ip/index');
     Route::get('tools/ip$', 'tools.Ip/index');                  // IP信息接口
+    Route::post('tools/participle$', 'tools.Participle/index'); // 分词
     Route::get('tools/record$', 'tools.Record/index');          // 访问日志
+    Route::get('tools/report$', 'tools.Report/index');          // 举报
     Route::get('tools/spider$', 'tools.Spider/index');          // 爬虫
-    Route::post('tools/participle$', 'tools.Participle/index');           // 分词
 
     // 验证码接口
     Route::get('verify/img$', 'verify.Img/index');

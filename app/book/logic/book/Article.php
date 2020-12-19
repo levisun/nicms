@@ -26,7 +26,7 @@ class Article extends BaseLogic
 {
 
     /**
-     * 查询列表
+     * 查询内容
      * @access public
      * @return array
      */

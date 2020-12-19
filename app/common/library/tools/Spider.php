@@ -26,7 +26,7 @@ class Spider
 {
     private $client = null;
     private $crawler = null;
-    private $result = '';
+    private $xhtml = '';
     public $agent = '';
 
     public function __construct()
@@ -34,8 +34,12 @@ class Spider
         @ini_set('memory_limit', '16M');
     }
 
-    public function pageInfo(int $_length = 0)
+    public function pageInfo(int $_length = 0): array
     {
+        if (!$this->xhtml) {
+            return [];
+        }
+
         $result = [];
         if (preg_match('/<!\-\- website:([^<>]+) \-\->/si', htmlspecialchars_decode($this->getHtml(), ENT_QUOTES), $matches)) {
             $result['url'] = trim($matches[1]);
@@ -63,7 +67,9 @@ class Spider
             if (0 === strpos($value['href'], '#')) {
                 $value['href'] = '';
             }
-            if (0 === strpos($value['href'], '/')) {
+            if (0 === strpos($value['href'], '//')) {
+                $value['href'] = parse_url($host, PHP_URL_SCHEME) . ':' . $value['href'];
+            } elseif (0 === strpos($value['href'], '/')) {
                 $value['href'] = $host . $value['href'];
             }
             $result['links'][] = $value['href'];
@@ -74,7 +80,9 @@ class Spider
         $imgs = $this->select('img', ['src']);
         foreach ($imgs as $value) {
             $value['src'] = isset($value['src']) ? htmlspecialchars_decode($value['src'], ENT_QUOTES) : '';
-            if (0 === strpos($value['src'], '/')) {
+            if (0 === strpos($value['src'], '//')) {
+                $value['src'] = parse_url($host, PHP_URL_SCHEME) . ':' . $value['src'];
+            } elseif (0 === strpos($value['src'], '/')) {
                 $value['src'] = $host . $value['src'];
             }
             $result['imgs'][] = $value['src'];
@@ -128,7 +136,7 @@ class Spider
         }
 
         // 替换图片
-        $body = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) use($host) {
+        $body = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) use ($host) {
             $img[1] = trim($img[1], '"\'');
             if (0 === strpos($img[1], '//')) {
                 $img[1] = parse_url($host, PHP_URL_SCHEME) . ':' . $img[1];
@@ -193,6 +201,8 @@ class Spider
                 '/[^<>]*\x{5173}\x{6ce8}[^<>]*/u',
                 // 公众号
                 '/[^<>]*\x{516c}\x{4f17}\x{53f7}[^<>]*/u',
+                // 版权所有
+                '/[^<>]*\x{7248}\x{6743}\x{6240}\x{6709}[^<>]*/u',
                 // 无用字符
                 // '/[\w\d]{10,}/i',
 
@@ -202,7 +212,7 @@ class Spider
             $content = (string) preg_replace($pattern, '', $content);
 
             // 恢复图片
-            $content = preg_replace_callback('/\{TAG:img_src=([^<>\s]+)\}/si', function ($img) {
+            $content = preg_replace_callback('/\{TAG:img_src=([^<>\{\}\s]*)\}/si', function ($img) {
                 return '<img src="' . trim($img[1], '"\'') . '" />';
             }, $content);
 
@@ -225,6 +235,10 @@ class Spider
      */
     public function select(string $_element, array $_attr = []): array
     {
+        if (!$this->xhtml) {
+            return [];
+        }
+
         $_element = (string) preg_replace_callback('/#([\w\d\-]+)/si', function ($matches) {
             $matches[1] = trim($matches[1]);
             return '[contains(@id,"' . trim($matches[1], '#.:') . '")]';
@@ -246,9 +260,11 @@ class Spider
             ? '*' . trim($_element, '#.:')
             : trim($_element, '#.:');
 
+        $result = [];
+
         $dom = new \DOMDocument();
         libxml_use_internal_errors(true);
-        $dom->loadHTML(htmlspecialchars_decode($this->result, ENT_QUOTES));
+        $dom->loadHTML(htmlspecialchars_decode($this->xhtml, ENT_QUOTES));
         libxml_clear_errors();
 
         $xpath = new \DOMXPath($dom);
@@ -258,7 +274,6 @@ class Spider
             $pattern = '(' . implode('|', $_attr) . ')=["\']+(.*?)["\']+';
         }
 
-        $result = [];
         foreach ($nodeList as $node) {
             $node = $dom->saveHTML($node);
             if (isset($pattern) && false !== preg_match_all('/' . $pattern . '/si', $node, $matches) && !empty($matches)) {
@@ -303,14 +318,14 @@ class Spider
      */
     public function getHtml(): string
     {
-        return $this->result;
+        return $this->xhtml;
     }
 
     public function getCrawler()
     {
         $this->crawler = new Crawler;
-        if ($this->result) {
-            $this->crawler->addContent(htmlspecialchars_decode($this->result, ENT_QUOTES));
+        if ($this->xhtml) {
+            $this->crawler->addContent(htmlspecialchars_decode($this->xhtml, ENT_QUOTES));
         }
         return $this->crawler;
     }
@@ -329,8 +344,10 @@ class Spider
             return false;
         }
 
+        $this->xhtml = '';
+
         $cache_key = 'spider request' . $_uri;
-        if (!Cache::has($cache_key) || !$this->result = Cache::get($cache_key)) {
+        if (!Cache::has($cache_key) || !$this->xhtml = Cache::get($cache_key)) {
             usleep(rand(150, 200) * 10000);
 
             $this->client = new HttpBrowser;
@@ -364,46 +381,46 @@ class Spider
             trace($_uri, 'info');
 
             // 获得HTML文档内容
-            $this->result = $this->client->getInternalResponse()->getContent();
+            $this->xhtml = $this->client->getInternalResponse()->getContent();
 
             // 检查字符编码
             $headers = $this->client->getInternalResponse()->getHeaders();
             if (isset($headers['content-type'][0]) && preg_match('/charset=([\w\-]+)/si', $headers['content-type'][0], $charset) && !empty($charset)) {
                 $charset = strtoupper($charset[1]);
-            } elseif (preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->result, $charset) && !empty($charset)) {
+            } elseif (preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->xhtml, $charset) && !empty($charset)) {
                 $charset = strtoupper($charset[1]);
             }
 
             if ($charset !== 'UTF-8') {
                 $charset = 0 === stripos($charset, 'GB') ? 'GBK' : $charset;
-                $this->result = @iconv($charset, 'UTF-8//IGNORE', (string) $this->result);
+                $this->xhtml = @iconv($charset, 'UTF-8//IGNORE', (string) $this->xhtml);
             }
 
-            $this->result = preg_replace_callback('/charset=["\']?([\w\-]{1,})["\']?/si', function ($charset) {
+            $this->xhtml = preg_replace_callback('/charset=["\']?([\w\-]{1,})["\']?/si', function ($charset) {
                 return str_replace($charset[1], 'UTF-8', $charset[0]);
-            }, $this->result);
+            }, $this->xhtml);
 
 
             // 过滤回车和多余空格
-            $this->result = Filter::symbol($this->result);
-            $this->result = Filter::space($this->result);
-            $this->result = Filter::php($this->result);
+            $this->xhtml = Filter::symbol($this->xhtml);
+            $this->xhtml = Filter::space($this->xhtml);
+            $this->xhtml = Filter::php($this->xhtml);
 
             // 添加访问网址
-            $this->result = '<!-- website:' . $_uri . ' -->' . PHP_EOL . $this->result;
+            $this->xhtml = '<!-- website:' . $_uri . ' -->' . PHP_EOL . $this->xhtml;
 
             // 添加单页支持
             $base = parse_url($_uri, PHP_URL_PATH);
             $base = $base ? str_replace('\\', '/', rtrim(dirname($base), '\/')) . '/' : '';
             $base = parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . $base;
-            $this->result = str_replace('<head>', '<head>' . '<base href="' . $base . '" />', $this->result);
+            $this->xhtml = str_replace('<head>', '<head>' . '<base href="' . $base . '" />', $this->xhtml);
 
-            $length = mb_strlen(strip_tags($this->result), 'utf-8');
+            $length = mb_strlen(strip_tags($this->xhtml), 'utf-8');
 
-            $this->result = htmlspecialchars($this->result, ENT_QUOTES);
+            $this->xhtml = htmlspecialchars($this->xhtml, ENT_QUOTES);
 
             if (300 < $length) {
-                Cache::set($cache_key, $this->result, 28800);
+                Cache::set($cache_key, $this->xhtml, 28800);
             }
         }
 

@@ -37,11 +37,12 @@ class Ip extends Async
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
 
-        if (!$this->request->param('true')) {
+        $referer = $this->request->server('HTTP_REFERER');
+        if (!$referer || false === stripos($referer, $this->request->rootDomain())) {
             $old = $ip;
             $ip = explode('.', $ip, 4);
-            unset($ip[3]);
-            $ip = implode('.', $ip) . '.0';
+            $ip[3] = 0;
+            $ip = implode('.', $ip);
         }
 
         if ($result = (new Ipv4)->get($ip)) {
