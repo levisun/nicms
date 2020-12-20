@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace app\api\controller\verify;
 
-use app\common\library\api\Async;
+use app\common\controller\BaseApi;
 
-class Sms extends Async
+class Sms extends BaseApi
 {
 
     /**

@@ -17,10 +17,10 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\common\controller\Async;
+use app\common\controller\BaseApi;
 use app\common\library\Filter;
 
-class Wechat extends Async
+class Wechat extends BaseApi
 {
 
     public function jssdk()

@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\common\library\api\Async;
+use app\common\controller\BaseApi;
 
-class Query extends Async
+class Query extends BaseApi
 {
 
     public function index()

@@ -16,7 +16,11 @@ declare(strict_types=1);
 
 namespace app\common\library\api;
 
-use app\common\library\api\Base;
+use think\Response;
+use think\exception\HttpResponseException;
+use think\facade\Config;
+use think\facade\Lang;
+use think\facade\Request;
 
 use app\common\library\Base64;
 use app\common\library\Filter;
@@ -26,21 +30,21 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\ValidationData;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 
-class Analytical extends Base
+class Analytical
 {
     /**
      * 开启版本控制
      * 默认关闭
      * @var bool
      */
-    protected $openVersion = false;
+    public $openVersion = false;
 
     /**
      * 版本号
      * 解析[accept]获得
      * @var array
      */
-    protected $version = [
+    public $version = [
         // 'paradigm' => '1',
         'major'    => '1',
         'minor'    => '0',
@@ -52,13 +56,13 @@ class Analytical extends Base
      * 解析[accept]获得
      * @var string
      */
-    protected $format = 'json';
+    public $format = 'json';
 
     /**
      * 应用方法
      * @var array
      */
-    protected $appMethod = [
+    public $appMethod = [
         'logic'  => null,
         'method' => null,
         'action' => null,
@@ -69,25 +73,25 @@ class Analytical extends Base
      * 应用名
      * @var string
      */
-    protected $appName = '';
+    public $appName = '';
 
     /**
      * APP密钥
      * @var string
      */
-    protected $appSecret;
+    public $appSecret;
 
     /**
      * APP密钥
      * @var string
      */
-    protected $appAuthKey = 'user_auth_key';
+    public $appAuthKey = 'user_auth_key';
 
     /**
      * session id
      * @var string
      */
-    protected $sessionId;
+    public $sessionId;
 
     /**
      * 解析method参数
@@ -97,8 +101,10 @@ class Analytical extends Base
     public function method(): void
     {
         // 校验方法名格式
-        $method = $this->request->param('method');
+        $method = Request::param('method');
         if (!$method || !!!preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $method)) {
+
+
             $this->abort('The method parameter is empty or formatted incorrectly.', 25001);
         }
 
@@ -136,11 +142,11 @@ class Analytical extends Base
      */
     public function loadLang(): void
     {
-        $this->lang->load([
+        Lang::load([
             // 公众语言包
-            root_path('app/common/lang') . $this->lang->getLangSet() . '.php',
+            root_path('app/common/lang') . Lang::getLangSet() . '.php',
             // API方法所属应用的语言包
-            root_path('app/' . $this->appName . '/lang') . $this->lang->getLangSet() . '.php',
+            root_path('app/' . $this->appName . '/lang') . Lang::getLangSet() . '.php',
         ]);
     }
 
@@ -151,7 +157,7 @@ class Analytical extends Base
      */
     public function appId(): void
     {
-        $app_id = $this->request->param('appid/d', 0, 'abs');
+        $app_id = Request::param('appid/d', 0, 'abs');
         if (!$app_id || $app_id < 1000001) {
             $this->abort('The appid parameter is wrong.', 21001);
         }
@@ -180,7 +186,7 @@ class Analytical extends Base
      */
     public function accept(): void
     {
-        $accept = (string) $this->request->header('accept', '');
+        $accept = (string) Request::header('accept', '');
         $pattern = '/^application\/vnd\.[a-zA-Z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[a-zA-Z0-9]+\+[a-zA-Z]{3,5}+$/u';
         if (!$accept || !!!preg_match($pattern, $accept)) {
             $this->abort('The accept parameter is wrong.', 20004);
@@ -193,7 +199,7 @@ class Analytical extends Base
         $accept = str_replace('application/vnd.', '', $accept);
         // 校验域名合法性
         list($domain, $accept) = explode('.', $accept, 2);
-        list($root) = explode('.', $this->request->rootDomain(), 2);
+        list($root) = explode('.', Request::rootDomain(), 2);
         if (!hash_equals($domain, $root)) {
             $this->abort('Accept parameter domain name error.', 20005);
         }
@@ -233,7 +239,7 @@ class Analytical extends Base
      */
     public function authorization(): void
     {
-        $authorization = (string) $this->request->header('authorization', '');
+        $authorization = (string) Request::header('authorization', '');
         $authorization = str_replace('&#43;', '+', $authorization);
         $authorization = str_replace('Bearer ', '', $authorization);
         if (!$authorization || !!!preg_match('/^[\w\-]+\.[\w\-]+\.[\w\-]+$/u', $authorization)) {
@@ -243,14 +249,14 @@ class Analytical extends Base
         // 校验authorization合法性
         $token = (new Parser)->parse($authorization);
         // 密钥
-        // $key  = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
+        // $key  = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         // $key = sha1(Base64::encrypt($key));
 
         $data = new ValidationData;
-        $data->setIssuer($this->request->rootDomain());
-        $data->setAudience(parse_url($this->request->server('HTTP_REFERER'), PHP_URL_HOST));
+        $data->setIssuer(Request::rootDomain());
+        $data->setAudience(parse_url(Request::server('HTTP_REFERER'), PHP_URL_HOST));
         $data->setId($token->getClaim('jti'));
-        $data->setCurrentTime($this->request->time() + 2880);
+        $data->setCurrentTime(Request::time() + 2880);
 
         if (false === $token->verify(new Sha256, Base64::asyncSecret()) || false === $token->validate($data)) {
             $this->abort('The authentication information is incorrect.', 20002);
@@ -262,10 +268,21 @@ class Analytical extends Base
         // Session初始化并规定sessionID
         $jti = Base64::decrypt($token->getClaim('jti'));
         $jti = Filter::safe($jti);
-        if ($jti && is_file(runtime_path('session/' . $this->config->get('session.prefix')) . 'sess_' . $jti)) {
+        if ($jti && is_file(runtime_path('session/' . Config::get('session.prefix')) . 'sess_' . $jti)) {
             $this->sessionId = $jti;
         } else {
             $this->abort('The authentication information is incorrect.', 20003);
         }
+    }
+
+    private function abort(string $_msg, int $_code)
+    {
+        $result = [
+            'code'    => $_code,
+            'message' => $_msg,
+        ];
+        $response = Response::create($result, 'json');
+        ob_start('ob_gzhandler');
+        throw new HttpResponseException($response);
     }
 }

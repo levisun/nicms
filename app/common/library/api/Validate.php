@@ -16,10 +16,13 @@ declare(strict_types=1);
 
 namespace app\common\library\api;
 
-use app\common\library\api\Base;
+use think\Response;
+use think\exception\HttpResponseException;
+use think\facade\Request;
+
 use app\common\library\Rbac;
 
-class Validate extends Base
+class Validate
 {
     /**
      * 不用验证
@@ -41,19 +44,19 @@ class Validate extends Base
     public function sign(string $_app_secret): void
     {
         // 校验签名类型
-        $sign_type = $this->request->param('sign_type', 'md5');
+        $sign_type = Request::param('sign_type', 'md5');
         if (!function_exists($sign_type)) {
             $this->abort('The signature type is wrong.', 22001);
         }
 
         // 校验签名合法性
-        $sign = $this->request->param('sign');
+        $sign = Request::param('sign');
         if (!$sign || !!!preg_match('/^[A-Za-z0-9]+$/u', $sign)) {
             $this->abort('The signature is wrong.', 22002);
         }
 
         // 获得原始数据
-        $params = $this->request->param('', '', 'trim');
+        $params = Request::param('', '', 'trim');
         $params = array_merge($params, $_FILES);
         ksort($params);
 
@@ -69,7 +72,7 @@ class Validate extends Base
         }
         $str  = rtrim($str, '&');
 
-        // $key = date('Ymd') . $this->request->ip() . $this->request->rootDomain() . $this->request->server('HTTP_USER_AGENT');
+        // $key = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         // $str .= sha1($_app_secret . $key);
         $str .= $_app_secret;
 
@@ -85,7 +88,7 @@ class Validate extends Base
      */
     public function timestamp(): bool
     {
-        $timestamp = $this->request->param('timestamp/d', $this->request->time(), 'abs');
+        $timestamp = Request::param('timestamp/d', Request::time(), 'abs');
         if ($timestamp <= strtotime('-1 minutes') && $timestamp >= strtotime('+30 seconds')) {
             $this->abort('The request timed out.', 23001);
         }
@@ -100,7 +103,7 @@ class Validate extends Base
      */
     public function fromToken(): bool
     {
-        if ($this->request->isPost() && false === $this->request->checkToken()) {
+        if (Request::isPost() && false === Request::checkToken()) {
             $this->abort('The request form token is wrong.', 24002);
         }
 
@@ -114,8 +117,8 @@ class Validate extends Base
      */
     public function referer(): bool
     {
-        $referer = $this->request->server('HTTP_REFERER');
-        if (!$referer || false === stripos($referer, $this->request->rootDomain())) {
+        $referer = Request::server('HTTP_REFERER');
+        if (!$referer || false === stripos($referer, Request::rootDomain())) {
             $this->abort('The source request was incorrect.', 24001);
         }
 
@@ -147,5 +150,16 @@ class Validate extends Base
                 }
             }
         }
+    }
+
+    private function abort(string $_msg, int $_code)
+    {
+        $result = [
+            'code'    => $_code,
+            'message' => $_msg,
+        ];
+        $response = Response::create($result, 'json');
+        ob_start('ob_gzhandler');
+        throw new HttpResponseException($response);
     }
 }

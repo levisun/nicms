@@ -18,10 +18,10 @@ declare(strict_types=1);
 namespace app\api\controller\verify;
 
 use think\Response;
-use app\common\library\api\Async;
+use app\common\controller\BaseApi;
 use think\captcha\facade\Captcha;
 
-class Img extends Async
+class Img extends BaseApi
 {
 
     /**

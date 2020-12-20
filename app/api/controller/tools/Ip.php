@@ -18,11 +18,11 @@ declare(strict_types=1);
 namespace app\api\controller\tools;
 
 use think\Response;
-use app\common\library\api\Async;
+use app\common\controller\BaseApi;
 use app\common\library\IpInfo;
 use app\common\library\Ipv4;
 
-class Ip extends Async
+class Ip extends BaseApi
 {
 
     public function index()

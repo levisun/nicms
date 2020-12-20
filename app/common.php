@@ -281,12 +281,14 @@ if (!function_exists('glob2each')) {
         $_dir = rtrim($_dir, '\/*');
         if (is_readable($_dir)) {
             $dh = opendir($_dir);
-            while (($file = readdir($dh)) !== false) {
-                if ('.' === substr($file, 0, 1)) {
+            while ($file = readdir($dh)) {
+                if ('.' === substr($file, 0, 1))
                     continue;
-                }
 
                 $path = $_dir . DIRECTORY_SEPARATOR . $file;
+
+                yield $path;
+
                 if (is_dir($path)) {
                     $sub = glob2each($path);
                     while ($sub->valid()) {
@@ -294,7 +296,6 @@ if (!function_exists('glob2each')) {
                         $sub->next();
                     }
                 }
-                yield $path;
             }
         }
     }

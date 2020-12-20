@@ -17,10 +17,10 @@ declare(strict_types=1);
 
 namespace app\api\controller\tools;
 
-use app\common\library\api\Async;
+use app\common\controller\BaseApi;
 use app\common\library\tools\Participle as LibParticiple;
 
-class Participle extends Async
+class Participle extends BaseApi
 {
 
     public function index()

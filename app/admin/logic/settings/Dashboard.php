@@ -88,9 +88,20 @@ class Dashboard extends BaseLogic
         $browse = $browse ? $browse->toArray() : ['count' => 0];
         $browse = (int) $browse['count'];
 
+        $glob = glob2each(runtime_path('cache'));
+        $cache_total = 0;
+        while ($glob->valid()) {
+            $filename = $glob->current();
+            $glob->next();
+            if (is_file($filename)) {
+                $cache_total++;
+            }
+        }
+
         return [
             'ip'      => format_hits($sum_ip) . '/' . format_hits($day_ip),
             'session' => format_hits(count((array) glob(runtime_path('session') . '*'))),
+            'cache'   => format_hits($cache_total),
             'access'  => [
                 'browse' => format_hits($browse),
             ]

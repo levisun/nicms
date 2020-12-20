@@ -96,12 +96,19 @@ abstract class BaseController
         // 设置请求默认过滤方法
         $this->request->filter('\app\common\library\Filter::safe');
 
+        // 请勿更改参数(超时,执行内存)
+        @ignore_user_abort(false);
         @set_time_limit(60);
         @ini_set('max_execution_time', '60');
         @ini_set('memory_limit', '16M');
 
         // 控制器初始化
         $this->initialize();
+    }
+
+    public function __destruct()
+    {
+        ignore_user_abort(false);
     }
 
     // 初始化

@@ -18,9 +18,9 @@ declare(strict_types=1);
 namespace app\api\controller\tools;
 
 use think\Response;
-use app\common\library\api\Async;
+use app\common\controller\BaseApi;
 
-class Download extends Async
+class Download extends BaseApi
 {
 
     public function index()

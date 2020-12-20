@@ -42,7 +42,7 @@ class RequestLog
         $this->api();
         $this->log();
 
-        ModelVisit::where('date', '<', strtotime('-15 days'))->limit(100)->delete();
+        ModelVisit::where('date', '<', strtotime('-7 days'))->limit(10)->delete();
     }
 
     /**

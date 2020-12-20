@@ -206,7 +206,6 @@ class DataManage
                         try {
                             Db::query($sql);
                         } catch (\Exception $e) {
-                            ignore_user_abort(false);
                             Log::warning('数据库还原错误' . $sql);
                             $this->error_log[] = $sql;
                         }
@@ -220,7 +219,6 @@ class DataManage
                         Db::query('ALTER  TABLE `backup_' . $table_name . '` RENAME TO `' . $table_name . '`');
                         Db::query('DROP TABLE `old_' . $table_name . '`');
                     } catch (\Exception $e) {
-                        ignore_user_abort(false);
                         Log::warning('数据库还原错误' . $sql);
                         $this->error_log[] = $sql;
                     }
@@ -283,7 +281,6 @@ class DataManage
                         // 持续查询状态并不利于处理任务，每10ms执行一次，此时释放CPU，降低机器负载
                         usleep(10000);
                     } catch (\Exception $e) {
-                        ignore_user_abort(false);
                         Log::warning($e->getMessage());
                         halt($e->getMessage());
                     }

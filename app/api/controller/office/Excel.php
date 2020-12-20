@@ -18,10 +18,10 @@ declare(strict_types=1);
 namespace app\api\controller\office;
 
 use think\Response;
-use app\common\library\api\Async;
+use app\common\controller\BaseApi;
 use app\common\library\tools\OfficeExcel;
 
-class Excel extends Async
+class Excel extends BaseApi
 {
 
     /**
