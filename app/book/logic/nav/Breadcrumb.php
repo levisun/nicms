@@ -18,8 +18,8 @@ declare(strict_types=1);
 namespace app\book\logic\nav;
 
 use app\common\controller\BaseLogic;
+use app\common\library\tools\Image;
 use app\common\library\Base64;
-use app\common\library\Image;
 use app\common\model\BookType as ModelBookType;
 
 class Breadcrumb extends BaseLogic

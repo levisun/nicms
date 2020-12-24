@@ -125,20 +125,25 @@ class ClearGarbage
      * 删除上传目录中的空目录
      * @access public
      * @static
-     * @param  string $_dir
      * @return void
      */
-    public static function uploadEmptyDirectory(string $_dir = ''): void
+    public static function uploadEmptyDirectory(): void
     {
-        $_dir = $_dir ? $_dir : public_path('storage/uploads');
-        if ($files = glob(rtrim($_dir, '\/.') . DIRECTORY_SEPARATOR . '*')) {
-            foreach ($files as $file) {
-                if (is_dir($file)) {
-                    self::uploadEmptyDirectory($file . DIRECTORY_SEPARATOR);
-                }
+        $glob = glob2each(public_path('storage/uploads'));
+        $dir = '';
+        while ($glob->valid()) {
+            $filename = $glob->current();
+            $glob->next();
+
+            if (is_dir($filename)) {
+                $dir = $filename;
+            } elseif ($dir && is_file($filename) && false === strpos($filename, $dir)) {
+                @rmdir($dir);
+                $dir = '';
             }
-        } else {
-            @rmdir($_dir);
+        }
+        if ($dir) {
+            @rmdir($dir);
         }
     }
 }

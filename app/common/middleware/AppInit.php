@@ -62,14 +62,10 @@ class AppInit
             // 生成token
             ->getToken(new Sha256, new Key(Base64::asyncSecret()));
 
-        // Cookie::set('XSRF_AUTHORIZATION', trim(base64_encode($authorization), '='), ['httponly' => false]);
-
         $secret = app_secret();
         $secret = sha1($secret['secret'] . Base64::asyncSecret());
-        // Cookie::set('XSRF_TOKEN', $secret, ['httponly' => false]);
 
         $app_token = $request->buildToken('__token__', 'md5');
-        // Cookie::set('CSRF_TOKEN', $app_token, ['httponly' => false]);
 
         $content = $response->getContent();
 

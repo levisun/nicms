@@ -20,7 +20,7 @@ use app\common\library\Base64;
 
 class Filter
 {
-    private static $elements = ['a', 'audio', 'b', 'br', 'blockquote', 'center', 'dd', 'del', 'div', 'dl', 'dt', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'img', 'li', 'ol', 'p', 'pre', 'section', 'small', 'span', 'strong', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul', 'video'];
+    private static $elements = ['a', 'audio', 'article', 'b', 'br', 'blockquote', 'center', 'dd', 'del', 'div', 'dl', 'dt', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'img', 'li', 'ol', 'p', 'pre', 'section', 'small', 'span', 'strong', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul', 'video'];
 
     private static $attr = ['alt', 'align', 'async', 'charset', 'class', 'content', 'defer', 'height', 'href', 'id', 'name', 'rel', 'src', 'style', 'target', 'title', 'type', 'width'];
 
@@ -117,25 +117,20 @@ class Filter
             $words = self::symbol($words);
             $words = self::space($words);
             $words = explode(',', $words);
-            foreach ($words as $key => $value) {
-                $value = strtolower(trim($value));
-                $value = (string) preg_replace_callback('/./u', function (array $matches) {
-                    return $matches[0] . ' ';
-                }, $value);
-
-                $value = (string) preg_replace_callback('/\\\u([0-9a-f]{4})/si', function ($matches) {
-                    return '\x{' . $matches[1] . '}';
-                }, json_encode($value));
-                $value = trim($value, '"');
-                $value = str_replace(' ', '\s*', $value);
-                $words[$key] = $value;
-            }
             $words = array_filter($words);
             $words = array_unique($words);
-
             $length = [];
             foreach ($words as $key => $value) {
                 $length[$key] = mb_strlen($value, 'utf-8');
+
+                $words[$key] = (string) preg_replace_callback('/./u', function (array $matches) {
+                    $matches[0] = trim(json_encode($matches[0]), '"');
+                    $matches[0] = (string) preg_replace_callback('/\\\u([0-9a-f]{4})/si', function ($chs) {
+                        return '\x{' . $chs[1] . '}';
+                    }, $matches[0]);
+                    $matches[0] = '|' !== $matches[0] ? $matches[0] . '\s*' : $matches[0];
+                    return $matches[0];
+                }, $value);
             }
             array_multisort($length, SORT_DESC, $words);
 
@@ -359,11 +354,12 @@ class Filter
             '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;', '`' => '&acute;',
             '(' => '&#40;', ')' => '&#41;',
 
+            // '*' => '&#42;',
+
             // '_' => '&#95;',
             // '`' => '&#96;',
 
             // '"' => '&#34;', '\'' => '&#39;',
-            // '*' => '&#42;',
         ];
 
         $_str = (string) str_ireplace(array_keys($pattern), array_values($pattern), $_str);

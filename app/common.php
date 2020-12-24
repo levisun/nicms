@@ -211,11 +211,12 @@ if (!function_exists('client_id')) {
             $token .= bindec(Request::ip2bin(Request::ip()));
             $token .= date('YmdHis');
             $token .= Request::time(true);
-            $token .= number_format(microtime(true) - app()->getBeginTime(), 3);
-            $token .= number_format((memory_get_usage() - app()->getBeginMem()) / 1048576, 3);
+            $token .= mt_rand(1000, 9999) . mt_rand(1000, 9999);
+            $token .= microtime(true) . app()->getBeginTime();
+            $token .= memory_get_usage() . app()->getBeginMem();
 
             $token = hash_hmac('sha256', $token, uniqid($token, true));
-            $token = sha1(uniqid($token, true));
+            $token = md5(uniqid($token, true));
 
             Cookie::set('CID', $token, ['httponly' => false]);
         }

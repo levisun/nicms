@@ -48,19 +48,26 @@ class Category extends BaseLogic
             $map[] = ['book.type_id', '=', $type_id];
         }
 
+        // 排序,为空依次安置顶,最热,推荐,自定义顺序,最新发布时间排序
+        if ($sort_order = $this->request->param('sort')) {
+            $sort_order = 'book.' . $sort_order;
+        } else {
+            $sort_order = 'book.attribute DESC, book.sort_order DESC, book.status ASC, book.id DESC';
+        }
+
         $query_limit = $this->request->param('limit/d', 20, 'abs');
 
         $query_page = $this->request->param('page/d', 1, 'abs');
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
-        $cache_key = 'book list' . $attribute . $status . $type_id . $query_limit . $query_page . $date_format;
+        $cache_key = 'book list' . $attribute . $status . $type_id . $sort_order . $query_limit . $query_page . $date_format;
 
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
-            $result = ModelBook::view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'hits', 'update_time'])
+            $result = ModelBook::view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'hits', 'status', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
                 ->where($map)
-                ->order('book.attribute DESC, book.sort_order DESC, book.id DESC')
+                ->order($sort_order)
                 ->paginate([
                     'list_rows' => $query_limit,
                     'path' => 'javascript:paging([PAGE]);',

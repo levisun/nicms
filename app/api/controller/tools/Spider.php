@@ -41,20 +41,11 @@ class Spider extends BaseApi
         $uri = Filter::contentDecode($uri);
         $uri = str_replace('&nbsp;', '', $uri);
 
-        try {
-            if (!$this->cache->has($uri) || !$result = $this->cache->get($uri)) {
-                $spider = new LibSpider;
-                if ($spider->request($method, $uri)) {
-                    $result = $selector
-                        ? $spider->fetch($selector, $extract)
-                        : $spider->html();
-                    $this->cache->set($uri, $result);
-                }
-            }
-        } catch (\Exception $e) {
-            trace($uri, 'error');
-            trace($e->getFile() . $e->getLine() . $e->getMessage(), 'error');
-        }
+        $spider = new LibSpider;
+        $spider->request($method, $uri);
+        $result = $selector
+            ? $spider->select($selector, $extract)
+            : $spider->getHtml();
 
         return !empty($result)
             ? $this->cache(1440)->success('spider success', $result)

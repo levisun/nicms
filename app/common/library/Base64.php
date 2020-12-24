@@ -168,7 +168,7 @@ class Base64
      */
     public static function asyncSecret(): string
     {
-        $secret = date('Ymd') . Request::ip() . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $secret = date('Ymd') . bindec(Request::ip2bin(Request::ip())) . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
         return sha1(self::encrypt($secret));
     }
 

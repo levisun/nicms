@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace app\common\library;
+namespace app\common\library\tools;
 
 use think\facade\Cache;
 use think\facade\Request;
@@ -42,11 +42,11 @@ class Ipv4
 
     public function get(string $_ip)
     {
-        $result = $this->validate($_ip);
-        if (true !== $result) {
-            return array_merge($this->default, ['ip' => $_ip, 'country' => $result]);
-        }
         if (!Cache::has($_ip) || !$region = Cache::get($_ip)) {
+            $result = $this->validate($_ip);
+            if (true !== $result) {
+                return array_merge($this->default, ['ip' => $_ip, 'country' => $result]);
+            }
             $region = $this->query($_ip);
             Cache::tag('request')->set($_ip, $region);
         }
@@ -73,7 +73,7 @@ class Ipv4
             $result['ip'] = $_ip;
 
             // 更新信息
-            if ($result['update_time'] < strtotime('-90 days')) {
+            if ($result['update_time'] < strtotime('-30 days')) {
                 // $this->update($_ip);
             }
 

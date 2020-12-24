@@ -83,7 +83,7 @@ class Tag
                         $value["cat_url"] = url("list/" . \app\common\library\Base64::url62encode($value["category_id"]));
                         $value["url"] = url("details/" . \app\common\library\Base64::url62encode($value["category_id"]) . "/" . \app\common\library\Base64::url62encode($value["id"]));
                         $value["flag"] = \app\common\library\Base64::flag($value["category_id"] . $value["id"], 7);
-                        $value["thumb"] = \app\common\library\Image::path($value["thumb"], 300);
+                        $value["thumb"] = \app\common\library\tools\Image::path($value["thumb"], 300);
                         $value["update_time"] = date("' . $_attr['date_format'] . '", (int) $value["update_time"]);
                         $value["author"] = $value["author"] ?: $value["username"];
                         unset($value["username"]);
@@ -158,7 +158,7 @@ class Tag
             }
             $parseStr .= '->find();
                 if ($result && $result = $result->toArray()):
-                    $result["thumb"] = \app\common\library\Image::path($result["thumb"]);
+                    $result["thumb"] = \app\common\library\tools\Image::path($result["thumb"]);
                     $result["cat_url"] = url("list/" . \app\common\library\Base64::url62encode($result["category_id"]));
                     $result["url"] = url("details/" . \app\common\library\Base64::url62encode($result["category_id"]) . "/" . \app\common\library\Base64::url62encode($result["id"]));
                     $result["flag"] = \app\common\library\Base64::flag($result["category_id"] . $result["id"], 7);
@@ -193,7 +193,7 @@ class Tag
                     $content = \app\common\model\ArticleContent::where("article_id", "=", $result["id"])->find();
                     if ($content && $content = $content->toArray()):
                         unset($content["id"], $content["article_id"]);
-                        $result["content"] = \app\common\library\Image::path($content["content"]);
+                        $result["content"] = \app\common\library\tools\Image::path($content["content"]);
                     endif;
 
                     cache("' . $cache_key . '", $result);

@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
-use app\common\library\Image;
+use app\common\library\tools\Image;
 use app\common\library\UploadLog;
 use app\common\model\Ads as ModelAds;
 

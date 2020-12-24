@@ -47,9 +47,15 @@ class Spider
 
         if ($title = $this->select('title')) {
             $title = strip_tags(htmlspecialchars_decode($title[0], ENT_QUOTES));
-            list($title) = explode('-', $title, 2);
-            // $title = str_replace(['_', '|'], '-', $title);
-            $result['title'] = $title;
+            $title = str_replace(['_', '|'], '-', $title);
+            $title = explode('-', $title);
+            if (1 < count($title)) {
+                unset($title[count($title) - 1]);
+            }
+            $result['title'] = implode('-', $title);
+
+            // list($title) = explode('-', $title, 2);
+            // $result['title'] = $title;
         }
 
         if ($keywords = $this->select('meta:keywords', ['content'])) {
@@ -106,10 +112,9 @@ class Spider
             $body = preg_replace([
                 '/<ul[^<>]*>.*?<\/ul>/si',
                 '/<ol[^<>]*>.*?<\/ol>/si',
-                '/<a[^<>]*>/si',
-                '/<\/a>/si',
+                '/<a[^<>]*>.*?<\/a>/si',
                 // 百度知道
-                '/<span class="[\w\d]{10,}">[\d]{4,}<\/span>/si',
+                '/<span class="[\w\d]{10,}">[\w\d]{10,}<\/span>/si',
             ], '', $body);
 
             $pattern = [
@@ -127,7 +132,7 @@ class Spider
 
             // 清除多余标签
             $body = (string) preg_replace_callback('/<(\/?)([\w]+)([^<>]*)>/si', function ($ele) {
-                if (in_array($ele[2], ['div', 'p', 'br', 'span', 'table', 'tr', 'td', 'th'])) {
+                if (in_array($ele[2], ['div', 'p', 'br', 'table', 'tr', 'td', 'th'])) {
                     return '<' . $ele[1] . $ele[2] . '>';
                 } elseif ('img' == $ele[2]) {
                     return $ele[0];
@@ -201,6 +206,8 @@ class Spider
                     '/[^<>]*(©|copyright|&copy;)+[^<>]+/i',
                     // 备案号
                     '/[^<>]*\x{5907}\x{6848}\x{53f7}[^<>]+/u',
+                    // 公网安备
+                    '/[^<>]*\x{516c}\x{7f51}\x{5b89}\x{5907}[^<>]+/u',
                     // 许可证
                     '/[^<>]*\x{8bb8}\x{53ef}\x{8bc1}[^<>]+/u',
                     // 百度
@@ -211,6 +218,22 @@ class Spider
                     '/[^<>]*\x{516c}\x{4f17}\x{53f7}[^<>]*/u',
                     // 版权所有
                     '/[^<>]*\x{7248}\x{6743}\x{6240}\x{6709}[^<>]*/u',
+                    // 转载
+                    '/[^<>]*\x{8f6c}\x{8f7d}[^<>]*/u',
+                    // 择要
+                    '/[^<>]*\x{62e9}\x{8981}[^<>]*/u',
+                    // 微信支付
+                    '/[^<>]*\x{5fae}\x{4fe1}\x{652f}\x{4ed8}[^<>]*/u',
+                    // 扫码支付
+                    '/[^<>]*\x{626b}\x{7801}\x{652f}\x{4ed8}[^<>]*/u',
+                    // 支付
+                    '/[^<>]*\x{652f}\x{4ed8}[^<>]*/u',
+                    // 商户
+                    '/[^<>]*\x{5546}\x{6237}[^<>]*/u',
+                    // 支付宝
+                    '/[^<>]*\x{652f}\x{4ed8}\x{5b9d}[^<>]*/u',
+                    // 订单
+                    '/[^<>]*\x{8ba2}\x{5355}[^<>]*/u',
 
                     // 无用字符
                     // '/[\w\d]{10,}/i',
@@ -377,7 +400,13 @@ class Spider
                 // 'HTTP_ACCEPT_ENCODING' => Request::header('accept-encoding'),
             ]);
 
-            $this->client->request(strtoupper($_method), $_uri);
+            try {
+                $this->client->request(strtoupper($_method), $_uri);
+            } catch (\Exception $e) {
+                trace($_uri, 'error');
+                trace($e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage(), 'error');
+                return $this;
+            }
 
             // 请求失败
             if (200 !== $this->client->getInternalResponse()->getStatusCode()) {
@@ -394,18 +423,24 @@ class Spider
 
             // 检查字符编码
             $headers = $this->client->getInternalResponse()->getHeaders();
-            if (isset($headers['content-type'][0]) && preg_match('/charset=([\w\-]+)/si', $headers['content-type'][0], $charset) && !empty($charset)) {
-                $charset = strtoupper($charset[1]);
-            } elseif (preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->xhtml, $charset) && !empty($charset)) {
-                $charset = strtoupper($charset[1]);
-            } else {
-                $charset = '';
+            if (isset($headers['content-type'][0])) {
+                preg_match('/charset=([\w\-]+)/si', $headers['content-type'][0], $charset);
+                $charset = !empty($charset[1])
+                    ? strtoupper(trim($charset[1], '"\''))
+                    : '';
             }
+            if (!$charset) {
+                preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->xhtml, $charset);
+                $charset = !empty($charset)
+                    ? strtoupper(trim($charset[1], '"\''))
+                    : '';
+            }
+
+            // 转换字符编码
             if ($charset !== 'UTF-8') {
                 $charset = 0 === stripos($charset, 'GB') ? 'GBK' : $charset;
                 $this->xhtml = @iconv($charset, 'UTF-8//IGNORE', (string) $this->xhtml);
             }
-
             $this->xhtml = preg_replace_callback('/charset=["\']?([\w\-]{1,})["\']?/si', function ($charset) {
                 return str_replace($charset[1], 'UTF-8', $charset[0]);
             }, $this->xhtml);

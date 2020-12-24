@@ -43,9 +43,9 @@
                             <td>
                                 <span class="label label-primary" v-if="vo.is_pass">{:lang('is_pass')}</span>
                                 <span class="label label-primary" v-else>{:lang('not_pass')}</span>
-                                <span class="label label-primary" v-if="vo.is_com">{:lang('commend')}</span>
-                                <span class="label label-primary" v-if="vo.is_hot">{:lang('hot')}</span>
-                                <span class="label label-primary" v-if="vo.is_top">{:lang('top')}</span>
+                                <span class="label label-primary" v-if="vo.status == 1">更新</span>
+                                <span class="label label-primary" v-if="vo.status == 2">完结</span>
+                                <span class="label label-primary" v-if="vo.status == 3">太监</span>
                             </td>
                             <td v-text="vo.update_time"></td>
                             <td>
