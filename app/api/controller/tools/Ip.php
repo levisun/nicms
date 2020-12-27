@@ -19,8 +19,7 @@ namespace app\api\controller\tools;
 
 use think\Response;
 use app\common\controller\BaseApi;
-use app\common\library\IpInfo;
-use app\common\library\Ipv4;
+use app\common\library\tools\Ipv4;
 
 class Ip extends BaseApi
 {
@@ -41,7 +40,7 @@ class Ip extends BaseApi
         if (!$referer || false === stripos($referer, $this->request->rootDomain())) {
             $old = $ip;
             $ip = explode('.', $ip, 4);
-            $ip[3] = 0;
+            $ip[3] = 1;
             $ip = implode('.', $ip);
         }
 

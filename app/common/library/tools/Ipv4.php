@@ -43,10 +43,6 @@ class Ipv4
     public function get(string $_ip)
     {
         if (!Cache::has($_ip) || !$region = Cache::get($_ip)) {
-            $result = $this->validate($_ip);
-            if (true !== $result) {
-                return array_merge($this->default, ['ip' => $_ip, 'country' => $result]);
-            }
             $region = $this->query($_ip);
             Cache::tag('request')->set($_ip, $region);
         }
@@ -62,6 +58,11 @@ class Ipv4
      */
     private function query(string &$_ip)
     {
+        $result = $this->validate($_ip);
+        if (true !== $result) {
+            return array_merge($this->default, ['ip' => $_ip, 'country' => $result]);
+        }
+
         $result = ModelIpv4::view('ipv4', ['id', 'isp', 'update_time'])
             ->view('region country', ['id' => 'country_id', 'name' => 'country'], 'country.id=ipv4.country_id')
             ->view('region region', ['id' => 'region_id', 'name' => 'region'], 'region.id=ipv4.province_id')

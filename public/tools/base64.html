@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+        integrity="sha256-L/W5Wfqfa0sdBNIKN9cG6QA5F2qx4qICmU2VgLruv9Y=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+        integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
+    <link rel="stylesheet" href="./style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"
+        integrity="sha256-chlNFSVx3TdcQ2Xlw7SvnbLAavAQLO0Y/LBiWX04viY=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.12.0/js/md5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"
+        integrity="sha256-WqU1JavFxSAMcLP2WIOI+GB2zWmShMI82mTpLDcqFUg=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <header id="layout-header" class="bg-dark">
+        <div class="container-fluid">
+            <nav class="navbar navbar-expand-lg navbar-dark">
+                <a class="navbar-brand" href="/">TOOLS</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/">首页</a>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" v-bind:href="vo.url" id="navbarDropdown"
+                                role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">加密解密</a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <template v-for="v in vo.child">
+                                    <a class="dropdown-item" v-bind:href="v.url" v-text="v.name"></a>
+                                </template>
+                            </div>
+                        </li>
+
+                        <div class="form-inline my-2 my-lg-0">
+                            <form action="{:url('search')}" method="get">
+                                <input class="form-control mr-sm-2" type="search" name="q" placeholder="Search"
+                                    aria-label="Search">
+                                <button class="btn btn-outline-success my-2 my-sm-0">Search</button>
+                            </form>
+                        </div>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main id="layout-main">
+        <div class="container">
+
+            <textarea id="txt" cols="30" rows="10"></textarea>
+
+            <button onclick="de()">加密</button>
+            <button onclick="en()">解密</button>
+
+        </div>
+    </main>
+
+    <footer id="layout-footer" class="bg-dark">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm text-white-50">
+                    <p>copyright © 2014-2015<a href="/">niphp.com</a>版权所有&nbsp;<a href="https://beian.miit.gov.cn/"
+                            rel="nofollow" target="_blank">陕ICP备15001502号-1</a>&nbsp;<a href="/sitemap.xml"
+                            target="_blank">sitemap</a>&nbsp;&nbsp;Powered&nbsp;by&nbsp;<a
+                            href="https://github.com/levisun/nicms" rel="nofollow" target="_blank">NICMS</a></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+
+    <script>
+        function de() {
+            let data = document.getElementById("txt").value;
+            document.getElementById("txt").value = window.btoa(data);
+        }
+        function en() {
+            let data = document.getElementById("txt").value;
+            document.getElementById("txt").value = window.atob(data);
+        }
+    </script>
+
+</body>
+
+</html>

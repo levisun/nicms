@@ -28,10 +28,56 @@ class Spider
     private $crawler = null;
     private $xhtml = '';
     public $agent = '';
+    public $siteRegex = [
+        'zhidao.baidu.com' => 'div.line.content>div',
+    ];
+    public $filterRegex = [
+        // 版权
+        '/[^<>]*(©|copyright|&copy;)+[^<>]+/i',
+        // 备案号
+        '/[^<>]*\x{5907}\x{6848}\x{53f7}[^<>]+/u',
+        // ICP备
+        '/[^<>]*icp\x{5907}[^<>]*/ui',
+        // 公网安备
+        '/[^<>]*\x{516c}\x{7f51}\x{5b89}\x{5907}[^<>]+/u',
+        // 许可证
+        '/[^<>]*\x{8bb8}\x{53ef}\x{8bc1}[^<>]+/u',
+        // 版权所有
+        '/[^<>]*\x{7248}\x{6743}\x{6240}\x{6709}[^<>]*/u',
+        // 微信支付
+        '/[^<>]*\x{5fae}\x{4fe1}\x{652f}\x{4ed8}[^<>]*/u',
+        // 扫码支付
+        '/[^<>]*\x{626b}\x{7801}\x{652f}\x{4ed8}[^<>]*/u',
+        // 支付
+        '/[^<>]*\x{652f}\x{4ed8}[^<>]*/u',
+        // 商户
+        '/[^<>]*\x{5546}\x{6237}[^<>]*/u',
+        // 支付宝
+        '/[^<>]*\x{652f}\x{4ed8}\x{5b9d}[^<>]*/u',
+        // 订单
+        '/[^<>]*\x{8ba2}\x{5355}[^<>]*/u',
+    ];
 
-    public function __construct()
+    public function __construct(array $_filter_regex = [], array $_site_regex = [])
     {
         @ini_set('memory_limit', '16M');
+
+        if (!empty($_filter_regex)) {
+            $_filter_regex = array_map(function ($value) {
+                return (string) preg_replace_callback('/./u', function (array $matches) {
+                    if (3 <= strlen($matches[0])) {
+                        $matches[0] = trim(json_encode($matches[0]), '"');
+                        $matches[0] = (string) preg_replace_callback('/\\\u([0-9a-f]{4})/si', function ($chs) {
+                            return '\x{' . $chs[1] . '}';
+                        }, $matches[0]);
+                    }
+                    return $matches[0];
+                }, $value);
+            }, $_filter_regex);
+        }
+
+        $this->filterRegex = array_merge($this->filterRegex, $_filter_regex);
+        $this->siteRegex = array_merge($this->siteRegex, $_site_regex);
     }
 
     public function pageInfo(int $_length = 0)
@@ -45,7 +91,7 @@ class Spider
         $result['url'] = trim($matches[1]);
         $host = parse_url($result['url'], PHP_URL_SCHEME) . '://' . parse_url($result['url'], PHP_URL_HOST);
 
-        if ($title = $this->select('title')) {
+        if ($title = $this->select('title', [], false)) {
             $title = strip_tags(htmlspecialchars_decode($title[0], ENT_QUOTES));
             $title = str_replace(['_', '|'], '-', $title);
             $title = explode('-', $title);
@@ -53,24 +99,21 @@ class Spider
                 unset($title[count($title) - 1]);
             }
             $result['title'] = implode('-', $title);
-
-            // list($title) = explode('-', $title, 2);
-            // $result['title'] = $title;
         }
 
-        if ($keywords = $this->select('meta:keywords', ['content'])) {
-            $result['keywords'] = isset($keywords[0])
+        if ($keywords = $this->select('meta:keywords', ['content'], false)) {
+            $result['keywords'] = isset($keywords[0]['content'])
                 ? strip_tags(htmlspecialchars_decode($keywords[0]['content'], ENT_QUOTES))
                 : '';
         }
 
-        if ($description = $this->select('meta:description', ['content'])) {
-            $result['description'] = isset($description[0])
+        if ($description = $this->select('meta:description', ['content'], false)) {
+            $result['description'] = isset($description[0]['content'])
                 ? strip_tags(htmlspecialchars_decode($description[0]['content'], ENT_QUOTES))
                 : '';
         }
 
-        if ($links = $this->select('a', ['href'])) {
+        if ($links = $this->select('a', ['href'], false)) {
             foreach ($links as $value) {
                 $value['href'] = isset($value['href']) ? htmlspecialchars_decode($value['href'], ENT_QUOTES) : '';
                 if (false !== strpos($value['href'], 'javascript')) {
@@ -90,7 +133,7 @@ class Spider
             $result['links'] = array_filter($result['links']);
         }
 
-        if ($imgs = $this->select('img', ['src'])) {
+        if ($imgs = $this->select('img', ['src'], false)) {
             foreach ($imgs as $value) {
                 $value['src'] = isset($value['src']) ? htmlspecialchars_decode($value['src'], ENT_QUOTES) : '';
                 if (0 === strpos($value['src'], '//')) {
@@ -104,29 +147,46 @@ class Spider
             $result['imgs'] = array_filter($result['imgs']);
         }
 
-        if ($body = $this->select('body')) {
+        $host = parse_url($result['url'], PHP_URL_HOST);
+        if (isset($this->siteRegex[$host]) && $article = $this->select($this->siteRegex[$host])) {
+            $article = array_map(function ($value) {
+                $value = htmlspecialchars_decode($value, ENT_QUOTES);
+                $value = Filter::html($value);
+                $value = Filter::html_attr($value, true);
+                // 清除版权等信息
+                $value = (string) preg_replace($this->filterRegex, '', $value);
+                $value = strip_tags($value, '<p><br><table><tr><td><th><img>');
+                $value = str_ireplace(['<p>', '</p>', '<br>', '<br />', '<br/>'], PHP_EOL, $value);
+                $value = explode('<br />', nl2br((string) $value));
+                $value = array_map('trim', $value);
+                $value = array_filter($value);
+                $value = '<p>' . implode('</p><p>', $value) . '</p>';
+                $value = trim($value);
+                $value = Filter::space($value);
+                return strip_tags($value) ? $value : '';
+            }, $article);
+            $article = array_filter($article);
+            $result['content'] = htmlspecialchars(implode('', $article), ENT_QUOTES);
+        } elseif ($body = $this->select('body', [], false)) {
             $body = htmlspecialchars_decode($body[0], ENT_QUOTES);
             $body = preg_replace('/<\/?body[^<>]*>/i', '', $body);
-            $body = Filter::base($body);
+            $body = Filter::html($body);
+            $body = Filter::html_attr($body);
 
             $body = preg_replace([
                 '/<ul[^<>]*>.*?<\/ul>/si',
                 '/<ol[^<>]*>.*?<\/ol>/si',
-                '/<a[^<>]*>.*?<\/a>/si',
+                '/<dl[^<>]*>.*?<\/dl>/si',
+                '/<a[^<>]*>[^<]*<\/a>/si',
                 // 百度知道
                 '/<span class="[\w\d]{10,}">[\w\d]{10,}<\/span>/si',
             ], '', $body);
 
             $pattern = [
-                '/>\s+/'                                   => '>',
-                '/\s+</'                                   => '<',
-                '/(\x{00a0}|\x{0020}|\x{3000}|\x{feff})/u' => ' ',
-                '/　/si'                                   => ' ',
-                '/ {2,}/si'                                => ' ',
-                '/<article/si'                             => '<div',
-                '/<\/article/si'                           => '</div',
-                '/<h[\d]{1}/si'                            => '<p',
-                '/<\/h[\d]{1}/si'                          => '</p',
+                '/<article/si'    => '<div',
+                '/<\/article/si'  => '</div',
+                '/<h[\d]{1}/si'   => '<p',
+                '/<\/h[\d]{1}/si' => '</p',
             ];
             $body = preg_replace(array_keys($pattern), array_values($pattern), $body);
 
@@ -201,47 +261,7 @@ class Spider
                 $content = '<p>' . implode('</p><p>', $content) . '</p>';
 
                 // 清除版权等信息
-                $pattern = [
-                    // 版权
-                    '/[^<>]*(©|copyright|&copy;)+[^<>]+/i',
-                    // 备案号
-                    '/[^<>]*\x{5907}\x{6848}\x{53f7}[^<>]+/u',
-                    // 公网安备
-                    '/[^<>]*\x{516c}\x{7f51}\x{5b89}\x{5907}[^<>]+/u',
-                    // 许可证
-                    '/[^<>]*\x{8bb8}\x{53ef}\x{8bc1}[^<>]+/u',
-                    // 百度
-                    '/[^<>]*\x{767e}\x{5ea6}[^<>]*/u',
-                    // 关注
-                    '/[^<>]*\x{5173}\x{6ce8}[^<>]*/u',
-                    // 公众号
-                    '/[^<>]*\x{516c}\x{4f17}\x{53f7}[^<>]*/u',
-                    // 版权所有
-                    '/[^<>]*\x{7248}\x{6743}\x{6240}\x{6709}[^<>]*/u',
-                    // 转载
-                    '/[^<>]*\x{8f6c}\x{8f7d}[^<>]*/u',
-                    // 择要
-                    '/[^<>]*\x{62e9}\x{8981}[^<>]*/u',
-                    // 微信支付
-                    '/[^<>]*\x{5fae}\x{4fe1}\x{652f}\x{4ed8}[^<>]*/u',
-                    // 扫码支付
-                    '/[^<>]*\x{626b}\x{7801}\x{652f}\x{4ed8}[^<>]*/u',
-                    // 支付
-                    '/[^<>]*\x{652f}\x{4ed8}[^<>]*/u',
-                    // 商户
-                    '/[^<>]*\x{5546}\x{6237}[^<>]*/u',
-                    // 支付宝
-                    '/[^<>]*\x{652f}\x{4ed8}\x{5b9d}[^<>]*/u',
-                    // 订单
-                    '/[^<>]*\x{8ba2}\x{5355}[^<>]*/u',
-
-                    // 无用字符
-                    // '/[\w\d]{10,}/i',
-
-                    // 空行
-                    '/<[\w]+>(<br *\/*>)*<\/[\w]+>/si',
-                ];
-                $content = (string) preg_replace($pattern, '', $content);
+                $content = (string) preg_replace($this->filterRegex, '', $content);
 
                 // 恢复图片
                 $content = preg_replace_callback('/\{TAG:img_src=([^<>\{\}\s]*)\}/si', function ($img) {
@@ -264,9 +284,10 @@ class Spider
      * @access public
      * @param  string $_element CSS选择器,用于筛选数据
      * @param  array  $_attr    扩展属性,用于获得筛选出来标签的属性
+     * @param  bool   $_filter  过滤信息
      * @return array|boole
      */
-    public function select(string $_element, array $_attr = [])
+    public function select(string $_element, array $_attr = [], bool $_filter = true)
     {
         if (!$this->xhtml)
             return false;
@@ -296,7 +317,7 @@ class Spider
 
         $dom = new \DOMDocument();
         libxml_use_internal_errors(true);
-        $dom->loadHTML(htmlspecialchars_decode($this->xhtml, ENT_QUOTES));
+        $dom->loadHTML('<meta charset="utf-8">' . htmlspecialchars_decode($this->xhtml, ENT_QUOTES));
         libxml_clear_errors();
 
         $xpath = new \DOMXPath($dom);
@@ -308,6 +329,11 @@ class Spider
 
         foreach ($nodeList as $node) {
             $node = $dom->saveHTML($node);
+            // 清除版权等信息
+            if ($_filter) {
+                $node = (string) preg_replace($this->filterRegex, '', $node);
+            }
+
             if (isset($pattern) && false !== preg_match_all('/' . $pattern . '/si', $node, $matches) && !empty($matches)) {
                 $node = [
                     'html' => htmlspecialchars($node, ENT_QUOTES)
@@ -380,7 +406,9 @@ class Spider
 
         $cache_key = 'spider request' . $_uri;
         if (!Cache::has($cache_key) || !$this->xhtml = Cache::get($cache_key)) {
-            usleep(rand(150, 200) * 10000);
+            // 1000000 = 1s
+            // 0.5s~1.5s
+            usleep(mt_rand(5, 15) * 100000);
 
             $this->client = new HttpBrowser;
             $this->client->followRedirects();
@@ -395,16 +423,13 @@ class Spider
                 'HTTP_ACCEPT'          => Request::header('accept'),
                 'HTTP_ACCEPT_LANGUAGE' => Request::header('accept_language'),
                 'HTTP_CONNECTION'      => Request::header('connection'),
-                // 'CLIENT_IP'            => '117.117.117.117',
-                // 'X_FORWARDED_FOR'      => '117.117.117.117',
-                // 'HTTP_ACCEPT_ENCODING' => Request::header('accept-encoding'),
             ]);
 
             try {
                 $this->client->request(strtoupper($_method), $_uri);
             } catch (\Exception $e) {
-                trace($_uri, 'error');
-                trace($e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage(), 'error');
+                trace($_uri, 'warning');
+                trace($e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage(), 'warning');
                 return $this;
             }
 
@@ -448,7 +473,6 @@ class Spider
 
             // 过滤回车和多余空格
             $this->xhtml = Filter::symbol($this->xhtml);
-            $this->xhtml = Filter::space($this->xhtml);
             $this->xhtml = Filter::php($this->xhtml);
 
             // 添加访问网址

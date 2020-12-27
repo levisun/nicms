@@ -227,21 +227,24 @@ class Filter
      * @access public
      * @static
      * @param  string $_str
+     * @param  bool   $_strict
      * @return string
      */
-    public static function html_attr(string &$_str): string
+    public static function html_attr(string &$_str, bool $_strict = false): string
     {
         // 做修改时,请保证括号内代码成功过滤!有新结构体,请追加在括号内!
         // [ onclick="alert(1)" onload=eval(ssltest.title) data-d={1:\'12 3213\',22=2:\' dabdd\'} ]
 
-        return (string) preg_replace_callback('/<(\/?[\w\d!]+)([\w\d\- ]+=[^>]*)>/si', function ($attr) {
+        $regex = '/<(\/?[\w\d!]+)([\w\d\- ]+=[^>]*)>/si';
+        return (string) preg_replace_callback($regex, function ($attr) use($_strict) {
             $attr = array_map('trim', $attr);
 
+            if ($_strict) {
+                return '<' . $attr[1] . '>';
+            }
+
             // 过滤json数据
-            $attr[2] = preg_replace([
-                '/\{+.*?\}+/si',
-                '/\[+.*?\]+/si',
-            ], '', $attr[2]);
+            $attr[2] = preg_replace('/[\{\[]+.*[\]\}]+/si', '', $attr[2]);
 
             // 过滤非法属性
             $attr[2] = preg_replace_callback('/([\w\d\-]+)=[^\s]*/si', function ($single) {
@@ -256,6 +259,7 @@ class Filter
 
                 return trim($single[0]);
             }, $attr[2]);
+
             // 清除多余空格
             $attr[2] = preg_replace('/\s+/si', ' ', $attr[2]);
             $attr[2] = trim($attr[2]);
@@ -274,6 +278,13 @@ class Filter
      */
     public static function html(string &$_str): string
     {
+        // 过滤脚本等标签及内容
+        $_str = preg_replace([
+            '/<\!\-\-.*?\-\->/si',
+            '/<script[^<>]*>.*?<\/script>/si',
+            '/<style[^<>]*>.*?<\/style>/si',
+        ], '', $_str);
+
         // 过滤非法标签
         if (false !== preg_match_all('/<([\w\d!]+)[^<>]*>/si', $_str, $ele)) {
             $ele[1] = array_map(function ($value) {

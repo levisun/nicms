@@ -50,26 +50,17 @@ class DataManage
 
     public function processList()
     {
-        // only_execute('db_process_list.lock', '-1 hour', function () {
         $result = Db::query('show full processlist');
         foreach ($result as $value) {
             if (5 > $value['Time']) {
                 continue;
             }
 
-            if ('sleep' === strtolower($value['Command'])) {
-                // system('kill '. $value['Id']);
-            } elseif ('locked' === strtolower($value['State'])) {
-                // system('kill '. $value['Id']);
-            }
-
-            $log = request()->ip() . ' ' . request()->method(true) . ' ' . $value['Time'] . 's ' .
-                request()->url(true) . PHP_EOL .
-                'command:' . $value['Command'] . ' State:' . $value['State'] . ' Sql:' . $value['Info'];
+            $log = request()->ip() . ' ' . request()->method(true) . ' ' . request()->url(true) . PHP_EOL .
+                'Time:' . $value['Time']. ' Command:' . $value['Command'] . ' State:' . $value['State'] . ' Sql:' . $value['Info'];
 
             Log::sql($log);
         }
-        // });
     }
 
     /**

@@ -190,7 +190,7 @@ class Base64
             $_data = base64_encode(openssl_encrypt((string) $_data, 'AES-256-CBC', $secret_key, OPENSSL_RAW_DATA, $iv));
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::decrypt($value);
+                $_data[$key] = self::encrypt($value, $_salt);
             }
         }
 
@@ -215,7 +215,7 @@ class Base64
             $_data = openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $secret_key, OPENSSL_RAW_DATA, $iv);
         } elseif (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::decrypt($value);
+                $_data[$key] = self::decrypt($value, $_salt);
             }
         }
 
