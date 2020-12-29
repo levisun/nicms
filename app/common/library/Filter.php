@@ -174,7 +174,7 @@ class Filter
     {
         $_str = htmlspecialchars_decode($_str, ENT_QUOTES);
         $_str = self::symbol($_str);
-        $_str = self::space($_str);
+        $_str = self::space($_str, true);
         $_str = self::html($_str);
         $_str = self::html_attr($_str);
         $_str = self::php($_str);
@@ -236,24 +236,22 @@ class Filter
         // [ onclick="alert(1)" onload=eval(ssltest.title) data-d={1:\'12 3213\',22=2:\' dabdd\'} ]
 
         $regex = '/<(\/?[\w\d!]+)([\w\d\- ]+=[^>]*)>/si';
-        return (string) preg_replace_callback($regex, function ($attr) use($_strict) {
+        return (string) preg_replace_callback($regex, function ($attr) use(&$_strict) {
             $attr = array_map('trim', $attr);
-
-            if ($_strict) {
-                return '<' . $attr[1] . '>';
-            }
 
             // 过滤json数据
             $attr[2] = preg_replace('/[\{\[]+.*[\]\}]+/si', '', $attr[2]);
 
             // 过滤非法属性
-            $attr[2] = preg_replace_callback('/([\w\d\-]+)=[^\s]*/si', function ($single) {
+            $attr[2] = preg_replace_callback('/([\w\d\-]+)=.*\s*/si', function ($single) use(&$_strict) {
                 $single = array_map('trim', $single);
                 if (false !== stripos($single[0], 'javascript')) {
                     return '';
                 }
 
-                if (!in_array(strtolower($single[1]), self::$attr)) {
+                if ($_strict && !in_array(strtolower($single[1]), ['src', 'href'])) {
+                    return '';
+                } elseif (!in_array(strtolower($single[1]), self::$attr)) {
                     return '';
                 }
 
@@ -321,9 +319,10 @@ class Filter
      * @access public
      * @static
      * @param  string $_str
+     * @param  bool   $_strict
      * @return string
      */
-    public static function space(string &$_str): string
+    public static function space(string &$_str, bool $_strict = false): string
     {
         // 不间断空格\u00a0,主要用在office中,让一个单词在结尾处不会换行显示,快捷键ctrl+shift+space
         // 半角空格(英文符号)\u0020,代码中常用的
@@ -339,6 +338,10 @@ class Filter
             '/\s+/s'            => ' ',
             '/ +/si'            => ' ',
         ];
+        if ($_strict) {
+            $pattern['/\s+/s'] = ' ';
+            $pattern['/ +/s'] = ' ';
+        }
         $_str = (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
 
         return trim($_str);

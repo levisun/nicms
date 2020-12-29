@@ -67,7 +67,7 @@
     <div class="box-footer clearfix" v-html="items.page"></div>
 </div>
 <script type="text/javascript">
-    let book = new Vue({
+    let article = new Vue({
         el: '.box',
         data: {
             is_pass: 0,
@@ -99,31 +99,31 @@
                     replace: true,
                     requestUrl: request,
                     data: [
-                        { name: 'method', value: 'book.book.query' },
+                        { name: 'method', value: 'book.article.query' },
                         { name: 'page', value: _p },
-                        { name: 'pass', value: book.is_pass },
+                        { name: 'pass', value: article.is_pass },
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
-                            book.items = result.data
+                            article.items = result.data
                         }
                     }
                 });
             },
             added: function () {
-                window.location.href = NICMS.domain + 'book/book/added.html';
+                window.location.href = NICMS.domain + 'book/article/added.html';
             },
             remove: function (id) {
                 jQuery.pjax({
                     url: NICMS.api_uri + 'handle.do',
                     type: 'POST',
                     data: [
-                        { name: 'method', value: 'book.book.remove' },
+                        { name: 'method', value: 'book.article.remove' },
                         { name: 'id', value: id }
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
-                            book.load(NICM.api.param.page);
+                            article.load(NICM.api.param.page);
                         }
                     }
                 });
@@ -133,13 +133,13 @@
     jQuery.set_cookie('editor', '', -1);
 
     let pass = jQuery.get_url_query('pass');
-    book.is_pass = pass ? pass : 0;
+    article.is_pass = pass ? pass : 0;
 
     let page = jQuery.get_url_query('page');
     page = page ? page : 1;
-    book.load(page);
+    article.load(page);
 
     window.paging = function (_p) {
-        book.load(_p);
+        article.load(_p);
     };
 </script>

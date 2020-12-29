@@ -26,18 +26,25 @@ class Ip extends BaseApi
 
     public function index()
     {
+        $referer = $this->request->server('HTTP_REFERER');
+        $referer = !$referer || false === stripos($referer, $this->request->rootDomain())
+            ? false
+            : true;
+
+        if (false === $referer && 0 <= date('H') && 7 >= date('H')) {
+            return miss(404, false);
+        }
+
         // 解决没有传IP参数,缓存造成的缓存错误
         if (!$ip = $this->request->param('ip', false)) {
             $url = $this->request->baseUrl(true) . '?ip=' . $this->request->ip();
             return Response::create($url, 'redirect', 302);
         }
 
-        usleep(500000);
-
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
 
-        $referer = $this->request->server('HTTP_REFERER');
-        if (!$referer || false === stripos($referer, $this->request->rootDomain())) {
+        if (false === $referer) {
+            usleep(500000);
             $old = $ip;
             $ip = explode('.', $ip, 4);
             $ip[3] = 1;

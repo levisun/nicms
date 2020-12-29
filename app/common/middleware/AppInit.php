@@ -21,7 +21,6 @@ namespace app\common\middleware;
 use Closure;
 use think\Request;
 
-use think\facade\Cookie;
 use think\facade\Session;
 use app\common\library\Base64;
 
@@ -35,11 +34,12 @@ class AppInit
     public function handle(Request $request, Closure $next)
     {
         if (!$request->rootDomain()) {
-            miss(404, false, true);
+            return miss(404, false);
         }
+        
         // IP进入显示空页面
         if ($request->isValidIP($request->host(true), 'ipv4') || $request->isValidIP($request->host(true), 'ipv6')) {
-            miss(404, false, true);
+            return miss(404, false);
         }
 
         $response = $next($request);
