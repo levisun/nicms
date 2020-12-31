@@ -145,7 +145,7 @@ class Wechat
      * @param  array $params
      * @return mixed
      */
-    public function H5Pay(array $params): string
+    public function h5(array $params): string
     {
         // 同步通知回调地址
         $respond_url = $params['respond_url'];
@@ -170,7 +170,7 @@ class Wechat
      * @param  array  $params 支付参数
      * @return string JS
      */
-    public function jsPay(array $params)
+    public function js(array $params)
     {
         // 同步通知回调地址
         $respond_url = $params['respond_url'];
@@ -212,7 +212,7 @@ class Wechat
      * @param  array  $params 支付参数
      * @return string 二维码图片地址
      */
-    public function qrcodePay(array $params): string
+    public function qrcode(array $params): string
     {
         // 同步通知回调地址
         $respond_url = $params['respond_url'];

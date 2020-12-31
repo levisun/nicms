@@ -32,7 +32,7 @@ class Ip extends BaseApi
             : true;
 
         if (false === $referer && 0 <= date('H') && 7 >= date('H')) {
-            return miss(404, false);
+            return miss(503, false);
         }
 
         // 解决没有传IP参数,缓存造成的缓存错误
@@ -43,19 +43,7 @@ class Ip extends BaseApi
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
 
-        if (false === $referer) {
-            usleep(500000);
-            $old = $ip;
-            $ip = explode('.', $ip, 4);
-            $ip[3] = 1;
-            $ip = implode('.', $ip);
-        }
-
         if ($result = (new Ipv4)->get($ip)) {
-            if (isset($old)) {
-                $result['ip'] = $old;
-            }
-
             $timestamp = $this->request->time() + 3600 * 6;
             return Response::create('const IP = ' . json_encode($result))
                 ->allowCache(true)

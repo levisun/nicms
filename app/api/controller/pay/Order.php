@@ -17,47 +17,43 @@ declare(strict_types=1);
 
 namespace app\api\controller\pay;
 
+use think\facade\Config;
 use app\common\controller\BaseApi;
 use app\common\library\pay\Wechat;
 
 class Order extends BaseApi
 {
 
-    public function index(string $method)
+    public function index(string $pay, string $method)
     {
         if ($this->validate->referer() && $this->validate->fromToken()) {
-            $method = strtolower($method);
-
-            if (method_exists($this, $method)) {
-                return call_user_func([$this, $method]);
+            if (!$config = env('pay.' . strtolower($pay))) {
+                $this->abort('This method could not be found.', 40001);
             }
+            if (!$config = json_decode(base64_decode($config), true)) {
+                $this->abort('This method could not be found.', 40002);
+            }
+
+            $pay = '\app\common\library\pay\\' . ucfirst($pay);
+            // 校验方法是否存在
+            if (!class_exists($pay)) {
+                $this->abort('This method could not be found.', 40001);
+            }
+            $method = strtolower($method);
+            if (!method_exists($pay, $method)) {
+                $this->abort('This method could not be found.', 40002);
+            }
+
+            $pay = new $pay($config);
+            $result = $pay->$method($this->payParam());
+            if (is_string($result)) {
+                $this->abort($result, 50001);
+            }
+
+            return $result;
         }
 
         return miss(404, false);
-    }
-
-    /**
-     * 微信支付
-     */
-    public function wechat(): array
-    {
-        $pay = new Wechat($this->config->get('pay.wechat'));
-        $type = $this->request->param('type', 'h5');
-
-        // 公众号支付
-        if ('js' === $type) {
-            $result = $pay->jsPay($this->payParam());
-        }
-        // H5支付
-        elseif ('h5' === $type) {
-            $result = $pay->H5Pay($this->payParam());
-        }
-        // 二维码支付
-        elseif ('qrcode' === $type) {
-            $result = $pay->qrcodePay($this->payParam());
-        }
-
-        return $result;
     }
 
     /**
@@ -72,15 +68,14 @@ class Order extends BaseApi
             // 商户订单号
             'out_trade_no' => $order_no,
             // 异步通知回调地址
-            'notify_url'   => $this->app->config['api_host'] . 'pay/notify/wechat.do',
+            'notify_url'   => Config::get('app.api_host') . 'pay/notify/wechat.do',
             // 同步通知回调地址
-            'respond_url'  => $this->app->config['api_host'] . 'pay/respond/wechat.do' .
-                '?out_trade_no=' . $order_no,
+            'respond_url'  => Config::get('app.api_host') . 'pay/respond/wechat.do' . '?out_trade_no=' . $order_no,
         ];
 
         // 支付参数
         // 不同支付类型参数不同
-        $param = $this->request->param('pay_param/a');
+        $param = $this->request->param('pay_param/a', []);
         return array_merge($param, $common);
     }
 

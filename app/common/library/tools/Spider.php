@@ -53,10 +53,9 @@ class Spider
         $this->siteRegex = array_merge($this->siteRegex, $_site_regex);
     }
 
-    public function pageInfo(int $_length = 0)
+    public function pageInfo()
     {
-        if (!$this->xhtml)
-            return false;
+        if (!$this->xhtml) return false;
 
         $result = [];
 
@@ -64,7 +63,7 @@ class Spider
         $result['url'] = trim($matches[1]);
         $host = parse_url($result['url'], PHP_URL_SCHEME) . '://' . parse_url($result['url'], PHP_URL_HOST);
 
-        if ($title = $this->select('title', [], false)) {
+        if ($title = $this->select('title')) {
             $title = strip_tags(htmlspecialchars_decode($title[0], ENT_QUOTES));
             $title = str_replace(['_', '|'], '-', $title);
             $title = explode('-', $title);
@@ -74,19 +73,19 @@ class Spider
             $result['title'] = implode('-', $title);
         }
 
-        if ($keywords = $this->select('meta:keywords', ['content'], false)) {
+        if ($keywords = $this->select('meta:keywords', ['content'])) {
             $result['keywords'] = isset($keywords[0]['content'])
                 ? strip_tags(htmlspecialchars_decode($keywords[0]['content'], ENT_QUOTES))
                 : '';
         }
 
-        if ($description = $this->select('meta:description', ['content'], false)) {
+        if ($description = $this->select('meta:description', ['content'])) {
             $result['description'] = isset($description[0]['content'])
                 ? strip_tags(htmlspecialchars_decode($description[0]['content'], ENT_QUOTES))
                 : '';
         }
 
-        if ($links = $this->select('a', ['href'], false)) {
+        if ($links = $this->select('a', ['href'])) {
             foreach ($links as $value) {
                 $value['href'] = isset($value['href']) ? htmlspecialchars_decode($value['href'], ENT_QUOTES) : '';
                 if (false !== strpos($value['href'], 'javascript')) {
@@ -106,7 +105,7 @@ class Spider
             $result['links'] = array_filter($result['links']);
         }
 
-        if ($imgs = $this->select('img', ['src'], false)) {
+        if ($imgs = $this->select('img', ['src'])) {
             foreach ($imgs as $value) {
                 $value['src'] = isset($value['src']) ? htmlspecialchars_decode($value['src'], ENT_QUOTES) : '';
                 if (0 === strpos($value['src'], '//')) {
@@ -139,115 +138,6 @@ class Spider
         }
 
         return !empty($result) ? $result : false;
-
-        /* elseif ($article = $this->select('body', [], false)) {
-            $article = htmlspecialchars_decode($article[0], ENT_QUOTES);
-            $article = preg_replace('/<\/?body[^<>]*>/i', '', $article);
-            $article = Filter::html($article);
-            $article = Filter::html_attr($article, true);
-        }
-
-        $article = preg_replace([
-            '/<ul[^<>]*>.*?<\/ul>/si',
-            '/<li[^<>]*>.*?<\/li>/si',
-            '/<ol[^<>]*>.*?<\/ol>/si',
-            '/<dl[^<>]*>.*?<\/dl>/si',
-            '/<dt[^<>]*>.*?<\/dt>/si',
-            '/<dd[^<>]*>.*?<\/dd>/si',
-            '/<a[^<>]*>[^<]*<\/a>/si',
-            // 百度知道
-            '/<span class="[\w\d]{10,}">[\w\d]{10,}<\/span>/si',
-        ], '', $article);
-
-        $pattern = [
-            '/<article/si'    => '<div',
-            '/<\/article/si'  => '</div',
-            '/<h[\d]{1}/si'   => '<p',
-            '/<\/h[\d]{1}/si' => '</p',
-        ];
-        $article = preg_replace(array_keys($pattern), array_values($pattern), $article);
-        $article = strip_tags($article, '<p><br><img><table><tr><td><th>');
-
-        // 清除版权等信息
-        $article = (string) preg_replace($this->filterRegex, '', $article);
-
-        while (preg_match('/<div[^<>]*>\s*<div/si', $article)) {
-            $article = preg_replace('/<div[^<>]*>\s*<div/si', '<div', $article);
-        }
-        while (preg_match('/<div[^<>]*>\s*<\/div>/si', $article)) {
-            $article = preg_replace('/<div[^<>]*>\s*<\/div>/si', '', $article);
-        }
-        while (preg_match('/<\/div>\s*<\/div>/si', $article)) {
-            $article = preg_replace('/<\/div>\s*<\/div>/si', '</div>', $article);
-        }
-        // 标签转回车
-        $article = str_ireplace(['<p>', '</p>', '<br>', '<br />', '<br/>'], PHP_EOL, $article);
-        halt($article);
-
-        // 替换图片
-        $article = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) use ($host) {
-            $img[1] = trim($img[1], '"\'');
-            if (0 === strpos($img[1], '//')) {
-                $img[1] = parse_url($host, PHP_URL_SCHEME) . ':' . $img[1];
-            } elseif (0 === strpos($img[1], '/')) {
-                $img[1] = $host . $img[1];
-            }
-            return '{TAG:img_src=' . $img[1] . '}';
-        }, $article);
-
-        // 替换表格
-        $article = preg_replace_callback('/<table[^<>]*>(.*?)<\/table[^<>]*>/si', function ($table) {
-            $table[1] = strip_tags($table[1], '<tr><td><th><br><p>');
-            $table[1] = preg_replace_callback('/<(\/)?(tr|td|th)>/si', function ($tr) {
-                return '{TAG:' . $tr[1] . $tr[2] . '}';
-            }, $table[1]);
-            return '{TAG:table}' . $table[1] . '{TAG:/table}';
-        }, $article);
-
-
-
-        // 匹配内容
-        $pattern = '/>[^<>]{160,}</si';
-        if (false !== preg_match_all($pattern, $article, $matches)) {
-            $content = (array) $matches[0];
-            foreach ($content as $key => $value) {
-                $content[$key] = trim($value, '><') . PHP_EOL;
-            }
-            $content = implode('', $content);
-            // 截取
-            if ($_length && $_length < mb_strlen($content, 'utf-8')) {
-                if ($position = mb_strpos($content, '{TAG:/table}', $_length, 'utf-8')) {
-                    $content = mb_substr($content, 0, $position + 12, 'utf-8');
-                } elseif ($position = mb_strpos($content, '。', $_length, 'utf-8')) {
-                    $content = mb_substr($content, 0, $position + 1, 'utf-8');
-                } elseif ($position = mb_strpos($content, '.', $_length, 'utf-8')) {
-                    $content = mb_substr($content, 0, $position + 1, 'utf-8');
-                } elseif ($position = mb_strpos($content, ' ', $_length, 'utf-8')) {
-                    $content = mb_substr($content, 0, $position + 1, 'utf-8');
-                } else {
-                    $content = mb_substr($content, 0, $_length, 'utf-8');
-                }
-            }
-
-            // 恢复格式
-            $content = explode('<br />', nl2br((string) $content));
-            $content = array_map('trim', $content);
-            $content = array_filter($content);
-            $content = '<p>' . implode('</p><p>', $content) . '</p>';
-
-            // 清除版权等信息
-            $content = (string) preg_replace($this->filterRegex, '', $content);
-
-            // 恢复图片
-            $content = preg_replace_callback('/\{TAG:img_src=([^<>\{\}\s]*)\}/si', function ($img) {
-                return '<img src="' . trim($img[1], '"\'') . '" />';
-            }, $content);
-
-            // 恢复表格
-            $content = preg_replace_callback('/\{TAG:([\w\/]+)\}/si', function ($table) {
-                return '<' . $table[1] . '>';
-            }, $content);
-        } */
     }
 
     /**
@@ -258,31 +148,30 @@ class Spider
      * @param  bool   $_filter  过滤信息
      * @return array|boole
      */
-    public function select(string $_element, array $_attr = [], bool $_filter = true)
+    public function select(string $_expression, array $_attr = [], bool $_filter = false)
     {
-        if (!$this->xhtml)
-            return false;
+        if (!$this->xhtml) return false;
 
-        $_element = (string) preg_replace_callback('/#([\w\d\-]+)/si', function ($matches) {
+        $_expression = (string) preg_replace_callback('/#([\w\-]+)/si', function ($matches) {
             $matches[1] = trim($matches[1]);
             return '[contains(@id,"' . trim($matches[1], '#.:') . '")]';
-        }, $_element);
+        }, $_expression);
 
-        $_element = (string) preg_replace_callback('/\.([\w\d\-]+)/si', function ($matches) {
+        $_expression = (string) preg_replace_callback('/\.([\w\-]+)/si', function ($matches) {
             $matches[1] = trim($matches[1]);
             return '[contains(@class,"' . trim($matches[1], '#.:') . '")]';
-        }, $_element);
+        }, $_expression);
 
-        $_element = (string) preg_replace_callback('/:([\w\d\-]+)/si', function ($matches) {
+        $_expression = (string) preg_replace_callback('/:([\w\-]+)/si', function ($matches) {
             $matches[1] = trim($matches[1]);
             return '[contains(@name,"' . trim($matches[1], '#.:') . '")]';
-        }, $_element);
+        }, $_expression);
 
-        $_element = (string) str_replace([' ', '>'], '//', $_element);
+        $_expression = (string) str_replace([' ', '>'], '//', $_expression);
 
-        $_element = 0 === strpos($_element, '[')
-            ? '*' . trim($_element, '#.:')
-            : trim($_element, '#.:');
+        $_expression = 0 === strpos($_expression, '[')
+            ? '*' . trim($_expression, '#.:')
+            : trim($_expression, '#.:');
 
         $result = [];
 
@@ -292,7 +181,7 @@ class Spider
         libxml_clear_errors();
 
         $xpath = new \DOMXPath($dom);
-        $nodeList = $xpath->query('//' . $_element);
+        $nodeList = $xpath->query('//' . $_expression);
 
         if (!empty($_attr)) {
             $pattern = '(' . implode('|', $_attr) . ')=["\']+(.*?)["\']+';
@@ -300,12 +189,11 @@ class Spider
 
         foreach ($nodeList as $node) {
             $node = $dom->saveHTML($node);
-            // 清除版权等信息
-            if ($_filter) {
-                $node = (string) preg_replace($this->filterRegex, '', $node);
-            }
 
-            if (isset($pattern) && false !== preg_match_all('/' . $pattern . '/si', $node, $matches) && !empty($matches)) {
+            // 清除多余标签
+            $node = $_filter ? Filter::html($node) : $node;
+
+            if (isset($pattern) && false !== preg_match_all('/' . $pattern . '/uis', $node, $matches) && !empty($matches)) {
                 $node = [
                     'html' => htmlspecialchars($node, ENT_QUOTES)
                 ];
@@ -370,7 +258,7 @@ class Spider
     {
         // 非URL地址返回错误
         if (false === filter_var($_uri, FILTER_VALIDATE_URL)) {
-            return false;
+            return $this;
         }
 
         $this->xhtml = '';

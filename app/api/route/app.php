@@ -38,9 +38,9 @@ Route::group(function () {
     Route::post('verify/sms_check$', 'verify.Sms/check');
 
     // 支付
-    Route::post('pay/order/:method$', 'pay.Order/index');
+    Route::post('pay/order/:pay/:method$', 'pay.Order/index');
     Route::get('pay/respond/:method$', 'pay.Respond/index');
-    Route::get('pay/notify/:method$', 'pay.Notify/index');
+    Route::get('pay/notify/:pay$', 'pay.Notify/index');
 
 
     Route::delete('handle$', 'Handle/remove');  // 操作接口

@@ -235,7 +235,7 @@ if (!function_exists('miss')) {
      */
     function miss($_code, bool $_redirect = true, bool $_abort = false)
     {
-        $file = public_path('static') . intval($_code) . '.html';
+        $file = public_path() . intval($_code) . '.html';
 
         $content = is_file($file)
             ? file_get_contents($file)

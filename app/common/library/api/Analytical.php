@@ -46,9 +46,9 @@ class Analytical
      */
     public $version = [
         // 'paradigm' => '1',
-        'major'    => '1',
-        'minor'    => '0',
-        'revision' => '',
+        'major'    => 1,
+        'minor'    => 0,
+        'revision' => 0,
     ];
 
     /**
@@ -103,8 +103,6 @@ class Analytical
         // 校验方法名格式
         $method = Request::param('method');
         if (!$method || !!!preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $method)) {
-
-
             $this->abort('The method parameter is empty or formatted incorrectly.', 25001);
         }
 
@@ -216,9 +214,9 @@ class Analytical
         $version = substr($version, 1);
         list($major, $minor, $revision) = explode('.', $version, 3);
         $this->version = [
-            'major'    => $major,
-            'minor'    => $minor,
-            'revision' => $revision,
+            'major'    => (int) $major,
+            'minor'    => (int) $minor,
+            'revision' => (int) $revision,
         ];
         unset($version, $major, $minor, $revision);
 

@@ -86,11 +86,13 @@ class ClearGarbage
     {
         $keep = [
             'file' => [
+                '404.html',
+                '502.html',
+                'dead.txt',
+                'favicon.ico',
                 'index.php',
                 'robots.txt',
-                'dead.txt',
                 'sitemap.xml',
-                'favicon.ico',
             ],
             'ext' => [
                 'htaccess',

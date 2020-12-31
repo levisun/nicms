@@ -29,28 +29,30 @@ class Notify extends BaseApi
      * @param  string $method
      * @return mixed
      */
-    public function index(string $method)
+    public function index(string $pay)
     {
-        $method = strtolower($method);
-
-        if (method_exists($this, $method)) {
-            return call_user_func([$this, $method]);
+        if (!$config = env('pay.' . strtolower($pay))) {
+            $this->abort('This method could not be found.', 40001);
+        }
+        if (!$config = json_decode(base64_decode($config), true)) {
+            $this->abort('This method could not be found.', 40002);
         }
 
-        return miss(404, false);
-    }
-
-    /**
-     * 微信异步回调
-     */
-    public function wechat(): int
-    {
-        $pay = new Wechat($this->config->get('pay.wechat'));
-        if ($result = $pay->notify()) {
-            # TODO 修改订单状态
-            return 1;
-        } else {
-            return 0;
+        $pay = '\app\common\library\pay\\' . ucfirst($pay);
+        // 校验方法是否存在
+        if (!class_exists($pay)) {
+            $this->abort('This method could not be found.', 40001);
         }
+        if (!method_exists($pay, 'notify')) {
+            $this->abort('This method could not be found.', 40002);
+        }
+
+        $pay = new $pay($config);
+        $result = $pay->notify();
+        if (is_string($result)) {
+            $this->abort($result, 50001);
+        }
+
+        return $result ? 1 : 0;
     }
 }

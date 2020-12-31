@@ -98,17 +98,20 @@
                         article.items = result.data;
 
                         if (1 === article.items.status) {
-                            jQuery.pjax({
-                                url: NICMS.api_uri + 'query.do',
-                                type: 'GET',
-                                data: [
-                                    { name: 'method', value: 'book.spider.article' },
-                                    { name: 'book_id', value: NICMS.param.book_id }
-                                ],
-                                success: function (res) {
+                            setInterval(() => {
+                                jQuery.pjax({
+                                    url: NICMS.api_uri + 'query.do',
+                                    type: 'GET',
+                                    data: [
+                                        { name: 'method', value: 'book.spider.article' },
+                                        { name: 'book_id', value: NICMS.param.book_id }
+                                    ],
+                                    success: function (res) {
 
-                                }
-                            });
+                                    }
+                                });
+                            }, 60000);
+
                         }
                     }
                 });

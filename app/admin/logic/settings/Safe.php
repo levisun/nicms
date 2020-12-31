@@ -48,8 +48,8 @@ class Safe extends BaseLogic
                 'hostname' => $env->get('database.hostname'),
                 'database' => $env->get('database.database'),
                 'username' => $env->get('database.username'),
-                'password' => $env->get('database.password'),
-                'hostport' => $env->get('database.hostport'),
+                // 'password' => $env->get('database.password'),
+                // 'hostport' => $env->get('database.hostport'),
                 'prefix'   => $env->get('database.prefix'),
             ],
             'admin' => [

@@ -74,12 +74,13 @@ class Dashboard extends BaseLogic
     {
         // $sum_ip = ModelIpv4::cache(28800)->count();
 
-        // $day_ip = ModelIpv4::cache(1440)->where('create_time', '>', strtotime(date('Y-m-d')))->count();
+        $sum_ip = ModelIpv4::cache(1440)->where('update_time', '>', strtotime('-7 day'))->count();
+        $day_ip = ModelIpv4::cache(1440)->where('update_time', '>', strtotime(date('Y-m-d')))->count();
 
-        $sum_ip = ModelVisit::where('ip', '<>', '')->count();
-        $day_ip = ModelVisit::where('ip', '<>', '')
-            ->where('date', '=', strtotime(date('Y-m-d')))
-            ->count();
+        // $sum_ip = ModelVisit::where('ip', '<>', '')->count();
+        // $day_ip = ModelVisit::where('ip', '<>', '')
+        //     ->where('date', '=', strtotime(date('Y-m-d')))
+        //     ->count();
 
         $browse = ModelVisit::fieldRaw('sum(count) as count')
             ->where('name', '=', '')

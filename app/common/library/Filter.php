@@ -157,7 +157,7 @@ class Filter
      */
     public static function non_chs_alpha(string &$_str): string
     {
-        $_str = (string) preg_replace_callback('/[^\x{4e00}-\x{9fa5}a-zA-Z\d ]+/u', function () {
+        $_str = (string) preg_replace_callback('/[^\x{4e00}-\x{9fa5}a-zA-Z\d ]+/uis', function () {
             return '';
         }, trim($_str));
         return trim($_str);
@@ -192,7 +192,7 @@ class Filter
      */
     public static function fun(string &$_str): string
     {
-        $regex = '/' . implode('|', self::$func) . '/si';
+        $regex = '/' . implode('|', self::$func) . '/uis';
         $_str = (string) preg_replace_callback($regex, function ($matches) {
             return $matches[0] . '&nbsp;';
         }, $_str);
@@ -210,11 +210,11 @@ class Filter
     public static function php(string &$_str): string
     {
         $_str = (string) preg_replace([
-            '/<\?php.*?\?>/si',
-            '/<\?.*?\?>/si',
-            '/<\?php/si',
-            '/<\?/s',
-            '/\?>/s',
+            '/<\?php.*?\?>/uis',
+            '/<\?.*?\?>/uis',
+            '/<\?php/uis',
+            '/<\?/us',
+            '/\?>/us',
         ], '', $_str);
 
         libxml_disable_entity_loader(true);
@@ -235,15 +235,15 @@ class Filter
         // 做修改时,请保证括号内代码成功过滤!有新结构体,请追加在括号内!
         // [ onclick="alert(1)" onload=eval(ssltest.title) data-d={1:\'12 3213\',22=2:\' dabdd\'} ]
 
-        $regex = '/<(\/?[\w\d!]+)([\w\d\- ]+=[^>]*)>/si';
-        return (string) preg_replace_callback($regex, function ($attr) use(&$_strict) {
+        $regex = '/<(\/?[\w!]+)([\w\- ]+=[^>]*)>/uis';
+        return (string) preg_replace_callback($regex, function ($attr) use (&$_strict) {
             $attr = array_map('trim', $attr);
 
             // 过滤json数据
-            $attr[2] = preg_replace('/[\{\[]+.*[\]\}]+/si', '', $attr[2]);
+            $attr[2] = preg_replace('/[\{\[]+.*[\]\}]+/uis', '', $attr[2]);
 
             // 过滤非法属性
-            $attr[2] = preg_replace_callback('/([\w\d\-]+)=.*\s*/si', function ($single) use(&$_strict) {
+            $attr[2] = preg_replace_callback('/([\w\-]+)=.*\s*/uis', function ($single) use (&$_strict) {
                 $single = array_map('trim', $single);
                 if (false !== stripos($single[0], 'javascript')) {
                     return '';
@@ -259,7 +259,7 @@ class Filter
             }, $attr[2]);
 
             // 清除多余空格
-            $attr[2] = preg_replace('/\s+/si', ' ', $attr[2]);
+            $attr[2] = preg_replace('/\s+/uis', ' ', $attr[2]);
             $attr[2] = trim($attr[2]);
 
             $attr[2] = !empty($attr[2]) ? ' ' . $attr[2] : '';
@@ -276,15 +276,8 @@ class Filter
      */
     public static function html(string &$_str): string
     {
-        // 过滤脚本等标签及内容
-        $_str = preg_replace([
-            '/<\!\-\-.*?\-\->/si',
-            '/<script[^<>]*>.*?<\/script>/si',
-            '/<style[^<>]*>.*?<\/style>/si',
-        ], '', $_str);
-
         // 过滤非法标签
-        if (false !== preg_match_all('/<([\w\d!]+)[^<>]*>/si', $_str, $ele)) {
+        if (false !== preg_match_all('/<([\w!]+)[^<>]*>/ui', $_str, $ele)) {
             $ele[1] = array_map(function ($value) {
                 $value = strtolower($value);
                 $value = trim($value);
@@ -301,10 +294,11 @@ class Filter
             array_multisort($length, SORT_DESC, $ele[1]);
 
             $preg = [];
+            $preg[] = '/[\'"]+<.*?>[\'"]+/uis';
             foreach ($ele[1] as $value) {
                 if (!in_array($value, self::$elements)) {
-                    $preg[] = '/<' . $value . '[^<>]*>.*?<\/' . $value . '>/si';
-                    $preg[] = '/<\/?' . $value . '[^<>]*>/si';
+                    $preg[] = '/<' . $value . '[^<>]*>.*?<\/' . $value . '>/uis';
+                    $preg[] = '/<\/?' . $value . '[^<>]*>/ui';
                 }
             }
 

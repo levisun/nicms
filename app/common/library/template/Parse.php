@@ -341,23 +341,23 @@ class Parse
         switch ($_tag_name) {
             case 'include':
             case 'layout':
-                $regex = $_tag_name . '\s+file=["\']([\$\w\d\.\/\.\:@,\\\\]+)["\']\s+\/';
+                $regex = $_tag_name . '\s+file=["\']([\$\w\.\/\.\:@,\\\\]+)["\']\s+\/';
                 break;
 
             case 'taglib':
-                $regex = '(\/)?([\w]+:)?([\w\_]+)\s?([\w\d\.\$\(\)\!=<>"\' ]+)?\s?\/?';
+                $regex = '(\/)?([\w]+:)?([\w\_]+)\s?([\w\.\$\(\)\!=<>"\' ]+)?\s?\/?';
                 break;
 
             case 'vars':
-                $regex = '\$([\w\d_\.\|]+)';
+                $regex = '\$([\w_\.\|]+)';
                 break;
 
             case 'function':
-                $regex = '(:)?([\w\_]+)\s?\(+([\w\d\.\$\(\)\!=<>"\'\/ ]+)\)+\s?';
+                $regex = '(:)?([\w\_]+)\s?\(+([\w\.\$\(\)\!=<>"\'\/ ]+)\)+\s?';
                 break;
 
             case 'tag':
-                $regex = '([:$])?([\w\d\.\$\(\)\!=<>"\'\[\]\/ ]+)\s?';
+                $regex = '([:$])?([\w\.\$\(\)\!=<>"\'\[\]\/ ]+)\s?';
                 break;
 
             default:

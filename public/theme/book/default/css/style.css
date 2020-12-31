@@ -1,6 +1,9 @@
 #app {
     padding: 20px 0;
 }
+.book_list a {
+    margin: 10px 0;
+}
 body.dark,
 body.dark a,
 body.dark a:hover {
