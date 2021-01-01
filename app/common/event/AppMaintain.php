@@ -43,8 +43,6 @@ class AppMaintain
             // 数据库优化|修复
             (new DataManage)->optimize();
 
-            (new DataManage)->processList();
-
             $this->removeGarbage();
         }
     }

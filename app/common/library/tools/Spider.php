@@ -53,7 +53,7 @@ class Spider
         $this->siteRegex = array_merge($this->siteRegex, $_site_regex);
     }
 
-    public function pageInfo()
+    public function pageInfo(int $_length = 0)
     {
         if (!$this->xhtml) return false;
 
@@ -131,10 +131,121 @@ class Spider
             $article = array_unique($article);
             $article = implode('', $article);
             $article = (string) preg_replace($this->filterRegex, '', $article);
-            $article = Filter::html_attr($article, true);
+            $article = Filter::htmlAttr($article, true);
             $article = strip_tags($article, '<p><img><table><tr><td><th>');
             $article = preg_replace(['/<img\s?>/i'], '', $article);
             $result['content'] = htmlspecialchars($article, ENT_QUOTES);
+        }
+
+        if (empty($result['content']) && $body = $this->select('body', [], false)) {
+            $body = htmlspecialchars_decode($body[0], ENT_QUOTES);
+            $body = preg_replace('/<\/?body[^<>]*>/i', '', $body);
+            $body = Filter::html($body);
+            $body = Filter::htmlAttr($body);
+
+            $body = preg_replace([
+                '/<ul[^<>]*>.*?<\/ul>/si',
+                '/<ol[^<>]*>.*?<\/ol>/si',
+                '/<dl[^<>]*>.*?<\/dl>/si',
+                '/<a[^<>]*>[^<]*<\/a>/si',
+                // 百度知道
+                '/<span class="[\w\d]{10,}">[\w\d]{10,}<\/span>/si',
+            ], '', $body);
+
+            $pattern = [
+                '/<article/si'    => '<div',
+                '/<\/article/si'  => '</div',
+                '/<h[\d]{1}/si'   => '<p',
+                '/<\/h[\d]{1}/si' => '</p',
+            ];
+            $body = preg_replace(array_keys($pattern), array_values($pattern), $body);
+
+            // 清除多余标签
+            $body = (string) preg_replace_callback('/<(\/?)([\w]+)([^<>]*)>/si', function ($ele) {
+                if (in_array($ele[2], ['div', 'p', 'br', 'table', 'tr', 'td', 'th'])) {
+                    return '<' . $ele[1] . $ele[2] . $ele[3] . '>';
+                } elseif ('img' == $ele[2]) {
+                    return $ele[0];
+                }
+            }, $body);
+
+            while (preg_match('/<div[^<>]*><div/si', $body)) {
+                $body = preg_replace('/<div[^<>]*><div/si', '<div', $body);
+            }
+            while (preg_match('/<div[^<>]*><\/div>/si', $body)) {
+                $body = preg_replace('/<div[^<>]*><\/div>/si', '', $body);
+            }
+            while (preg_match('/<\/div><\/div>/si', $body)) {
+                $body = preg_replace('/<\/div><\/div>/si', '</div>', $body);
+            }
+
+            // 替换图片
+            $body = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) use ($host) {
+                $img[1] = trim($img[1], '"\'');
+                if (0 === strpos($img[1], '//')) {
+                    $img[1] = parse_url($host, PHP_URL_SCHEME) . ':' . $img[1];
+                } elseif (0 === strpos($img[1], '/')) {
+                    $img[1] = $host . $img[1];
+                }
+                return '{TAG:img_src=' . $img[1] . '}';
+            }, $body);
+
+            // 替换表格
+            $body = preg_replace_callback('/<table[^<>]*>(.*?)<\/table[^<>]*>/si', function ($table) {
+                $table[1] = strip_tags($table[1], '<tr><td><th><br><p>');
+                $table[1] = preg_replace_callback('/<(\/)?(tr|td|th)([^<>]*)>/si', function ($tr) {
+                    return '{TAG:' . $tr[1] . $tr[2] . $tr[3] .'}';
+                }, $table[1]);
+                return '{TAG:table}' . $table[1] . '{TAG:/table}';
+            }, $body);
+
+            // 标签转回车
+            $body = str_ireplace(['<p>', '</p>', '<br>', '<br />', '<br/>'], PHP_EOL, $body);
+
+            // 匹配内容
+            $pattern = '/>[^<>]{160,}</si';
+            if (false !== preg_match_all($pattern, $body, $matches)) {
+                $content = (array) $matches[0];
+                foreach ($content as $key => $value) {
+                    $content[$key] = trim($value, '><') . PHP_EOL;
+                }
+                $content = implode('', $content);
+                // 截取
+                if ($_length && $_length < mb_strlen($content, 'utf-8')) {
+                    if ($position = mb_strpos($content, '{TAG:/table}', $_length, 'utf-8')) {
+                        $content = mb_substr($content, 0, $position + 12, 'utf-8');
+                    } elseif ($position = mb_strpos($content, '。', $_length, 'utf-8')) {
+                        $content = mb_substr($content, 0, $position + 1, 'utf-8');
+                    } elseif ($position = mb_strpos($content, '.', $_length, 'utf-8')) {
+                        $content = mb_substr($content, 0, $position + 1, 'utf-8');
+                    } elseif ($position = mb_strpos($content, ' ', $_length, 'utf-8')) {
+                        $content = mb_substr($content, 0, $position + 1, 'utf-8');
+                    } else {
+                        $content = mb_substr($content, 0, $_length, 'utf-8');
+                    }
+                }
+
+                // 恢复格式
+                $content = explode('<br />', nl2br((string) $content));
+                $content = array_map('trim', $content);
+                $content = array_filter($content);
+                $content = '<p>' . implode('</p><p>', $content) . '</p>';
+
+                // 清除版权等信息
+                $content = (string) preg_replace($this->filterRegex, '', $content);
+
+                // 恢复图片
+                $content = preg_replace_callback('/\{TAG:img_src=([^<>\{\}\s]*)\}/si', function ($img) {
+                    return '<img src="' . trim($img[1], '"\'') . '" />';
+                }, $content);
+
+                // 恢复表格
+                $content = preg_replace_callback('/\{TAG:(.*?)\}/si', function ($table) {
+                    return '<' . $table[1] . '>';
+                }, $content);
+            }
+            $content = (string) preg_replace($this->filterRegex, '', $content);
+            $result['content'] = htmlspecialchars($content, ENT_QUOTES);
         }
 
         return !empty($result) ? $result : false;

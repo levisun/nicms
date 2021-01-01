@@ -31,10 +31,7 @@ class Category extends BaseLogic
      */
     public function query(): array
     {
-        $map = [
-            ['book.is_pass', '=', '1'],
-            ['book.lang', '=', $this->lang->getLangSet()]
-        ];
+        $map = [];
 
         if ($attribute = $this->request->param('attribute/d', 0, 'abs')) {
             $map[] = ['book.attribute', '=', $attribute];
@@ -56,7 +53,7 @@ class Category extends BaseLogic
         }
 
         $query_limit = $this->request->param('limit/d', 20, 'abs');
-
+        $query_limit = 100 > $query_limit ? $query_limit : 20;
         $query_page = $this->request->param('page/d', 1, 'abs');
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
@@ -66,6 +63,8 @@ class Category extends BaseLogic
             $result = ModelBook::view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'hits', 'status', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
+                ->where('book.is_pass', '=', '1')
+                ->where('book.lang', '=', $this->lang->getLangSet())
                 ->where($map)
                 ->order($sort_order)
                 ->paginate([

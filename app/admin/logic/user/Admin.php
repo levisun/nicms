@@ -35,6 +35,8 @@ class Admin extends BaseLogic
     public function query(): array
     {
         $query_limit = $this->request->param('limit/d', 20, 'abs');
+        $query_limit = 100 > $query_limit ? $query_limit : 20;
+        $query_page = $this->request->param('page/d', 1, 'abs');
 
         $result = ModelAdmin::view('admin', ['id', 'username', 'email', 'status', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
             ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')

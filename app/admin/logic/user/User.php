@@ -34,6 +34,8 @@ class User extends BaseLogic
     public function query(): array
     {
         $query_limit = $this->request->param('limit/d', 20, 'abs');
+        $query_limit = 100 > $query_limit ? $query_limit : 20;
+        $query_page = $this->request->param('page/d', 1, 'abs');
 
         $result = ModelUser::view('user', ['id', 'username', 'realname', 'nickname', 'email', 'phone', 'status', 'create_time'])
             ->view('level', ['name' => 'level_name'], 'level.id=user.level_id')

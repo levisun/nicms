@@ -41,10 +41,10 @@ class Notify extends BaseApi
         $pay = '\app\common\library\pay\\' . ucfirst($pay);
         // 校验方法是否存在
         if (!class_exists($pay)) {
-            $this->abort('This method could not be found.', 40001);
+            $this->abort('This method could not be found.', 40003);
         }
         if (!method_exists($pay, 'notify')) {
-            $this->abort('This method could not be found.', 40002);
+            $this->abort('This method could not be found.', 40004);
         }
 
         $pay = new $pay($config);

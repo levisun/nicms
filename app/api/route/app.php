@@ -38,18 +38,19 @@ Route::group(function () {
     Route::post('verify/sms_check$', 'verify.Sms/check');
 
     // 支付
-    Route::post('pay/order/:pay/:method$', 'pay.Order/index');
-    Route::get('pay/respond/:method$', 'pay.Respond/index');
+    Route::post('pay/order/:pay/:type$', 'pay.Order/index');
+    Route::get('pay/respond/:pay$', 'pay.Respond/index');
     Route::get('pay/notify/:pay$', 'pay.Notify/index');
 
 
-    Route::delete('handle$', 'Handle/remove');  // 操作接口
-    Route::patch('handle$', 'Handle/editor');   // 操作接口
-    Route::put('handle$', 'Handle/added');      // 操作接口
+    // Route::delete('handle$', 'Handle/remove');  // 操作接口
+    // Route::patch('handle$', 'Handle/editor');   // 操作接口
+    // Route::put('handle$', 'Handle/added');      // 操作接口
     Route::post('handle$', 'Handle/index');     // 操作接口
     Route::get('query$', 'Query/index');        // 请求接口
     Route::post('upload$', 'Upload/index');     // 上传接口
 
 })->domain('api')->ext('do')->pattern([
-    'method' => '[a-z]+',
+    'pay'  => '[a-z]+',
+    'type' => '[a-z]+',
 ]);

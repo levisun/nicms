@@ -33,10 +33,7 @@ class Article extends BaseLogic
      */
     public function query(): array
     {
-        $map = [
-            ['delete_time', '=', '0'],
-            ['lang', '=', $this->lang->getLangSet()]
-        ];
+        $map = [];
 
         // 安审核条件查询,为空查询所有
         if ($is_pass = $this->request->param('pass/d', 0, 'abs')) {
@@ -52,20 +49,41 @@ class Article extends BaseLogic
             }
         }
 
-        $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = $query_limit <= 0 ? 20 : $query_limit;
-        $query_limit = $query_limit > 100 ? 20 : $query_limit;
-
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
+        $query_limit = 100 > $query_limit ? $query_limit : 20;
 
-        $result = ModelBookArticle::where($map)
+        $query_page = $this->request->param('page/d', 1, 'abs');
+        if ($query_page > $this->cache->get('admin book article last_page' . $query_limit, $query_page)) {
+            return [
+                'debug' => false,
+                'cache' => true,
+                'msg'   => 'error',
+            ];
+        }
+
+        $total = $this->cache->get('admin book article total', false);
+        $total = is_bool($total) ? $total : (int) $total;
+
+        $result = ModelBookArticle::where('delete_time', '=', '0')
+            ->where('lang', '=', $this->lang->getLangSet())
+            ->where($map)
             ->order('is_pass ASC, sort_order DESC, id DESC')
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
-            ]);
+            ], $total);
 
         $list = $result->toArray();
+
+        if (!$this->cache->has('admin book article total')) {
+            $this->cache->set('admin book article total', $list['total'], 28800);
+        }
+
+        if (!$this->cache->has('admin book article last_page' . $query_limit)) {
+            $this->cache->set('admin book article last_page' . $query_limit, $list['last_page'], 28800);
+        }
+
         $list['total'] = number_format($list['total']);
         $list['render'] = $result->render();
 

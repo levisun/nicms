@@ -35,13 +35,7 @@ class Category extends BaseLogic
      */
     public function query(): array
     {
-        $map = [
-            ['article.is_pass', '=', '1'],
-            ['article.delete_time', '=', '0'],
-            ['article.access_id', '=', $this->user_role_id],
-            ['article.show_time', '<', time()],
-            ['article.lang', '=', $this->lang->getLangSet()]
-        ];
+        $map = [];
 
         // 安栏目查询,为空查询所有
         if ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
@@ -66,6 +60,7 @@ class Category extends BaseLogic
         }
 
         $query_limit = $this->request->param('limit/d', 20, 'abs');
+        $query_limit = 100 > $query_limit ? $query_limit : 20;
         $query_page = $this->request->param('page/d', 1, 'abs');
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
@@ -78,6 +73,11 @@ class Category extends BaseLogic
                 ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                 ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
                 ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
+                ->where('article.is_pass', '=', '1')
+                ->where('article.delete_time', '=', '0')
+                ->where('article.access_id', '=', $this->user_role_id)
+                ->where('article.show_time', '<', time())
+                ->where('article.lang', '=', $this->lang->getLangSet())
                 ->where($map)
                 ->order($sort_order)
                 ->paginate([

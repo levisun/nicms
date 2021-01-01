@@ -34,10 +34,7 @@ class Book extends BaseLogic
      */
     public function query(): array
     {
-        $map = [
-            ['book.delete_time', '=', '0'],
-            ['book.lang', '=', $this->lang->getLangSet()]
-        ];
+        $map = [];
 
         // 安审核条件查询,为空查询所有
         if ($is_pass = $this->request->param('pass/d', 0, 'abs')) {
@@ -54,14 +51,16 @@ class Book extends BaseLogic
         }
 
         $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = $query_limit <= 0 ? 20 : $query_limit;
-        $query_limit = $query_limit > 100 ? 20 : $query_limit;
+        $query_limit = 100 > $query_limit ? $query_limit : 20;
+        $query_page = $this->request->param('page/d', 1, 'abs');
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
         $result = ModelBook::view('book', ['id', 'title', 'type_id', 'is_pass', 'attribute', 'status', 'hits', 'sort_order', 'update_time'])
             ->view('book_type', ['name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
             ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
+            ->where('book.delete_time', '=', '0')
+            ->where('book.lang', '=', $this->lang->getLangSet())
             ->where($map)
             ->order('book.is_pass ASC, book.status ASC, book.attribute DESC, book.sort_order DESC, book.id DESC')
             ->paginate([

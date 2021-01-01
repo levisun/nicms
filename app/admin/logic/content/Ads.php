@@ -34,6 +34,8 @@ class Ads extends BaseLogic
     public function query(): array
     {
         $query_limit = $this->request->param('limit/d', 20, 'abs');
+        $query_limit = 100 > $query_limit ? $query_limit : 20;
+        $query_page = $this->request->param('page/d', 1, 'abs');
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 

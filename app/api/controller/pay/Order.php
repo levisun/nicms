@@ -19,12 +19,11 @@ namespace app\api\controller\pay;
 
 use think\facade\Config;
 use app\common\controller\BaseApi;
-use app\common\library\pay\Wechat;
 
 class Order extends BaseApi
 {
 
-    public function index(string $pay, string $method)
+    public function index(string $pay, string $type)
     {
         if ($this->validate->referer() && $this->validate->fromToken()) {
             if (!$config = env('pay.' . strtolower($pay))) {
@@ -37,15 +36,15 @@ class Order extends BaseApi
             $pay = '\app\common\library\pay\\' . ucfirst($pay);
             // 校验方法是否存在
             if (!class_exists($pay)) {
-                $this->abort('This method could not be found.', 40001);
+                $this->abort('This method could not be found.', 40003);
             }
-            $method = strtolower($method);
-            if (!method_exists($pay, $method)) {
-                $this->abort('This method could not be found.', 40002);
+            $type = strtolower($type);
+            if (!method_exists($pay, $type)) {
+                $this->abort('This method could not be found.', 40004);
             }
 
             $pay = new $pay($config);
-            $result = $pay->$method($this->payParam());
+            $result = $pay->$type($this->payParam());
             if (is_string($result)) {
                 $this->abort($result, 50001);
             }

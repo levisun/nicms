@@ -15,7 +15,6 @@
         "<script src='https://cdn.jsdelivr.net/npm/blueimp-md5@2.12.0/js/md5.min.js'></script>",
         "<script src='https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js' integrity='sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=' crossorigin='anonymous'></script>",
         "<script src='https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js' integrity='sha256-WqU1JavFxSAMcLP2WIOI+GB2zWmShMI82mTpLDcqFUg=' crossorigin='anonymous'></script>",
-        "<script src='__STATIC__jquery/jquery.nicms.js'></script>",
-        "<script src='https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js'></script>"
+        "<script src='__STATIC__jquery/jquery.nicms.js'></script>"
     ]
 }

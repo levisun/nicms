@@ -38,6 +38,7 @@ class Tag
         if (!empty($_attr)) {
             $_attr['date_format'] = !empty($_attr['date_format']) ? $_attr['date_format'] : 'Y-m-d';
             $_attr['limit'] = !empty($_attr['limit']) ? (int) $_attr['limit'] : 10;
+            $_attr['limit'] = 100 > $_attr['limit'] ? $_attr['limit'] : 10;
             $_attr['page'] = !empty($_attr['page']) ? (int) $_attr['page'] : 1;
 
             $sort_order = isset($_attr['sort'])

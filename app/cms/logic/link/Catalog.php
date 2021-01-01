@@ -32,10 +32,7 @@ class Catalog extends BaseLogic
      */
     public function query()
     {
-        $map = [
-            ['link.is_pass', '=', '1'],
-            ['link.lang', '=', $this->lang->getLangSet()]
-        ];
+        $map = [];
 
         if ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
             $map[] = ['link.category_id', '=', $category_id];
@@ -48,6 +45,8 @@ class Catalog extends BaseLogic
                 ->view('category category', ['name' => 'cat_name'], 'category.id=link.category_id')
                 ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id')
                 ->view('type type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=link.type_id', 'LEFT')
+                ->where('link.is_pass', '=', '1')
+                ->where('link.lang', '=', $this->lang->getLangSet())
                 ->where($map)
                 ->order('link.type_id DESC, link.sort_order DESC, link.id DESC')
                 ->select()

@@ -27,9 +27,7 @@ class Ip extends BaseApi
     public function index()
     {
         $referer = $this->request->server('HTTP_REFERER');
-        $referer = !$referer || false === stripos($referer, $this->request->rootDomain())
-            ? false
-            : true;
+        $referer = !$referer || false === stripos($referer, $this->request->rootDomain()) ? false : true;
 
         if (false === $referer && 0 <= date('H') && 7 >= date('H')) {
             return miss(503, false);

@@ -36,6 +36,7 @@ class Catalog extends BaseLogic
         $book_id = $this->request->param('book_id', 0, '\app\common\library\Base64::url62decode');
 
         $query_limit = $this->request->param('limit/d', 20, 'abs');
+        $query_limit = 100 > $query_limit ? $query_limit : 20;
         $query_page = $this->request->param('page/d', 1, 'abs');
         $date_format = $this->request->param('date_format', 'Y-m-d');
 

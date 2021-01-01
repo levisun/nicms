@@ -32,6 +32,19 @@ class Log extends BaseLogic
     public function query(): array
     {
         $query_limit = $this->request->param('limit/d', 20, 'abs');
+        $query_limit = 100 > $query_limit ? $query_limit : 20;
+
+        $query_page = $this->request->param('page/d', 1, 'abs');
+        if ($query_page > $this->cache->get('admin extend log last_page' . $query_limit, $query_page)) {
+            return [
+                'debug' => false,
+                'cache' => true,
+                'msg'   => 'error',
+            ];
+        }
+
+        $total = $this->cache->get('admin extend log total', false);
+        $total = is_bool($total) ? $total : (int) $total;
 
         $result = ModelActionLog::view('action_log', ['action_id', 'user_id', 'action_ip', 'module', 'remark', 'create_time'])
             ->view('action', ['name' => 'action_name'], 'action.id=action_log.action_id')
@@ -42,9 +55,18 @@ class Log extends BaseLogic
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
-            ]);
+            ], $total);
 
         $list = $result->toArray();
+
+        if (!$this->cache->has('admin extend log total')) {
+            $this->cache->set('admin extend log total', $list['total'], 28800);
+        }
+
+        if (!$this->cache->has('admin extend log last_page' . $query_limit)) {
+            $this->cache->set('admin extend log last_page' . $query_limit, $list['last_page'], 28800);
+        }
+
         $list['total'] = number_format($list['total']);
         $list['render'] = $result->render();
 

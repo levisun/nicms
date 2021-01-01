@@ -99,7 +99,7 @@ class Addon
         // 安全过滤
         // $result = Filter::symbol($result);
         $result = Filter::space($result);
-        $result = Filter::html_attr($result);
+        $result = Filter::htmlAttr($result);
         $result = Filter::php($result);
 
         $_content = false !== strripos($_content, '</body>')

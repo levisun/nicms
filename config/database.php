@@ -60,13 +60,13 @@ return [
             // 是否严格检查字段是否存在
             'fields_strict'     => true,
             // 是否需要断线重连
-            'break_reconnect'   => true,
+            'break_reconnect'   => false,
             // 断线标识字符串
             'break_match_str' => [
                 'error with',
             ],
             // 监听SQL
-            'trigger_sql'       => false,
+            'trigger_sql'       => env('app_debug', false),
             // 开启字段缓存
             'fields_cache'      => true,
             // 字段缓存路径

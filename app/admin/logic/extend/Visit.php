@@ -32,6 +32,8 @@ class Visit extends BaseLogic
     public function query(): array
     {
         $query_limit = $this->request->param('limit/d', 20, 'abs');
+        $query_limit = 100 > $query_limit ? $query_limit : 20;
+        $query_page = $this->request->param('page/d', 1, 'abs');
 
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
@@ -47,6 +49,7 @@ class Visit extends BaseLogic
 
         foreach ($list['data'] as $key => $value) {
             $value['date'] = date($date_format, (int) $value['date']);
+            $value['count'] = format_hits((int) $value['count']);
             $list['data'][$key] = $value;
         }
 

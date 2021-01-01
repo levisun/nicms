@@ -22,7 +22,7 @@ class Filter
 {
     private static $elements = ['a', 'audio', 'article', 'b', 'br', 'blockquote', 'center', 'dd', 'del', 'div', 'dl', 'dt', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'img', 'li', 'ol', 'p', 'pre', 'section', 'small', 'span', 'strong', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul', 'video'];
 
-    private static $attr = ['alt', 'align', 'async', 'charset', 'class', 'content', 'defer', 'height', 'href', 'id', 'name', 'rel', 'src', 'style', 'target', 'title', 'type', 'width'];
+    private static $attr = ['alt', 'align', 'async', 'charset', 'class', 'content', 'defer', 'height', 'href', 'id', 'name', 'rel', 'src', 'style', 'target', 'title', 'type', 'width', 'rowspan'];
 
     private static $func = ['apache_setenv', 'base64_decode', 'call_user_func', 'call_user_func_array', 'chgrp', 'chown', 'chroot', 'eval', 'exec', 'file_get_contents', 'file_put_contents', 'function', 'imap_open', 'ini_alter', 'ini_restore', 'invoke', 'openlog', 'passthru', 'pcntl_alarm', 'pcntl_exec', 'pcntl_fork', 'pcntl_get_last_error', 'pcntl_getpriority', 'pcntl_setpriority', 'pcntl_signal', 'pcntl_signal_dispatch', 'pcntl_sigprocmask', 'pcntl_sigtimedwait', 'pcntl_sigwaitinfo', 'pcntl_strerror', 'pcntl_wait', 'pcntl_waitpid', 'pcntl_wexitstatus', 'pcntl_wifcontinued', 'pcntl_wifexited', 'pcntl_wifsignaled', 'pcntl_wifstopped', 'pcntl_wstopsig', 'pcntl_wtermsig', 'popen', 'popepassthru', 'proc_open', 'putenv', 'readlink', 'shell_exec', 'symlink', 'syslog', 'system', 'select', 'drop', 'delete', 'create', 'insert'];
 
@@ -176,7 +176,7 @@ class Filter
         $_str = self::symbol($_str);
         $_str = self::space($_str, true);
         $_str = self::html($_str);
-        $_str = self::html_attr($_str);
+        $_str = self::htmlAttr($_str);
         $_str = self::php($_str);
         $_str = self::fun($_str);
 
@@ -230,38 +230,34 @@ class Filter
      * @param  bool   $_strict
      * @return string
      */
-    public static function html_attr(string &$_str, bool $_strict = false): string
+    public static function htmlAttr(string &$_str): string
     {
         // 做修改时,请保证括号内代码成功过滤!有新结构体,请追加在括号内!
         // [ onclick="alert(1)" onload=eval(ssltest.title) data-d={1:\'12 3213\',22=2:\' dabdd\'} ]
 
-        $regex = '/<(\/?[\w!]+)([\w\- ]+=[^>]*)>/uis';
-        return (string) preg_replace_callback($regex, function ($attr) use (&$_strict) {
+        $regex = '/<(\/?[\w!]+)([\w\-\s]+=[^>]*)>/uis';
+        return (string) preg_replace_callback($regex, function ($attr) {
             $attr = array_map('trim', $attr);
 
             // 过滤json数据
-            $attr[2] = preg_replace('/[\{\[]+.*[\]\}]+/uis', '', $attr[2]);
+            $attr[2] = preg_replace([
+                '/\[.*\]/uis',
+                '/\{.*\}/uis',
+            ], 'JSON', $attr[2]);
 
             // 过滤非法属性
-            $attr[2] = preg_replace_callback('/([\w\-]+)=.*\s*/uis', function ($single) use (&$_strict) {
+            $attr[2] = preg_replace_callback('/([\w\-]+)=[^\s]+/uis', function ($single) {
                 $single = array_map('trim', $single);
                 if (false !== stripos($single[0], 'javascript')) {
                     return '';
-                }
-
-                if ($_strict && !in_array(strtolower($single[1]), ['src', 'href'])) {
-                    return '';
                 } elseif (!in_array(strtolower($single[1]), self::$attr)) {
                     return '';
+                } else {
+                    return trim($single[0]);
                 }
-
-                return trim($single[0]);
             }, $attr[2]);
 
-            // 清除多余空格
-            $attr[2] = preg_replace('/\s+/uis', ' ', $attr[2]);
-            $attr[2] = trim($attr[2]);
-
+            $attr[2] = preg_replace('/\s+/uis', ' ', trim($attr[2]));
             $attr[2] = !empty($attr[2]) ? ' ' . $attr[2] : '';
             return '<' . $attr[1] . $attr[2] . '>';
         }, $_str);
@@ -294,7 +290,7 @@ class Filter
             array_multisort($length, SORT_DESC, $ele[1]);
 
             $preg = [];
-            $preg[] = '/[\'"]+<.*?>[\'"]+/uis';
+            $preg[] = '/[\'"]+<[\w]+[^<>]*>[\'"]+/uis';
             foreach ($ele[1] as $value) {
                 if (!in_array($value, self::$elements)) {
                     $preg[] = '/<' . $value . '[^<>]*>.*?<\/' . $value . '>/uis';
@@ -304,6 +300,9 @@ class Filter
 
             $_str = (string) preg_replace($preg, '', $_str);
         }
+
+        $_str = preg_replace('/<img\s*>/uis', '', $_str);
+        $_str = preg_replace('/<[\w]+>\s*<\/[\w]+>/uis', '', $_str);
 
         return trim($_str);
     }

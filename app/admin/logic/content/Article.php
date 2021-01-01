@@ -40,11 +40,7 @@ class Article extends BaseLogic
      */
     public function query(): array
     {
-        $map = [
-            ['article.delete_time', '=', '0'],
-            ['model_id', '<=', '4'],
-            ['article.lang', '=', $this->lang->getLangSet()]
-        ];
+        $map = [];
 
         // 安栏目查询,为空查询所有
         if ($category_id = $this->request->param('cid/d', 0, 'abs')) {
@@ -71,8 +67,8 @@ class Article extends BaseLogic
         }
 
         $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = $query_limit <= 0 ? 20 : $query_limit;
-        $query_limit = $query_limit > 100 ? 20 : $query_limit;
+        $query_limit = 100 > $query_limit ? $query_limit : 20;
+        $query_page = $this->request->param('page/d', 1, 'abs');
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
@@ -82,6 +78,9 @@ class Article extends BaseLogic
             ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
             ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
             ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
+            ->where('article.delete_time', '=', '0')
+            ->where('model_id', '<=', '4')
+            ->where('article.lang', '=', $this->lang->getLangSet())
             ->where($map)
             ->order('article.is_pass ASC, article.attribute DESC, article.sort_order DESC, article.update_time DESC')
             ->paginate([
