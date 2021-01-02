@@ -256,12 +256,19 @@ if (!function_exists('miss')) {
             }
         }
 
-        $timestamp = Request::time() + 3600 * 6;
+        $timestamp = time() + 1440;
         $resource = Response::create($content, 'html', is_int($_code) ? $_code : 200)
             ->allowCache(true)
             ->cacheControl('max-age=1440,must-revalidate')
-            ->expires(gmdate('D, d M Y H:i:s', $timestamp + 1440) . ' GMT')
-            ->lastModified(gmdate('D, d M Y H:i:s', $timestamp + 1440) . ' GMT');
+            ->lastModified(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT')
+            ->expires(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT');
+
+        // $timestamp = Request::time() + 3600 * 6;
+        // $resource = Response::create($content, 'html', is_int($_code) ? $_code : 200)
+        //     ->allowCache(true)
+        //     ->cacheControl('max-age=1440,must-revalidate')
+        //     ->expires(gmdate('D, d M Y H:i:s', $timestamp + 1440) . ' GMT')
+        //     ->lastModified(gmdate('D, d M Y H:i:s', $timestamp + 1440) . ' GMT');
 
         if ($_abort === true) {
             throw new HttpResponseException($resource);

@@ -26,13 +26,6 @@ class Ip extends BaseApi
 
     public function index()
     {
-        $referer = $this->request->server('HTTP_REFERER');
-        $referer = !$referer || false === stripos($referer, $this->request->rootDomain()) ? false : true;
-
-        if (false === $referer && 0 <= date('H') && 7 >= date('H')) {
-            return miss(503, false);
-        }
-
         // 解决没有传IP参数,缓存造成的缓存错误
         if (!$ip = $this->request->param('ip', false)) {
             $url = $this->request->baseUrl(true) . '?ip=' . $this->request->ip();
@@ -41,7 +34,26 @@ class Ip extends BaseApi
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
 
+        // 外部网站限制
+        $referer = $this->request->server('HTTP_REFERER');
+        $referer = !$referer || false === stripos($referer, $this->request->rootDomain()) ? false : true;
+        if (false === $referer) {
+            if (0 <= date('H') && 7 >= date('H')) return miss(503, false);
+            if (1 === mt_rand(1, 100)) return miss(503, false);
+
+            $old = $ip;
+            $ip = explode('.', $ip, 4);
+            $ip[3] = 1;
+            $ip = implode('.', $ip);
+
+            usleep(500000);
+        }
+
         if ($result = (new Ipv4)->get($ip)) {
+            if (isset($old)) {
+                $result['ip'] = $old;
+            }
+
             $timestamp = $this->request->time() + 3600 * 6;
             return Response::create('const IP = ' . json_encode($result))
                 ->allowCache(true)

@@ -32,7 +32,7 @@ class Log extends BaseLogic
     public function query(): array
     {
         $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = 100 > $query_limit ? $query_limit : 20;
+        $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
         if ($query_page > $this->cache->get('admin extend log last_page' . $query_limit, $query_page)) {
@@ -44,7 +44,7 @@ class Log extends BaseLogic
         }
 
         $total = $this->cache->get('admin extend log total', false);
-        $total = is_bool($total) ? $total : (int) $total;
+        $total = is_bool($total) ? (bool) $total : (int) $total;
 
         $result = ModelActionLog::view('action_log', ['action_id', 'user_id', 'action_ip', 'module', 'remark', 'create_time'])
             ->view('action', ['name' => 'action_name'], 'action.id=action_log.action_id')

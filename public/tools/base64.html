@@ -32,18 +32,6 @@
                         <li class="nav-item active">
                             <a class="nav-link" href="/">首页</a>
                         </li>
-
-                        <template v-for="v in vo.child">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" v-bind:href="vo.url" id="navbarDropdown"
-                                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">加密/解密</a>
-                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <template v-for="v in vo.child">
-                                        <a class="dropdown-item" v-bind:href="v.url" v-text="v.name"></a>
-                                    </template>
-                                </div>
-                            </li>
-                        </template>
                     </ul>
                 </div>
             </nav>
@@ -52,12 +40,22 @@
 
     <main id="layout-main">
         <div class="container">
+            <div class="row">
+                <div id="list" class="col-md">
+                    <div class="box">
+                        <div class="box-body">
+                            <div class="form-group">
+                                <textarea id="txt" class="form-control"></textarea>
+                            </div>
+                        </div>
 
-            <textarea id="txt" cols="30" rows="10"></textarea>
-
-            <button onclick="de()">加密</button>
-            <button onclick="en()">解密</button>
-
+                        <div class="box-footer">
+                            <button class="btn btn-primary" onclick="de()">加密</button>
+                            <button class="btn btn-primary" onclick="en()">解密</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -81,12 +79,10 @@
 
     <script>
         function de() {
-            let data = document.getElementById("txt").value;
-            document.getElementById("txt").value = window.btoa(data);
+            document.getElementById("txt").value = window.btoa(document.getElementById("txt").value);
         }
         function en() {
-            let data = document.getElementById("txt").value;
-            document.getElementById("txt").value = window.atob(data);
+            document.getElementById("txt").value = window.atob(document.getElementById("txt").value);
         }
     </script>
 

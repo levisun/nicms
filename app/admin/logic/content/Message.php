@@ -32,8 +32,19 @@ class Message extends BaseLogic
     public function query(): array
     {
         $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = 100 > $query_limit ? $query_limit : 20;
+        $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
+
         $query_page = $this->request->param('page/d', 1, 'abs');
+        if ($query_page > $this->cache->get('admin content message last_page' . $query_limit, $query_page)) {
+            return [
+                'debug' => false,
+                'cache' => true,
+                'msg'   => 'error',
+            ];
+        }
+
+        $total = $this->cache->get('admin content message total', false);
+        $total = is_bool($total) ? (bool) $total : (int) $total;
 
         $result = ModelMessage::view('message', ['id', 'title', 'username', 'content', 'category_id', 'type_id'])
             ->view('category', ['name' => 'cat_name'], 'category.id=message.category_id', 'LEFT')
@@ -43,9 +54,18 @@ class Message extends BaseLogic
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
-            ]);
+            ], $total);
 
         $list = $result->toArray();
+
+        if (!$this->cache->has('admin content message total')) {
+            $this->cache->set('admin content message total', $list['total'], 28800);
+        }
+
+        if (!$this->cache->has('admin content message last_page' . $query_limit)) {
+            $this->cache->set('admin content message last_page' . $query_limit, $list['last_page'], 28800);
+        }
+
         $list['total'] = number_format($list['total']);
         $list['render'] = $result->render();
 

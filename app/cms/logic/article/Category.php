@@ -59,10 +59,22 @@ class Category extends BaseLogic
             $sort_order = 'article.attribute DESC, article.sort_order DESC, article.update_time DESC';
         }
 
-        $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = 100 > $query_limit ? $query_limit : 20;
-        $query_page = $this->request->param('page/d', 1, 'abs');
         $date_format = $this->request->param('date_format', 'Y-m-d');
+
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
+        $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
+
+        $query_page = $this->request->param('page/d', 1, 'abs');
+        if ($query_page > $this->cache->get('cms article category last_page' . $query_limit, $query_page)) {
+            return [
+                'debug' => false,
+                'cache' => true,
+                'msg'   => 'error',
+            ];
+        }
+
+        $total = $this->cache->get('cms article category total', false);
+        $total = is_bool($total) ? (bool) $total : (int) $total;
 
         $cache_key = 'article list' . $category_id . $attribute . $type_id . $sort_order . $query_limit . $query_page . $date_format . $this->user_role_id;
 
@@ -83,8 +95,16 @@ class Category extends BaseLogic
                 ->paginate([
                     'list_rows' => $query_limit,
                     'path' => 'javascript:paging([PAGE]);',
-                ]);
+                ], $total);
             if ($result && $list = $result->toArray()) {
+                if (!$this->cache->has('cms article category total')) {
+                    $this->cache->set('cms article category total', $list['total'], 28800);
+                }
+
+                if (!$this->cache->has('cms article category last_page' . $query_limit)) {
+                    $this->cache->set('cms article category last_page' . $query_limit, $list['last_page'], 28800);
+                }
+
                 $list['total'] = number_format($list['total']);
                 $list['render'] = $result->render();
                 foreach ($list['data'] as $key => $value) {

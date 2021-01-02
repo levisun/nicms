@@ -66,7 +66,7 @@ return [
                 'error with',
             ],
             // 监听SQL
-            'trigger_sql'       => env('app_debug', false),
+            'trigger_sql'       => env('database.debug', false),
             // 开启字段缓存
             'fields_cache'      => true,
             // 字段缓存路径

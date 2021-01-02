@@ -1,7 +1,7 @@
 
-class nicms {
+class tools {
 
-    async_default_options = {
+    default_options = {
         type: "GET",                // 请求类型
         url: null,                  // 请求地址
         async: true,                // 异步开关,默认异步请求
@@ -28,15 +28,21 @@ class nicms {
 
     // 异步请求
     async(options) {
-        let root = window.location.host.substr(window.location.host.indexOf(".") + 1);
-        root = root.substr(0, root.indexOf("."));
+        // 获得顶级域名(不加后缀)
+        let root = this.rootDomain().substr(0, this.rootDomain().indexOf("."));
+
+        // 头部信息
         options.header = {
             Accept: "application/vnd." + root + ".v" + document.getElementsByName("csrf-version")[0].content + "+json",
             Authorization: "Bearer " + window.atob(window.localStorage.getItem('XSRF_AUTHORIZATION')),
         };
-        options = this.extend(this.async_default_options, options);
+
+        // 组合参数
+        options = this.extend(this.default_options, options);
 
         this.xhr = new window.XMLHttpRequest();
+
+        // 组合GET请求参数
         if ("get" === options.type.toLowerCase()) {
             for (let index in options.data) {
                 if ("Array" === Object.prototype.toString.call(options.data[index]).slice(8, -1)) {
@@ -53,6 +59,7 @@ class nicms {
             }
         }
 
+        // 当关闭缓存时,拼接时间戳
         if (false === options.cache) {
             options.url += -1 === options.url.indexOf("?") ? "?_=" + this.timestamp() : "&_=" + this.timestamp();
         }
@@ -65,6 +72,7 @@ class nicms {
             options.password,
         );
 
+        // 设置响应数据类型
         if (options.responseType) {
             this.xhr.overrideMimeType(options.responseType);
         }
@@ -73,6 +81,7 @@ class nicms {
             this.xhr.overrideMimeType(options.mimeType);
         }
 
+        // 设置头部信息
         for (let index in options.header) {
             if ("Object" === Object.prototype.toString.call(options.data[index]).slice(8, -1)) {
                 this.xhr.setRequestHeader(options.header[index].name, options.header[index].value);
@@ -81,6 +90,7 @@ class nicms {
             }
         }
 
+        // 设置监听事件
         this.xhr.addEventListener("load", () => {
             if (400 > this.xhr.status && options.requestUrl) {
                 window.history.pushState(null, document.title, options.requestUrl);
@@ -95,6 +105,7 @@ class nicms {
             }
         });
 
+        // 发起请求
         if ("get" === options.type.toLowerCase()) {
             this.xhr.send();
         } else {
@@ -102,6 +113,10 @@ class nicms {
         }
     }
 
+    /*
+     图片加水印
+     water(图片地址, 水印内容, 替换图片ID, 字体大小, X轴偏移值, Y轴偏移值);
+     */
     water(img_path, content, elementId, font_size = "20px", x = 10, y = 10) {
         let img = new Image();
         img.src = img_path;
@@ -123,7 +138,10 @@ class nicms {
         }
     }
 
-    // 复制
+    /*
+     复制
+     copy(内容, 提示语);
+     */
     copy(content, message = "copy success") {
         let aux = document.createElement("input");
         aux.setAttribute("value", content);
@@ -135,13 +153,31 @@ class nicms {
     }
 
     /*
+     storage操作
+     storage(名称, 内容);
+     设置: cookie(名称, 内容);
+     读取: cookie(名称);
+     移除: cookie(名称, null);
+     */
+    storage(name, value = "") {
+        if (name && value) {
+            window.localStorage.setItem(name, JSON.stringify(value));
+        } else if (name && null === value) {
+            window.localStorage.removeItem(name);
+        } else if (name) {
+            let value = window.localStorage.getItem(name);
+            return value ? JSON.parse(value) : null;
+        }
+    }
+
+    /*
      cookie操作
      cookie(名称, 内容, 保存时间, 地址, 类型, 域名);
      设置: cookie(名称, 内容);
      读取: cookie(名称);
      移除: cookie(名称, null, -1);
      */
-    cookie(name, value = "", expire = 0, path = "/", samesite = "lax", domain = "") {
+    cookie(name, value = "", expire = 0, path = "/", same_site = "lax", domain = "") {
         let cookie = "";
 
         if (name && value) {
@@ -150,14 +186,14 @@ class nicms {
                 ? "expires=" + this.timestamp() + expire + ";"
                 : "";
             cookie += "path=" + path + ";";
-            cookie += "SameSite=" + samesite + ";";
+            cookie += "SameSite=" + same_site + ";";
             cookie += domain ? domain : "." + this.rootDomain();
             document.cookie = cookie;
         } else if (name && 0 > expire) {
             cookie = name + "=" + null + ";";
             cookie += "expires=-1440;";
             cookie += "path=" + path + ";";
-            cookie += "SameSite=" + samesite + ";";
+            cookie += "SameSite=" + same_site + ";";
             cookie += domain ? domain : "." + this.rootDomain();
             document.cookie = cookie;
         } else if (name) {
@@ -182,7 +218,15 @@ class nicms {
         return Date.parse(new Date()) / 1000;
     }
 
-    // 访问(请求地址)
+    /*
+     访问(请求地址)
+     url(类型);
+     hash: 锚点
+     origin: 域名(带协议)
+     path: 路径(不带域名和参数)
+     protocol: 协议
+     href: 请求地址
+     */
     url(type = "href") {
         if ("hash" === type) {
             return window.location.hash;
@@ -204,8 +248,7 @@ class nicms {
 
     // 顶级域名
     rootDomain() {
-        let host = window.location.host;
-        return host.substr(host.indexOf(".") + 1);
+        return window.location.host.substr(window.location.host.indexOf(".") + 1);
     }
 
     /* 组合数组,对象等类型数据 */

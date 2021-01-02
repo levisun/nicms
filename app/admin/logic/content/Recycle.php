@@ -59,11 +59,22 @@ class Recycle extends BaseLogic
             }
         }
 
-        $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = 100 > $query_limit ? $query_limit : 20;
-        $query_page = $this->request->param('page/d', 1, 'abs');
-
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
+
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
+        $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
+
+        $query_page = $this->request->param('page/d', 1, 'abs');
+        if ($query_page > $this->cache->get('admin content recycle last_page' . $query_limit, $query_page)) {
+            return [
+                'debug' => false,
+                'cache' => true,
+                'msg'   => 'error',
+            ];
+        }
+
+        $total = $this->cache->get('admin content recycle total', false);
+        $total = is_bool($total) ? (bool) $total : (int) $total;
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'attribute', 'username', 'access_id', 'hits', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
@@ -79,9 +90,18 @@ class Recycle extends BaseLogic
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
-            ]);
+            ], $total);
 
         $list = $result->toArray();
+
+        if (!$this->cache->has('admin content recycle total')) {
+            $this->cache->set('admin content recycle total', $list['total'], 28800);
+        }
+
+        if (!$this->cache->has('admin content recycle last_page' . $query_limit)) {
+            $this->cache->set('admin content recycle last_page' . $query_limit, $list['last_page'], 28800);
+        }
+
         $list['total'] = number_format($list['total']);
         $list['render'] = $result->render();
 

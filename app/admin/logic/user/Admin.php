@@ -35,8 +35,19 @@ class Admin extends BaseLogic
     public function query(): array
     {
         $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = 100 > $query_limit ? $query_limit : 20;
+        $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
+
         $query_page = $this->request->param('page/d', 1, 'abs');
+        if ($query_page > $this->cache->get('admin user admin last_page' . $query_limit, $query_page)) {
+            return [
+                'debug' => false,
+                'cache' => true,
+                'msg'   => 'error',
+            ];
+        }
+
+        $total = $this->cache->get('admin user admin total', false);
+        $total = is_bool($total) ? (bool) $total : (int) $total;
 
         $result = ModelAdmin::view('admin', ['id', 'username', 'email', 'status', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
             ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
@@ -46,9 +57,18 @@ class Admin extends BaseLogic
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
-            ]);
+            ], $total);
 
         $list = $result->toArray();
+
+        if (!$this->cache->has('admin user admin total')) {
+            $this->cache->set('admin user admin total', $list['total'], 28800);
+        }
+
+        if (!$this->cache->has('admin user admin last_page' . $query_limit)) {
+            $this->cache->set('admin user admin last_page' . $query_limit, $list['last_page'], 28800);
+        }
+
         $list['total'] = number_format($list['total']);
         $list['render'] = $result->render();
 

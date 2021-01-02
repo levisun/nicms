@@ -19,18 +19,18 @@ Route::miss(function () {
 
 Route::group(function () {
     // office接口
-    Route::post('excel/read$', 'office.Excel/read');
-    Route::post('excel/write$', 'office.Excel/write');
-    Route::post('word/write$', 'office.Word/write');
+    Route::get('office/view$', 'office.View/iframe')->cache(2880);
+    Route::post('office/excel/read$', 'office.Excel/read');
+    Route::post('office/excel/write$', 'office.Excel/write');
+    Route::post('office/word/write$', 'office.Word/write');
 
     // 工具接口
-    Route::get('tools/download$', 'tools.Download/index');      // 下载接口
-    Route::get('ip$', 'tools.Ip/index');
-    Route::get('tools/ip$', 'tools.Ip/index');                  // IP信息接口
-    Route::post('tools/participle$', 'tools.Participle/index'); // 分词
-    Route::get('tools/record$', 'tools.Record/index');          // 访问日志
-    Route::post('tools/report$', 'tools.Report/index');         // 举报
-    Route::get('tools/spider$', 'tools.Spider/index');          // 爬虫
+    Route::get('tools/download$', 'tools.Download/index');              // 下载接口
+    Route::get('tools/ip$', 'tools.Ip/index')->cache(2880);             // IP信息接口
+    Route::post('tools/participle$', 'tools.Participle/index');         // 分词
+    Route::get('tools/record$', 'tools.Record/index');                  // 访问日志
+    Route::post('tools/report$', 'tools.Report/index');                 // 举报
+    Route::get('tools/spider$', 'tools.Spider/index')->cache(2880);     // 爬虫
 
     // 验证码接口
     Route::get('verify/img$', 'verify.Img/index');

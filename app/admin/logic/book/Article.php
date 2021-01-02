@@ -50,8 +50,9 @@ class Article extends BaseLogic
         }
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
+
         $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = 100 > $query_limit ? $query_limit : 20;
+        $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
         if ($query_page > $this->cache->get('admin book article last_page' . $query_limit, $query_page)) {
@@ -63,7 +64,7 @@ class Article extends BaseLogic
         }
 
         $total = $this->cache->get('admin book article total', false);
-        $total = is_bool($total) ? $total : (int) $total;
+        $total = is_bool($total) ? (bool) $total : (int) $total;
 
         $result = ModelBookArticle::where('delete_time', '=', '0')
             ->where('lang', '=', $this->lang->getLangSet())

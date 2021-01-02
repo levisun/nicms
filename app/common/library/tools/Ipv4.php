@@ -44,7 +44,7 @@ class Ipv4
     {
         if (!Cache::has($_ip) || !$region = Cache::get($_ip)) {
             $region = $this->query($_ip);
-            Cache::tag('request')->set($_ip, $region);
+            Cache::tag('request')->set($_ip, $region, 28800);
         }
 
         return $region ?: array_merge($this->default, ['ip' => $_ip]);

@@ -35,10 +35,22 @@ class Catalog extends BaseLogic
     {
         $book_id = $this->request->param('book_id', 0, '\app\common\library\Base64::url62decode');
 
-        $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = 100 > $query_limit ? $query_limit : 20;
-        $query_page = $this->request->param('page/d', 1, 'abs');
         $date_format = $this->request->param('date_format', 'Y-m-d');
+
+        $query_limit = $this->request->param('limit/d', 20, 'abs');
+        $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
+
+        $query_page = $this->request->param('page/d', 1, 'abs');
+        if ($query_page > $this->cache->get('book book catalog last_page' . $query_limit, $query_page)) {
+            return [
+                'debug' => false,
+                'cache' => true,
+                'msg'   => 'error',
+            ];
+        }
+
+        $total = $this->cache->get('book book catalog total', false);
+        $total = is_bool($total) ? (bool) $total : (int) $total;
 
         $cache_key = 'book article list' . $book_id . $query_limit . $query_page . $date_format;
 
@@ -66,11 +78,19 @@ class Catalog extends BaseLogic
                     ->paginate([
                         'list_rows' => $query_limit,
                         'path' => 'javascript:paging([PAGE]);',
-                    ]);
+                    ], $total);
 
                 if ($result && $list = $result->toArray()) {
-                    $list['render'] = $result->render();
+                    if (!$this->cache->has('book book catalog total')) {
+                        $this->cache->set('book book catalog total', $list['total'], 28800);
+                    }
+
+                    if (!$this->cache->has('book book catalog last_page' . $query_limit)) {
+                        $this->cache->set('book book catalog last_page' . $query_limit, $list['last_page'], 28800);
+                    }
+
                     $list['total'] = number_format($list['total']);
+                    $list['render'] = $result->render();
                     foreach ($list['data'] as $key => $value) {
                         // 书籍文章列表链接
                         $value['cat_url'] = url('book/' . Base64::url62encode($value['book_id']));
