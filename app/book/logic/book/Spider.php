@@ -22,6 +22,8 @@ class Spider extends BaseLogic
 
     public function book(string $_uri): int
     {
+        usleep(mt_rand(5, 15) * 100000);
+
         $book_id = 0;
         only_execute('spider.lock', false, function () use ($_uri, &$book_id) {
             $book_id = ModelBook::where('origin', '=', $this->bookURI . $_uri)->value('id');
@@ -67,6 +69,8 @@ class Spider extends BaseLogic
 
     public function article(int $_book_id = 0, int $_page = 20): array
     {
+        usleep(mt_rand(5, 15) * 100000);
+
         only_execute('spider.lock', false, function () use ($_book_id, $_page) {
             $_book_id = $_book_id ?: $this->request->param('book_id/d', 0, '\app\common\library\Base64::url62decode');
             $_page = $_page ?: $this->request->param('page/d', 20);

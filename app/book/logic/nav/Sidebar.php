@@ -33,7 +33,7 @@ class Sidebar extends BaseLogic
      */
     public function query(): array
     {
-        if ($cid = $this->request->param('tid', 0, '\app\common\library\Base64::url62decode')) {
+        if ($cid = $this->request->param('book_type_id', 0, '\app\common\library\Base64::url62decode')) {
             $cache_key = 'book nav sidebar' . $cid;
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $id = $this->parent((int) $cid);

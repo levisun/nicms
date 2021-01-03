@@ -49,7 +49,7 @@ class Index extends BaseController
             'URL'         => request()->baseUrl(true),
         ]);
 
-        if ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
+        if ($category_id = $this->request->param('category_id', 0, '\app\common\library\Base64::url62decode')) {
             // 获得栏目对应模板
             $this->model_name = ModelCategory::view('category', ['id'])
                 ->view('model', ['name' => 'theme_name'], 'model.id=category.model_id')

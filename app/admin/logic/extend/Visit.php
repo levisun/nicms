@@ -37,7 +37,7 @@ class Visit extends BaseLogic
         $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->cache->get('admin extend visit last_page' . $query_limit, $query_page)) {
+        if ($query_page > $this->cache->get($this->getCacheKey('page'), $query_page)) {
             return [
                 'debug' => false,
                 'cache' => true,
@@ -45,8 +45,8 @@ class Visit extends BaseLogic
             ];
         }
 
-        $total = $this->cache->get('admin extend visit total', false);
-        $total = is_bool($total) ? (bool) $total : (int) $total;
+        $total = $this->cache->get($this->getCacheKey('total'));
+        $total = is_null($total) ? false : (int) $total;
 
         $result = ModelVisit::order('date DESC, name DESC, count DESC')
             ->paginate([
@@ -56,12 +56,12 @@ class Visit extends BaseLogic
 
         $list = $result->toArray();
 
-        if (!$this->cache->has('admin extend visit total')) {
-            $this->cache->set('admin extend visit total', $list['total'], 28800);
+        if (!$this->cache->has($this->getCacheKey('total'))) {
+            $this->cache->tag('request')->set($this->getCacheKey('total'), $list['total'], 28800);
         }
 
-        if (!$this->cache->has('admin extend visit last_page' . $query_limit)) {
-            $this->cache->set('admin extend visit last_page' . $query_limit, $list['last_page'], 28800);
+        if (!$this->cache->has($this->getCacheKey('page'))) {
+            $this->cache->tag('request')->set($this->getCacheKey('page'), $list['last_page'], 28800);
         }
 
         $list['total'] = number_format($list['total']);

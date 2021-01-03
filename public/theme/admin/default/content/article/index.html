@@ -144,10 +144,10 @@
             filter: function () {
                 var filter = '';
                 if (this.category_id != 0) {
-                    filter += '&cid=' + this.category_id;
+                    filter += '&category_id=' + this.category_id;
                 }
                 if (this.model_id != 0) {
-                    filter += '&mid=' + this.model_id;
+                    filter += '&model_id=' + this.model_id;
                 }
                 if (this.is_pass != 0) {
                     filter += '&pass=' + this.is_pass;
@@ -162,10 +162,10 @@
             load: function (_p) {
                 var request = NICMS.url + '?page=' + _p;
                 if (this.category_id != 0) {
-                    request += '&cid=' + this.category_id;
+                    request += '&category_id=' + this.category_id;
                 }
                 if (this.model_id != 0) {
-                    request += '&mid=' + this.model_id;
+                    request += '&model_id=' + this.model_id;
                 }
                 if (this.is_pass != 0) {
                     request += '&pass=' + this.is_pass;
@@ -180,7 +180,7 @@
                     data: [
                         { name: 'method', value: 'content.article.query' },
                         { name: 'page', value: _p },
-                        { name: 'cid', value: article.category_id },
+                        { name: 'category_id', value: article.category_id },
                         { name: 'mid', value: article.model_id },
                         { name: 'pass', value: article.is_pass },
                     ],
@@ -229,11 +229,11 @@
     article.loadModel();
     jQuery.set_cookie('editor', '', -1);
 
-    let cid = jQuery.get_url_query('cid');
-    article.category_id = cid ? cid : 0;
+    let category_id = jQuery.get_url_query('category_id');
+    article.category_id = category_id ? category_id : 0;
 
-    let mid = jQuery.get_url_query('mid');
-    article.model_id = mid ? mid : 0;
+    let model_id = jQuery.get_url_query('model_id');
+    article.model_id = model_id ? model_id : 0;
 
     let pass = jQuery.get_url_query('pass');
     article.is_pass = pass ? pass : 0;

@@ -34,22 +34,22 @@ Route::group(function () {
     });
 
     // 列表页
-    Route::get('list/:cid/[:page]$', 'category');
+    Route::get('list/:category_id/[:page]$', 'category');
     Route::get('tags/:id/[:page]$', 'tags');
-    Route::get('link/:cid$', 'link');
-    Route::get('feedback/:cid$', 'feedback');
-    Route::get('message/:cid$', 'message');
+    Route::get('link/:category_id$', 'link');
+    Route::get('feedback/:category_id$', 'feedback');
+    Route::get('message/:category_id$', 'message');
     Route::get('search$', 'search');
 
     // 详情页
-    Route::get('details/:cid/:id$', 'details');
+    Route::get('details/:category_id/:id$', 'details');
     // 单页
-    Route::get('page/:cid$', 'details');
+    Route::get('page/:category_id$', 'details');
 
     // 跳转接口
     Route::get('go$', 'go');
 })->prefix('Index/')->ext('html')->pattern([
-    'page' => '\d+',
-    'cid'  => '\w+',
-    'id'   => '\w+',
+    'page'        => '\d+',
+    'category_id' => '\w+',
+    'id'          => '\w+',
 ]);

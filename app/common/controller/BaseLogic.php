@@ -143,6 +143,55 @@ abstract class BaseLogic
     }
 
     /**
+     * 获得缓存KEY
+     * @access protected
+     * @param  string $_flag
+     * @return string
+     */
+    protected function getCacheKey(string $_flag = '')
+    {
+        $pass = $this->request->param('pass/d', 0, 'abs');
+        $pass = 3 < $pass ? 0 : $pass;
+
+        $attribute = $this->request->param('attribute/d', 0, 'abs');
+        $attribute = 3 < $attribute ? 0 : $attribute;
+
+        $status = $this->request->param('status/d', 0, 'abs');
+        $status = 3 < $status ? 0 : $status;
+
+        $model_id = $this->request->param('model_id/d', 0, 'abs');
+        $model_id = \app\common\model\Models::cache(28800)->count() < $model_id ? 0 : $model_id;
+
+        $category_id = $this->request->param('category_id', 0);
+        $category_id = is_int($category_id) ? $category_id : \app\common\library\Base64::url62decode($category_id);
+        $category_id = \app\common\model\Category::cache(28800)->count() < $category_id ? 0 : $category_id;
+
+        $type_id = $this->request->param('type_id/d', 0, 'abs');
+        $type_id = \app\common\model\Type::count() < $type_id ? 0 : $type_id;
+
+        $book_id = $this->request->param('book_id', 0);
+        $book_id = is_int($book_id) ? $book_id : \app\common\library\Base64::url62decode($book_id);
+        $book_id = \app\common\model\Book::cache(28800)->count() < $book_id ? 0 : $book_id;
+
+        $book_type_id = $this->request->param('book_type_id', 0);
+        $book_type_id = is_int($book_type_id) ? $book_type_id : \app\common\library\Base64::url62decode($book_type_id);
+        $book_type_id = \app\common\model\BookType::cache(28800)->count() < $book_type_id ? 0 : $book_type_id;
+
+        $key = $this->request->param('key', null, '\app\common\library\Filter::non_chs_alpha');
+        $sort = $this->request->param('sort');
+
+        $token = $this->request->param('token');
+
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+        array_shift($backtrace);
+        $class  = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
+
+        $key = sha1($class . $pass . $attribute . $status . $model_id . $category_id . $type_id . $book_id . $book_type_id . $key . $sort . $token);
+
+        return md5($key . $_flag);
+    }
+
+    /**
      * 设置用户会话信息
      * @access protected
      * @param  int    $_id

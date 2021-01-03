@@ -41,7 +41,7 @@ class Link extends BaseLogic
         $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->cache->get('admin content link last_page' . $query_limit, $query_page)) {
+        if ($query_page > $this->cache->get($this->getCacheKey('page'), $query_page)) {
             return [
                 'debug' => false,
                 'cache' => true,
@@ -49,8 +49,8 @@ class Link extends BaseLogic
             ];
         }
 
-        $total = $this->cache->get('admin content link total', false);
-        $total = is_bool($total) ? (bool) $total : (int) $total;
+        $total = $this->cache->get($this->getCacheKey('total'));
+        $total = is_null($total) ? false : (int) $total;
 
         $result = ModelLink::view('link', ['id', 'title', 'logo', 'url', 'category_id', 'type_id'])
             ->view('category', ['name' => 'cat_name'], 'category.id=link.category_id')
@@ -64,12 +64,12 @@ class Link extends BaseLogic
 
         $list = $result->toArray();
 
-        if (!$this->cache->has('admin content link total')) {
-            $this->cache->set('admin content link total', $list['total'], 28800);
+        if (!$this->cache->has($this->getCacheKey('total'))) {
+            $this->cache->tag('request')->set($this->getCacheKey('total'), $list['total'], 28800);
         }
 
-        if (!$this->cache->has('admin content link last_page' . $query_limit)) {
-            $this->cache->set('admin content link last_page' . $query_limit, $list['last_page'], 28800);
+        if (!$this->cache->has($this->getCacheKey('page'))) {
+            $this->cache->tag('request')->set($this->getCacheKey('page'), $list['last_page'], 28800);
         }
 
         $list['total'] = number_format($list['total']);

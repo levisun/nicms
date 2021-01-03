@@ -41,8 +41,8 @@ class Category extends BaseLogic
             $map[] = ['book.status', '=', $status];
         }
 
-        if ($type_id = $this->request->param('tid', 0, '\app\common\library\Base64::url62decode')) {
-            $map[] = ['book.type_id', '=', $type_id];
+        if ($book_type_id = $this->request->param('book_type_id', 0, '\app\common\library\Base64::url62decode')) {
+            $map[] = ['book.type_id', '=', $book_type_id];
         }
 
         // 排序,为空依次安置顶,最热,推荐,自定义顺序,最新发布时间排序
@@ -58,7 +58,7 @@ class Category extends BaseLogic
         $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->cache->get('book book category last_page' . $query_limit, $query_page)) {
+        if ($query_page > $this->cache->get($this->getCacheKey('page'), $query_page)) {
             return [
                 'debug' => false,
                 'cache' => true,
@@ -66,12 +66,12 @@ class Category extends BaseLogic
             ];
         }
 
-        $total = $this->cache->get('book book category total', false);
-        $total = is_bool($total) ? (bool) $total : (int) $total;
+        $total = $this->cache->get($this->getCacheKey('total'));
+        $total = is_null($total) ? false : (int) $total;
 
-        $cache_key = 'book list' . $attribute . $status . $type_id . $sort_order . $query_limit . $query_page . $date_format;
+        $flag = $query_page . $date_format;
 
-        if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
+        if (!$this->cache->has($this->getCacheKey($flag)) || !$list = $this->cache->get($this->getCacheKey($flag))) {
             $result = ModelBook::view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'hits', 'status', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
@@ -87,12 +87,12 @@ class Category extends BaseLogic
             if ($result) {
                 $list = $result->toArray();
 
-                if (!$this->cache->has('book book category total')) {
-                    $this->cache->set('book book category total', $list['total'], 28800);
+                if (!$this->cache->has($this->getCacheKey('total'))) {
+                    $this->cache->tag('request')->set($this->getCacheKey('total'), $list['total'], 28800);
                 }
 
-                if (!$this->cache->has('book book category last_page' . $query_limit)) {
-                    $this->cache->set('book book category last_page' . $query_limit, $list['last_page'], 28800);
+                if (!$this->cache->has($this->getCacheKey('page'))) {
+                    $this->cache->tag('request')->set($this->getCacheKey('page'), $list['last_page'], 28800);
                 }
 
                 $list['total'] = number_format($list['total']);
@@ -105,7 +105,7 @@ class Category extends BaseLogic
                     $list['data'][$key] = $value;
                 }
 
-                $this->cache->tag('book')->set($cache_key, $list);
+                $this->cache->tag('book')->set($this->getCacheKey($flag), $list);
             }
         }
 

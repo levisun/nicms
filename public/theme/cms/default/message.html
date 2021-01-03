@@ -54,7 +54,7 @@
                     type: 'get',
                     data: [
                         { name: 'method', value: 'message.catalog.query' },
-                        { name: 'cid', value: NICMS.param.cid },
+                        { name: 'category_id', value: NICMS.param.category_id },
                     ],
                     success: function (result) {
                         if (10000 == result.code) {
@@ -67,7 +67,7 @@
                     type: 'get',
                     data: [
                         { name: 'method', value: 'message.form.query' },
-                        { name: 'cid', value: NICMS.param.cid }
+                        { name: 'category_id', value: NICMS.param.category_id }
                     ],
                     success: function (result) {
                         if (result.code == '10000' && result.message != 'error') {
@@ -93,7 +93,7 @@
                     type: 'post',
                     data: [
                         { name: 'method', value: 'message.form.record' },
-                        { name: 'cid', value: NICMS.param.cid },
+                        { name: 'category_id', value: NICMS.param.category_id },
                         { name: 'title', value: title },
                         { name: 'username', value: username },
                         { name: 'content', value: content },

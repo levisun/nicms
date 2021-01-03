@@ -312,12 +312,14 @@ abstract class BaseApi
                 : '',
 
             // 新表单令牌
-            'token' => $this->request->isPost()
+            'csrf_token' => $this->request->isPost()
                 ? $this->request->buildToken('__token__', 'md5')
                 : '',
 
-            // 登录标识符
-            'flag' => $this->request->isGet() && $this->user_id ? Base64::flag($this->user_id) : '',
+            // 用户令牌
+            'user_token' => $this->user_id
+                ? sha1(Base64::encrypt($this->user_id . $this->user_role_id . $this->user_type))
+                : 'public',
         ];
         $result = array_filter($result);
 
@@ -348,21 +350,22 @@ abstract class BaseApi
         $result = [
             'code'    => $_code,
             'message' => $_msg,
-            'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 3) . ', ' .
-                number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3)
-        ];
 
-        if ($_code > 21000) {
             // 返回地址
-            $result['return_url'] = $this->session->has('return_url')
+            'return_url' => $_code > 21000 && $this->session->has('return_url')
                 ? $this->session->pull('return_url')
-                : '';
+                : '',
 
             // 新表单令牌
-            $result['token'] = $this->request->isPost()
+            'csrf_token' => $_code > 21000 && $this->request->isPost()
                 ? $this->request->buildToken('__token__', 'md5')
-                : '';
-        }
+                : '',
+
+            // 用户令牌
+            'user_token' => $this->user_id
+                ? sha1(Base64::encrypt($this->user_id . $this->user_role_id . $this->user_type))
+                : 'public',
+        ];
 
         $result = array_filter($result);
 

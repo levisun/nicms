@@ -43,7 +43,9 @@ class RequestLog
         $this->api();
         $this->log();
 
-        ModelVisit::where('date', '<', strtotime('-7 days'))->limit(10)->delete();
+        if (1 === mt_rand(1, 100)) {
+            ModelVisit::where('date', '<', strtotime('-7 days'))->limit(10)->delete();
+        }
     }
 
     /**
@@ -91,7 +93,7 @@ class RequestLog
         $app_name = app('http')->getName();
         if ($app_name && 'api' === $app_name) {
             $method = 'API:';
-            $method .= Request::param('method') ? : ltrim(Request::baseUrl(), '/');
+            $method .= Request::param('method') ?: ltrim(Request::baseUrl(), '/');
 
             $has = ModelVisit::where('name', '=', $method)
                 ->where('date', '=', strtotime(date('Y-m-d')))

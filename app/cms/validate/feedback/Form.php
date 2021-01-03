@@ -34,8 +34,8 @@ class Form extends Validate
         'username.length'     => '{%error username length not}',
         'content.require'     => '{%error content require}',
         'content.length'      => '{%error content length}',
-        'category_id.require' => '{%error cid}',
-        'category_id.integer' => '{%error cid}',
+        'category_id.require' => '{%error category_id}',
+        'category_id.integer' => '{%error category_id}',
 
 
         'captcha.require' => '{%error captcha}',

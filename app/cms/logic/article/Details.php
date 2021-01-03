@@ -42,7 +42,7 @@ class Details extends BaseLogic
             ];
         }
         // 单页
-        elseif ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
+        elseif ($category_id = $this->request->param('category_id', 0, '\app\common\library\Base64::url62decode')) {
             $map = [
                 ['article.category_id', '=', $category_id],
             ];
@@ -55,7 +55,7 @@ class Details extends BaseLogic
             ];
         }
         // 单页
-        elseif ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
+        elseif ($category_id = $this->request->param('category_id/d', 0, '\app\common\library\Base64::url62decode')) {
             $map = [
                 ['article.category_id', '=', $category_id],
             ];

@@ -42,11 +42,15 @@ class Article extends BaseLogic
         }
 
         // 搜索
-        if ($search_key = $this->request->param('key')) {
-            $search_key = (new Participle)->words($search_key, 3);
-            if (!empty($search_key)) {
-                $map[] = ['title', 'regexp', implode('|', $search_key)];
+        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::non_chs_alpha')) {
+            $search_key = htmlspecialchars_decode($search_key, ENT_QUOTES);
+            $search_key = str_replace('&nbsp;', '', $search_key);
+            // 搜索5个词
+            $like = (new Participle)->words($search_key, 5);
+            foreach ($like as $key => $value) {
+                $like[$key] = '%' . $value . '%';
             }
+            $map[] = ['article.title', 'like', $like, 'OR'];
         }
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
@@ -55,7 +59,8 @@ class Article extends BaseLogic
         $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->cache->get('admin book article last_page' . $query_limit, $query_page)) {
+
+        if ($query_page > $this->cache->get($this->getCacheKey('page'), $query_page)) {
             return [
                 'debug' => false,
                 'cache' => true,
@@ -63,8 +68,8 @@ class Article extends BaseLogic
             ];
         }
 
-        $total = $this->cache->get('admin book article total', false);
-        $total = is_bool($total) ? (bool) $total : (int) $total;
+        $total = $this->cache->get($this->getCacheKey('total'));
+        $total = is_null($total) ? false : (int) $total;
 
         $result = ModelBookArticle::where('delete_time', '=', '0')
             ->where('lang', '=', $this->lang->getLangSet())
@@ -77,12 +82,12 @@ class Article extends BaseLogic
 
         $list = $result->toArray();
 
-        if (!$this->cache->has('admin book article total')) {
-            $this->cache->set('admin book article total', $list['total'], 28800);
+        if (!$this->cache->has($this->getCacheKey('total'))) {
+            $this->cache->tag('request')->set($this->getCacheKey('total'), $list['total'], 28800);
         }
 
-        if (!$this->cache->has('admin book article last_page' . $query_limit)) {
-            $this->cache->set('admin book article last_page' . $query_limit, $list['last_page'], 28800);
+        if (!$this->cache->has($this->getCacheKey('page'))) {
+            $this->cache->tag('request')->set($this->getCacheKey('page'), $list['last_page'], 28800);
         }
 
         $list['total'] = number_format($list['total']);

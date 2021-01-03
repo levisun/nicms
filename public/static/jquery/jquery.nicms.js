@@ -64,6 +64,10 @@
             _params.data.append('__token__', window.localStorage.getItem('CSRF_TOKEN'));
         }
 
+        if (window.localStorage.getItem('USER_TOKEN')) {
+            _params.data.append('token', window.localStorage.getItem('USER_TOKEN'));
+        }
+
         let newData = [];
         let items = _params.data.entries();
         while (item = items.next()) {
@@ -85,8 +89,8 @@
         _params.complete = function (xhr) {
             if ('undefined' !== typeof (xhr.responseText)) {
                 var result = JSON.parse(xhr.responseText);
-                if ('undefined' !== typeof (result.token)) {
-                    window.localStorage.setItem('CSRF_TOKEN', result.token);
+                if ('undefined' !== typeof (result.csrf_token)) {
+                    window.localStorage.setItem('CSRF_TOKEN', result.csrf_token);
                 }
             }
         }
@@ -132,6 +136,10 @@
             _params.data.push({ name: '__token__', value: window.localStorage.getItem('CSRF_TOKEN') });
         }
 
+        if (window.localStorage.getItem('USER_TOKEN')) {
+            _params.data.push({ name: 'token', value: window.localStorage.getItem('USER_TOKEN') });
+        }
+
         _params.data.push({ name: 'sign', value: jQuery.sign(_params.data) });
 
         // 设置头部
@@ -145,8 +153,8 @@
         _params.complete = function (xhr) {
             if ('undefined' !== typeof (xhr.responseText)) {
                 var result = JSON.parse(xhr.responseText);
-                if ('undefined' !== typeof (result.token)) {
-                    window.localStorage.setItem('CSRF_TOKEN', result.token);
+                if ('undefined' !== typeof (result.csrf_token)) {
+                    window.localStorage.setItem('CSRF_TOKEN', result.csrf_token);
                 }
                 if ('undefined' !== typeof (result.user_token)) {
                     window.localStorage.setItem('USER_TOKEN', result.user_token);

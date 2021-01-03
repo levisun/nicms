@@ -54,7 +54,7 @@
                     type: 'get',
                     data: [
                         { name: 'method', value: 'feedback.form.query' },
-                        { name: 'cid', value: NICMS.param.cid }
+                        { name: 'category_id', value: NICMS.param.category_id }
                     ],
                     success: function (result) {
                         if (result.code == '10000' && result.feedback != 'error') {
@@ -80,7 +80,7 @@
                     type: 'post',
                     data: [
                         { name: 'method', value: 'feedback.form.record' },
-                        { name: 'cid', value: NICMS.param.cid },
+                        { name: 'category_id', value: NICMS.param.category_id },
                         { name: 'title', value: title },
                         { name: 'username', value: username },
                         { name: 'content', value: content },

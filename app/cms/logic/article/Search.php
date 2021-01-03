@@ -40,7 +40,7 @@ class Search extends BaseLogic
         $map = [];
 
         // 安栏目查询,为空查询所有
-        if ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
+        if ($category_id = $this->request->param('category_id', 0, '\app\common\library\Base64::url62decode')) {
             $map[] = ['article.category_id', 'in', $this->child($category_id)];
         }
 
@@ -50,12 +50,12 @@ class Search extends BaseLogic
         }
 
         // 安类别查询,为空查询所有
-        if ($type_id = $this->request->param('tid/d', 0, 'abs')) {
+        if ($type_id = $this->request->param('type_id/d', 0, 'abs')) {
             $map[] = ['article.type_id', '=', $type_id];
         }
 
         // 搜索
-        if ($search_key = $this->request->param('key')) {
+        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::non_chs_alpha')) {
             $search_key = htmlspecialchars_decode($search_key, ENT_QUOTES);
             $search_key = str_replace('&nbsp;', '', $search_key);
             // 搜索5个词
@@ -63,7 +63,6 @@ class Search extends BaseLogic
             foreach ($like as $key => $value) {
                 $like[$key] = '%' . $value . '%';
             }
-            // halt($search_key);
             $map[] = ['article.title', 'like', $like, 'OR'];
         }
 
@@ -80,7 +79,7 @@ class Search extends BaseLogic
         $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->cache->get('cms article search last_page' . $query_limit, $query_page)) {
+        if ($query_page > $this->cache->get($this->getCacheKey('page'), $query_page)) {
             return [
                 'debug' => false,
                 'cache' => true,
@@ -88,14 +87,12 @@ class Search extends BaseLogic
             ];
         }
 
-        $total = $this->cache->get('cms article search total', false);
-        $total = is_bool($total) ? (bool) $total : (int) $total;
+        $total = $this->cache->get($this->getCacheKey('total'));
+        $total = is_null($total) ? false : (int) $total;
 
-        $cache_key = 'article list' . $category_id .
-            $attribute . $type_id . $sort_order . $search_key .
-            $query_limit . $query_page . $date_format . $this->user_role_id;
+        $flag = $query_page . $date_format . $this->user_role_id;
 
-        if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
+        if (!$this->cache->has($this->getCacheKey($flag)) || !$list = $this->cache->get($this->getCacheKey($flag))) {
             $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'thumb', 'username', 'access_id', 'hits', 'update_time'])
                 ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                 ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id and model.id<=3')
@@ -115,12 +112,12 @@ class Search extends BaseLogic
                 ], $total);
 
             $list = $result->toArray();
-            if (!$this->cache->has('cms article search total')) {
-                $this->cache->set('cms article search total', $list['total'], 28800);
+            if (!$this->cache->has($this->getCacheKey('total'))) {
+                $this->cache->tag('request')->set($this->getCacheKey('total'), $list['total'], 28800);
             }
 
-            if (!$this->cache->has('cms article search last_page' . $query_limit)) {
-                $this->cache->set('cms article search last_page' . $query_limit, $list['last_page'], 28800);
+            if (!$this->cache->has($this->getCacheKey('page'))) {
+                $this->cache->tag('request')->set($this->getCacheKey('page'), $list['last_page'], 28800);
             }
 
             $list['total'] = number_format($list['total']);
@@ -166,7 +163,7 @@ class Search extends BaseLogic
                 $list['data'][$key] = $value;
             }
 
-            $this->cache->tag('cms article list' . $category_id)->set($cache_key, $list);
+            $this->cache->tag('cms article list' . $category_id)->set($this->getCacheKey($flag), $list);
         }
 
         return [

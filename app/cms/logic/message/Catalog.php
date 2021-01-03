@@ -33,14 +33,14 @@ class Catalog extends BaseLogic
     public function query()
     {
         $list = false;
-        if ($category_id = $this->request->param('cid', 0, '\app\common\library\Base64::url62decode')) {
+        if ($category_id = $this->request->param('category_id', 0, '\app\common\library\Base64::url62decode')) {
             $date_format = $this->request->param('date_format', 'Y-m-d');
 
             $query_limit = $this->request->param('limit/d', 20, 'abs');
             $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
             $query_page = $this->request->param('page/d', 1, 'abs');
-            if ($query_page > $this->cache->get('cms message catalog last_page' . $query_limit, $query_page)) {
+            if ($query_page > $this->cache->get($this->getCacheKey('page'), $query_page)) {
                 return [
                     'debug' => false,
                     'cache' => true,
@@ -48,12 +48,12 @@ class Catalog extends BaseLogic
                 ];
             }
 
-            $total = $this->cache->get('cms message catalog total', false);
-            $total = is_bool($total) ? (bool) $total : (int) $total;
+            $total = $this->cache->get($this->getCacheKey('total'));
+            $total = is_null($total) ? false : (int) $total;
 
-            $cache_key = 'cms message list' . $category_id . $query_limit . $query_page . $date_format;
+            $flag = $query_page . $date_format;
 
-            if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
+            if (!$this->cache->has($this->getCacheKey($flag)) || !$list = $this->cache->get($this->getCacheKey($flag))) {
                 $result = ModelMessage::where('is_pass', '=', 1)
                     ->where('category_id', '=', $category_id)
                     ->order('id DESC')
@@ -64,12 +64,12 @@ class Catalog extends BaseLogic
 
                 if ($result) {
                     $list = $result->toArray();
-                    if (!$this->cache->has('cms message catalog total')) {
-                        $this->cache->set('cms message catalog total', $list['total'], 28800);
+                    if (!$this->cache->has($this->getCacheKey('total'))) {
+                        $this->cache->tag('request')->set($this->getCacheKey('total'), $list['total'], 28800);
                     }
 
-                    if (!$this->cache->has('cms message catalog last_page' . $query_limit)) {
-                        $this->cache->set('cms message catalog last_page' . $query_limit, $list['last_page'], 28800);
+                    if (!$this->cache->has($this->getCacheKey('page'))) {
+                        $this->cache->tag('request')->set($this->getCacheKey('page'), $list['last_page'], 28800);
                     }
 
                     $list['total'] = number_format($list['total']);
@@ -92,7 +92,7 @@ class Catalog extends BaseLogic
                         $list['data'][$key] = $value;
                     }
 
-                    $this->cache->tag('cms message list' . $category_id)->set($cache_key, $list);
+                    $this->cache->tag('cms message list' . $category_id)->set($this->getCacheKey($flag), $list);
                 }
             }
         }

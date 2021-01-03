@@ -26,7 +26,7 @@ Route::group(function () {
 
 
     // 列表页
-    Route::get('category/:tid$', 'Index/category');
+    Route::get('category/:book_type_id$', 'Index/category');
     Route::get('book/:book_id$', 'Index/book');
 
     // 详情页

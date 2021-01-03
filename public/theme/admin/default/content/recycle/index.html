@@ -103,9 +103,9 @@
         el: '.box',
         data: {
             category_list: [],
-            category_id: typeof (NICMS.param.cid) == 'undefined' ? 0 : NICMS.param.cid,
+            category_id: typeof (NICMS.param.category_id) == 'undefined' ? 0 : NICMS.param.category_id,
             model_list: [],
-            model_id: typeof (NICMS.param.mid) == 'undefined' ? 0 : NICMS.param.mid,
+            model_id: typeof (NICMS.param.model_id) == 'undefined' ? 0 : NICMS.param.model_id,
             items: [],
             content: [],
         },
@@ -141,10 +141,10 @@
             filter: function () {
                 var filter = '';
                 if (this.category_id != 0) {
-                    filter += '&cid=' + this.category_id;
+                    filter += '&category_id=' + this.category_id;
                 }
                 if (this.model_id != 0) {
-                    filter += '&mid=' + this.model_id;
+                    filter += '&model_id=' + this.model_id;
                 }
 
                 if (filter) {
@@ -156,10 +156,10 @@
             load: function (_p) {
                 var request = NICMS.url + '?page=' + _p;
                 if (this.category_id != 0) {
-                    request += '&cid=' + this.category_id;
+                    request += '&category_id=' + this.category_id;
                 }
                 if (this.model_id != 0) {
-                    request += '&mid=' + this.model_id;
+                    request += '&model_id=' + this.model_id;
                 }
 
                 jQuery.pjax({
@@ -171,7 +171,7 @@
                     data: [
                         { name: 'method', value: 'content.recycle.query' },
                         { name: 'page', value: _p },
-                        { name: 'cid', value: recycle.category_id },
+                        { name: 'category_id', value: recycle.category_id },
                         { name: 'mid', value: recycle.model_id },
                     ],
                     success: function (result) {

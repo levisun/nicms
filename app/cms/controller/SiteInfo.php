@@ -46,7 +46,7 @@ class SiteInfo
             Cache::tag('request')->set($cache_key, $common);
         }
 
-        $cache_key .= Request::param('id', 0) . Request::param('cid', 0);
+        $cache_key .= Request::param('id', 0) . Request::param('category_id', 0);
         if (!Cache::has($cache_key) || !$result = Cache::get($cache_key)) {
             $result = [
                 'title'       => $this->title(),
@@ -78,8 +78,8 @@ class SiteInfo
             $description = $result ?: $description;
         }
         // 栏目描述
-        elseif ($cid = Request::param('cid', 0, '\app\common\library\Base64::url62decode')) {
-            $result = ModelCategory::where('id', '=', $cid)->value('description', '');
+        elseif ($category_id = Request::param('category_id', 0, '\app\common\library\Base64::url62decode')) {
+            $result = ModelCategory::where('id', '=', $category_id)->value('description', '');
             $description = $result ?: $description;
         }
 
@@ -104,8 +104,8 @@ class SiteInfo
             $keywords = $result ?: $keywords;
         }
         // 栏目关键词
-        elseif ($cid = Request::param('cid', 0, '\app\common\library\Base64::url62decode')) {
-            $result = ModelCategory::where('id', '=', $cid)->value('keywords', '');
+        elseif ($category_id = Request::param('category_id', 0, '\app\common\library\Base64::url62decode')) {
+            $result = ModelCategory::where('id', '=', $category_id)->value('keywords', '');
             $keywords = $result ?: $keywords;
         }
 
@@ -128,8 +128,8 @@ class SiteInfo
         }
 
         // 栏目名
-        if ($cid = Request::param('cid', 0, '\app\common\library\Base64::url62decode')) {
-            $category = ModelCategory::where('id', '=', $cid)->value('name', '');
+        if ($category_id = Request::param('category_id', 0, '\app\common\library\Base64::url62decode')) {
+            $category = ModelCategory::where('id', '=', $category_id)->value('name', '');
             $title .= $category ? $category . '-' : '';
         }
 

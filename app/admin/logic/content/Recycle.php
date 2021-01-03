@@ -42,21 +42,25 @@ class Recycle extends BaseLogic
         $map = [];
 
         // 安栏目查询,为空查询所有
-        if ($category_id = $this->request->param('cid/d', 0, 'abs')) {
+        if ($category_id = $this->request->param('category_id/d', 0, 'abs')) {
             $map[] = ['article.category_id', '=', $category_id];
         }
 
         // 安模型查询,为空查询所有
-        if ($model_id = $this->request->param('mid/d', 0, 'abs')) {
+        if ($model_id = $this->request->param('model_id/d', 0, 'abs')) {
             $map[] = ['model_id', '=', $model_id];
         }
 
         // 搜索
-        if ($search_key = $this->request->param('key')) {
-            $search_key = (new Participle)->words($search_key, 3);
-            if (!empty($search_key)) {
-                $map[] = ['article.title', 'regexp', implode('|', $search_key)];
+        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::non_chs_alpha')) {
+            $search_key = htmlspecialchars_decode($search_key, ENT_QUOTES);
+            $search_key = str_replace('&nbsp;', '', $search_key);
+            // 搜索5个词
+            $like = (new Participle)->words($search_key, 5);
+            foreach ($like as $key => $value) {
+                $like[$key] = '%' . $value . '%';
             }
+            $map[] = ['article.title', 'like', $like, 'OR'];
         }
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
@@ -65,7 +69,7 @@ class Recycle extends BaseLogic
         $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->cache->get('admin content recycle last_page' . $query_limit, $query_page)) {
+        if ($query_page > $this->cache->get($this->getCacheKey('page'), $query_page)) {
             return [
                 'debug' => false,
                 'cache' => true,
@@ -73,8 +77,8 @@ class Recycle extends BaseLogic
             ];
         }
 
-        $total = $this->cache->get('admin content recycle total', false);
-        $total = is_bool($total) ? (bool) $total : (int) $total;
+        $total = $this->cache->get($this->getCacheKey('total'));
+        $total = is_null($total) ? false : (int) $total;
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'attribute', 'username', 'access_id', 'hits', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
@@ -94,12 +98,12 @@ class Recycle extends BaseLogic
 
         $list = $result->toArray();
 
-        if (!$this->cache->has('admin content recycle total')) {
-            $this->cache->set('admin content recycle total', $list['total'], 28800);
+        if (!$this->cache->has($this->getCacheKey('total'))) {
+            $this->cache->tag('request')->set($this->getCacheKey('total'), $list['total'], 28800);
         }
 
-        if (!$this->cache->has('admin content recycle last_page' . $query_limit)) {
-            $this->cache->set('admin content recycle last_page' . $query_limit, $list['last_page'], 28800);
+        if (!$this->cache->has($this->getCacheKey('page'))) {
+            $this->cache->tag('request')->set($this->getCacheKey('page'), $list['last_page'], 28800);
         }
 
         $list['total'] = number_format($list['total']);

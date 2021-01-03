@@ -35,7 +35,7 @@ class Search extends BaseLogic
     public function query(): array
     {
         // 搜索
-        if ($search_key = $this->request->param('key')) {
+        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::non_chs_alpha')) {
             $search_key = htmlspecialchars_decode($search_key, ENT_QUOTES);
             $search_key = str_replace('&nbsp;', '', $search_key);
             // 搜索5个词
@@ -51,7 +51,7 @@ class Search extends BaseLogic
         $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->cache->get('book book search last_page' . $query_limit, $query_page)) {
+        if ($query_page > $this->cache->get($this->getCacheKey('page'), $query_page)) {
             return [
                 'debug' => false,
                 'cache' => true,
@@ -59,12 +59,12 @@ class Search extends BaseLogic
             ];
         }
 
-        $total = $this->cache->get('book book search total', false);
-        $total = is_bool($total) ? (bool) $total : (int) $total;
+        $total = $this->cache->get($this->getCacheKey('total'));
+        $total = is_null($total) ? false : (int) $total;
 
-        $cache_key = 'book article list' . $search_key . $query_limit . $query_page . $date_format;
+        $flag = $query_page . $date_format;
 
-        if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
+        if (!$this->cache->has($this->getCacheKey($flag)) || !$list = $this->cache->get($this->getCacheKey($flag))) {
             // 书籍信息
             $book = (new ModelBook)
                 ->view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'image', 'hits', 'origin', 'status', 'update_time'])
@@ -92,12 +92,12 @@ class Search extends BaseLogic
                     ], $total);
 
                 if ($result && $list = $result->toArray()) {
-                    if (!$this->cache->has('book book search total')) {
-                        $this->cache->set('book book search total', $list['total'], 28800);
+                    if (!$this->cache->has($this->getCacheKey('total'))) {
+                        $this->cache->tag('request')->set($this->getCacheKey('total'), $list['total'], 28800);
                     }
 
-                    if (!$this->cache->has('book book search last_page' . $query_limit)) {
-                        $this->cache->set('book book search last_page' . $query_limit, $list['last_page'], 28800);
+                    if (!$this->cache->has($this->getCacheKey('page'))) {
+                        $this->cache->tag('request')->set($this->getCacheKey('page'), $list['last_page'], 28800);
                     }
 
                     $list['total'] = number_format($list['total']);
@@ -116,7 +116,7 @@ class Search extends BaseLogic
                     }
 
                     $list['book'] = $book;
-                    $this->cache->tag(['book', 'book article list' . $book_id])->set($cache_key, $list);
+                    $this->cache->tag(['book', 'book article list' . $book_id])->set($this->getCacheKey($flag), $list);
                 }
             }
         }
