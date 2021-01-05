@@ -95,6 +95,9 @@ abstract class BaseLogic
      */
     protected $user_type = 'guest';
 
+    const CACHE_TOTAL_KEY = 'total';
+    const CACHE_PAGE_KEY  = 'page';
+
     /**
      * 构造方法
      * @access public
@@ -150,6 +153,8 @@ abstract class BaseLogic
      */
     protected function getCacheKey(string $_flag = '')
     {
+        $_flag = strtolower($_flag);
+
         $pass = $this->request->param('pass/d', 0, 'abs');
         $pass = 3 < $pass ? 0 : $pass;
 
@@ -180,15 +185,34 @@ abstract class BaseLogic
         $key = $this->request->param('key', null, '\app\common\library\Filter::non_chs_alpha');
         $sort = $this->request->param('sort');
 
+        $limit = $this->request->param('limit/d', 20, 'abs');
+        $limit = 100 > $limit && 10 < $limit ? intval($limit / 10) * 10 : 20;
+
+        $date_format = $this->request->param('date_format', 'Y-m-d');
+        $date_format = preg_match('/[ymdhis\-: ]{3,}/uis', $date_format) ? $date_format : 'Y-m-d';
+
+        $page = $this->request->param('page/d', 1, 'abs');
+
         $token = $this->request->param('token');
 
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
         array_shift($backtrace);
         $class  = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
 
-        $key = sha1($class . $pass . $attribute . $status . $model_id . $category_id . $type_id . $book_id . $book_type_id . $key . $sort . $token);
+        $key = $class;
+        $key .= $pass . $attribute . $status . $model_id . $category_id . $type_id . $key . $sort;
+        if ($_flag === self::CACHE_TOTAL_KEY) {
+            $key .= '';
+        } elseif ($_flag === self::CACHE_PAGE_KEY) {
+            $key .= $limit;
+        } else {
+            $key .= $limit . $page . $date_format;
+        }
+        $key .= $book_id . $book_type_id;
+        $key .= $this->authKey . $this->user_id . $this->user_role_id . $this->user_type;
+        $key .= $this->lang->getLangSet() . $token . $_flag;
 
-        return md5($key . $_flag);
+        return md5(sha1($key) . $_flag);
     }
 
     /**

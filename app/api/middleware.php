@@ -16,5 +16,5 @@ return [
     // 跨域
     \app\common\middleware\AllowCrossDomain::class,
     // 请求缓存
-    \app\common\middleware\ApiRequestCache::class,
+    // \app\common\middleware\ApiRequestCache::class,
 ];

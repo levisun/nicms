@@ -77,17 +77,26 @@ class Dashboard extends BaseLogic
         $sum_ip = ModelIpv4::cache(28800)->where('update_time', '>', strtotime('-7 day'))->count();
         $day_ip = ModelIpv4::cache(2880)->where('update_time', '>', strtotime(date('Y-m-d')))->count();
 
-        // $sum_ip = ModelVisit::where('ip', '<>', '')->count();
-        // $day_ip = ModelVisit::where('ip', '<>', '')
-        //     ->where('date', '=', strtotime(date('Y-m-d')))
-        //     ->count();
+        $ip = ModelVisit::where('ip', '<>', '')
+            ->where('date', '=', strtotime('-1 day'))
+            ->cache(2880)
+            ->count();
 
-        $browse = ModelVisit::fieldRaw('sum(count) as count')
-            ->where('name', '=', '')
-            ->where('date', '=', strtotime(date('Y-m-d')))
+        $pv = ModelVisit::fieldRaw('sum(count) as count')
+            ->where('name', 'LIKE', 'http%')
+            ->where('date', '=', strtotime('-1 day'))
+            ->cache(2880)
             ->find();
-        $browse = $browse ? $browse->toArray() : ['count' => 0];
-        $browse = (int) $browse['count'];
+        $pv = $pv ? $pv->toArray() : ['count' => 0];
+        $pv = (int) $pv['count'];
+
+        $uv = ModelVisit::fieldRaw('sum(count) as count')
+            ->where('name', '=', '')
+            ->where('date', '=', strtotime('-1 day'))
+            ->cache(2880)
+            ->find();
+        $uv = $uv ? $uv->toArray() : ['count' => 0];
+        $uv = (int) $uv['count'];
 
         $glob = glob2each(runtime_path('cache'));
         $cache_total = 0;
@@ -104,7 +113,9 @@ class Dashboard extends BaseLogic
             'session' => format_hits(count((array) glob(runtime_path('session') . '*'))),
             'cache'   => format_hits($cache_total),
             'access'  => [
-                'browse' => format_hits($browse),
+                'ip' => format_hits($ip),
+                'pv' => format_hits($pv),
+                'uv' => format_hits($uv),
             ]
         ];
     }
