@@ -319,7 +319,7 @@ abstract class BaseApi
             // 用户令牌
             'user_token' => $this->user_id
                 ? sha1(Base64::encrypt($this->user_id . $this->user_role_id . $this->user_type))
-                : 'public',
+                : sha1('public'),
         ];
         $result = array_filter($result);
 
@@ -333,7 +333,7 @@ abstract class BaseApi
                 ->expires(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT');
         }
 
-        ob_start('ob_gzhandler');
+        // ob_start('ob_gzhandler');
 
         return $response;
     }
@@ -364,7 +364,7 @@ abstract class BaseApi
             // 用户令牌
             'user_token' => $this->user_id
                 ? sha1(Base64::encrypt($this->user_id . $this->user_role_id . $this->user_type))
-                : 'public',
+                : sha1('public'),
         ];
 
         $result = array_filter($result);

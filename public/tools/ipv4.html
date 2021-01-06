@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base64加密/解密</title>
+    <title>IPV4</title>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha256-L/W5Wfqfa0sdBNIKN9cG6QA5F2qx4qICmU2VgLruv9Y=" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
@@ -56,17 +56,27 @@
                 <div id="list" class="col-md">
                     <div class="card">
                         <div class="card-header">
-                            Base64加密/解密
+                            IPV4
                         </div>
                         <div class="card-body">
                             <div class="form-group">
-                                <textarea id="txt" class="form-control"></textarea>
+                                <input type="text" class="form-control" disabled="true" id="IPV4" />
                             </div>
-                        </div>
-
-                        <div class="card-footer">
-                            <button class="btn btn-primary" onclick="de()">加密</button>
-                            <button class="btn btn-primary" onclick="en()">解密</button>
+                            <div class="form-group">
+                                <input type="text" class="form-control" disabled="true" id="country" />
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" disabled="true" id="region" />
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" disabled="true" id="city" />
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" disabled="true" id="area" />
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" disabled="true" id="isp" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -90,18 +100,16 @@
         </div>
     </footer>
 
-
-
-    <script>
-        function de() {
-            document.getElementById("txt").value = window.btoa(document.getElementById("txt").value);
-        }
-        function en() {
-            document.getElementById("txt").value = window.atob(document.getElementById("txt").value);
-        }
-    </script>
     <script src="./app.js"></script>
-
+    <script src="https://api.niphp.com/tools/ip.do"></script>
+    <script>
+        document.getElementById("IPV4").value = IP.ip;
+        document.getElementById("country").value = IP.country;
+        document.getElementById("region").value = IP.region;
+        document.getElementById("city").value = IP.city;
+        document.getElementById("area").value = IP.area;
+        document.getElementById("isp").value = IP.isp;
+    </script>
 </body>
 
 </html>

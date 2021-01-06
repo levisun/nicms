@@ -35,12 +35,11 @@ class Breadcrumb extends BaseLogic
     public function query(): array
     {
         if ($cid = $this->request->param('book_type_id', 0, '\app\common\library\Base64::url62decode')) {
-            $cache_key = 'book nav breadcrumb' . $cid;
-            if (!$this->cache->has($cache_key)) {
+            if (!$this->cache->has($this->getCacheKey())) {
                 $this->parentCate((int) $cid);
-                $this->cache->tag(['book', 'book nav'])->set($cache_key, $this->bread);
+                $this->cache->tag(['book', 'book nav'])->set($this->getCacheKey(), $this->bread);
             } else {
-                $this->bread = $this->cache->get($cache_key);
+                $this->bread = $this->cache->get($this->getCacheKey());
             }
         }
 

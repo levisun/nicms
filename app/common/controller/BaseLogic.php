@@ -167,6 +167,9 @@ abstract class BaseLogic
         $model_id = $this->request->param('model_id/d', 0, 'abs');
         $model_id = \app\common\model\Models::cache(28800)->count() < $model_id ? 0 : $model_id;
 
+        $id = $this->request->param('id', 0);
+        $id = is_int($id) ? $id : \app\common\library\Base64::url62decode($id);
+
         $category_id = $this->request->param('category_id', 0);
         $category_id = is_int($category_id) ? $category_id : \app\common\library\Base64::url62decode($category_id);
         $category_id = \app\common\model\Category::cache(28800)->count() < $category_id ? 0 : $category_id;
@@ -200,7 +203,7 @@ abstract class BaseLogic
         $class  = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
 
         $key = $class;
-        $key .= $pass . $attribute . $status . $model_id . $category_id . $type_id . $key . $sort;
+        $key .= $pass . $attribute . $status . $model_id . $id . $category_id . $type_id . $key . $sort;
         if ($_flag === self::CACHE_TOTAL_KEY) {
             $key .= '';
         } elseif ($_flag === self::CACHE_PAGE_KEY) {

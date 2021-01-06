@@ -204,10 +204,7 @@ class User extends BaseLogic
             if (null !== $result && $result = $result->toArray()) {
                 $result['last_login_time'] = date('Y-m-d H:i:s', (int) $result['last_login_time']);
                 $result['avatar'] = Image::avatar('', $result['username']);
-                $result['id'] = Base64::encrypt((string) $result['id'], 'uid');
-                $result['role_id'] = Base64::encrypt((string) $result['role_id'], 'roleid');
-                $result['app_debug'] = (int) $this->config->get('app.debug');
-                // unset($result['id'], $result['role_id']);
+                unset($result['id'], $result['role_id']);
             }
         }
 

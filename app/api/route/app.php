@@ -47,7 +47,7 @@ Route::group(function () {
     // Route::patch('handle$', 'Handle/editor');   // 操作接口
     // Route::put('handle$', 'Handle/added');      // 操作接口
     Route::post('handle$', 'Handle/index');             // 操作接口
-    Route::get('query$', 'Query/index')->cache(2880);   // 请求接口
+    Route::get('query$', 'Query/index')->cache(1440);   // 请求接口
     Route::post('upload$', 'Upload/index');             // 上传接口
 
 })->domain('api')->ext('do')->pattern([

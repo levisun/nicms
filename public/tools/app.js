@@ -1,16 +1,20 @@
-
-
-
-
-
-
-let header = new Vue({
+let nav = new Vue({
     el: "#layout-header",
     data: {
         nav: {
-            'base': [
-                'base64.html'
-            ]
+            "network": {
+                "name": "网络",
+                "child": {
+                    "USER_AGENT": "user_agent.html",
+                    "IPV4": "ipv4.html"
+                }
+            },
+            "enc": {
+                "name": "编码\/加密",
+                "child": {
+                    "base64": "base64.html"
+                }
+            }
         }
-    }
+    },
 });

@@ -21,6 +21,7 @@ namespace app\common\middleware;
 use Closure;
 use think\Request;
 
+use think\facade\Cookie;
 use think\facade\Session;
 use app\common\library\Base64;
 
@@ -36,11 +37,14 @@ class AppInit
         if (!$request->rootDomain()) {
             return miss(404, false);
         }
-        
+
         // IP进入显示空页面
         if ($request->isValidIP($request->host(true), 'ipv4') || $request->isValidIP($request->host(true), 'ipv6')) {
             return miss(404, false);
         }
+
+        $from_token = $request->buildToken('__token__', 'md5');
+        Cookie::set('CSRF_TOKEN', $from_token, ['httponly' => false]);
 
         $response = $next($request);
 
@@ -65,11 +69,10 @@ class AppInit
         $secret = app_secret();
         $secret = sha1($secret['secret'] . Base64::asyncSecret());
 
-        $app_token = $request->buildToken('__token__', 'md5');
 
         $content = $response->getContent();
 
-        $app_init = '<script type="text/javascript">window.localStorage.setItem("XSRF_AUTHORIZATION", "' . trim(base64_encode($authorization), '=') . '");window.localStorage.setItem("XSRF_TOKEN", "' . $secret . '");window.localStorage.setItem("CSRF_TOKEN", "' . $app_token . '");</script>';
+        $app_init = '<script type="text/javascript">window.localStorage.setItem("XSRF_AUTHORIZATION", "' . trim(base64_encode($authorization), '=') . '");window.localStorage.setItem("XSRF_TOKEN", "' . $secret . '");</script>';
 
         $content = false !== strripos($content, '</head>')
             ? str_replace('</head>', $app_init . '</head>', $content)

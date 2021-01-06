@@ -61,7 +61,7 @@
         _params.data.append('appid', jQuery('meta[name="csrf-appid"]').attr('content'));
 
         if ('POST' == _params.type || 'post' == _params.type) {
-            _params.data.append('__token__', window.localStorage.getItem('CSRF_TOKEN'));
+            _params.data.append('__token__', jQuery.get_cookie('CSRF_TOKEN'));
         }
 
         if (window.localStorage.getItem('USER_TOKEN')) {
@@ -90,7 +90,7 @@
             if ('undefined' !== typeof (xhr.responseText)) {
                 var result = JSON.parse(xhr.responseText);
                 if ('undefined' !== typeof (result.csrf_token)) {
-                    window.localStorage.setItem('CSRF_TOKEN', result.csrf_token);
+                    jQuery.set_cookie('CSRF_TOKEN', result.csrf_token);
                 }
             }
         }
@@ -133,7 +133,7 @@
 
         if ('POST' == _params.type || 'post' == _params.type) {
             _params.data.push({ name: 'timestamp', value: jQuery.timestamp() });
-            _params.data.push({ name: '__token__', value: window.localStorage.getItem('CSRF_TOKEN') });
+            _params.data.push({ name: '__token__', value: jQuery.get_cookie('CSRF_TOKEN') });
         }
 
         if (window.localStorage.getItem('USER_TOKEN')) {
@@ -154,7 +154,7 @@
             if ('undefined' !== typeof (xhr.responseText)) {
                 var result = JSON.parse(xhr.responseText);
                 if ('undefined' !== typeof (result.csrf_token)) {
-                    window.localStorage.setItem('CSRF_TOKEN', result.csrf_token);
+                    jQuery.set_cookie('CSRF_TOKEN', result.csrf_token);
                 }
                 if ('undefined' !== typeof (result.user_token)) {
                     window.localStorage.setItem('USER_TOKEN', result.user_token);
