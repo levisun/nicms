@@ -114,11 +114,11 @@ class Filter
                 continue;
             }
 
-            $words = self::symbol($words);
-            $words = self::space($words);
+            $words = self::base($words);
             $words = explode(',', $words);
             $words = array_filter($words);
             $words = array_unique($words);
+
             $length = [];
             foreach ($words as $key => $value) {
                 $length[$key] = mb_strlen($value, 'utf-8');
@@ -291,6 +291,7 @@ class Filter
 
             $preg = [];
             $preg[] = '/[\'"]+<[\w]+[^<>]*>[\'"]+/uis';
+            $preg[] = '/<!--.*?-->/uis';
             foreach ($ele[1] as $value) {
                 if (!in_array($value, self::$elements)) {
                     $preg[] = '/<' . $value . '[^<>]*>.*?<\/' . $value . '>/uis';

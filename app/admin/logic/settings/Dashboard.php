@@ -78,13 +78,13 @@ class Dashboard extends BaseLogic
         $day_ip = ModelIpv4::cache(2880)->where('update_time', '>', strtotime(date('Y-m-d')))->count();
 
         $ip = ModelVisit::where('ip', '<>', '')
-            ->where('date', '=', strtotime('-1 day'))
+            ->where('date', '=', strtotime(date('Y-m-d')))
             ->cache(2880)
             ->count();
 
         $pv = ModelVisit::fieldRaw('sum(count) as count')
             ->where('name', 'LIKE', 'http%')
-            ->where('date', '=', strtotime('-1 day'))
+            ->where('date', '=', strtotime(date('Y-m-d')))
             ->cache(2880)
             ->find();
         $pv = $pv ? $pv->toArray() : ['count' => 0];
@@ -92,7 +92,7 @@ class Dashboard extends BaseLogic
 
         $uv = ModelVisit::fieldRaw('sum(count) as count')
             ->where('name', '=', '')
-            ->where('date', '=', strtotime('-1 day'))
+            ->where('date', '=', strtotime(date('Y-m-d')))
             ->cache(2880)
             ->find();
         $uv = $uv ? $uv->toArray() : ['count' => 0];

@@ -33,7 +33,7 @@ class AppMaintain
         if ($app_name && 'cms' === $app_name) {
             $sitemap = public_path() . 'sitemap.xml';
             if (!is_file($sitemap) || strtotime('-3 hour') > filemtime($sitemap)) {
-                Sitemap::create();
+                Sitemap::xml();
                 Sitemap::deadLink();
                 Sitemap::robots();
             }

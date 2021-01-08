@@ -5,8 +5,11 @@
                 <span class="info-box-icon bg-aqua"><i class="ion ion-ios-gear-outline"></i></span>
 
                 <div class="info-box-content">
-                    <span class="info-box-text">CPU Traffic</span>
-                    <span class="info-box-number">90<small>%</small></span>
+                    <span class="info-box-number">
+                        ip: <font v-text="items.total.access.ip"></font><br>
+                        pv: <font v-text="items.total.access.pv"></font><br>
+                        uv: <font v-text="items.total.access.uv"></font>
+                    </span>
                 </div>
             </div>
         </div>
@@ -30,7 +33,6 @@
                     <span class="info-box-text">{:lang('browse')}</span>
                     <span class="info-box-number">
                         IP: <font v-text="items.total.ip"></font><br>
-                        browse: <font v-text="items.total.access.browse"></font>
                     </span>
                 </div>
             </div>

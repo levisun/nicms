@@ -153,69 +153,66 @@ abstract class BaseLogic
      */
     protected function getCacheKey(string $_flag = '')
     {
-        $_flag = strtolower($_flag);
+        // 执行的方法名(命名空间\类名::方法名)
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+        array_shift($backtrace);
+        $cache_key = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
 
+        $cache_key .= $this->lang->getLangSet();
+
+        // 筛选条件
+        // 审核
         $pass = $this->request->param('pass/d', 0, 'abs');
-        $pass = 3 < $pass ? 0 : $pass;
-
+        $cache_key .= 3 < $pass ? 0 : $pass;
+        // 属性(置顶 推荐 最热)
         $attribute = $this->request->param('attribute/d', 0, 'abs');
-        $attribute = 3 < $attribute ? 0 : $attribute;
-
+        $cache_key .= 3 < $attribute ? 0 : $attribute;
+        // 状态
         $status = $this->request->param('status/d', 0, 'abs');
-        $status = 3 < $status ? 0 : $status;
+        $cache_key .= 3 < $status ? 0 : $status;
 
         $model_id = $this->request->param('model_id/d', 0, 'abs');
-        $model_id = \app\common\model\Models::cache(28800)->count() < $model_id ? 0 : $model_id;
+        $cache_key .= \app\common\model\Models::cache(28800)->count() < $model_id ? 0 : $model_id;
 
         $id = $this->request->param('id', 0);
-        $id = is_int($id) ? $id : \app\common\library\Base64::url62decode($id);
+        $cache_key .= is_int($id) ? $id : \app\common\library\Base64::url62decode($id);
 
         $category_id = $this->request->param('category_id', 0);
         $category_id = is_int($category_id) ? $category_id : \app\common\library\Base64::url62decode($category_id);
-        $category_id = \app\common\model\Category::cache(28800)->count() < $category_id ? 0 : $category_id;
+        $cache_key .= \app\common\model\Category::cache(28800)->count() < $category_id ? 0 : $category_id;
 
         $type_id = $this->request->param('type_id/d', 0, 'abs');
-        $type_id = \app\common\model\Type::count() < $type_id ? 0 : $type_id;
+        $cache_key .= \app\common\model\Type::cache(28800)->count() < $type_id ? 0 : $type_id;
 
         $book_id = $this->request->param('book_id', 0);
         $book_id = is_int($book_id) ? $book_id : \app\common\library\Base64::url62decode($book_id);
-        $book_id = \app\common\model\Book::cache(28800)->count() < $book_id ? 0 : $book_id;
+        $cache_key .= \app\common\model\Book::cache(28800)->count() < $book_id ? 0 : $book_id;
 
         $book_type_id = $this->request->param('book_type_id', 0);
         $book_type_id = is_int($book_type_id) ? $book_type_id : \app\common\library\Base64::url62decode($book_type_id);
-        $book_type_id = \app\common\model\BookType::cache(28800)->count() < $book_type_id ? 0 : $book_type_id;
+        $cache_key .= \app\common\model\BookType::cache(28800)->count() < $book_type_id ? 0 : $book_type_id;
 
-        $key = $this->request->param('key', null, '\app\common\library\Filter::non_chs_alpha');
-        $sort = $this->request->param('sort');
+        $cache_key .= $this->request->param('key', null, '\app\common\library\Filter::non_chs_alpha');
+        $cache_key .= $this->request->param('sort');
+        $cache_key .= $this->request->param('token');
 
         $limit = $this->request->param('limit/d', 20, 'abs');
         $limit = 100 > $limit && 10 < $limit ? intval($limit / 10) * 10 : 20;
 
-        $date_format = $this->request->param('date_format', 'Y-m-d');
-        $date_format = preg_match('/[ymdhis\-: ]{3,}/uis', $date_format) ? $date_format : 'Y-m-d';
-
-        $page = $this->request->param('page/d', 1, 'abs');
-
-        $token = $this->request->param('token');
-
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-        array_shift($backtrace);
-        $class  = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
-
-        $key = $class;
-        $key .= $pass . $attribute . $status . $model_id . $id . $category_id . $type_id . $key . $sort;
+        $_flag = strtolower($_flag);
         if ($_flag === self::CACHE_TOTAL_KEY) {
-            $key .= '';
+            $cache_key .= '';
         } elseif ($_flag === self::CACHE_PAGE_KEY) {
-            $key .= $limit;
+            $cache_key .= $limit;
         } else {
-            $key .= $limit . $page . $date_format;
-        }
-        $key .= $book_id . $book_type_id;
-        $key .= $this->authKey . $this->user_id . $this->user_role_id . $this->user_type;
-        $key .= $this->lang->getLangSet() . $token . $_flag;
+            $date_format = $this->request->param('date_format', 'Y-m-d');
+            $cache_key .= preg_match('/[ymdhis\-: ]{3,}/uis', $date_format) ? $date_format : 'Y-m-d';
 
-        return md5(sha1($key) . $_flag);
+            $cache_key .= $this->request->param('page/d', 1, 'abs');
+            $cache_key .= $limit;
+        }
+
+        return md5(sha1($cache_key) . $_flag);
     }
 
     /**

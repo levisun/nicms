@@ -29,7 +29,7 @@ class Sitemap
      * @static
      * @return void
      */
-    public static function create(): void
+    public static function xml(): void
     {
         $article = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'access_id', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
@@ -64,13 +64,12 @@ class Sitemap
     public static function robots(): void
     {
         $robots = 'User-agent: *' . PHP_EOL;
-        if ($paths = glob(public_path() . '*')) {
-            foreach ($paths as $dir) {
-                if (is_dir($dir)) {
-                    $robots .= 'Disallow: /' . pathinfo($dir, PATHINFO_BASENAME) . '/' . PHP_EOL;
-                }
-            }
-        }
+        $robots .= 'Disallow: /static/' . PHP_EOL;
+        $robots .= 'Disallow: /storage/' . PHP_EOL;
+        $robots .= 'Disallow: /theme/' . PHP_EOL;
+        $robots .= 'Disallow: ' . Request::scheme() . '://api.' . Request::rootDomain() . '/' . PHP_EOL;
+        $robots .= 'Disallow: ' . Request::scheme() . '://cdn.' . Request::rootDomain() . '/' . PHP_EOL;
+        $robots .= 'Disallow: ' . Request::scheme() . '://img.' . Request::rootDomain() . '/' . PHP_EOL;
         $robots .= 'Disallow: *.txt$' . PHP_EOL;
         $robots .= 'Disallow: *.do$' . PHP_EOL;
         $robots .= 'Allow: .html$' . PHP_EOL;
