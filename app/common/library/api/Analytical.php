@@ -280,6 +280,7 @@ class Analytical
             'message' => $_msg,
         ];
         $response = Response::create($result, 'json');
+        ob_start('ob_gzhandler');
         throw new HttpResponseException($response);
     }
 }

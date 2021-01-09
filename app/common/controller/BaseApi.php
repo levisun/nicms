@@ -333,6 +333,7 @@ abstract class BaseApi
                 ->expires(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT');
         }
 
+        ob_start('ob_gzhandler');
         return $response;
     }
 
@@ -368,7 +369,7 @@ abstract class BaseApi
         $result = array_filter($result);
 
         $response = Response::create($result, 'json');
-
+        ob_start('ob_gzhandler');
         throw new HttpResponseException($response);
     }
 }
