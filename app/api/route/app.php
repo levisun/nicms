@@ -25,7 +25,7 @@ Route::group(function () {
     Route::post('office/word/write$', 'office.Word/write');
 
     // 工具接口
-    Route::get('tools/download$', 'tools.Download/index');              // 下载接口
+    Route::get('tools/download$', 'tools.Download/index')->cache(2880); // 下载接口
     Route::get('tools/ip$', 'tools.Ip/index')->cache(2880);             // IP信息接口
     Route::post('tools/participle$', 'tools.Participle/index');         // 分词
     Route::get('tools/record$', 'tools.Record/index');                  // 访问日志
@@ -46,9 +46,9 @@ Route::group(function () {
     // Route::delete('handle$', 'Handle/remove');  // 操作接口
     // Route::patch('handle$', 'Handle/editor');   // 操作接口
     // Route::put('handle$', 'Handle/added');      // 操作接口
-    Route::post('handle$', 'Handle/index');             // 操作接口
-    Route::get('query$', 'Query/index')->cache(1440);   // 请求接口
-    Route::post('upload$', 'Upload/index');             // 上传接口
+    Route::post('handle$', 'Handle/index');     // 操作接口
+    Route::get('query$', 'Query/index');        // 请求接口
+    Route::post('upload$', 'Upload/index');     // 上传接口
 
 })->domain('api')->ext('do')->pattern([
     'pay'  => '[a-z]+',

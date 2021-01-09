@@ -319,7 +319,7 @@ abstract class BaseApi
             // 用户令牌
             'user_token' => $this->user_id
                 ? sha1(Base64::encrypt($this->user_id . $this->user_role_id . $this->user_type))
-                : sha1('guest'),
+                : sha1($this->request->ip()),
         ];
         $result = array_filter($result);
 
@@ -362,7 +362,7 @@ abstract class BaseApi
             // 用户令牌
             'user_token' => $this->user_id
                 ? sha1(Base64::encrypt($this->user_id . $this->user_role_id . $this->user_type))
-                : sha1('guest'),
+                : sha1($this->request->ip()),
         ];
 
         $result = array_filter($result);

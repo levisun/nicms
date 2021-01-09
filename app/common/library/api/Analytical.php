@@ -269,7 +269,7 @@ class Analytical
         if ($jti && is_file(runtime_path('session/' . Config::get('session.prefix')) . 'sess_' . $jti)) {
             $this->sessionId = $jti;
         } else {
-            $this->abort('The authentication information is incorrect.', 20003);
+            $this->abort('The authentication information is incorrect.' . $jti, 20003);
         }
     }
 
@@ -280,7 +280,6 @@ class Analytical
             'message' => $_msg,
         ];
         $response = Response::create($result, 'json');
-        ob_start('ob_gzhandler');
         throw new HttpResponseException($response);
     }
 }

@@ -192,7 +192,7 @@ class Filter
      */
     public static function fun(string &$_str): string
     {
-        $regex = '/' . implode('|', self::$func) . '/uis';
+        $regex = '/' . implode('\s*\(|', self::$func) . '/uis';
         $_str = (string) preg_replace_callback($regex, function ($matches) {
             return $matches[0] . '&nbsp;';
         }, $_str);
@@ -322,7 +322,7 @@ class Filter
         // 半角空格(英文符号)\u0020,代码中常用的
         // 全角空格(中文符号)\u3000,中文文章中使用
         $_str = (string) json_decode(str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($_str)));
-        $_str = (string) str_ireplace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;'], '&nbsp;', $_str);
+        $_str = (string) str_ireplace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;', '&#160;', ], ' ', $_str);
 
         $pattern = [
             '/<\!--[^<>]+-->/s' => '',
