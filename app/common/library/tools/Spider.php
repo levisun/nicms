@@ -124,7 +124,7 @@ class Spider
             $article = array_map(function ($value) {
                 $value = htmlspecialchars_decode($value, ENT_QUOTES);
                 $value = Filter::html($value);
-                $value = Filter::space($value, false);
+                $value = Filter::space($value);
                 return $value;
             }, $article);
             $article = array_filter($article);

@@ -32,7 +32,7 @@ class Spider extends BaseLogic
                 $spider->agent = 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69';
                 $author = $spider->request('GET', $this->bookURI . $_uri)->select('div.top>div>p');
                 $author = substr($author[0], strpos($author[0], ':') + 1);
-                $author = Filter::safe($author);
+                $author = Filter::strict($author);
 
                 $book_author = new ModelBookAuthor;
                 $author_id = $book_author->where('author', '=', $author)->value('id');
@@ -44,7 +44,7 @@ class Spider extends BaseLogic
                 }
 
                 $title = $spider->select('div.top>h1');
-                $title = Filter::safe($title[0]);
+                $title = Filter::strict($title[0]);
 
                 $keywords = $title . ',' . $author;
                 $description = $title . '最新章节由网友提供，《' . $title . '》情节跌宕起伏、扣人心弦，是一本情节与文笔俱佳的小说，免费提供' . $title . '最新清爽干净的文字章节在线阅读。';
@@ -108,7 +108,7 @@ class Spider extends BaseLogic
                                 trace($this->bookURI . $value . ' 采集错误', 'info');
                                 return;
                             }
-                            $title = Filter::safe($title[0]);
+                            $title = Filter::strict($title[0]);
 
                             $has = ModelBookArticle::where('book_id', '=', $_book_id)
                                 ->where('title', '=', $title)

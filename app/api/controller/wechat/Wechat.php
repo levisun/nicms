@@ -47,15 +47,15 @@ class Wechat extends BaseApi
             'formUser' => $wechat->getRevFrom(),                              // 请求用户
             'userData' => $wechat->getUserInfo($wechat->getRevFrom()),          // 用户个人信息
             'key'      => [
-                'sceneId'       => Filter::safe($wechat->getRevSceneId()),      // 扫公众号二维码返回值
-                'eventLocation' => Filter::safe($wechat->getRevEventGeo()),     // 获得的地理信息
-                'text'          => Filter::safe($wechat->getRevContent()),      // 文字信息
-                'image'         => Filter::safe($wechat->getRevPic()),          // 图片信息
-                'location'      => Filter::safe($wechat->getRevGeo()),          // 地理信息
-                'link'          => Filter::safe($wechat->getRevLink()),         // 链接信息
-                'voice'         => Filter::safe($wechat->getRevVoice()),        // 音频信息
-                'video'         => Filter::safe($wechat->getRevVideo()),        // 视频信息
-                'result'        => Filter::safe($wechat->getRevResult())        // 群发或模板信息回复内容
+                'sceneId'       => Filter::strict($wechat->getRevSceneId()),      // 扫公众号二维码返回值
+                'eventLocation' => Filter::strict($wechat->getRevEventGeo()),     // 获得的地理信息
+                'text'          => Filter::strict($wechat->getRevContent()),      // 文字信息
+                'image'         => Filter::strict($wechat->getRevPic()),          // 图片信息
+                'location'      => Filter::strict($wechat->getRevGeo()),          // 地理信息
+                'link'          => Filter::strict($wechat->getRevLink()),         // 链接信息
+                'voice'         => Filter::strict($wechat->getRevVoice()),        // 音频信息
+                'video'         => Filter::strict($wechat->getRevVideo()),        // 视频信息
+                'result'        => Filter::strict($wechat->getRevResult())        // 群发或模板信息回复内容
             ],
         ];
 

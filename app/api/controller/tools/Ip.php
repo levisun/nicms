@@ -46,20 +46,19 @@ class Ip extends BaseApi
             $ip[3] = 1;
             $ip = implode('.', $ip);
 
-            usleep(500000);
+            // usleep(500000);
         }
 
         if ($result = (new Ipv4)->get($ip)) {
-            if (isset($old)) {
-                $result['ip'] = $old;
-            }
+            $result['ip'] = isset($old) ? $old : $result['ip'];
 
-            $timestamp = $this->request->time() + 3600 * 6;
+            $timestamp = time() + 28800;
+            // $timestamp = $this->request->time() + 3600 * 6;
             return Response::create('const IP = ' . json_encode($result))
                 ->allowCache(true)
                 ->cacheControl('max-age=28800,must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $timestamp + 28800) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $timestamp + 28800) . ' GMT')
+                ->expires(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT')
+                ->lastModified(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT')
                 ->contentType('application/javascript');
         }
 

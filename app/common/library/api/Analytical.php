@@ -265,7 +265,7 @@ class Analytical
         // 校验session是否存在
         // Session初始化并规定sessionID
         $jti = Base64::decrypt($token->getClaim('jti'));
-        $jti = Filter::safe($jti);
+        $jti = Filter::strict($jti);
         if ($jti && is_file(runtime_path('session/' . Config::get('session.prefix')) . 'sess_' . $jti)) {
             $this->sessionId = $jti;
         } else {

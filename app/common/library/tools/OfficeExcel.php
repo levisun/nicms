@@ -64,7 +64,7 @@ class OfficeExcel
             if (!empty($column)) {
                 $line_no += 1;
                 foreach ($column as $column_no => $value) {
-                    $value = Filter::safe($value);
+                    $value = Filter::strict($value);
                     if (!empty($value)) {
                         $column_no += 1;
                         $worksheet->setCellValueByColumnAndRow($column_no, $line_no, $value);

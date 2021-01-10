@@ -115,7 +115,7 @@ class Image
             return $_img;
         }
 
-        $_img = Filter::safe($_img);
+        $_img = Filter::strict($_img);
         $_img = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_img);
         if ($_img && is_file(public_path() . $_img)) {
             return Config::get('app.img_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);

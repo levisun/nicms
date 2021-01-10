@@ -94,7 +94,7 @@ abstract class BaseController
         // api和logic层默认关闭
         $this->app->debug((bool) $this->app->env->get('app_debug', false));
         // 设置请求默认过滤方法
-        $this->request->filter('\app\common\library\Filter::safe');
+        $this->request->filter('\app\common\library\Filter::strict');
 
         // 请勿更改参数(超时,执行内存)
         @ignore_user_abort(false);

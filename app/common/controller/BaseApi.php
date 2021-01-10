@@ -131,7 +131,7 @@ abstract class BaseApi
         // 请勿开启调试模式
         $this->app->debug(false);
         // 设置请求默认过滤方法
-        $this->request->filter('\app\common\library\Filter::safe');
+        $this->request->filter('\app\common\library\Filter::strict');
 
         // 请勿更改参数(超时,执行内存)
         @ignore_user_abort(false);
@@ -315,11 +315,6 @@ abstract class BaseApi
             'csrf_token' => $this->request->isPost()
                 ? $this->request->buildToken('__token__', 'md5')
                 : '',
-
-            // 用户令牌
-            'user_token' => $this->user_id
-                ? sha1(Base64::encrypt($this->user_id . $this->user_role_id . $this->user_type))
-                : sha1($this->request->ip()),
         ];
         $result = array_filter($result);
 
@@ -359,11 +354,6 @@ abstract class BaseApi
             'csrf_token' => $_code > 21000 && $this->request->isPost()
                 ? $this->request->buildToken('__token__', 'md5')
                 : '',
-
-            // 用户令牌
-            'user_token' => $this->user_id
-                ? sha1(Base64::encrypt($this->user_id . $this->user_role_id . $this->user_type))
-                : sha1($this->request->ip()),
         ];
 
         $result = array_filter($result);

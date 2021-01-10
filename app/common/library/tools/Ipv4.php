@@ -96,7 +96,7 @@ class Ipv4
             }
 
             $result  = $result['data'];
-            $isp     = !empty($result['isp']) ? Filter::safe($result['isp']) : '';
+            $isp     = !empty($result['isp']) ? Filter::strict($result['isp']) : '';
             $country = !empty($result['country']) ? $this->queryRegion($result['country'], 0) : '';
             if (!$country) {
                 return false;
@@ -129,7 +129,7 @@ class Ipv4
                 }
 
                 $result  = $result['data'];
-                $isp     = !empty($result['isp']) ? Filter::safe($result['isp']) : '';
+                $isp     = !empty($result['isp']) ? Filter::strict($result['isp']) : '';
                 $country = !empty($result['country']) ? $this->queryRegion($result['country'], 0) : '';
                 if (!$country) {
                     return false;
@@ -194,7 +194,7 @@ class Ipv4
      */
     private function queryRegion(string &$_name, int $_pid): int
     {
-        $_name = Filter::safe($_name);
+        $_name = Filter::strict($_name);
 
         $result = ModelRegion::where('pid', '=', $_pid)
             ->where('name', 'LIKE', $_name . '%')

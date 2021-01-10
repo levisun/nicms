@@ -29,23 +29,23 @@ class Filter
     // , 'update'
 
     /**
-     * 默认过滤
+     * 严格过滤
      * @access public
      * @static
      * @param  string|array $_data
      * @return string|array
      */
-    public static function safe($_data)
+    public static function strict($_data)
     {
-        if (is_string($_data) && $_data) {
+        if (is_array($_data)) {
+            foreach ($_data as $key => $value) {
+                $_data[$key] = self::strict($value);
+            }
+        } else {
             $_data = self::base($_data);
             $_data = Base64::emojiClear($_data);
             $_data = strip_tags($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
-        } elseif (is_array($_data)) {
-            foreach ($_data as $key => $value) {
-                $_data[$key] = self::safe($value);
-            }
         }
         return $_data;
     }
@@ -59,14 +59,14 @@ class Filter
      */
     public static function contentEncode($_data)
     {
-        if (is_string($_data) && $_data) {
-            $_data = self::base($_data);
-            $_data = Base64::emojiEncode($_data);
-            $_data = htmlspecialchars($_data, ENT_QUOTES);
-        } elseif (is_array($_data)) {
+        if (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::contentEncode($value);
             }
+        } else {
+            $_data = self::base($_data);
+            $_data = Base64::emojiEncode($_data);
+            $_data = htmlspecialchars($_data, ENT_QUOTES);
         }
         return $_data;
     }
@@ -80,14 +80,14 @@ class Filter
      */
     public static function contentDecode($_data)
     {
-        if (is_string($_data) && $_data) {
-            $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
-            $_data = Base64::emojiDecode($_data);
-            $_data = self::sensitive($_data);
-        } elseif (is_array($_data)) {
+        if (is_array($_data)) {
             foreach ($_data as $key => $value) {
                 $_data[$key] = self::contentDecode($value);
             }
+        } else {
+            $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
+            $_data = Base64::emojiDecode($_data);
+            $_data = self::sensitive($_data);
         }
         return $_data;
     }
@@ -174,7 +174,7 @@ class Filter
     {
         $_str = htmlspecialchars_decode($_str, ENT_QUOTES);
         $_str = self::symbol($_str);
-        $_str = self::space($_str, true);
+        $_str = self::space($_str);
         $_str = self::html($_str);
         $_str = self::htmlAttr($_str);
         $_str = self::php($_str);
@@ -246,7 +246,8 @@ class Filter
             ], 'JSON', $attr[2]);
 
             // 过滤非法属性
-            $attr[2] = preg_replace_callback('/([\w\-]+)=[^\s]+/uis', function ($single) {
+            $attr[2] = str_replace(['" ', '\' '], ['"&', '\'&'], $attr[2]);
+            $attr[2] = preg_replace_callback('/([\w\-]+)=[^&]+/uis', function ($single) {
                 $single = array_map('trim', $single);
                 if (false !== stripos($single[0], 'javascript')) {
                     return '';
@@ -257,8 +258,8 @@ class Filter
                 }
             }, $attr[2]);
 
-            $attr[2] = preg_replace('/\s+/uis', ' ', trim($attr[2]));
-            $attr[2] = !empty($attr[2]) ? ' ' . $attr[2] : '';
+            $attr[2] = preg_replace('/[\s&]+/uis', ' ', trim($attr[2]));
+            $attr[2] = !empty($attr[2]) ? ' ' . trim($attr[2]) : '';
             return '<' . $attr[1] . $attr[2] . '>';
         }, $_str);
     }
@@ -313,16 +314,15 @@ class Filter
      * @access public
      * @static
      * @param  string $_str
-     * @param  bool   $_strict
      * @return string
      */
-    public static function space(string &$_str, bool $_strict = false): string
+    public static function space(string &$_str): string
     {
         // 不间断空格\u00a0,主要用在office中,让一个单词在结尾处不会换行显示,快捷键ctrl+shift+space
         // 半角空格(英文符号)\u0020,代码中常用的
         // 全角空格(中文符号)\u3000,中文文章中使用
         $_str = (string) json_decode(str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($_str)));
-        $_str = (string) str_ireplace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;', '&#160;', ], ' ', $_str);
+        $_str = (string) str_ireplace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;', '&#160;', '&nbsp;'], ' ', $_str);
 
         $pattern = [
             '/<\!--[^<>]+-->/s' => '',
@@ -332,10 +332,7 @@ class Filter
             '/\s+/s'            => ' ',
             '/ +/si'            => ' ',
         ];
-        if ($_strict) {
-            $pattern['/\s+/s'] = ' ';
-            $pattern['/ +/s'] = ' ';
-        }
+
         $_str = (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
 
         return trim($_str);

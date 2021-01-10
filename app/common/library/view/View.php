@@ -150,7 +150,7 @@ class View implements TemplateHandlerInterface
      */
     public function exists(string $_template): bool
     {
-        $_template = Filter::safe($_template);
+        $_template = Filter::strict($_template);
 
         return is_file($_template);
     }
@@ -217,7 +217,7 @@ class View implements TemplateHandlerInterface
 
 
         // 获取模板文件名
-        $_template = Filter::safe($_template) . '.' . $this->config['view_suffix'];
+        $_template = Filter::strict($_template) . '.' . $this->config['view_suffix'];
         $_template = File::getTheme($this->config['view_path'], $_template);
 
 

@@ -64,8 +64,8 @@
             _params.data.append('__token__', jQuery.get_cookie('CSRF_TOKEN'));
         }
 
-        if (window.localStorage.getItem('USER_TOKEN')) {
-            _params.data.append('token', window.localStorage.getItem('USER_TOKEN'));
+        if (jQuery.get_cookie('CID')) {
+            _params.data.append('token', jQuery.get_cookie('CID'));
         }
 
         let newData = [];
@@ -136,8 +136,8 @@
             _params.data.push({ name: '__token__', value: jQuery.get_cookie('CSRF_TOKEN') });
         }
 
-        if (window.localStorage.getItem('USER_TOKEN')) {
-            _params.data.push({ name: 'token', value: window.localStorage.getItem('USER_TOKEN') });
+        if (jQuery.get_cookie('CID')) {
+            _params.data.push({ name: 'token', value: jQuery.get_cookie('CID') });
         }
 
         _params.data.push({ name: 'sign', value: jQuery.sign(_params.data) });
@@ -155,9 +155,6 @@
                 var result = JSON.parse(xhr.responseText);
                 if ('undefined' !== typeof (result.csrf_token)) {
                     jQuery.set_cookie('CSRF_TOKEN', result.csrf_token);
-                }
-                if ('undefined' !== typeof (result.user_token)) {
-                    window.localStorage.setItem('USER_TOKEN', result.user_token);
                 }
             }
         }

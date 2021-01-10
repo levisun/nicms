@@ -41,16 +41,13 @@ class Catalog extends BaseLogic
         $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->cache->get($this->getCacheKey(self::CACHE_PAGE_KEY), $query_page)) {
+        if ($query_page > $this->getPageCache()) {
             return [
                 'debug' => false,
                 'cache' => true,
                 'msg'   => 'error',
             ];
         }
-
-        $total = $this->cache->get($this->getCacheKey(self::CACHE_TOTAL_KEY));
-        $total = is_null($total) ? false : (int) $total;
 
         if (!$this->cache->has($this->getCacheKey()) || !$list = $this->cache->get($this->getCacheKey())) {
             // 书籍信息
@@ -76,16 +73,10 @@ class Catalog extends BaseLogic
                     ->paginate([
                         'list_rows' => $query_limit,
                         'path' => 'javascript:paging([PAGE]);',
-                    ]);
+                    ], $this->getTotalCache());
 
                 if ($result && $list = $result->toArray()) {
-                    if (!$this->cache->has($this->getCacheKey(self::CACHE_TOTAL_KEY))) {
-                        $this->cache->tag('request')->set($this->getCacheKey(self::CACHE_TOTAL_KEY), $list['total'], 28800);
-                    }
-
-                    if (!$this->cache->has($this->getCacheKey(self::CACHE_PAGE_KEY))) {
-                        $this->cache->tag('request')->set($this->getCacheKey(self::CACHE_PAGE_KEY), $list['last_page'], 28800);
-                    }
+                    $this->setTotalPageCache($list['total'], $list['last_page']);
 
                     $list['total'] = number_format($list['total']);
                     $list['render'] = $result->render();

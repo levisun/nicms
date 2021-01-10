@@ -32,7 +32,8 @@ class Throttle
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Cache::has($request->ip() . $request->domain() . 'lock')) {
+        $lock_cache_key = $request->ip() . $request->server('HTTP_REFERER') . $request->domain() . 'lock';
+        if (Cache::has($lock_cache_key)) {
             return miss('请勿频繁操作', false);
         }
 
@@ -51,7 +52,7 @@ class Throttle
                 $log = 'lock IP:' . $request->ip() . PHP_EOL;
                 $log .= $request->server('HTTP_REFERER') ?: $request->url(true);
                 trace($log, 'warning');
-                Cache::tag('request')->set($request->ip() . $request->domain() . 'lock', 'UR', 1440);
+                Cache::tag('request')->set($lock_cache_key, 'UR', 1440);
             }
         }
 

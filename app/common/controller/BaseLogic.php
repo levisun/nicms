@@ -117,7 +117,7 @@ abstract class BaseLogic
         // 请勿开启调试模式
         $this->app->debug(false);
         // 设置请求默认过滤方法
-        $this->request->filter('\app\common\library\Filter::safe');
+        $this->request->filter('\app\common\library\Filter::strict');
 
         // 请勿更改参数(超时,执行内存)
         @ignore_user_abort(false);
@@ -146,12 +146,67 @@ abstract class BaseLogic
     }
 
     /**
+     * 获得总页缓存
+     * @access protected
+     * @return int
+     */
+    protected function getPageCache(): int
+    {
+        // 执行的方法名(命名空间\类名::方法名)
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+        array_shift($backtrace);
+        $flag = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
+
+        return (int) $this->cache->get($this->getCacheKey($flag, self::CACHE_PAGE_KEY), $this->request->param('page/d', 1, 'abs'));
+    }
+
+    /**
+     * 获得统计缓存
+     * @access protected
+     * @return false|int
+     */
+    protected function getTotalCache()
+    {
+        // 执行的方法名(命名空间\类名::方法名)
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+        array_shift($backtrace);
+        $flag = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
+
+        $total = $this->cache->get($this->getCacheKey($flag, self::CACHE_TOTAL_KEY));
+        return is_null($total) ? false : (int) $total;
+    }
+
+    /**
+     * 设置统计和总页缓存
+     * @access protected
+     * @param  int $_total
+     * @param  int $_last_page
+     * @return void
+     */
+    protected function setTotalPageCache(int $_total, int $_last_page): void
+    {
+        // 执行的方法名(命名空间\类名::方法名)
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+        array_shift($backtrace);
+        $flag = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
+
+        if (!$this->cache->has($this->getCacheKey($flag, self::CACHE_TOTAL_KEY))) {
+            $this->cache->tag('request')->set($this->getCacheKey($flag, self::CACHE_TOTAL_KEY), $_total, 28800);
+        }
+
+        if (!$this->cache->has($this->getCacheKey($flag, self::CACHE_PAGE_KEY))) {
+            $this->cache->tag('request')->set($this->getCacheKey($flag, self::CACHE_PAGE_KEY), $_last_page, 28800);
+        }
+    }
+
+    /**
      * 获得缓存KEY
      * @access protected
      * @param  string $_flag
+     * @param  string $_type
      * @return string
      */
-    protected function getCacheKey(string $_flag = '')
+    protected function getCacheKey(string $_flag = '', string $_type = ''): string
     {
         // 执行的方法名(命名空间\类名::方法名)
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
@@ -164,9 +219,11 @@ abstract class BaseLogic
         // 审核
         $pass = $this->request->param('pass/d', 0, 'abs');
         $cache_key .= 3 < $pass ? 0 : $pass;
+
         // 属性(置顶 推荐 最热)
         $attribute = $this->request->param('attribute/d', 0, 'abs');
         $cache_key .= 3 < $attribute ? 0 : $attribute;
+
         // 状态
         $status = $this->request->param('status/d', 0, 'abs');
         $cache_key .= 3 < $status ? 0 : $status;
@@ -192,17 +249,22 @@ abstract class BaseLogic
         $book_type_id = is_int($book_type_id) ? $book_type_id : \app\common\library\Base64::url62decode($book_type_id);
         $cache_key .= \app\common\model\BookType::cache(28800)->count() < $book_type_id ? 0 : $book_type_id;
 
-        $cache_key .= $this->request->param('key', null, '\app\common\library\Filter::non_chs_alpha');
-        $cache_key .= $this->request->param('sort');
-        $cache_key .= $this->request->param('token');
+        $sort = $this->request->param('sort', '');
+        $cache_key .= preg_match('/[a-zA-Z\., ]+/uis', $sort) ? strtolower($sort) : '';
+
+        $key = $this->request->param('key', '', '\app\common\library\Filter::non_chs_alpha');
+        $cache_key .= strtolower($key);
+
+        $token = $this->request->param('token', '');
+        $cache_key .= strtolower($token);
 
         $limit = $this->request->param('limit/d', 20, 'abs');
         $limit = 100 > $limit && 10 < $limit ? intval($limit / 10) * 10 : 20;
 
-        $_flag = strtolower($_flag);
-        if ($_flag === self::CACHE_TOTAL_KEY) {
-            $cache_key .= '';
-        } elseif ($_flag === self::CACHE_PAGE_KEY) {
+        $_type = strtolower($_type);
+        if ($_type === self::CACHE_TOTAL_KEY) {
+            $cache_key .= 'TOTAL';
+        } elseif ($_type === self::CACHE_PAGE_KEY) {
             $cache_key .= $limit;
         } else {
             $date_format = $this->request->param('date_format', 'Y-m-d');
@@ -212,7 +274,7 @@ abstract class BaseLogic
             $cache_key .= $limit;
         }
 
-        return md5(sha1($cache_key) . $_flag);
+        return md5(sha1($cache_key) . $_type . strtolower($_flag));
     }
 
     /**
