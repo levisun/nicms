@@ -64,8 +64,8 @@
             _params.data.append('__token__', jQuery.get_cookie('CSRF_TOKEN'));
         }
 
-        if (jQuery.get_cookie('CID')) {
-            _params.data.append('token', jQuery.get_cookie('CID'));
+        if (jQuery.get_cookie('USER_TOKEN')) {
+            _params.data.append('token', jQuery.get_cookie('USER_TOKEN'));
         }
 
         let newData = [];
@@ -136,8 +136,8 @@
             _params.data.push({ name: '__token__', value: jQuery.get_cookie('CSRF_TOKEN') });
         }
 
-        if (jQuery.get_cookie('CID')) {
-            _params.data.push({ name: 'token', value: jQuery.get_cookie('CID') });
+        if (jQuery.get_cookie('USER_TOKEN')) {
+            _params.data.push({ name: 'token', value: jQuery.get_cookie('USER_TOKEN') });
         }
 
         _params.data.push({ name: 'sign', value: jQuery.sign(_params.data) });
@@ -308,15 +308,11 @@
     jQuery.set_cookie = function (name, value, expire = 1, domain = '') {
         var d = new Date();
         d.setTime(d.getTime() + (expire * 24 * 60 * 60 * 1000));
-        domain = domain ? domain : '.' + window.location.host.substr(window.location.host.indexOf('.') + 1);
+        // domain = domain ? domain : '.' + window.location.host.substr(window.location.host.indexOf('.') + 1);
+        domain = domain ? domain : window.location.host;
         document.cookie = name + '=' + value + ';expires=' + d.toUTCString() + ';path=/;SameSite=lax;domain=' + domain;
 
     };
-    // jQuery.set_cookie = function (cname, cvalue, exdays = 1) {
-    //     var d = new Date();
-    //     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-    //     document.cookie = cname + '=' + cvalue + ';expires=' + d.toUTCString() + ';path=/;SameSite=lax;domain=.' + NICMS.rootDomain.substring(2);
-    // };
 
     /**
      * 获得COOKIE
@@ -341,8 +337,8 @@
      * 删除COOKIE
      */
     jQuery.remove_cookie = function (name) {
-        domain = domain ? domain : "." + window.location.host.substr(window.location.host.indexOf(".") + 1);
-        document.cookie = name + '=null;expires=-1440;path=/;SameSite=lax;domain=' + domain;
+        var domain = '.' + window.location.host.substr(window.location.host.indexOf('.') + 1);
+        document.cookie = name + '=;expires=-1440;path=/;SameSite=lax;domain=' + domain;
     };
 
     jQuery.in_array = function (needle, haystack) {

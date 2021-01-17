@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\book\logic\book;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Image;
+use app\common\library\tools\File;
 use app\common\library\Base64;
 use app\common\model\Book as ModelBook;
 use app\common\model\BookArticle as ModelBookArticle;
@@ -60,7 +60,7 @@ class Catalog extends BaseLogic
 
             if ($book && $book = $book->toArray()) {
                 // 缩略图
-                $book['image'] = Image::path($book['image']);
+                $book['image'] = File::pathToUrl($book['image']);
 
                 // 书籍章节
                 $result = ModelBookArticle::field(['id', 'book_id', 'title', 'update_time'])

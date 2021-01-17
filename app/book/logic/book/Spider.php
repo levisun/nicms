@@ -155,7 +155,7 @@ class Spider extends BaseLogic
                                 $next = '<p>' . implode('</p><p>', $next) . '</p>';
                                 $content .= $next;
 
-                                $content = Filter::contentEncode($content);
+                                $content = Filter::htmlEncode($content);
                                 if (strip_tags($content)) {
                                     $spider_total++;
                                     $total = ModelBookArticle::where('book_id', '=', $_book_id)->count();

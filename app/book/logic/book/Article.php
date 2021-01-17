@@ -49,7 +49,7 @@ class Article extends BaseLogic
                 // 书籍文章文章链接
                 $result['url'] = url('article/' . Base64::url62encode($result['book_id']) . '/' . Base64::url62encode($result['id']));
                 // 内容
-                $result['content'] = Filter::contentDecode($result['content']);
+                $result['content'] = Filter::htmlDecode($result['content']);
                 // 时间格式
                 $result['update_time'] = date($date_format, (int) $result['update_time']);
                 // 标识符

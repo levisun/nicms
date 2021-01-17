@@ -169,8 +169,8 @@ class SiteInfo
             ->value('value', '');
 
         return
-            Filter::contentDecode($copyright) . '&nbsp;' .
-            Filter::contentDecode($beian) . '&nbsp;' .
+            Filter::htmlDecode($copyright) . '&nbsp;' .
+            Filter::htmlDecode($beian) . '&nbsp;' .
             '<a href="/sitemap.xml" target="_blank">sitemap</a>&nbsp;' .
             '&nbsp;Powered&nbsp;by&nbsp;<a href="https://github.com/levisun/nicms" rel="nofollow" target="_blank">NICMS</a>';
     }

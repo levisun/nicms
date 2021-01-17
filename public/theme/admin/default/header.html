@@ -219,6 +219,7 @@
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
+                            jQuery.remove_cookie("USER_TOKEN");
                             location.reload();
                         }
                     }

@@ -59,8 +59,8 @@ class OfficeWord
         $_data = nl2br($_data);
         $_data = explode('<br />', $_data);
         $_data = array_map(function ($value) {
-            $value = Filter::contentEncode($value);
-            return Filter::contentDecode($value);
+            $value = Filter::htmlEncode($value);
+            return Filter::htmlDecode($value);
         }, $_data);
 
         $php_word = new PhpWord;

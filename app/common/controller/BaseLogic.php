@@ -157,6 +157,7 @@ abstract class BaseLogic
         array_shift($backtrace);
         $flag = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
 
+
         return (int) $this->cache->get($this->getCacheKey($flag, self::CACHE_PAGE_KEY), $this->request->param('page/d', 1, 'abs'));
     }
 
@@ -211,8 +212,8 @@ abstract class BaseLogic
         // 执行的方法名(命名空间\类名::方法名)
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
         array_shift($backtrace);
-        $cache_key = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
-
+        $cache_key = get_class($this);
+        $cache_key .= $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
         $cache_key .= $this->lang->getLangSet();
 
         // 筛选条件
@@ -252,7 +253,7 @@ abstract class BaseLogic
         $sort = $this->request->param('sort', '');
         $cache_key .= preg_match('/[a-zA-Z\., ]+/uis', $sort) ? strtolower($sort) : '';
 
-        $key = $this->request->param('key', '', '\app\common\library\Filter::non_chs_alpha');
+        $key = $this->request->param('key', '', '\app\common\library\Filter::nonChsAlpha');
         $cache_key .= strtolower($key);
 
         $token = $this->request->param('token', '');

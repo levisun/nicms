@@ -20,5 +20,5 @@ return [
     // 应用初始化
     \app\common\middleware\AppInit::class,
     // 全局请求缓存
-    \think\middleware\CheckRequestCache::class,
+    // \think\middleware\CheckRequestCache::class,
 ];

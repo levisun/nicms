@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library;
 
 use app\common\library\Base64;
+use app\common\library\tools\File;
 
 class Filter
 {
@@ -57,11 +58,11 @@ class Filter
      * @param  string|array $_data
      * @return string|array
      */
-    public static function contentEncode($_data)
+    public static function htmlEncode($_data)
     {
         if (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::contentEncode($value);
+                $_data[$key] = self::htmlEncode($value);
             }
         } else {
             $_data = self::base($_data);
@@ -76,18 +77,26 @@ class Filter
      * @access public
      * @static
      * @param  string|array $_data
+     * @param  bool $_strict 严格解码(敏感词过滤与图片地址, 注意:不要在后台开启)
      * @return string|array
      */
-    public static function contentDecode($_data)
+    public static function htmlDecode($_data, bool $_strict = false)
     {
         if (is_array($_data)) {
             foreach ($_data as $key => $value) {
-                $_data[$key] = self::contentDecode($value);
+                $_data[$key] = self::htmlDecode($value, $_strict);
             }
         } else {
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = Base64::emojiDecode($_data);
-            $_data = self::sensitive($_data);
+            if ($_strict) {
+                $_data = self::sensitive($_data);
+                $_data = preg_replace_callback('/(src=["\']+)([a-zA-Z0-9&=#,_:?.\/]+)(["\']+)/si', function ($matches) {
+                    return $matches[2]
+                        ? 'src="' . File::pathToUrl($matches[2]) . '"'
+                        : '';
+                }, $_data);
+            }
         }
         return $_data;
     }
@@ -155,7 +164,7 @@ class Filter
      * @param  string $_str
      * @return string
      */
-    public static function non_chs_alpha(string &$_str): string
+    public static function nonChsAlpha(string &$_str): string
     {
         $_str = (string) preg_replace_callback('/[^\x{4e00}-\x{9fa5}\w ]+/uis', function () {
             return '';

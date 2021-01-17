@@ -19,9 +19,10 @@ namespace app\common\library\tools;
 use think\facade\Config;
 use think\facade\Request;
 use think\Image as ThinkImage;
+use app\common\library\Base64;
 use app\common\library\Filter;
 
-class Image
+class File
 {
 
     /**
@@ -63,21 +64,7 @@ class Image
         return Config::get('app.img_host') . 'storage/uploads/thumb/' . str_replace(DIRECTORY_SEPARATOR, '/', $new_file);
     }
 
-    /**
-     * 获得图片访问路径
-     * @access public
-     * @static
-     * @param  string $_file
-     * @return string
-     */
-    public static function path(string $_img): string
-    {
-        if (!$_img = self::has($_img)) {
-            $_img = self::miss();
-        }
 
-        return $_img;
-    }
 
     /**
      * 首字符头像
@@ -90,7 +77,7 @@ class Image
      */
     public static function avatar(string $_img, string $_username = 'avatar'): string
     {
-        if (!$_img = self::has($_img)) {
+        if (!$_img = self::pathToUrl($_img)) {
             $length = mb_strlen($_username, 'utf-8');
             $salt = strlen(Request::rootDomain());
             $bg = (intval($length * $salt) % 255) . ',' . (intval($length * $salt * 3) % 255) . ',' . (intval($length * $salt * 9) % 255);
@@ -103,22 +90,98 @@ class Image
     }
 
     /**
-     * 校验图片是否存在
-     * @access private
-     * @static
-     * @param  string $_img 头像地址
-     * @return string|false
+     * 获得文件地址(加密)
+     * @access public
+     * @param  string $_file
+     * @param  bool   $_abs
+     * @return string
      */
-    private static function has(string $_img)
+    public static function pathEncode(string $_file, bool $_abs = false): string
     {
-        if (0 === stripos($_img, 'http')) {
-            return $_img;
+        $_file = Filter::strict($_file);
+        $_file = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_file);
+
+        $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
+        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+
+        $salt = bindec(Request::ip2bin(Request::ip())) . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $salt = sha1($salt);
+
+        if (is_file($path . $_file)) {
+            return $_abs ? Base64::encrypt($path . $_file, $salt) : Base64::encrypt($_file, $salt);
         }
 
-        $_img = Filter::strict($_img);
-        $_img = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_img);
-        if ($_img && is_file(public_path() . $_img)) {
-            return Config::get('app.img_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
+        return '';
+    }
+
+    /**
+     * 获得文件地址(解密)
+     * @access public
+     * @param  string $_file
+     * @param  bool   $_abs
+     * @return string
+     */
+    public static function pathDecode(string $_file, bool $_abs = false): string
+    {
+        $salt = bindec(Request::ip2bin(Request::ip())) . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $salt = sha1($salt);
+
+        $_file = $_file ? Base64::decrypt($_file, $salt) : '';
+
+        if ($_file && false !== preg_match('/^[a-zA-Z0-9_\/\\\]+\.[a-zA-Z0-9]{2,4}$/u', $_file)) {
+            $_file = Filter::strict($_file);
+            $_file = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_file);
+
+            $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
+            $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+
+            if (is_file($path . $_file)) {
+                return $_abs ? $path . $_file : $_file;
+            }
+        }
+        return '';
+    }
+
+    /**
+     * 获得图片访问路径
+     * @access public
+     * @static
+     * @param  string $_file
+     * @return string
+     */
+    public static function pathToUrl(string $_img): string
+    {
+        if (!$_img = self::has($_img)) {
+            $_img = self::miss();
+        }
+
+        return $_img;
+    }
+
+    /**
+     * 校验文件是否存在
+     * @access private
+     * @static
+     * @param  string $_file 文件
+     * @return string|false
+     */
+    private static function has(string $_file)
+    {
+        if (0 === stripos($_file, 'http')) {
+            return $_file;
+        }
+
+        $_file = Filter::strict($_file);
+        $_file = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_file);
+
+        if ($_file && is_file(public_path() . $_file)) {
+            $extension = pathinfo($_file, PATHINFO_EXTENSION);
+            if (in_array($extension, ['jpg','gif','png','webp'])) {
+                return Config::get('app.img_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
+            } else {
+                return Config::get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
+            }
+
         }
 
         return false;

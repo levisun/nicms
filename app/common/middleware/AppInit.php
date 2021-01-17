@@ -44,7 +44,7 @@ class AppInit
         }
 
         $from_token = $request->buildToken('__token__', 'md5');
-        Cookie::set('CSRF_TOKEN', $from_token, ['httponly' => false]);
+        Cookie::set('CSRF_TOKEN', $from_token, ['domain' => $request->host(), 'httponly' => false]);
 
         $response = $next($request);
 

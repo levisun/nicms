@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\book\logic\nav;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Image;
+use app\common\library\tools\File;
 use app\common\library\Base64;
 use app\common\model\BookType as ModelBookType;
 
@@ -66,7 +66,7 @@ class Breadcrumb extends BaseLogic
 
         if (null !== $result && $result = $result->toArray()) {
             $result['id'] = (int) $result['id'];
-            $result['image'] = Image::path((string) $result['image']);
+            $result['image'] = File::pathToUrl((string) $result['image']);
             $result['flag'] = Base64::flag($result['id'], 7);
             $result['url'] = url('list/' . Base64::url62encode($result['id']));
 

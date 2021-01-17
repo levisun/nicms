@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Image;
+use app\common\library\tools\File;
 use app\common\library\UploadLog;
 use app\common\model\Ads as ModelAds;
 
@@ -64,7 +64,7 @@ class Ads extends BaseLogic
             $value['start_time'] = date($date_format, $value['start_time']);
             $value['end_time'] = date($date_format, $value['end_time']);
 
-            $value['image'] = Image::path($value['image']);
+            $value['image'] = File::pathToUrl($value['image']);
 
             $value['url'] = [
                 'editor' => url('content/ads/editor/' . $value['id']),

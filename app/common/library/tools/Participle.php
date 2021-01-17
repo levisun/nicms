@@ -26,7 +26,7 @@ class Participle
 
     public function __construct(string $_txt = '')
     {
-        if (!$_txt = Filter::non_chs_alpha($_txt)) {
+        if (!$_txt = Filter::nonChsAlpha($_txt)) {
             return $_txt;
         }
 
@@ -116,7 +116,7 @@ class Participle
      */
     public function words(string $_txt, int $_length = 0, string $_sort = ''): array
     {
-        if (!$_txt = Filter::non_chs_alpha($_txt)) {
+        if (!$_txt = Filter::nonChsAlpha($_txt)) {
             return [];
         }
 

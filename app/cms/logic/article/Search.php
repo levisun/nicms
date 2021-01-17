@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\cms\logic\article;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Image;
+use app\common\library\tools\File;
 use app\common\library\tools\Participle;
 use app\common\library\Base64;
 use app\common\model\Article as ModelArticle;
@@ -55,7 +55,7 @@ class Search extends BaseLogic
         }
 
         // 搜索
-        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::non_chs_alpha')) {
+        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
             $search_key = htmlspecialchars_decode($search_key, ENT_QUOTES);
             $search_key = str_replace('&nbsp;', '', $search_key);
             // 搜索5个词
@@ -121,7 +121,7 @@ class Search extends BaseLogic
                 // 标识符
                 $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
                 // 缩略图
-                $value['thumb'] = Image::path($value['thumb']);
+                $value['thumb'] = File::pathToUrl($value['thumb']);
                 // 时间格式
                 $value['update_time'] = date($date_format, (int) $value['update_time']);
                 // 作者

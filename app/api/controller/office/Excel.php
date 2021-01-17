@@ -19,6 +19,7 @@ namespace app\api\controller\office;
 
 use think\Response;
 use app\common\controller\BaseApi;
+use app\common\library\tools\File;
 use app\common\library\tools\OfficeExcel;
 
 class Excel extends BaseApi
@@ -36,7 +37,7 @@ class Excel extends BaseApi
             return miss(404, false);
         }
 
-        if ($file = filepath_decode($file, true)) {
+        if ($file = File::pathDecode($file, true)) {
             $sheet = $this->request->param('sheet/d', 0, 'abs');
 
             if (!$this->cache->has($file . $sheet) || !$result = $this->cache->get($file . $sheet)) {

@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\book\logic\nav;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Image;
+use app\common\library\tools\File;
 use app\common\library\Base64;
 use app\common\model\BookType as ModelBookType;
 
@@ -45,7 +45,7 @@ class Main extends BaseLogic
             foreach ($result as $key => $value) {
                 $value['id'] = (int) $value['id'];
                 $value['child'] = $this->child($value['id']);
-                $value['image'] = Image::path((string) $value['image']);
+                $value['image'] = File::pathToUrl((string) $value['image']);
                 $value['flag'] = Base64::flag($value['id'], 7);
                 $value['url'] = url('list/' . Base64::url62encode($value['id']));
 
@@ -79,7 +79,7 @@ class Main extends BaseLogic
         foreach ($result as $key => $value) {
             $value['id'] = (int) $value['id'];
             $value['child'] = $this->child($value['id']);
-            $value['image'] = Image::path((string) $value['image']);
+            $value['image'] = File::pathToUrl((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             $value['url'] = url('list/' . Base64::url62encode($value['id']));
 

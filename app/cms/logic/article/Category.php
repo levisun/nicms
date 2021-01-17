@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\cms\logic\article;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Image;
+use app\common\library\tools\File;
 use app\common\library\Base64;
 use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;
@@ -104,7 +104,7 @@ class Category extends BaseLogic
                     // 标识符
                     $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
                     // 缩略图
-                    $value['thumb'] = Image::path($value['thumb']);
+                    $value['thumb'] = File::pathToUrl($value['thumb']);
                     // 时间格式
                     $value['update_time'] = date($date_format, (int) $value['update_time']);
                     // 作者

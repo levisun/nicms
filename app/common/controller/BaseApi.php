@@ -321,11 +321,10 @@ abstract class BaseApi
         $response = Response::create($result, $this->analytical->format)->allowCache(false);
 
         if ($this->request->isGet() && true === $this->apiCache && 10000 === $_code) {
-            $timestamp = time() + $this->apiExpire;
             $response->allowCache(true)
                 ->cacheControl('max-age=' . $this->apiExpire . ',must-revalidate')
-                ->lastModified(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT')
-                ->expires(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT');
+                ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
+                ->expires(gmdate('D, d M Y H:i:s', time() + $this->apiExpire) . ' GMT');
         }
 
         ob_start('ob_gzhandler');

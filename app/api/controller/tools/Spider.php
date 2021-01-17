@@ -38,7 +38,7 @@ class Spider extends BaseApi
         $extract = $this->request->param('extract', '');
         $extract = $extract ? explode(',', $extract) : [];
 
-        $uri = Filter::contentDecode($uri);
+        $uri = Filter::htmlDecode($uri);
         $uri = str_replace('&nbsp;', '', $uri);
 
         $spider = new LibSpider;

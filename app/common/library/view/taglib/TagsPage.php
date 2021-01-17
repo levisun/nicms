@@ -89,8 +89,8 @@ class TagsPage extends Taglib
                     $content = \app\common\model\ArticleContent::where("article_id", "=", $result["id"])->find();
                     if ($content && $content = $content->toArray()):
                         unset($content["id"], $content["article_id"]);
-                        $result["thumb"] = \app\common\library\Image::path($content["thumb"]);
-                        $result["content"] = \app\common\library\Image::path($content["content"]);
+                        $result["thumb"] = \app\common\library\File::pathToUrl($content["thumb"]);
+                        $result["content"] = \app\common\library\File::pathToUrl($content["content"]);
                     endif;
 
                     cache("' . $cache_key . '", $result);

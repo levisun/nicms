@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\cms\logic\article;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Image;
+use app\common\library\tools\File;
 use app\common\library\Base64;
 use app\common\library\Filter;
 use app\common\model\Article as ModelArticle;
@@ -79,7 +79,7 @@ class Details extends BaseLogic
 
                 if ($result && $result = $result->toArray()) {
                     // 缩略图
-                    $result['thumb'] = Image::path($result['thumb']);
+                    $result['thumb'] = File::pathToUrl($result['thumb']);
                     // 栏目链接
                     $result['cat_url'] = url('list/' . Base64::url62encode($result['category_id']));
                     // 文章链接
@@ -133,25 +133,19 @@ class Details extends BaseLogic
                             if ('image_url' === $key) {
                                 $value = unserialize($value);
                                 foreach ($value as $path) {
-                                    $result[$key][] = $path ? Image::path($path) : '';
+                                    $result[$key][] = $path ? File::pathToUrl($path) : '';
                                 }
                                 $result[$key] = array_unique($result[$key]);
                                 $result[$key] = array_filter($result[$key]);
                             }
                             // 文章内容
                             elseif ('content' === $key) {
-                                $value = Filter::contentDecode($value);
-                                $value = preg_replace_callback('/(src=")([a-zA-Z0-9&=#,_:?.\/]+)(")/si', function ($matches) {
-                                    return $matches[2]
-                                        ? 'src="' . Image::path($matches[2]) . '"'
-                                        : '';
-                                }, $value);
-                                $result[$key] = $value;
+                                $result[$key] = Filter::htmlDecode($value, true);
                             }
                             // 下载文件
                             elseif ('file_url' === $key) {
                                 $result[$key] = $value
-                                    ? $this->config->get('app.api_host') . 'download.do?file=' . filepath_encode($value)
+                                    ? $this->config->get('app.api_host') . 'download.do?file=' . File::pathEncode($value)
                                     : '';
                             }
                             // 版权

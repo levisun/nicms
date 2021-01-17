@@ -59,7 +59,7 @@ class Article extends BaseLogic
         }
 
         // 搜索
-        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::non_chs_alpha')) {
+        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
             $search_key = htmlspecialchars_decode($search_key, ENT_QUOTES);
             $search_key = str_replace('&nbsp;', '', $search_key);
             // 搜索5个词
@@ -207,7 +207,7 @@ class Article extends BaseLogic
                 ModelArticleContent::create([
                     'article_id' => $article->id,
                     'origin'     => $this->request->param('origin', ''),
-                    'content'    => $this->request->param('content', '', '\app\common\library\Filter::contentEncode')
+                    'content'    => $this->request->param('content', '', '\app\common\library\Filter::htmlEncode')
                 ]);
             }
             // 相册
@@ -281,7 +281,7 @@ class Article extends BaseLogic
                     }
                 }
                 if (isset($result['content'])) {
-                    $result['content'] = Filter::contentDecode($result['content']);
+                    $result['content'] = Filter::htmlDecode($result['content']);
                 }
 
                 // 附加字段数据
@@ -399,7 +399,7 @@ class Article extends BaseLogic
 
                 ModelArticleContent::where('article_id', '=', $id)->limit(1)->update([
                     'origin'  => $this->request->param('origin', ''),
-                    'content' => $this->request->param('content', '', '\app\common\library\Filter::contentEncode')
+                    'content' => $this->request->param('content', '', '\app\common\library\Filter::htmlEncode')
                 ]);
             }
             // 相册

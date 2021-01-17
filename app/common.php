@@ -14,11 +14,9 @@
 
 use think\Response;
 use think\exception\HttpResponseException;
-use think\facade\Config;
 use think\facade\Cookie;
 use think\facade\Request;
 use think\facade\Route;
-use app\common\library\Base64;
 use app\common\library\Filter;
 use app\common\model\ApiApp as ModelApiApp;
 
@@ -58,61 +56,6 @@ if (!function_exists('format_size')) {
             $_file_size /= 1024;
         }
         return round($_file_size, 2) . $_delimiter . $units[$i];
-    }
-}
-
-if (!function_exists('filepath_decode')) {
-    /**
-     * 获得文件地址(解密)
-     * @param  string $_file
-     * @param  bool   $_abs
-     * @return string
-     */
-    function filepath_decode(string $_file, bool $_abs = false): string
-    {
-        $salt = date('Ymd') . bindec(Request::ip2bin(Request::ip())) . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
-        $salt = sha1($salt);
-
-        $_file = $_file ? Base64::decrypt($_file, $salt) : '';
-
-        if ($_file && false !== preg_match('/^[a-zA-Z0-9_\/\\\]+\.[a-zA-Z0-9]{2,4}$/u', $_file)) {
-            $_file = Filter::strict($_file);
-            $_file = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_file);
-
-            $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
-            $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
-
-            if (is_file($path . $_file)) {
-                return $_abs ? $path . $_file : $_file;
-            }
-        }
-        return '';
-    }
-}
-
-if (!function_exists('filepath_encode')) {
-    /**
-     * 获得文件地址(加密)
-     * @param  string $_file
-     * @param  bool   $_abs
-     * @return string
-     */
-    function filepath_encode(string $_file, bool $_abs = false): string
-    {
-        $_file = Filter::strict($_file);
-        $_file = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_file);
-
-        $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
-        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
-
-        $salt = date('Ymd') . bindec(Request::ip2bin(Request::ip())) . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
-        $salt = sha1($salt);
-
-        if (is_file($path . $_file)) {
-            return $_abs ? Base64::encrypt($path . $_file, $salt) : Base64::encrypt($_file, $salt);
-        }
-
-        return '';
     }
 }
 
@@ -218,7 +161,7 @@ if (!function_exists('client_id')) {
             $token = hash_hmac('sha256', $token, uniqid($token, true));
             $token = md5(uniqid($token, true));
 
-            Cookie::set('CID', $token, ['httponly' => false]);
+            Cookie::set('CID', $token, ['domain' => Request::host(), 'httponly' => false]);
         }
 
         return $token;
@@ -260,8 +203,9 @@ if (!function_exists('miss')) {
         $resource = Response::create($content, 'html', is_int($_code) ? $_code : 200)
             ->allowCache(true)
             ->cacheControl('max-age=1440,must-revalidate')
-            ->lastModified(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT')
-            ->expires(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT');
+            ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
+            ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT');
+        ob_start('ob_gzhandler');
 
         // $timestamp = Request::time() + 3600 * 6;
         // $resource = Response::create($content, 'html', is_int($_code) ? $_code : 200)

@@ -17,7 +17,7 @@
                     <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                 </div>
                 <div class="form-group has-feedback">
-                    <input type="text" id="verify" name="captcha" class="form-control" placeholder="{:lang('verify')}">
+                    <input type="number" id="verify" name="captcha" class="form-control" placeholder="{:lang('verify')}">
                     <img id="img-verify" v-on:click="verify">
                 </div>
                 <div class="row">
@@ -54,6 +54,7 @@
                         data: data,
                         success: function (res) {
                             if (10000 == res.code) {
+                                jQuery.set_cookie("USER_TOKEN", res.data.user_token);
                                 if ('undefined' == typeof (res.return_url)) {
                                     window.location.href = '/settings/dashboard/index.html';
                                 } else {

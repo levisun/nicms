@@ -26,40 +26,40 @@ class Ip extends BaseApi
 
     public function index()
     {
-        // 解决没有传IP参数,缓存造成的缓存错误
-        if (!$ip = $this->request->param('ip', false)) {
-            $url = $this->request->baseUrl(true) . '?ip=' . $this->request->ip();
-            return Response::create($url, 'redirect', 302);
-        }
-
-        $ip = $this->request->param('ip', false) ?: $this->request->ip();
-
         // 外部网站限制
         $referer = $this->request->server('HTTP_REFERER');
         $referer = !$referer || false === stripos($referer, $this->request->rootDomain()) ? false : true;
         if (false === $referer) {
-            if (0 <= date('H') && 7 >= date('H')) return miss(503, false);
-            if (1 === mt_rand(1, 100)) return miss(503, false);
-
-            $old = $ip;
-            $ip = explode('.', $ip, 4);
-            $ip[3] = 1;
-            $ip = implode('.', $ip);
-
+            if (0 <= date('H') && 7 >= date('H') || 1 === mt_rand(1, 50)) return miss(503, false);
             // usleep(500000);
         }
 
-        if ($result = (new Ipv4)->get($ip)) {
-            $result['ip'] = isset($old) ? $old : $result['ip'];
+        $format = $this->request->param('format', 'html');
 
-            $timestamp = time() + 28800;
-            // $timestamp = $this->request->time() + 3600 * 6;
-            return Response::create('const IP = ' . json_encode($result))
+
+        // 解决没有传IP参数,缓存造成的缓存错误
+        if (!$ip = $this->request->param('ip', false)) {
+            $url = $this->request->baseUrl(true) . '?';
+            $url .= 'html' === $format ? '' : 'format=' . $format;
+            $url .= '&ip=' . $this->request->ip();
+            return Response::create($url, 'redirect', 302);
+        }
+
+        $ip = $this->request->param('ip', false) ?: $this->request->ip();
+        if ($result = (new Ipv4)->get($ip)) {
+            $content_type = 'application/json';
+
+            if ('json' !== $format) {
+                $result = 'const IP = ' . json_encode($result);
+                $content_type = 'application/javascript';
+            }
+
+            return Response::create($result, $format)
                 ->allowCache(true)
                 ->cacheControl('max-age=28800,must-revalidate')
-                ->expires(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT')
-                ->lastModified(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT')
-                ->contentType('application/javascript');
+                ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
+                ->expires(gmdate('D, d M Y H:i:s', time() + 28800) . ' GMT')
+                ->contentType($content_type);
         }
 
         return miss(404, false);

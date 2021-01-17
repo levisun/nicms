@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\book\logic\book;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Image;
+use app\common\library\tools\File;
 use app\common\library\tools\Participle;
 use app\common\library\Base64;
 use app\common\model\Book as ModelBook;
@@ -35,7 +35,7 @@ class Search extends BaseLogic
     public function query(): array
     {
         // 搜索
-        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::non_chs_alpha')) {
+        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
             $search_key = htmlspecialchars_decode($search_key, ENT_QUOTES);
             $search_key = str_replace('&nbsp;', '', $search_key);
             // 搜索5个词
@@ -71,7 +71,7 @@ class Search extends BaseLogic
 
             if ($book && $book = $book->toArray()) {
                 // 缩略图
-                $book['image'] = Image::path($book['image']);
+                $book['image'] = File::pathToUrl($book['image']);
 
                 // 书籍章节
                 $result = ModelBookArticle::field(['id', 'book_id', 'title', 'update_time'])

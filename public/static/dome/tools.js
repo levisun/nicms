@@ -1,13 +1,14 @@
 
 class tools {
 
-    default_options = {
+    asyncOptions = {
         type: "GET",                // 请求类型
         url: null,                  // 请求地址
         async: true,                // 异步开关,默认异步请求
         cache: false,               // 缓存
         username: null,
         password: null,
+        timeout: 60000,             // 超时
 
         responseType: "json",
 
@@ -15,7 +16,9 @@ class tools {
         replace: false,             // 替换历史记录
         requestUrl: null,           // 重写地址
 
-        header: [],
+        header: [
+            { name: "content-type", value: "application/x-www-form-urlencoded" }
+        ],
         data: {},
         success: function () { },
         error: function () { },
@@ -26,8 +29,52 @@ class tools {
     constructor() {
     }
 
+    ajax(options) {
+        // 组合参数
+        options = this.extend(this.asyncOptions, options);
+
+        const xhr = new window.XMLHttpRequest();
+        xhr.timeout = options.timeout;
+        xhr.open(options.type, options.url, options.async, options.username, options.password);
+
+        // 设置响应数据类型
+        if (options.responseType) {
+            xhr.overrideMimeType(options.responseType);
+        }
+
+        if (options.mimeType && xhr.overrideMimeType) {
+            xhr.overrideMimeType(options.mimeType);
+        }
+
+        // 设置头部信息
+        for (let index in options.header) {
+            if ("Object" === Object.prototype.toString.call(options.header[index]).slice(8, -1)) {
+                xhr.setRequestHeader(options.header[index].name.toLowerCase(), options.header[index].value);
+            } else {
+                xhr.setRequestHeader(index.toLowerCase(), options.header[index]);
+            }
+        }
+
+        // 设置监听事件
+        xhr.addEventListener("load", () => {
+            if (400 > xhr.status && options.requestUrl) {
+                window.history.pushState(null, document.title, options.requestUrl);
+
+                xhr.response = "json" === options.responseType ? JSON.parse(xhr.response) : xhr.response;
+
+                options.success(xhr.response);
+            } else {
+                options.error(xhr.response);
+            }
+        });
+
+        // 发起请求
+        options.data = "get" === options.type.toLowerCase() ? null : options.data;
+        xhr.send(options.data);
+    }
+
     // 异步请求
-    async(options) {
+    ajaxold(options) {
         // 获得顶级域名(不加后缀)
         let root = this.rootDomain().substr(0, this.rootDomain().indexOf("."));
 
@@ -38,9 +85,7 @@ class tools {
         };
 
         // 组合参数
-        options = this.extend(this.default_options, options);
-
-        this.xhr = new window.XMLHttpRequest();
+        options = this.extend(this.asyncOptions, options);
 
         // 组合GET请求参数
         if ("get" === options.type.toLowerCase()) {
@@ -64,52 +109,46 @@ class tools {
             options.url += -1 === options.url.indexOf("?") ? "?_=" + this.timestamp() : "&_=" + this.timestamp();
         }
 
-        this.xhr.open(
-            options.type,
-            options.url,
-            options.async,
-            options.username,
-            options.password,
-        );
+        const xhr = new window.XMLHttpRequest();
+        xhr.timeout = options.timeout;
+        xhr.open(options.type, options.url, options.async, options.username, options.password);
 
         // 设置响应数据类型
         if (options.responseType) {
-            this.xhr.overrideMimeType(options.responseType);
+            xhr.overrideMimeType(options.responseType);
         }
 
-        if (options.mimeType && this.xhr.overrideMimeType) {
-            this.xhr.overrideMimeType(options.mimeType);
+        if (options.mimeType && xhr.overrideMimeType) {
+            xhr.overrideMimeType(options.mimeType);
         }
 
         // 设置头部信息
         for (let index in options.header) {
             if ("Object" === Object.prototype.toString.call(options.data[index]).slice(8, -1)) {
-                this.xhr.setRequestHeader(options.header[index].name, options.header[index].value);
+                xhr.setRequestHeader(options.header[index].name, options.header[index].value);
             } else {
-                this.xhr.setRequestHeader(index, options.header[index]);
+                xhr.setRequestHeader(index, options.header[index]);
             }
         }
 
         // 设置监听事件
-        this.xhr.addEventListener("load", () => {
-            if (400 > this.xhr.status && options.requestUrl) {
+        xhr.addEventListener("load", () => {
+            if (400 > xhr.status && options.requestUrl) {
                 window.history.pushState(null, document.title, options.requestUrl);
 
-                this.xhr.response = "json" === options.responseType
-                    ? JSON.parse(this.xhr.response)
-                    : this.xhr.response;
+                xhr.response = "json" === options.responseType ? JSON.parse(xhr.response) : xhr.response;
 
-                options.success(this.xhr.response);
+                options.success(xhr.response);
             } else {
-                options.error(this.xhr.response);
+                options.error(xhr.response);
             }
         });
 
         // 发起请求
         if ("get" === options.type.toLowerCase()) {
-            this.xhr.send();
+            xhr.send();
         } else {
-            this.xhr.send(options.data);
+            xhr.send(options.data);
         }
     }
 
@@ -211,6 +250,23 @@ class tools {
             }
             return '';
         }
+    }
+
+    // 日期与时间
+    date(format = "y-m-d h:i:s") {
+        let date = new Date();
+
+        format = format.toLowerCase();
+
+        format = format.replace(/y/i, 10 < date.getFullYear() ? date.getFullYear() : "0" + date.getFullYear());
+        format = format.replace(/m/i, 10 < date.getMonth() ? date.getMonth() + 1 : "0" + (date.getMonth() + 1));
+        format = format.replace(/d/i, 10 < date.getDay() ? date.getDay() : "0" + date.getDay());
+
+        format = format.replace(/h/i, 10 < date.getHours() ? date.getHours() : "0" + date.getHours());
+        format = format.replace(/i/i, 10 < date.getMinutes() ? date.getMinutes() : "0" + date.getMinutes());
+        format = format.replace(/s/i, 10 < date.getSeconds() ? date.getSeconds() : "0" + date.getSeconds());
+
+        return format;
     }
 
     // 时间戳

@@ -37,11 +37,10 @@ class View extends BaseApi
 
         $html = '<html lang="zh-cn"><head><meta charset="UTF-8"><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>office 预览</title></head><body style="padding:0;margin:0"><iframe id="office" name="office" frameborder="0" scrolling="no" width="100%" height ="100%" src="https://view.officeapps.live.com/op/view.aspx?src=' . urlencode($file) . '"></iframe></body></html>';
 
-        $timestamp = time() + $this->apiExpire;
         return Response::create($html)
             ->allowCache(true)
             ->cacheControl('max-age=' . $this->apiExpire . ',must-revalidate')
-            ->lastModified(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT')
-            ->expires(gmdate('D, d M Y H:i:s', $timestamp) . ' GMT');
+            ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
+            ->expires(gmdate('D, d M Y H:i:s', time() + 28800) . ' GMT');
     }
 }

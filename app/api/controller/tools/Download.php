@@ -19,6 +19,7 @@ namespace app\api\controller\tools;
 
 use think\Response;
 use app\common\controller\BaseApi;
+use app\common\library\tools\File;
 
 class Download extends BaseApi
 {
@@ -29,7 +30,7 @@ class Download extends BaseApi
             return miss(404, false);
         }
 
-        if ($file = filepath_decode($file, true)) {
+        if ($file = File::pathDecode($file, true)) {
             // $ext = pathinfo($file, PATHINFO_EXTENSION);
 
             return Response::create($file, 'file')

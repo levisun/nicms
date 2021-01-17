@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\cms\logic\link;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Image;
+use app\common\library\tools\File;
 use app\common\model\Link as ModelLink;
 
 class Catalog extends BaseLogic
@@ -51,7 +51,7 @@ class Catalog extends BaseLogic
                 ->toArray();
 
             foreach ($list as $key => $value) {
-                $value['logo'] = Image::path($value['logo']);
+                $value['logo'] = File::pathToUrl($value['logo']);
                 $list[$key] = $value;
             }
 

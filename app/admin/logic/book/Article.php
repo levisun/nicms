@@ -42,7 +42,7 @@ class Article extends BaseLogic
         }
 
         // 搜索
-        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::non_chs_alpha')) {
+        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
             $search_key = htmlspecialchars_decode($search_key, ENT_QUOTES);
             $search_key = str_replace('&nbsp;', '', $search_key);
             // 搜索5个词
@@ -123,7 +123,7 @@ class Article extends BaseLogic
         $receive_data = [
             'book_id'    => $this->request->param('book_id/d', 0, 'abs'),
             'title'      => $this->request->param('title'),
-            'content'    => $this->request->param('content', '', '\app\common\library\Filter::contentEncode'),
+            'content'    => $this->request->param('content', '', '\app\common\library\Filter::htmlEncode'),
             'is_pass'    => $this->request->param('is_pass/d', 0, 'abs'),
             'sort_order' => $this->request->param('sort_order/d', 0, 'abs'),
             'show_time'  => $this->request->param('show_time/d', 0, 'abs'),
@@ -158,7 +158,7 @@ class Article extends BaseLogic
 
             if ($result && $result = $result->toArray()) {
                 $result['show_time'] = $result['show_time'] ? date('Y-m-d', $result['show_time']) : date('Y-m-d');
-                $result['content'] = Filter::contentDecode($result['content']);
+                $result['content'] = Filter::htmlDecode($result['content']);
             }
         }
 
@@ -191,7 +191,7 @@ class Article extends BaseLogic
         $receive_data = [
             'book_id'    => $this->request->param('book_id/d', 0, 'abs'),
             'title'      => $this->request->param('title'),
-            'content'    => $this->request->param('content', '', '\app\common\library\Filter::contentEncode'),
+            'content'    => $this->request->param('content', '', '\app\common\library\Filter::htmlEncode'),
             'is_pass'    => $this->request->param('is_pass/d', 0, 'abs'),
             'sort_order' => $this->request->param('sort_order/d', 0, 'abs'),
             'show_time'  => $this->request->param('show_time/d', 0, 'abs'),

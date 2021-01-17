@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\book\logic\nav;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Image;
+use app\common\library\tools\File;
 use app\common\library\Base64;
 use app\common\model\BookType as ModelBookType;
 
@@ -44,7 +44,7 @@ class Sidebar extends BaseLogic
                 if (null !== $result && $result = $result->toArray()) {
                     $result['id'] = (int) $result['id'];
                     $result['child'] = $this->child($result['id']);
-                    $result['image'] = Image::path((string) $result['image']);
+                    $result['image'] = File::pathToUrl((string) $result['image']);
                     $result['flag'] = Base64::flag($result['id'], 7);
                     $result['url'] = url('list/' . Base64::url62encode($result['id']));
                 }
@@ -78,7 +78,7 @@ class Sidebar extends BaseLogic
         foreach ($result as $key => $value) {
             $value['id'] = (int) $value['id'];
             $value['child'] = $this->child($value['id']);
-            $value['image'] = Image::path((string) $value['image']);
+            $value['image'] = File::pathToUrl((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             $value['url'] = url('list/' . Base64::url62encode($value['id']));
 

@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\account;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Image;
+use app\common\library\tools\File;
 use app\common\library\tools\Ipv4;
 use app\common\library\Base64;
 use app\common\library\Rbac;
@@ -114,7 +114,7 @@ class User extends BaseLogic
                 'user_id'      => Base64::encrypt($this->user_id),
                 'user_role_id' => Base64::encrypt($this->user_role_id),
                 'user_type'    => Base64::encrypt($this->user_type),
-                'user_token'   => sha1(implode('', array_map('sha1', $user)) . 'admin'),
+                'user_token'   => md5(implode('', array_map('sha1', $user)) . 'admin'),
             ]
         ];
     }
@@ -203,7 +203,7 @@ class User extends BaseLogic
 
             if (null !== $result && $result = $result->toArray()) {
                 $result['last_login_time'] = date('Y-m-d H:i:s', (int) $result['last_login_time']);
-                $result['avatar'] = Image::avatar('', $result['username']);
+                $result['avatar'] = File::avatar('', $result['username']);
                 unset($result['id'], $result['role_id']);
             }
         }

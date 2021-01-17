@@ -40,7 +40,7 @@ class Basic extends BaseLogic
         $result = $result ? $result->toArray() : [];
 
         foreach ($result as $key => $value) {
-            $value['value'] = Filter::contentDecode($value['value']);
+            $value['value'] = Filter::htmlDecode($value['value']);
             $result[$value['name']] = $value['value'];
             unset($result[$key]);
         }
@@ -69,8 +69,8 @@ class Basic extends BaseLogic
             'cms_keywords'    => $this->request->param('cms_keywords'),
             'cms_description' => $this->request->param('cms_description'),
             'cms_footer'      => $this->request->param('cms_footer'),
-            'cms_copyright'   => $this->request->param('cms_copyright', '', '\app\common\library\Filter::contentEncode'),
-            'cms_beian'       => $this->request->param('cms_beian', '', '\app\common\library\Filter::contentEncode'),
+            'cms_copyright'   => $this->request->param('cms_copyright', '', '\app\common\library\Filter::htmlEncode'),
+            'cms_beian'       => $this->request->param('cms_beian', '', '\app\common\library\Filter::htmlEncode'),
             'cms_script'      => $this->request->param('cms_script', '', 'strip_tags,trim,htmlspecialchars'),
         ];
         if ($result = $this->validate($receive_data)) {
