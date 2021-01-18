@@ -70,9 +70,8 @@ class Sitemap
         $robots .= 'Disallow: ' . Request::scheme() . '://api.' . Request::rootDomain() . '/' . PHP_EOL;
         $robots .= 'Disallow: ' . Request::scheme() . '://cdn.' . Request::rootDomain() . '/' . PHP_EOL;
         $robots .= 'Disallow: ' . Request::scheme() . '://img.' . Request::rootDomain() . '/' . PHP_EOL;
-        $robots .= 'Disallow: *.txt$' . PHP_EOL;
-        $robots .= 'Disallow: *.do$' . PHP_EOL;
-        $robots .= 'Allow: .html$' . PHP_EOL;
+        $robots .= 'Disallow: /*.txt' . PHP_EOL;
+        $robots .= 'Disallow: /*.do' . PHP_EOL;
         $robots .= 'Sitemap: ' . Request::domain() . '/sitemap.xml' . PHP_EOL;
 
         file_put_contents(public_path() . 'robots.txt', $robots);
