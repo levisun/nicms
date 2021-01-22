@@ -164,11 +164,16 @@ class Filter
      * @param  string $_str
      * @return string
      */
-    public static function nonChsAlpha(string &$_str): string
+    public static function nonChsAlpha(string $_str): string
     {
+        $_str = htmlspecialchars_decode($_str, ENT_QUOTES);
+        $_str = str_replace('&nbsp;', '', $_str);
+        $_str = strip_tags($_str);
+
         $_str = (string) preg_replace_callback('/[^\x{4e00}-\x{9fa5}\w ]+/uis', function () {
             return '';
         }, trim($_str));
+
         return trim($_str);
     }
 

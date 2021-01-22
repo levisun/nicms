@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
-use think\Response;
 use think\facade\Log;
 use think\facade\Request;
 use app\common\model\Visit as ModelVisit;

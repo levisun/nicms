@@ -25,34 +25,32 @@ class Order extends BaseApi
 
     public function index(string $pay, string $type)
     {
-        if ($this->validate->referer() && $this->validate->fromToken()) {
-            if (!$config = env('pay.' . strtolower($pay))) {
-                $this->abort('This method could not be found.', 40001);
-            }
-            if (!$config = json_decode(base64_decode($config), true)) {
-                $this->abort('This method could not be found.', 40002);
-            }
+        $this->ApiInit();
 
-            $pay = '\app\common\library\pay\\' . ucfirst($pay);
-            // 校验方法是否存在
-            if (!class_exists($pay)) {
-                $this->abort('This method could not be found.', 40003);
-            }
-            $type = strtolower($type);
-            if (!method_exists($pay, $type)) {
-                $this->abort('This method could not be found.', 40004);
-            }
-
-            $pay = new $pay($config);
-            $result = $pay->$type($this->payParam());
-            if (is_string($result)) {
-                $this->abort($result, 50001);
-            }
-
-            return $result;
+        if (!$config = env('pay.' . strtolower($pay))) {
+            $this->abort('This method could not be found.', 40001);
+        }
+        if (!$config = json_decode(base64_decode($config), true)) {
+            $this->abort('This method could not be found.', 40002);
         }
 
-        return miss(404, false);
+        $pay = '\app\common\library\pay\\' . ucfirst($pay);
+        // 校验方法是否存在
+        if (!class_exists($pay)) {
+            $this->abort('This method could not be found.', 40003);
+        }
+        $type = strtolower($type);
+        if (!method_exists($pay, $type)) {
+            $this->abort('This method could not be found.', 40004);
+        }
+
+        $pay = new $pay($config);
+        $result = $pay->$type($this->payParam());
+        if (is_string($result)) {
+            $this->abort($result, 50001);
+        }
+
+        return $result;
     }
 
     /**

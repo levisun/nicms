@@ -216,6 +216,8 @@ abstract class BaseLogic
         $cache_key .= $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
         $cache_key .= $this->lang->getLangSet();
 
+        $cache_key .= $this->authKey . $this->user_id . $this->user_role_id . $this->user_type;
+
         // 筛选条件
         // 审核
         $pass = $this->request->param('pass/d', 0, 'abs');

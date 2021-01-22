@@ -3,7 +3,7 @@
 /**
  *
  * 控制层
- * 访问记录API
+ * 举报
  *
  * @package   NICMS
  * @category  app\api\controller\tools
@@ -27,9 +27,7 @@ class Record extends BaseApi
 
     public function index()
     {
-        if (!$this->validate->referer()) {
-            return miss(404, false);
-        }
+        $this->ApiInit();
 
         if ($content = $this->request->param('content')) {
             $ip = (new Ipv4)->get($this->request->ip());

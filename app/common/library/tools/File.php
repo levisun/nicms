@@ -77,7 +77,7 @@ class File
      */
     public static function avatar(string $_img, string $_username = 'avatar'): string
     {
-        if (!$_img = self::pathToUrl($_img)) {
+        if (!$_img = self::has($_img)) {
             $length = mb_strlen($_username, 'utf-8');
             $salt = strlen(Request::rootDomain());
             $bg = (intval($length * $salt) % 255) . ',' . (intval($length * $salt * 3) % 255) . ',' . (intval($length * $salt * 9) % 255);

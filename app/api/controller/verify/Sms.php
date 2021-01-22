@@ -29,9 +29,7 @@ class Sms extends BaseApi
      */
     public function index()
     {
-        if (!$this->validate->referer()) {
-            return miss(404, false);
-        }
+        $this->ApiInit();
 
         $phone = $this->request->param('phone', false);
         if ($phone && preg_match('/^1[3-9]\d{9}$/', $phone)) {
@@ -60,6 +58,8 @@ class Sms extends BaseApi
 
     public function check()
     {
+        $this->ApiInit();
+
         $phone = $this->request->param('phone', false);
         $verify = $this->request->param('verify/d', false);
         if ($phone && preg_match('/^1[3-9][0-9]\d{8}$/', $phone) && $verify) {

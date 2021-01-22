@@ -63,18 +63,21 @@ class Sitemap
      */
     public static function robots(): void
     {
-        $robots = 'User-agent: *' . PHP_EOL;
-        $robots .= 'Disallow: /static/' . PHP_EOL;
-        $robots .= 'Disallow: /storage/' . PHP_EOL;
-        $robots .= 'Disallow: /theme/' . PHP_EOL;
-        $robots .= 'Disallow: ' . Request::scheme() . '://api.' . Request::rootDomain() . '/' . PHP_EOL;
-        $robots .= 'Disallow: ' . Request::scheme() . '://cdn.' . Request::rootDomain() . '/' . PHP_EOL;
-        $robots .= 'Disallow: ' . Request::scheme() . '://img.' . Request::rootDomain() . '/' . PHP_EOL;
-        $robots .= 'Disallow: /*.txt' . PHP_EOL;
-        $robots .= 'Disallow: /*.do' . PHP_EOL;
-        $robots .= 'Sitemap: ' . Request::domain() . '/sitemap.xml' . PHP_EOL;
+        if (!is_file(public_path() . 'robots.txt')) {
+            $robots  = 'User-agent: *' . PHP_EOL;
+            $robots .= 'Disallow: /static/' . PHP_EOL;
+            $robots .= 'Disallow: /storage/' . PHP_EOL;
+            $robots .= 'Disallow: /theme/' . PHP_EOL;
+            $robots .= 'Disallow: ' . Request::scheme() . '://api.' . Request::rootDomain() . '/' . PHP_EOL;
+            $robots .= 'Disallow: ' . Request::scheme() . '://cdn.' . Request::rootDomain() . '/' . PHP_EOL;
+            $robots .= 'Disallow: ' . Request::scheme() . '://img.' . Request::rootDomain() . '/' . PHP_EOL;
+            $robots .= 'Disallow: /search.html' . PHP_EOL;
+            $robots .= 'Disallow: /*.txt' . PHP_EOL;
+            $robots .= 'Disallow: /*.do' . PHP_EOL;
+            $robots .= 'Sitemap: ' . Request::domain() . '/sitemap.xml' . PHP_EOL;
 
-        file_put_contents(public_path() . 'robots.txt', $robots);
+            file_put_contents(public_path() . 'robots.txt', $robots);
+        }
     }
 
     /**

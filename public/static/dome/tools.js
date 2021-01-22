@@ -1,37 +1,50 @@
 
 class tools {
 
-    asyncOptions = {
-        type: "GET",                // 请求类型
-        url: null,                  // 请求地址
-        async: true,                // 异步开关,默认异步请求
-        cache: false,               // 缓存
-        username: null,
-        password: null,
-        timeout: 60000,             // 超时
-
-        responseType: "json",
-
-        push: false,                // 添加历史记录
-        replace: false,             // 替换历史记录
-        requestUrl: null,           // 重写地址
-
-        header: [
-            { name: "content-type", value: "application/x-www-form-urlencoded" }
-        ],
-        data: {},
-        success: function () { },
-        error: function () { },
-    };
-
-    xhr = null;
-
     constructor() {
     }
 
     ajax(options) {
         // 组合参数
-        options = this.extend(this.asyncOptions, options);
+        options = this.extend({
+            type: "GET",                // 请求类型
+            url: null,                  // 请求地址
+            async: true,                // 异步开关,默认异步请求
+            cache: true,                // 缓存
+            username: null,
+            password: null,
+            timeout: 60000,             // 超时
+            header: [],
+            data: null,
+            responseType: "json",
+
+            push: false,                // 添加历史记录
+            replace: false,             // 替换历史记录
+            requestUrl: null,           // 重写地址
+
+            success: function () { },
+            error: function () { },
+        }, options);
+
+        // GET请求
+        if ("get" === options.type.toLowerCase() && options.data) {
+            let query = "";
+            for (const key in options.data) {
+                if (Object.hasOwnProperty.call(options.data, key)) {
+                    const element = options.data[key];
+                    query += "&" + key + "=" + element;
+                }
+            }
+            query = query.substr(1);
+            options.data = null;
+
+            options.url += -1 === options.url.indexOf("?") ? "?" + query : query;
+        }
+
+        // 缓存
+        if (false === options.cache) {
+            options.url += "_" + this.timestamp();
+        }
 
         const xhr = new window.XMLHttpRequest();
         xhr.timeout = options.timeout;
@@ -57,19 +70,23 @@ class tools {
 
         // 设置监听事件
         xhr.addEventListener("load", () => {
-            if (400 > xhr.status && options.requestUrl) {
-                window.history.pushState(null, document.title, options.requestUrl);
+            try {
+                if (4 === xhr.readyState && 400 > xhr.status) {
+                    if (options.requestUrl) {
+                        window.history.pushState(null, document.title, options.requestUrl);
+                    }
 
-                xhr.response = "json" === options.responseType ? JSON.parse(xhr.response) : xhr.response;
+                    xhr.response = "json" === options.responseType ? JSON.parse(xhr.response) : xhr.response;
 
-                options.success(xhr.response);
-            } else {
-                options.error(xhr.response);
+                    options.success(result);
+                } else {
+                    options.error(xhr.response);
+                }
+            } catch (error) {
+                console.log(error.message);
             }
         });
 
-        // 发起请求
-        options.data = "get" === options.type.toLowerCase() ? null : options.data;
         xhr.send(options.data);
     }
 

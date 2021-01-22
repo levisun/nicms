@@ -53,13 +53,13 @@ class Recycle extends BaseLogic
 
         // 搜索
         if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
-            $search_key = htmlspecialchars_decode($search_key, ENT_QUOTES);
-            $search_key = str_replace('&nbsp;', '', $search_key);
-            // 搜索5个词
-            $like = (new Participle)->words($search_key, 5);
-            foreach ($like as $key => $value) {
-                $like[$key] = '%' . $value . '%';
-            }
+            $like = explode(' ', $search_key);
+            $like = array_map('trim', $like);
+            $like = array_filter($like);
+            $like = array_unique($like);
+            $like = array_map(function ($value) {
+                return '%' . $value . '%';
+            }, $like);
             $map[] = ['article.title', 'like', $like, 'OR'];
         }
 

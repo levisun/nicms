@@ -178,11 +178,13 @@ if (!function_exists('miss')) {
      */
     function miss($_code, bool $_redirect = true, bool $_abort = false)
     {
+        trace('MISS ' . $_code . ' ' . Request::method(true) . ' ' . Request::url(true), 'warning');
+
         $file = public_path() . intval($_code) . '.html';
 
         $content = is_file($file)
             ? file_get_contents($file)
-            : '<!DOCTYPE html><html lang="zh-cn"><head><meta charset="UTF-8"><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>' . $_code . '</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2 class="miss">o(╥﹏╥)o ' . $_code . '</h2></section></body></html>';
+            : '<!DOCTYPE html><html lang="' . app('lang')->getLangSet() . '"><head><meta charset="UTF-8"><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>' . $_code . '</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2 class="miss">o(╥﹏╥)o ' . $_code . '</h2></section></body></html>';
 
         $content = Filter::symbol($content);
         $content = Filter::space($content);
@@ -199,20 +201,13 @@ if (!function_exists('miss')) {
             }
         }
 
-        $timestamp = time() + 1440;
         $resource = Response::create($content, 'html', is_int($_code) ? $_code : 200)
             ->allowCache(true)
             ->cacheControl('max-age=1440,must-revalidate')
             ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
             ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT');
-        ob_start('ob_gzhandler');
 
-        // $timestamp = Request::time() + 3600 * 6;
-        // $resource = Response::create($content, 'html', is_int($_code) ? $_code : 200)
-        //     ->allowCache(true)
-        //     ->cacheControl('max-age=1440,must-revalidate')
-        //     ->expires(gmdate('D, d M Y H:i:s', $timestamp + 1440) . ' GMT')
-        //     ->lastModified(gmdate('D, d M Y H:i:s', $timestamp + 1440) . ' GMT');
+        ob_start('ob_gzhandler');
 
         if ($_abort === true) {
             throw new HttpResponseException($resource);

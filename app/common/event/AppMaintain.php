@@ -35,8 +35,9 @@ class AppMaintain
             if (!is_file($sitemap) || strtotime('-3 hour') > filemtime($sitemap)) {
                 Sitemap::xml();
                 Sitemap::deadLink();
-                Sitemap::robots();
             }
+
+            Sitemap::robots();
         }
 
         if ($app_name && 'api' !== $app_name) {

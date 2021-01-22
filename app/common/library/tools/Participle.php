@@ -140,7 +140,6 @@ class Participle
             $_sort = strtoupper($_sort) === 'ASC' ? SORT_ASC : SORT_DESC;
             array_multisort($length, $_sort, $words);
         }
-
         unset($length);
 
         // 过滤重复数据或空数据

@@ -36,13 +36,14 @@ class Search extends BaseLogic
     {
         // 搜索
         if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
-            $search_key = htmlspecialchars_decode($search_key, ENT_QUOTES);
-            $search_key = str_replace('&nbsp;', '', $search_key);
-            // 搜索5个词
-            $search_key = (new Participle)->words($search_key, 5);
-            if ($search_key = implode('|', $search_key)) {
-                $map[] = ['article.title', 'regexp', $search_key];
-            }
+            $like = explode(' ', $search_key);
+            $like = array_map('trim', $like);
+            $like = array_filter($like);
+            $like = array_unique($like);
+            $like = array_map(function ($value) {
+                return '%' . $value . '%';
+            }, $like);
+            $map[] = ['article.title', 'like', $like, 'OR'];
         }
 
         $date_format = $this->request->param('date_format', 'Y-m-d');

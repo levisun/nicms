@@ -79,7 +79,7 @@
                                 <a class="editor" v-bind:href="cv.url.editor">
                                     {:lang('editor')}
                                 </a>
-                                <a class="remove" v-bind:data="cv.id">
+                                <a v-on:click="remove(vo.id)" v-bind:data="vo.id">
                                     <i class="fa fa-trash"></i>
                                     {:lang('remove')}
                                 </a>

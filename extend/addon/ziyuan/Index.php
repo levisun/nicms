@@ -10,13 +10,13 @@ class Index
     public function run(array $_settings)
     {
         $script = $this->api($_settings);
-        $script .= $this->script();
+        // $script .= $this->script();
         return $script;
     }
 
     private function api(array $_settings): string
     {
-        $api = 'http://data.zz.baidu.com/urls?site=' . urlencode($_settings['site']) . '&token=' . $_settings['token'] . '&type=daily';
+        $api = 'http://data.zz.baidu.com/urls?site=' . urlencode($_settings['site']) . '&token=' . $_settings['token'];
 
         $ch = curl_init();
         $options =  array(

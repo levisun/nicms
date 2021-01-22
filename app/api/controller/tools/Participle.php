@@ -25,9 +25,7 @@ class Participle extends BaseApi
 
     public function index()
     {
-        if (!$this->validate->referer()) {
-            return miss(404, false);
-        }
+        $this->ApiInit();
 
         $result = '';
         $txt = $this->request->param('txt');

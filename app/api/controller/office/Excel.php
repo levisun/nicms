@@ -33,7 +33,9 @@ class Excel extends BaseApi
      */
     public function read()
     {
-        if (!$this->validate->referer() || !$file = $this->request->param('file')) {
+        $this->ApiInit();
+
+        if (!$file = $this->request->param('file')) {
             return miss(404, false);
         }
 
@@ -60,7 +62,9 @@ class Excel extends BaseApi
      */
     public function write()
     {
-        if (!$this->validate->referer() || !$data = $this->request->param('data/a')) {
+        $this->ApiInit();
+
+        if (!$data = $this->request->param('data/a')) {
             return miss(404, false);
         }
         $sheet = $this->request->param('sheet/d', 0, 'abs');
