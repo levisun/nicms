@@ -170,7 +170,7 @@ class Filter
         $_str = str_replace('&nbsp;', '', $_str);
         $_str = strip_tags($_str);
 
-        $_str = (string) preg_replace_callback('/[^\x{4e00}-\x{9fa5}\w ]+/uis', function () {
+        $_str = (string) preg_replace_callback('/[^\x{4e00}-\x{9fa5}a-zA-Z0-9 ]+/uis', function () {
             return '';
         }, trim($_str));
 

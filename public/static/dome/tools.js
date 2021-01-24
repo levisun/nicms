@@ -211,9 +211,9 @@ class tools {
     /*
      storage操作
      storage(名称, 内容);
-     设置: cookie(名称, 内容);
-     读取: cookie(名称);
-     移除: cookie(名称, null);
+     设置: storage(名称, 内容);
+     读取: storage(名称);
+     移除: storage(名称, null);
      */
     storage(name, value = "") {
         if (name && value) {
@@ -222,6 +222,24 @@ class tools {
             window.localStorage.removeItem(name);
         } else if (name) {
             let value = window.localStorage.getItem(name);
+            return value ? JSON.parse(value) : null;
+        }
+    }
+
+    /*
+     session操作
+     session(名称, 内容);
+     设置: session(名称, 内容);
+     读取: session(名称);
+     移除: session(名称, null);
+     */
+    session(name, value = "") {
+        if (name && value) {
+            window.sessionStorage.setItem(name, JSON.stringify(value));
+        } else if (name && null === value) {
+            window.sessionStorage.removeItem(name);
+        } else if (name) {
+            let value = window.sessionStorage.getItem(name);
             return value ? JSON.parse(value) : null;
         }
     }
@@ -275,7 +293,7 @@ class tools {
 
         format = format.toLowerCase();
 
-        format = format.replace(/y/i, 10 < date.getFullYear() ? date.getFullYear() : "0" + date.getFullYear());
+        format = format.replace(/y/i, date.getFullYear());
         format = format.replace(/m/i, 10 < date.getMonth() ? date.getMonth() + 1 : "0" + (date.getMonth() + 1));
         format = format.replace(/d/i, 10 < date.getDay() ? date.getDay() : "0" + date.getDay());
 

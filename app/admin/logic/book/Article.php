@@ -47,6 +47,7 @@ class Article extends BaseLogic
             $like = array_map('trim', $like);
             $like = array_filter($like);
             $like = array_unique($like);
+            $like = array_slice($like, 0, 3);
             $like = array_map(function ($value) {
                 return '%' . $value . '%';
             }, $like);
