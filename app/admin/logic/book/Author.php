@@ -18,12 +18,9 @@ declare(strict_types=1);
 namespace app\admin\logic\book;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Participle;
-use app\common\library\UploadLog;
-use app\common\model\Book as ModelBook;
-use app\common\model\BookArticle as ModelBookArticle;
+use app\common\model\BookAuthor as ModelBookAuthor;
 
-class Book extends BaseLogic
+class Author extends BaseLogic
 {
     protected $authKey = 'admin_auth_key';
 
@@ -36,12 +33,6 @@ class Book extends BaseLogic
     {
         $map = [];
 
-        // 安审核条件查询,为空查询所有
-        if ($is_pass = $this->request->param('pass/d', 0, 'abs')) {
-            $is_pass = $is_pass >= 1 ? 1 : 0;
-            $map[] = ['book.is_pass', '=', $is_pass];
-        }
-
         // 搜索
         if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
             $like = explode(' ', $search_key);
@@ -52,7 +43,7 @@ class Book extends BaseLogic
             $like = array_map(function ($value) {
                 return '%' . $value . '%';
             }, $like);
-            $map[] = ['book.title', 'like', $like, 'OR'];
+            $map[] = ['book_author.author', 'like', $like, 'OR'];
         }
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
@@ -69,13 +60,10 @@ class Book extends BaseLogic
             ];
         }
 
-        $result = ModelBook::view('book', ['id', 'title', 'type_id', 'is_pass', 'attribute', 'status', 'hits', 'sort_order', 'update_time'])
-            ->view('book_type', ['name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
-            ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
-            ->where('book.delete_time', '=', '0')
-            ->where('book.lang', '=', $this->lang->getLangSet())
+        $result = ModelBookAuthor::view('book_author', ['id', 'user_id', 'author', 'create_time'])
+            ->view('user', ['username'], 'user.id=book_author.user_id', 'LEFT')
             ->where($map)
-            ->order('book.is_pass ASC, book.status ASC, book.attribute DESC, book.sort_order DESC, book.id DESC')
+            ->order('id DESC')
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
@@ -90,12 +78,12 @@ class Book extends BaseLogic
 
         foreach ($list['data'] as $key => $value) {
             $value['url'] = [
-                'editor' => url('book/book/editor/' . $value['id']),
-                'remove' => url('book/book/remove/' . $value['id']),
+                'editor' => url('book/author/editor/' . $value['id']),
+                'remove' => url('book/author/remove/' . $value['id']),
             ];
 
             // 时间格式
-            $value['update_time'] = date($date_format, (int) $value['update_time']);
+            $value['create_time'] = date($date_format, (int) $value['create_time']);
 
             $list['data'][$key] = $value;
         }
@@ -122,29 +110,17 @@ class Book extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog('admin book added');
+        $this->actionLog('admin author added');
 
         $receive_data = [
-            'title'       => $this->request->param('title'),
-            'keywords'    => $this->request->param('keywords'),
-            'description' => $this->request->param('description'),
-            'image'       => $this->request->param('image'),
-            'author_id'   => $this->request->param('author_id/d', 0, 'abs'),
-            'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
-            'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
-            'attribute'   => $this->request->param('attribute/d', 0, 'abs'),
-            'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
-            'status'      => $this->request->param('status/d', 0, 'abs'),
-            'origin'      => $this->request->param('origin'),
-            'update_time' => time(),
+            'author'      => $this->request->param('author'),
             'create_time' => time(),
-            'lang'        => $this->lang->getLangSet()
         ];
         if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
-        ModelBook::create($receive_data);
+        ModelBookAuthor::create($receive_data);
 
         $this->cache->tag('book')->clear();
 
@@ -164,16 +140,13 @@ class Book extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d', 0, 'abs')) {
-            $result = ModelBook::view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'is_pass', 'image', 'origin', 'attribute', 'status', 'sort_order', 'hits', 'author_id', 'update_time', 'lang'])
-                ->view('book_type', ['name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
-                ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
-                ->where('book.id', '=', $id)
+            $result = ModelBookAuthor::view('book_author', ['id', 'user_id', 'author', 'create_time'])
+                ->view('user', ['username'], 'user.id=book_author.user_id', 'LEFT')
+                ->where('book_author.id', '=', $id)
                 ->find();
 
             if ($result && $result = $result->toArray()) {
-                $result['image'] = $result['image']
-                    ? $this->config->get('app.img_host') . $result['image']
-                    : '';
+
             }
         }
 
@@ -192,7 +165,7 @@ class Book extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog('admin book editor');
+        $this->actionLog('admin author editor');
 
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
@@ -204,31 +177,13 @@ class Book extends BaseLogic
         }
 
         $receive_data = [
-            'title'       => $this->request->param('title'),
-            'keywords'    => $this->request->param('keywords'),
-            'description' => $this->request->param('description'),
-            'image'       => $this->request->param('image'),
-            'author_id'   => $this->request->param('author_id/d', 0, 'abs'),
-            'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
-            'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
-            'attribute'   => $this->request->param('attribute/d', 0, 'abs'),
-            'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
-            'status'      => $this->request->param('status/d', 0, 'abs'),
-            'origin'      => $this->request->param('origin'),
-            'update_time' => time(),
+            'author' => $this->request->param('author'),
         ];
         if ($result = $this->validate($receive_data)) {
             return $result;
         }
 
-        // 删除旧图片
-        $image = ModelBook::where('id', '=', $id)->value('image');
-        if ($image !== $receive_data['image']) {
-            UploadLog::remove($image);
-            UploadLog::update($receive_data['image'], 1);
-        }
-
-        ModelBook::where('id', '=', $id)->limit(1)->update($receive_data);
+        ModelBookAuthor::where('id', '=', $id)->limit(1)->update($receive_data);
 
         $this->cache->tag('book')->clear();
 
@@ -257,14 +212,7 @@ class Book extends BaseLogic
             ];
         }
 
-        $image = ModelBook::where('id', '=', $id)->value('image');
-
-        if (null !== $image && $image) {
-            UploadLog::remove($image);
-        }
-
-        ModelBook::where('id', '=', $id)->limit(1)->delete();
-        ModelBookArticle::where('book_id', '=', $id)->delete();
+        ModelBookAuthor::where('id', '=', $id)->limit(1)->delete();
 
         $this->cache->tag('book')->clear();
 

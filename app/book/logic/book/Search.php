@@ -44,7 +44,7 @@ class Search extends BaseLogic
             $like = array_map(function ($value) {
                 return '%' . $value . '%';
             }, $like);
-            $map[] = ['article.title', 'like', $like, 'OR'];
+            $map[] = ['title', 'like', $like, 'OR'];
         }
 
         $date_format = $this->request->param('date_format', 'Y-m-d');

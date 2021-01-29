@@ -66,23 +66,23 @@ class Spider
         if ($title = $this->select('title')) {
             $title = strip_tags(htmlspecialchars_decode($title[0], ENT_QUOTES));
             $title = str_replace(['_', '|'], '-', $title);
-            $title = explode('-', $title);
-            if (1 < count($title)) {
-                unset($title[count($title) - 1]);
-            }
-            $result['title'] = implode('-', $title);
+            list($title) = explode('-', $title);
+            $result['title'] = $title;
+            $result['title'] = Filter::space($result['title']);
         }
 
         if ($keywords = $this->select('meta:keywords', ['content'])) {
             $result['keywords'] = isset($keywords[0]['content'])
                 ? strip_tags(htmlspecialchars_decode($keywords[0]['content'], ENT_QUOTES))
                 : '';
+            $result['keywords'] = Filter::space($result['keywords']);
         }
 
         if ($description = $this->select('meta:description', ['content'])) {
             $result['description'] = isset($description[0]['content'])
                 ? strip_tags(htmlspecialchars_decode($description[0]['content'], ENT_QUOTES))
                 : '';
+            $result['description'] = Filter::space($result['description']);
         }
 
         if ($links = $this->select('a', ['href'])) {
@@ -117,6 +117,23 @@ class Spider
             }
             $result['imgs'] = array_unique($result['imgs']);
             $result['imgs'] = array_filter($result['imgs']);
+
+            foreach ($result['imgs'] as $key => $src) {
+                $width = $height = 0;
+                if ($handle = @fopen($src, 'rb')) {
+                    $dataBlock = fread($handle, 168);
+                    if ($size = @getimagesize('data://image/jpeg;base64,' . base64_encode($dataBlock))) {
+                        $width = (int) $size[0];
+                        $height = (int)  $size[1];
+                    }
+                }
+
+                $result['imgs'][$key] = [
+                    'src' => $src,
+                    'width' => $width,
+                    'height' => $height,
+                ];
+            }
         }
 
         $host = parse_url($result['url'], PHP_URL_HOST);
@@ -192,9 +209,10 @@ class Spider
 
             // 替换表格
             $body = preg_replace_callback('/<table[^<>]*>(.*?)<\/table[^<>]*>/si', function ($table) {
+                $table[1] = Filter::space($table[1]);
                 $table[1] = strip_tags($table[1], '<tr><td><th><br><p>');
                 $table[1] = preg_replace_callback('/<(\/)?(tr|td|th)([^<>]*)>/si', function ($tr) {
-                    return '{TAG:' . $tr[1] . $tr[2] . $tr[3] .'}';
+                    return '{TAG:' . $tr[1] . $tr[2] . $tr[3] . '}';
                 }, $table[1]);
                 return '{TAG:table}' . $table[1] . '{TAG:/table}';
             }, $body);
@@ -377,8 +395,8 @@ class Spider
         $cache_key = 'spider request' . $_uri;
         if (!Cache::has($cache_key) || !$this->xhtml = Cache::get($cache_key)) {
             // 1000000 = 1s
-            // 0.5s~1.5s
-            usleep(mt_rand(5, 15) * 100000);
+            // 1.5s~3.5s
+            usleep(mt_rand(15, 35) * 100000);
 
             $this->client = new HttpBrowser;
             $this->client->followRedirects();

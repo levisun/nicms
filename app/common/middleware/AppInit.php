@@ -72,7 +72,7 @@ class AppInit
 
         $content = $response->getContent();
 
-        $app_init = '<script type="text/javascript">window.localStorage.setItem("XSRF_AUTHORIZATION", "' . trim(base64_encode($authorization), '=') . '");window.localStorage.setItem("XSRF_TOKEN", "' . $secret . '");</script>';
+        $app_init = '<script type="text/javascript">window.sessionStorage.setItem("XSRF_AUTHORIZATION", "' . trim(base64_encode($authorization), '=') . '");window.sessionStorage.setItem("XSRF_TOKEN", "' . $secret . '");</script>';
 
         $content = false !== strripos($content, '</head>')
             ? str_replace('</head>', $app_init . '</head>', $content)

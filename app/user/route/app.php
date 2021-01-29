@@ -13,6 +13,10 @@
 
 use think\facade\Route;
 
+Route::miss(function () {
+    return miss(404);
+});
+
 Route::group(function () {
     Route::get('/$', 'Index/index');
     Route::get('index$', function () {
@@ -20,10 +24,6 @@ Route::group(function () {
     });
 
     Route::get(':logic/:action/:method/[:id]$', 'Index/index');
-
-    Route::miss(function () {
-        return miss(404);
-    });
 })
 ->domain('my')
 ->ext('html')

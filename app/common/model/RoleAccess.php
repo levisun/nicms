@@ -15,9 +15,9 @@
 /*
 DROP TABLE IF EXISTS `nc_role_access`;
 CREATE TABLE IF NOT EXISTS `nc_role_access` (
-    `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `role_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '组ID',
-    `node_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '节点ID',
+    `id` smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `role_id` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '组ID',
+    `node_id` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '节点ID',
     PRIMARY KEY (`id`),
     INDEX `role_id` (`role_id`) USING BTREE,
     INDEX `node_id` (`node_id`) USING BTREE

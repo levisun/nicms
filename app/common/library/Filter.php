@@ -47,6 +47,7 @@ class Filter
             $_data = Base64::emojiClear($_data);
             $_data = strip_tags($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
+            $_data = preg_replace('/&amp;#(\d+)/u', '&#$1', $_data);
         }
         return $_data;
     }

@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS `nc_role_admin`;
 CREATE TABLE IF NOT EXISTS `nc_role_admin` (
     `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `user_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '管理员ID',
-    `role_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '组ID',
+    `role_id` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '组ID',
     PRIMARY KEY (`id`),
     INDEX `user_id` (`user_id`) USING BTREE,
     INDEX `role_id` (`role_id`) USING BTREE

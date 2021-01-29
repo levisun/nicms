@@ -38,7 +38,7 @@ class Article extends BaseLogic
         // 安审核条件查询,为空查询所有
         if ($is_pass = $this->request->param('pass/d', 0, 'abs')) {
             $is_pass = $is_pass >= 1 ? 1 : 0;
-            $map[] = ['is_pass', '=', $is_pass];
+            $map[] = ['book_article.is_pass', '=', $is_pass];
         }
 
         // 搜索
@@ -51,7 +51,7 @@ class Article extends BaseLogic
             $like = array_map(function ($value) {
                 return '%' . $value . '%';
             }, $like);
-            $map[] = ['article.title', 'like', $like, 'OR'];
+            $map[] = ['book_article.title', 'like', $like, 'OR'];
         }
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
@@ -69,10 +69,11 @@ class Article extends BaseLogic
             ];
         }
 
-        $result = ModelBookArticle::where('delete_time', '=', '0')
-            ->where('lang', '=', $this->lang->getLangSet())
+        $result = ModelBookArticle::view('book_article', ['id', 'book_id', 'title', 'is_pass', 'update_time'])
+            ->view('book', ['title' => 'book_name'], 'book.id=book_article.book_id', 'LEFT')
+            ->where('book_article.delete_time', '=', '0')
             ->where($map)
-            ->order('is_pass ASC, sort_order DESC, id DESC')
+            ->order('book_article.is_pass ASC, book_article.id DESC')
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',

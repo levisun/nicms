@@ -15,8 +15,8 @@
 /*
 DROP TABLE IF EXISTS `nc_book_type`;
 CREATE TABLE IF NOT EXISTS `nc_book_type` (
-    `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `pid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父ID',
+    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `pid` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父ID',
     `name` varchar(20) NOT NULL DEFAULT '' COMMENT '类名',
     `aliases` varchar(20) NOT NULL DEFAULT '' COMMENT '别名',
     `title` varchar(50) NOT NULL DEFAULT '' COMMENT '标题',
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `nc_book_type` (
     `description` varchar(300) NOT NULL DEFAULT '' COMMENT '描述',
     `image` varchar(100) NOT NULL DEFAULT '' COMMENT '图标',
     `is_show` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT '显示',
-    `sort_order` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '排序',
+    `sort_order` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '排序',
     `update_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '修改时间',
     `create_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '创建时间',
     `lang` varchar(10) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',

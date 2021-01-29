@@ -15,7 +15,7 @@
 /*
 DROP TABLE IF EXISTS `nc_tags`;
 CREATE TABLE IF NOT EXISTS `nc_tags` (
-    `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` varchar(20) NOT NULL DEFAULT '' COMMENT '标签名',
     `count` int(11) UNSIGNED NOT NULL DEFAULT '1' COMMENT '标签文章数量',
     `lang` varchar(20) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',

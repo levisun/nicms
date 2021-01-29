@@ -44,13 +44,13 @@ class Node extends Model
 /*
 DROP TABLE IF EXISTS `nc_node`;
 CREATE TABLE IF NOT EXISTS `nc_node` (
-    `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `pid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父ID',
+    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `pid` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父ID',
     `level` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '等级',
     `name` varchar(20) NOT NULL DEFAULT '' COMMENT '节点操作名',
     `title` varchar(50) NOT NULL DEFAULT '' COMMENT '节点说明',
     `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态',
-    `sort_order` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '排序',
+    `sort_order` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '排序',
     `remark` varchar(100) NOT NULL DEFAULT '' COMMENT '描述',
     PRIMARY KEY (`id`),
     INDEX `pid` (`pid`) USING BTREE,

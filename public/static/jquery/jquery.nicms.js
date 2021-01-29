@@ -83,7 +83,7 @@
             let root = window.location.host.substr(window.location.host.indexOf(".")+1);
                 root = root.substr(0, root.indexOf("."));
             xhr.setRequestHeader('Accept', 'application/vnd.' + root + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
-            xhr.setRequestHeader('Authorization', 'Bearer ' + window.atob(window.localStorage.getItem('XSRF_AUTHORIZATION')));
+            xhr.setRequestHeader('Authorization', 'Bearer ' + window.atob(window.sessionStorage.getItem('XSRF_AUTHORIZATION')));
         }
 
         _params.complete = function (xhr) {
@@ -147,7 +147,7 @@
             let root = window.location.host.substr(window.location.host.indexOf(".")+1);
                 root = root.substr(0, root.indexOf("."));
             xhr.setRequestHeader('Accept', 'application/vnd.' + root + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
-            xhr.setRequestHeader('Authorization', 'Bearer ' + window.atob(window.localStorage.getItem('XSRF_AUTHORIZATION')));
+            xhr.setRequestHeader('Authorization', 'Bearer ' + window.atob(window.sessionStorage.getItem('XSRF_AUTHORIZATION')));
         }
 
         _params.complete = function (xhr) {
@@ -217,7 +217,7 @@
             }
         });
         sign = sign.substr(0, sign.length - 1);
-        sign += window.localStorage.getItem('XSRF_TOKEN');
+        sign += window.sessionStorage.getItem('XSRF_TOKEN');
         // console.log(sign);
 
         return md5(sign);

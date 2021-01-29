@@ -34,8 +34,8 @@ class Region extends Model
 /*
 DROP TABLE IF EXISTS `nc_region`;
 CREATE TABLE IF NOT EXISTS `nc_region` (
-  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `pid` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `id` mediumint(9) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `pid` mediumint(9) UNSIGNED NOT NULL DEFAULT '0',
   `name` varchar(20) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   INDEX `pid` (`pid`) USING BTREE,

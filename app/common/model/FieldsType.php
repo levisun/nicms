@@ -15,7 +15,7 @@
 /*
 DROP TABLE IF EXISTS `nc_fields_type`;
 CREATE TABLE IF NOT EXISTS `nc_fields_type` (
-    `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` varchar(20) NOT NULL DEFAULT '' COMMENT '类型名',
     `regex` varchar(100) NOT NULL DEFAULT '' COMMENT '验证方式',
     `remark` varchar(100) NOT NULL DEFAULT '' COMMENT '描述',

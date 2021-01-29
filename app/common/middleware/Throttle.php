@@ -48,7 +48,7 @@ class Throttle
                 Cache::set($cache_key, 1, 10);
             }
 
-            if (60 <= Cache::get($cache_key)) {
+            if (50 <= Cache::get($cache_key)) {
                 $log = 'lock IP:' . $request->ip() . PHP_EOL;
                 $log .= $request->server('HTTP_REFERER') ?: $request->url(true);
                 trace($log, 'warning');

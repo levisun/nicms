@@ -15,8 +15,8 @@
 /*
 DROP TABLE IF EXISTS `nc_article_file`;
 CREATE TABLE `nc_article_file` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `article_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '文章ID',
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `article_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '文章ID',
   `file_url` varchar(255) DEFAULT '' COMMENT '文件存储路径',
   `file_size` varchar(10) DEFAULT '' COMMENT '文件大小',
   `file_ext` varchar(50) DEFAULT '' COMMENT '文件后缀名',

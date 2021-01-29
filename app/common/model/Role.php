@@ -15,8 +15,8 @@
 /*
 DROP TABLE IF EXISTS `nc_role`;
 CREATE TABLE IF NOT EXISTS `nc_role` (
-    `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `pid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父ID',
+    `id` smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `pid` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父ID',
     `name` varchar(20) NOT NULL DEFAULT '' COMMENT '组名',
     `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '状态',
     `remark` varchar(100) NOT NULL DEFAULT '' COMMENT '描述',

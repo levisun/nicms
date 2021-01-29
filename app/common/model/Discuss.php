@@ -15,15 +15,15 @@
 /*
 DROP TABLE IF EXISTS `nc_discuss`;
 CREATE TABLE IF NOT EXISTS `nc_discuss` (
-    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `pid` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '父ID',
-    `article_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '文章ID',
-    `user_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
+    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `pid` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父ID',
+    `article_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '文章ID',
+    `user_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '用户ID',
     `content` varchar(300) NOT NULL DEFAULT '' COMMENT '评论内容',
-    `is_pass` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '审核',
-    `is_report` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '举报',
-    `support` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '支持',
-    `report_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '举报时间',
+    `is_pass` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '审核',
+    `is_report` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '举报',
+    `support` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '支持',
+    `report_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '举报时间',
     `ip` varchar(15) NOT NULL DEFAULT '' COMMENT '评论IP',
     `ip_attr` varchar(255) NOT NULL DEFAULT '' COMMENT '评论IP地区',
     `delete_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '删除时间',

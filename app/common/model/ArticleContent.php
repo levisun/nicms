@@ -16,7 +16,7 @@
 DROP TABLE IF EXISTS `nc_article_content`;
 CREATE TABLE `nc_article_content` (
     `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `article_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '文章ID',
+    `article_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '文章ID',
     `origin` varchar(200) NOT NULL DEFAULT '' COMMENT '来源',
     `content` longtext COMMENT '内容详情',
     PRIMARY KEY (`id`),

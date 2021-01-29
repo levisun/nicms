@@ -30,7 +30,7 @@ class Ip extends BaseApi
         $referer = $this->request->server('HTTP_REFERER');
         $referer = !$referer || false === stripos($referer, $this->request->rootDomain()) ? false : true;
         if (false === $referer) {
-            if (0 <= date('H') && 7 >= date('H') || 1 === mt_rand(1, 50)) return miss(503, false);
+            if (0 <= date('H') && 7 >= date('H') || 1 === mt_rand(1, 100)) return miss(503, false);
             // usleep(500000);
         }
 

@@ -83,7 +83,7 @@ class tools {
                     options.error(xhr.response);
                 }
             } catch (error) {
-                console.log(error.message);
+                // console.log(error.message);
             }
         });
 

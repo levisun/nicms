@@ -15,7 +15,7 @@
 /*
 DROP TABLE IF EXISTS `nc_model`;
 CREATE TABLE IF NOT EXISTS `nc_model` (
-    `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id` smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` varchar(20) NOT NULL DEFAULT '' COMMENT '模型名',
     `table_name` varchar(20) NOT NULL DEFAULT '' COMMENT '表名',
     `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT '状态',

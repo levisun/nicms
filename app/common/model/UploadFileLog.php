@@ -17,8 +17,8 @@ DROP TABLE IF EXISTS `nc_upload_file_log`;
 CREATE TABLE IF NOT EXISTS `nc_upload_file_log` (
     `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `file` varchar(100) NOT NULL DEFAULT '' COMMENT '文件路径',
-    `type` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '类型 0临时文件 1入库文件',
-    `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
+    `type` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '类型 0临时文件 1入库文件',
+    `create_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '创建时间',
     PRIMARY KEY (`id`),
     INDEX `file` (`file`) USING BTREE,
     INDEX `type` (`type`) USING BTREE,

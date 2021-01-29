@@ -15,7 +15,7 @@
 /*
 DROP TABLE IF EXISTS `nc_level`;
 CREATE TABLE IF NOT EXISTS `nc_level` (
-    `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id` smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` varchar(20) NOT NULL DEFAULT '' COMMENT '组名',
     `credit` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '积分',
     `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '状态',

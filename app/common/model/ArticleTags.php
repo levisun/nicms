@@ -16,7 +16,7 @@
 DROP TABLE IF EXISTS `nc_article_tags`;
 CREATE TABLE IF NOT EXISTS `nc_article_tags` (
     `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `tags_id` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT '标签ID',
+    `tags_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '标签ID',
     `article_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '文章ID',
     PRIMARY KEY (`id`),
     INDEX `tags_id` (`tags_id`) USING BTREE,
