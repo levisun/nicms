@@ -40,7 +40,7 @@ class Throttle
         $response = $next($request);
 
         if (200 === $response->getCode()) {
-            $cache_key = 'an minute total' . $request->ip();
+            $cache_key = __METHOD__ . $request->ip() . $request->domain();
 
             if (Cache::has($cache_key)) {
                 Cache::inc($cache_key);

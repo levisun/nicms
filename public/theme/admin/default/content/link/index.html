@@ -75,26 +75,28 @@
                 alert('TODO');
             },
             remove: function (id) {
-                jQuery.pjax({
-                    url: NICMS.api_uri + 'handle.do',
-                    type: 'POST',
-                    data: [
-                        { name: 'method', value: 'content.link.remove' },
-                        { name: 'id', value: id }
-                    ],
-                    success: function (result) {
-                        if (result.code == 10000) {
-                            link.load();
+                if (confirm("此操作不可逆,是否继续执行?")) {
+                    jQuery.pjax({
+                        url: NICMS.api_uri + 'handle.do',
+                        type: 'POST',
+                        data: [
+                            { name: 'method', value: 'content.link.remove' },
+                            { name: 'id', value: id }
+                        ],
+                        success: function (result) {
+                            if (result.code == 10000) {
+                                link.load();
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         }
     });
 
     let page = jQuery.get_url_query('page');
-        page = page ? page : 1;
-        link.load(page);
+    page = page ? page : 1;
+    link.load(page);
 
     window.paging = function (_p) {
         link.load(_p);

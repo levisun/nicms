@@ -22,7 +22,6 @@ use think\exception\HttpResponseException;
 
 use app\common\library\api\Analytical;
 use app\common\library\api\Validate;
-use app\common\library\Base64;
 
 abstract class BaseApi
 {
@@ -302,7 +301,8 @@ abstract class BaseApi
             'code'    => $_code,
             'data'    => $_data,
             'message' => $_msg,
-            'runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 3) . ', ' .
+            'runtime' => date('Y-m-d H:i:s') . ', ' .
+                number_format(microtime(true) - $this->app->getBeginTime(), 3) . ', ' .
                 number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . ', ' .
                 (true === $this->apiCache ? $this->apiExpire : 'off'),
 

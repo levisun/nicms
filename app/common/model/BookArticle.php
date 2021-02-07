@@ -51,9 +51,9 @@ class BookArticle extends Model
     protected $defaultSoftDelete = 0;
     protected $pk = 'id';
     protected $type = [
-        'book_id'   => 'integer',
-        'is_pass'     => 'integer',
-        'sort_order'  => 'integer',
+        'book_id'    => 'integer',
+        'is_pass'    => 'integer',
+        'sort_order' => 'integer',
     ];
     protected $field = [
         'id',

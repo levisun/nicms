@@ -63,24 +63,26 @@
                 window.location.href = NICMS.domain + 'category/type/added.html';
             },
             remove: function (id) {
-                jQuery.pjax({
-                    url: NICMS.api_uri + 'handle.do',
-                    type: 'POST',
-                    data: [
-                        { name: 'method', value: 'category.type.remove' },
-                        { name: 'id', value: id }
-                    ],
-                    success: function (result) {
-                        if (result.code == 10000) {
-                            type.load(NICM.api.param.page);
+                if (confirm("此操作不可逆,是否继续执行?")) {
+                    jQuery.pjax({
+                        url: NICMS.api_uri + 'handle.do',
+                        type: 'POST',
+                        data: [
+                            { name: 'method', value: 'category.type.remove' },
+                            { name: 'id', value: id }
+                        ],
+                        success: function (result) {
+                            if (result.code == 10000) {
+                                type.load(NICM.api.param.page);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         }
     });
     let page = jQuery.get_url_query('page');
-        page = page ? page : 1;
+    page = page ? page : 1;
     type.load(page);
 
     window.paging = function (_p) {

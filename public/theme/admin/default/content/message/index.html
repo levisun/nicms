@@ -73,19 +73,21 @@
                 });
             },
             remove: function (id) {
-                jQuery.pjax({
-                    url: NICMS.api_uri + 'handle.do',
-                    type: 'POST',
-                    data: [
-                        { name: 'method', value: 'content.message.remove' },
-                        { name: 'id', value: id }
-                    ],
-                    success: function (result) {
-                        if (result.code == 10000) {
-                            message.load();
+                if (confirm("此操作不可逆,是否继续执行?")) {
+                    jQuery.pjax({
+                        url: NICMS.api_uri + 'handle.do',
+                        type: 'POST',
+                        data: [
+                            { name: 'method', value: 'content.message.remove' },
+                            { name: 'id', value: id }
+                        ],
+                        success: function (result) {
+                            if (result.code == 10000) {
+                                message.load();
+                            }
                         }
-                    }
-                });
+                    });
+                }
             },
             editor: function (id) {
                 jQuery.pjax({
@@ -123,8 +125,8 @@
     });
 
     let page = jQuery.get_url_query('page');
-        page = page ? page : 1;
-        message.load(page);
+    page = page ? page : 1;
+    message.load(page);
 
     window.paging = function (_p) {
         message.load(_p);
