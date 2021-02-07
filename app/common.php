@@ -178,7 +178,9 @@ if (!function_exists('miss')) {
      */
     function miss($_code, bool $_redirect = true, bool $_abort = false)
     {
-        trace('MISS ' . $_code . ' ' . Request::method(true) . ' ' . Request::url(true), 'warning');
+        if (500 > $_code) {
+            trace('MISS ' . $_code . ' ' . Request::method(true) . ' ' . Request::url(true), 'warning');
+        }
 
         $file = public_path() . intval($_code) . '.html';
 

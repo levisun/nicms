@@ -98,7 +98,7 @@ class Index extends BaseController
     public function search()
     {
         $query = $this->request->param('q');
-        if (false !== filter_var($query, FILTER_VALIDATE_URL) && 'www.jx.la' === parse_url($query, PHP_URL_HOST)) {
+        if (false !== filter_var($query, FILTER_VALIDATE_URL)) {
             $uri = parse_url($query, PHP_URL_PATH);
             $book_id = call_user_func([
                 $this->app->make('\app\book\logic\book\Spider'),

@@ -16,6 +16,19 @@ class Spider extends BaseLogic
 {
     // private $bookURI = 'https://www.jx.la';
     private $bookURI = 'https://www.biquge.com.cn';
+    private $origin = [
+        'www.biquge.com.cn' => [
+            'uri' => 'https://www.biquge.com.cn',
+            'author' => 'div#info>p',
+            'book_name' => 'div#info>h1',
+            'list' => 'dd>a',
+            'title' => 'div.bookname>h1',
+            'content' => 'div#content'
+        ],
+        'www.xduba.com' => [
+            'uri' => 'https://www.xduba.com/267_267009/',
+        ]
+    ];
 
     public function __destruct()
     {
@@ -76,7 +89,6 @@ class Spider extends BaseLogic
             $_book_id = $_book_id ?: $this->request->param('book_id/d', 0, '\app\common\library\Base64::url62decode');
 
             if ($origin = ModelBook::where('id', '=', $_book_id)->cache(true)->value('origin')) {
-
                 $spider = new LibSpider;
                 $spider->agent = 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69';
 
@@ -84,10 +96,15 @@ class Spider extends BaseLogic
                 @ini_set('max_execution_time', '0');
                 ignore_user_abort(true);
 
-                $total = ModelBookArticle::where('book_id', '=', $_book_id)->count();
-                $title = ModelBookArticle::where('book_id', '=', $_book_id)->order('id DESC')->value('title');
+                $total = ModelBookArticle::where('book_id', '=', $_book_id)
+                    ->where('delete_time', '=', '0')
+                    ->count();
+                $title = ModelBookArticle::where('book_id', '=', $_book_id)
+                    ->where('delete_time', '=', '0')
+                    ->order('id DESC')->value('title');
 
                 $list = $spider->request('GET', $origin)->select('dd>a', ['href']);
+                $list = array_slice($list, $total - 5);
                 foreach ($list as $key => $value) {
                     $needle = mb_substr(Filter::strict($value['html']), 0, 10, 'utf-8');
                     if ($title && false !== mb_strpos($title, $needle, 0, 'utf-8')) {
@@ -96,14 +113,14 @@ class Spider extends BaseLogic
                     }
                 }
 
-                $list = array_slice($list, $total, mt_rand(2, 3));
+                $list = array_slice($list, $total, mt_rand(1, 3));
                 foreach ($list as $key => $value) {
                     $needle = mb_substr(Filter::strict($value['html']), 0, 10, 'utf-8');
                     if ($title && false !== mb_strpos($title, $needle, 0, 'utf-8')) {
                         continue;
                     }
 
-                    sleep(mt_rand(15, 30));
+                    sleep(mt_rand(30, 45));
                     $url = $this->bookURI . '/' . Filter::strict($value['href']);
 
                     if (!$title = $spider->request('GET', $url)->select('div.bookname>h1')) {
@@ -128,14 +145,16 @@ class Spider extends BaseLogic
                     if (strip_tags($content)) {
                         $total = ModelBookArticle::where('book_id', '=', $_book_id)->count();
                         $result[] = $title;
-                        ModelBookArticle::create([
-                            'book_id'    => $_book_id,
-                            'title'      => $title,
-                            'content'    => Filter::htmlEncode($content),
-                            'is_pass'    => 1,
-                            'sort_order' => $total + 1,
-                            'show_time'  => time(),
-                        ]);
+                        if (!ModelBookArticle::where('title', '=', $title)->where('book_id', '=', $_book_id)->value('id')) {
+                            ModelBookArticle::create([
+                                'book_id'    => $_book_id,
+                                'title'      => $title,
+                                'content'    => Filter::htmlEncode($content),
+                                'is_pass'    => 1,
+                                'sort_order' => $total + 1,
+                                'show_time'  => time(),
+                            ]);
+                        }
                     }
                 }
 

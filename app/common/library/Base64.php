@@ -124,7 +124,7 @@ class Base64
      */
     public static function url62encode(int $_number): string
     {
-        $base62 = Config::get('app.url62secret', '02GcWtlRUHhixEqokMBue1FPbJsZfOLTa4DjpIrg5KC38NmS9nV7d6QwAzXYyv');
+        $base62 = Config::get('app.url62secret');
         $encode = '';
         $_number += 1000;
         $_number = (string) $_number;
@@ -148,7 +148,7 @@ class Base64
      */
     public static function url62decode(string $_encode): int
     {
-        $base62 = Config::get('app.url62secret', '02GcWtlRUHhixEqokMBue1FPbJsZfOLTa4DjpIrg5KC38NmS9nV7d6QwAzXYyv');
+        $base62 = Config::get('app.url62secret');
         $len = strlen($_encode);
         $arr = array_flip(str_split($base62));
 
@@ -189,7 +189,7 @@ class Base64
         } else {
             $_salt = $_salt ?: Request::server('HTTP_USER_AGENT');
             $secret_key = sha1(__DIR__ . $_salt);
-            $secret_key = hash_hmac('sha256', $secret_key, Config::get('app.secretkey', __DIR__));
+            $secret_key = hash_hmac('sha256', $secret_key, Config::get('app.secretkey'));
             $iv = substr(sha1($secret_key), 0, openssl_cipher_iv_length('AES-256-CBC'));
             $_data = base64_encode(openssl_encrypt((string) $_data, 'AES-256-CBC', $secret_key, OPENSSL_RAW_DATA, $iv));
         }
@@ -213,7 +213,7 @@ class Base64
         } else {
             $_salt = $_salt ?: Request::server('HTTP_USER_AGENT');
             $secret_key = sha1(__DIR__ . $_salt);
-            $secret_key = hash_hmac('sha256', $secret_key, Config::get('app.secretkey', __DIR__));
+            $secret_key = hash_hmac('sha256', $secret_key, Config::get('app.secretkey'));
             $iv = substr(sha1($secret_key), 0, openssl_cipher_iv_length('AES-256-CBC'));
             $_data = openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $secret_key, OPENSSL_RAW_DATA, $iv);
         }

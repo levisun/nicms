@@ -55,7 +55,7 @@ class AppMaintain
      */
     private function removeGarbage(): void
     {
-        only_execute('remove_garbage.lock', '-1 hour', function () {
+        only_execute('remove_garbage.lock', '-30 minutes', function () {
             // 清除过期无效缓存
             ClearGarbage::clearCache();
 

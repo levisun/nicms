@@ -2,23 +2,25 @@
     <div class="box-body" id="cache">
         <p>NICMS缓存分为"请求缓存", "API数据缓存", "模板编译缓存" 三种.</p>
 
-        <p>缓存时长一般为半个小时左右, 因此网站数据可能会出现数据陈旧等状态, 请不要担心系统会定时更新缓存.</p>
-        <p>PS: 个别API方法因为业务需求, 缓存时长会大于或小于半个小时!</p>
+        <p>缓存时长一般为半个小时至一小时左右, 因此网站数据可能会出现数据陈旧等状态, 请不要担心系统会定时更新缓存.</p>
+        <p>PS: 个别API缓存时长因为业务需求而定!</p>
 
         <p>如果网站长时间(几个小时或一天)未更新, 请安下方提示进行操作!</p>
 
-        <p><b>一:</b></p>
-        <p>如果修改模板, <b>半个小时后</b>前端界面没有更新, 可能是"请求缓存"或"模板编译缓存"陈旧造成.</p>
-        <p>请先执行<a v-on:click="rmRequest">清除请求缓存</a>, 如果<b>半个小时后</b>没有修复.</p>
-        <p>请依次执行<a v-on:click="rmCompile">清除模板编译缓存</a>和<a v-on:click="rmRequest">清除请求缓存</a>, <b>半个小时后</b>还没有修复, 请联系管理员.</p>
+        <h5>一</h5>
+        <p>如果修改模板, <b>一小时后</b>前端界面没有更新, 可能是"请求缓存"或"模板编译缓存"陈旧造成.</p>
+        <p>请先执行<a v-on:click="rmRequest">清除请求缓存</a>, 如果<b>一小时后</b>没有修复.</p>
+        <p>请依次执行<a v-on:click="rmCompile">清除模板编译缓存</a>和<a v-on:click="rmRequest">清除请求缓存</a>, <b>一小时后</b>还没有修复, 请联系管理员.
+        </p>
 
         <p>&nbsp;</p>
-        <p><b></b>二:</b></p>
+        <h5>二</h5>
         <p>API数据缓存时间最小为<b>半个小时</b>. 非必要情况请勿<a>清除API数据缓存</a>! 清除操作会导致服务器和数据库压力增大, 网站访问变慢等问题.</p>
-        <p>如果一定要执行, 请依次执行<a v-on:click="rmCompile">清除模板编译缓存</a>, <a v-on:click="rmApi">清除API数据缓存</a>, <a v-on:click="rmRequest">清除请求缓存</a></p>
+        <p>如果一定要执行, 请依次执行<a v-on:click="rmCompile">清除模板编译缓存</a>, <a v-on:click="rmApi">清除API数据缓存</a>, <a
+                v-on:click="rmRequest">清除请求缓存</a></p>
 
         <p>&nbsp;</p>
-        <p><b></b>三:</b></p>
+        <h5>三</h5>
         <p>如果还未解决问题, 请联系管理员.</p>
     </div>
 </div>
@@ -27,18 +29,20 @@
         el: '#cache',
         methods: {
             rmRequest: function () {
-                jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
-                    type: 'GET',
-                    data: [
-                        { name: 'method', value: 'content.cache.request' }
-                    ],
-                    success: function (result) {
-                        if (result.code == 10000) {
-                            jQuery.uiToast(result.message);
+                if (confirm("此操作可能会导致服务器变慢或宕机,是否继续执行?")) {
+                    jQuery.pjax({
+                        url: NICMS.api_uri + 'query.do',
+                        type: 'GET',
+                        data: [
+                            { name: 'method', value: 'content.cache.request' }
+                        ],
+                        success: function (result) {
+                            if (result.code == 10000) {
+                                jQuery.uiToast(result.message);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             },
             rmCompile: function () {
                 jQuery.pjax({
@@ -55,18 +59,20 @@
                 });
             },
             rmApi: function () {
-                jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
-                    type: 'GET',
-                    data: [
-                        { name: 'method', value: 'content.cache.api' }
-                    ],
-                    success: function (result) {
-                        if (result.code == 10000) {
-                            jQuery.uiToast(result.message);
+                if (confirm("此操作可能会导致服务器变慢或宕机,是否继续执行?")) {
+                    jQuery.pjax({
+                        url: NICMS.api_uri + 'query.do',
+                        type: 'GET',
+                        data: [
+                            { name: 'method', value: 'content.cache.api' }
+                        ],
+                        success: function (result) {
+                            if (result.code == 10000) {
+                                jQuery.uiToast(result.message);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             },
         }
     });

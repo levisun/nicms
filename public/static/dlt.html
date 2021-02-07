@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            background: white;
+            font-family: "Century Gothic", "Microsoft yahei";
+            color: #333;
+            font-size: 18px;
+        }
+
+        font {
+            font-size: 16px;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <p v-if="red.length">
+            total: <span v-text="red.length"></span>
+        </p>
+        <p v-html="future"></p>
+        <button v-on:click="create">888</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"
+        integrity="sha256-chlNFSVx3TdcQ2Xlw7SvnbLAavAQLO0Y/LBiWX04viY=" crossorigin="anonymous"></script>
+    <script>
+        let app = new Vue({
+            el: "#app",
+            data: {
+                red: [],
+                old: [1, 2, 3, 4, 5, 6],
+                future: "",
+            },
+            methods: {
+                create: function () {
+                    this.future = this.red[this.rand()];
+                },
+                rand: function () {
+                    return Math.floor(Math.random() * app.red.length);
+                },
+                // 判断上期
+                hasOld: function (needle) {
+                    for (let index in this.old) {
+                        if (needle == this.old[index]) {
+                            return true;
+                        }
+                    }
+                    return false;
+                },
+                // 判断连号
+                hasCont: function (_i1, _i2) {
+                    return _i1 + 1 == _i2 ? true : false;
+                },
+                // 判断奇偶
+                hasEven: function (_num) {
+                    return _num % 2 == 0 ? true : false;
+                },
+                hasPrime: function (_num) {
+                    for (let i = 1; i < _num; i++) {
+                        if (_num % i === 0) {
+                            return false
+                        }
+                    }
+                    return true
+                },
+                each: function () {
+                    for (let red1 = 1; red1 <= 31; red1++) {
+                        for (let red2 = ++red1; red2 <= 32; red2++) {
+                            if (red1 == red2 || red2 < red1) continue;
+                            for (let red3 = ++red2; red3 <= 33; red3++) {
+                                if (red2 == red3 || red3 < red2) continue;
+                                for (let red4 = ++red3; red4 <= 34; red4++) {
+                                    if (red3 == red4 || red4 < red3) continue;
+                                    for (let red5 = ++red4; red5 <= 35; red5++) {
+                                        if (red4 == red5 || red5 < red4) continue;
+                                        for (let blue1 = 1; blue1 <= 11; blue1++) {
+                                            for (let blue2 = ++blue1; blue2 <= 12; blue2++) {
+                                                if (blue1 == blue2 || blue2 < blue1) continue;
+
+                                                if (red1 == blue1) continue;
+                                                if (red2 == blue1) continue;
+                                                if (red3 == blue1) continue;
+                                                if (red4 == blue1) continue;
+                                                if (red5 == blue1) continue;
+
+                                                if (red1 == blue2) continue;
+                                                if (red2 == blue2) continue;
+                                                if (red3 == blue2) continue;
+                                                if (red4 == blue2) continue;
+                                                if (red5 == blue2) continue;
+
+
+                                                // 过滤全奇偶
+                                                let even = 0;
+                                                let odd = 0;
+                                                this.hasEven(red1) ? ++even : ++odd;
+                                                this.hasEven(red2) ? ++even : ++odd;
+                                                this.hasEven(red3) ? ++even : ++odd;
+                                                this.hasEven(red4) ? ++even : ++odd;
+                                                this.hasEven(red5) ? ++even : ++odd;
+                                                this.hasEven(blue1) ? ++even : ++odd;
+                                                this.hasEven(blue2) ? ++even : ++odd;
+                                                if (even == 7 || odd == 7) continue;
+
+                                                let prime = 0;
+                                                if (this.hasPrime(red1)) ++prime;
+                                                if (this.hasPrime(red2)) ++prime;
+                                                if (this.hasPrime(red3)) ++prime;
+                                                if (this.hasPrime(red4)) ++prime;
+                                                if (this.hasPrime(red5)) ++prime;
+                                                if (this.hasPrime(blue1)) ++prime;
+                                                if (this.hasPrime(blue2)) ++prime;
+                                                if (prime == 7) continue;
+
+                                                // 过滤3连号
+                                                let cont = 0;
+                                                if (this.hasCont(red1, red2)) ++cont;
+                                                if (this.hasCont(red2, red3)) ++cont;
+                                                if (this.hasCont(red3, red4)) ++cont;
+                                                if (this.hasCont(red4, red5)) ++cont;
+                                                if (this.hasCont(blue1, blue2)) ++cont;
+                                                if (cont > 4) continue;
+
+                                                // 过滤区间
+                                                if (red1 + red2 + red3 + red4 + red5 < 70) {
+                                                    continue;
+                                                }
+                                                if (red1 + red2 + red3 + red4 + red5 > 100) {
+                                                    continue;
+                                                }
+
+                                                // 组装数据
+                                                let redStyle = '<font style="color:red;">' + red1 + '</font>'
+                                                    + '<font style="color:red;">' + red2 + '</font>'
+                                                    + '<font style="color:red;">' + red3 + '</font>'
+                                                    + '<font style="color:red;">' + red4 + '</font>'
+                                                    + '<font style="color:red;">' + red5 + '</font>'
+                                                    + '<font style="color:blue;">' + blue1 + '</font>'
+                                                    + '<font style="color:blue;">' + blue2 + '</font>';
+
+                                                this.red.push(redStyle);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        app.each();
+    </script>
+</body>
+
+</html>

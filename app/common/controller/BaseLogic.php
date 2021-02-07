@@ -157,7 +157,6 @@ abstract class BaseLogic
         array_shift($backtrace);
         $flag = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
 
-
         return (int) $this->cache->get($this->getCacheKey($flag, self::CACHE_PAGE_KEY), $this->request->param('page/d', 1, 'abs'));
     }
 
@@ -216,9 +215,13 @@ abstract class BaseLogic
         $cache_key .= $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
         $cache_key .= $this->lang->getLangSet();
 
-        $cache_key .= $this->authKey . $this->user_id . $this->user_role_id . $this->user_type;
+        // 用户信息 $this->user_id
+        $cache_key .= $this->authKey . $this->user_role_id . $this->user_type;
 
-        // 筛选条件
+        //
+        $token = $this->request->param('token', '');
+        $cache_key .= strtolower($token);
+
         // 审核
         $pass = $this->request->param('pass/d', 0, 'abs');
         $cache_key .= 3 < $pass ? 0 : $pass;
@@ -231,36 +234,42 @@ abstract class BaseLogic
         $status = $this->request->param('status/d', 0, 'abs');
         $cache_key .= 3 < $status ? 0 : $status;
 
+        // 模型
         $model_id = $this->request->param('model_id/d', 0, 'abs');
         $cache_key .= \app\common\model\Models::cache(28800)->count() < $model_id ? 0 : $model_id;
 
+        // 主键ID
         $id = $this->request->param('id', 0);
         $cache_key .= is_int($id) ? $id : \app\common\library\Base64::url62decode($id);
 
+        // 栏目ID
         $category_id = $this->request->param('category_id', 0);
         $category_id = is_int($category_id) ? $category_id : \app\common\library\Base64::url62decode($category_id);
         $cache_key .= \app\common\model\Category::cache(28800)->count() < $category_id ? 0 : $category_id;
 
+        // 类型
         $type_id = $this->request->param('type_id/d', 0, 'abs');
         $cache_key .= \app\common\model\Type::cache(28800)->count() < $type_id ? 0 : $type_id;
 
+        // 书籍ID
         $book_id = $this->request->param('book_id', 0);
         $book_id = is_int($book_id) ? $book_id : \app\common\library\Base64::url62decode($book_id);
         $cache_key .= \app\common\model\Book::cache(28800)->count() < $book_id ? 0 : $book_id;
 
+        // 书籍类型
         $book_type_id = $this->request->param('book_type_id', 0);
         $book_type_id = is_int($book_type_id) ? $book_type_id : \app\common\library\Base64::url62decode($book_type_id);
         $cache_key .= \app\common\model\BookType::cache(28800)->count() < $book_type_id ? 0 : $book_type_id;
 
+        // 排序
         $sort = $this->request->param('sort', '');
         $cache_key .= preg_match('/[a-zA-Z\., ]+/uis', $sort) ? strtolower($sort) : '';
 
+        // 搜索关键词
         $key = $this->request->param('key', '', '\app\common\library\Filter::nonChsAlpha');
         $cache_key .= strtolower($key);
 
-        $token = $this->request->param('token', '');
-        $cache_key .= strtolower($token);
-
+        // 查询条目
         $limit = $this->request->param('limit/d', 20, 'abs');
         $limit = 100 > $limit && 10 < $limit ? intval($limit / 10) * 10 : 20;
 
@@ -268,7 +277,7 @@ abstract class BaseLogic
         if ($_type === self::CACHE_TOTAL_KEY) {
             $cache_key .= 'TOTAL';
         } elseif ($_type === self::CACHE_PAGE_KEY) {
-            $cache_key .= $limit;
+            $cache_key .= 'PAGE' . $limit;
         } else {
             $date_format = $this->request->param('date_format', 'Y-m-d');
             $cache_key .= preg_match('/[ymdhis\-: ]{3,}/uis', $date_format) ? $date_format : 'Y-m-d';

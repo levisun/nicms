@@ -250,33 +250,40 @@ class Filter
         // 做修改时,请保证括号内代码成功过滤!有新结构体,请追加在括号内!
         // [ onclick="alert(1)" onload=eval(ssltest.title) data-d={1:\'12 3213\',22=2:\' dabdd\'} ]
 
-        $regex = '/<(\/?[\w!]+)([\w\-\s]+=[^>]*)>/uis';
-        return (string) preg_replace_callback($regex, function ($attr) {
-            $attr = array_map('trim', $attr);
+        $dom = new \DOMDocument('1.0', 'UTF-8');
+        libxml_use_internal_errors(true);
+        $_str = preg_replace('/<\/?body[^<>]*>/is', '', $_str);
+        $_str = '<body>' . $_str . '</body>';
+        $dom->loadHTML('<meta charset="UTF-8">' . htmlspecialchars_decode($_str, ENT_QUOTES));
+        libxml_clear_errors();
 
-            // 过滤json数据
-            $attr[2] = preg_replace([
-                '/\[.*\]/uis',
-                '/\{.*\}/uis',
-            ], 'JSON', $attr[2]);
+        $xpath = new \DOMXPath($dom);
+        $nodes = $xpath->query('//*');
 
-            // 过滤非法属性
-            $attr[2] = str_replace(['" ', '\' '], ['"&', '\'&'], $attr[2]);
-            $attr[2] = preg_replace_callback('/([\w\-]+)=[^&]+/uis', function ($single) {
-                $single = array_map('trim', $single);
-                if (false !== stripos($single[0], 'javascript')) {
-                    return '';
-                } elseif (!in_array(strtolower($single[1]), self::$attr)) {
-                    return '';
-                } else {
-                    return trim($single[0]);
+        $xpath = new \DOMXPath($dom);
+        $nodes = $xpath->query('//*[@*]');
+        foreach ($nodes as $node) {
+            $attributes = [];
+            foreach ($node->attributes as $attr) {
+                if (!in_array(strtolower($attr->nodeName), self::$attr)) {
+                    $attributes[] = $attr->nodeName;
                 }
-            }, $attr[2]);
+                if (false !== stripos(strtolower($node->getAttribute($attr->nodeName)), 'javascript')) {
+                    $attributes[] = $attr->nodeName;
+                }
+            }
+            foreach ($attributes as $name) {
+                $node->removeAttribute($name);
+            }
+        }
 
-            $attr[2] = preg_replace('/[\s&]+/uis', ' ', trim($attr[2]));
-            $attr[2] = !empty($attr[2]) ? ' ' . trim($attr[2]) : '';
-            return '<' . $attr[1] . $attr[2] . '>';
-        }, $_str);
+        $nodes = $xpath->query('//body');
+        foreach ($nodes as $node) {
+            $node = $dom->saveHTML($node);
+            $_str = preg_replace('/<\/?body>/is', '', $node);
+        }
+
+        return $_str;
     }
 
     /**
@@ -288,40 +295,34 @@ class Filter
      */
     public static function html(string &$_str): string
     {
-        // 过滤非法标签
-        if (false !== preg_match_all('/<([\w!]+)[^<>]*>/ui', $_str, $ele)) {
-            $ele[1] = array_map(function ($value) {
-                $value = strtolower($value);
-                $value = trim($value);
-                return $value;
-            }, $ele[1]);
-            $ele[1] = array_filter($ele[1]);
-            $ele[1] = array_unique($ele[1]);
+        $_str = preg_replace('/[\'"]+<\/?\w+[^<>]*>[\'"]+/uis', '', $_str);
 
-            $length = [];
-            foreach ($ele[1] as $value) {
-                $length[] = strlen($value);
+        $dom = new \DOMDocument('1.0', 'UTF-8');
+        libxml_use_internal_errors(true);
+        $_str = preg_replace('/<\/?body[^<>]*>/is', '', $_str);
+        $_str = '<body>' . $_str . '</body>';
+        $dom->loadHTML('<meta charset="UTF-8">' . htmlspecialchars_decode($_str, ENT_QUOTES));
+        libxml_clear_errors();
+
+        $xpath = new \DOMXPath($dom);
+        $nodes = $xpath->query('//*');
+
+        // 删除标签
+        foreach ($nodes as $node) {
+            if (!in_array($node->nodeName, array_merge(['html', 'body'], self::$elements))) {
+                $node->parentNode->removeChild($node);
             }
+        }
 
-            array_multisort($length, SORT_DESC, $ele[1]);
-
-            $preg = [];
-            $preg[] = '/[\'"]+<[\w]+[^<>]*>[\'"]+/uis';
-            $preg[] = '/<!--.*?-->/uis';
-            foreach ($ele[1] as $value) {
-                if (!in_array($value, self::$elements)) {
-                    $preg[] = '/<' . $value . '[^<>]*>.*?<\/' . $value . '>/uis';
-                    $preg[] = '/<\/?' . $value . '[^<>]*>/ui';
-                }
-            }
-
-            $_str = (string) preg_replace($preg, '', $_str);
+        $nodes = $xpath->query('//body');
+        foreach ($nodes as $node) {
+            $node = $dom->saveHTML($node);
+            $_str = preg_replace('/<\/?body>/is', '', $node);
         }
 
         $_str = preg_replace('/<img\s*>/uis', '', $_str);
         $_str = preg_replace('/<[\w]+>\s*<\/[\w]+>/uis', '', $_str);
-
-        return trim($_str);
+        return $_str;
     }
 
     /**
@@ -340,12 +341,12 @@ class Filter
         $_str = (string) str_ireplace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;', '&#160;', '&nbsp;'], ' ', $_str);
 
         $pattern = [
-            '/<\!--[^<>]+-->/s' => '',
-            '/>\s+</'           => '><',
-            '/>\s+/'            => '>',
-            '/\s+</'            => '<',
-            '/\s+/s'            => ' ',
-            '/ +/si'            => ' ',
+            '/<\!\-\-[^<>]+\-\->/s' => '',
+            '/>\s+</'               => '><',
+            '/>\s+/'                => '>',
+            '/\s+</'                => '<',
+            '/\s+/s'                => ' ',
+            '/ +/si'                => ' ',
         ];
 
         $_str = (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
