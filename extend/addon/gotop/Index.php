@@ -65,15 +65,18 @@ class Index
 
         <div id="addon-gotop">回到顶端</div>
         <script type="text/javascript">
-        jQuery(window).scroll(function () {
-            if (jQuery(window).scrollTop() >= 100) {
-                jQuery("#addon-gotop").fadeIn(1500);
+        window.addEventListener("scroll", function(){
+            if (document.body.scrollTop >= 100) {
+                document.getElementById("addon-gotop").style.display = "block";
             } else {
-                jQuery("#addon-gotop").fadeOut(1500);
+                document.getElementById("addon-gotop").style.display = "none";
             }
         });
-        jQuery("#addon-gotop").click(function (){
-            jQuery("html,body").animate({ scrollTop: 0 }, 500);
+        document.getElementById("addon-gotop").addEventListener("click", function(){
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
         });
         </script>';
     }

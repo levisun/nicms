@@ -67,7 +67,7 @@ class Category extends BaseLogic
         }
 
         if (!$this->cache->has($this->getCacheKey()) || !$list = $this->cache->get($this->getCacheKey())) {
-            $result = ModelBook::view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'hits', 'status', 'update_time'])
+            $result = ModelBook::view('book', ['id', 'title', 'type_id', 'hits', 'status', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
                 ->where('book.is_pass', '=', '1')

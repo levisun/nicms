@@ -153,9 +153,7 @@ abstract class BaseLogic
     protected function getPageCache(): int
     {
         // 执行的方法名(命名空间\类名::方法名)
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-        array_shift($backtrace);
-        $flag = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
+        $flag = $this->getClassMethod();
 
         return (int) $this->cache->get($this->getCacheKey($flag, self::CACHE_PAGE_KEY), $this->request->param('page/d', 1, 'abs'));
     }
@@ -168,9 +166,7 @@ abstract class BaseLogic
     protected function getTotalCache()
     {
         // 执行的方法名(命名空间\类名::方法名)
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-        array_shift($backtrace);
-        $flag = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
+        $flag = $this->getClassMethod();
 
         $total = $this->cache->get($this->getCacheKey($flag, self::CACHE_TOTAL_KEY));
         return is_null($total) ? false : (int) $total;
@@ -186,9 +182,7 @@ abstract class BaseLogic
     protected function setTotalPageCache(int $_total, int $_last_page): void
     {
         // 执行的方法名(命名空间\类名::方法名)
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-        array_shift($backtrace);
-        $flag = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
+        $flag = $this->getClassMethod();
 
         if (!$this->cache->has($this->getCacheKey($flag, self::CACHE_TOTAL_KEY))) {
             $this->cache->tag('request')->set($this->getCacheKey($flag, self::CACHE_TOTAL_KEY), $_total, 28800);
@@ -209,10 +203,7 @@ abstract class BaseLogic
     protected function getCacheKey(string $_flag = '', string $_type = ''): string
     {
         // 执行的方法名(命名空间\类名::方法名)
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-        array_shift($backtrace);
-        $cache_key = get_class($this);
-        $cache_key .= $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
+        $cache_key = $this->getClassMethod();
         $cache_key .= $this->lang->getLangSet();
 
         // 用户信息 $this->user_id
@@ -341,6 +332,10 @@ abstract class BaseLogic
     {
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
         array_shift($backtrace);
+        $class = $this->getClassMethod();
+        $class = str_replace(['app\\', 'logic\\'], '', $class);
+        $class = str_replace(['\\', '::'], '_', $class);
+
         $class  = str_replace(['app\\', 'logic\\', '\\'], ['', '', '_'], $backtrace[0]['class']);
         $class .= '_' . $backtrace[0]['function'];
 
@@ -380,9 +375,7 @@ abstract class BaseLogic
      */
     protected function validate(array $_data = [])
     {
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-        array_shift($backtrace);
-        $class = $backtrace[0]['class'] . '::' . $backtrace[0]['function'];
+        $class = $this->getClassMethod();
 
         $pattern = '/app\\\([a-zA-Z]+)\\\logic\\\([a-zA-Z]+)\\\([a-zA-Z]+)::([a-zA-Z]+)/si';
         $class = preg_replace_callback($pattern, function ($matches) {
@@ -452,5 +445,17 @@ abstract class BaseLogic
             'msg'   => is_string($result) ? $result : 'success',
             'data'  => is_string($result) ? [] : $result
         ];
+    }
+
+    /**
+     * 获得执行类名和方法名
+     * @access protected
+     * @return string
+     */
+    protected function getClassMethod(): string
+    {
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+        array_shift($backtrace);
+        return get_class($this) . '::' . $backtrace[0]['function'];
     }
 }

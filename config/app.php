@@ -34,9 +34,9 @@ return [
     'img_host'         => '//img.' . request()->rootDomain() . '/',
 
     // URL加密密钥(不可修改,否则会出现无法修复的错误)
-    'url62secret'      => env('app.url62secret', 'DMITkE3zeR71Lx2KQrFjH9iOcBohlqnvaV4Gu5Wy0CtZUXSbmJg8sPw6ANYfdp'),
+    'url62secret'      => 'DMITkE3zeR71Lx2KQrFjH9iOcBohlqnvaV4Gu5Wy0CtZUXSbmJg8sPw6ANYfdp',
     // 加密密钥(不可修改,否则会出现无法修复的错误)
-    'secretkey'        => hash_hmac('sha256', env('app.secretkey', 'nicms'), sha1(request()->rootDomain() . __DIR__)),
+    'secretkey'        => hash_hmac('sha256', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01', sha1(request()->rootDomain() . __DIR__)),
 
     // 应用地址
     'app_host'         => env('app.host', '//www.' . request()->rootDomain()),

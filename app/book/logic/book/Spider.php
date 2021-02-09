@@ -16,19 +16,6 @@ class Spider extends BaseLogic
 {
     // private $bookURI = 'https://www.jx.la';
     private $bookURI = 'https://www.biquge.com.cn';
-    private $origin = [
-        'www.biquge.com.cn' => [
-            'uri' => 'https://www.biquge.com.cn',
-            'author' => 'div#info>p',
-            'book_name' => 'div#info>h1',
-            'list' => 'dd>a',
-            'title' => 'div.bookname>h1',
-            'content' => 'div#content'
-        ],
-        'www.xduba.com' => [
-            'uri' => 'https://www.xduba.com/267_267009/',
-        ]
-    ];
 
     public function __destruct()
     {
@@ -95,16 +82,17 @@ class Spider extends BaseLogic
                 @set_time_limit(0);
                 @ini_set('max_execution_time', '0');
                 ignore_user_abort(true);
+                $list = $spider->request('GET', $origin)->select('dd>a', ['href']);
 
                 $total = ModelBookArticle::where('book_id', '=', $_book_id)
                     ->where('delete_time', '=', '0')
                     ->count();
                 $title = ModelBookArticle::where('book_id', '=', $_book_id)
                     ->where('delete_time', '=', '0')
-                    ->order('id DESC')->value('title');
+                    ->order('id DESC')
+                    ->value('title');
 
-                $list = $spider->request('GET', $origin)->select('dd>a', ['href']);
-                $list = array_slice($list, $total - 5);
+                $list = $total ? array_slice($list, $total - 5) : $list;
                 foreach ($list as $key => $value) {
                     $needle = mb_substr(Filter::strict($value['html']), 0, 10, 'utf-8');
                     if ($title && false !== mb_strpos($title, $needle, 0, 'utf-8')) {
