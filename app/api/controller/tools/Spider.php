@@ -37,6 +37,7 @@ class Spider extends BaseApi
         $selector = $this->request->param('selector', '');
         $extract = $this->request->param('extract', '');
         $extract = $extract ? explode(',', $extract) : [];
+        $type = $this->request->param('type', 'html');
 
         $uri = Filter::htmlDecode($uri);
         $uri = str_replace('&nbsp;', '', $uri);
@@ -45,7 +46,7 @@ class Spider extends BaseApi
         $spider->request($method, $uri);
         $result = $selector
             ? $spider->select($selector, $extract)
-            : $spider->getHtml();
+            : ('html' == $type ? $spider->getHtml() : $spider->pageInfo());
 
         return !empty($result)
             ? $this->cache(1440)->success('spider success', $result)

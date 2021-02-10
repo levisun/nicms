@@ -101,7 +101,7 @@ class Spider extends BaseLogic
                     }
                 }
 
-                $list = array_slice($list, $total, mt_rand(1, 3));
+                $list = array_slice($list, $total, mt_rand(2, 3));
                 foreach ($list as $key => $value) {
                     $needle = mb_substr(Filter::strict($value['html']), 0, 10, 'utf-8');
                     if ($title && false !== mb_strpos($title, $needle, 0, 'utf-8')) {

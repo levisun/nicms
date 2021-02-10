@@ -320,8 +320,11 @@ class Filter
             $_str = preg_replace('/<\/?body>/is', '', $node);
         }
 
-        $_str = preg_replace('/<img\s*>/uis', '', $_str);
-        $_str = preg_replace('/<[\w]+>\s*<\/[\w]+>/uis', '', $_str);
+        $_str = preg_replace([
+            '/<img\s*>/uis',
+            '/<[\w]+>\s*<\/[\w]+>/uis'
+        ], '', $_str);
+
         return $_str;
     }
 
