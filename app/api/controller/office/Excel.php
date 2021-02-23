@@ -47,7 +47,6 @@ class Excel extends BaseApi
                 $this->cache->set($file . $sheet, $result);
             }
 
-
             return $result
                 ? $this->cache(true)->success('Excel read success', $result)
                 : $this->error('Excel read error');

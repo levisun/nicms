@@ -44,8 +44,8 @@ class Node extends Model
 /*
 DROP TABLE IF EXISTS `nc_node`;
 CREATE TABLE IF NOT EXISTS `nc_node` (
-    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `pid` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父ID',
+    `id` mediumint(9) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `pid` mediumint(9) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父ID',
     `level` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '等级',
     `name` varchar(20) NOT NULL DEFAULT '' COMMENT '节点操作名',
     `title` varchar(50) NOT NULL DEFAULT '' COMMENT '节点说明',

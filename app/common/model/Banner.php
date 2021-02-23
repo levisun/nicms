@@ -15,11 +15,11 @@
 /*
 DROP TABLE IF EXISTS `nc_banner`;
 CREATE TABLE IF NOT EXISTS `nc_banner` (
-    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id` mediumint(9) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` varchar(255) NOT NULL DEFAULT '' COMMENT '幻灯片名',
     `description` varchar(300) NOT NULL DEFAULT '' COMMENT '描述',
-    `width` smallint(6) NOT NULL DEFAULT '0' COMMENT '图片宽',
-    `height` smallint(6) NOT NULL DEFAULT '0' COMMENT '图片高',
+    `width` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '图片宽',
+    `height` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '图片高',
     `image_url` varchar(255) NOT NULL DEFAULT '' COMMENT '图片',
     `url` varchar(500) NOT NULL DEFAULT '' COMMENT '跳转链接',
     `hits` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '点击量',

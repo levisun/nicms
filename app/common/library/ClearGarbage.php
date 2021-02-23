@@ -24,7 +24,7 @@ class ClearGarbage
      * @access public
      * @static
      * @param  string $_dir
-     * @param  string $_expire '-1 month' or '-1 day' or '-1 hour' or ...
+     * @param  string $_expire -1 month or -1 day or -1 hour or ...
      * @return void
      */
     public static function clear(string $_dir, string $_expire = ''): void

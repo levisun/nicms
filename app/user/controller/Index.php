@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace app\user\controller;
 
 use app\common\controller\BaseController;
-use app\common\library\Siteinfo;
+use app\common\controller\SiteInfo;
 
 class Index extends BaseController
 {

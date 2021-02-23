@@ -244,7 +244,7 @@ if (!function_exists('glob2each')) {
      */
     function glob2each(string $_dir)
     {
-        $_dir = rtrim($_dir, '\/*');
+        $_dir = rtrim($_dir, '\/*.');
         if (is_readable($_dir)) {
             $dh = opendir($_dir);
             while ($file = readdir($dh)) {

@@ -66,62 +66,11 @@ class Spider
             $result['description'] = Filter::space($result['description']);
         }
 
-        if ($links = $this->select('a', ['href'])) {
-            foreach ($links as $value) {
-                $value['href'] = isset($value['href']) ? htmlspecialchars_decode($value['href'], ENT_QUOTES) : '';
-                if (false !== strpos($value['href'], 'javascript')) {
-                    $value['href'] = '';
-                }
-                if (0 === strpos($value['href'], '#')) {
-                    $value['href'] = '';
-                }
-                if (0 === strpos($value['href'], '//')) {
-                    $value['href'] = parse_url($host, PHP_URL_SCHEME) . ':' . $value['href'];
-                } elseif (0 === strpos($value['href'], '/')) {
-                    $value['href'] = $host . $value['href'];
-                }
-                $result['links'][] = $value['href'];
-            }
-            $result['links'] = array_unique($result['links']);
-            $result['links'] = array_filter($result['links']);
-        }
-
-        if ($imgs = $this->select('img', ['src'])) {
-            foreach ($imgs as $value) {
-                $value['src'] = isset($value['src']) ? htmlspecialchars_decode($value['src'], ENT_QUOTES) : '';
-                if (0 === strpos($value['src'], '//')) {
-                    $value['src'] = parse_url($host, PHP_URL_SCHEME) . ':' . $value['src'];
-                } elseif (0 === strpos($value['src'], '/')) {
-                    $value['src'] = $host . $value['src'];
-                }
-                $result['imgs'][] = $value['src'];
-            }
-            $result['imgs'] = array_unique($result['imgs']);
-            $result['imgs'] = array_filter($result['imgs']);
-
-            foreach ($result['imgs'] as $key => $src) {
-                $width = $height = 0;
-                if ($handle = @fopen($src, 'rb')) {
-                    $dataBlock = fread($handle, 168);
-                    if ($size = @getimagesize('data://image/jpeg;base64,' . base64_encode($dataBlock))) {
-                        $width = (int) $size[0];
-                        $height = (int)  $size[1];
-                    }
-                }
-
-                $result['imgs'][$key] = [
-                    'src' => $src,
-                    'width' => $width,
-                    'height' => $height,
-                ];
-            }
-        }
-
-        $host = parse_url($result['url'], PHP_URL_HOST);
-
         if ($body = $this->select('body', [], false)) {
             $body = htmlspecialchars_decode($body[0], ENT_QUOTES);
             $body = preg_replace('/<\/?body[^<>]*>/i', '', $body);
+
+            $body = preg_replace('/[\'"]+<\/?\w+[^<>]*>[\'"]+/uis', '', $body);
 
             $body = preg_replace([
                 '/\/\*.*?\*\//uis',
@@ -137,7 +86,8 @@ class Spider
             libxml_clear_errors();
 
             $xpath = new \DOMXPath($dom);
-            foreach (['head', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'a', 'input', 'button', 'template', 'script', 'style'] as $ele) {
+            $element = ['head', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'a', 'input', 'button', 'template', 'script', 'style'];
+            foreach ($element as $ele) {
                 $nodes = $xpath->query('//' . $ele);
                 foreach ($nodes as $node) {
                     $node->parentNode->removeChild($node);
@@ -146,15 +96,16 @@ class Spider
 
             $nodes = $xpath->query('//*[@*]');
             foreach ($nodes as $node) {
+                $attributes = [];
                 foreach ($node->attributes as $attr) {
-                    if (!in_array($attr, ['src'])) {
-                        // halt($attr->nodeName);
-                        $node->removeAttribute($attr->nodeName);
-                        $node->removeAttribute('id');
-                        $node->removeAttribute('class');
-                        $node->removeAttribute('style');
-                        $node->removeAttribute('width');
-                        $node->removeAttribute('height');
+                    if (!in_array(strtolower($attr->nodeName), ['src'])) {
+                        $attributes[] = $attr->nodeName;
+                    }
+                    if (false !== stripos(strtolower($node->getAttribute($attr->nodeName)), 'javascript')) {
+                        $attributes[] = $attr->nodeName;
+                    }
+                    foreach ($attributes as $name) {
+                        $node->removeAttribute($name);
                     }
                 }
             }
@@ -175,6 +126,8 @@ class Spider
                 }
             }
             // halt($content);
+
+            $host = parse_url($result['url'], PHP_URL_HOST);
 
             $content = end($content);
             $content = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) use ($host) {
@@ -387,10 +340,11 @@ class Spider
                     ? strtoupper(trim($charset[1], '"\''))
                     : '';
             }
+
             if (!$charset) {
-                preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->xhtml, (array) $charset);
-                $charset = !empty($charset)
-                    ? strtoupper(trim($charset[1], '"\''))
+                preg_match('/charset=["\']?([\w\-]{1,})["\']?/si', $this->xhtml, $matches);
+                $charset = !empty($matches)
+                    ? strtoupper(trim($matches[1], '"\''))
                     : '';
             }
 

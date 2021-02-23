@@ -24,15 +24,15 @@ class Handle extends BaseApi
 
     public function index()
     {
-        if (!$result = $this->run()) {
-            return miss(404, false);
+        if ($result = $this->run()) {
+            // 请勿开启缓存
+            return $this->cache(false)->response(
+                $result['msg'],
+                $result['data'],
+                $result['code']
+            );
         }
 
-        // 请勿开启缓存
-        return $this->cache(false)->response(
-            $result['msg'],
-            $result['data'],
-            $result['code']
-        );
+        return miss(404, false);
     }
 }

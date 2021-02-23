@@ -12,7 +12,14 @@ let nav = new Vue({
             "enc": {
                 "name": "编码\/加密",
                 "child": {
-                    "base64": "base64.html"
+                    "base64": "base64.html",
+                    "unicode": "unicode.html"
+                }
+            },
+            "other": {
+                "name": "其他",
+                "child": {
+                    "regex": "regex.html"
                 }
             }
         }

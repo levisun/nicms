@@ -16,36 +16,20 @@ declare(strict_types=1);
 
 namespace app\book\controller;;
 
+use app\common\controller\SiteInfo as CommonSiteInfo;
 use think\facade\Cache;
-use think\facade\Lang;
 use think\facade\Request;
-use app\common\library\Filter;
 use app\common\model\Config as ModelConfig;
 use app\common\model\Book as ModelBook;
 use app\common\model\BookArticle as ModelBookArticle;
 
-class SiteInfo
+class SiteInfo extends CommonSiteInfo
 {
-    private $appName = 'book';
-    private $langSet = '';
+    protected $appName = 'book';
 
     public function query(): array
     {
-        $this->langSet = Lang::getLangSet();
-
         $cache_key = $this->appName . $this->langSet;
-        if (!Cache::has($cache_key) || !$common = Cache::get($cache_key)) {
-            $common = [
-                'theme'     => $this->theme(),
-                'script'    => $this->script(),
-                'footer'    => $this->footer(),
-                'copyright' => $this->copyright(),
-                'name'      => $this->siteName(),
-            ];
-
-            Cache::tag('request')->set($cache_key, $common);
-        }
-
         $cache_key .= Request::param('id', 0) . Request::param('book_id', 0);
         if (!Cache::has($cache_key) || !$result = Cache::get($cache_key)) {
             $result = [
@@ -57,15 +41,15 @@ class SiteInfo
             Cache::tag('request')->set($cache_key, $result);
         }
 
-        return array_merge($common, $result);
+        return array_merge($this->siteConfig, $result);
     }
 
     /**
      * 网站描述
-     * @access private
+     * @access protected
      * @return string
      */
-    private function description(): string
+    protected function description(): string
     {
         // 默认
         $description = ModelConfig::where('name', '=', $this->appName . '_description')
@@ -82,10 +66,10 @@ class SiteInfo
 
     /**
      * 网站关键词
-     * @access private
+     * @access protected
      * @return string
      */
-    private function keywords(): string
+    protected function keywords(): string
     {
         // 默认
         $keywords = ModelConfig::where('name', '=', $this->appName . '_keywords')
@@ -102,10 +86,10 @@ class SiteInfo
 
     /**
      * 网站标题
-     * @access private
+     * @access protected
      * @return string
      */
-    private function title(): string
+    protected function title(): string
     {
         $title = '';
 
@@ -125,90 +109,5 @@ class SiteInfo
         $title .= $this->siteName();
 
         return strip_tags(htmlspecialchars_decode($title));
-    }
-
-    /**
-     * 网站名称
-     * @access private
-     * @return string
-     */
-    private function siteName(): string
-    {
-        $site = ModelConfig::where('name', '=', $this->appName . '_sitename')
-            ->where('lang', '=', $this->langSet)
-            ->value('value', '腐朽的书屋');
-
-        return strip_tags(htmlspecialchars_decode($site));
-    }
-
-    /**
-     * 网站版权
-     * @access private
-     * @return string
-     */
-    private function copyright(): string
-    {
-        $copyright = ModelConfig::where('name', '=', $this->appName . '_copyright')
-            ->where('lang', '=', $this->langSet)
-            ->value('value', '');
-
-        $beian = ModelConfig::where('name', '=', $this->appName . '_beian')
-            ->where('lang', '=', $this->langSet)
-            ->value('value', '');
-
-        return
-            Filter::htmlDecode($copyright) . '&nbsp;' .
-            Filter::htmlDecode($beian) . '&nbsp;' .
-            '&nbsp;Powered&nbsp;by&nbsp;<a href="https://github.com/levisun/nicms" rel="nofollow" target="_blank">NICMS</a>';
-    }
-
-    /**
-     * 网站底部
-     * @access private
-     * @return string
-     */
-    private function footer(): string
-    {
-        $footer = ModelConfig::where('name', '=', $this->appName . '_footer')
-            ->where('lang', '=', $this->langSet)
-            ->value('value', '');
-
-        return htmlspecialchars_decode($footer);
-    }
-
-    /**
-     * JS脚本
-     * @access private
-     * @return string
-     */
-    private function script(): string
-    {
-        $result = ModelConfig::where('name', '=', $this->appName . '_script')
-            ->where('lang', '=', $this->langSet)
-            ->value('value', '');
-
-        $result = preg_replace([
-            '/(\s+\n|\r)/s',
-            '/(\t|\0|\x0B)/s',
-            '/( ){2,}/s',
-        ], '', $result);
-
-        return $result
-            ? '<script type="text/javascript">' . htmlspecialchars_decode($result) . '</script>'
-            : '';
-    }
-
-    /**
-     * 主题
-     * @access private
-     * @return string
-     */
-    private function theme(): string
-    {
-        $theme = ModelConfig::where('name', '=', $this->appName . '_theme')
-            ->where('lang', '=', $this->langSet)
-            ->value('value', 'default');
-
-        return strip_tags(htmlspecialchars_decode($theme));
     }
 }

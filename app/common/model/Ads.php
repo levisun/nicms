@@ -15,10 +15,10 @@
 /*
 DROP TABLE IF EXISTS `nc_ads`;
 CREATE TABLE IF NOT EXISTS `nc_ads` (
-    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id` mediumint(9) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` varchar(50) NOT NULL DEFAULT '' COMMENT '广告名',
-    `width` smallint(6) NOT NULL DEFAULT '0' COMMENT '图片宽',
-    `height` smallint(6) NOT NULL DEFAULT '0' COMMENT '图片高',
+    `width` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '图片宽',
+    `height` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '图片高',
     `image` varchar(255) NOT NULL DEFAULT '' COMMENT '图片',
     `url` varchar(500) NOT NULL DEFAULT '' COMMENT '跳转链接',
     `description` varchar(300) NOT NULL DEFAULT '' COMMENT '描述',

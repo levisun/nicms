@@ -2,7 +2,7 @@
 
 /**
  *
- * 图像
+ * 文件
  *
  * @package   NICMS
  * @category  app\common\library

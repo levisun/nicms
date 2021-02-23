@@ -25,10 +25,6 @@ class Filter
 
     private static $attr = ['alt', 'align', 'async', 'charset', 'class', 'content', 'defer', 'height', 'href', 'id', 'name', 'rel', 'src', 'style', 'target', 'title', 'type', 'width', 'rowspan'];
 
-    private static $func = ['apache_setenv', 'base64_decode', 'call_user_func', 'call_user_func_array', 'chgrp', 'chown', 'chroot', 'eval', 'exec', 'file_get_contents', 'file_put_contents', 'function', 'imap_open', 'ini_alter', 'ini_restore', 'invoke', 'openlog', 'passthru', 'pcntl_alarm', 'pcntl_exec', 'pcntl_fork', 'pcntl_get_last_error', 'pcntl_getpriority', 'pcntl_setpriority', 'pcntl_signal', 'pcntl_signal_dispatch', 'pcntl_sigprocmask', 'pcntl_sigtimedwait', 'pcntl_sigwaitinfo', 'pcntl_strerror', 'pcntl_wait', 'pcntl_waitpid', 'pcntl_wexitstatus', 'pcntl_wifcontinued', 'pcntl_wifexited', 'pcntl_wifsignaled', 'pcntl_wifstopped', 'pcntl_wstopsig', 'pcntl_wtermsig', 'popen', 'popepassthru', 'proc_open', 'putenv', 'readlink', 'shell_exec', 'symlink', 'syslog', 'system', 'select', 'drop', 'delete', 'create', 'insert'];
-
-    // , 'update'
-
     /**
      * 严格过滤
      * @access public
@@ -118,13 +114,18 @@ class Filter
 
         $file = fopen($filename, 'r');
         while (!feof($file) && $words = fgets($file)) {
-            $words = trim($words);
+            if (!$words = trim($words)) {
+                continue;
+            }
 
             if (0 === strpos($words, '--')) {
                 continue;
             }
 
-            $words = self::base($words);
+            if (!$words = self::base($words)) {
+                continue;
+            }
+
             $words = explode(',', $words);
             $words = array_filter($words);
             $words = array_unique($words);
@@ -148,8 +149,13 @@ class Filter
             while ($regex = array_slice($words, 100 * $num, 100)) {
                 $num++;
                 $regex = implode('|', $regex);
-                $_str = (string) preg_replace_callback('/' . $regex . '/u', function () {
-                    return '&#42;&#42;';
+                $_str = (string) preg_replace_callback('/' . $regex . '/u', function ($matches) {
+                    $matches[0] = (string) preg_replace('/ +/u', '', $matches[0]);
+                    $star = '';
+                    for ($i = 0; $i < mb_strlen($matches[0], 'utf-8'); $i++) {
+                        $star .= '&#42;';
+                    }
+                    return $star;
                 }, $_str);
             }
         }
@@ -171,9 +177,7 @@ class Filter
         $_str = str_replace('&nbsp;', '', $_str);
         $_str = strip_tags($_str);
 
-        $_str = (string) preg_replace_callback('/[^\x{4e00}-\x{9fa5}a-zA-Z0-9 ]+/uis', function () {
-            return '';
-        }, trim($_str));
+        $_str = (string) preg_replace('/[^\x{4e00}-\x{9fa5}a-zA-Z0-9 ]+/uis', '', trim($_str));
 
         return trim($_str);
     }
@@ -207,11 +211,8 @@ class Filter
      */
     public static function fun(string &$_str): string
     {
-        $regex = '/' . implode('\s*\(|', self::$func) . '/uis';
-        $_str = (string) preg_replace_callback($regex, function ($matches) {
-            return $matches[0] . '&nbsp;';
-        }, $_str);
-
+        $_str = (string) preg_replace('/([\w\d]+)\(/uis', '$1&nbsp;(', $_str);
+        $_str = (string) preg_replace('/(create|insert|delete|update|select|drop)+ +/uis', '$1&nbsp;', $_str);
         return trim($_str);
     }
 
@@ -249,6 +250,9 @@ class Filter
     {
         // 做修改时,请保证括号内代码成功过滤!有新结构体,请追加在括号内!
         // [ onclick="alert(1)" onload=eval(ssltest.title) data-d={1:\'12 3213\',22=2:\' dabdd\'} ]
+
+        // 剔除JS代码中的标签
+        $_str = preg_replace('/[\'"]+<\/?\w+[^<>]*>[\'"]+/uis', '', $_str);
 
         $dom = new \DOMDocument('1.0', 'UTF-8');
         libxml_use_internal_errors(true);
@@ -295,6 +299,7 @@ class Filter
      */
     public static function html(string &$_str): string
     {
+        // 剔除JS代码中的标签
         $_str = preg_replace('/[\'"]+<\/?\w+[^<>]*>[\'"]+/uis', '', $_str);
 
         $dom = new \DOMDocument('1.0', 'UTF-8');

@@ -15,7 +15,7 @@
 /*
 DROP TABLE IF EXISTS `nc_link`;
 CREATE TABLE IF NOT EXISTS `nc_link` (
-    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id` mediumint(9) UNSIGNED NOT NULL AUTO_INCREMENT,
     `title` varchar(20) NOT NULL DEFAULT '' COMMENT '标题',
     `logo` varchar(100) NOT NULL DEFAULT '' COMMENT '标志',
     `url` varchar(100) NOT NULL DEFAULT '' COMMENT '跳转链接',
