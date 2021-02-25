@@ -16,14 +16,14 @@ declare(strict_types=1);
 
 namespace app\book\controller;;
 
-use app\common\controller\SiteInfo as CommonSiteInfo;
+use app\common\controller\BaseSiteInfo;
 use think\facade\Cache;
 use think\facade\Request;
 use app\common\model\Config as ModelConfig;
 use app\common\model\Book as ModelBook;
 use app\common\model\BookArticle as ModelBookArticle;
 
-class SiteInfo extends CommonSiteInfo
+class SiteInfo extends BaseSiteInfo
 {
     protected $appName = 'book';
 

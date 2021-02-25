@@ -235,38 +235,6 @@ if (!function_exists('url')) {
     }
 }
 
-if (!function_exists('glob2each')) {
-    /**
-     * 获取目录中所有文件
-     *
-     * @param  string $_dir
-     * @return mixed
-     */
-    function glob2each(string $_dir)
-    {
-        $_dir = rtrim($_dir, '\/*.');
-        if (is_readable($_dir)) {
-            $dh = opendir($_dir);
-            while ($file = readdir($dh)) {
-                if ('.' === substr($file, 0, 1))
-                    continue;
-
-                $path = $_dir . DIRECTORY_SEPARATOR . $file;
-
-                yield $path;
-
-                if (is_dir($path)) {
-                    $sub = glob2each($path);
-                    while ($sub->valid()) {
-                        yield $sub->current();
-                        $sub->next();
-                    }
-                }
-            }
-        }
-    }
-}
-
 if (!function_exists('public_path')) {
     /**
      * 获取web根目录

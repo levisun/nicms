@@ -64,7 +64,7 @@ class Ads extends BaseLogic
             $value['start_time'] = date($date_format, $value['start_time']);
             $value['end_time'] = date($date_format, $value['end_time']);
 
-            $value['image'] = File::pathToUrl($value['image']);
+            $value['image'] = File::imgUrl($value['image']);
 
             $value['url'] = [
                 'editor' => url('content/ads/editor/' . $value['id']),

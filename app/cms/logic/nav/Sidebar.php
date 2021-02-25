@@ -47,7 +47,7 @@ class Sidebar extends BaseLogic
                 if ($result && $result = $result->toArray()) {
                     $result['id'] = (int) $result['id'];
                     $result['child'] = $this->child($result['id']);
-                    $result['image'] = File::pathToUrl((string) $result['image']);
+                    $result['image'] = File::imgUrl((string) $result['image']);
                     $result['flag'] = Base64::flag($result['id'], 7);
                     if (in_array($result['action_name'], ['article', 'picture', 'download'])) {
                         $result['url'] = url('list/' . Base64::url62encode($result['id']));
@@ -92,7 +92,7 @@ class Sidebar extends BaseLogic
         foreach ($result as $key => $value) {
             $value['id'] = (int) $value['id'];
             $value['child'] = $this->child($value['id']);
-            $value['image'] = File::pathToUrl((string) $value['image']);
+            $value['image'] = File::imgUrl((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             if (in_array($value['action_name'], ['article', 'picture', 'download'])) {
                 $value['url'] = url('list/' . Base64::url62encode($value['id']));

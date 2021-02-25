@@ -71,10 +71,7 @@ class Excel extends BaseApi
         $file = (new OfficeExcel)->write($data, $sheet);
 
         return $file
-            ? Response::create($file, 'file')
-            ->name(pathinfo($file, PATHINFO_FILENAME))
-            ->isContent(false)
-            ->expire(28800)
+            ? Response::create($file, 'file')->name(pathinfo($file, PATHINFO_FILENAME))->isContent(false)->expire(28800)
             : $this->error('Excel write error');
     }
 }

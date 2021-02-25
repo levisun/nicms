@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
+use app\common\library\tools\File;
+
 class ClearGarbage
 {
 
@@ -33,7 +35,7 @@ class ClearGarbage
         $timestamp = $_expire ? strtotime($_expire) : 0;
 
         clearstatcache();
-        $glob = glob2each($_dir);
+        $glob = File::glob($_dir);
         while ($glob->valid()) {
             $filename = $glob->current();
             $glob->next();
@@ -57,7 +59,7 @@ class ClearGarbage
     public static function clearCache(string $_dir = '')
     {
         $_dir = $_dir ?: runtime_path('cache');
-        $glob = glob2each($_dir);
+        $glob = File::glob($_dir);
         clearstatcache();
         while ($glob->valid()) {
             $filename = $glob->current();
@@ -131,7 +133,7 @@ class ClearGarbage
      */
     public static function uploadEmptyDirectory(): void
     {
-        $glob = glob2each(public_path('storage/uploads'));
+        $glob = File::glob(public_path('storage/uploads'));
         $dir = '';
         while ($glob->valid()) {
             $filename = $glob->current();

@@ -51,7 +51,7 @@ class Catalog extends BaseLogic
                 ->toArray();
 
             foreach ($list as $key => $value) {
-                $value['logo'] = File::pathToUrl($value['logo']);
+                $value['logo'] = File::imgUrl($value['logo']);
                 $list[$key] = $value;
             }
 

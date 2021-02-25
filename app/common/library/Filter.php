@@ -88,9 +88,9 @@ class Filter
             $_data = Base64::emojiDecode($_data);
             if ($_strict) {
                 $_data = self::sensitive($_data);
-                $_data = preg_replace_callback('/(src=["\']+)([a-zA-Z0-9&=#,_:?.\/]+)(["\']+)/si', function ($matches) {
+                $_data = preg_replace_callback('/(src=["\']+)([^<>]+)(["\']+)/si', function ($matches) {
                     return $matches[2]
-                        ? 'src="' . File::pathToUrl($matches[2]) . '"'
+                        ? 'src="' . File::imgUrl($matches[2]) . '"'
                         : '';
                 }, $_data);
             }
@@ -161,7 +161,7 @@ class Filter
         }
         fclose($file);
 
-        return $_str;
+        return trim($_str);
     }
 
     /**
@@ -345,7 +345,8 @@ class Filter
         // 不间断空格\u00a0,主要用在office中,让一个单词在结尾处不会换行显示,快捷键ctrl+shift+space
         // 半角空格(英文符号)\u0020,代码中常用的
         // 全角空格(中文符号)\u3000,中文文章中使用
-        $_str = (string) json_decode(str_ireplace(['\u00a0', '\u0020', '\u3000', '\ufeff'], ' ', json_encode($_str)));
+        $_str = preg_replace('/[\x{00a0}\x{0020}\x{3000}\x{feff}]/uis', '', $_str);
+
         $_str = (string) str_ireplace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;', '&#160;', '&nbsp;'], ' ', $_str);
 
         $pattern = [
@@ -371,23 +372,23 @@ class Filter
      */
     public static function symbol(string &$_str): string
     {
+        $_str = (string) preg_replace_callback('/[\x{3000}\x{ff01}-\x{ff5f}]/uis', function ($chs) {
+            $chs = trim(json_encode($chs[0]), '"');
+            $chs = str_replace('\u', '', $chs);
+            $chs = hexdec($chs);
+            return $chs === 12288 ? chr(32) : chr($chs - 65248);
+        }, $_str);
+
         $pattern = [
             // 全角字符转半角字符
-            '０' => '0', '１' => '1', '２' => '2', '３' => '3', '４' => '4', '５' => '5', '６' => '6', '７' => '7', '８' => '8', '９' => '9',
-            'Ａ' => 'A', 'Ｂ' => 'B', 'Ｃ' => 'C', 'Ｄ' => 'D', 'Ｅ' => 'E', 'Ｆ' => 'F', 'Ｇ' => 'G', 'Ｈ' => 'H', 'Ｉ' => 'I', 'Ｊ' => 'J', 'Ｋ' => 'K', 'Ｌ' => 'L', 'Ｍ' => 'M', 'Ｎ' => 'N', 'Ｏ' => 'O', 'Ｐ' => 'P', 'Ｑ' => 'Q', 'Ｒ' => 'R', 'Ｓ' => 'S', 'Ｔ' => 'T', 'Ｕ' => 'U', 'Ｖ' => 'V', 'Ｗ' => 'W', 'Ｘ' => 'X', 'Ｙ' => 'Y', 'Ｚ' => 'Z',
-            'ａ' => 'a', 'ｂ' => 'b', 'ｃ' => 'c', 'ｄ' => 'd', 'ｅ' => 'e', 'ｆ' => 'f', 'ｇ' => 'g', 'ｈ' => 'h', 'ｉ' => 'i', 'ｊ' => 'j', 'ｋ' => 'k', 'ｌ' => 'l', 'ｍ' => 'm', 'ｎ' => 'n', 'ｏ' => 'o', 'ｐ' => 'p', 'ｑ' => 'q', 'ｒ' => 'r', 'ｓ' => 's', 'ｔ' => 't', 'ｕ' => 'u', 'ｖ' => 'v', 'ｗ' => 'w', 'ｘ' => 'x', 'ｙ' => 'y', 'ｚ' => 'z',
-            '（' => '(', '）' => ')', '〔' => '[', '〕' => ']', '【' => '[', '】' => ']', '〖' => '[', '〗' => ']', '｛' => '{', '｝' => '}', '％' => '%', '＋' => '+', '—' => '-', '－' => '-', '～' => '~', '：' => ':', '？' => '?', '！' => '!', '‖' => '|', '　' => ' ',
-            '｜' => '|', '〃' => '"',
-
+            '〔' => '[', '〕' => ']', '【' => '[', '】' => ']', '〖' => '[', '〗' => ']', '‖' => '|', '〃' => '"',
             // 特殊字符转HTML实体
             '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;', '`' => '&acute;',
             '(' => '&#40;', ')' => '&#41;',
 
             // '*' => '&#42;',
-
             // '_' => '&#95;',
             // '`' => '&#96;',
-
             // '"' => '&#34;', '\'' => '&#39;',
         ];
 

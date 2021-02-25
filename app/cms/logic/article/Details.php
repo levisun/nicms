@@ -79,7 +79,7 @@ class Details extends BaseLogic
 
                 if ($result && $result = $result->toArray()) {
                     // 缩略图
-                    $result['thumb'] = File::pathToUrl($result['thumb']);
+                    $result['thumb'] = File::imgUrl($result['thumb']);
                     // 栏目链接
                     $result['cat_url'] = url('list/' . Base64::url62encode($result['category_id']));
                     // 文章链接
@@ -133,7 +133,7 @@ class Details extends BaseLogic
                             if ('image_url' === $key) {
                                 $value = unserialize($value);
                                 foreach ($value as $path) {
-                                    $result[$key][] = $path ? File::pathToUrl($path) : '';
+                                    $result[$key][] = $path ? File::imgUrl($path) : '';
                                 }
                                 $result[$key] = array_unique($result[$key]);
                                 $result[$key] = array_filter($result[$key]);

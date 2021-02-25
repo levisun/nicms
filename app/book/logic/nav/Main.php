@@ -45,7 +45,7 @@ class Main extends BaseLogic
             foreach ($result as $key => $value) {
                 $value['id'] = (int) $value['id'];
                 $value['child'] = $this->child($value['id']);
-                $value['image'] = File::pathToUrl((string) $value['image']);
+                $value['image'] = File::imgUrl((string) $value['image']);
                 $value['flag'] = Base64::flag($value['id'], 7);
                 $value['url'] = url('list/' . Base64::url62encode($value['id']));
 
@@ -79,7 +79,7 @@ class Main extends BaseLogic
         foreach ($result as $key => $value) {
             $value['id'] = (int) $value['id'];
             $value['child'] = $this->child($value['id']);
-            $value['image'] = File::pathToUrl((string) $value['image']);
+            $value['image'] = File::imgUrl((string) $value['image']);
             $value['flag'] = Base64::flag($value['id'], 7);
             $value['url'] = url('list/' . Base64::url62encode($value['id']));
 

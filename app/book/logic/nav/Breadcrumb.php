@@ -66,7 +66,7 @@ class Breadcrumb extends BaseLogic
 
         if (null !== $result && $result = $result->toArray()) {
             $result['id'] = (int) $result['id'];
-            $result['image'] = File::pathToUrl((string) $result['image']);
+            $result['image'] = File::imgUrl((string) $result['image']);
             $result['flag'] = Base64::flag($result['id'], 7);
             $result['url'] = url('list/' . Base64::url62encode($result['id']));
 

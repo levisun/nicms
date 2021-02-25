@@ -73,7 +73,7 @@ class Search extends BaseLogic
 
             if ($book && $book = $book->toArray()) {
                 // 缩略图
-                $book['image'] = File::pathToUrl($book['image']);
+                $book['image'] = File::imgUrl($book['image']);
 
                 // 书籍章节
                 $result = ModelBookArticle::field(['id', 'book_id', 'title', 'update_time'])

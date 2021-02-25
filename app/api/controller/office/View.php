@@ -41,6 +41,6 @@ class View extends BaseApi
             ->allowCache(true)
             ->cacheControl('max-age=' . $this->apiExpire . ',must-revalidate')
             ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
-            ->expires(gmdate('D, d M Y H:i:s', time() + 28800) . ' GMT');
+            ->expires(gmdate('D, d M Y H:i:s', time() + $this->apiExpire) . ' GMT');
     }
 }

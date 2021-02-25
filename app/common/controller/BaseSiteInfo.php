@@ -21,7 +21,7 @@ use think\facade\Lang;
 use app\common\library\Filter;
 use app\common\model\Config as ModelConfig;
 
-abstract class SiteInfo
+abstract class BaseSiteInfo
 {
     protected $appName = 'cms';
     protected $langSet = '';

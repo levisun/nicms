@@ -77,7 +77,7 @@ class TagsList extends Taglib
                     $value["cat_url"] = url("list/" . \app\common\library\Base64::url62encode($value["category_id"]));
                     $value["url"] = url("details/" . \app\common\library\Base64::url62encode($value["category_id"]) . "/" . \app\common\library\Base64::url62encode($value["id"]));
                     $value["flag"] = \app\common\library\Base64::flag($value["category_id"] . $value["id"], 7);
-                    $value["thumb"] = \app\common\library\File::pathToUrl($value["thumb"], 300);
+                    $value["thumb"] = \app\common\library\File::imgUrl($value["thumb"], 300);
                     $value["update_time"] = date("' . $this->params['date_format'] . '", (int) $value["update_time"]);
                     $value["author"] = $value["author"] ?: $value["username"];
                     unset($value["username"]);

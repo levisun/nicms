@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\settings;
 
 use app\common\controller\BaseLogic;
+use app\common\library\tools\File;
 use app\common\model\Ipv4 as ModelIpv4;
 use app\common\model\Visit as ModelVisit;
 
@@ -98,7 +99,7 @@ class Dashboard extends BaseLogic
         $uv = $uv ? $uv->toArray() : ['count' => 0];
         $uv = (int) $uv['count'];
 
-        $glob = glob2each(runtime_path('cache'));
+        $glob = File::glob(runtime_path('cache'));
         $cache_total = 0;
         while ($glob->valid()) {
             $filename = $glob->current();

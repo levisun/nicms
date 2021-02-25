@@ -61,10 +61,7 @@ class Word extends BaseApi
         $file = (new OfficeWord)->write($data);
 
         return $file
-            ? Response::create($file, 'file')
-            ->name(pathinfo($file, PATHINFO_FILENAME))
-            ->isContent(false)
-            ->expire(28800)
+            ? Response::create($file, 'file')->name(pathinfo($file, PATHINFO_FILENAME))->isContent(false)->expire(28800)
             : $this->error('Excel write error');
     }
 }

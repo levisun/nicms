@@ -16,14 +16,14 @@ declare(strict_types=1);
 
 namespace app\cms\controller;
 
-use app\common\controller\SiteInfo as CommonSiteInfo;
+use app\common\controller\BaseSiteInfo;
 use think\facade\Cache;
 use think\facade\Request;
 use app\common\model\Config as ModelConfig;
 use app\common\model\Article as ModelArticle;
 use app\common\model\Category as ModelCategory;
 
-class SiteInfo extends CommonSiteInfo
+class SiteInfo extends BaseSiteInfo
 {
     protected $appName = 'cms';
 

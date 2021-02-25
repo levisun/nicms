@@ -35,8 +35,8 @@ class File
      */
     public static function thumb(string $_img, int $_size = 100): string
     {
-        if (!self::has($_img)) {
-            return self::miss();
+        if (!self::imgHas($_img)) {
+            return self::imgMiss();
         }
 
         $_size = intval($_size / 10) * 10;
@@ -46,22 +46,22 @@ class File
         $_img = trim($_img, '\/.');
         $_img = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_img);
 
-        $new_file = md5($_img . $_size) . '.' . pathinfo($_img, PATHINFO_EXTENSION);
+        $thumb_file = md5($_img . $_size) . '.' . pathinfo($_img, PATHINFO_EXTENSION);
 
-        $path = public_path('storage/uploads/thumb');
-        is_dir($path) or mkdir($path, 0755, true);
+        $path = public_path('storage/uploads/thumb/' . substr($thumb_file, 0, 2));
+        if (!is_dir($path)) mkdir($path, 0755, true);
 
-        if (!is_file($path . $new_file)) {
+        if (!is_file($path . $thumb_file)) {
             @ini_set('memory_limit', '128M');
             $image = ThinkImage::open(public_path() . $_img);
             if ($image->width() > $_size) {
                 $image->thumb($_size, $_size, ThinkImage::THUMB_SCALING);
             }
-            $image->save($path . $new_file);
+            $image->save($path . $thumb_file);
             unset($image);
         }
 
-        return Config::get('app.img_host') . 'storage/uploads/thumb/' . str_replace(DIRECTORY_SEPARATOR, '/', $new_file);
+        return Config::get('app.img_host') . 'storage/uploads/thumb/' . str_replace(DIRECTORY_SEPARATOR, '/', $thumb_file);
     }
 
 
@@ -77,7 +77,7 @@ class File
      */
     public static function avatar(string $_img, string $_username = 'avatar'): string
     {
-        if (!$_img = self::has($_img)) {
+        if (!$_img = self::imgHas($_img)) {
             $length = mb_strlen($_username, 'utf-8');
             $salt = strlen(Request::rootDomain());
             $bg = (intval($length * $salt) % 255) . ',' . (intval($length * $salt * 3) % 255) . ',' . (intval($length * $salt * 9) % 255);
@@ -87,6 +87,65 @@ class File
         }
 
         return $_img;
+    }
+
+
+
+    /**
+     * 获得图片访问路径
+     * @access public
+     * @static
+     * @param  string $_file
+     * @return string
+     */
+    public static function imgUrl(string $_img): string
+    {
+        if (!$_img = self::imgHas($_img)) {
+            $_img = self::imgMiss();
+        }
+
+        return $_img;
+    }
+
+    /**
+     * 校验文件是否存在
+     * @access private
+     * @static
+     * @param  string $_file 文件
+     * @return string|false
+     */
+    private static function imgHas(string $_file)
+    {
+        if (0 === stripos($_file, 'http')) {
+            return $_file;
+        }
+
+        $_file = Filter::strict($_file);
+        $_file = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_file);
+
+        if ($_file && is_file(public_path() . $_file)) {
+            $extension = pathinfo($_file, PATHINFO_EXTENSION);
+            if (in_array($extension, ['jpg','gif','png','webp'])) {
+                return Config::get('app.img_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
+            } else {
+                return Config::get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
+            }
+
+        }
+
+        return false;
+    }
+
+    /**
+     * 默认图像
+     * @access private
+     * @static
+     * @return string
+     */
+    private static function imgMiss(): string
+    {
+        return 'data:image/svg+xml;base64,' .
+            base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="100" width="100"><rect fill="rgb(221,221,221)" x="0" y="0" width="100" height="100"></rect><text x="50" y="50" font-size="15" text-copy="fast" fill="#000000" text-anchor="middle" text-rights="canvas" alignment-baseline="central">' . Request::rootDomain() . '</text></svg>');
     }
 
     /**
@@ -143,59 +202,32 @@ class File
     }
 
     /**
-     * 获得图片访问路径
+     * 获取目录中所有文件
      * @access public
-     * @static
-     * @param  string $_file
-     * @return string
+     * @param  string $_dir
+     * @return yield
      */
-    public static function pathToUrl(string $_img): string
+    public static function glob(string $_dir)
     {
-        if (!$_img = self::has($_img)) {
-            $_img = self::miss();
-        }
+        $_dir = rtrim($_dir, '\/*.');
+        if (is_readable($_dir)) {
+            $dh = opendir($_dir);
+            while ($file = readdir($dh)) {
+                if ('.' === substr($file, 0, 1))
+                    continue;
 
-        return $_img;
-    }
+                $path = $_dir . DIRECTORY_SEPARATOR . $file;
 
-    /**
-     * 校验文件是否存在
-     * @access private
-     * @static
-     * @param  string $_file 文件
-     * @return string|false
-     */
-    private static function has(string $_file)
-    {
-        if (0 === stripos($_file, 'http')) {
-            return $_file;
-        }
+                yield $path;
 
-        $_file = Filter::strict($_file);
-        $_file = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_file);
-
-        if ($_file && is_file(public_path() . $_file)) {
-            $extension = pathinfo($_file, PATHINFO_EXTENSION);
-            if (in_array($extension, ['jpg','gif','png','webp'])) {
-                return Config::get('app.img_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
-            } else {
-                return Config::get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
+                if (is_dir($path)) {
+                    $sub = self::glob($path);
+                    while ($sub->valid()) {
+                        yield $sub->current();
+                        $sub->next();
+                    }
+                }
             }
-
         }
-
-        return false;
-    }
-
-    /**
-     * 默认图像
-     * @access private
-     * @static
-     * @return string
-     */
-    private static function miss(): string
-    {
-        return 'data:image/svg+xml;base64,' .
-            base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="100" width="100"><rect fill="rgb(221,221,221)" x="0" y="0" width="100" height="100"></rect><text x="50" y="50" font-size="15" text-copy="fast" fill="#000000" text-anchor="middle" text-rights="canvas" alignment-baseline="central">' . Request::rootDomain() . '</text></svg>');
     }
 }
