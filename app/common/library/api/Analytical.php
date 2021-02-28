@@ -196,12 +196,11 @@ class Analytical
         // application/vnd.nicms.v1.0.1+json
         $accept = str_replace('application/vnd.', '', $accept);
         // 校验域名合法性
-        list($domain, $accept) = explode('.', $accept, 2);
-        list($root) = explode('.', Request::rootDomain(), 2);
-        if (!hash_equals($domain, $root)) {
-            $this->abort('Accept parameter domain name error.', 20005);
+        list($app_name, $accept) = explode('.', $accept, 2);
+        if (!hash_equals($app_name, Config::get('app.app_name'))) {
+            $this->abort('Accept parameter app name error.', 20005);
         }
-        unset($domain, $root);
+        unset($app_name);
 
 
 

@@ -71,6 +71,7 @@ class Parse
         }
 
         $static = [
+            '__APP_NAME__' => config('app.app_name'),
             '__STATIC__'   => config('app.cdn_host') . 'static/',
             '__URL__'      => request()->baseUrl(true),
             '__LANG__'     => app('lang')->getLangSet(),

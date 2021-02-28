@@ -80,9 +80,7 @@
 
         // 设置头部
         _params.beforeSend = function (xhr) {
-            let root = window.location.host.substr(window.location.host.indexOf(".")+1);
-                root = root.substr(0, root.indexOf("."));
-            xhr.setRequestHeader('Accept', 'application/vnd.' + root + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
+            xhr.setRequestHeader('Accept', 'application/vnd.' + NICMS.app_name + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
             xhr.setRequestHeader('Authorization', 'Bearer ' + window.atob(window.sessionStorage.getItem('XSRF_AUTHORIZATION')));
         }
 
@@ -144,9 +142,7 @@
 
         // 设置头部
         _params.beforeSend = function (xhr) {
-            let root = window.location.host.substr(window.location.host.indexOf(".")+1);
-                root = root.substr(0, root.indexOf("."));
-            xhr.setRequestHeader('Accept', 'application/vnd.' + root + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
+            xhr.setRequestHeader('Accept', 'application/vnd.' + NICMS.app_name + '.v' + jQuery('meta[name="csrf-version"]').attr('content') + '+json');
             xhr.setRequestHeader('Authorization', 'Bearer ' + window.atob(window.sessionStorage.getItem('XSRF_AUTHORIZATION')));
         }
 

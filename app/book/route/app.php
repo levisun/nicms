@@ -17,7 +17,7 @@ Route::miss(function () {
     return miss(404, false);
 });
 
-Route::group(function () {
+Route::domain('book', function () {
     // 首页
     Route::get('/$', 'Index/index');
     Route::get('index$', function () {
@@ -26,17 +26,19 @@ Route::group(function () {
 
 
     // 列表页
-    Route::get('category/:book_type_id$', 'Index/category');
-    Route::get('book/:book_id$', 'Index/book');
+    Route::get('category/:book_type_id$', 'Index/category')->ext('html')->pattern([
+        'book_type_id' => '\w+',
+    ]);
+    Route::get('book/:book_id$', 'Index/book')->ext('html')->pattern([
+        'book_id' => '\w+',
+    ]);
 
     // 详情页
-    Route::get('article/:book_id/:id$', 'Index/article');
+    Route::get('article/:book_id/:id$', 'Index/article')->ext('html')->pattern([
+        'book_id' => '\w+',
+        'id'      => '\w+',
+    ]);
 
     // 搜索页
     Route::get('search$', 'Index/search');
-
-})->domain('book')->ext('html')->pattern([
-    'tid'  => '\w+',
-    'bid'  => '\w+',
-    'id'   => '\w+',
-]);
+});

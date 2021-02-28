@@ -17,7 +17,7 @@ Route::miss(function () {
     return miss(404, false);
 });
 
-Route::group(function () {
+Route::domain(env('admin.entry', 'admin'), function () {
     Route::get('/$', function () {
         return redirect(url('account/user/login'), 301);
     });
@@ -25,11 +25,10 @@ Route::group(function () {
         return redirect('/', 301);
     });
 
-    Route::get(':logic/:action/:method/[:id]$', 'Index/index');
-
-})->domain(env('admin.entry', 'admin'))->ext('html')->pattern([
-    'logic'  => '[a-z]+',
-    'action' => '[a-z]+',
-    'method' => '[a-z]+',
-    'id'     => '\d+',
-]);
+    Route::get(':logic/:action/:method/[:id]$', 'Index/index')->ext('html')->pattern([
+        'logic'  => '[a-z]+',
+        'action' => '[a-z]+',
+        'method' => '[a-z]+',
+        'id'     => '\d+',
+    ]);
+});

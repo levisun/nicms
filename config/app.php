@@ -38,6 +38,7 @@ return [
     // 加密密钥(不可修改,否则会出现无法修复的错误)
     'secretkey'        => hash_hmac('sha256', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01', sha1(request()->rootDomain() . __DIR__)),
 
+    'app_name'         => env('app.name', 'nicms'),
     // 应用地址
     'app_host'         => env('app.host', '//www.' . request()->rootDomain()),
     // 应用的命名空间
@@ -52,14 +53,14 @@ return [
     'app_map'          => [],
     // 域名绑定（自动多应用模式有效）
     'domain_bind'      => [
+        'book'   => 'book',
+        'my'     => 'user',
+        'www'    => 'cms',
+        'm'      => 'cms',
+        'api'    => 'api',
+        'cdn'    => 'cms',
+        'img'    => 'cms',
         env('admin.entry', 'admin') => 'admin',
-        'api'  => 'api',
-        'book' => 'book',
-        'my'   => 'user',
-        'www'  => 'cms',
-        'm'    => 'cms',
-        'cdn'  => 'cms',
-        'img'  => 'cms',
     ],
     // 禁止URL访问的应用列表（自动多应用模式有效）
     'deny_app_list'    => ['common'],

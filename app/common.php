@@ -59,6 +59,24 @@ if (!function_exists('format_size')) {
     }
 }
 
+if (!function_exists('request_cache_key')) {
+    /**
+     * 请求缓存KEY
+     * @param  string $_key
+     * @return string
+     */
+    function request_cache_key(string $_key): string
+    {
+        $_key .= app('http')->getName();
+
+        if ('api' !== app('http')->getName()) {
+            $_key .= request()->isMobile() ? 'mobile' : 'pc';
+        }
+
+        return md5($_key);
+    }
+}
+
 if (!function_exists('only_execute')) {
     /**
      * 非阻塞模式并发运行

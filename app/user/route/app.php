@@ -17,19 +17,16 @@ Route::miss(function () {
     return miss(404);
 });
 
-Route::group(function () {
+Route::domain('my', function () {
     Route::get('/$', 'Index/index');
     Route::get('index$', function () {
         return redirect('/', 301);
     });
 
-    Route::get(':logic/:action/:method/[:id]$', 'Index/index');
-})
-->domain('my')
-->ext('html')
-->pattern([
-    'logic'  => '[a-z]+',
-    'action' => '[a-z]+',
-    'method' => '[a-z]+',
-    'id'     => '\d+',
-]);
+    Route::get(':logic/:action/:method/[:id]$', 'Index/index')->ext('html')->pattern([
+        'logic'  => '[a-z]+',
+        'action' => '[a-z]+',
+        'method' => '[a-z]+',
+        'id'     => '\d+',
+    ]);
+});

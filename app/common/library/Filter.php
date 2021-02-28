@@ -213,6 +213,7 @@ class Filter
     {
         $_str = (string) preg_replace('/([\w\d]+)\(/uis', '$1&nbsp;(', $_str);
         $_str = (string) preg_replace('/(create|insert|delete|update|select|drop)+ +/uis', '$1&nbsp;', $_str);
+        $_str = str_replace(['(', ')'], ['&#40;', '&#41;'], $_str);
         return trim($_str);
     }
 
@@ -260,9 +261,6 @@ class Filter
         $_str = '<body>' . $_str . '</body>';
         $dom->loadHTML('<meta charset="UTF-8">' . htmlspecialchars_decode($_str, ENT_QUOTES));
         libxml_clear_errors();
-
-        $xpath = new \DOMXPath($dom);
-        $nodes = $xpath->query('//*');
 
         $xpath = new \DOMXPath($dom);
         $nodes = $xpath->query('//*[@*]');
@@ -345,7 +343,7 @@ class Filter
         // 不间断空格\u00a0,主要用在office中,让一个单词在结尾处不会换行显示,快捷键ctrl+shift+space
         // 半角空格(英文符号)\u0020,代码中常用的
         // 全角空格(中文符号)\u3000,中文文章中使用
-        $_str = preg_replace('/[\x{00a0}\x{0020}\x{3000}\x{feff}]/uis', '', $_str);
+        $_str = preg_replace('/[\x{00a0}\x{0020}\x{3000}\x{feff}]/uis', ' ', $_str);
 
         $_str = (string) str_ireplace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;', '&#160;', '&nbsp;'], ' ', $_str);
 
@@ -384,7 +382,6 @@ class Filter
             '〔' => '[', '〕' => ']', '【' => '[', '】' => ']', '〖' => '[', '〗' => ']', '‖' => '|', '〃' => '"',
             // 特殊字符转HTML实体
             '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;', '`' => '&acute;',
-            '(' => '&#40;', ')' => '&#41;',
 
             // '*' => '&#42;',
             // '_' => '&#95;',
