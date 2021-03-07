@@ -29,7 +29,7 @@ class SiteInfo extends BaseSiteInfo
 
     public function query(): array
     {
-        $cache_key = $this->appName . $this->langSet;
+        $cache_key = __METHOD__ . $this->appName . $this->langSet;
         $cache_key .= Request::param('id', 0) . Request::param('category_id', 0);
         if (!Cache::has($cache_key) || !$result = Cache::get($cache_key)) {
             $result = [

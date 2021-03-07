@@ -1,44 +1,61 @@
 <div class="box">
     <div class="box-body">
-        <form id="basic-config">
-            <div class="form-group">
-                <label>{:lang('website name')}</label>
-                <input type="text" name="cms_sitename" class="form-control" v-bind:value="items.cms_sitename">
-            </div>
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#cms" data-toggle="tab">CMS</a></li>
+                <li><a href="#book" data-toggle="tab">Book</a></li>
+                <li><a href="#user" data-toggle="tab">User</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="active tab-pane" id="cms">
+                    <form id="basic-config">
+                        <div class="form-group">
+                            <label>{:lang('website name')}</label>
+                            <input type="text" name="cms_sitename" class="form-control" v-bind:value="items.cms_sitename">
+                        </div>
 
-            <div class="form-group">
-                <label>{:lang('website keywords')}</label>
-                <textarea name="cms_keywords" class="form-control" v-bind:value="items.cms_keywords"></textarea>
-            </div>
+                        <div class="form-group">
+                            <label>{:lang('website keywords')}</label>
+                            <textarea name="cms_keywords" class="form-control" v-bind:value="items.cms_keywords"></textarea>
+                        </div>
 
-            <div class="form-group">
-                <label>{:lang('website description')}</label>
-                <textarea name="cms_description" class="form-control" v-bind:value="items.cms_description"></textarea>
-            </div>
+                        <div class="form-group">
+                            <label>{:lang('website description')}</label>
+                            <textarea name="cms_description" class="form-control" v-bind:value="items.cms_description"></textarea>
+                        </div>
 
-            <div class="form-group">
-                <label>{:lang('website footer')}</label>
-                <textarea name="cms_footer" class="form-control" v-bind:value="items.cms_footer"></textarea>
-            </div>
+                        <div class="form-group">
+                            <label>{:lang('website footer')}</label>
+                            <textarea name="cms_footer" class="form-control" v-bind:value="items.cms_footer"></textarea>
+                        </div>
 
-            <div class="form-group">
-                <label>{:lang('website copyright')}</label>
-                <textarea name="cms_copyright" class="form-control" v-bind:value="items.cms_copyright"></textarea>
-            </div>
+                        <div class="form-group">
+                            <label>{:lang('website copyright')}</label>
+                            <textarea name="cms_copyright" class="form-control" v-bind:value="items.cms_copyright"></textarea>
+                        </div>
 
-            <div class="form-group">
-                <label>{:lang('website beian')}</label>
-                <textarea name="cms_beian" class="form-control" v-bind:value="items.cms_beian"></textarea>
-            </div>
+                        <div class="form-group">
+                            <label>{:lang('website beian')}</label>
+                            <textarea name="cms_beian" class="form-control" v-bind:value="items.cms_beian"></textarea>
+                        </div>
 
-            <div class="form-group">
-                <label>{:lang('website script')}</label>
-                <textarea name="cms_script" class="form-control" v-bind:value="items.cms_script"></textarea>
+                        <div class="form-group">
+                            <label>{:lang('website script')}</label>
+                            <textarea name="cms_script" class="form-control" v-bind:value="items.cms_script"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-primary" @click="save">{:lang('save')}</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="tab-pane" id="book">
+                    book
+                </div>
+                <div class="tab-pane" id="user">
+                    user
+                </div>
             </div>
-            <div class="form-group">
-                <button type="button" class="btn btn-primary" @click="save">{:lang('save')}</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 <script>

@@ -26,9 +26,11 @@ class Participle
 
     public function __construct(string $_txt = '')
     {
-        if (!$_txt = Filter::nonChsAlpha($_txt)) {
+        if (!Filter::nonChsAlpha($_txt)) {
             return $_txt;
         }
+
+        $_txt = Filter::htmlDecode($_txt);
 
         $this->result['words'] = $this->words($_txt, 0, 'DESC');
         $this->result['segmentation'] = $this->segmentation($_txt);

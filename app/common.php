@@ -67,7 +67,7 @@ if (!function_exists('request_cache_key')) {
      */
     function request_cache_key(string $_key): string
     {
-        $_key .= app('http')->getName();
+        $_key .= app('http')->getName() . app('lang')->getLangSet();
 
         if ('api' !== app('http')->getName()) {
             $_key .= request()->isMobile() ? 'mobile' : 'pc';

@@ -18,11 +18,12 @@ return [
     // 允许的语言列表
     'allow_lang_list' => [
         'zh-cn',
+        'english',
     ],
     // 多语言自动侦测变量名
     'detect_var'      => 'lang',
     // 是否使用Cookie记录
-    'use_cookie'      => false,
+    'use_cookie'      => true,
     // 多语言cookie变量
     'cookie_var'      => '__lang',
     // 扩展语言包

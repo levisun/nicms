@@ -50,6 +50,7 @@ Temporary Items
 /vendor
 /public/storage/*
 /public/*.txt
+/public/nginx.htaccess
 /*.php
 .env
 *.lock

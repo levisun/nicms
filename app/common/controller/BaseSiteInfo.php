@@ -36,7 +36,7 @@ abstract class BaseSiteInfo
     {
         $this->langSet = Lang::getLangSet();
 
-        $cache_key = $this->appName . $this->langSet;
+        $cache_key = __METHOD__ . $this->appName . $this->langSet;
         if (!Cache::has($cache_key) || !$common = Cache::get($cache_key)) {
             $common = [
                 'theme'     => $this->theme(),
@@ -117,11 +117,11 @@ abstract class BaseSiteInfo
      */
     protected function copyright(): string
     {
-        $copyright = ModelConfig::where('name', '=', 'copyright')
+        $copyright = ModelConfig::where('name', '=', $this->appName . '_copyright')
             ->where('lang', '=', $this->langSet)
             ->value('value', '');
 
-        $beian = ModelConfig::where('name', '=', 'beian')
+        $beian = ModelConfig::where('name', '=', $this->appName . '_beian')
             ->where('lang', '=', $this->langSet)
             ->value('value', '');
 
@@ -138,7 +138,7 @@ abstract class BaseSiteInfo
      */
     protected function footer(): string
     {
-        $footer = ModelConfig::where('name', '=', 'bottom')
+        $footer = ModelConfig::where('name', '=', $this->appName . '_bottom')
             ->where('lang', '=', $this->langSet)
             ->value('value', '');
 
@@ -152,7 +152,7 @@ abstract class BaseSiteInfo
      */
     protected function script(): string
     {
-        $result = ModelConfig::where('name', '=', 'script')
+        $result = ModelConfig::where('name', '=', $this->appName . '_script')
             ->where('lang', '=', $this->langSet)
             ->value('value', '');
 
