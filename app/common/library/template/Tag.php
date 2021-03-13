@@ -268,11 +268,9 @@ class Tag
             '<meta http-equiv="Window-target" content="_top" />' .
             '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
             '<meta http-equiv="Cache-Control" content="no-transform" />' .
-            '<meta name="csrf-version" content="' . $this->config['theme_config']['api_version'] . '" />' .
-            csrf_appid() .
             $meta . $link .
             '<style type="text/css">body{moz-user-select:-moz-none;-moz-user-select:none;-o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;}</style>' .
-            '<script type="text/javascript">const NICMS = {domain:"//"+window.location.host+"/",rootDomain:"//"+window.location.host.substr(window.location.host.indexOf(".")+1)+"/",url:"//"+window.location.host+window.location.pathname,api_uri:"__API_HOST__",app_name:"__APP_NAME__",param:<?php echo json_encode(app("request")->param());?>};</script>' .
+            '<script src="__CDN_HOST__sc/<?php echo trim(base64_encode(json_encode(app("request")->param())), "=");?>.js?version=' . $this->config['theme_config']['api_version'] . '"></script>' .
 
             '<script src="__API_HOST__tools/ip.do?token=<?php echo md5(request()->url(true));?>" async></script>' .
             ('admin' !== app('http')->getName() ? '<script src="__API_HOST__tools/record.do?url=<?php echo urlencode(request()->url(true));?>" async></script>' : '') .

@@ -27,7 +27,7 @@ class Spider
     private $client = null;
     private $crawler = null;
     private $xhtml = '';
-    public $agent = '';
+    public  $agent = '';
 
     public function __construct()
     {

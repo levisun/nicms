@@ -18,7 +18,7 @@ return [
     // 多语言加载
     \think\middleware\LoadLangPack::class,
     // 应用初始化
-    \app\common\middleware\AppInit::class,
+    // \app\common\middleware\AppInit::class,
     // 全局请求缓存
     \think\middleware\CheckRequestCache::class,
     // 插件

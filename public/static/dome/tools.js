@@ -309,6 +309,16 @@ class tools {
         return Date.parse(new Date()) / 1000;
     }
 
+    // 获得GET参数
+    get(name) {
+        let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        let r = window.location.search.substr(1).match(reg);
+        if (r != null) {
+            return decodeURIComponent(r[2]);
+        };
+        return null;
+    }
+
     /*
      访问(请求地址)
      url(类型);
@@ -344,7 +354,6 @@ class tools {
 
     /* 组合数组,对象等类型数据 */
     extend(destination, source) {
-
         for (let property in source) {
             if ("Array" === Object.prototype.toString.call(source[property]).slice(8, -1)) {
                 destination[property] = JSON.parse(JSON.stringify(source[property]));

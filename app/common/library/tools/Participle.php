@@ -118,7 +118,7 @@ class Participle
      */
     public function words(string $_txt, int $_length = 0, string $_sort = ''): array
     {
-        if (!$_txt = Filter::nonChsAlpha($_txt)) {
+        if (!Filter::nonChsAlpha($_txt)) {
             return [];
         }
 

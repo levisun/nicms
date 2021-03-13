@@ -174,11 +174,13 @@ class Filter
     public static function nonChsAlpha(string $_str): string
     {
         $_str = htmlspecialchars_decode($_str, ENT_QUOTES);
-        $_str = str_replace('&nbsp;', '', $_str);
+        $_str = preg_replace('/&#?[\w\d]+;/i', '', $_str);
         $_str = strip_tags($_str);
-
-        $_str = (string) preg_replace('/[^\x{4e00}-\x{9fa5}a-zA-Z0-9 ]+/uis', '', trim($_str));
-
+        $_str = (string) preg_replace('/[^\x{4e00}-\x{9fa5}a-zA-Z0-9 ]+/uis', '', $_str);
+        // 连续三个重复的字符
+        $_str = (string) preg_replace('/(.)\1{2,}/u', '$1', $_str);
+        // 重复符号
+        $_str = (string) preg_replace('/([^\x{4e00}-\x{9fa5}a-zA-Z0-9 ])\1/u', '$1', $_str);
         return trim($_str);
     }
 

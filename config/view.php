@@ -14,7 +14,6 @@
 
 return [
     // 模板引擎类型使用Think
-    // 'type' => \app\common\library\view\View::class,
     'type' => \app\common\library\template\Template::class,
     'tpl_compile' => !env('app_debug', false),
 ];

@@ -81,19 +81,19 @@ abstract class BaseLogic
      * 用户ID
      * @var int
      */
-    protected $user_id = 0;
+    protected $userId = 0;
 
     /**
      * 用户组ID
      * @var int
      */
-    protected $user_role_id = 0;
+    protected $userRoleId = 0;
 
     /**
      * 用户类型(用户或管理员)
      * @var string
      */
-    protected $user_type = 'guest';
+    protected $userType = 'guest';
 
     const CACHE_TOTAL_KEY = 'total';
     const CACHE_PAGE_KEY  = 'page';
@@ -206,8 +206,8 @@ abstract class BaseLogic
         $cache_key = $this->getClassMethod();
         $cache_key .= $this->lang->getLangSet();
 
-        // 用户信息 $this->user_id
-        $cache_key .= $this->authKey . $this->user_role_id . $this->user_type;
+        // 用户信息 $this->userId
+        $cache_key .= $this->authKey . $this->userRoleId . $this->userType;
 
         //
         $token = $this->request->param('token', '');
@@ -310,15 +310,15 @@ abstract class BaseLogic
     protected function getUserSession(): array
     {
         if ($this->session->has($this->authKey) && $this->session->has($this->authKey . '_role')) {
-            $this->user_id = (int) $this->session->get($this->authKey);
-            $this->user_role_id = (int) $this->session->get($this->authKey . '_role');
-            $this->user_type = $this->session->get($this->authKey . '_type');
+            $this->userId = (int) $this->session->get($this->authKey);
+            $this->userRoleId = (int) $this->session->get($this->authKey . '_role');
+            $this->userType = $this->session->get($this->authKey . '_type');
         }
 
         return [
-            'user_id'      => $this->user_id,
-            'user_role_id' => $this->user_role_id,
-            'user_type'    => $this->user_type,
+            'userId'      => $this->userId,
+            'userRoleId' => $this->userRoleId,
+            'userType'    => $this->userType,
         ];
     }
 
@@ -355,7 +355,7 @@ abstract class BaseLogic
         // 写入操作日志
         ModelActionLog::create([
             'action_id' => $has['id'],
-            'user_id'   => $this->user_id,
+            'userId'   => $this->userId,
             'action_ip' => $this->request->ip(),
             'module'    => 'admin',
             'remark'    => $_write_log,
@@ -422,7 +422,7 @@ abstract class BaseLogic
         $this->actionLog('upload_file', 'user upload');
 
         $result = 'upload error';
-        if ($this->request->isPost() && !empty($_FILES) && $this->user_id) {
+        if ($this->request->isPost() && !empty($_FILES) && $this->userId) {
             $size = [
                 'width'  => $this->request->param('width/d', 0, 'abs'),
                 'height' => $this->request->param('height/d', 0, 'abs'),
@@ -433,8 +433,8 @@ abstract class BaseLogic
 
             $upload = new UploadFile($size, $water, $element);
             $result = $upload->getFileInfo([
-                'user_id'   => $this->user_id,
-                'user_type' => $this->user_type
+                'userId'   => $this->userId,
+                'userType' => $this->userType
             ]);
         }
 

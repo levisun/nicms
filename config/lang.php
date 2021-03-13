@@ -18,7 +18,7 @@ return [
     // 允许的语言列表
     'allow_lang_list' => [
         'zh-cn',
-        'english',
+        'en',
     ],
     // 多语言自动侦测变量名
     'detect_var'      => 'lang',

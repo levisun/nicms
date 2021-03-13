@@ -71,7 +71,7 @@ class Details extends BaseLogic
                     ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
                     ->where('article.is_pass', '=', 1)
                     ->where('article.delete_time', '=', 0)
-                    ->where('article.access_id', '=', $this->user_role_id)
+                    ->where('article.access_id', '=', $this->userRoleId)
                     ->where('article.show_time', '<', time())
                     ->where('article.lang', '=', $this->lang->getLangSet())
                     ->where($map)

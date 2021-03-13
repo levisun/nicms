@@ -98,19 +98,19 @@ abstract class BaseApi
      * 用户ID
      * @var int
      */
-    protected $user_id = 0;
+    protected $userId = 0;
 
     /**
      * 用户组ID
      * @var int
      */
-    protected $user_role_id = 0;
+    protected $userRoleId = 0;
 
     /**
      * 用户类型(用户或管理员)
      * @var string
      */
-    protected $user_type = 'guest';
+    protected $userType = 'guest';
 
     /**
      * 构造方法
@@ -177,7 +177,7 @@ abstract class BaseApi
     {
         $this->ApiInit();
         $this->analytical->method();
-        $this->validate->RBAC($this->analytical->appName, $this->analytical->appMethod, $this->user_id);
+        $this->validate->RBAC($this->analytical->appName, $this->analytical->appMethod, $this->userId);
 
         // 执行METHOD获得返回数据
         $result = call_user_func([
@@ -249,9 +249,9 @@ abstract class BaseApi
         $this->session->init();
         $this->request->withSession($this->session);
         if ($this->session->has($this->analytical->appAuthKey)) {
-            $this->user_id = (int) $this->session->get($this->analytical->appAuthKey);
-            $this->user_role_id = (int) $this->session->get($this->analytical->appAuthKey . '_role');
-            $this->user_type = $this->analytical->appAuthKey == 'user_auth_key' ? 'user' : 'admin';
+            $this->userId = (int) $this->session->get($this->analytical->appAuthKey);
+            $this->userRoleId = (int) $this->session->get($this->analytical->appAuthKey . '_role');
+            $this->userType = $this->analytical->appAuthKey == 'user_auth_key' ? 'user' : 'admin';
         }
 
         $this->validate->fromToken();

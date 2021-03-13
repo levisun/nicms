@@ -92,8 +92,8 @@ class Safe extends BaseLogic
             PHP_EOL . '[APP]' . PHP_EOL .
             'UPLOAD_SIZE = ' . $receive_data['app_upload_size'] . PHP_EOL .
             'UPLOAD_TYPE = ' . $receive_data['app_upload_type'] . PHP_EOL .
-            'SECRETKEY = ' . $env->get('app.secretkey') . PHP_EOL .
-            'DEFAULT_TIMEZONE = ' . $env->get('app.default_timezone') . PHP_EOL .
+            'HOST = ' . $env->get('app.host') . PHP_EOL .
+            'NAME = ' . $env->get('app.name') . PHP_EOL .
 
             PHP_EOL . '[DATABASE]' . PHP_EOL .
             'TYPE = ' . $env->get('database.type') . PHP_EOL .

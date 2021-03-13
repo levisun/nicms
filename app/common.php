@@ -141,13 +141,13 @@ if (!function_exists('app_secret')) {
      * APPID与密钥
      * @return array
      */
-    function app_secret(): array
+    function app_secret(string $_app_name = ''): array
     {
-        $app_name = app('http')->getName();
+        $_app_name = $_app_name ?: app('http')->getName();
         $api_app = ModelApiApp::field('id, secret')
-            ->where('name', '=', $app_name)
+            ->where('name', '=', $_app_name)
             ->where('status', '=', 1)
-            ->cache('app secret' . $app_name)
+            ->cache('app secret' . $_app_name)
             ->find();
         if ($api_app && $api_app = $api_app->toArray()) {
             $api_app['id'] += 1000000;
