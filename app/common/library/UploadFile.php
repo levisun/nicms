@@ -183,7 +183,7 @@ class UploadFile
             $save_file = $this->toExt($save_file);
             $host = Config::get('app.img_host');
         } else {
-            $host = Config::get('app.cdn_host');
+            $host = Config::get('app.static_host');
         }
 
         $save_file = str_replace(DIRECTORY_SEPARATOR, '/', ltrim($save_file, '/'));

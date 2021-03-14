@@ -60,7 +60,7 @@ class Parse
         $path .= app('http')->getName() . DIRECTORY_SEPARATOR;
         $path .= !empty($this->config['view_theme']) ? $this->config['view_theme'] . DIRECTORY_SEPARATOR : '';
 
-        $url  = config('app.cdn_host') . 'theme/';
+        $url  = config('app.static_host') . 'theme/';
         $url .= app('http')->getName() . '/' . $this->config['view_theme'] . '/';
 
         // 移动端目录
@@ -72,12 +72,12 @@ class Parse
 
         $static = [
             '__APP_NAME__' => config('app.app_name'),
-            '__STATIC__'   => config('app.cdn_host') . 'static/',
+            '__STATIC__'   => config('app.static_host') . 'static/',
             '__URL__'      => request()->baseUrl(true),
             '__LANG__'     => app('lang')->getLangSet(),
             '__API_HOST__' => config('app.api_host'),
             '__IMG_HOST__' => config('app.img_host'),
-            '__CDN_HOST__' => config('app.cdn_host'),
+            '__STATIC_HOST__' => config('app.static_host'),
 
             '__THEME__'    => $url,
             '__CSS__'      => $url . 'css/',

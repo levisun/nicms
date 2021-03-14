@@ -103,6 +103,7 @@ class Analytical
         // 校验方法名格式
         $method = Request::param('method');
         if (!$method || !!!preg_match('/^[a-z]+\.[a-z]+\.[a-z]+$/u', $method)) {
+            trace($method, 'error');
             $this->abort('The method parameter is empty or formatted incorrectly.', 25001);
         }
 
@@ -114,9 +115,11 @@ class Analytical
 
         // 校验方法是否存在
         if (!class_exists($class)) {
+            trace($class, 'error');
             $this->abort('Method parameter error, this method could not be found.', 25002);
         }
         if (!method_exists($class, $method)) {
+            trace($class . '::' . $method, 'error');
             $this->abort('Method parameter error, this method could not be found.', 25003);
         }
 
@@ -157,6 +160,7 @@ class Analytical
     {
         $app_id = Request::param('appid/d', 0, 'abs');
         if (!$app_id || $app_id < 1000001) {
+            trace($app_id, 'error');
             $this->abort('The appid parameter is wrong.', 21001);
         }
 
@@ -172,6 +176,7 @@ class Analytical
             $this->appSecret = sha1($result['secret'] . Base64::asyncSecret());
             $this->appAuthKey = $result['authkey'];
         } else {
+            trace($app_id, 'error');
             $this->abort('The appid parameter is wrong.', 21002);
         }
     }
@@ -187,6 +192,7 @@ class Analytical
         $accept = (string) Request::header('accept', '');
         $pattern = '/^application\/vnd\.[a-zA-Z0-9]+\.v[0-9]{1,3}\.[0-9]{1,3}\.[a-zA-Z0-9]+\+[a-zA-Z]{3,5}+$/u';
         if (!$accept || !!!preg_match($pattern, $accept)) {
+            trace($accept, 'error');
             $this->abort('The accept parameter is wrong.', 20004);
         }
 
@@ -198,6 +204,7 @@ class Analytical
         // 校验域名合法性
         list($app_name, $accept) = explode('.', $accept, 2);
         if (!hash_equals($app_name, Config::get('app.app_name'))) {
+            trace($app_name, 'error');
             $this->abort('Accept parameter app name error.', 20005);
         }
         unset($app_name);
@@ -207,6 +214,7 @@ class Analytical
         // 取得版本与数据类型
         list($version, $this->format) = explode('+', $accept, 2);
         if (!$version || !!!preg_match('/^[a-zA-Z0-9.]+$/u', $version)) {
+            trace($version, 'error');
             $this->abort('The accept parameter version is incorrect.', 20006);
         }
         // 去掉"v"
@@ -223,6 +231,7 @@ class Analytical
 
         // 校验返回数据类型
         if (!in_array($this->format, ['json', 'jsonp', 'xml'])) {
+            trace($this->format, 'error');
             $this->abort('The accept parameter returns an error type.', 20007);
         }
     }
@@ -240,6 +249,7 @@ class Analytical
         $authorization = str_replace('&#43;', '+', $authorization);
         $authorization = str_replace('Bearer ', '', $authorization);
         if (!$authorization || !!!preg_match('/^[\w\-]+\.[\w\-]+\.[\w\-]+$/u', $authorization)) {
+            trace($authorization, 'error');
             $this->abort('The authentication information is incorrect.', 20001);
         }
 
@@ -256,6 +266,7 @@ class Analytical
         $data->setCurrentTime(Request::time() + 2880);
 
         if (false === $token->verify(new Sha256, Base64::asyncSecret()) || false === $token->validate($data)) {
+            trace($authorization, 'error');
             $this->abort('The authentication information is incorrect.', 20002);
         }
 
@@ -268,6 +279,7 @@ class Analytical
         if ($jti && is_file(runtime_path('session/' . Config::get('session.prefix')) . 'sess_' . $jti)) {
             $this->sessionId = $jti;
         } else {
+            trace($jti, 'error');
             $this->abort('The authentication information is incorrect.' . $jti, 20003);
         }
     }

@@ -128,7 +128,7 @@ class File
             if (in_array($extension, ['jpg','gif','png','webp'])) {
                 return Config::get('app.img_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
             } else {
-                return Config::get('app.cdn_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
+                return Config::get('app.static_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
             }
 
         }

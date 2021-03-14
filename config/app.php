@@ -30,7 +30,7 @@ return [
 
     // API CDN IMG地址
     'api_host'         => '//api.' . request()->rootDomain() . '/',
-    'cdn_host'         => '//cdn.' . request()->rootDomain() . '/',
+    'static_host'      => '//static.' . request()->rootDomain() . '/',
     'img_host'         => '//img.' . request()->rootDomain() . '/',
 
     // URL加密密钥(不可修改,否则会出现无法修复的错误)
@@ -58,7 +58,7 @@ return [
         'www'    => 'cms',
         'm'      => 'cms',
         'api'    => 'api',
-        'cdn'    => 'cms',
+        'static' => 'cms',
         'img'    => 'cms',
         env('admin.entry', 'admin') => 'admin',
     ],

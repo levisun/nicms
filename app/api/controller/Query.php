@@ -45,9 +45,18 @@ class Query extends BaseApi
         return miss(404, false);
     }
 
-    public function secret(string $token)
+    public function secret(string $app_name, string $token)
     {
-        if (!$token = $this->request->param('token', null, 'base64_decode')) {
+        $app_name = base64_decode($this->request->param('app_name'));
+        $app_name = Filter::htmlDecode(Filter::strict($app_name));
+
+        $token = base64_decode($this->request->param('token'));
+        $token = Filter::htmlDecode(Filter::strict($token));
+
+        $version = $this->request->param('version');
+        $version = Filter::htmlDecode(Filter::strict($version));
+
+        if (!!preg_match('/[^a-z]+/', $app_name) || !!preg_match('/[^a-zA-Z\d\{\}\[\]":,]+/i', $token) || preg_match('/[^\d\.]+/', $version)) {
             return miss(404, false);
         }
 
@@ -73,8 +82,7 @@ class Query extends BaseApi
 
 
         $from_token = $this->request->buildToken('__token__', 'md5');
-        $secret = app_secret();
-        $token = Filter::htmlDecode(Filter::strict($token));
+        $secret = app_secret($app_name);
 
         $script = 'const NICMS = {
             domain:"//"+window.location.host+"/",
@@ -86,9 +94,21 @@ class Query extends BaseApi
             app_id:"' . $secret['id'] . '",
             param:' . $token . '
         };
+        let ip = document.createElement("script");
+        ip.src = "' . config('app.api_host') . 'tools/ip.do?token=' . md5($this->request->server('HTTP_REFERER')) . '";
+        var script = document.getElementsByTagName("script")[0];
+        script.parentNode.insertBefore(ip, script);
+        if("admin" != "' . $app_name . '"){
+        let record = document.createElement("script");
+        record.src = "' . config('app.api_host') . 'tools/record.do?url=' . urlencode($this->request->server('HTTP_REFERER')) . '";
+        var script = document.getElementsByTagName("script")[0];
+        script.parentNode.insertBefore(record, script);
+        }
         document.cookie = "CSRF_TOKEN=' . $from_token . ';expires=0;path=/;SameSite=lax;domain="+window.location.host+";";
         window.sessionStorage.setItem("XSRF_AUTHORIZATION", "' . trim(base64_encode($authorization), '=') . '");
         window.sessionStorage.setItem("XSRF_TOKEN", "' . sha1($secret['secret'] . Base64::asyncSecret()) . '");';
+
+        $script = preg_replace('/\s+/', ' ', $script);
 
         return \think\Response::create($script)->header([
             'Content-Type'   => 'application/javascript',

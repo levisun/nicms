@@ -122,20 +122,6 @@ if (!function_exists('is_wechat')) {
     }
 }
 
-if (!function_exists('csrf_appid')) {
-    /**
-     * APPID
-     * @return string
-     */
-    function csrf_appid(): string
-    {
-        if ($api_app = app_secret()) {
-            return '<meta name="csrf-appid" content="' . $api_app['id'] . '" />';
-        }
-        return '';
-    }
-}
-
 if (!function_exists('app_secret')) {
     /**
      * APPID与密钥
@@ -197,7 +183,7 @@ if (!function_exists('miss')) {
     function miss($_code, bool $_redirect = true, bool $_abort = false)
     {
         if (500 > $_code) {
-            trace('MISS ' . $_code . ' ' . Request::method(true) . ' ' . Request::url(true), 'warning');
+            trace('MISS ' . $_code . ' ' . Request::ip() . ' ' . Request::method(true) . ' ' . Request::url(true), 'warning');
         }
 
         $file = public_path() . intval($_code) . '.html';

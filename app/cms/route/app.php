@@ -14,10 +14,10 @@
 use think\facade\Route;
 
 /**
- * CDN IMG
+ * STATIC IMG
  */
-Route::domain(['cdn', 'img'], function () {
-    Route::get('sc/:token$', '\app\api\controller\Query::secret')->ext('js');
+Route::domain(['static', 'img'], function () {
+    Route::get('static/:app_name/:token$', '\app\api\controller\Query::secret')->ext('js');
 
     Route::miss(function () {
         return miss(404, false);

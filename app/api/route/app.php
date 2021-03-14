@@ -17,7 +17,7 @@ Route::miss(function () {
     return miss(404, false);
 });
 
-Route::group(function () {
+Route::domain('api', function () {
     // office接口
     Route::get('office/view$', 'office.View/iframe')->cache(28800);
     Route::post('office/excel/read$', 'office.Excel/read');
@@ -49,7 +49,6 @@ Route::group(function () {
         'pay'  => '[a-z]+',
     ]);
 
-
     // Route::delete('handle$', 'Handle/remove');  // 操作接口
     // Route::patch('handle$', 'Handle/editor');   // 操作接口
     // Route::put('handle$', 'Handle/added');      // 操作接口
@@ -57,4 +56,4 @@ Route::group(function () {
     Route::get('query$', 'Query/index')->cache(1440);       // 请求接口
     Route::post('upload$', 'Upload/index');                 // 上传接口
 
-})->domain('api')->ext('do');
+})->ext('do');
