@@ -270,7 +270,7 @@ class Tag
             '<meta http-equiv="Cache-Control" content="no-transform" />' .
             $meta . $link .
             '<style type="text/css">body{moz-user-select:-moz-none;-moz-user-select:none;-o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;}</style>' .
-            '<script src="__STATIC_HOST__static/<?php echo trim(base64_encode(app("http")->getName()), "=");?>/<?php echo trim(base64_encode(json_encode(app("request")->param())), "=");?>.js?version=' . $this->config['theme_config']['api_version'] . '"></script>' .
+            '<script src="__STATIC_HOST__static/<?php echo trim(base64_encode(app("http")->getName()), "=");?>/<?php echo trim(base64_encode(json_encode(app("request")->param())), "=");?>.do?version=' . $this->config['theme_config']['api_version'] . '"></script>' .
             '</head>' . (stripos($_content, '<body') ? '' : '<body>');
     }
 

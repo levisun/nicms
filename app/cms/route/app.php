@@ -16,8 +16,8 @@ use think\facade\Route;
 /**
  * STATIC IMG
  */
-Route::domain(['static', 'img'], function () {
-    Route::get('static/:app_name/:token$', '\app\api\controller\Query::secret')->ext('js');
+Route::domain(['cdn', 'img'], function () {
+    Route::get('static/:app_name/:token$', '\app\api\controller\Secret::index')->ext('do');
 
     Route::miss(function () {
         return miss(404, false);

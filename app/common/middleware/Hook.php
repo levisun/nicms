@@ -36,6 +36,10 @@ class Hook
 
         $response = $next($request);
 
+        if (in_array($request->subDomain(), ['cdn'])) {
+            return $response;
+        }
+
         $content = $response->getContent();
 
         $type = app('http')->getName() . '.' . $request->controller(true) . '.' . $request->action(true);

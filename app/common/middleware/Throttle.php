@@ -32,6 +32,15 @@ class Throttle
      */
     public function handle(Request $request, Closure $next)
     {
+        if (!$request->rootDomain()) {
+            return miss(404, false);
+        }
+
+        // IP进入显示空页面
+        if ($request->isValidIP($request->host(true), 'ipv4') || $request->isValidIP($request->host(true), 'ipv6')) {
+            return miss(404, false);
+        }
+
         $lock_cache_key = $request->ip() . $request->server('HTTP_REFERER') . $request->domain() . 'lock';
         if (Cache::has($lock_cache_key)) {
             return miss('请勿频繁操作', false);

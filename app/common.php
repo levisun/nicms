@@ -22,6 +22,26 @@ use app\common\model\ApiApp as ModelApiApp;
 
 if (!function_exists('format_hits')) {
     /**
+     * 汉子转unicode
+     * @param  string $_str
+     * @return string
+     */
+    function to_unicode(string $_str): string
+    {
+        return (string) preg_replace_callback('/./u', function (array $matches) {
+            if (3 <= strlen($matches[0])) {
+                $matches[0] = trim(json_encode($matches[0]), '"');
+                $matches[0] = (string) preg_replace_callback('/\\\u([0-9a-f]{4})/si', function ($chs) {
+                    return '\x{' . $chs[1] . '}';
+                }, $matches[0]);
+            }
+            return $matches[0];
+        }, $_str);
+    }
+}
+
+if (!function_exists('format_hits')) {
+    /**
      * 格式化浏览与评论量
      * @param  int    $_hits
      * @param  string $_delimiter 分隔符
@@ -125,6 +145,7 @@ if (!function_exists('is_wechat')) {
 if (!function_exists('app_secret')) {
     /**
      * APPID与密钥
+     * @param  string $_app_name 应用名
      * @return array
      */
     function app_secret(string $_app_name = ''): array
