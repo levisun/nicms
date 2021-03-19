@@ -211,14 +211,13 @@ class UploadFile
         $save_dir  = 'uploads' . DIRECTORY_SEPARATOR;
 
         // 用户类型ID目录
-        if (!empty($_user['user_type']) && !empty($_user['user_id'])) {
-            $save_dir .= Base64::flag($_user['user_type'], 3) . Base64::url62encode((int) $_user['user_id']) . DIRECTORY_SEPARATOR;
+        if (!empty($_user['userType']) && !empty($_user['userId'])) {
+            $save_dir .= Base64::flag($_user['userType']) . DIRECTORY_SEPARATOR;
+            $save_dir .= Base64::url62encode((int) $_user['userId']) . DIRECTORY_SEPARATOR;
+            $save_dir .= Base64::url62encode((int) date('Ym'));
         } else {
-            $save_dir .= 'guest' . DIRECTORY_SEPARATOR;
+            $save_dir .= 'guest' . DIRECTORY_SEPARATOR . substr(md5(date('Ym')), 0, 2);
         }
-
-        // 日期目录
-        $save_dir .= Base64::url62encode((int) date('Ym'));
 
         return $save_dir;
     }

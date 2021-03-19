@@ -43,7 +43,8 @@ return [
     'request_cache_tag'     => 'request',
     // 全局请求缓存排除规则
     'request_cache_except'  => [
-        '/account/user'
+        '/account/user',
+        '/static'
     ],
     // 默认控制器名
     'default_controller'    => 'Index',

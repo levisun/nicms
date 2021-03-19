@@ -102,6 +102,11 @@ abstract class BaseController
         @ini_set('max_execution_time', '60');
         @ini_set('memory_limit', '16M');
 
+        // 应用维护
+        if ($this->app->env->get('app_maintain', false)) {
+            $this->redirect('/maintain', 302);
+        }
+
         // 控制器初始化
         $this->initialize();
     }

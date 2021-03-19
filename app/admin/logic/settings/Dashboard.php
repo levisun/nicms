@@ -73,11 +73,6 @@ class Dashboard extends BaseLogic
 
     private function total()
     {
-        // $sum_ip = ModelIpv4::cache(28800)->count();
-
-        $sum_ip = ModelIpv4::cache(28800)->where('update_time', '>', strtotime('-7 day'))->count();
-        $day_ip = ModelIpv4::cache(2880)->where('update_time', '>', strtotime(date('Y-m-d')))->count();
-
         $ip = ModelVisit::where('ip', '<>', '')
             ->where('date', '=', strtotime(date('Y-m-d')))
             ->cache(2880)
@@ -110,7 +105,6 @@ class Dashboard extends BaseLogic
         }
 
         return [
-            'ip'      => format_hits($sum_ip) . '/' . format_hits($day_ip),
             'session' => format_hits(count((array) glob(runtime_path('session') . '*'))),
             'cache'   => format_hits($cache_total),
             'access'  => [

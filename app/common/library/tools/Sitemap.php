@@ -71,6 +71,9 @@ class Sitemap
             $robots .= 'Disallow: ' . Request::scheme() . '://api.' . Request::rootDomain() . '/' . PHP_EOL;
             $robots .= 'Disallow: ' . Request::scheme() . '://cdn.' . Request::rootDomain() . '/' . PHP_EOL;
             $robots .= 'Disallow: ' . Request::scheme() . '://img.' . Request::rootDomain() . '/' . PHP_EOL;
+            $robots .= 'Disallow: /404.html' . PHP_EOL;
+            $robots .= 'Disallow: /502.html' . PHP_EOL;
+            $robots .= 'Disallow: /maintain.html' . PHP_EOL;
             $robots .= 'Disallow: /search.html' . PHP_EOL;
             $robots .= 'Disallow: /*.txt' . PHP_EOL;
             $robots .= 'Disallow: /*.do' . PHP_EOL;

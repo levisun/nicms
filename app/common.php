@@ -230,7 +230,7 @@ if (!function_exists('miss')) {
             }
         }
 
-        $resource = Response::create($content, 'html', is_int($_code) ? $_code : 200)
+        $resource = Response::create($content, 'html', 200)
             ->allowCache(true)
             ->cacheControl('max-age=1440,must-revalidate')
             ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')

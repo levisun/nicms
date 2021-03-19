@@ -35,7 +35,6 @@ class Ipv4
         'city_id'     => '',
         'area_id'     => '',
         'region'      => '',
-        'isp'         => '',
     ];
 
     private $api = 'http://ip.taobao.com/outGetIpInfo?ip=TXT&accessKey=alibaba-inc';
@@ -63,7 +62,7 @@ class Ipv4
             return array_merge($this->default, ['ip' => $_ip, 'country' => $result]);
         }
 
-        $result = ModelIpv4::view('ipv4', ['id', 'isp', 'update_time'])
+        $result = ModelIpv4::view('ipv4', ['id', 'update_time'])
             ->view('region country', ['id' => 'country_id', 'name' => 'country'], 'country.id=ipv4.country_id')
             ->view('region region', ['id' => 'region_id', 'name' => 'region'], 'region.id=ipv4.province_id')
             ->view('region city', ['id' => 'city_id', 'name' => 'city'], 'city.id=ipv4.city_id')
@@ -111,7 +110,6 @@ class Ipv4
                 'province_id' => $province,
                 'city_id'     => $city,
                 'area_id'     => $area,
-                'isp'         => $isp,
                 'update_time' => time(),
             ]);
         }
@@ -151,9 +149,7 @@ class Ipv4
                         'province_id' => $province,
                         'city_id'     => $city,
                         'area_id'     => $area,
-                        'isp'         => $isp,
                         'update_time' => time(),
-                        'create_time' => time()
                     ];
                 }
                 ModelIpv4::insertAll($all_data);

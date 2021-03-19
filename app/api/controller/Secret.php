@@ -17,8 +17,6 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
-use app\common\controller\BaseApi;
-
 use think\facade\Session;
 
 use app\common\library\Base64;
@@ -33,6 +31,12 @@ class Secret
 
     public function index()
     {
+        $referer = parse_url(request()->server('HTTP_REFERER'), PHP_URL_HOST);
+        if (!$referer || false === stripos($referer, request()->rootDomain())) {
+            trace('MISS ' . request()->ip(), 'error');
+            return miss(404, false);
+        }
+
         $app_name = base64_decode(request()->param('app_name'));
         $app_name = Filter::htmlDecode(Filter::strict($app_name));
 
@@ -42,17 +46,18 @@ class Secret
         $version = request()->param('version');
         $version = Filter::htmlDecode(Filter::strict($version));
 
-        if (!!preg_match('/[^a-z]+/', $app_name) || !!preg_match('/[^a-zA-Z_\d\{\}\[\]":,]+/i', $token) || preg_match('/[^\d\.]+/', $version)) {
-            trace('MISS ' . $app_name . $token . $version, 'warning');
+        if (!!preg_match('/[^a-z]+/', $app_name) || !!preg_match('/[^a-zA-Z_\d\{\}\[\]":,]+/i', $token) || !preg_match('/[\d]+\.[\d]+\.[\d]+/', $version)) {
+            trace('MISS ' . $app_name . $token . $version, 'error');
             return miss(404, false);
         }
 
-        $host = parse_url(request()->server('HTTP_REFERER'), PHP_URL_HOST);
+
+
         $authorization = (string) (new Builder)
             // 签发者
             ->issuedBy(request()->rootDomain())
             // 接收者
-            ->permittedFor($host)
+            ->permittedFor($referer)
             // 身份标识(SessionID)
             ->identifiedBy(Base64::encrypt(Session::getId()), false)
             // 签发时间
@@ -85,15 +90,16 @@ class Secret
         ip.src = "' . config('app.api_host') . 'tools/ip.do?token=' . md5(request()->server('HTTP_REFERER')) . '";
         var script = document.getElementsByTagName("script")[0];
         script.parentNode.insertBefore(ip, script);
-        if ("admin" != "' . $app_name . '"){
-        let record = document.createElement("script");
-        record.src = "' . config('app.api_host') . 'tools/record.do?url=' . urlencode(request()->server('HTTP_REFERER')) . '";
-        var script = document.getElementsByTagName("script")[0];
-        script.parentNode.insertBefore(record, script);
-        }
         document.cookie = "CSRF_TOKEN=' . $from_token . ';expires=0;path=/;SameSite=lax;domain="+window.location.host+";";
         window.sessionStorage.setItem("XSRF_AUTHORIZATION", "' . trim(base64_encode($authorization), '=') . '");
         window.sessionStorage.setItem("XSRF_TOKEN", "' . sha1($secret['secret'] . Base64::asyncSecret()) . '");';
+
+        if ('admin' != $app_name) {
+            $script .= 'let record = document.createElement("script");
+            record.src = "' . config('app.api_host') . 'tools/record.do?url=' . urlencode(request()->server('HTTP_REFERER')) . '";
+            var script = document.getElementsByTagName("script")[0];
+            script.parentNode.insertBefore(record, script);';
+        }
 
         $script = preg_replace('/\s+/', ' ', $script);
 

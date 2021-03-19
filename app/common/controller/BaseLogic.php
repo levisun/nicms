@@ -316,9 +316,9 @@ abstract class BaseLogic
         }
 
         return [
-            'userId'      => $this->userId,
+            'userId'     => $this->userId,
             'userRoleId' => $this->userRoleId,
-            'userType'    => $this->userType,
+            'userType'   => $this->userType,
         ];
     }
 
@@ -330,14 +330,9 @@ abstract class BaseLogic
      */
     protected function actionLog(string $_write_log = '')
     {
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-        array_shift($backtrace);
         $class = $this->getClassMethod();
         $class = str_replace(['app\\', 'logic\\'], '', $class);
         $class = str_replace(['\\', '::'], '_', $class);
-
-        $class  = str_replace(['app\\', 'logic\\', '\\'], ['', '', '_'], $backtrace[0]['class']);
-        $class .= '_' . $backtrace[0]['function'];
 
         // 查询操作方法
         $has = ModelAction::where('name', '=', $class)->find();

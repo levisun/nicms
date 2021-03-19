@@ -93,6 +93,7 @@ class ClearGarbage
                 'dead.txt',
                 'favicon.ico',
                 'index.php',
+                'maintain.html',
                 'robots.txt',
                 'sitemap.xml',
             ],

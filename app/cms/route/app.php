@@ -13,17 +13,6 @@
 
 use think\facade\Route;
 
-/**
- * STATIC IMG
- */
-Route::domain(['cdn', 'img'], function () {
-    Route::get('static/:app_name/:token$', '\app\api\controller\Secret::index')->ext('do');
-
-    Route::miss(function () {
-        return miss(404, false);
-    });
-});
-
 Route::miss(function () {
     return miss(404, false);
 });
@@ -55,3 +44,14 @@ Route::group(function () {
     'category_id' => '\w+',
     'id'          => '\w+',
 ]);
+
+/**
+ * STATIC IMG
+ */
+Route::domain(['cdn', 'img'], function () {
+    Route::get('static/:app_name/:token$', '\app\api\controller\Secret::index')->ext('do');
+
+    Route::miss(function () {
+        return miss(404, false);
+    });
+});

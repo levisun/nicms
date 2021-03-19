@@ -34,15 +34,12 @@ class Safe extends BaseLogic
 
         $result = [
             'app_debug' => $env->get('app_debug'),
+            'app_maintain' => $env->get('app_maintain'),
             'app' => [
-                'upload_type' => $env->get('app.upload_type'),
                 'upload_size' => $env->get('app.upload_size'),
-                'secretkey' => $env->get('app.secretkey'),
+                'upload_type' => $env->get('app.upload_type'),
             ],
-            'cache' => [
-                'type'   => $env->get('cache.type'),
-                'expire' => $env->get('cache.expire'),
-            ],
+
             'database' => [
                 'type'     => $env->get('database.type'),
                 'hostname' => $env->get('database.hostname'),
@@ -51,6 +48,10 @@ class Safe extends BaseLogic
                 // 'password' => $env->get('database.password'),
                 // 'hostport' => $env->get('database.hostport'),
                 'prefix'   => $env->get('database.prefix'),
+            ],
+            'cache' => [
+                'type'   => $env->get('cache.type'),
+                'expire' => $env->get('cache.expire'),
             ],
             'admin' => [
                 'entry'   => $this->config->get('app.entry') . '.' . $this->request->rootDomain(),
@@ -80,6 +81,7 @@ class Safe extends BaseLogic
             'app_upload_type' => $this->request->param('app.upload_type'),
             'cache_expire'    => $this->request->param('cache.expire/d', 28800, 'abs'),
             'app_debug'       => $this->request->param('app_debug/d', 0, 'abs'),
+            'app_maintain'    => $this->request->param('app_maintain/d', 0, 'abs'),
         ];
         if ($result = $this->validate($receive_data)) {
             return $result;
@@ -88,7 +90,9 @@ class Safe extends BaseLogic
         $env = $this->app->env;
 
         $receive_data['app_debug'] = $receive_data['app_debug'] ? 'true' : 'false';
+        $receive_data['app_maintain'] = $receive_data['app_maintain'] ? 'true' : 'false';
         $result = 'APP_DEBUG = '  . $receive_data['app_debug'] . PHP_EOL .
+            'APP_MAINTAIN = '  . $receive_data['app_maintain'] . PHP_EOL .
             PHP_EOL . '[APP]' . PHP_EOL .
             'UPLOAD_SIZE = ' . $receive_data['app_upload_size'] . PHP_EOL .
             'UPLOAD_TYPE = ' . $receive_data['app_upload_type'] . PHP_EOL .
@@ -96,6 +100,7 @@ class Safe extends BaseLogic
             'NAME = ' . $env->get('app.name') . PHP_EOL .
 
             PHP_EOL . '[DATABASE]' . PHP_EOL .
+            'DRIVER = ' . $env->get('database.driver') . PHP_EOL .
             'TYPE = ' . $env->get('database.type') . PHP_EOL .
             'HOSTNAME = ' . $env->get('database.hostname') . PHP_EOL .
             'DATABASE = ' . $env->get('database.database') . PHP_EOL .
