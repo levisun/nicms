@@ -91,6 +91,13 @@ class tools {
     }
 
     /*
+     是否移动端访问
+     */
+    isMobile() {
+        return !!navigator.userAgent.match(/(blackberry|configuration\/cldc|hp |hp-|htc |htc_|htc-|iemobile|kindle|midp|mmp|motorola|mobile|nokia|opera mini|opera |Googlebot-Mobile|YahooSeeker\/M1A1-R2D2|android|iphone|ipod|mobi|palm|palmos|pocket|portalmmm|ppc;|smartphone|sonyericsson|sqh|spv|symbian|treo|up.browser|up.link|vodafone|windows ce|xda |xda_)/i);
+    }
+
+    /*
      图片加水印
      water(图片地址, 水印内容, 替换图片ID, 字体大小, X轴偏移值, Y轴偏移值);
      */
@@ -208,7 +215,10 @@ class tools {
         }
     }
 
-    // 日期与时间
+    /*
+     日期与时间
+     date("y-m-d h:i:s");
+     */
     date(format = "y-m-d h:i:s") {
         let date = new Date();
 

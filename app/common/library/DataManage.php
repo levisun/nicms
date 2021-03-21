@@ -57,7 +57,7 @@ class DataManage
             }
 
             $log = request()->ip() . ' ' . request()->method(true) . ' ' . request()->url(true) . PHP_EOL .
-                'Time:' . $value['Time']. ' Command:' . $value['Command'] . ' State:' . $value['State'] . ' Sql:' . $value['Info'];
+                'Time:' . $value['Time'] . ' Command:' . $value['Command'] . ' State:' . $value['State'] . ' Sql:' . $value['Info'];
 
             Log::sql($log);
         }
@@ -102,53 +102,57 @@ class DataManage
         return true;
     }
 
-    public function site(string $_dir = '')
+    /**
+     * 备份网站
+     * @access public
+     * @return mixed
+     */
+    public function site()
     {
-        $each = function (string $_dir, array &$_files) use (&$each) {
-            if ($result = glob($_dir . '*')) {
-                foreach ($result as $filename) {
-                    if (is_file($filename)) {
-                        $_files[] = $filename;
-                    } elseif (is_dir($filename)) {
-                        $each($filename . DIRECTORY_SEPARATOR, $_files);
-                    }
+        only_execute('web_backup.lock', false, function () {
+            $files = glob($this->savePath . '*');
+            foreach ($files as $key => $name) {
+                if ('Web' !== substr(str_replace($this->savePath, '', $name), 0, 3)) {
+                    unset($files[$key]);
                 }
             }
-        };
+            if (3 <= count($files)) {
+                unlink(reset($files));
+            }
 
-        $zip_files = [];
-        if ($_dir) {
-            $each($_dir, $zip_files);
-        } else {
-            $each(root_path('app'), $zip_files);
-            $each(root_path('config'), $zip_files);
-            $each(root_path('extend'), $zip_files);
-            $each(public_path('static'), $zip_files);
-            $each(public_path('theme'), $zip_files);
-            $each(root_path('vendor'), $zip_files);
-            if ($result = glob(public_path() . '*')) {
-                foreach ($result as $filename) {
-                    if (is_file($filename)) {
+            $zip_files = [];
+            $root_dirs = glob(root_path() . '*');
+            foreach ($root_dirs as $dir) {
+                if (is_dir($dir)) {
+                    if ('runtime' === pathinfo($dir, PATHINFO_BASENAME)) {
+                        continue;
+                    }
+                    $glob = \app\common\library\tools\File::glob($dir);
+                    while ($glob->valid()) {
+                        $filename = $glob->current();
+                        $glob->next();
+                        if (strpos($filename, 'storage') || is_dir($filename)) {
+                            continue;
+                        }
                         $zip_files[] = $filename;
                     }
+                } else {
+                    $zip_files[] = $dir;
                 }
             }
-            if ($result = glob(root_path() . '*')) {
-                foreach ($result as $filename) {
-                    if (is_file($filename)) {
-                        $zip_files[] = $filename;
-                    }
-                }
-            }
-        }
 
-        $zip = new \ZipArchive;
-        $zip_name = $this->savePath . uniqid() . '_web.zip';
-        $zip->open($zip_name, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-        foreach ($zip_files as $filename) {
-            $zip->addFile($filename, str_replace(root_path(), '', $filename));
-        }
-        $zip->close();
+            if (!empty($zip_files)) {
+                $zip = new \ZipArchive;
+                $zip_name = $this->savePath . 'Web_' . request()->rootDomain() . '_' . date('Ymd_His') . '_' . uniqid() . '.zip';
+                $zip->open($zip_name, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+                foreach ($zip_files as $filename) {
+                    $zip->addFile($filename, str_replace(root_path(), '', $filename));
+                }
+                $zip->close();
+            }
+        });
+
+        return true;
     }
 
     /**
@@ -159,11 +163,6 @@ class DataManage
      */
     public function restores(string $_name)
     {
-        if (!class_exists('ZipArchive')) {
-            Log::warning('环境不支持 ZipArchive 方法,系统备份功能无法使用');
-            halt('<info>环境不支持 ZipArchive 方法,系统备份功能无法使用</info>');
-        }
-
         only_execute('db_backup.lock', false, function () use (&$_name) {
             // 清空上次残留垃圾文件
             if ($files = glob($this->tempPath . '*')) {
@@ -231,12 +230,17 @@ class DataManage
      */
     public function backup(): void
     {
-        if (!class_exists('ZipArchive')) {
-            Log::warning('环境不支持 ZipArchive 方法,系统备份功能无法使用');
-            halt('<info>环境不支持 ZipArchive 方法,系统备份功能无法使用</info>');
-        }
-
         only_execute('db_backup.lock', false, function () {
+            $files = glob($this->savePath . '*');
+            foreach ($files as $key => $name) {
+                if ('Db' !== substr(str_replace($this->savePath, '', $name), 0, 3)) {
+                    unset($files[$key]);
+                }
+            }
+            if (3 <= count($files)) {
+                unlink(reset($files));
+            }
+
             // 清空上次残留垃圾文件
             if ($files = glob($this->tempPath . '*')) {
                 array_map('unlink', $files);
@@ -246,7 +250,7 @@ class DataManage
 
             $table_name = Db::getTables();
             foreach ($table_name as $name) {
-                $filename = $this->tempPath . $name . '.db_back';
+                $filename = $this->tempPath . $name . '.sql';
 
                 $sql = '-- 备份时间 ' . date('Y-m-d H:i:s') . PHP_EOL;
                 file_put_contents($filename, $sql);
@@ -262,32 +266,35 @@ class DataManage
                 $field = Db::getTableFields($name);
                 $field = '`' . implode('`, `', $field) . '`';
 
-                Db::table($name)->order($primary . ' ASC')->chunk(10, function ($result) use (&$name, &$field, &$filename) {
+                Db::table($name)->order($primary . ' ASC')->chunk(1000, function ($result) use (&$name, &$field, &$filename) {
                     try {
                         $result = $result->toArray() ?: [];
-                        if ($sql = $this->getTableData($name, $field, $result)) {
-                            file_put_contents($filename, $sql . PHP_EOL, FILE_APPEND);
+                        $page = 0;
+                        while ($items = array_slice($result, $page * 5, 5)) {
+                            $page++;
+                            if ($sql = $this->getTableData($name, $field, $items)) {
+                                file_put_contents($filename, $sql . PHP_EOL, FILE_APPEND);
+                            }
                         }
 
                         // 持续查询状态并不利于处理任务，每10ms执行一次，此时释放CPU，降低机器负载
                         usleep(10000);
                     } catch (\Exception $e) {
                         Log::warning($e->getMessage());
-                        halt($e->getMessage());
                     }
                 });
             }
 
             if ($files = glob($this->tempPath . '*')) {
                 foreach ($files as $key => $filename) {
-                    if ('db_back' !== pathinfo($filename, PATHINFO_EXTENSION)) {
+                    if ('sql' !== pathinfo($filename, PATHINFO_EXTENSION)) {
                         unset($files[$key]);
                     }
                 }
 
                 if (!empty($files)) {
-                    $zip_name = $this->savePath . uniqid() . '_db.zip';
                     $zip = new \ZipArchive;
+                    $zip_name = $this->savePath . 'Db_' . request()->rootDomain() . '_' . date('Ymd_His') . '_' . uniqid() . '.zip';
                     $zip->open($zip_name, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
                     foreach ($files as $filename) {
                         $zip->addFile($filename, pathinfo($filename, PATHINFO_BASENAME));

@@ -18,20 +18,11 @@ CREATE TABLE IF NOT EXISTS `nc_user` (
     `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `username` varchar(20) NOT NULL DEFAULT '' COMMENT '用户名',
     `password` varchar(60) NOT NULL DEFAULT '' COMMENT '密码',
-    `email` varchar(40) NOT NULL DEFAULT '' COMMENT '邮箱',
-    `realname` varchar(50) NOT NULL DEFAULT '' COMMENT '真实姓名',
-    `nickname` varchar(50) NOT NULL DEFAULT '' COMMENT '昵称',
-    `avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '头像',
-    `gender` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT '性别',
-    `birthday` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '生日',
-    `level_id` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '等级ID',
-    `province_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '省',
-    `city_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '市',
-    `area_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '区',
-    `address` varchar(255) NOT NULL DEFAULT '' COMMENT '地址',
     `phone` varchar(11) NOT NULL DEFAULT '' COMMENT '电话',
+    `email` varchar(40) NOT NULL DEFAULT '' COMMENT '邮箱',
     `salt` char(6) NOT NULL COMMENT '佐料',
     `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '状态',
+    `level_id` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '等级ID',
     `last_login_ip` varchar(15) NOT NULL DEFAULT '' COMMENT '登录IP',
     `last_login_ip_attr` varchar(255) NOT NULL DEFAULT '' COMMENT '登录IP地区',
     `last_login_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '登录时间',
@@ -39,17 +30,33 @@ CREATE TABLE IF NOT EXISTS `nc_user` (
     `create_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '创建时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY `username` (`username`),
-    UNIQUE KEY `email` (`email`),
     UNIQUE KEY `phone` (`phone`),
+    UNIQUE KEY `email` (`email`),
     INDEX `password` (`password`) USING BTREE,
-    INDEX `gender` (`gender`) USING BTREE,
-    INDEX `birthday` (`birthday`) USING BTREE,
     INDEX `level_id` (`level_id`) USING BTREE,
-    INDEX `province_id` (`province_id`) USING BTREE,
-    INDEX `city_id` (`city_id`) USING BTREE,
-    INDEX `area_id` (`area_id`) USING BTREE,
     INDEX `status` (`status`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户';
+
+DROP TABLE IF EXISTS `nc_user_info`;
+CREATE TABLE IF NOT EXISTS `nc_user_info` (
+    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `user_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '用户ID',
+    `realname` varchar(50) NOT NULL DEFAULT '' COMMENT '真实姓名',
+    `nickname` varchar(50) NOT NULL DEFAULT '' COMMENT '昵称',
+    `avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '头像',
+    `gender` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT '性别',
+    `birthday` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '生日',
+    `province_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '省',
+    `city_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '市',
+    `area_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '区',
+    `address` varchar(255) NOT NULL DEFAULT '' COMMENT '地址',
+    PRIMARY KEY (`id`),
+    INDEX `gender` (`gender`) USING BTREE,
+    INDEX `birthday` (`birthday`) USING BTREE,
+    INDEX `province_id` (`province_id`) USING BTREE,
+    INDEX `city_id` (`city_id`) USING BTREE,
+    INDEX `area_id` (`area_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户详细信息';
 
 DROP TABLE IF EXISTS `nc_user_oauth`;
 CREATE TABLE IF NOT EXISTS `nc_user_oauth` (

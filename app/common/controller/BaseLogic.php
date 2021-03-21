@@ -330,7 +330,9 @@ abstract class BaseLogic
      */
     protected function actionLog(string $_write_log = '')
     {
-        $class = $this->getClassMethod();
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+        array_shift($backtrace);
+        $class = get_class($this) . '::' . $backtrace[0]['function'];
         $class = str_replace(['app\\', 'logic\\'], '', $class);
         $class = str_replace(['\\', '::'], '_', $class);
 
@@ -350,7 +352,7 @@ abstract class BaseLogic
         // 写入操作日志
         ModelActionLog::create([
             'action_id' => $has['id'],
-            'userId'   => $this->userId,
+            'user_id'   => $this->userId,
             'action_ip' => $this->request->ip(),
             'module'    => 'admin',
             'remark'    => $_write_log,
