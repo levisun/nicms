@@ -38,7 +38,7 @@ class Admin extends BaseLogic
         $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->getPageCache()) {
+        if ($query_page > $this->ERPCache()) {
             return [
                 'debug' => false,
                 'cache' => true,
@@ -54,24 +54,23 @@ class Admin extends BaseLogic
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
-            ], $this->getTotalCache());
+            ], true);
 
-        $list = $result->toArray();
+        if ($result && $list = $result->toArray()) {
+            $this->ERPCache($query_page);
 
-        $this->setTotalPageCache($list['total'], $list['last_page']);
+            $list['render'] = $result->render();
 
-        $list['total'] = number_format($list['total']);
-        $list['render'] = $result->render();
+            $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
+            foreach ($list['data'] as $key => $value) {
+                $value['last_login_time'] = date($date_format, (int) $value['last_login_time']);
 
-        $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
-        foreach ($list['data'] as $key => $value) {
-            $value['last_login_time'] = date($date_format, (int) $value['last_login_time']);
-
-            $value['url'] = [
-                'editor' => url('user/admin/editor/' . $value['id']),
-                'remove' => url('user/admin/remove/' . $value['id']),
-            ];
-            $list['data'][$key] = $value;
+                $value['url'] = [
+                    'editor' => url('user/admin/editor/' . $value['id']),
+                    'remove' => url('user/admin/remove/' . $value['id']),
+                ];
+                $list['data'][$key] = $value;
+            }
         }
 
         return [
@@ -80,10 +79,8 @@ class Admin extends BaseLogic
             'msg'   => 'success',
             'data'  => [
                 'list'         => $list['data'],
-                'total'        => $list['total'],
                 'per_page'     => $list['per_page'],
                 'current_page' => $list['current_page'],
-                'last_page'    => $list['last_page'],
                 'page'         => $list['render'],
             ]
         ];

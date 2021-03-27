@@ -77,7 +77,7 @@ class Article extends BaseLogic
         $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->getPageCache()) {
+        if ($query_page > $this->ERPCache()) {
             return [
                 'debug' => false,
                 'cache' => true,
@@ -99,33 +99,32 @@ class Article extends BaseLogic
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
-            ], $this->getTotalCache());
+            ], true);
 
-        $list = $result->toArray();
+        if ($result && $list = $result->toArray()) {
+            $this->ERPCache($query_page);
 
-        $this->setTotalPageCache($list['total'], $list['last_page']);
+            $list['render'] = $result->render();
 
-        $list['total'] = number_format($list['total']);
-        $list['render'] = $result->render();
+            foreach ($list['data'] as $key => $value) {
+                $value['url'] = [
+                    'editor' => url('content/article/editor/' . $value['id']),
+                    'remove' => url('content/article/remove/' . $value['id']),
 
-        foreach ($list['data'] as $key => $value) {
-            $value['url'] = [
-                'editor' => url('content/article/editor/' . $value['id']),
-                'remove' => url('content/article/remove/' . $value['id']),
+                    // 栏目链接
+                    'cat_url' => $this->config->get('app.app_host') . url('list/' . $value['category_id']),
+                    // 文章链接
+                    'url' => $this->config->get('app.app_host') . url('details/' . $value['category_id'] . '/' . $value['id']),
+                ];
 
-                // 栏目链接
-                'cat_url' => $this->config->get('app.app_host') . url('list/' . $value['category_id']),
-                // 文章链接
-                'url' => $this->config->get('app.app_host') . url('details/' . $value['category_id'] . '/' . $value['id']),
-            ];
+                // 时间格式
+                $value['update_time'] = date($date_format, (int) $value['update_time']);
+                // 作者
+                $value['author'] = $value['author'] ?: $value['username'];
+                unset($value['username']);
 
-            // 时间格式
-            $value['update_time'] = date($date_format, (int) $value['update_time']);
-            // 作者
-            $value['author'] = $value['author'] ?: $value['username'];
-            unset($value['username']);
-
-            $list['data'][$key] = $value;
+                $list['data'][$key] = $value;
+            }
         }
 
         return [
@@ -134,10 +133,8 @@ class Article extends BaseLogic
             'msg'   => 'success',
             'data'  => [
                 'list'         => $list['data'],
-                'total'        => $list['total'],
                 'per_page'     => $list['per_page'],
                 'current_page' => $list['current_page'],
-                'last_page'    => $list['last_page'],
                 'page'         => $list['render'],
             ]
         ];

@@ -15,8 +15,8 @@
 /*
 DROP TABLE IF EXISTS `nc_category`;
 CREATE TABLE IF NOT EXISTS `nc_category` (
-    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `pid` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父ID',
+    `id` mediumint(9) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `pid` mediumint(9) UNSIGNED NOT NULL DEFAULT '0' COMMENT '父ID',
     `name` varchar(20) NOT NULL DEFAULT '' COMMENT '栏目名',
     `aliases` varchar(20) NOT NULL DEFAULT '' COMMENT '别名',
     `title` varchar(50) NOT NULL DEFAULT '' COMMENT '标题',

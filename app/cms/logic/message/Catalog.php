@@ -40,7 +40,7 @@ class Catalog extends BaseLogic
             $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
             $query_page = $this->request->param('page/d', 1, 'abs');
-            if ($query_page > $this->getPageCache()) {
+            if ($query_page > $this->ERPCache()) {
                 return [
                     'debug' => false,
                     'cache' => true,
@@ -55,13 +55,13 @@ class Catalog extends BaseLogic
                     ->paginate([
                         'list_rows' => $query_limit,
                         'path' => 'javascript:paging([PAGE]);',
-                    ], $this->getTotalCache());
+                    ], true);
 
                 if ($result && $list = $result->toArray()) {
-                    $this->setTotalPageCache($list['total'], $list['last_page']);
+                    $this->ERPCache($query_page);
 
-                    $list['total'] = number_format($list['total']);
                     $list['render'] = $result->render();
+
                     foreach ($list['data'] as $key => $value) {
                         $value['create_time'] = date($date_format, (int) $value['create_time']);
                         $value['update_time'] = date($date_format, (int) $value['update_time']);
@@ -91,10 +91,8 @@ class Catalog extends BaseLogic
             'msg'   => $list ? 'category' : 'error',
             'data'  => $list ? [
                 'list'         => $list['data'],
-                'total'        => $list['total'],
                 'per_page'     => $list['per_page'],
                 'current_page' => $list['current_page'],
-                'last_page'    => $list['last_page'],
                 'page'         => $list['render'],
             ] : []
         ];

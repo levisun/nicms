@@ -65,9 +65,9 @@ class ClearGarbage
             $filename = $glob->current();
             $glob->next();
 
-            if (is_file($filename) && strtotime('-12 hour') > filemtime($filename)) {
+            if (is_file($filename) && strtotime('-1 day') > filemtime($filename)) {
                 @unlink($filename);
-            } elseif (is_file($filename) && strtotime('-1 hour') > filemtime($filename)) {
+            } elseif (is_file($filename) && strtotime('-12 hour') > filemtime($filename)) {
                 if ($content = @file_get_contents($filename)) {
                     $expire = (int) substr($content, 8, 12);
                     if (0 != $expire && time() - $expire > filemtime($filename)) {

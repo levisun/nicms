@@ -20,7 +20,7 @@ use think\facade\Route;
 use app\common\library\Filter;
 use app\common\model\ApiApp as ModelApiApp;
 
-if (!function_exists('format_hits')) {
+if (!function_exists('to_unicode')) {
     /**
      * 汉子转unicode
      * @param  string $_str
@@ -37,6 +37,35 @@ if (!function_exists('format_hits')) {
             }
             return $matches[0];
         }, $_str);
+    }
+}
+
+if (!function_exists('format_date')) {
+    /**
+     * 格式化日期
+     * @param  int    $_hits
+     * @return string
+     */
+    function format_date(int $_timestamp): string
+    {
+        $_timestamp = time() - $_timestamp;
+        $units = [
+            ['秒前', 60],
+            ['分钟前', 60],
+            ['小时前', 24],
+            ['天前', 30],
+            ['月前', 12],
+            ['年前', (int) date('Y')]
+        ];
+        $i = 0;
+        while ($_timestamp >= $units[$i][1]) {
+            $_timestamp /= $units[$i][1];
+            if (isset($units[$i + 1])) {
+                $i++;
+            }
+        }
+
+        return round($_timestamp, 0) . $units[$i][0];
     }
 }
 

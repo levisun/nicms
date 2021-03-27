@@ -32,7 +32,7 @@ class tools {
             for (const key in options.data) {
                 if (Object.hasOwnProperty.call(options.data, key)) {
                     const element = options.data[key];
-                    query += "&" + key + "=" + element;
+                    query += "&" + key + "=" + encodeURIComponent(element);
                 }
             }
             query = query.substr(1);
@@ -71,13 +71,12 @@ class tools {
         // 设置监听事件
         xhr.addEventListener("load", () => {
             try {
-                if (4 === xhr.readyState && 400 > xhr.status) {
+                if (4 == xhr.readyState && 400 > xhr.status) {
                     if (options.requestUrl) {
                         window.history.pushState(null, document.title, options.requestUrl);
                     }
 
-                    xhr.response = "json" === options.responseType ? JSON.parse(xhr.response) : xhr.response;
-
+                    var result = "json" === options.responseType ? JSON.parse(xhr.response) : xhr.response;
                     options.success(result);
                 } else {
                     options.error(xhr.response);

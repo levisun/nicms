@@ -26,16 +26,7 @@ class Ip extends BaseApi
 
     public function index()
     {
-        // 外部网站限制
-        $referer = $this->request->server('HTTP_REFERER');
-        $referer = !$referer || false === stripos($referer, $this->request->rootDomain()) ? false : true;
-        if (false === $referer) {
-            // if (0 <= date('H') && 7 >= date('H') || 1 === mt_rand(1, 100)) return miss(503, false);
-            // usleep(500000);
-        }
-
         $format = $this->request->param('format', 'html');
-
 
         // 解决没有传IP参数,缓存造成的缓存错误
         if (!$ip = $this->request->param('ip', false)) {
@@ -43,6 +34,14 @@ class Ip extends BaseApi
             $url .= 'html' === $format ? '' : 'format=' . $format;
             $url .= '&ip=' . $this->request->ip();
             return Response::create($url, 'redirect', 302);
+        }
+
+        // 外部网站限制
+        $referer = $this->request->server('HTTP_REFERER');
+        $referer = !$referer || false === stripos($referer, $this->request->rootDomain()) ? false : true;
+        if (false === $referer) {
+            if (1 === mt_rand(1, 10)) return miss(503, false);
+            usleep(500000);
         }
 
         $ip = $this->request->param('ip', false) ?: $this->request->ip();

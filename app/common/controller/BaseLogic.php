@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace app\common\controller;
 
 use think\App;
+use app\common\library\Filter;
 use app\common\library\UploadFile;
 use app\common\model\Action as ModelAction;
 use app\common\model\ActionLog as ModelActionLog;
@@ -146,51 +147,25 @@ abstract class BaseLogic
     }
 
     /**
-     * 获得总页缓存
+     * 错误分页请求
+     * 避免扫库
      * @access protected
      * @return int
      */
-    protected function getPageCache(): int
+    protected function ERPCache(int $_last_page = 0): int
     {
-        // 执行的方法名(命名空间\类名::方法名)
         $flag = $this->getClassMethod();
 
-        return (int) $this->cache->get($this->getCacheKey($flag, self::CACHE_PAGE_KEY), $this->request->param('page/d', 1, 'abs'));
-    }
+        $page = $this->request->param('page/d', 1, 'abs');
+        $page = (int) $this->cache->get($this->getCacheKey($flag), $page);
 
-    /**
-     * 获得统计缓存
-     * @access protected
-     * @return false|int
-     */
-    protected function getTotalCache()
-    {
-        // 执行的方法名(命名空间\类名::方法名)
-        $flag = $this->getClassMethod();
-
-        $total = $this->cache->get($this->getCacheKey($flag, self::CACHE_TOTAL_KEY));
-        return is_null($total) ? false : (int) $total;
-    }
-
-    /**
-     * 设置统计和总页缓存
-     * @access protected
-     * @param  int $_total
-     * @param  int $_last_page
-     * @return void
-     */
-    protected function setTotalPageCache(int $_total, int $_last_page): void
-    {
-        // 执行的方法名(命名空间\类名::方法名)
-        $flag = $this->getClassMethod();
-
-        if (!$this->cache->has($this->getCacheKey($flag, self::CACHE_TOTAL_KEY))) {
-            $this->cache->tag('request')->set($this->getCacheKey($flag, self::CACHE_TOTAL_KEY), $_total, 28800);
+        if ($_last_page) {
+            $_last_page = $_last_page > $page ? $page : $_last_page;
+            $this->cache->tag('request')->set($this->getCacheKey($flag), $_last_page, 28800);
         }
 
-        if (!$this->cache->has($this->getCacheKey($flag, self::CACHE_PAGE_KEY))) {
-            $this->cache->tag('request')->set($this->getCacheKey($flag, self::CACHE_PAGE_KEY), $_last_page, 28800);
-        }
+        return $page;
+
     }
 
     /**
@@ -200,7 +175,7 @@ abstract class BaseLogic
      * @param  string $_type
      * @return string
      */
-    protected function getCacheKey(string $_flag = '', string $_type = ''): string
+    protected function getCacheKey(string $_flag = ''): string
     {
         // 执行的方法名(命名空间\类名::方法名)
         $cache_key = $this->getClassMethod();
@@ -239,13 +214,13 @@ abstract class BaseLogic
         $cache_key .= \app\common\model\Category::cache(28800)->count() < $category_id ? 0 : $category_id;
 
         // 类型
-        $type_id = $this->request->param('type_id/d', 0, 'abs');
+        $cache_key .= $this->request->param('type_id/d', 0, 'abs');
         $cache_key .= \app\common\model\Type::cache(28800)->count() < $type_id ? 0 : $type_id;
 
         // 书籍ID
         $book_id = $this->request->param('book_id', 0);
-        $book_id = is_int($book_id) ? $book_id : \app\common\library\Base64::url62decode($book_id);
-        $cache_key .= \app\common\model\Book::cache(28800)->count() < $book_id ? 0 : $book_id;
+        $cache_key .= is_int($book_id) ? $book_id : \app\common\library\Base64::url62decode($book_id);
+        // $cache_key .= \app\common\model\Book::cache(28800)->count() < $book_id ? 0 : $book_id;
 
         // 书籍类型
         $book_type_id = $this->request->param('book_type_id', 0);
@@ -254,7 +229,7 @@ abstract class BaseLogic
 
         // 排序
         $sort = $this->request->param('sort', '');
-        $cache_key .= preg_match('/[a-zA-Z\., ]+/uis', $sort) ? strtolower($sort) : '';
+        $cache_key .= preg_replace('/[^\w\.,_ ]+/uis', '', strtolower($sort));
 
         // 搜索关键词
         $key = $this->request->param('key', '', '\app\common\library\Filter::nonChsAlpha');
@@ -263,21 +238,13 @@ abstract class BaseLogic
         // 查询条目
         $limit = $this->request->param('limit/d', 20, 'abs');
         $limit = 100 > $limit && 10 < $limit ? intval($limit / 10) * 10 : 20;
+        $cache_key .= $limit;
 
-        $_type = strtolower($_type);
-        if ($_type === self::CACHE_TOTAL_KEY) {
-            $cache_key .= 'TOTAL';
-        } elseif ($_type === self::CACHE_PAGE_KEY) {
-            $cache_key .= 'PAGE' . $limit;
-        } else {
-            $date_format = $this->request->param('date_format', 'Y-m-d');
-            $cache_key .= preg_match('/[ymdhis\-: ]{3,}/uis', $date_format) ? $date_format : 'Y-m-d';
+        $date_format = $this->request->param('date_format', 'Y-m-d');
+        $date_format = preg_replace('/[^ymdhis:\-_\/ ]+/uis', '', $date_format);
+        $cache_key .= Filter::nonChsAlpha($date_format);
 
-            $cache_key .= $this->request->param('page/d', 1, 'abs');
-            $cache_key .= $limit;
-        }
-
-        return md5(sha1($cache_key) . $_type . strtolower($_flag));
+        return md5(sha1($cache_key) . strtolower($_flag));
     }
 
     /**

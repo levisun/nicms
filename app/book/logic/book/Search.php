@@ -53,7 +53,7 @@ class Search extends BaseLogic
         $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->getPageCache()) {
+        if ($query_page > $this->ERPCache()) {
             return [
                 'debug' => false,
                 'cache' => true,
@@ -80,19 +80,19 @@ class Search extends BaseLogic
                     ->where('is_pass', '=', '1')
                     ->where('delete_time', '=', '0')
                     ->where('show_time', '<', time())
-                        // 安书籍查询
+                    // 安书籍查询
                     // ->where('book_id', '=', $book_id)
                     ->order('sort_order ASC, id ASC')
                     ->paginate([
                         'list_rows' => $query_limit,
                         'path' => 'javascript:paging([PAGE]);',
-                    ], $this->getTotalCache());
+                    ], true);
 
                 if ($result && $list = $result->toArray()) {
-                    $this->setTotalPageCache($list['total'], $list['last_page']);
+                    $this->ERPCache($query_page);
 
-                    $list['total'] = number_format($list['total']);
                     $list['render'] = $result->render();
+
                     foreach ($list['data'] as $key => $value) {
                         // 书籍文章列表链接
                         $value['cat_url'] = url('book/' . Base64::url62encode($value['book_id']));
@@ -119,10 +119,8 @@ class Search extends BaseLogic
             'data'  => isset($list) ? [
                 'book'         => $list['book'],
                 'list'         => $list['data'],
-                'total'        => $list['total'],
                 'per_page'     => $list['per_page'],
                 'current_page' => $list['current_page'],
-                'last_page'    => $list['last_page'],
                 'page'         => isset($list['render']) ? $list['render'] : '',
             ] : []
         ];

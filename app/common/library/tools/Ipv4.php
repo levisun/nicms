@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library\tools;
 
 use think\facade\Cache;
+use think\facade\Log;
 use think\facade\Request;
 use app\common\library\Filter;
 use app\common\model\Ipv4 as ModelIpv4;
@@ -91,6 +92,7 @@ class Ipv4
             $result = $this->get_curl(str_replace('TXT', $_ip, $this->api));
             $result = $result ? json_decode($result, true) : null;
             if (!is_array($result) || empty($result) || $result['code'] !== 0) {
+                Log::warning('IP:' . $_ip . '抓取失败!');
                 return false;
             }
 
@@ -123,6 +125,7 @@ class Ipv4
                 $result = $this->get_curl(str_replace('TXT', $_ip, $this->api));
                 $result = $result ? json_decode($result, true) : null;
                 if (!is_array($result) || empty($result) || $result['code'] !== 0) {
+                    Log::warning('IP:' . $_ip . '抓取失败!');
                     return false;
                 }
 
@@ -161,12 +164,13 @@ class Ipv4
 
     private function get_curl(string $_url): string
     {
+        return file_get_contents($_url);
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $_url);
         curl_setopt($curl, CURLOPT_FAILONERROR, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 1);
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($curl, CURLOPT_TIMEOUT, 1);
         curl_setopt($curl, CURLOPT_USERAGENT, Request::server('HTTP_USER_AGENT'));
         $result = curl_exec($curl);

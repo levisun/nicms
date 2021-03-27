@@ -80,7 +80,7 @@ class Search extends BaseLogic
         $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->getPageCache()) {
+        if ($query_page > $this->ERPCache()) {
             return [
                 'debug' => false,
                 'cache' => true,
@@ -105,56 +105,56 @@ class Search extends BaseLogic
                 ->paginate([
                     'list_rows' => $query_limit,
                     'path' => 'javascript:paging([PAGE]);',
-                ], $this->getTotalCache());
+                ], true);
 
-            $list = $result->toArray();
+            if ($result && $list = $result->toArray()) {
+                $this->ERPCache($query_page);
 
-            $this->setTotalPageCache($list['total'], $list['last_page']);
+                $list['render'] = $result->render();
 
-            $list['total'] = number_format($list['total']);
-            $list['render'] = $result->render();
-            $list['search_key'] = $search_key ?: '';
-            foreach ($list['data'] as $key => $value) {
-                // 栏目链接
-                $value['cat_url'] = url('list/' . Base64::url62encode($value['category_id']));
-                // 文章链接
-                $value['url'] = url('details/' . Base64::url62encode($value['category_id']) . '/' . Base64::url62encode($value['id']));
-                // 标识符
-                $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
-                // 缩略图
-                $value['thumb'] = File::imgUrl($value['thumb']);
-                // 时间格式
-                $value['update_time'] = date($date_format, (int) $value['update_time']);
-                // 作者
-                $value['author'] = $value['author'] ?: $value['username'];
-                unset($value['username']);
+                $list['search_key'] = $search_key ?: '';
+                foreach ($list['data'] as $key => $value) {
+                    // 栏目链接
+                    $value['cat_url'] = url('list/' . Base64::url62encode($value['category_id']));
+                    // 文章链接
+                    $value['url'] = url('details/' . Base64::url62encode($value['category_id']) . '/' . Base64::url62encode($value['id']));
+                    // 标识符
+                    $value['flag'] = Base64::flag($value['category_id'] . $value['id'], 7);
+                    // 缩略图
+                    $value['thumb'] = File::imgUrl($value['thumb']);
+                    // 时间格式
+                    $value['update_time'] = date($date_format, (int) $value['update_time']);
+                    // 作者
+                    $value['author'] = $value['author'] ?: $value['username'];
+                    unset($value['username']);
 
-                // 附加字段数据
-                $fields = ModelFieldsExtend::view('fields_extend', ['data'])
-                    ->view('fields', ['name' => 'fields_name'], 'fields.id=fields_extend.fields_id')
-                    ->where('fields_extend.article_id', '=', $value['id'])
-                    ->where('fields.category_id', '=', $value['category_id'])
-                    ->select()
-                    ->toArray();
-                foreach ($fields as $val) {
-                    $value[$val['fields_name']] = $val['data'];
+                    // 附加字段数据
+                    $fields = ModelFieldsExtend::view('fields_extend', ['data'])
+                        ->view('fields', ['name' => 'fields_name'], 'fields.id=fields_extend.fields_id')
+                        ->where('fields_extend.article_id', '=', $value['id'])
+                        ->where('fields.category_id', '=', $value['category_id'])
+                        ->select()
+                        ->toArray();
+                    foreach ($fields as $val) {
+                        $value[$val['fields_name']] = $val['data'];
+                    }
+
+                    // 标签
+                    $value['tags'] = ModelArticleTags::view('article_tags', ['tags_id'])
+                        ->view('tags tags', ['name'], 'tags.id=article_tags.tags_id')
+                        ->where('article_tags.article_id', '=', $value['id'])
+                        ->select()
+                        ->toArray();
+                    foreach ($value['tags'] as $k => $tag) {
+                        $tag['url'] = url('tags/' . Base64::url62encode($tag['tags_id']));
+                        $value['tags'][$k] = $tag;
+                    }
+
+                    $list['data'][$key] = $value;
                 }
 
-                // 标签
-                $value['tags'] = ModelArticleTags::view('article_tags', ['tags_id'])
-                    ->view('tags tags', ['name'], 'tags.id=article_tags.tags_id')
-                    ->where('article_tags.article_id', '=', $value['id'])
-                    ->select()
-                    ->toArray();
-                foreach ($value['tags'] as $k => $tag) {
-                    $tag['url'] = url('tags/' . Base64::url62encode($tag['tags_id']));
-                    $value['tags'][$k] = $tag;
-                }
-
-                $list['data'][$key] = $value;
+                $this->cache->tag('cms article list' . $category_id)->set($this->getCacheKey(), $list);
             }
-
-            $this->cache->tag('cms article list' . $category_id)->set($this->getCacheKey(), $list);
         }
 
         return [
@@ -164,9 +164,7 @@ class Search extends BaseLogic
             'data'  => isset($list) ? [
                 'list'         => $list['data'],
                 'total'        => $list['total'],
-                'per_page'     => $list['per_page'],
                 'current_page' => $list['current_page'],
-                'last_page'    => $list['last_page'],
                 'page'         => $list['render'],
                 'search_key'   => $list['search_key'],
             ] : []

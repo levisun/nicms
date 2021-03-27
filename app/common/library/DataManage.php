@@ -40,7 +40,7 @@ class DataManage
 
         @set_time_limit(3600);
         @ini_set('max_execution_time', '3600');
-        @ini_set('memory_limit', '32M');
+        @ini_set('memory_limit', '64M');
     }
 
     public function __destruct()
@@ -201,8 +201,9 @@ class DataManage
                         }
                     }
                     fclose($file);
+                    unlink($filename);
 
-                    // 修改原表名为旧数据表,并修改备份表名为原表名,保证还原时不会损坏原数据
+                    /* // 修改原表名为旧数据表,并修改备份表名为原表名,保证还原时不会损坏原数据
                     try {
                         $table_name = pathinfo($filename, PATHINFO_FILENAME);
                         Db::query('ALTER  TABLE `' . $table_name . '` RENAME TO `old_' . $table_name . '`');
@@ -211,9 +212,7 @@ class DataManage
                     } catch (\Exception $e) {
                         Log::warning('数据库还原错误' . $sql);
                         $this->error_log[] = $sql;
-                    }
-
-                    unlink($filename);
+                    } */
                 }
             }
 
@@ -233,7 +232,7 @@ class DataManage
         only_execute('db_backup.lock', false, function () {
             $files = glob($this->savePath . '*');
             foreach ($files as $key => $name) {
-                if ('Db' !== substr(str_replace($this->savePath, '', $name), 0, 3)) {
+                if ('Db' !== substr(str_replace($this->savePath, '', $name), 0, 2)) {
                     unset($files[$key]);
                 }
             }
@@ -264,9 +263,9 @@ class DataManage
 
                 // 表字段
                 $field = Db::getTableFields($name);
-                $field = '`' . implode('`, `', $field) . '`';
+                $field = '`' . implode('`,`', $field) . '`';
 
-                Db::table($name)->order($primary . ' ASC')->chunk(1000, function ($result) use (&$name, &$field, &$filename) {
+                Db::table($name)->chunk(500, function ($result) use (&$name, &$field, &$filename) {
                     try {
                         $result = $result->toArray() ?: [];
                         $page = 0;
@@ -282,7 +281,7 @@ class DataManage
                     } catch (\Exception $e) {
                         Log::warning($e->getMessage());
                     }
-                });
+                }, $primary, 'asc');
             }
 
             if ($files = glob($this->tempPath . '*')) {
@@ -324,7 +323,7 @@ class DataManage
             return '';
         }
 
-        $sql = 'INSERT INTO `backup_' . $_name . '` (' . $_field . ') VALUES';
+        $sql = 'INSERT INTO `' . $_name . '` (' . $_field . ') VALUES';
 
         foreach ($_data as $value) {
             $value = array_map(function ($vo) {
@@ -364,7 +363,7 @@ class DataManage
         $structure = trim($structure);
 
         // 原表名替换成备份表名,此操作避免恢复数据失败时直接覆盖原数据导致的不可逆转错误
-        $structure = str_replace($_table_name, 'backup_' . $_table_name, $structure);
+        $structure = str_replace($_table_name, $_table_name, $structure);
 
         // 删除自增主键记录
         $structure = preg_replace_callback('/(AUTO_INCREMENT=[\d]+ DEFAULT)/si', function () {
