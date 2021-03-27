@@ -202,7 +202,7 @@ abstract class BaseLogic
 
         // 模型
         $model_id = $this->request->param('model_id/d', 0, 'abs');
-        $cache_key .= \app\common\model\Models::cache(28800)->count() < $model_id ? 0 : $model_id;
+        $cache_key .= \app\common\model\Models::cache(1440)->max('id') < $model_id ? 0 : $model_id;
 
         // 主键ID
         $id = $this->request->param('id', 0);
@@ -211,21 +211,21 @@ abstract class BaseLogic
         // 栏目ID
         $category_id = $this->request->param('category_id', 0);
         $category_id = is_int($category_id) ? $category_id : \app\common\library\Base64::url62decode($category_id);
-        $cache_key .= \app\common\model\Category::cache(28800)->count() < $category_id ? 0 : $category_id;
+        $cache_key .= \app\common\model\Category::cache(1440)->max('id') < $category_id ? 0 : $category_id;
 
         // 类型
-        $cache_key .= $this->request->param('type_id/d', 0, 'abs');
-        $cache_key .= \app\common\model\Type::cache(28800)->count() < $type_id ? 0 : $type_id;
+        $type_id = $this->request->param('type_id/d', 0, 'abs');
+        $cache_key .= \app\common\model\Type::cache(1440)->max('id') < $type_id ? 0 : $type_id;
 
         // 书籍ID
         $book_id = $this->request->param('book_id', 0);
-        $cache_key .= is_int($book_id) ? $book_id : \app\common\library\Base64::url62decode($book_id);
-        // $cache_key .= \app\common\model\Book::cache(28800)->count() < $book_id ? 0 : $book_id;
+        $book_id = is_int($book_id) ? $book_id : \app\common\library\Base64::url62decode($book_id);
+        $cache_key .= \app\common\model\Book::cache(1440)->max('id') < $book_id ? 0 : $book_id;
 
         // 书籍类型
         $book_type_id = $this->request->param('book_type_id', 0);
         $book_type_id = is_int($book_type_id) ? $book_type_id : \app\common\library\Base64::url62decode($book_type_id);
-        $cache_key .= \app\common\model\BookType::cache(28800)->count() < $book_type_id ? 0 : $book_type_id;
+        $cache_key .= \app\common\model\BookType::cache(1440)->max('id') < $book_type_id ? 0 : $book_type_id;
 
         // 排序
         $sort = $this->request->param('sort', '');
