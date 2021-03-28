@@ -13,8 +13,8 @@
  * @since     2019
  */
 /*
-DROP TABLE IF EXISTS `nc_level`;
-CREATE TABLE IF NOT EXISTS `nc_level` (
+DROP TABLE IF EXISTS `nc_user_level`;
+CREATE TABLE IF NOT EXISTS `nc_user_level` (
     `id` smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` varchar(20) NOT NULL DEFAULT '' COMMENT '组名',
     `credit` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '积分',
@@ -37,9 +37,9 @@ namespace app\common\model;
 
 use think\Model;
 
-class Level extends Model
+class UserLevel extends Model
 {
-    protected $name = 'level';
+    protected $name = 'user_level';
     protected $autoWriteTimestamp = false;
     protected $updateTime = false;
     protected $dateFormat = false;

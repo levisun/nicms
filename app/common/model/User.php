@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS `nc_user` (
     `phone` varchar(11) NOT NULL DEFAULT '' COMMENT '电话',
     `email` varchar(40) NOT NULL DEFAULT '' COMMENT '邮箱',
     `salt` char(6) NOT NULL COMMENT '佐料',
-    `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '状态',
     `level_id` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '等级ID',
+    `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '状态',
     `last_login_ip` varchar(15) NOT NULL DEFAULT '' COMMENT '登录IP',
     `last_login_ip_attr` varchar(255) NOT NULL DEFAULT '' COMMENT '登录IP地区',
     `last_login_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '登录时间',
@@ -35,44 +35,7 @@ CREATE TABLE IF NOT EXISTS `nc_user` (
     INDEX `password` (`password`) USING BTREE,
     INDEX `level_id` (`level_id`) USING BTREE,
     INDEX `status` (`status`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户';
-
-DROP TABLE IF EXISTS `nc_user_info`;
-CREATE TABLE IF NOT EXISTS `nc_user_info` (
-    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `user_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '用户ID',
-    `realname` varchar(50) NOT NULL DEFAULT '' COMMENT '真实姓名',
-    `nickname` varchar(50) NOT NULL DEFAULT '' COMMENT '昵称',
-    `avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '头像',
-    `gender` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT '性别',
-    `birthday` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '生日',
-    `country_id` mediumint(9) UNSIGNED NOT NULL DEFAULT '0' COMMENT '国家',
-    `province_id` mediumint(9) UNSIGNED NOT NULL DEFAULT '0' COMMENT '省',
-    `city_id` mediumint(9) UNSIGNED NOT NULL DEFAULT '0' COMMENT '市',
-    `area_id` mediumint(9) UNSIGNED NOT NULL DEFAULT '0' COMMENT '区',
-    `address` varchar(255) NOT NULL DEFAULT '' COMMENT '地址',
-    PRIMARY KEY (`id`),
-    INDEX `gender` (`gender`) USING BTREE,
-    INDEX `country_id` (`country_id`) USING BTREE,
-    INDEX `birthday` (`birthday`) USING BTREE,
-    INDEX `province_id` (`province_id`) USING BTREE,
-    INDEX `city_id` (`city_id`) USING BTREE,
-    INDEX `area_id` (`area_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户详细信息';
-
-DROP TABLE IF EXISTS `nc_user_oauth`;
-CREATE TABLE IF NOT EXISTS `nc_user_oauth` (
-    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `user_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '用户ID',
-    `openid` varchar(50) NOT NULL DEFAULT '' COMMENT 'openid',
-    `nick` varchar(50) NOT NULL DEFAULT '' COMMENT '昵称',
-    `type` varchar(10) NOT NULL DEFAULT '' COMMENT '类型',
-    `create_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '创建时间',
-    PRIMARY KEY (`id`),
-    INDEX `user_id` (`user_id`) USING BTREE,
-    INDEX `openid` (`openid`) USING BTREE,
-    INDEX `type` (`type`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '第三方登录用户';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '会员';
 
 DROP TABLE IF EXISTS `nc_user_wechat`;
 CREATE TABLE IF NOT EXISTS `nc_user_wechat` (
@@ -81,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `nc_user_wechat` (
     `appid` varchar(32) NOT NULL DEFAULT '' COMMENT 'APPID',
     `appname` varchar(32) NOT NULL DEFAULT '' COMMENT 'APP NAME',
     `subscribe` tinyint(1) NOT NULL DEFAULT '0' COMMENT '关注状态',
-    `openid` varchar(32) NOT NULL DEFAULT '' COMMENT '用户标识',
+    `open_id` varchar(32) NOT NULL DEFAULT '' COMMENT '用户标识',
     `nickname` varchar(50) NOT NULL DEFAULT '' COMMENT '昵称',
     `gender` tinyint(1) NOT NULL DEFAULT '0' COMMENT '性别 1男 2女 0未知',
     `city` varchar(10) NOT NULL DEFAULT '' COMMENT '城市',
@@ -116,31 +79,16 @@ class User extends Model
     protected $dateFormat = false;
     protected $pk = 'id';
     protected $type = [
-        'gender'      => 'integer',
-        'birthday'    => 'integer',
-        'level_id'    => 'integer',
-        'province_id' => 'integer',
-        'city_id'     => 'integer',
-        'area_id'     => 'integer',
-        'status'      => 'integer'
+        'level_id' => 'integer',
+        'status'   => 'integer'
     ];
     protected $field = [
         'id',
         'username',
         'password',
         'email',
-        'realname',
-        'nickname',
-        'portrait',
-        'gender',
-        'birthday',
-        'level_id',
-        'province_id',
-        'city_id',
-        'area_id',
-        'address',
-        'phone',
         'salt',
+        'level_id',
         'status',
         'last_login_ip',
         'last_login_ip_attr',

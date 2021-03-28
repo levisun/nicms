@@ -204,6 +204,24 @@ abstract class BaseLogic
         $model_id = $this->request->param('model_id/d', 0, 'abs');
         $cache_key .= \app\common\model\Models::cache(1440)->max('id') < $model_id ? 0 : $model_id;
 
+        // 查询条目
+        $limit = $this->request->param('limit/d', 20, 'abs');
+        $limit = 100 > $limit && 10 < $limit ? intval($limit / 10) * 10 : 20;
+        $cache_key .= $limit;
+
+        // 日期格式
+        $date_format = $this->request->param('date_format', 'Y-m-d');
+        $date_format = preg_replace('/[^ymdhis:\-_\/ ]+/uis', '', $date_format);
+        $cache_key .= Filter::nonChsAlpha($date_format);
+
+        // 排序
+        $sort = $this->request->param('sort', '');
+        $cache_key .= preg_replace('/[^\w\.,_ ]+/uis', '', strtolower($sort));
+
+        // 搜索关键词
+        $key = $this->request->param('key', '', '\app\common\library\Filter::nonChsAlpha');
+        $cache_key .= strtolower($key);
+
         // 主键ID
         $id = $this->request->param('id', 0);
         $cache_key .= is_int($id) ? $id : \app\common\library\Base64::url62decode($id);
@@ -226,23 +244,6 @@ abstract class BaseLogic
         $book_type_id = $this->request->param('book_type_id', 0);
         $book_type_id = is_int($book_type_id) ? $book_type_id : \app\common\library\Base64::url62decode($book_type_id);
         $cache_key .= \app\common\model\BookType::cache(1440)->max('id') < $book_type_id ? 0 : $book_type_id;
-
-        // 排序
-        $sort = $this->request->param('sort', '');
-        $cache_key .= preg_replace('/[^\w\.,_ ]+/uis', '', strtolower($sort));
-
-        // 搜索关键词
-        $key = $this->request->param('key', '', '\app\common\library\Filter::nonChsAlpha');
-        $cache_key .= strtolower($key);
-
-        // 查询条目
-        $limit = $this->request->param('limit/d', 20, 'abs');
-        $limit = 100 > $limit && 10 < $limit ? intval($limit / 10) * 10 : 20;
-        $cache_key .= $limit;
-
-        $date_format = $this->request->param('date_format', 'Y-m-d');
-        $date_format = preg_replace('/[^ymdhis:\-_\/ ]+/uis', '', $date_format);
-        $cache_key .= Filter::nonChsAlpha($date_format);
 
         return md5(sha1($cache_key) . strtolower($_flag));
     }

@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\user;
 
 use app\common\controller\BaseLogic;
-use app\common\model\Level as ModelLevel;
+use app\common\model\UserLevel as ModelUserLevel;
 
 class Level extends BaseLogic
 {
@@ -43,7 +43,7 @@ class Level extends BaseLogic
             ];
         }
 
-        $result = ModelLevel::order('id DESC')
+        $result = ModelUserLevel::order('id DESC')
             ->paginate([
                 'list_rows' => $query_limit,
                 'path' => 'javascript:paging([PAGE]);',
@@ -95,7 +95,7 @@ class Level extends BaseLogic
             return $result;
         }
 
-        ModelLevel::create($receive_data);
+        ModelUserLevel::create($receive_data);
 
         return [
             'debug' => false,
@@ -113,7 +113,7 @@ class Level extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d', 0, 'abs')) {
-            $result = ModelLevel::where('id', '=', $id)->find();
+            $result = ModelUserLevel::where('id', '=', $id)->find();
             $result = $result ? $result->toArray() : [];
         }
 
@@ -153,7 +153,7 @@ class Level extends BaseLogic
             return $result;
         }
 
-        ModelLevel::where('id', '=', $id)->limit(1)->update($receive_data);
+        ModelUserLevel::where('id', '=', $id)->limit(1)->update($receive_data);
 
         return [
             'debug' => false,
@@ -180,7 +180,7 @@ class Level extends BaseLogic
             ];
         }
 
-        ModelLevel::where('id', '=', $id)->limit(1)->delete();
+        ModelUserLevel::where('id', '=', $id)->limit(1)->delete();
 
         return [
             'debug' => false,

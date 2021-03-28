@@ -19,8 +19,10 @@ namespace app\admin\logic\user;
 
 use app\common\controller\BaseLogic;
 use app\common\library\Base64;
-use app\common\model\Level as ModelLevel;
 use app\common\model\User as ModelUser;
+use app\common\model\UserInfo as ModelUserInfo;
+use app\common\model\UserLevel as ModelUserLevel;
+use app\common\model\UserOauth as ModelUserOauth;
 
 class User extends BaseLogic
 {
@@ -45,7 +47,8 @@ class User extends BaseLogic
             ];
         }
 
-        $result = ModelUser::view('user', ['id', 'username', 'realname', 'nickname', 'email', 'phone', 'status', 'create_time'])
+        $result = ModelUser::view('user', ['id', 'username', 'email', 'phone', 'status', 'create_time'])
+            ->view('user_info', ['realname', 'nickname'], 'user_info.user_id=user.id')
             ->view('level', ['name' => 'level_name'], 'level.id=user.level_id')
             ->order('user.create_time DESC')
             ->paginate([
@@ -127,12 +130,14 @@ class User extends BaseLogic
         $result = [];
         if ($id = $this->request->param('id/d', 0, 'abs')) {
             $result = ModelUser::field('id, username, phone, email, level_id, status')
+                ->view('user_info', ['realname', 'nickname', 'avatar', 'gender', 'birthday', 'country_id', 'province_id', 'city_id', 'area_id', 'address'], 'user_info.user_id=user.id')
+                ->view('level', ['name' => 'level_name'], 'level.id=user.level_id')
                 ->where('id', '=', $id)
                 ->find();
             $result = $result ? $result->toArray() : [];
         }
 
-        $level = ModelLevel::where('status', '=', 1)->select();
+        $level = ModelUserLevel::where('status', '=', 1)->select();
         $result['level_list'] = $level ? $level->toArray() : [];
 
         return [
@@ -211,6 +216,8 @@ class User extends BaseLogic
         }
 
         ModelUser::where('id', '=', $id)->limit(1)->delete();
+        ModelUserInfo::where('user_id', '=', $id)->limit(1)->delete();
+        ModelUserOauth::where('user_id', '=', $id)->limit(1)->delete();
 
         return [
             'debug' => false,
