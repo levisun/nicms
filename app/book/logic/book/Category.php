@@ -66,7 +66,8 @@ class Category extends BaseLogic
             ];
         }
 
-        if (!$this->cache->has($this->getCacheKey()) || !$list = $this->cache->get($this->getCacheKey())) {
+        $cache_key = $this->getCacheKey('book category');
+        if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
             $result = ModelBook::view('book', ['id', 'title', 'type_id', 'hits', 'status', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
@@ -80,7 +81,9 @@ class Category extends BaseLogic
                 ], true);
 
             if ($result && $list = $result->toArray()) {
-                $this->ERPCache($query_page);
+                if (empty($list['data'])) {
+                    $this->ERPCache($query_page);
+                }
 
                 $list['render'] = $result->render();
 
@@ -91,7 +94,7 @@ class Category extends BaseLogic
                     $list['data'][$key] = $value;
                 }
 
-                $this->cache->tag('book')->set($this->getCacheKey(), $list);
+                $this->cache->tag('book')->set($cache_key, $list);
             }
         }
 

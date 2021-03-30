@@ -61,13 +61,6 @@ class Book extends BaseLogic
         $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->ERPCache()) {
-            return [
-                'debug' => false,
-                'cache' => true,
-                'msg'   => 'error',
-            ];
-        }
 
         $result = ModelBook::view('book', ['id', 'title', 'type_id', 'is_pass', 'attribute', 'status', 'hits', 'sort_order', 'update_time'])
             ->view('book_type', ['name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
@@ -82,8 +75,6 @@ class Book extends BaseLogic
             ], true);
 
         if ($result && $list = $result->toArray()) {
-            $this->ERPCache($query_page);
-
             $list['render'] = $result->render();
 
             foreach ($list['data'] as $key => $value) {

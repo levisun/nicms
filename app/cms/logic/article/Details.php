@@ -62,7 +62,8 @@ class Details extends BaseLogic
         }
 
         if ($id || $category_id) {
-            if (!$this->cache->has($this->getCacheKey()) || !$result = $this->cache->get($this->getCacheKey())) {
+            $cache_key = $this->getCacheKey('cms details');
+            if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
                 $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'thumb', 'username', 'access_id', 'hits', 'update_time'])
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                     ->view('model', ['id' => 'model_id', 'name' => 'model_name', 'table_name'], 'model.id=category.model_id')
@@ -164,7 +165,7 @@ class Details extends BaseLogic
                     $result['id'] = Base64::url62encode($result['id']);
                     $result['category_id'] = Base64::url62encode($result['category_id']);
 
-                    $this->cache->tag('cms article details')->set($this->getCacheKey(), $result);
+                    $this->cache->tag('cms article details')->set($cache_key, $result);
                 }
             }
         }

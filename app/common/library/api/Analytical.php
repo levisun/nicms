@@ -263,7 +263,7 @@ class Analytical
         $data->setIssuer(Request::rootDomain());
         $data->setAudience(parse_url(Request::server('HTTP_REFERER'), PHP_URL_HOST));
         $data->setId($token->getClaim('jti'));
-        $data->setCurrentTime(Request::time() + 2880);
+        $data->setCurrentTime(Request::time() + 1440);
 
         if (false === $token->verify(new Sha256, Base64::asyncSecret()) || false === $token->validate($data)) {
             trace($authorization, 'error');

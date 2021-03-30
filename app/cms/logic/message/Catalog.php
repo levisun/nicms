@@ -48,7 +48,8 @@ class Catalog extends BaseLogic
                 ];
             }
 
-            if (!$this->cache->has($this->getCacheKey()) || !$list = $this->cache->get($this->getCacheKey())) {
+            $cache_key = $this->getCacheKey('cms message catalog');
+            if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
                 $result = ModelMessage::where('is_pass', '=', 1)
                     ->where('category_id', '=', $category_id)
                     ->order('id DESC')
@@ -58,7 +59,9 @@ class Catalog extends BaseLogic
                     ], true);
 
                 if ($result && $list = $result->toArray()) {
-                    $this->ERPCache($query_page);
+                    if (empty($list['data'])) {
+                        $this->ERPCache($query_page);
+                    }
 
                     $list['render'] = $result->render();
 
@@ -80,7 +83,7 @@ class Catalog extends BaseLogic
                         $list['data'][$key] = $value;
                     }
 
-                    $this->cache->tag('cms message list' . $category_id)->set($this->getCacheKey(), $list);
+                    $this->cache->tag('cms message list' . $category_id)->set($cache_key, $list);
                 }
             }
         }

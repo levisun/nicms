@@ -36,7 +36,8 @@ class Article extends BaseLogic
         $id = $this->request->param('id', 0, '\app\common\library\Base64::url62decode');
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
-        if (!$this->cache->has($this->getCacheKey()) || !$result = $this->cache->get($this->getCacheKey())) {
+        $cache_key = $this->getCacheKey('book article');
+        if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
             $result = ModelBookArticle::view('book_article', ['id', 'book_id', 'title', 'content', 'update_time'])
                 ->view('book', ['title' => 'book_title', 'hits', 'origin', 'status'], 'book.id=book_article.book_id')
                 ->where('book_article.book_id', '=', $book_id)
@@ -61,7 +62,7 @@ class Article extends BaseLogic
                 $result['id'] = Base64::url62encode($result['id']);
                 $result['book_id'] = Base64::url62encode($result['book_id']);
 
-                $this->cache->tag(['book', 'book article list' . $book_id])->set($this->getCacheKey(), $result);
+                $this->cache->tag(['book', 'book article list' . $book_id])->set($cache_key, $result);
             }
         }
 

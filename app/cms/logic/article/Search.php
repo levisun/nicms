@@ -88,7 +88,8 @@ class Search extends BaseLogic
             ];
         }
 
-        if (!$this->cache->has($this->getCacheKey()) || !$list = $this->cache->get($this->getCacheKey())) {
+        $cache_key = $this->getCacheKey('cms search');
+        if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
             $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'thumb', 'username', 'access_id', 'hits', 'update_time'])
                 ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                 ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id and model.id<=3')
@@ -108,7 +109,9 @@ class Search extends BaseLogic
                 ], true);
 
             if ($result && $list = $result->toArray()) {
-                $this->ERPCache($query_page);
+                if (empty($list['data'])) {
+                    $this->ERPCache($query_page);
+                }
 
                 $list['render'] = $result->render();
 
@@ -153,7 +156,7 @@ class Search extends BaseLogic
                     $list['data'][$key] = $value;
                 }
 
-                $this->cache->tag('cms article list' . $category_id)->set($this->getCacheKey(), $list);
+                $this->cache->tag('cms article list' . $category_id)->set($cache_key, $list);
             }
         }
 

@@ -35,13 +35,6 @@ class Log extends BaseLogic
         $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
 
         $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->ERPCache()) {
-            return [
-                'debug' => false,
-                'cache' => true,
-                'msg'   => 'error',
-            ];
-        }
 
         $result = ModelActionLog::view('action_log', ['action_id', 'user_id', 'action_ip', 'module', 'remark', 'create_time'])
             ->view('action', ['name' => 'action_name'], 'action.id=action_log.action_id')
@@ -55,8 +48,6 @@ class Log extends BaseLogic
             ], true);
 
         if ($result && $list = $result->toArray()) {
-            $this->ERPCache($query_page);
-
             $list['render'] = $result->render();
 
             $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');

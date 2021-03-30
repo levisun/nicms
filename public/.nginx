@@ -2,4 +2,7 @@ location / {
     if (!-e $request_filename){
         rewrite  ^(.*)$  /index.php?s=$1  last;   break;
     }
+    if ($request_method ~ ^(HEAD)$ ) {
+        return 200 "All OK";
+    }
 }

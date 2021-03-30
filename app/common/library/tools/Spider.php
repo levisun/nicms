@@ -306,9 +306,9 @@ class Spider
                 'HTTP_HOST'            => parse_url($_uri, PHP_URL_HOST),
                 'HTTP_USER_AGENT'      => $this->agent,
                 'HTTP_REFERER'         => parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . '/',
-                'HTTP_ACCEPT'          => Request::header('accept'),
-                'HTTP_ACCEPT_LANGUAGE' => Request::header('accept_language'),
-                'HTTP_CONNECTION'      => Request::header('connection'),
+                // 'HTTP_ACCEPT'          => Request::header('accept'),
+                // 'HTTP_ACCEPT_LANGUAGE' => Request::header('accept_language'),
+                // 'HTTP_CONNECTION'      => Request::header('connection'),
             ]);
 
             try {

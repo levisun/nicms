@@ -38,7 +38,8 @@ class Catalog extends BaseLogic
             $map[] = ['link.category_id', '=', $category_id];
         }
 
-        if (!$this->cache->has($this->getCacheKey()) || !$list = $this->cache->get($this->getCacheKey())) {
+        $cache_key = $this->getCacheKey('cms link catalog');
+        if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
             $list = ModelLink::view('link link', ['id', 'category_id', 'title', 'url', 'logo'])
                 ->view('category category', ['name' => 'cat_name'], 'category.id=link.category_id')
                 ->view('model model', ['name' => 'action_name'], 'model.id=category.model_id')
@@ -55,7 +56,7 @@ class Catalog extends BaseLogic
                 $list[$key] = $value;
             }
 
-            $this->cache->tag('cms link list' . $category_id)->set($this->getCacheKey(), $list);
+            $this->cache->tag('cms link list' . $category_id)->set($cache_key, $list);
         }
 
         return [

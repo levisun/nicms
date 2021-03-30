@@ -61,7 +61,8 @@ class Search extends BaseLogic
             ];
         }
 
-        if (!$this->cache->has($this->getCacheKey()) || !$list = $this->cache->get($this->getCacheKey())) {
+        $cache_key = $this->getCacheKey('book search');
+        if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
             // 书籍信息
             $book = (new ModelBook)
                 ->view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'image', 'hits', 'origin', 'status', 'update_time'])
@@ -89,7 +90,9 @@ class Search extends BaseLogic
                     ], true);
 
                 if ($result && $list = $result->toArray()) {
-                    $this->ERPCache($query_page);
+                    if (empty($list['data'])) {
+                        $this->ERPCache($query_page);
+                    }
 
                     $list['render'] = $result->render();
 
@@ -107,7 +110,7 @@ class Search extends BaseLogic
                     }
 
                     $list['book'] = $book;
-                    $this->cache->tag(['book', 'book article list'])->set($this->getCacheKey(), $list);
+                    $this->cache->tag(['book', 'book article list'])->set($cache_key, $list);
                 }
             }
         }

@@ -63,9 +63,9 @@ class Secret
             // 签发时间
             ->issuedAt(request()->time())
             // 令牌使用时间
-            ->canOnlyBeUsedAfter(request()->time() + 2880)
+            ->canOnlyBeUsedAfter(request()->time())
             // 签发过期时间
-            ->expiresAt(request()->time() + 28800)
+            ->expiresAt(request()->time() + 2880)
             // 客户端ID
             ->withClaim('uid', client_id())
             // 生成token
@@ -90,9 +90,23 @@ class Secret
         ip.src = "' . config('app.api_host') . 'tools/ip.do?token=' . md5(request()->server('HTTP_REFERER')) . '";
         var script = document.getElementsByTagName("script")[0];
         script.parentNode.insertBefore(ip, script);
-        document.cookie = "CSRF_TOKEN=' . $from_token . ';expires=0;path=/;SameSite=lax;domain="+window.location.host+";";
         window.sessionStorage.setItem("XSRF_AUTHORIZATION", "' . trim(base64_encode($authorization), '=') . '");
-        window.sessionStorage.setItem("XSRF_TOKEN", "' . sha1($secret['secret'] . Base64::asyncSecret()) . '");';
+        window.sessionStorage.setItem("XSRF_SECRET", "' . sha1($secret['secret'] . Base64::asyncSecret()) . '");
+        window.sessionStorage.setItem("FROM_TOKEN", "' . $from_token . '");';
+
+        $user_type = 'guest';
+        $user_id = $user_role_id = 0;
+        if (Session::has('user_auth_key')) {
+            $user_type = 'user_auth_key';
+        } elseif (Session::has('admin_auth_key')) {
+            $user_type = 'admin_auth_key';
+        }
+        if ('guest' !== $user_type) {
+            $user_id = (int) Session::get($user_type);
+            $user_role_id = (int) Session::get($user_type . '_role');
+        }
+        $token = sha1(Base64::encrypt($user_id . $user_role_id . $user_type, date('Ymd')));
+        $script .= 'window.sessionStorage.setItem("USER_TOKEN", "' . $token . '");';
 
         if ('admin' != $app_name) {
             $script .= 'let record = document.createElement("script");
@@ -100,6 +114,7 @@ class Secret
             var script = document.getElementsByTagName("script")[0];
             script.parentNode.insertBefore(record, script);';
         }
+
 
         $script = preg_replace('/\s+/', ' ', $script);
 

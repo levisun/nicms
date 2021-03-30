@@ -92,7 +92,7 @@ class Spider extends BaseLogic
                     ->order('id DESC')
                     ->value('title');
 
-                $list = $total ? array_slice($list, $total - 5) : $list;
+                $list = 5 < $total ? array_slice($list, $total - 5) : $list;
                 foreach ($list as $key => $value) {
                     $needle = mb_substr(Filter::strict($value['html']), 0, 10, 'utf-8');
                     if ($title && false !== mb_strpos($title, $needle, 0, 'utf-8')) {

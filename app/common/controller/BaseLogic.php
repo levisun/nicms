@@ -260,13 +260,6 @@ abstract class BaseLogic
     {
         $this->session->set($this->authKey, $_id);
         $this->session->set($this->authKey . '_role', $_role);
-
-        if (!$_type) {
-            $_type = $this->authKey == 'user_auth_key' ? 'user' : 'admin';
-        }
-
-        $this->session->set($this->authKey . '_type', $_type);
-
         $this->getUserSession();
     }
 
@@ -280,7 +273,7 @@ abstract class BaseLogic
         if ($this->session->has($this->authKey) && $this->session->has($this->authKey . '_role')) {
             $this->userId = (int) $this->session->get($this->authKey);
             $this->userRoleId = (int) $this->session->get($this->authKey . '_role');
-            $this->userType = $this->session->get($this->authKey . '_type');
+            $this->userType = $this->authKey == 'user_auth_key' ? 'user' : 'admin';
         }
 
         return [

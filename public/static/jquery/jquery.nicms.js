@@ -61,11 +61,11 @@
         _params.data.append('appid', NICMS.app_id);
 
         if ('POST' == _params.type || 'post' == _params.type) {
-            _params.data.append('__token__', jQuery.get_cookie('CSRF_TOKEN'));
+            _params.data.append('__token__', window.sessionStorage.getItem('FROM_TOKEN'));
         }
 
-        if (jQuery.get_cookie('USER_TOKEN')) {
-            _params.data.append('token', jQuery.get_cookie('USER_TOKEN'));
+        if (window.sessionStorage.getItem('USER_TOKEN')) {
+            _params.data.append('token', window.sessionStorage.getItem('USER_TOKEN'));
         }
 
         let newData = [];
@@ -88,7 +88,7 @@
             if ('undefined' !== typeof (xhr.responseText)) {
                 var result = JSON.parse(xhr.responseText);
                 if ('undefined' !== typeof (result.csrf_token)) {
-                    jQuery.set_cookie('CSRF_TOKEN', result.csrf_token);
+                    window.sessionStorage.setItem('FROM_TOKEN', result.csrf_token);
                 }
             }
         }
@@ -131,11 +131,11 @@
 
         if ('POST' == _params.type || 'post' == _params.type) {
             _params.data.push({ name: 'timestamp', value: jQuery.timestamp() });
-            _params.data.push({ name: '__token__', value: jQuery.get_cookie('CSRF_TOKEN') });
+            _params.data.push({ name: '__token__', value: window.sessionStorage.getItem('FROM_TOKEN') });
         }
 
-        if (jQuery.get_cookie('USER_TOKEN')) {
-            _params.data.push({ name: 'token', value: jQuery.get_cookie('USER_TOKEN') });
+        if (window.sessionStorage.getItem('USER_TOKEN')) {
+            _params.data.push({ name: 'token', value: window.sessionStorage.getItem('USER_TOKEN') });
         }
 
         _params.data.push({ name: 'sign', value: jQuery.sign(_params.data) });
@@ -150,7 +150,7 @@
             if ('undefined' !== typeof (xhr.responseText)) {
                 var result = JSON.parse(xhr.responseText);
                 if ('undefined' !== typeof (result.csrf_token)) {
-                    jQuery.set_cookie('CSRF_TOKEN', result.csrf_token);
+                    window.sessionStorage.setItem('FROM_TOKEN', result.csrf_token);
                 }
             }
         }
@@ -213,7 +213,7 @@
             }
         });
         sign = sign.substr(0, sign.length - 1);
-        sign += window.sessionStorage.getItem('XSRF_TOKEN');
+        sign += window.sessionStorage.getItem('XSRF_SECRET');
         // console.log(sign);
 
         return md5(sign);
