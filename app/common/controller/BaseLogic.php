@@ -202,12 +202,12 @@ abstract class BaseLogic
 
         // 模型
         $model_id = $this->request->param('model_id/d', 0, 'abs');
-        $cache_key .= \app\common\model\Models::cache(1440)->max('id') < $model_id ? 0 : $model_id;
+        $cache_key .= \app\common\model\Models::cache(2880)->max('id') < $model_id ? 0 : $model_id;
 
         // 查询条目
         $limit = $this->request->param('limit/d', 20, 'abs');
         $limit = 100 > $limit && 10 < $limit ? intval($limit / 10) * 10 : 20;
-        $cache_key .= $limit;
+        $cache_key .= $limit . $this->request->param('page/d', 1, 'abs');
 
         // 日期格式
         $date_format = $this->request->param('date_format', 'Y-m-d');

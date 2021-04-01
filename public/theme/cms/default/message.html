@@ -50,7 +50,7 @@
             },
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: NICMS.api_uri + 'ajax.do',
                     type: 'get',
                     data: [
                         { name: 'method', value: 'message.catalog.query' },
@@ -63,7 +63,7 @@
                 });
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: NICMS.api_uri + 'ajax.do',
                     type: 'get',
                     data: [
                         { name: 'method', value: 'message.form.query' },

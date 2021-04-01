@@ -49,7 +49,7 @@ Route::group(function () {
  * STATIC IMG
  */
 Route::domain(['cdn', 'img'], function () {
-    Route::get('static/:app_name/:token$', '\app\api\controller\Secret::index')->ext('do');
+    Route::get('static/:app_name$', '\app\api\controller\Secret::index')->ext('do');
 
     Route::miss(function () {
         return miss(404, false);
