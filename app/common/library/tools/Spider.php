@@ -293,8 +293,8 @@ class Spider
         $cache_key = 'spider request' . $_uri;
         if (!Cache::has($cache_key) || !$this->xhtml = Cache::get($cache_key)) {
             // 1000000 = 1s
-            // 1.5s~3.5s
-            usleep(mt_rand(15, 35) * 100000);
+            // 0.5s~1.5s
+            usleep(mt_rand(5, 15) * 100000);
 
             $this->client = new HttpBrowser;
             $this->client->followRedirects();
@@ -303,12 +303,9 @@ class Spider
             $this->agent = $this->agent ?: Request::header('user_agent');
 
             $this->client->setServerParameters([
-                'HTTP_HOST'            => parse_url($_uri, PHP_URL_HOST),
-                'HTTP_USER_AGENT'      => $this->agent,
-                'HTTP_REFERER'         => parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . '/',
-                // 'HTTP_ACCEPT'          => Request::header('accept'),
-                // 'HTTP_ACCEPT_LANGUAGE' => Request::header('accept_language'),
-                // 'HTTP_CONNECTION'      => Request::header('connection'),
+                'HTTP_HOST'       => parse_url($_uri, PHP_URL_HOST),
+                'HTTP_USER_AGENT' => $this->agent,
+                'HTTP_REFERER'    => parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . '/',
             ]);
 
             try {
