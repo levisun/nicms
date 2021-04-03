@@ -7,13 +7,13 @@
 
     <div class="row">
         <div class="col">
-            <a v-if="items.prev" v-on:click="prevOrNext(items.prev.id)">上一章</a>
+            <a v-if="items.prev" v-bind:href="items.prev.url">上一章</a>
         </div>
         <div class="col" style="text-align: center;">
             <a v-bind:href="items.book_url">目录</a>
         </div>
         <div class="col" style="text-align: center;">
-            <a v-if="items.next" v-on:click="prevOrNext(items.next.id)">下一章</a>
+            <a v-if="items.prev" v-bind:href="items.next.url">下一章</a>
         </div>
         <div class="col">
             <a v-on:click="bright">开灯</a>
@@ -29,10 +29,10 @@
 
     <div class="row">
         <div class="col">
-            <a v-if="items.prev" v-on:click="prevOrNext(items.prev.id)">上一章</a>
+            <a v-if="items.prev" v-bind:href="items.prev.url">上一章</a>
         </div>
         <div class="col">
-            <a v-if="items.next" v-on:click="prevOrNext(items.next.id)">下一章</a>
+            <a v-if="items.prev" v-bind:href="items.next.url">下一章</a>
         </div>
         <div class="col" style="text-align: center;">
             <a v-bind:href="items.book_url">目录</a>
@@ -49,46 +49,25 @@
         },
         methods: {
             bookmarks: function () {
-
+                window.localStorage.setItem("bookmarks", JSON.stringify({
+                    book: article.items.book_title,
+                    title: article.items.title,
+                    url: article.items.url,
+                }));
             },
             bright: function () {
+                window.localStorage.setItem("dark", 0);
                 jQuery("body").removeClass("dark");
             },
             dark: function () {
+                window.localStorage.setItem("dark", 1);
                 jQuery("body").addClass("dark");
             },
-            prevOrNext: function (_id) {
-                jQuery.pjax({
-                    url: NICMS.api_uri + 'ajax.do',
-                    type: 'GET',
-                    push: true,
-                    async: false,
-                    requestUrl: NICMS.domain + 'article/' + NICMS.param.book_id + '/' + _id + '.html',
-                    data: [
-                        { name: 'method', value: 'book.article.query' },
-                        { name: 'id', value: _id },
-                        { name: 'book_id', value: NICMS.param.book_id },
-                    ],
-                    success: function (result) {
-                        jQuery("html,body").animate({ scrollTop: 0 }, 100);
-                        article.items = result.data;
-                    }
-                });
-                if (1 === article.items.status) {
-                    jQuery.pjax({
-                        url: NICMS.api_uri + 'ajax.do',
-                        type: 'GET',
-                        data: [
-                            { name: 'method', value: 'book.spider.article' },
-                            { name: 'book_id', value: NICMS.param.book_id }
-                        ],
-                        success: function (res) {
-
-                        }
-                    });
-                }
-            },
             load: function () {
+                if (1 == window.localStorage.getItem("dark")) {
+                    jQuery("body").addClass("dark");
+                }
+
                 jQuery.pjax({
                     url: NICMS.api_uri + 'ajax.do',
                     type: 'GET',
@@ -101,20 +80,17 @@
                         article.items = result.data;
 
                         if (1 === article.items.status) {
-                            setInterval(() => {
-                                jQuery.pjax({
-                                    url: NICMS.api_uri + 'ajax.do',
-                                    type: 'GET',
-                                    data: [
-                                        { name: 'method', value: 'book.spider.article' },
-                                        { name: 'book_id', value: NICMS.param.book_id }
-                                    ],
-                                    success: function (res) {
+                            jQuery.pjax({
+                                url: NICMS.api_uri + 'ajax.do',
+                                type: 'GET',
+                                data: [
+                                    { name: 'method', value: 'book.spider.article' },
+                                    { name: 'book_id', value: NICMS.param.book_id }
+                                ],
+                                success: function (res) {
 
-                                    }
-                                });
-                            }, 300000);
-
+                                }
+                            });
                         }
                     }
                 });

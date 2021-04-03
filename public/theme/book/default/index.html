@@ -1,4 +1,10 @@
 <div id="app">
+    <div v-if="bookmarks">
+        <a v-bind:href="bookmarks.url">
+            <span v-text="bookmarks.book"></span>
+            <span v-text="bookmarks.title"></span>
+        </a>
+    </div>
     <div class="row book_list">
     <template v-for="vo in items">
         <div class="col-4">
@@ -16,10 +22,14 @@
     let app = new Vue({
         el: '#app',
         data: {
+            bookmarks: null,
             items: []
         },
         methods: {
             load: function () {
+                app.bookmarks = window.localStorage.getItem("bookmarks");
+                app.bookmarks = app.bookmarks ? JSON.parse(app.bookmarks) : null;
+
                 jQuery.pjax({
                     url: NICMS.api_uri + 'ajax.do',
                     type: 'GET',
