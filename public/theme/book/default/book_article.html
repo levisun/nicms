@@ -1,7 +1,7 @@
 <div id="app">
     <div class="row">
         <div class="col">
-            <h4 style="text-align: center;" v-text="items.title"></h4>
+            <h4 style="text-align: center;" v-html="items.title"></h4>
         </div>
     </div>
 
@@ -49,7 +49,7 @@
         },
         methods: {
             bookmarks: function () {
-                window.localStorage.setItem("bookmarks", JSON.stringify({
+                window.localStorage.setItem("bookmarks_" + NICMS.param.book_id, JSON.stringify({
                     book: article.items.book_title,
                     title: article.items.title,
                     url: article.items.url,
@@ -78,6 +78,7 @@
                     ],
                     success: function (result) {
                         article.items = result.data;
+                        article.bookmarks();
 
                         if (1 === article.items.status) {
                             jQuery.pjax({

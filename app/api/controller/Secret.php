@@ -33,7 +33,7 @@ class Secret
     {
         $referer = parse_url(request()->server('HTTP_REFERER'), PHP_URL_HOST);
         if (!$referer || false === stripos($referer, request()->rootDomain())) {
-            trace('MISS ' . request()->ip(), 'error');
+            trace('MISS ' . request()->ip(), 'warning');
             return miss(404, false);
         }
 
@@ -47,7 +47,7 @@ class Secret
         $version = Filter::htmlDecode(Filter::strict($version));
 
         if (!!preg_match('/[^a-z]+/', $app_name) || !!preg_match('/[^a-zA-Z_\d\{\}\[\]":,]+/i', $token) || !preg_match('/[\d]+\.[\d]+\.[\d]+/', $version)) {
-            trace('MISS ' . $app_name . $token . $version, 'error');
+            trace('MISS ' . $app_name . $token . $version, 'warning');
             return miss(404, false);
         }
 

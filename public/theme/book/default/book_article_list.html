@@ -1,7 +1,7 @@
 <div id="app">
     <div class="row">
         <div class="col">
-            <h3 v-text="book.title"></h3>
+            <h3 v-html="book.title"></h3>
             <p v-text="book.author"></p>
             <p v-if="book.status == 1">连载</p>
             <p v-if="book.status == 2">完结</p>
@@ -9,10 +9,17 @@
         </div>
     </div>
 
+    <div v-if="bookmarks">
+        <a v-bind:href="bookmarks.url">
+            <span v-text="bookmarks.book"></span>
+            <span v-text="bookmarks.title"></span>
+        </a>
+    </div>
+
     <div class="row">
         <template v-for="vo in items">
             <div class="col-6">
-                <a style="margin:10px 0;display:flex;" v-bind:href="vo.url" v-text="vo.title"></a>
+                <a style="margin:10px 0;display:flex;" v-bind:href="vo.url" v-html="vo.title"></a>
             </div>
         </template>
     </div>
@@ -28,6 +35,7 @@
     let app = new Vue({
         el: '#app',
         data: {
+            bookmarks: null,
             book: [],
             items: [],
             page: '',
@@ -40,6 +48,9 @@
                 return res;
             },
             load: function (_p) {
+                app.bookmarks = window.localStorage.getItem("bookmarks_" + NICMS.param.book_id);
+                app.bookmarks = app.bookmarks ? JSON.parse(app.bookmarks) : null;
+
                 var request = NICMS.url + '?page=' + _p;
                 jQuery.pjax({
                     url: NICMS.api_uri + 'ajax.do',
@@ -50,6 +61,7 @@
                     data: [
                         { name: 'method', value: 'book.catalog.query' },
                         { name: 'book_id', value: NICMS.param.book_id },
+                        { name: 'limit', value: 50 },
                         { name: 'page', value: _p },
                     ],
                     success: function (result) {

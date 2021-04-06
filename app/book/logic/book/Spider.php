@@ -7,7 +7,6 @@ namespace app\book\logic\book;
 use app\common\controller\BaseLogic;
 use app\common\library\Filter;
 use app\common\library\tools\Spider as LibSpider;
-use app\common\library\tools\Html;
 use app\common\model\Book as ModelBook;
 use app\common\model\BookArticle as ModelBookArticle;
 use app\common\model\BookAuthor as ModelBookAuthor;

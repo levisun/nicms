@@ -88,7 +88,7 @@ class Addon
         $_namespace = '\\' . trim($_namespace, '\/.') . '\Index';
 
         if (!class_exists($_namespace) || !method_exists($_namespace, 'run')) {
-            trace('[addon] ' . $_namespace . '插件不存在或约定方法错误', 'error');
+            trace('[addon] ' . $_namespace . '插件不存在或约定方法错误', 'warning');
             return $_content;
         }
 
