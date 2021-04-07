@@ -19,7 +19,6 @@ namespace app\admin\logic\settings;
 
 use app\common\controller\BaseLogic;
 use app\common\library\tools\File;
-use app\common\model\Ipv4 as ModelIpv4;
 use app\common\model\Visit as ModelVisit;
 
 class Dashboard extends BaseLogic
@@ -75,13 +74,13 @@ class Dashboard extends BaseLogic
     {
         $ip = ModelVisit::where('ip', '<>', '')
             ->where('date', '=', strtotime(date('Y-m-d')))
-            ->cache(2880)
+            ->cache(1440)
             ->count();
 
         $pv = ModelVisit::fieldRaw('sum(count) as count')
             ->where('name', 'LIKE', 'http%')
             ->where('date', '=', strtotime(date('Y-m-d')))
-            ->cache(2880)
+            ->cache(1440)
             ->find();
         $pv = $pv ? $pv->toArray() : ['count' => 0];
         $pv = (int) $pv['count'];
@@ -89,24 +88,14 @@ class Dashboard extends BaseLogic
         $uv = ModelVisit::fieldRaw('sum(count) as count')
             ->where('name', '=', '')
             ->where('date', '=', strtotime(date('Y-m-d')))
-            ->cache(2880)
+            ->cache(1440)
             ->find();
         $uv = $uv ? $uv->toArray() : ['count' => 0];
         $uv = (int) $uv['count'];
 
-        $glob = File::glob(runtime_path('cache'));
-        $cache_total = 0;
-        while ($glob->valid()) {
-            $filename = $glob->current();
-            $glob->next();
-            if (is_file($filename)) {
-                $cache_total++;
-            }
-        }
-
         return [
             'session' => format_hits(count((array) glob(runtime_path('session') . '*'))),
-            'cache'   => format_hits($cache_total),
+            'cache'   => 0,
             'access'  => [
                 'ip' => format_hits($ip),
                 'pv' => format_hits($pv),

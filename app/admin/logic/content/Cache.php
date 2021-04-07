@@ -19,6 +19,7 @@ namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
 use app\common\library\template\Compiler;
+use app\common\library\tools\File;
 use app\common\library\ClearGarbage;
 
 class Cache extends BaseLogic
@@ -82,6 +83,31 @@ class Cache extends BaseLogic
             'debug' => false,
             'cache' => false,
             'msg'   => 'success'
+        ];
+    }
+
+    /**
+     * 缓存数量统计
+     * @access public
+     * @return array
+     */
+    public function total()
+    {
+        $glob = File::glob(runtime_path('cache'));
+        $cache_total = 0;
+        while ($glob->valid()) {
+            $filename = $glob->current();
+            $glob->next();
+            if (is_file($filename)) {
+                $cache_total++;
+            }
+        }
+
+        return [
+            'debug' => false,
+            'cache' => true,
+            'msg'   => 'success',
+            'data'  => $cache_total
         ];
     }
 }
