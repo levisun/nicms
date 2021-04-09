@@ -34,9 +34,6 @@ class Admin extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
-
         $query_page = $this->request->param('page/d', 1, 'abs');
 
         $result = ModelAdmin::view('admin', ['id', 'username', 'email', 'status', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
@@ -45,7 +42,7 @@ class Admin extends BaseLogic
             ->where('admin.id', '<>', 1)
             ->order('id DESC')
             ->paginate([
-                'list_rows' => $query_limit,
+                'list_rows' => $this->getQueryLimit(),
                 'path' => 'javascript:paging([PAGE]);',
             ], true);
 

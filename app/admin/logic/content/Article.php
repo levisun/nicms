@@ -73,9 +73,6 @@ class Article extends BaseLogic
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
-        $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
-
         $query_page = $this->request->param('page/d', 1, 'abs');
 
         $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'is_pass', 'attribute', 'username', 'access_id', 'hits', 'sort_order', 'update_time'])
@@ -90,7 +87,7 @@ class Article extends BaseLogic
             ->where($map)
             ->order('article.is_pass ASC, article.attribute DESC, article.sort_order DESC, article.update_time DESC')
             ->paginate([
-                'list_rows' => $query_limit,
+                'list_rows' => $this->getQueryLimit(),
                 'path' => 'javascript:paging([PAGE]);',
             ], true);
 

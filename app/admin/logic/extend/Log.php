@@ -31,9 +31,6 @@ class Log extends BaseLogic
      */
     public function query(): array
     {
-        $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
-
         $query_page = $this->request->param('page/d', 1, 'abs');
 
         $result = ModelActionLog::view('action_log', ['action_id', 'user_id', 'action_ip', 'module', 'remark', 'create_time'])
@@ -43,7 +40,7 @@ class Log extends BaseLogic
             ->view('role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
             ->order('action_log.create_time DESC')
             ->paginate([
-                'list_rows' => $query_limit,
+                'list_rows' => $this->getQueryLimit(),
                 'path' => 'javascript:paging([PAGE]);',
             ], true);
 

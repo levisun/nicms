@@ -48,9 +48,6 @@ class Author extends BaseLogic
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
-        $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
-
         $query_page = $this->request->param('page/d', 1, 'abs');
 
         $result = ModelBookAuthor::view('book_author', ['id', 'user_id', 'author', 'create_time'])
@@ -58,7 +55,7 @@ class Author extends BaseLogic
             ->where($map)
             ->order('id DESC')
             ->paginate([
-                'list_rows' => $query_limit,
+                'list_rows' => $this->getQueryLimit(),
                 'path' => 'javascript:paging([PAGE]);',
             ], true);
 

@@ -49,9 +49,6 @@ class Search extends BaseLogic
 
         $date_format = $this->request->param('date_format', 'Y-m-d');
 
-        $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
-
         $query_page = $this->request->param('page/d', 1, 'abs');
         if ($query_page > $this->ERPCache()) {
             return [
@@ -85,7 +82,7 @@ class Search extends BaseLogic
                     // ->where('book_id', '=', $book_id)
                     ->order('sort_order ASC, id ASC')
                     ->paginate([
-                        'list_rows' => $query_limit,
+                        'list_rows' => $this->getQueryLimit(),
                         'path' => 'javascript:paging([PAGE]);',
                     ], true);
 

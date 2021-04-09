@@ -38,9 +38,6 @@ class Fields extends BaseLogic
             $map[] = ['fields.category_id', '=', $category_id];
         }
 
-        $query_limit = $this->request->param('limit/d', 20, 'abs');
-        $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
-
         $query_page = $this->request->param('page/d', 1, 'abs');
 
         $result = ModelFields::view('fields', ['id', 'name', 'is_require', 'remark'])
@@ -49,7 +46,7 @@ class Fields extends BaseLogic
             ->where($map)
             ->order('fields.id DESC')
             ->paginate([
-                'list_rows' => $query_limit,
+                'list_rows' => $this->getQueryLimit(),
                 'path' => 'javascript:paging([PAGE]);',
             ], true);
 

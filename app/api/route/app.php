@@ -52,6 +52,6 @@ Route::domain('api', function () {
     Route::post('handle$', 'Handle/index');             // 操作接口
     Route::post('upload$', 'Upload/index');             // 上传接口
     Route::get('query$', 'Query/index');                // 请求接口
-    Route::get('ajax$', 'Query/index')->cache(2880);    // 请求接口
+    Route::get('ajax$', 'Query/index')->cache(1440);    // 请求接口
 
 })->ext('do');

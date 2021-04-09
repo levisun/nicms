@@ -181,17 +181,17 @@ class Spider
 
         $_expression = (string) preg_replace_callback('/#([\w\-]+)/si', function ($matches) {
             $matches[1] = trim($matches[1]);
-            return '[contains(@id,"' . trim($matches[1], '#.:') . '")]';
+            return '[contains(@id,"' . $matches[1] . '")]';
         }, $_expression);
 
         $_expression = (string) preg_replace_callback('/\.([\w\-]+)/si', function ($matches) {
             $matches[1] = trim($matches[1]);
-            return '[contains(@class,"' . trim($matches[1], '#.:') . '")]';
+            return '[contains(@class,"' . $matches[1] . '")]';
         }, $_expression);
 
         $_expression = (string) preg_replace_callback('/:([\w\-]+)/si', function ($matches) {
             $matches[1] = trim($matches[1]);
-            return '[contains(@name,"' . trim($matches[1], '#.:') . '")]';
+            return '[contains(@name,"' . $matches[1] . '")]';
         }, $_expression);
 
         $_expression = (string) str_replace([' ', '>'], '//', $_expression);

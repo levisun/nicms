@@ -36,9 +36,6 @@ class Catalog extends BaseLogic
         if ($category_id = $this->request->param('category_id', 0, '\app\common\library\Base64::url62decode')) {
             $date_format = $this->request->param('date_format', 'Y-m-d');
 
-            $query_limit = $this->request->param('limit/d', 20, 'abs');
-            $query_limit = 100 > $query_limit && 10 < $query_limit ? intval($query_limit / 10) * 10 : 20;
-
             $query_page = $this->request->param('page/d', 1, 'abs');
             if ($query_page > $this->ERPCache()) {
                 return [
@@ -54,7 +51,7 @@ class Catalog extends BaseLogic
                     ->where('category_id', '=', $category_id)
                     ->order('id DESC')
                     ->paginate([
-                        'list_rows' => $query_limit,
+                        'list_rows' => $this->getQueryLimit(),
                         'path' => 'javascript:paging([PAGE]);',
                     ], true);
 

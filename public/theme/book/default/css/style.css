@@ -37,3 +37,7 @@ body.dark a:hover {
 #content p {
     text-indent: 2.8rem;
 }
+.but font {
+    display: inline-block;
+    padding: 5px;
+}

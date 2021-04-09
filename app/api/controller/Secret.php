@@ -40,14 +40,14 @@ class Secret
         $app_name = base64_decode(request()->param('app_name'));
         $app_name = Filter::htmlDecode(Filter::strict($app_name));
 
-        $token = base64_decode(request()->param('token'));
-        $token = Filter::htmlDecode(Filter::strict($token));
+        $param = base64_decode(request()->param('token'));
+        $param = Filter::htmlDecode(Filter::strict($param));
 
         $version = request()->param('version');
         $version = Filter::htmlDecode(Filter::strict($version));
 
-        if (!!preg_match('/[^a-z]+/', $app_name) || !!preg_match('/[^a-zA-Z_\d\{\}\[\]":,]+/i', $token) || !preg_match('/[\d]+\.[\d]+\.[\d]+/', $version)) {
-            trace('MISS ' . $app_name . $token . $version, 'warning');
+        if (!!preg_match('/[^a-z]+/', $app_name) || !!preg_match('/[^a-zA-Z_\d\{\}\[\]":,]+/i', $param) || !preg_match('/[\d]+\.[\d]+\.[\d]+/', $version)) {
+            trace('MISS ' . $app_name . $param . $version, 'warning');
             return miss(404, false);
         }
 
@@ -84,7 +84,7 @@ class Secret
             api_version:"' . request()->param('version') . '",
             app_name:"' . config('app.app_name') . '",
             app_id:"' . $secret['id'] . '",
-            param:' . $token . '
+            param:' . $param . '
         };
         let ip = document.createElement("script");
         ip.src = "' . config('app.api_host') . 'tools/ip.do?token=' . md5(request()->server('HTTP_REFERER')) . '";
@@ -96,15 +96,16 @@ class Secret
 
         $user_type = 'guest';
         $user_id = $user_role_id = 0;
-        if (Session::has('user_auth_key')) {
-            $user_type = 'user_auth_key';
-        } elseif (Session::has('admin_auth_key')) {
+        if ('admin' === $app_name && Session::has('admin_auth_key')) {
             $user_type = 'admin_auth_key';
-        }
-        if ('guest' !== $user_type) {
+            $user_id = (int) Session::get($user_type);
+            $user_role_id = (int) Session::get($user_type . '_role');
+        } elseif (Session::has('user_auth_key')) {
+            $user_type = 'user_auth_key';
             $user_id = (int) Session::get($user_type);
             $user_role_id = (int) Session::get($user_type . '_role');
         }
+
         $token = sha1(Base64::encrypt($user_id . $user_role_id . $user_type, date('Ymd')));
         $script .= 'window.sessionStorage.setItem("USER_TOKEN", "' . $token . '");';
 

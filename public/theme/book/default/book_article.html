@@ -15,9 +15,11 @@
         <div class="col" style="text-align: center;">
             <a v-if="items.prev" v-bind:href="items.next.url">下一章</a>
         </div>
-        <div class="col">
-            <a v-on:click="bright">开灯</a>
-            <a v-on:click="dark">关灯</a>
+        <div class="col but">
+            <font v-on:click="plus">+</font>
+            <font v-on:click="minus">-</font>
+            <font v-on:click="bright">开灯</font>
+            <font v-on:click="dark">关灯</font>
         </div>
     </div>
 
@@ -54,6 +56,12 @@
                     title: article.items.title,
                     url: article.items.url,
                 }));
+            },
+            plus: function () {
+
+            },
+            minus: function () {
+
             },
             bright: function () {
                 window.localStorage.setItem("dark", 0);
