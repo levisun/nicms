@@ -15,4 +15,5 @@
 return [
     // 访问限制
     \app\common\middleware\Throttle::class,
+    \app\common\middleware\RequestLog::class,
 ];

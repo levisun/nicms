@@ -28,7 +28,6 @@ Route::domain('api', function () {
     Route::get('tools/download$', 'tools.Download/index')->cache(28800);        // 下载接口
     Route::get('tools/ip$', 'tools.Ip/index')->cache(28800);                    // IP信息接口
     Route::post('tools/participle$', 'tools.Participle/index')->cache(28800);   // 分词
-    Route::get('tools/record$', 'tools.Record/index');                          // 访问日志
     Route::post('tools/report$', 'tools.Report/index');                         // 举报
     Route::get('tools/spider$', 'tools.Spider/index')->cache(28800);            // 爬虫
 

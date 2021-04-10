@@ -19,7 +19,7 @@ return [
         'HttpRun' => [],
         'HttpEnd' => [
             \app\common\event\AppMaintain::class,
-            \app\common\event\RequestLog::class,
+            // \app\common\event\RequestLog::class,
         ],
         'RouteLoaded' => [],
         'LogWrite' => [],

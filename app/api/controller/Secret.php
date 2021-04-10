@@ -109,12 +109,12 @@ class Secret
         $token = sha1(Base64::encrypt($user_id . $user_role_id . $user_type, date('Ymd')));
         $script .= 'window.sessionStorage.setItem("USER_TOKEN", "' . $token . '");';
 
-        if ('admin' != $app_name) {
+        /* if ('admin' !== $app_name) {
             $script .= 'let record = document.createElement("script");
             record.src = "' . config('app.api_host') . 'tools/record.do?url=' . urlencode(request()->server('HTTP_REFERER')) . '";
             var script = document.getElementsByTagName("script")[0];
             script.parentNode.insertBefore(record, script);';
-        }
+        } */
 
 
         $script = preg_replace('/\s+/', ' ', $script);

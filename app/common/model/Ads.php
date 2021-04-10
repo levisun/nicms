@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `nc_ads` (
     `url` varchar(500) NOT NULL DEFAULT '' COMMENT '跳转链接',
     `description` varchar(300) NOT NULL DEFAULT '' COMMENT '描述',
     `is_pass` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '审核',
-    `hits` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '点击量',
+    `hits` mediumint(9) UNSIGNED NOT NULL DEFAULT '0' COMMENT '点击量',
     `start_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '开始时间',
     `end_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '结束时间',
     `update_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '修改时间',

@@ -280,7 +280,7 @@ class Analytical
             $this->sessionId = $jti;
         } else {
             trace($jti, 'warning');
-            $this->abort('The authentication information is incorrect.' . $jti, 20003);
+            $this->abort('The authentication information is incorrect.', 20003);
         }
     }
 
