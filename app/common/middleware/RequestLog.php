@@ -23,9 +23,7 @@ use app\common\model\Visit as ModelVisit;
 
 class RequestLog
 {
-    private $userAgent = '';
     private $appName = '';
-    private $url = '';
 
     /**
      *
@@ -38,13 +36,11 @@ class RequestLog
     {
         $response = $next($request);
         if (200 === $response->getCode()) {
-            $this->userAgent = strtolower($request->server('HTTP_USER_AGENT'));
             $this->appName = app('http')->getName();
-            $this->url = $request->param('method') ?: ltrim($request->baseUrl(), '/');
             $this->ip($request);
             $this->api($request);
             $this->record($request);
-            $this->spider();
+            $this->spider($request);
         }
 
         return $response;
@@ -57,7 +53,7 @@ class RequestLog
      */
     private function record(&$_request): void
     {
-        $url = ltrim($_request->baseUrl(), '/');
+        $url = ltrim($_request->baseUrl(true), '/');
         if (!in_array($this->appName, ['admin', 'api']) && $url) {
             $has = ModelVisit::where('name', '=', $url)
                 ->where('date', '=', strtotime(date('Y-m-d')))
@@ -138,7 +134,7 @@ class RequestLog
      * @access private
      * @return void
      */
-    private function spider(): void
+    private function spider(&$_request): void
     {
         $engine = [
             'GOOGLE'         => 'googlebot',
@@ -155,7 +151,7 @@ class RequestLog
         ];
 
         foreach ($engine as $spider => $value) {
-            if (0 !== preg_match('/(' . $value . ')/si', $this->userAgent)) {
+            if (0 !== preg_match('/(' . $value . ')/si', strtolower($_request->server('HTTP_USER_AGENT')))) {
                 $has = ModelVisit::where('name', '=', $spider)
                     ->where('date', '=', strtotime(date('Y-m-d')))
                     ->value('name');
