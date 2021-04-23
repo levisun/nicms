@@ -88,12 +88,13 @@ class Spider extends BaseLogic
                     ->count();
                 $title = ModelBookArticle::where('book_id', '=', $_book_id)
                     ->where('delete_time', '=', '0')
+                    ->where('title', 'not like', '%请假条%')
                     ->order('id DESC')
                     ->value('title');
 
-                $list = 5 < $total ? array_slice($list, $total - 5) : $list;
+                $list = 1 < $total ? array_slice($list, $total - 1) : $list;
                 foreach ($list as $key => $value) {
-                    $needle = mb_substr(Filter::strict($value['html']), 0, 10, 'utf-8');
+                    $needle = Filter::strict($value['html']);
                     if ($title && false !== mb_strpos($title, $needle, 0, 'utf-8')) {
                         $total = $key;
                         break;
@@ -102,7 +103,7 @@ class Spider extends BaseLogic
 
                 $list = array_slice($list, $total, mt_rand(2, 3));
                 foreach ($list as $key => $value) {
-                    $needle = mb_substr(Filter::strict($value['html']), 0, 10, 'utf-8');
+                    $needle = Filter::strict($value['html']);
                     if ($title && false !== mb_strpos($title, $needle, 0, 'utf-8')) {
                         continue;
                     }

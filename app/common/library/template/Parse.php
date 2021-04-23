@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace app\common\library\template;
 
 use Exception;
+use app\common\library\Filter;
 
 class Parse
 {
@@ -38,13 +39,14 @@ class Parse
     {
         /* 去除html空格与换行 */
         if ($this->config['strip_space'] && $this->config['tpl_compile']) {
-            $_content = \app\common\library\Filter::space($_content);
+            $_content = Filter::space($_content);
         }
 
         // 优化生成的php代码
-        $_content = preg_replace('/\?>\s*<\?php\s(?!echo\b|\bend)/s', '', $_content);
-
-        $_content = preg_replace('/<\!--.*?-->/s', '', $_content);
+        $_content = preg_replace([
+            '/\?>\s*<\?php\s(?!echo\b|\bend)/s',
+            '/<\!--.*?-->/s'
+        ], '', $_content);
     }
 
     /**
@@ -255,7 +257,8 @@ class Parse
                 $attr = trim($matches[4]);
                 $attr = str_replace(['"', '\''], '', $attr);
                 $attr = str_replace(' ', '&', $attr);
-                parse_str($attr, $attr);
+                parse_str($attr, $result);
+                $attr = $result;
             }
 
             if (in_array($function, ['foreach', 'if', 'elseif', 'else'])) {

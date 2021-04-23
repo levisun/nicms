@@ -51,6 +51,9 @@ composer require symfony/http-client
 composer require phpoffice/phpspreadsheet
 
 
+
+composer require michelf/php-markdown
+
 composer require phpoffice/phpword
 
 

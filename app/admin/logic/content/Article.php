@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace app\admin\logic\content;
 
+use think\helper\Str;
 use app\common\controller\BaseLogic;
 use app\common\library\tools\Participle;
 use app\common\library\Filter;
@@ -256,7 +257,7 @@ class Article extends BaseLogic
                 $result['show_time'] = $result['show_time'] ? date('Y-m-d', $result['show_time']) : date('Y-m-d');
 
                 // table_name
-                $model = \think\helper\Str::studly($result['table_name']);
+                $model = Str::studly($result['table_name']);
                 unset($result['table_name']);
                 $content = $this->app->make('\app\common\model\\' . $model);
                 $content = $content->where('article_id', '=', $id)->find();
@@ -381,8 +382,6 @@ class Article extends BaseLogic
 
             // 文章,单页
             if (1 === $receive_data['model_id'] || 4 === $receive_data['model_id']) {
-
-
                 ModelArticleContent::where('article_id', '=', $id)->limit(1)->update([
                     'origin'  => $this->request->param('origin', ''),
                     'content' => $this->request->param('content', '', '\app\common\library\Filter::htmlEncode')
@@ -460,15 +459,15 @@ class Article extends BaseLogic
             ];
         }
 
-        $category_id = ModelArticle::where('id', '=', $id)->value('category_id');
+        $article_id = ModelArticle::where('id', '=', $id)->value('category_id');
 
-        if ($category_id) {
+        if ($article_id) {
             ModelArticle::where('id', '=', $id)->limit(1)->update([
                 'delete_time' => time()
             ]);
 
             // 清除缓存
-            $this->cache->tag('cms article list' . $category_id)->clear();
+            $this->cache->tag('cms article list' . $article_id)->clear();
             $this->cache->delete('article details' . $id);
         }
 

@@ -227,9 +227,52 @@ class Article extends BaseLogic
             ];
         }
 
-        ModelBookArticle::where('id', '=', $id)->limit(1)->delete();
+        $article_id = ModelBookArticle::where('id', '=', $id)->value('category_id');
 
-        $this->cache->tag('book')->clear();
+        if ($article_id) {
+            ModelBookArticle::where('id', '=', $id)->limit(1)->update([
+                'delete_time' => time()
+            ]);
+
+            // 清除缓存
+            $this->cache->tag('book')->clear();
+        }
+
+        return [
+            'debug' => false,
+            'cache' => false,
+            'msg'   => 'success'
+        ];
+    }
+
+    /**
+     * 排序
+     * @access public
+     * @return array
+     */
+    public function sort(): array
+    {
+        $this->actionLog('admin content sort');
+
+        $sort_order = $this->request->param('sort_order/a');
+        if (empty($sort_order)) {
+            return [
+                'debug' => false,
+                'cache' => false,
+                'code'  => 40001,
+                'msg'   => 'error'
+            ];
+        }
+
+        $list = [];
+        foreach ($sort_order as $key => $value) {
+            if ($value) {
+                $list[] = ['id' => (int) $key, 'sort_order' => (int) $value];
+            }
+        }
+        if (!empty($list)) {
+            (new ModelBookArticle)->saveAll($list);
+        }
 
         return [
             'debug' => false,

@@ -35,12 +35,19 @@ class RequestLog
     public function handle(Request $request, Closure $next)
     {
         $response = $next($request);
-        if (200 === $response->getCode()) {
+
+        if (200 === $response->getCode() && !in_array(strtolower($request->method()), ['head', 'options'])) {
             $this->appName = app('http')->getName();
-            $this->ip($request);
             $this->api($request);
-            $this->record($request);
-            $this->spider($request);
+
+            if (false === $this->spider($request)) {
+                $this->ip($request);
+                $this->record($request);
+            }
+
+            if (1 === mt_rand(1, 100)) {
+                ModelVisit::where('date', '<', strtotime('-7 days'))->limit(10)->delete();
+            }
         }
 
         return $response;
@@ -134,7 +141,7 @@ class RequestLog
      * @access private
      * @return void
      */
-    private function spider(&$_request): void
+    private function spider(&$_request): bool
     {
         $engine = [
             'GOOGLE'         => 'googlebot',
@@ -167,8 +174,11 @@ class RequestLog
                         'date' => strtotime(date('Y-m-d'))
                     ]);
                 }
-                continue;
+
+                return true;
             }
         }
+
+        return false;
     }
 }

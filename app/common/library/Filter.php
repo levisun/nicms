@@ -174,6 +174,7 @@ class Filter
     public static function nonChsAlpha(string $_str): string
     {
         $_str = htmlspecialchars_decode($_str, ENT_QUOTES);
+        // ASCII
         $_str = preg_replace('/&#?[\w\d]+;/i', '', $_str);
         $_str = strip_tags($_str);
         $_str = (string) preg_replace('/[^\x{4e00}-\x{9fa5}a-zA-Z0-9 ]+/uis', '', $_str);
@@ -259,9 +260,10 @@ class Filter
 
         $dom = new \DOMDocument('1.0', 'UTF-8');
         libxml_use_internal_errors(true);
+        $_str = htmlspecialchars_decode($_str, ENT_QUOTES);
         $_str = preg_replace('/<\/?body[^<>]*>/is', '', $_str);
         $_str = '<body>' . $_str . '</body>';
-        $dom->loadHTML('<meta charset="UTF-8">' . htmlspecialchars_decode($_str, ENT_QUOTES));
+        $dom->loadHTML('<meta charset="UTF-8">' . $_str);
         libxml_clear_errors();
 
         $xpath = new \DOMXPath($dom);
@@ -304,9 +306,10 @@ class Filter
 
         $dom = new \DOMDocument('1.0', 'UTF-8');
         libxml_use_internal_errors(true);
+        $_str = htmlspecialchars_decode($_str, ENT_QUOTES);
         $_str = preg_replace('/<\/?body[^<>]*>/is', '', $_str);
         $_str = '<body>' . $_str . '</body>';
-        $dom->loadHTML('<meta charset="UTF-8">' . htmlspecialchars_decode($_str, ENT_QUOTES));
+        $dom->loadHTML('<meta charset="UTF-8">' . $_str);
         libxml_clear_errors();
 
         $xpath = new \DOMXPath($dom);
@@ -384,10 +387,11 @@ class Filter
             '〔' => '[', '〕' => ']', '【' => '[', '】' => ']', '〖' => '[', '〗' => ']', '‖' => '|', '〃' => '"',
             // 特殊字符转HTML实体
             '￥' => '&yen;', '™' => '&trade;', '®' => '&reg;', '©' => '&copy;', '`' => '&acute;',
+            '~' => '&#152;',
+            // '`' => '&#96;',
 
             // '*' => '&#42;',
             // '_' => '&#95;',
-            // '`' => '&#96;',
             // '"' => '&#34;', '\'' => '&#39;',
         ];
 
