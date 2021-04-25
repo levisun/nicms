@@ -162,11 +162,11 @@ class Search extends BaseLogic
             'cache' => isset($list) ? 28800    : false,
             'msg'   => isset($list) ? 'search' : 'error',
             'data'  => isset($list) ? [
+                'search_key'   => $list['search_key'],
                 'list'         => $list['data'],
-                'total'        => $list['total'],
+                'per_page'     => $list['per_page'],
                 'current_page' => $list['current_page'],
                 'page'         => $list['render'],
-                'search_key'   => $list['search_key'],
             ] : []
         ];
     }

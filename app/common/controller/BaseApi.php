@@ -303,6 +303,7 @@ abstract class BaseApi
             'message' => $_msg,
             'runtime' => date('Y-m-d H:i:s') . ', ' .
                 number_format(microtime(true) - $this->app->getBeginTime(), 3) . ', ' .
+                app()->db->getQueryTimes() . ', ' .
                 // number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3) . ', ' .
                 (true === $this->apiCache ? $this->apiExpire : 'off'),
 

@@ -178,7 +178,7 @@ abstract class BaseLogic
     protected function getCacheKey(string $_flag = ''): string
     {
         // 执行的方法名(命名空间\类名::方法名)
-        $cache_key = $this->getClassMethod();
+        $cache_key = '[' . $this->getClassMethod() . ']';
         $cache_key .= $this->lang->getLangSet();
 
         // 用户信息 $this->userId
@@ -242,6 +242,7 @@ abstract class BaseLogic
         $book_type_id = $this->request->param('book_type_id', 0);
         $book_type_id = is_int($book_type_id) ? $book_type_id : \app\common\library\Base64::url62decode($book_type_id);
         $cache_key .= \app\common\model\BookType::cache(1440)->max('id') < $book_type_id ? 0 : $book_type_id;
+        $cache_key = str_replace(' ', '', Filter::strict($cache_key));
 
         return md5(sha1($cache_key) . strtolower($_flag));
     }
@@ -352,6 +353,7 @@ abstract class BaseLogic
         list($app, $logic, $method) = explode('.', $class, 4);
 
         $class = '\app\\' . $app . '\validate\\' . $logic . '\\' . ucfirst($method);
+        // trace($class, 'info');
         // 校验类是否存在
         if (!class_exists($class)) {
             return [
@@ -421,8 +423,10 @@ abstract class BaseLogic
      */
     protected function getClassMethod(): string
     {
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
         array_shift($backtrace);
+        array_shift($backtrace);
+        // trace(get_class($this) . '::' . $backtrace[0]['function'], 'info');
         return get_class($this) . '::' . $backtrace[0]['function'];
     }
 }
