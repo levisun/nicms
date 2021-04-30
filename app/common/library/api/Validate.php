@@ -158,7 +158,7 @@ class Validate
             'code'    => $_code,
             'message' => $_msg,
         ];
-        $response = Response::create($result, 'json');
+        $response = Response::create($result, 'json')->allowCache(false);
 
         ob_start('ob_gzhandler');
 

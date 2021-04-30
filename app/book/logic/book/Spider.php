@@ -108,7 +108,7 @@ class Spider extends BaseLogic
                         continue;
                     }
 
-                    sleep(mt_rand(30, 45));
+                    sleep(mt_rand(60, 100));
                     $url = $this->bookURI . '/' . Filter::strict($value['href']);
 
                     if (!$title = $spider->request('GET', $url)->select('div.bookname>h1')) {

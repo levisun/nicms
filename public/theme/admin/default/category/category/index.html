@@ -12,10 +12,9 @@
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th width="5%">{:lang('sort')}</th>
+                        <th width="70">{:lang('sort')}</th>
                         <th>{:lang('name')}</th>
-                        <th>{:lang('model')}</th>
-                        <th>{:lang('type')}</th>
+                        <th>{:lang('model')} / {:lang('type')}</th>
                         <th>{:lang('attribute')}</th>
                         <th>{:lang('operation')}</th>
                     </tr>
@@ -28,8 +27,10 @@
                                     v-bind:value="vo.sort_order">
                             </td>
                             <td v-text="vo.name"></td>
-                            <td v-text="vo.model_name"></td>
-                            <td v-text="vo.type_name"></td>
+                            <td>
+                                <font v-text="vo.model_name"></font> /
+                                <font v-text="vo.type_name"></font>
+                            </td>
                             <td>
                                 <span class="label label-primary">
                                     <font v-if="vo.is_show == 1">{:lang('show')}</font>

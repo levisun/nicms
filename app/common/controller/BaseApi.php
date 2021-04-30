@@ -359,7 +359,7 @@ abstract class BaseApi
 
         $result = array_filter($result);
 
-        $response = Response::create($result, 'json');
+        $response = Response::create($result, 'json')->allowCache(false);
 
         ob_start('ob_gzhandler');
 

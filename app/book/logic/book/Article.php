@@ -56,6 +56,9 @@ class Article extends BaseLogic
                 // 标识符
                 $result['flag'] = Base64::flag($result['book_id'] . $result['id'], 7);
 
+                $result['title'] = Filter::htmlDecode($result['title']);
+
+
                 $result['next'] = $this->next($result['id'], $result['book_id']);
                 $result['prev'] = $this->prev($result['id'], $result['book_id']);
 

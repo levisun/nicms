@@ -40,7 +40,7 @@ INSERT INTO `nc_config` (`name`, `value`, `lang`) VALUES
 ('user_description', '', 'zh-cn'),
 
 ('copyright', 'copyright &amp;copy; 2014-2015 &lt;a href=&quot;//www.niphp.com&quot; target=&quot;_blank&quot;&gt;niphp.com&lt;/a&gt;版权所有', 'zh-cn'),
-('bottom', '', 'zh-cn'),
+('footer', '', 'zh-cn'),
 ('beian', '陕icp备15001502号-1', 'zh-cn'),
 ('script', '', 'zh-cn');
  */

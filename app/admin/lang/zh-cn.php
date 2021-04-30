@@ -110,5 +110,19 @@ return [
 
     'remove cache success' => '缓存清空成功!',
 
+    // 导航
+    'category main type' => '主导航',
+    'category top type' => '顶部导航',
+    'category foot type' => '底部导航',
+    'category other type' => '其它导航',
+    // 模型
+    'article' => '文章',
+    'picture' => '图片',
+    'download' => '下载',
+    'page' => '单页',
+    'feedback' => '反馈',
+    'message' => '留言',
+    'link' => '友链',
+
     'qingshuru' => '123',
 ];

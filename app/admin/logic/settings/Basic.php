@@ -34,7 +34,7 @@ class Basic extends BaseLogic
     {
         $config = [];
         $result = ModelConfig::field(['name', 'value'])
-            ->where('name', 'in', 'cms_sitename,cms_keywords,cms_description,cms_footer,cms_copyright,cms_beian,cms_script')
+            ->where('name', 'in', 'cms_sitename,cms_keywords,cms_description,cms_copyright')
             ->where('lang', '=', $this->lang->getLangSet())
             ->select();
         $result = $result ? $result->toArray() : [];
@@ -46,7 +46,7 @@ class Basic extends BaseLogic
         $config['cms'] = $result;
 
         $result = ModelConfig::field(['name', 'value'])
-            ->where('name', 'in', 'book_sitename,book_keywords,book_description,book_footer,book_copyright,book_beian,book_script')
+            ->where('name', 'in', 'book_sitename,book_keywords,book_description,book_copyright')
             ->where('lang', '=', $this->lang->getLangSet())
             ->select();
         $result = $result ? $result->toArray() : [];
@@ -57,7 +57,28 @@ class Basic extends BaseLogic
         }
         $config['book'] = $result;
 
-        $this->cache->tag('system')->clear();
+        $result = ModelConfig::field(['name', 'value'])
+            ->where('name', 'in', 'user_sitename,user_keywords,user_description,user_copyright')
+            ->where('lang', '=', $this->lang->getLangSet())
+            ->select();
+        $result = $result ? $result->toArray() : [];
+        foreach ($result as $key => $value) {
+            $value['value'] = Filter::htmlDecode($value['value']);
+            $result[$value['name']] = $value['value'];
+            unset($result[$key]);
+        }
+        $config['user'] = $result;
+
+        $result = ModelConfig::field(['name', 'value'])
+            ->where('name', 'in', 'copyright,bottom,beian,script')
+            ->where('lang', '=', $this->lang->getLangSet())
+            ->select();
+        $result = $result ? $result->toArray() : [];
+        foreach ($result as $key => $value) {
+            $value['value'] = Filter::htmlDecode($value['value']);
+            $config[$value['name']] = $value['value'];
+            unset($result[$key]);
+        }
 
         return [
             'debug' => false,
@@ -80,26 +101,19 @@ class Basic extends BaseLogic
             'cms_sitename'    => $this->request->param('cms_sitename'),
             'cms_keywords'    => $this->request->param('cms_keywords'),
             'cms_description' => $this->request->param('cms_description'),
-            'cms_footer'      => $this->request->param('cms_footer'),
-            'cms_copyright'   => $this->request->param('cms_copyright', '', '\app\common\library\Filter::htmlEncode'),
-            'cms_beian'       => $this->request->param('cms_beian', '', '\app\common\library\Filter::htmlEncode'),
-            'cms_script'      => $this->request->param('cms_script', '', 'strip_tags,trim,htmlspecialchars'),
 
             'book_sitename'    => $this->request->param('book_sitename'),
             'book_keywords'    => $this->request->param('book_keywords'),
             'book_description' => $this->request->param('book_description'),
-            'book_footer'      => $this->request->param('book_footer'),
-            'book_copyright'   => $this->request->param('book_copyright', '', '\app\common\library\Filter::htmlEncode'),
-            'book_beian'       => $this->request->param('book_beian', '', '\app\common\library\Filter::htmlEncode'),
-            'book_script'      => $this->request->param('book_script', '', 'strip_tags,trim,htmlspecialchars'),
 
             'user_sitename'    => $this->request->param('user_sitename'),
             'user_keywords'    => $this->request->param('user_keywords'),
             'user_description' => $this->request->param('user_description'),
-            'user_footer'      => $this->request->param('user_footer'),
-            'user_copyright'   => $this->request->param('user_copyright', '', '\app\common\library\Filter::htmlEncode'),
-            'user_beian'       => $this->request->param('user_beian', '', '\app\common\library\Filter::htmlEncode'),
-            'user_script'      => $this->request->param('user_script', '', 'strip_tags,trim,htmlspecialchars'),
+
+            'footer'      => $this->request->param('footer'),
+            'copyright'   => $this->request->param('copyright', '', '\app\common\library\Filter::htmlEncode'),
+            'beian'       => $this->request->param('beian', '', '\app\common\library\Filter::htmlEncode'),
+            'script'      => $this->request->param('script', '', 'strip_tags,trim,htmlspecialchars'),
         ];
         if ($result = $this->validate($receive_data)) {
             return $result;

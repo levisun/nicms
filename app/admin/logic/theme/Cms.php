@@ -20,7 +20,8 @@ namespace app\admin\logic\theme;
 use app\common\controller\BaseLogic;
 use app\common\model\Config as ModelConfig;
 use app\common\library\Base64;
-use app\common\library\view\Compiler;
+use app\common\library\tools\File;
+use app\common\library\template\Compiler;
 
 class Cms extends BaseLogic
 {
@@ -54,7 +55,9 @@ class Cms extends BaseLogic
                 $value = rtrim($value, '=');
                 $files[$key] = [
                     'id'          => $value,
-                    'img'         => isset($config['img']) ? $config['img'] : '',
+                    'img'         => isset($config['img'])
+                        ? File::imgUrl($config['img'])
+                        : File::imgUrl('static/images/view.jpg'),
                     'name'        => $config['theme'],
                     'version'     => $config['theme_version'],
                     'api_version' => $config['api_version'],
@@ -64,11 +67,14 @@ class Cms extends BaseLogic
             $files = [];
         }
 
+        $use = ModelConfig::where('name', '=', 'cms_theme')->value('value');
+
         return [
             'debug' => false,
             'cache' => false,
             'msg'   => 'success',
             'data'  => [
+                'use' => $use,
                 'list'  => $files,
                 'total' => count($files)
             ]

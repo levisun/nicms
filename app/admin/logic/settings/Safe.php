@@ -24,6 +24,17 @@ class Safe extends BaseLogic
     protected $authKey = 'admin_auth_key';
 
     /**
+     * 允许上传文件后缀,避免恶意修改配置文件导致的有害文件上传
+     * @var array
+     */
+    private $fileExtension = [
+        'jpg', 'gif', 'png', 'webp',
+        'mp3', 'mp4',
+        'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf',
+        'zip'
+    ];
+
+    /**
      * 查询
      * @access public
      * @return array
@@ -79,7 +90,7 @@ class Safe extends BaseLogic
         $receive_data = [
             'app_upload_size' => $this->request->param('app.upload_size/d', 1, 'abs'),
             'app_upload_type' => $this->request->param('app.upload_type'),
-            'cache_expire'    => $this->request->param('cache.expire/d', 28800, 'abs'),
+            'cache_expire'    => $this->request->param('cache.expire/d', 2880, 'abs'),
             'app_debug'       => $this->request->param('app_debug/d', 0, 'abs'),
             'app_maintain'    => $this->request->param('app_maintain/d', 0, 'abs'),
         ];
@@ -87,40 +98,31 @@ class Safe extends BaseLogic
             return $result;
         }
 
-        $env = $this->app->env;
+        // 允许上传文件后缀,避免恶意修改配置文件导致的有害文件上传
+        $receive_data['app_upload_type'] = explode(',', $receive_data['app_upload_type']);
+        foreach ($receive_data['app_upload_type'] as $key => $value) {
+            if (!in_array($value, $this->fileExtension)) {
+                unset($receive_data['app_upload_type'][$key]);
+            }
+        }
+        $receive_data['app_upload_type'] = implode(',', $receive_data['app_upload_type']);
 
         $receive_data['app_debug'] = $receive_data['app_debug'] ? 'true' : 'false';
         $receive_data['app_maintain'] = $receive_data['app_maintain'] ? 'true' : 'false';
-        $result = 'APP_DEBUG = '  . $receive_data['app_debug'] . PHP_EOL .
-            'APP_MAINTAIN = '  . $receive_data['app_maintain'] . PHP_EOL .
-            PHP_EOL . '[APP]' . PHP_EOL .
-            'UPLOAD_SIZE = ' . $receive_data['app_upload_size'] . PHP_EOL .
-            'UPLOAD_TYPE = ' . $receive_data['app_upload_type'] . PHP_EOL .
-            'HOST = ' . $env->get('app.host') . PHP_EOL .
-            'NAME = ' . $env->get('app.name') . PHP_EOL .
 
-            PHP_EOL . '[DATABASE]' . PHP_EOL .
-            'DRIVER = ' . $env->get('database.driver') . PHP_EOL .
-            'TYPE = ' . $env->get('database.type') . PHP_EOL .
-            'HOSTNAME = ' . $env->get('database.hostname') . PHP_EOL .
-            'DATABASE = ' . $env->get('database.database') . PHP_EOL .
-            'USERNAME = ' . $env->get('database.username') . PHP_EOL .
-            'PASSWORD = ' . $env->get('database.password') . PHP_EOL .
-            'HOSTPORT = ' . $env->get('database.hostport') . PHP_EOL .
-            'PREFIX   = ' . $env->get('database.prefix') . PHP_EOL .
-
-            PHP_EOL . '[CACHE]' . PHP_EOL .
-            'TYPE = ' . $env->get('cache.type') . PHP_EOL .
-            'EXPIRE = ' . $receive_data['cache_expire'] . PHP_EOL .
-
-            PHP_EOL . '[ADMIN]' . PHP_EOL .
-            'ENTRY = ' . $env->get('admin.entry') . PHP_EOL .
-            'THEME = ' . $env->get('admin.theme') . PHP_EOL .
-
-            PHP_EOL . '[LANG]' . PHP_EOL .
-            'DEFAULT_LANG = ' . $env->get('lang.default_lang');
-
-        file_put_contents($this->app->getRootPath() . '.env', $result);
+        $env_config = file_get_contents(root_path() . '.env');
+        $env_config = preg_replace([
+            '/(APP_DEBUG) = [^\r\n]+[\r\n]+/i',
+            '/(APP_MAINTAIN) = [^\r\n]+[\r\n]+/i',
+            '/(UPLOAD_SIZE) = [^\r\n]+[\r\n]+/i',
+            '/(UPLOAD_TYPE) = [^\r\n]+[\r\n]+/i',
+        ], [
+            '$1 = ' . $receive_data['app_debug'] . PHP_EOL,
+            '$1 = ' . $receive_data['app_maintain'] . PHP_EOL,
+            '$1 = ' . $receive_data['app_upload_size'] . PHP_EOL,
+            '$1 = ' . $receive_data['app_upload_type'] . PHP_EOL,
+        ], $env_config);
+        file_put_contents($this->app->getRootPath() . '.env', $env_config);
 
         $this->cache->tag('system')->clear();
 

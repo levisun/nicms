@@ -30,6 +30,12 @@ class Index extends BaseController
      */
     public function initialize()
     {
+        if ($this->request->get('rt') === date('Ymd')) {
+            $this->cookie->set('rt', date('Ymd'));
+        } elseif (false === $this->cookie->has('rt')) {
+            $this->redirect(env('app.host'));
+        }
+
         // 初始化视图
         $result = (new SiteInfo)->query();
         $this->view->config([

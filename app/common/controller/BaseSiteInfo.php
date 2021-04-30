@@ -117,11 +117,11 @@ abstract class BaseSiteInfo
      */
     protected function copyright(): string
     {
-        $copyright = ModelConfig::where('name', '=', $this->appName . '_copyright')
+        $copyright = ModelConfig::where('name', '=', 'copyright')
             ->where('lang', '=', $this->langSet)
             ->value('value', '');
 
-        $beian = ModelConfig::where('name', '=', $this->appName . '_beian')
+        $beian = ModelConfig::where('name', '=', 'beian')
             ->where('lang', '=', $this->langSet)
             ->value('value', '');
 
@@ -138,7 +138,7 @@ abstract class BaseSiteInfo
      */
     protected function footer(): string
     {
-        $footer = ModelConfig::where('name', '=', $this->appName . '_bottom')
+        $footer = ModelConfig::where('name', '=', 'footer')
             ->where('lang', '=', $this->langSet)
             ->value('value', '');
 
@@ -152,7 +152,7 @@ abstract class BaseSiteInfo
      */
     protected function script(): string
     {
-        $result = ModelConfig::where('name', '=', $this->appName . '_script')
+        $result = ModelConfig::where('name', '=', 'script')
             ->where('lang', '=', $this->langSet)
             ->value('value', '');
 

@@ -35,7 +35,7 @@
                                     v-bind:value="vo.sort_order">
                             </td>
                             <td>
-                                <a v-bind:href="vo.url.url" target="_blank" v-text="vo.title"></a>
+                                <a v-bind:href="vo.url.url" target="_blank" v-html="vo.title"></a>
                             </td>
                             <td>
                                 <a v-bind:href="vo.url.type_url" target="_blank" v-text="vo.cat_name"></a>

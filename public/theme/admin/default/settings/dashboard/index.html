@@ -101,6 +101,7 @@
     var info = new Vue({
         el: '.dashboard',
         data: {
+            cache_total: 0,
             items: []
         },
         methods: {
@@ -113,6 +114,17 @@
                     ],
                     success: function (result) {
                         info.items = result.data;
+                    }
+                });
+
+                jQuery.pjax({
+                    url: NICMS.api_uri + 'query.do',
+                    type: 'GET',
+                    data: [
+                        { name: 'method', value: 'content.cache.total' }
+                    ],
+                    success: function (result) {
+                        // info.cache_total = result.data;
                     }
                 });
             }

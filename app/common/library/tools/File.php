@@ -203,6 +203,7 @@ class File
 
     /**
      * 获取目录中所有文件
+     * yield 生成器
      * @access public
      * @param  string $_dir
      * @return yield

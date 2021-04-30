@@ -90,6 +90,7 @@ class Article extends BaseLogic
 
                 // 时间格式
                 $value['update_time'] = date($date_format, (int) $value['update_time']);
+                $value['title'] = Filter::htmlDecode($value['title']);
 
                 $list['data'][$key] = $value;
             }
@@ -156,6 +157,8 @@ class Article extends BaseLogic
             if ($result && $result = $result->toArray()) {
                 $result['show_time'] = $result['show_time'] ? date('Y-m-d', $result['show_time']) : date('Y-m-d');
                 $result['content'] = Filter::htmlDecode($result['content']);
+                $result['title'] = Filter::htmlDecode($result['title']);
+
             }
         }
 

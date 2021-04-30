@@ -136,9 +136,11 @@ class Category extends BaseLogic
 
                     $list['data'][$key] = $value;
                 }
-
-                $this->cache->tag('cms article list' . $category_id)->set($cache_key, $list);
+            } else {
+                $list = null;
             }
+
+            $this->cache->tag('cms article list' . $category_id)->set($cache_key, $list);
         }
 
         return [

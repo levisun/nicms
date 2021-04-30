@@ -46,6 +46,7 @@ class Category extends BaseLogic
 
         foreach ($result as $key => $value) {
             $value['type_name'] = $this->typeName($value['type_id']);
+            $value['model_name'] = $this->lang->get($value['model_name']);
             $value['url'] = [
                 'added'  => url('category/category/added/' . $value['id']),
                 'editor' => url('category/category/editor/' . $value['id']),
@@ -92,6 +93,7 @@ class Category extends BaseLogic
             }
 
             $value['type_name'] = $this->typeName((int) $value['type_id']);
+            $value['model_name'] = $this->lang->get($value['model_name']);
             $value['url'] = [
                 'added'  => url('category/category/added/' . $value['id']),
                 'editor' => url('category/category/editor/' . $value['id']),

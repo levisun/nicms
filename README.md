@@ -49,12 +49,12 @@ composer require lizhichao/word
 composer require symfony/browser-kit
 composer require symfony/http-client
 composer require phpoffice/phpspreadsheet
+composer require phpoffice/phpword
 
 
 
 composer require michelf/php-markdown
 
-composer require phpoffice/phpword
 
 
 composer require overtrue/pinyin

@@ -20,6 +20,7 @@ namespace app\book\logic\book;
 use app\common\controller\BaseLogic;
 use app\common\library\tools\File;
 use app\common\library\Base64;
+use app\common\library\Filter;
 use app\common\model\Book as ModelBook;
 use app\common\model\BookArticle as ModelBookArticle;
 
@@ -88,6 +89,8 @@ class Catalog extends BaseLogic
                         $value['flag'] = Base64::flag($value['book_id'] . $value['id'], 7);
                         // 时间格式
                         $value['update_time'] = date($date_format, (int) $value['update_time']);
+
+                        $value['title'] = Filter::htmlDecode($value['title']);
 
                         $list['data'][$key] = $value;
                     }

@@ -303,6 +303,8 @@ class Filter
     {
         // 剔除JS代码中的标签
         $_str = preg_replace('/[\'"]+<\/?\w+[^<>]*>[\'"]+/uis', '', $_str);
+        // 剔除html注释
+        $_str = preg_replace('/<\!\-\-[^<>]+\-\->/s', '', $_str);
 
         $dom = new \DOMDocument('1.0', 'UTF-8');
         libxml_use_internal_errors(true);
@@ -353,12 +355,11 @@ class Filter
         $_str = (string) str_ireplace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;', '&#160;', '&nbsp;'], ' ', $_str);
 
         $pattern = [
-            '/<\!\-\-[^<>]+\-\->/s' => '',
-            '/>\s+</'               => '><',
-            '/>\s+/'                => '>',
-            '/\s+</'                => '<',
-            '/\s+/s'                => ' ',
-            '/ +/si'                => ' ',
+            '/>\s+</' => '><',
+            '/>\s+/'  => '>',
+            '/\s+</'  => '<',
+            '/\s+/s'  => ' ',
+            '/ +/si'  => ' ',
         ];
 
         $_str = (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);

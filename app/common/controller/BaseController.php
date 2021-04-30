@@ -134,7 +134,9 @@ abstract class BaseController
             $this->session->set('return_url', $this->request->url());
         }
 
-        $response = Response::create(url($_route), 'redirect', $_code);
+        $_route = 0 === strpos($_route, '//') ? $_route : url($_route);
+
+        $response = Response::create($_route, 'redirect', $_code);
         throw new HttpResponseException($response);
     }
 

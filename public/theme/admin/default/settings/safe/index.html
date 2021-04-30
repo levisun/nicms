@@ -15,12 +15,6 @@
             </div><br>
 
             <div class="form-group">
-                <label>{:lang('app secretkey')}</label>
-                <input type="text" name="app[secretkey]" class="form-control" disabled="true"
-                    v-bind:value="items.app.secretkey">
-            </div>
-
-            <div class="form-group">
                 <label>{:lang('database hostname')}</label>
                 <input type="text" name="database[hostname]" class="form-control" disabled="true"
                     v-bind:value="items.database.hostname">
@@ -64,6 +58,19 @@
                 </label>
                 <label>
                     <input type="radio" name="app_debug" value="0" v-bind:checked="items.app_debug==0 ? true : false">
+                    {:lang('close')}
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('app maintain')}</label>
+                <br>
+                <label>
+                    <input type="radio" name="app_maintain" value="1" v-bind:checked="items.app_maintain==1 ? true : false">
+                    {:lang('open')}
+                </label>
+                <label>
+                    <input type="radio" name="app_maintain" value="0" v-bind:checked="items.app_maintain==0 ? true : false">
                     {:lang('close')}
                 </label>
             </div>

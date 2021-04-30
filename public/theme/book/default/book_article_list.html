@@ -71,17 +71,19 @@
                             app.book = result.data.book;
 
                             if (1 === result.data.book.status) {
-                                jQuery.pjax({
-                                    url: NICMS.api_uri + 'ajax.do',
-                                    type: 'GET',
-                                    data: [
-                                        { name: 'method', value: 'book.spider.article' },
-                                        { name: 'book_id', value: NICMS.param.book_id }
-                                    ],
-                                    success: function (res) {
+                                setInterval(() => {
+                                    jQuery.pjax({
+                                        url: NICMS.api_uri + 'ajax.do',
+                                        type: 'GET',
+                                        data: [
+                                            { name: 'method', value: 'book.spider.article' },
+                                            { name: 'book_id', value: NICMS.param.book_id }
+                                        ],
+                                        success: function (res) {
 
-                                    }
-                                });
+                                        }
+                                    });
+                                }, 60000);
                             }
                         }
                     }

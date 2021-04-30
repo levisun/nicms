@@ -23,10 +23,16 @@ declare(strict_types=1);
 namespace app\common\controller;
 
 use think\App;
+use app\common\library\Base64;
 use app\common\library\Filter;
 use app\common\library\UploadFile;
 use app\common\model\Action as ModelAction;
 use app\common\model\ActionLog as ModelActionLog;
+use app\common\model\Book;
+use app\common\model\BookType;
+use app\common\model\Category;
+use app\common\model\Type;
+use app\common\model\Models;
 
 abstract class BaseLogic
 {
@@ -165,7 +171,6 @@ abstract class BaseLogic
         }
 
         return $page;
-
     }
 
     /**
@@ -179,72 +184,87 @@ abstract class BaseLogic
     {
         // 执行的方法名(命名空间\类名::方法名)
         $cache_key = '[' . $this->getClassMethod() . ']';
-        $cache_key .= $this->lang->getLangSet();
+        $cache_key .= ';lang=' . $this->lang->getLangSet();
 
         // 用户信息 $this->userId
-        $cache_key .= $this->authKey . $this->userRoleId . $this->userType;
+        $cache_key .= ';user=' . $this->authKey . $this->userRoleId . $this->userType;
 
         //
         $token = $this->request->param('token', '');
-        $cache_key .= strtolower($token);
+        $cache_key .= ';token=' . strtolower($token);
 
         // 审核
         $pass = $this->request->param('pass/d', 0, 'abs');
-        $cache_key .= 3 < $pass ? 0 : $pass;
+        $cache_key .= 3 < $pass ? ';pass=0' : ';pass=' . $pass;
 
         // 属性(置顶 推荐 最热)
         $attribute = $this->request->param('attribute/d', 0, 'abs');
-        $cache_key .= 3 < $attribute ? 0 : $attribute;
+        $cache_key .= 3 < $attribute ? ';attribute=0' : ';attribute=' . $attribute;
 
         // 状态
         $status = $this->request->param('status/d', 0, 'abs');
-        $cache_key .= 3 < $status ? 0 : $status;
+        $cache_key .= 3 < $status ? ';status=0' : ';status=' . $status;
 
         // 模型
         $model_id = $this->request->param('model_id/d', 0, 'abs');
-        $cache_key .= \app\common\model\Models::cache(2880)->max('id') < $model_id ? 0 : $model_id;
+        $cache_key .= Models::cache(2880)->max('id') < $model_id
+            ? ';model_id=0'
+            : ';model_id=' . $model_id;
 
         // 查询条目
-        $cache_key .= $this->getQueryLimit() . $this->request->param('page/d', 1, 'abs');
+        $cache_key .= ';limit=' . $this->getQueryLimit() . ';page=' . $this->request->param('page/d', 1, 'abs');
 
         // 日期格式
         $date_format = $this->request->param('date_format', 'Y-m-d');
         $date_format = preg_replace('/[^ymdhis:\-_\/ ]+/uis', '', $date_format);
-        $cache_key .= Filter::nonChsAlpha($date_format);
+        $cache_key .= ';date_format=' . Filter::nonChsAlpha($date_format);
 
         // 排序
         $sort = $this->request->param('sort', '');
-        $cache_key .= preg_replace('/[^\w\.,_ ]+/uis', '', strtolower($sort));
+        $cache_key .= ';sort=' . preg_replace('/[^\w\.,_ ]+/uis', '', strtolower($sort));
 
         // 搜索关键词
         $key = $this->request->param('key', '', '\app\common\library\Filter::nonChsAlpha');
-        $cache_key .= strtolower($key);
+        $cache_key .= ';key=' . strtolower($key);
 
         // 主键ID
         $id = $this->request->param('id', 0);
-        $cache_key .= is_int($id) ? $id : \app\common\library\Base64::url62decode($id);
+        $cache_key .= is_int($id) ? $id : Base64::url62decode($id);
 
         // 栏目ID
         $category_id = $this->request->param('category_id', 0);
-        $category_id = is_int($category_id) ? $category_id : \app\common\library\Base64::url62decode($category_id);
-        $cache_key .= \app\common\model\Category::cache(1440)->max('id') < $category_id ? 0 : $category_id;
+        $category_id = is_int($category_id) ? $category_id : Base64::url62decode($category_id);
+        $cache_key .= Category::cache(1440)->max('id') < $category_id
+            ? ';category_id=0'
+            : ';category_id=' . $category_id;
 
         // 类型
         $type_id = $this->request->param('type_id/d', 0, 'abs');
-        $cache_key .= \app\common\model\Type::cache(1440)->max('id') < $type_id ? 0 : $type_id;
+        $cache_key .= Type::cache(1440)->max('id') < $type_id
+            ? ';type_id=0'
+            : ';type_id=' . $type_id;
 
         // 书籍ID
         $book_id = $this->request->param('book_id', 0);
-        $book_id = is_int($book_id) ? $book_id : \app\common\library\Base64::url62decode($book_id);
-        $cache_key .= \app\common\model\Book::cache(1440)->max('id') < $book_id ? 0 : $book_id;
+        $book_id = is_int($book_id) ? $book_id : Base64::url62decode($book_id);
+        $cache_key .= Book::cache(1440)->max('id') < $book_id
+            ? ';book_id=0'
+            : ';book_id=' . $book_id;
 
         // 书籍类型
         $book_type_id = $this->request->param('book_type_id', 0);
-        $book_type_id = is_int($book_type_id) ? $book_type_id : \app\common\library\Base64::url62decode($book_type_id);
-        $cache_key .= \app\common\model\BookType::cache(1440)->max('id') < $book_type_id ? 0 : $book_type_id;
-        $cache_key = str_replace(' ', '', Filter::strict($cache_key));
+        $book_type_id = is_int($book_type_id) ? $book_type_id : Base64::url62decode($book_type_id);
+        $cache_key .= BookType::cache(1440)->max('id') < $book_type_id
+            ? ';book_type_id=0'
+            : ';book_type_id=' . $book_type_id;
 
-        return md5(sha1($cache_key) . strtolower($_flag));
+        $cache_key = str_replace(' ', '', Filter::strict($cache_key));
+        if (env('app_debug')) {
+            trace($cache_key, 'info');
+            trace(sha1($cache_key) . ';FLAG=' . strtolower($_flag), 'info');
+        }
+
+        return sha1($cache_key) . ';FLAG=' . strtolower($_flag);
     }
 
     /**
@@ -426,7 +446,6 @@ abstract class BaseLogic
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
         array_shift($backtrace);
         array_shift($backtrace);
-        // trace(get_class($this) . '::' . $backtrace[0]['function'], 'info');
         return get_class($this) . '::' . $backtrace[0]['function'];
     }
 }
