@@ -23,7 +23,7 @@ class Filter
 {
     private static $elements = ['a', 'audio', 'article', 'b', 'br', 'blockquote', 'center', 'dd', 'del', 'div', 'dl', 'dt', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'img', 'li', 'ol', 'p', 'pre', 'section', 'small', 'span', 'strong', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul', 'video', 'font', ];
 
-    private static $attr = ['alt', 'align', 'async', 'charset', 'class', 'content', 'defer', 'height', 'href', 'id', 'name', 'rel', 'src', 'style', 'target', 'title', 'type', 'width', 'rowspan'];
+    private static $attr = ['alt', 'align', 'async', 'charset', 'class', 'content', 'defer', 'height', 'href', 'id', 'name', 'rel', 'src', 'style', 'target', 'title', 'type', 'width', 'rowspan', 'colspan'];
 
     /**
      * 严格过滤
@@ -355,11 +355,11 @@ class Filter
         $_str = (string) str_ireplace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;', '&#160;', '&nbsp;'], ' ', $_str);
 
         $pattern = [
-            '/>\s+</' => '><',
-            '/>\s+/'  => '>',
-            '/\s+</'  => '<',
-            '/\s+/s'  => ' ',
-            '/ +/si'  => ' ',
+            '/>[\r\n]+</' => '><',
+            '/>[\r\n]+/'  => '>',
+            '/[\r\n]+</'  => '<',
+            '/[\r\n]+/s'  => ' ',
+            '/ +/si'      => ' ',
         ];
 
         $_str = (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);

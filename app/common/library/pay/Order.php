@@ -18,6 +18,7 @@
 namespace app\common\library\pay;
 
 use think\facade\Config;
+use think\facade\Request;
 use Exception;
 
 class Order
@@ -104,12 +105,12 @@ class Order
             'notify_url'   => Config::get('app.api_host') . 'pay/notify/' . $this->type . '.do',
             // 同步通知回调地址
             'respond_url'  => Config::get('app.api_host') . 'pay/respond/' . $this->type . '.do?out_trade_no=' . $order_no,
-            'respond_url'  => request()->server('HTTP_REFERER'),
+            'respond_url'  => Request::server('HTTP_REFERER'),
         ];
 
         // 支付参数
         // 不同支付类型参数不同
-        $param = request()->param('pay_param/a', []);
+        $param = Request::param('pay_param/a', []);
 
         return array_merge($param, $common);
     }

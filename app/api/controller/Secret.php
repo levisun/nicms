@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace app\api\controller;
 
+use think\facade\Request;
 use think\facade\Session;
 
 use app\common\library\Base64;
@@ -31,19 +32,19 @@ class Secret
 
     public function index()
     {
-        $referer = parse_url(request()->server('HTTP_REFERER'), PHP_URL_HOST);
-        if (!$referer || false === stripos($referer, request()->rootDomain())) {
-            trace('MISS ' . request()->ip(), 'warning');
+        $referer = parse_url(Request::server('HTTP_REFERER'), PHP_URL_HOST);
+        if (!$referer || false === stripos($referer, Request::rootDomain())) {
+            trace('MISS ' . Request::ip(), 'warning');
             return miss(404, false);
         }
 
-        $app_name = base64_decode(request()->param('app_name'));
+        $app_name = base64_decode(Request::param('app_name'));
         $app_name = Filter::htmlDecode(Filter::strict($app_name));
 
-        $param = base64_decode(request()->param('token'));
+        $param = base64_decode(Request::param('token'));
         $param = Filter::htmlDecode(Filter::strict($param));
 
-        $version = request()->param('version');
+        $version = Request::param('version');
         $version = Filter::htmlDecode(Filter::strict($version));
 
         if (!!preg_match('/[^a-z]+/', $app_name) || !!preg_match('/[^a-zA-Z_\d\{\}\[\]":,]+/i', $param) || !preg_match('/[\d]+\.[\d]+\.[\d]+/', $version)) {
@@ -55,17 +56,17 @@ class Secret
 
         $authorization = (string) (new Builder)
             // 签发者
-            ->issuedBy(request()->rootDomain())
+            ->issuedBy(Request::rootDomain())
             // 接收者
             ->permittedFor($referer)
             // 身份标识(SessionID)
             ->identifiedBy(Base64::encrypt(Session::getId()), false)
             // 签发时间
-            ->issuedAt(request()->time())
+            ->issuedAt(Request::time())
             // 令牌使用时间
-            ->canOnlyBeUsedAfter(request()->time())
+            ->canOnlyBeUsedAfter(Request::time())
             // 签发过期时间
-            ->expiresAt(request()->time() + 2880)
+            ->expiresAt(Request::time() + 2880)
             // 客户端ID
             ->withClaim('uid', client_id())
             // 生成token
@@ -73,7 +74,7 @@ class Secret
 
 
 
-        $from_token = request()->buildToken('__token__', 'md5');
+        $from_token = Request::buildToken('__token__', 'md5');
         $secret = app_secret($app_name);
 
         $script = 'const NICMS = {
@@ -81,13 +82,13 @@ class Secret
             rootDomain:"//"+window.location.host.substr(window.location.host.indexOf(".")+1)+"/",
             url:"//"+window.location.host+window.location.pathname,
             api_uri:"' . config('app.api_host') . '",
-            api_version:"' . request()->param('version') . '",
+            api_version:"' . Request::param('version') . '",
             app_name:"' . config('app.app_name') . '",
             app_id:"' . $secret['id'] . '",
             param:' . $param . '
         };
         let ip = document.createElement("script");
-        ip.src = "' . config('app.api_host') . 'tools/ip.do?token=' . md5(request()->server('HTTP_REFERER')) . '";
+        ip.src = "' . config('app.api_host') . 'tools/ip.do?token=' . md5(Request::server('HTTP_REFERER')) . '";
         var script = document.getElementsByTagName("script")[0];
         script.parentNode.insertBefore(ip, script);
         window.sessionStorage.setItem("XSRF_AUTHORIZATION", "' . trim(base64_encode($authorization), '=') . '");
@@ -111,7 +112,7 @@ class Secret
 
         /* if ('admin' !== $app_name) {
             $script .= 'let record = document.createElement("script");
-            record.src = "' . config('app.api_host') . 'tools/record.do?url=' . urlencode(request()->server('HTTP_REFERER')) . '";
+            record.src = "' . config('app.api_host') . 'tools/record.do?url=' . urlencode(Request::server('HTTP_REFERER')) . '";
             var script = document.getElementsByTagName("script")[0];
             script.parentNode.insertBefore(record, script);';
         } */

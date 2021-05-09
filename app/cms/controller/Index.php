@@ -33,20 +33,17 @@ class Index extends BaseController
     {
         // 初始化视图
         $result = (new SiteInfo)->query();
+
         $this->view->config([
-            'view_theme' => $result['theme'],
-            'tpl_replace_string' => [
-                '__NAME__'        => $result['name'],
-                '__FOOTER_MSG__'  => $result['footer'],
-                '__COPYRIGHT__'   => $result['copyright'],
-                '__SCRIPT__'      => $result['script'],
-            ]
+            'view_path' => $result['view_path'],
+            'tpl_replace_string' => $result['tpl_replace_string'],
         ]);
+
         $this->view->engine()->assign([
             'TITLE'       => $result['title'],
             'KEYWORDS'    => $result['keywords'],
             'DESCRIPTION' => $result['description'],
-            'URL'         => request()->baseUrl(true),
+            'URL'         => $this->request->baseUrl(true),
         ]);
 
         if ($category_id = $this->request->param('category_id', 0, '\app\common\library\Base64::url62decode')) {

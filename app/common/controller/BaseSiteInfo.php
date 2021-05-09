@@ -18,6 +18,8 @@ namespace app\common\controller;
 
 use think\facade\Cache;
 use think\facade\Lang;
+use think\facade\Request;
+
 use app\common\library\Filter;
 use app\common\model\Config as ModelConfig;
 
@@ -48,6 +50,39 @@ abstract class BaseSiteInfo
 
             Cache::tag('request')->set($cache_key, $common, 28800);
         }
+
+        $view_path = 'theme/' . app('http')->getName() . '/' . $common['theme'] . '/';
+        $common['url']  = config('app.static_host') . $view_path;
+
+        // 移动端目录
+        if (Request::isMobile() && is_dir($common['view_path'] . 'mobile')) {
+            $view_path .= 'mobile/';
+            $common['url'] .= 'mobile/';
+        } elseif (false !== stripos(Request::server('HTTP_USER_AGENT'), 'MicroMessenger') && is_dir($common['view_path'] . 'wechat')) {
+            $view_path .= 'wechat/';
+            $common['url'] .= 'wechat/';
+        }
+        $common['view_path'] = public_path($view_path);
+
+        $common['tpl_replace_string'] = [
+            '__APP_NAME__'    => config('app.app_name'),
+            '__STATIC__'      => config('app.static_host') . 'static/',
+            '__URL__'         => Request::baseUrl(true),
+            '__LANG__'        => app('lang')->getLangSet(),
+            '__API_HOST__'    => config('app.api_host'),
+            '__IMG_HOST__'    => config('app.img_host'),
+            '__STATIC_HOST__' => config('app.static_host'),
+
+            '__NAME__'        => $common['name'],
+            '__FOOTER_MSG__'  => $common['footer'],
+            '__COPYRIGHT__'   => $common['copyright'],
+            '__SCRIPT__'      => $common['script'],
+
+            '__THEME__'       => $common['url'],
+            '__CSS__'         => $common['url'] . 'css/',
+            '__IMG__'         => $common['url'] . 'img/',
+            '__JS__'          => $common['url'] . 'js/',
+        ];
 
         $this->siteConfig = $common;
     }

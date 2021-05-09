@@ -1,16 +1,14 @@
 <div class="row theme">
     <template v-for="vo in items">
         <div class="col-md-3">
-            <div class="box box-solid">
+            <div class="box box-solid" @click="editor(vo.id)">
                 <div class="box-header with-border">
                     <i class="fa fa-dashboard"></i>
+                    <h3 class="box-title" v-if="vo.name==use">{:lang('use')}</h3>
                     <h3 class="box-title" v-text="vo.name"></h3>
                 </div>
                 <div class="box-body">
-                    <div><img v-if="vo.img" v-bind:src="vo.img"></div>
-                </div>
-                <div class="box-footer">
-                    <button class="btn btn-primary" @click="editor(vo.id)">{:lang('use')}</button>
+                    <center><img width="100" v-if="vo.img" v-bind:src="vo.img"></center>
                 </div>
             </div>
         </div>
@@ -21,6 +19,7 @@
     var cms = new Vue({
         el: '.theme',
         data: {
+            use: '',
             items: []
         },
         methods: {
@@ -33,6 +32,7 @@
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
+                            cms.use = result.data.use;
                             cms.items = result.data.list;
                         }
                     }

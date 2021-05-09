@@ -29,7 +29,7 @@ class Compiler extends Parse
      */
     public function clear(string $_path = ''): void
     {
-        $_path = $_path ?: $this->config['compile_path'];
+        $_path = $_path ?: runtime_path('compile');
 
         if (is_dir($_path)) {
             $files = scandir($_path);

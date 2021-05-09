@@ -3,9 +3,9 @@
     <div id="list" class="col-md-9">
         {include file="breadcrumb" /}
         <div id="layout-details" class="card">
-            {details /}
+            {tags:details/}
             <div class="card-body">
-                <h3><a href="{$details.url}">{$details.title}</a></h3>
+                <h3><a href="{$details.url}">{$details.title|raw}</a></h3>
                 <p class="text-muted">
                     <span style="margin-right:10px;">
                         <i class="fa fa-calendar-day"></i>
@@ -24,7 +24,7 @@
                         <font>{$details.hits}</font>
                     </span>
                 </p>
-                <article class="details">{$details.content}</article>
+                <article class="details">{$details.content|raw}</article>
                 <div class="row">
                     <div class="col-md-6">
                         <a href="{$details.prev.url}">{$details.prev.title}</a>

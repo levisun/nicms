@@ -38,13 +38,27 @@ class Index extends BaseController
 
         // 初始化视图
         $result = (new SiteInfo)->query();
+
         $this->view->config([
-            'view_theme' => $result['theme'],
+            'view_path' => $result['view_path'],
             'tpl_replace_string' => [
+                '__APP_NAME__'    => config('app.app_name'),
+                '__STATIC__'      => config('app.static_host') . 'static/',
+                '__URL__'         => $this->request->baseUrl(true),
+                '__LANG__'        => app('lang')->getLangSet(),
+                '__API_HOST__'    => config('app.api_host'),
+                '__IMG_HOST__'    => config('app.img_host'),
+                '__STATIC_HOST__' => config('app.static_host'),
+
                 '__NAME__'        => $result['name'],
                 '__FOOTER_MSG__'  => $result['footer'],
                 '__COPYRIGHT__'   => $result['copyright'],
                 '__SCRIPT__'      => $result['script'],
+
+                '__THEME__'       => $result['url'],
+                '__CSS__'         => $result['url'] . 'css/',
+                '__IMG__'         => $result['url'] . 'img/',
+                '__JS__'          => $result['url'] . 'js/',
             ]
         ]);
 
@@ -52,7 +66,7 @@ class Index extends BaseController
             'TITLE'       => $result['title'],
             'KEYWORDS'    => $result['keywords'],
             'DESCRIPTION' => $result['description'],
-            'URL'         => request()->baseUrl(true),
+            'URL'         => $this->request->baseUrl(true),
         ]);
     }
 

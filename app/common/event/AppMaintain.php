@@ -62,7 +62,7 @@ class AppMaintain
             ClearGarbage::clear(public_path('storage/uploads/guest'), '-30 day');
 
             // 清除生成的缩略图
-            ClearGarbage::clear(public_path('storage/uploads/thumb'), '-30 day');
+            ClearGarbage::clear(public_path('storage/thumb'), '-30 day');
 
             // 清除临时文件
             ClearGarbage::clear(runtime_path('temp'), '-10 day');

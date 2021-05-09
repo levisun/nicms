@@ -18,6 +18,7 @@ namespace app\common\library;
 
 use think\facade\Db;
 use think\facade\Log;
+use think\facade\Request;
 
 class DataManage
 {
@@ -56,7 +57,7 @@ class DataManage
                 continue;
             }
 
-            $log = request()->ip() . ' ' . request()->method(true) . ' ' . request()->url(true) . PHP_EOL .
+            $log = Request::ip() . ' ' . Request::method(true) . ' ' . Request::url(true) . PHP_EOL .
                 'Time:' . $value['Time'] . ' Command:' . $value['Command'] . ' State:' . $value['State'] . ' Sql:' . $value['Info'];
 
             Log::sql($log);
@@ -143,7 +144,7 @@ class DataManage
 
             if (!empty($zip_files)) {
                 $zip = new \ZipArchive;
-                $zip_name = $this->savePath . 'Web_' . request()->rootDomain() . '_' . date('Ymd_His') . '_' . uniqid() . '.zip';
+                $zip_name = $this->savePath . 'Web_' . Request::rootDomain() . '_' . date('Ymd_His') . '_' . uniqid() . '.zip';
                 $zip->open($zip_name, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
                 foreach ($zip_files as $filename) {
                     $zip->addFile($filename, str_replace(root_path(), '', $filename));
@@ -293,7 +294,7 @@ class DataManage
 
                 if (!empty($files)) {
                     $zip = new \ZipArchive;
-                    $zip_name = $this->savePath . 'Db_' . request()->rootDomain() . '_' . date('Ymd_His') . '_' . uniqid() . '.zip';
+                    $zip_name = $this->savePath . 'Db_' . Request::rootDomain() . '_' . date('Ymd_His') . '_' . uniqid() . '.zip';
                     $zip->open($zip_name, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
                     foreach ($files as $filename) {
                         $zip->addFile($filename, pathinfo($filename, PATHINFO_BASENAME));

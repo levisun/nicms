@@ -161,6 +161,50 @@ abstract class BaseController
      */
     protected function fetch(string $_template, array $_data = []): string
     {
-        return $this->view->assign($_data)->fetch($_template);
+        $content = $this->view->assign($_data)->fetch($_template);
+
+        $style = '';
+        $preg = '/<style( type=["\']+.*?["\']+)?>(.*?)<\/style>/si';
+        $content = (string) preg_replace_callback($preg, function ($matches) use (&$style) {
+            $matches[2] = (string) preg_replace([
+                '/[^:]\/\/ *.+\s+/i',
+                '/\/\*.*?\*\//s',
+            ], '', $matches[2]);
+            $style .= trim($matches[2]);
+            return;
+        }, $content);
+        $style = preg_replace('/\s+/', ' ', $style);
+        $style = preg_replace('/ *([:;,\{\}]+) +/', '$1', $style);
+        $content = str_replace('</head>', '<style type="text/css">' . $style . '</style></head>', $content);
+
+
+        $script = '';
+        $pattern = '/<script( type=["\']+[^<>]+["\']+)?>(.*?)<\/script>/si';
+        $content = (string) preg_replace_callback($pattern, function ($matches) use (&$script) {
+            $matches[2] = (string) preg_replace([
+                '/[^:"\']\/\/ *.+\s+/i',
+                '/\/\*.*?\*\//s',
+            ], '', $matches[2]);
+            $script .= trim($matches[2]);
+            return;
+        }, $content);
+        $script = preg_replace('/\s+/', ' ', $script);
+        $script = preg_replace('/ *([:;,\{\}]+) +/', '$1', $script);
+        $script = $script ? '<script type="text/javascript">' . $script . '</script>' : '';
+
+        $files = '';
+        $pattern = '/<script[^<>]+src=["\']+([^<>]+)["\']+><\/script>/si';
+        $content = (string) preg_replace_callback($pattern, function ($matches) use (&$files) {
+            $files .= $matches[0];
+            return;
+        }, $content);
+
+        if (false !== strpos($content, '</body>')) {
+            $content = str_replace('</body>', $files . $script . '</body>', $content);
+        } else {
+            $content .= $files . $script;
+        }
+
+        return $content;
     }
 }

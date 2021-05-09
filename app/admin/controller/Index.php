@@ -65,13 +65,28 @@ class Index extends BaseController
         }
 
         // 初始化视图
+        $view_path = 'theme/' . app('http')->getName() . '/' . env('admin.theme', 'default') . '/';
+        $url  = config('app.static_host') . $view_path;
         $this->view->config([
-            'view_theme' => env('admin.theme', 'default'),
+            'view_path' => $view_path,
             'tpl_replace_string' => [
+                '__APP_NAME__'    => config('app.app_name'),
+                '__STATIC__'      => config('app.static_host') . 'static/',
+                '__URL__'         => $this->request->baseUrl(true),
+                '__LANG__'        => app('lang')->getLangSet(),
+                '__API_HOST__'    => config('app.api_host'),
+                '__IMG_HOST__'    => config('app.img_host'),
+                '__STATIC_HOST__' => config('app.static_host'),
+
                 '__NAME__'        => 'NICMS',
                 '__FOOTER_MSG__'  => '',
                 '__COPYRIGHT__'   => '',
                 '__SCRIPT__'      => '',
+
+                '__THEME__'       => $url,
+                '__CSS__'         => $url . 'css/',
+                '__IMG__'         => $url . 'img/',
+                '__JS__'          => $url . 'js/',
             ]
         ]);
 
@@ -79,7 +94,7 @@ class Index extends BaseController
             'TITLE'       => 'NICMS',
             'KEYWORDS'    => '',
             'DESCRIPTION' => '',
-            'URL'         => request()->baseUrl(true),
+            'URL'         => $this->request->baseUrl(true),
         ]);
     }
 

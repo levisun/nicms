@@ -20,7 +20,8 @@ namespace app\admin\logic\theme;
 use app\common\controller\BaseLogic;
 use app\common\model\Config as ModelConfig;
 use app\common\library\Base64;
-use app\common\library\view\Compiler;
+use app\common\library\tools\File;
+use app\common\library\template\Compiler;
 
 class Member extends BaseLogic
 {
@@ -54,7 +55,9 @@ class Member extends BaseLogic
                 $value = rtrim($value, '=');
                 $files[$key] = [
                     'id'          => $value,
-                    'img'         => isset($config['img']) ? $config['img'] : '',
+                    'img'         => isset($config['img'])
+                        ? File::imgUrl($config['img'])
+                        : File::imgUrl('static/images/view.jpg'),
                     'name'        => $config['theme'],
                     'version'     => $config['theme_version'],
                     'api_version' => $config['api_version'],
@@ -64,11 +67,14 @@ class Member extends BaseLogic
             $files = [];
         }
 
+        $use = ModelConfig::where('name', '=', 'user_theme')->value('value');
+
         return [
             'debug' => false,
             'cache' => false,
             'msg'   => 'success',
             'data'  => [
+                'use' => $use,
                 'list'  => $files,
                 'total' => count($files)
             ]
@@ -81,9 +87,9 @@ class Member extends BaseLogic
 
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id)) {
-            $path = $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . 'user' . DIRECTORY_SEPARATOR;
+            $path = $this->app->getRootPath() . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . 'cms' . DIRECTORY_SEPARATOR;
             if (is_dir($path . $id)) {
-                ModelConfig::where('name', '=', 'user_theme')->limit(1)->update([
+                ModelConfig::where('name', '=', 'cms_theme')->limit(1)->update([
                     'value' => $id
                 ]);
             }

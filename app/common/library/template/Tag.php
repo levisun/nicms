@@ -260,6 +260,7 @@ class Tag
             '<meta name="generator" content="nicms" />' .
             '<meta name="copyright" content="2013-' . date('Y') . ' nicms all rights reserved" />' .
             '<meta http-equiv="x-dns-prefetch-control" content="on" />' .
+            '<link rel="canonical" href="<?php echo request()->baseUrl(true); ?>" />' .
             '<link rel="dns-prefetch" href="__API_HOST__" />' .
             '<link rel="dns-prefetch" href="__IMG_HOST__" />' .
             '<link rel="dns-prefetch" href="__STATIC_HOST__" />' .

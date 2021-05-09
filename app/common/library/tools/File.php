@@ -48,7 +48,7 @@ class File
 
         $thumb_file = md5($_img . $_size) . '.' . pathinfo($_img, PATHINFO_EXTENSION);
 
-        $path = public_path('storage/uploads/thumb/' . substr($thumb_file, 0, 2));
+        $path = public_path('storage/thumb/' . substr($thumb_file, 0, 2));
         if (!is_dir($path)) mkdir($path, 0755, true);
 
         if (!is_file($path . $thumb_file)) {
@@ -61,7 +61,7 @@ class File
             unset($image);
         }
 
-        return Config::get('app.img_host') . 'storage/uploads/thumb/' . str_replace(DIRECTORY_SEPARATOR, '/', $thumb_file);
+        return Config::get('app.img_host') . 'storage/thumb/' . str_replace(DIRECTORY_SEPARATOR, '/', $thumb_file);
     }
 
 

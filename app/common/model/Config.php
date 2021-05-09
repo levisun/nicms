@@ -41,7 +41,7 @@ INSERT INTO `nc_config` (`name`, `value`, `lang`) VALUES
 
 ('copyright', 'copyright &amp;copy; 2014-2015 &lt;a href=&quot;//www.niphp.com&quot; target=&quot;_blank&quot;&gt;niphp.com&lt;/a&gt;版权所有', 'zh-cn'),
 ('footer', '', 'zh-cn'),
-('beian', '陕icp备15001502号-1', 'zh-cn'),
+('beian', '&lt;a href=&quot;https://beian.miit.gov.cn/&quot; rel=&quot;nofollow&quot; target=&quot;_blank&quot;&gt;陕ICP备15001502号-1&lt;/a&gt;', 'zh-cn'),
 ('script', '', 'zh-cn');
  */
 

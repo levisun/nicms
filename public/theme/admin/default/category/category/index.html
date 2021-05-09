@@ -28,7 +28,7 @@
                             </td>
                             <td v-text="vo.name"></td>
                             <td>
-                                <font v-text="vo.model_name"></font> /
+                                <font v-text="vo.model_name"></font><br />
                                 <font v-text="vo.type_name"></font>
                             </td>
                             <td>
@@ -45,7 +45,7 @@
                                 <a class="added" v-bind:href="vo.url.added">
                                     <i class="fa fa-plus"></i>
                                     {:lang('added')}
-                                </a>
+                                </a><br />
                                 <a class="editor" v-bind:href="vo.url.editor">
                                     <i class="fa fa-pencil-square-o"></i>
                                     {:lang('editor')}

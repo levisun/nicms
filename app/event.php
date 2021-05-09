@@ -21,6 +21,7 @@ return [
             \app\common\event\AppMaintain::class,
         ],
         'RouteLoaded' => [],
+        'LogRecord' => [],
         'LogWrite' => [],
     ],
     'subscribe' => [],

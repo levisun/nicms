@@ -48,6 +48,7 @@ Temporary Items
 
 /runtime
 /vendor
+/public/theme/script/*
 /public/storage/*
 /public/*.txt
 /public/nginx.htaccess

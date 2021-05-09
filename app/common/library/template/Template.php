@@ -58,7 +58,7 @@ class Template implements TemplateHandlerInterface
         $this->config = array_merge($this->config, $_config);
 
         $this->config['compile_path'] = $this->config['compile_path']
-            ?: $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'compile' . DIRECTORY_SEPARATOR . $this->app->http->getName() . app('lang')->getLangSet();
+            ?: runtime_path('compile');
     }
 
     /**
@@ -92,7 +92,7 @@ class Template implements TemplateHandlerInterface
 
         $_template = $compiler->parseTemplateFile($_template);
 
-        $compiler_file = $this->config['compile_path'] . $this->config['view_theme'] . '_' . md5($this->config['layout_on'] . $this->config['layout_name'] . $_template) . '.' . ltrim($this->config['compile_suffix'], '.');
+        $compiler_file = $this->config['compile_path'] . md5($this->app->http->getName() . app('lang')->getLangSet() . $this->config['view_theme'] . $this->config['layout_on'] . $this->config['layout_name'] . $_template) . '.' . ltrim($this->config['compile_suffix'], '.');
 
         if (!$compiler->check($compiler_file)) {
             // 缓存无效 重新模板编译
