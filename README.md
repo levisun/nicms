@@ -43,7 +43,7 @@ composer update topthink/framework
 composer require topthink/think-multi-app
 composer require topthink/think-image
 composer require topthink/think-captcha
-composer require topthink/think-view
+composer require topthink/think-template
 composer require lcobucci/jwt
 composer require lizhichao/word
 composer require symfony/browser-kit

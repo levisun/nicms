@@ -11,6 +11,7 @@ class Tags extends TagLib
      * 定义标签列表
      */
     protected $tags   =  [
+        'list' => ['attr' => '', 'close' => 1],
         'page' => ['attr' => 'date_format,id,page_id', 'close' => 0],
         'category' => ['attr' => '', 'close' => 1],
         'details' => ['attr' => '', 'close' => 0],
@@ -18,15 +19,97 @@ class Tags extends TagLib
         'foot'    => ['attr' => '', 'close' => 0],
     ];
 
-    public function tagCategory($_tag, $_content)
+    public function tagList($_tag, $_content)
     {
-        $parse  = '<?php $result = app(\'\app\cms\logic\article\Category\')->query();';
-        $parse .= '$result = !empty($result[\'data\']) ? $result[\'data\'] : [];';
-        $parse .= 'foreach ($result["list"] $key => $item):';
-        $parse .= $_content;
-        $parse .= 'endforeach;';
-        $parse .= '?>';
+        $_tag['date_format'] = !empty($_tag['date_format']) ? $_tag['date_format'] : 'Y-m-d';
+        $_tag['limit'] = !empty($_tag['limit']) ? (int) $_tag['limit'] : 10;
+        $_tag['limit'] = 100 > $_tag['limit'] ? $_tag['limit'] : 10;
+        $_tag['page'] = !empty($_tag['page']) ? (int) $_tag['page'] : 1;
+
+        $sort_order = isset($_tag['sort'])
+            ? 'article.' . $_tag['sort']
+            : 'article.attribute DESC, article.sort_order DESC, article.update_time DESC';
+
+        $cache_key = 'taglib::article list' . implode('', $_tag);
+
+        $parse  = '<?php
+            if (!cache("?' . $cache_key . '") || !$list = cache("' . $cache_key . '")):
+                $result = \app\common\model\Article::view("article", ["id", "category_id", "title", "keywords", "description", "thumb", "username", "access_id", "hits", "update_time"])
+                ->view("category", ["name" => "cat_name"], "category.id=article.category_id")
+                ->view("model", ["id" => "model_id", "name" => "model_name"], "model.id=category.model_id and model.id<=3")
+                ->view("type", ["id" => "type_id", "name" => "type_name"], "type.id=article.type_id", "LEFT")
+                ->view("level", ["name" => "access_name"], "level.id=article.access_id", "LEFT")
+                ->view("user", ["username" => "author"], "user.id=article.user_id", "LEFT")
+                ->where("article.is_pass", "=", 1)
+                ->where("article.delete_time", "=", 0)
+                ->where("article.show_time", "<", time())
+                ->where("article.lang", "=", app("lang")->getLangSet())';
+        if (isset($_tag['cid'])) {
+            $child = app('\app\cms\logic\article\Category')->child($_tag["cid"]);
+            $parse .= '->where("article.category_id", "in", "' . implode(',', $child) . '")';
+        }
+        if ($_tag['attribute']) {
+            $parse .= '->where("article.attribute", "=", "' . $_tag['attribute'] . '")';
+        }
+
+        if (isset($_tag['tid'])) {
+            $parse .= '->where("article.type_id", "=", "' . $_tag['tid'] . '")';
+        }
+        $parse .= '
+                ])
+                ->order("' . $sort_order . '")
+                ->paginate([
+                    "list_rows" => ' . $_tag['limit'] . ',
+                    "path" => "javascript:paging([PAGE]);",
+                ]);
+                if ($result):
+                    $list = $result->toArray();
+                    $list["render"] = $result->render();
+                    foreach ($list["data"] as $key => $value):
+                        $value["cat_url"] = url("list/" . \app\common\library\Base64::url62encode($value["category_id"]));
+                        $value["url"] = url("details/" . \app\common\library\Base64::url62encode($value["category_id"]) . "/" . \app\common\library\Base64::url62encode($value["id"]));
+                        $value["flag"] = \app\common\library\Base64::flag($value["category_id"] . $value["id"], 7);
+                        $value["thumb"] = \app\common\library\tools\File::imgUrl($value["thumb"], 300);
+                        $value["update_time"] = date("' . $_tag['date_format'] . '", (int) $value["update_time"]);
+                        $value["author"] = $value["author"] ?: $value["username"];
+                        unset($value["username"]);
+
+                        $fields = \app\common\model\FieldsExtend::view("fields_extend", ["data"])
+                            ->view("fields", ["name" => "fields_name"], "fields.id=fields_extend.fields_id")
+                            ->where("fields_extend.article_id", "=", $value["id"])
+                            ->where("fields.category_id", "=", $value["category_id"])
+                            ->select()
+                            ->toArray();
+                        foreach ($fields as $val):
+                            $value[$val["fields_name"]] = $val["data"];
+                        endforeach;
+
+                        $value["tags"] = \app\common\model\ArticleTags::view("article_tags", ["tags_id"])
+                            ->view("tags tags", ["name"], "tags.id=article_tags.tags_id")
+                            ->where("article_tags.article_id", "=", $value["id"])
+                            ->select()
+                            ->toArray();
+                        foreach ($value["tags"] as $k => $tag):
+                            $tag["url"] = url("tags/" . \app\common\library\Base64::url62encode($tag["tags_id"]));
+                            $value["tags"][$k] = $tag;
+                        endforeach;
+
+                        $list["data"][$key] = $value;
+                    endforeach;
+                    cache("' . $cache_key . '", $list);
+                endif;
+            endif;
+            $total = $list["total"];
+            $per_page = $list["per_page"];
+            $current_page = $list["current_page"];
+            $last_page = $list["last_page"];
+            $page = $list["render"];
+            $items = $list["data"]; ?>';
+
+        return $parse;
     }
+
+
 
     public function tagPage($_tag, $_content)
     {
@@ -96,6 +179,16 @@ class Tags extends TagLib
             $details = !empty($result) ? $result : []; ?>';
 
         return $parse;
+    }
+
+    public function tagCategory($_tag, $_content)
+    {
+        $parse  = '<?php $result = app(\'\app\cms\logic\article\Category\')->query();';
+        $parse .= '$result = !empty($result[\'data\']) ? $result[\'data\'] : [];';
+        $parse .= 'foreach ($result["list"] $key => $item):';
+        $parse .= $_content;
+        $parse .= 'endforeach;';
+        $parse .= '?>';
     }
 
     public function tagDetails($_tag, $_content): string
@@ -168,7 +261,7 @@ class Tags extends TagLib
             '<meta http-equiv="Cache-Control" content="no-transform" />' .
             $meta . $link .
             '<style type="text/css">body{moz-user-select:-moz-none;-moz-user-select:none;-o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;}</style>' .
-            '<script src="__STATIC_HOST__static/<?php echo trim(base64_encode(app("http")->getName()), "=");?>.do?token=<?php echo trim(base64_encode(json_encode(app("request")->param())), "=");?>&version=' . $theme_config['api_version'] . '"></script>' .
+            '<script src="__STATIC_HOST__static/<?php echo trim(base64_encode(app("http")->getName()), "=");?>.do?token=<?php echo trim(base64_encode(json_encode(app("request")->only(["id","pass","attribute","status","model_id","limit","page","date_format","sort","key","category_id","type_id","book_id","book_type_id","lang"]))), "=");?>&version=' . $theme_config['api_version'] . '"></script>' .
             '</head>';
     }
 

@@ -35,7 +35,7 @@ class Cache extends BaseLogic
     {
         $this->actionLog('compile remove');
 
-        (new Compiler)->clear(runtime_path('compile'));
+        ClearGarbage::clear(runtime_path('compile'));
 
         return [
             'debug' => false,

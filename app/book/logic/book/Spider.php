@@ -92,7 +92,8 @@ class Spider extends BaseLogic
                     ->order('id DESC')
                     ->value('title');
 
-                $list = 1 < $total ? array_slice($list, $total - 1) : $list;
+                $list = 1 < $total ? array_slice($list, $total - 10) : $list;
+                // halt($list, $total);
                 foreach ($list as $key => $value) {
                     $needle = Filter::strict($value['html']);
                     if ($title && false !== mb_strpos($title, $needle, 0, 'utf-8')) {
@@ -102,13 +103,13 @@ class Spider extends BaseLogic
                 }
 
                 $list = array_slice($list, $total, mt_rand(2, 3));
+                // halt($list);
                 foreach ($list as $key => $value) {
                     $needle = Filter::strict($value['html']);
                     if ($title && false !== mb_strpos($title, $needle, 0, 'utf-8')) {
                         continue;
                     }
 
-                    sleep(mt_rand(60, 100));
                     $url = $this->bookURI . '/' . Filter::strict($value['href']);
 
                     if (!$title = $spider->request('GET', $url)->select('div.bookname>h1')) {
@@ -132,7 +133,6 @@ class Spider extends BaseLogic
 
                     if (strip_tags($content)) {
                         $total = ModelBookArticle::where('book_id', '=', $_book_id)->count();
-                        $result[] = $title;
                         if (!ModelBookArticle::where('title', '=', $title)->where('book_id', '=', $_book_id)->value('id')) {
                             ModelBookArticle::create([
                                 'book_id'    => $_book_id,
@@ -142,6 +142,8 @@ class Spider extends BaseLogic
                                 'sort_order' => $total + 1,
                                 'show_time'  => time(),
                             ]);
+                            $result[] = $title;
+                            sleep(mt_rand(60, 100));
                         }
                     }
                 }

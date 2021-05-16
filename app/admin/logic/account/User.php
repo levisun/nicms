@@ -67,7 +67,7 @@ class User extends BaseLogic
             if ($login_lock >= 5) {
                 $this->session->delete('login_lock');
                 $cache_key = $this->request->domain() . $this->request->ip() . 'login_lock';
-                $this->cache->set($cache_key, date('Y-m-d H:i:s'), 28800);
+                $this->cache->set($cache_key, date('Y-m-d H:i:s'), 14400);
             } else {
                 $this->session->set('login_lock', $login_lock);
             }
@@ -114,7 +114,7 @@ class User extends BaseLogic
                 'user_id'      => Base64::encrypt($this->userId),
                 'user_role_id' => Base64::encrypt($this->userRoleId),
                 'user_type'    => Base64::encrypt($this->userType),
-                'user_token'   => md5(implode('', array_map('sha1', $user)) . 'admin'),
+                'user_token'   => rtrim(Base64::encrypt(json_encode([$this->userId, $this->userRoleId, $this->userType])), '='),
             ]
         ];
     }
@@ -129,8 +129,7 @@ class User extends BaseLogic
         $this->actionLog('admin user logout');
 
         $this->cache->delete('AUTH' . $this->userId);
-        $this->session->delete($this->authKey);
-        $this->session->delete($this->authKey . '_role');
+        $this->removeUserSession();
 
         return [
             'debug' => false,

@@ -3,35 +3,5 @@
     "theme": "adminlte",
     "api_version": "1.0.1",
     "theme_version": "1.0.1",
-    "responsive": true,
-    "link": [
-        "<link rel='dns-prefetch' href='https://cdn.bootcss.com' />",
-        "<link rel='dns-prefetch' href='https://cdn.jsdelivr.net' />",
-        "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css' integrity='sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=' crossorigin='anonymous'>",
-        "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css' integrity='sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=' crossorigin='anonymous'>",
-        "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/ionicons@2.0.1/css/ionicons.min.css' integrity='sha256-kqxQgiD1u2DslOB2UFKOtmYl+CpHQK2gaM3gU2V4EoY=' crossorigin='anonymous'>",
-        "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/adminlte@2.4.1/dist/css/AdminLTE.min.css' integrity='sha256-r4OvjM0b14XMdAaoaV2vzSGjjvqhbxm8sZCebWhp3LU=' crossorigin='anonymous'>",
-        "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/icheck@1.0.2/skins/square/_all.min.css'>",
-        "<link rel='stylesheet' href='__CSS__all-skins.min.css'>",
-        "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/morris.js@0.5.0/morris.min.css'>",
-        "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/jvectormap@2.0.4/jquery-jvectormap.min.css'>",
-        "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.8.0/dist/css/bootstrap-datepicker.min.css'>",
-        "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/eonasdan-bootstrap-datetimepicker@4.17.47/build/css/bootstrap-datetimepicker.min.css'>",
-        "<link rel='stylesheet' href='https://cdn.bootcss.com/select2/4.0.5/css/select2.min.css'>",
-        "<link rel='stylesheet' href='__CSS__bootstrap3-wysihtml5.min.css'>"
-    ],
-    "js": [
-        "<script src='https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js' integrity='sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=' crossorigin='anonymous'></script>",
-        "<script src='https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js' integrity='sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=' crossorigin='anonymous'></script>",
-        "<script src='https://cdn.jsdelivr.net/npm/icheck@1.0.2/icheck.min.js' integrity='sha256-8HGN1EdmKWVH4hU3Zr3FbTHoqsUcfteLZJnVmqD/rC8=' crossorigin='anonymous'></script>",
-        "<script src='https://cdn.jsdelivr.net/npm/adminlte@2.4.1/dist/js/adminlte.min.js' integrity='sha256-nVQsc4D2vVjv821OOPGT1O0pK2FPIR5AgSpKtQMP/TM=' crossorigin='anonymous'></script>",
-        "<script src='https://cdn.jsdelivr.net/npm/blueimp-md5@2.12.0/js/md5.min.js'></script>",
-        "<script src='https://cdn.jsdelivr.net/npm/morris.js@0.5.0/morris.min.js' integrity='sha256-0rg2VtfJo3VUij/UY9X0HJP7NET6tgAY98aMOfwP0P8=' crossorigin='anonymous'></script>",
-        "<script src='https://cdn.jsdelivr.net/npm/jvectormap@2.0.4/jquery-jvectormap.min.js' integrity='sha256-RY7BhUgUGX+J7c4rscFEzmYQBOOEM7i6d0rfEsFxnno=' crossorigin='anonymous'></script>",
-        "<script src='https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.8.0/dist/js/bootstrap-datepicker.min.js' integrity='sha256-tW5LzEC7QjhG0CiAvxlseMTs2qJS7u3DRPauDjFJ3zo=' crossorigin='anonymous'></script>",
-        "<script src='https://cdn.jsdelivr.net/npm/bootstrap-daterangepicker@3.0.3/daterangepicker.min.js'></script>",
-        "<script src='https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js' integrity='sha256-chlNFSVx3TdcQ2Xlw7SvnbLAavAQLO0Y/LBiWX04viY=' crossorigin='anonymous'></script>",
-        "<script src='https://cdn.jsdelivr.net/npm/dompurify@2.2.7/dist/purify.min.js' integrity='sha256-fJ3q4bkaOdMCvZdbT3gfBSKV7vZLORca4c5g5oHTGEc=' crossorigin='anonymous'></script>",
-        "<script src='__STATIC__jquery/jquery.nicms.js'></script>"
-    ]
+    "responsive": true
 }

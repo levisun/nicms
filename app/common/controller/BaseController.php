@@ -20,6 +20,8 @@ use think\App;
 use think\Response;
 use think\exception\HttpResponseException;
 
+use app\common\library\Filter;
+
 abstract class BaseController
 {
 
@@ -163,41 +165,12 @@ abstract class BaseController
     {
         $content = $this->view->assign($_data)->fetch($_template);
 
-        $style = '';
-        $preg = '/<style( type=["\']+.*?["\']+)?>(.*?)<\/style>/si';
-        $content = (string) preg_replace_callback($preg, function ($matches) use (&$style) {
-            $matches[2] = (string) preg_replace([
-                '/[^:]\/\/ *.+\s+/i',
-                '/\/\*.*?\*\//s',
-            ], '', $matches[2]);
-            $style .= trim($matches[2]);
-            return;
-        }, $content);
-        $style = preg_replace('/\s+/', ' ', $style);
-        $style = preg_replace('/ *([:;,\{\}]+) +/', '$1', $style);
-        $content = str_replace('</head>', '<style type="text/css">' . $style . '</style></head>', $content);
+        $links = $this->parseLinks($content);
+        $style = $this->parseStyle($content);
+        $content = str_replace('</head>', $links . $style . '</head>', $content);
 
-
-        $script = '';
-        $pattern = '/<script( type=["\']+[^<>]+["\']+)?>(.*?)<\/script>/si';
-        $content = (string) preg_replace_callback($pattern, function ($matches) use (&$script) {
-            $matches[2] = (string) preg_replace([
-                '/[^:"\']\/\/ *.+\s+/i',
-                '/\/\*.*?\*\//s',
-            ], '', $matches[2]);
-            $script .= trim($matches[2]);
-            return;
-        }, $content);
-        $script = preg_replace('/\s+/', ' ', $script);
-        $script = preg_replace('/ *([:;,\{\}]+) +/', '$1', $script);
-        $script = $script ? '<script type="text/javascript">' . $script . '</script>' : '';
-
-        $files = '';
-        $pattern = '/<script[^<>]+src=["\']+([^<>]+)["\']+><\/script>/si';
-        $content = (string) preg_replace_callback($pattern, function ($matches) use (&$files) {
-            $files .= $matches[0];
-            return;
-        }, $content);
+        $script = $this->parseScript($content);
+        $files = $this->parseFiles($content);
 
         if (false !== strpos($content, '</body>')) {
             $content = str_replace('</body>', $files . $script . '</body>', $content);
@@ -205,6 +178,68 @@ abstract class BaseController
             $content .= $files . $script;
         }
 
+        $content = Filter::space($content);
+
         return $content;
+    }
+
+    private function parseScript(string &$_content): string
+    {
+        $script = '';
+        $pattern = '/<script( type=["\']+[^<>]+["\']+)?>(.*?)<\/script>/si';
+        $_content = (string) preg_replace_callback($pattern, function ($matches) use (&$script) {
+            $matches[2] = (string) preg_replace([
+                '/[^:"\']\/\/ *.+\s+/i',
+                '/\/\*.*?\*\//s',
+            ], '', $matches[2]);
+            $script .= trim($matches[2]);
+            return;
+        }, $_content);
+        $script = preg_replace('/\s+/', ' ', $script);
+        $script = preg_replace('/ *([:;,\{\}]+) +/', '$1', $script);
+
+        return  $script ? '<script type="text/javascript">' . $script . '</script>' : '';
+    }
+
+    private function parseStyle(string &$_content): string
+    {
+        $style = '';
+        $preg = '/<style( type=["\']+.*?["\']+)?>(.*?)<\/style>/si';
+        $_content = (string) preg_replace_callback($preg, function ($matches) use (&$style) {
+            $matches[2] = (string) preg_replace([
+                '/[^:]\/\/ *.+\s+/i',
+                '/\/\*.*?\*\//s',
+            ], '', $matches[2]);
+            $style .= trim($matches[2]);
+            return;
+        }, $_content);
+        $style = preg_replace('/\s+/', ' ', $style);
+        $style = preg_replace('/ *([:;,\{\}]+) +/', '$1', $style);
+
+        return $style ? '<style type="text/css">' . $style . '</style>' : '';
+    }
+
+    private function parseFiles(string &$_content): string
+    {
+        $files = '';
+        $pattern = '/<script[^<>]+><\/script>/si';
+        $_content = (string) preg_replace_callback($pattern, function ($ele) use (&$files) {
+            $files .= $ele[0];
+            return;
+        }, $_content);
+
+        return $files;
+    }
+
+    private function parseLinks(string &$_content): string
+    {
+        $links = '';
+        $preg = '/<link[^<>]+\/?>/si';
+        $_content = (string) preg_replace_callback($preg, function ($ele) use(&$links) {
+            $links .= $ele[0];
+            return;
+        }, $_content);
+
+        return $links;
     }
 }

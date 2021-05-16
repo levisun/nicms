@@ -55,10 +55,10 @@ abstract class BaseSiteInfo
         $common['url']  = config('app.static_host') . $view_path;
 
         // 移动端目录
-        if (Request::isMobile() && is_dir($common['view_path'] . 'mobile')) {
+        if (Request::isMobile() && is_dir($view_path . 'mobile')) {
             $view_path .= 'mobile/';
             $common['url'] .= 'mobile/';
-        } elseif (false !== stripos(Request::server('HTTP_USER_AGENT'), 'MicroMessenger') && is_dir($common['view_path'] . 'wechat')) {
+        } elseif (false !== stripos(Request::server('HTTP_USER_AGENT'), 'MicroMessenger') && is_dir($view_path . 'wechat')) {
             $view_path .= 'wechat/';
             $common['url'] .= 'wechat/';
         }

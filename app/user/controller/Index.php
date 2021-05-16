@@ -34,7 +34,7 @@ class Index extends BaseController
      */
     public function index(string $logic = 'account', string $action = 'user', string $method = 'login')
     {
-        $this->authenticate($logic, $action, $method);
+        // $this->authenticate($logic, $action, $method);
 
         $tpl = $logic . DIRECTORY_SEPARATOR . $action . DIRECTORY_SEPARATOR . $method;
         return $this->fetch($tpl);

@@ -279,6 +279,17 @@ abstract class BaseLogic
     }
 
     /**
+     * 删除用户会话信息
+     * @access protected
+     * @return void
+     */
+    protected function removeUserSession(): void
+    {
+        $this->session->delete($this->authKey);
+        $this->session->delete($this->authKey . '_role');
+    }
+
+    /**
      * 设置用户会话信息
      * @access protected
      * @param  int    $_id
