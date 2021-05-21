@@ -13,7 +13,7 @@
             <a v-bind:href="items.book_url">目录</a>
         </div>
         <div class="col" style="text-align: center;">
-            <a v-if="items.prev" v-bind:href="items.next.url">下一章</a>
+            <a v-if="items.next" v-bind:href="items.next.url">下一章</a>
         </div>
         <div class="col but">
             <font v-on:click="plus">+</font>
@@ -34,7 +34,7 @@
             <a v-if="items.prev" v-bind:href="items.prev.url">上一章</a>
         </div>
         <div class="col">
-            <a v-if="items.prev" v-bind:href="items.next.url">下一章</a>
+            <a v-if="items.next" v-bind:href="items.next.url">下一章</a>
         </div>
         <div class="col" style="text-align: center;">
             <a v-bind:href="items.book_url">目录</a>

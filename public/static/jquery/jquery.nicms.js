@@ -64,8 +64,8 @@
             _params.data.append('__token__', window.sessionStorage.getItem('FROM_TOKEN'));
         }
 
-        if (window.sessionStorage.getItem('USER_TOKEN')) {
-            _params.data.append('token', window.sessionStorage.getItem('USER_TOKEN'));
+        if (window.sessionStorage.getItem('API_TOKEN')) {
+            _params.data.append('token', window.sessionStorage.getItem('API_TOKEN'));
         }
 
         let newData = [];
@@ -134,8 +134,8 @@
             _params.data.push({ name: '__token__', value: window.sessionStorage.getItem('FROM_TOKEN') });
         }
 
-        if (window.sessionStorage.getItem('USER_TOKEN')) {
-            _params.data.push({ name: 'token', value: window.sessionStorage.getItem('USER_TOKEN') });
+        if (window.sessionStorage.getItem('API_TOKEN')) {
+            _params.data.push({ name: 'token', value: window.sessionStorage.getItem('API_TOKEN') });
         }
 
         _params.data.push({ name: 'sign', value: jQuery.sign(_params.data) });

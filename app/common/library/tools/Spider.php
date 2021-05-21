@@ -290,7 +290,7 @@ class Spider
 
         $this->xhtml = '';
 
-        $cache_key = 'spider request' . $_uri;
+        $cache_key = 'spider request' . $_uri . $this->agent;
         if (!Cache::has($cache_key) || !$this->xhtml = Cache::get($cache_key)) {
             // 1000000 = 1s
             // 0.5s~1.5s

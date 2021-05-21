@@ -1,3 +1,7 @@
+/*
+http://google.github.io/traceur-compiler/demo/repl.html#
+移动端浏览器大部分不支持ES6
+*/
 
 class tools {
 
@@ -207,7 +211,7 @@ class tools {
                     c = c.substring(1);
                 }
                 if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
+                    return "null" == c.substring(name.length, c.length) ? null : c.substring(name.length, c.length);
                 }
             }
             return '';

@@ -233,7 +233,15 @@ if (!function_exists('miss')) {
     function miss($_code, bool $_redirect = true, bool $_abort = false)
     {
         if (500 > $_code) {
+            // 请求参数
+            $params = Request::param()
+                ? Request::except(['password', 'sign', '__token__', 'timestamp', 'sign_type', 'appid'])
+                : [];
+            $params = array_filter($params);
+            $params = !empty($params) ? json_encode($params, JSON_UNESCAPED_UNICODE) : '';
+
             trace('MISS ' . $_code . ' ' . Request::ip() . ' ' . Request::method(true) . ' ' . Request::url(true), 'warning');
+            trace('MISS ' . $_code . ' ' . Request::ip() . ' ' . $params, 'warning');
         }
 
         $file = public_path() . intval($_code) . '.html';

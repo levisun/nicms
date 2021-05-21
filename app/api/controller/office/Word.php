@@ -54,14 +54,18 @@ class Word extends BaseApi
     {
         $this->ApiInit();
 
-        if (!$data = $this->request->param('data/a')) {
+        if (!$data = $this->request->param('data')) {
             return miss(404, false);
         }
 
         $file = (new OfficeWord)->write($data);
 
         return $file
-            ? Response::create($file, 'file')->name(pathinfo($file, PATHINFO_FILENAME))->isContent(false)->expire(28800)
-            : $this->error('Excel write error');
+            ? Response::create(['code' => 'success', 'path' => $file], 'json')
+            ->allowCache(true)
+            ->cacheControl('max-age=28800,must-revalidate')
+            ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
+            ->expires(gmdate('D, d M Y H:i:s', time() + 28800) . ' GMT')
+            : $this->error('Word write error');
     }
 }

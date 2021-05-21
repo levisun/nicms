@@ -33,9 +33,9 @@ return [
     'static_host'      => '//cdn.' . request()->rootDomain() . '/',
     'img_host'         => '//img.' . request()->rootDomain() . '/',
 
-    // URL加密密钥(不可修改,否则会出现无法修复的错误)
+    // URL加密密钥,不可修改,否则会出现无法修复的错误(如大量死链等)
     'url62secret'      => 'DMITkE3zeR71Lx2KQrFjH9iOcBohlqnvaV4Gu5Wy0CtZUXSbmJg8sPw6ANYfdp',
-    // 加密密钥(不可修改,否则会出现无法修复的错误)
+    // 加密密钥,不可修改,否则会出现无法修复的错误(如字符无法解密等)
     'secretkey'        => hash_hmac('sha256', '9ceb31d7061f870fe2cc388282ea8febe1c7fd01', sha1(request()->rootDomain() . __DIR__)),
 
     'app_name'         => env('app.name', 'nicms'),

@@ -44,36 +44,25 @@ class Order extends BaseApi
             $this->abort('This method could not be found.', 40004);
         }
 
+        // 支付参数
+        $order_no = $this->orderNo();
+        $params = $this->request->param('pay_param/a', []);
+        $params = array_merge($params, [
+            // 商户订单号
+            'out_trade_no' => $order_no,
+            // 异步通知回调地址
+            'notify_url'   => Config::get('app.api_host') . 'pay/notify/' . strtolower($pay) . '.do',
+            // 同步通知回调地址
+            'respond_url'  => Config::get('app.api_host') . 'pay/respond/' . strtolower($pay) . '.do' . '?out_trade_no=' . $order_no,
+        ]);
+
         $pay = new $pay($config);
-        $result = $pay->$type($this->payParam());
+        $result = $pay->$type($params);
         if (is_string($result)) {
             $this->abort($result, 50001);
         }
 
         return $result;
-    }
-
-    /**
-     * 支付参数
-     * @access private
-     * @return array
-     */
-    private function payParam(): array
-    {
-        $order_no = $this->orderNo();
-        $common = [
-            // 商户订单号
-            'out_trade_no' => $order_no,
-            // 异步通知回调地址
-            'notify_url'   => Config::get('app.api_host') . 'pay/notify/wechat.do',
-            // 同步通知回调地址
-            'respond_url'  => Config::get('app.api_host') . 'pay/respond/wechat.do' . '?out_trade_no=' . $order_no,
-        ];
-
-        // 支付参数
-        // 不同支付类型参数不同
-        $param = $this->request->param('pay_param/a', []);
-        return array_merge($param, $common);
     }
 
     /**

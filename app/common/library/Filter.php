@@ -215,7 +215,7 @@ class Filter
     public static function fun(string &$_str): string
     {
         $_str = (string) preg_replace('/([\w\d]+)\(/uis', '$1&nbsp;(', $_str);
-        $_str = (string) preg_replace('/(create|insert|delete|update|select|drop)+ +/uis', '$1&nbsp;', $_str);
+        $_str = (string) preg_replace('/(create|insert|into|delete|update|union|select|drop)+\s+/uis', '$1&nbsp;', $_str);
         $_str = str_replace(['(', ')'], ['&#40;', '&#41;'], $_str);
         return trim($_str);
     }
@@ -352,20 +352,22 @@ class Filter
         // 全角空格(中文符号)\u3000,中文文章中使用
         $_str = preg_replace('/[\x{00a0}\x{0020}\x{3000}\x{feff}]/uis', ' ', $_str);
 
-        $_str = (string) str_ireplace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;', '&#160;', '&nbsp;'], ' ', $_str);
+        // '&nbsp;'
+        $_str = (string) str_ireplace(['&ensp;', '&emsp;', '&thinsp;', '&zwnj;', '&zwj;', '&#160;'], ' ', $_str);
 
         $pattern = [
             '/>[\r\n]+</' => '><',
             '/>[\r\n]+/'  => '>',
             '/[\r\n]+</'  => '<',
-            '/[\r\n]+/s'  => ' ',
-            // '/ +/si'      => ' ',
+            '/> +/'       => '> ',
+            '/ +</'       => ' <',
+            // '/[\r\n]+/s'  => '',
         ];
 
         $_str = (string) preg_replace(array_keys($pattern), array_values($pattern), $_str);
 
-        $_str = preg_replace_callback('/<[^<>]+>/', function ($ele) {
-            return preg_replace('/ +/', ' ', $ele[0]);
+        $_str = preg_replace_callback('/<[^<>]+>/s', function ($ele) {
+            return preg_replace('/\s+/', ' ', $ele[0]);
         }, $_str);
 
         return trim($_str);

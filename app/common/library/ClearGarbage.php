@@ -58,6 +58,9 @@ class ClearGarbage
      */
     public static function clearCache(string $_dir = '')
     {
+        // 缓存过期时间
+        $cache_expire = time() - abs(env('cache.expire'));
+
         $_dir = $_dir ?: runtime_path('cache');
         $glob = File::glob($_dir);
         clearstatcache();
@@ -65,12 +68,12 @@ class ClearGarbage
             $filename = $glob->current();
             $glob->next();
 
-            if (is_file($filename) && strtotime('-1 day') > filemtime($filename)) {
+            if (is_file($filename) && $cache_expire - 1440 > filemtime($filename)) {
                 @unlink($filename);
-            } elseif (is_file($filename) && strtotime('-12 hour') > filemtime($filename)) {
+            } elseif (is_file($filename) && $cache_expire > filemtime($filename)) {
                 if ($content = @file_get_contents($filename)) {
-                    $expire = (int) substr($content, 8, 12);
-                    if (0 != $expire && time() - $expire > filemtime($filename)) {
+                    $file_expire = (int) substr($content, 8, 12);
+                    if (0 != $file_expire && time() - $file_expire > filemtime($filename)) {
                         @unlink($filename);
                     }
                 }

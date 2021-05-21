@@ -1,5 +1,5 @@
 {__NOLAYOUT__}
-{tags:head/}
+{tags:head body="class='hold-transition login-page'"}
 <link rel="dns-prefetch" href="https://cdn.bootcss.com" />
 <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
@@ -42,74 +42,74 @@
 <script src="https://cdn.jsdelivr.net/npm/dompurify@2.2.7/dist/purify.min.js"
     integrity="sha256-fJ3q4bkaOdMCvZdbT3gfBSKV7vZLORca4c5g5oHTGEc=" crossorigin="anonymous"></script>
 <script src="__STATIC__jquery/jquery.nicms.js"></script>
-<body class="hold-transition login-page">
-    <div class="login-box">
-        <div class="login-logo">
-            <a href="/"><b>Admin</b>NI</a>
-        </div>
-        <div class="login-box-body">
-            <form action="" method="post" id="login-form">
-                <div class="form-group has-feedback">
-                    <input type="text" name="username" class="form-control" placeholder="{:lang('username')}">
-                    <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-                </div>
-                <div class="form-group has-feedback">
-                    <input type="password" name="password" class="form-control" placeholder="{:lang('password')}">
-                    <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-                </div>
-                <div class="form-group has-feedback">
-                    <input type="number" id="verify" name="captcha" class="form-control" placeholder="{:lang('verify')}">
-                    <img id="img-verify" v-on:click="verify">
-                </div>
-                <div class="row">
-                    <div class="col-xs-4">
-                        <button type="button" class="btn btn-primary btn-block btn-flat" v-on:click="login">
-                            {:lang('sign in')}
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
+
+<div class="login-box">
+    <div class="login-logo">
+        <a href="/"><b>Admin</b>NI</a>
     </div>
+    <div class="login-box-body">
+        <form action="" method="post" id="login-form">
+            <div class="form-group has-feedback">
+                <input type="text" name="username" class="form-control" placeholder="{:lang('username')}">
+                <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+            </div>
+            <div class="form-group has-feedback">
+                <input type="password" name="password" class="form-control" placeholder="{:lang('password')}">
+                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+            </div>
+            <div class="form-group has-feedback">
+                <input type="number" id="verify" name="captcha" class="form-control" placeholder="{:lang('verify')}">
+                <img id="img-verify" v-on:click="verify">
+            </div>
+            <div class="row">
+                <div class="col-xs-4">
+                    <button type="button" class="btn btn-primary btn-block btn-flat" v-on:click="login">
+                        {:lang('sign in')}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 
-    <script>
-        var login = new Vue({
-            el: '.login-box-body',
-            methods: {
-                verify: function () {
-                    jQuery.pjax({
-                        url: NICMS.api_uri + 'verify/img.do',
-                        type: 'get',
-                        success: function (result) {
-                            jQuery('#img-verify').attr('src', result);
-                        }
-                    });
-                },
-                login: function () {
-                    var data = jQuery('#login-form').serializeArray();
-                        data.push({ name: 'method', value: 'account.user.login' });
-                    jQuery.pjax({
-                        url: NICMS.api_uri + 'handle.do',
-                        type: 'POST',
-                        data: data,
-                        success: function (res) {
-                            if (10000 == res.code) {
-                                jQuery.set_cookie("USER_TOKEN", res.data.user_token);
-                                if ('undefined' == typeof (res.return_url)) {
-                                    window.location.href = '/settings/dashboard/index.html';
-                                } else {
-                                    window.location.href = res.return_url;
-                                }
+<script>
+    var login = new Vue({
+        el: '.login-box-body',
+        methods: {
+            verify: function () {
+                jQuery.pjax({
+                    url: NICMS.api_uri + 'verify/img.do',
+                    type: 'get',
+                    success: function (result) {
+                        jQuery('#img-verify').attr('src', result);
+                    }
+                });
+            },
+            login: function () {
+                var data = jQuery('#login-form').serializeArray();
+                data.push({ name: 'method', value: 'account.user.login' });
+                jQuery.pjax({
+                    url: NICMS.api_uri + 'handle.do',
+                    type: 'POST',
+                    data: data,
+                    success: function (res) {
+                        if (10000 == res.code) {
+                            jQuery.set_cookie("USER_TOKEN", res.data.user_token);
+                            if ('undefined' == typeof (res.return_url)) {
+                                window.location.href = '/settings/dashboard/index.html';
                             } else {
-                                login.verify();
+                                window.location.href = res.return_url;
                             }
-                            jQuery.uiToast(res.message);
+                        } else {
+                            login.verify();
                         }
-                    });
-                }
+                        jQuery.uiToast(res.message);
+                    }
+                });
             }
-        });
-        login.verify();
-    </script>
-{tags:foot/}
+        }
+    });
+    login.verify();
+</script>
+{/tags:head}

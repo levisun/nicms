@@ -33,14 +33,12 @@ class Elog extends BaseLogic
     {
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
 
-        $salt = date('Ymd');
-
         $result = [];
         $length = [];
         if ($files = glob(runtime_path('log') . '*')) {
             foreach ($files as $value) {
                 $result[] = [
-                    'id'   => Base64::encrypt(basename($value), $salt),
+                    'id'   => Base64::encrypt(basename($value), Base64::salt()),
                     'name' => pathinfo($value, PATHINFO_FILENAME),
                     'date' => date($date_format, filectime($value)),
                     'size' => number_format(filesize($value) / 1024, 2) . 'KB',
@@ -72,7 +70,7 @@ class Elog extends BaseLogic
         $this->actionLog('see error log');
 
         $id = $this->request->param('id');
-        if ($id && $id = Base64::decrypt($id, date('Ymd'))) {
+        if ($id && $id = Base64::decrypt($id, Base64::salt())) {
             $file = runtime_path('log') . $id;
             if (is_file($file)) {
                 $data = file_get_contents($file);

@@ -157,17 +157,15 @@ class File
      */
     public static function pathEncode(string $_file, bool $_abs = false): string
     {
+        $_file = str_replace('storage', '', $_file);
         $_file = Filter::strict($_file);
         $_file = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_file);
 
         $path = Config::get('filesystem.disks.public.root') . DIRECTORY_SEPARATOR;
         $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
 
-        $salt = bindec(Request::ip2bin(Request::ip())) . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
-        $salt = sha1($salt);
-
         if (is_file($path . $_file)) {
-            return $_abs ? Base64::encrypt($path . $_file, $salt) : Base64::encrypt($_file, $salt);
+            return $_abs ? Base64::encrypt($path . $_file, Base64::salt()) : Base64::encrypt($_file, Base64::salt());
         }
 
         return '';
@@ -182,10 +180,7 @@ class File
      */
     public static function pathDecode(string $_file, bool $_abs = false): string
     {
-        $salt = bindec(Request::ip2bin(Request::ip())) . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
-        $salt = sha1($salt);
-
-        $_file = $_file ? Base64::decrypt($_file, $salt) : '';
+        $_file = $_file ? Base64::decrypt($_file, Base64::salt()) : '';
 
         if ($_file && false !== preg_match('/^[a-zA-Z0-9_\/\\\]+\.[a-zA-Z0-9]{2,4}$/u', $_file)) {
             $_file = Filter::strict($_file);

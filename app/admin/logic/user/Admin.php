@@ -177,7 +177,7 @@ class Admin extends BaseLogic
         }
 
         ModelAdmin::transaction(function () use ($receive_data, $id) {
-            $receive_data['salt'] = Base64::flag(microtime(true) . $receive_data['password'], 6);
+            $receive_data['salt'] = Base64::salt(microtime(true) . $receive_data['password']);
             $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
 
             ModelAdmin::where('id', '=', $id)->limit(1)->update([

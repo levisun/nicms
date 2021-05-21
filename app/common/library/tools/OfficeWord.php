@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library\tools;
 
+use app\common\library\tools\File;
 use app\common\library\Filter;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
@@ -78,9 +79,12 @@ class OfficeWord
         }
 
         $writer = IOFactory::createWriter($php_word, 'Word2007');
-        $file = runtime_path('temp') . uniqid() . '.docx';
-        $writer->save($file);
 
-        return $file;
+        $path = public_path('storage/temp');
+        if (!is_dir($path)) mkdir($path, 0755, true);
+        $file = uniqid() . '.docx';
+        $writer->save($path . $file);
+
+        return File::pathEncode('storage/temp/' . $file);
     }
 }

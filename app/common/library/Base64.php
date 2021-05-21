@@ -2,7 +2,7 @@
 
 /**
  *
- * 加密类
+ * 字符转换,加密,校验类
  *
  * @package   NICMS
  * @category  app\common\library
@@ -26,9 +26,9 @@ class Base64
      * 验证密码
      * @access public
      * @static
-     * @param  string $_password
-     * @param  string $_salt
-     * @param  string $_hash
+     * @param  string $_password 明文密码
+     * @param  string $_salt     佐料
+     * @param  string $_hash     加密密码
      * @return mixed
      */
     public static function verifyPassword(string $_password, string $_salt, string $_hash)
@@ -48,13 +48,25 @@ class Base64
      * 创建密码
      * @access public
      * @static
-     * @param  string $_password
-     * @param  string $_salt
+     * @param  string $_password 明文密码
+     * @param  string $_salt     佐料
      * @return string
      */
     public static function createPassword(string $_password, string $_salt = ''): string
     {
         return password_hash($_password . $_salt, PASSWORD_BCRYPT, ['cost' => 11]);
+    }
+
+    /**
+     * 佐料
+     * @access public
+     * @static
+     * @return string
+     */
+    public static function salt($_str = ''): string
+    {
+        $salt = date('Ymd') . bindec(Request::ip2bin(Request::ip())) . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        return sha1($_str . $salt);
     }
 
     /**
@@ -102,7 +114,7 @@ class Base64
     }
 
     /**
-     * emoji清理
+     * emoji清除
      * @access public
      * @static
      * @param  string $_str
@@ -169,6 +181,7 @@ class Base64
     public static function asyncSecret(): string
     {
         $secret = date('Ymd') . bindec(Request::ip2bin(Request::ip())) . Request::rootDomain() . Request::server('HTTP_USER_AGENT');
+        $secret = hash_hmac('sha256', $secret, Config::get('app.secretkey'));
         return sha1(self::encrypt($secret));
     }
 

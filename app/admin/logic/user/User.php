@@ -97,7 +97,7 @@ class User extends BaseLogic
             return $result;
         }
 
-        $receive_data['salt'] = Base64::flag(microtime(true) . $receive_data['password'], 6);
+        $receive_data['salt'] = Base64::salt(microtime(true) . $receive_data['password']);
         $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
         ModelUser::create($receive_data);
 
@@ -166,7 +166,7 @@ class User extends BaseLogic
         if ($result = $this->validate($receive_data)) {
             return $result;
         }
-        $receive_data['salt'] = Base64::flag(microtime(true) . $receive_data['password'], 6);
+        $receive_data['salt'] = Base64::salt(microtime(true) . $receive_data['password']);
         $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
 
         ModelUser::where('id', '=', $id)->limit(1)->update([

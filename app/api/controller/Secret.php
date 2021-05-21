@@ -95,20 +95,20 @@ class Secret
         window.sessionStorage.setItem("XSRF_SECRET", "' . sha1($secret['secret'] . Base64::asyncSecret()) . '");
         window.sessionStorage.setItem("FROM_TOKEN", "' . $from_token . '");';
 
-        $user_type = 'guest';
-        $user_id = $user_role_id = 0;
+        // 区分用户缓存
+        $user_type = $user_id = $user_role_id = 'guest';
         if ('admin' === $app_name && Session::has('admin_auth_key')) {
             $user_type = 'admin_auth_key';
-            $user_id = (int) Session::get($user_type);
-            $user_role_id = (int) Session::get($user_type . '_role');
         } elseif (Session::has('user_auth_key')) {
             $user_type = 'user_auth_key';
+        }
+        if ('guest' !== $user_type) {
             $user_id = (int) Session::get($user_type);
             $user_role_id = (int) Session::get($user_type . '_role');
         }
 
         $token = sha1(Base64::encrypt($user_id . $user_role_id . $user_type, date('Ymd')));
-        $script .= 'window.sessionStorage.setItem("USER_TOKEN", "' . $token . '");';
+        $script .= 'window.sessionStorage.setItem("API_TOKEN", "' . $token . '");';
 
         /* if ('admin' !== $app_name) {
             $script .= 'let record = document.createElement("script");

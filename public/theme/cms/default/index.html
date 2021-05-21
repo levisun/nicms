@@ -6,7 +6,8 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item" v-for="item in items">
                         <h5 class="card-title">
-                            <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="item.cat_url" v-text="item.cat_name"></a>
+                            <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="item.cat_url"
+                                v-text="item.cat_name"></a>
                             <a v-bind:href="item.url" v-text="item.title"></a>
                         </h5>
                         <p class="text-muted">
@@ -34,7 +35,8 @@
                 <div class="card-body">
                     <ul class="list-unstyled">
                         <li v-for="item in hot_items">
-                            <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="item.cat_url" v-text="item.cat_name"></a>
+                            <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="item.cat_url"
+                                v-text="item.cat_name"></a>
                             <a v-bind:href="item.url" v-text="item.title"></a>
                             <p class="text-muted" style="margin-bottom:0;">
                                 <small v-text="item.update_time"></small>
@@ -49,7 +51,8 @@
                 <div class="card-body">
                     <ul class="list-unstyled">
                         <li v-for="item in new_items">
-                            <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="item.cat_url" v-text="item.cat_name"></a>
+                            <a class="badge badge-primary" style="margin-right:10px;" v-bind:href="item.cat_url"
+                                v-text="item.cat_name"></a>
                             <a v-bind:href="item.url" v-text="item.title"></a>
                             <p class="text-muted" style="margin-bottom:0;">
                                 <small v-text="item.update_time"></small>

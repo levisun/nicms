@@ -12,11 +12,10 @@ class Tags extends TagLib
      */
     protected $tags   =  [
         'list' => ['attr' => '', 'close' => 1],
-        'page' => ['attr' => 'date_format,id,page_id', 'close' => 0],
+        'page' => ['attr' => '', 'close' => 0],
         'category' => ['attr' => '', 'close' => 1],
         'details' => ['attr' => '', 'close' => 0],
-        'head'    => ['attr' => '', 'close' => 0],
-        'foot'    => ['attr' => '', 'close' => 0],
+        'head'    => ['attr' => '', 'close' => 1],
     ];
 
     public function tagList($_tag, $_content)
@@ -207,24 +206,9 @@ class Tags extends TagLib
             ? json_decode(file_get_contents($view_path . 'config.json'), true)
             : [];
 
-        $meta = '';
-        if (!empty($theme_config['meta'])) {
-            foreach ($theme_config['meta'] as $value) {
-                $meta .= str_replace('\'', '"', $value);
-            }
-        }
-
-        $link = '';
-        if (!empty($theme_config['link'])) {
-            foreach ($theme_config['link'] as $value) {
-                $value = preg_replace('/ {2,}/si', '', $value);
-                $link .= str_replace('\'', '"', $value);
-
-                // $value = false === stripos($value, 'preload') && false === stripos($value, 'prefetch')
-                // ? str_replace('rel="', 'as="style" rel="preload ', $value)
-                // : $value;
-            }
-        }
+        $body = empty($_tag['body'])
+            ? '<body>'
+            : '<body ' . str_replace('\'', '"', trim($_tag['body'], '<>')) . '>';
 
         return '<!DOCTYPE html>' .
             '<html lang="__LANG__">' .
@@ -259,27 +243,8 @@ class Tags extends TagLib
             '<meta http-equiv="Window-target" content="_top" />' .
             '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
             '<meta http-equiv="Cache-Control" content="no-transform" />' .
-            $meta . $link .
             '<style type="text/css">body{moz-user-select:-moz-none;-moz-user-select:none;-o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;}</style>' .
-            '<script src="__STATIC_HOST__static/<?php echo trim(base64_encode(app("http")->getName()), "=");?>.do?token=<?php echo trim(base64_encode(json_encode(app("request")->only(["id","pass","attribute","status","model_id","limit","page","date_format","sort","key","category_id","type_id","book_id","book_type_id","lang"]))), "=");?>&version=' . $theme_config['api_version'] . '"></script>' .
-            '</head>';
-    }
-
-    public function tagFoot($_tag, $_content): string
-    {
-        $view_path = $this->tpl->getConfig('view_path');
-        $theme_config = is_file($view_path . 'config.json')
-            ? json_decode(file_get_contents($view_path . 'config.json'), true)
-            : [];
-
-        $link = '';
-        if (!empty($theme_config['js'])) {
-            foreach ($theme_config['js'] as $js) {
-                $js = preg_replace('/ {2,}/si', '', $js);
-                $link .= str_replace('\'', '"', $js);
-            }
-        }
-
-        return $link . '</body></html>';
+            '<script src="__STATIC_HOST__static/<?php echo trim(base64_encode(app("http")->getName()), "=");?>.do?token=<?php echo trim(base64_encode(json_encode(app("request")->only(["id","pass","attribute","status","model_id","limit","page","date_format","sort","key","category_id","type_id","book_id","book_type_id","lang","logic","action","method"]))), "=");?>&version=' . $theme_config['api_version'] . '"></script>' .
+            '</head>' . $body . $_content . '</body></html>';
     }
 }
