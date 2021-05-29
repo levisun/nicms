@@ -73,8 +73,8 @@ class OfficeExcel
             }
         }
 
-        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-        $file = runtime_path('temp') . uniqid() . '.xlsx';
+        $writer = IOFactory::createWriter($spreadsheet, 'xls');
+        $file = runtime_path('temp') . uniqid() . '.xls';
         $writer->save($file);
 
         return $file;

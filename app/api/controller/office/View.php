@@ -31,7 +31,7 @@ class View extends BaseApi
      */
     public function iframe()
     {
-        if (!$this->validate->referer() || !$file = $this->request->param('file')) {
+        if (!$this->ValidateReferer() || !$file = $this->request->param('file')) {
             return miss(404, false);
         }
 

@@ -87,8 +87,8 @@
         _params.complete = function (xhr) {
             if ('undefined' !== typeof (xhr.responseText)) {
                 var result = JSON.parse(xhr.responseText);
-                if ('undefined' !== typeof (result.csrf_token)) {
-                    window.sessionStorage.setItem('FROM_TOKEN', result.csrf_token);
+                if ('undefined' !== typeof (result.from_token)) {
+                    window.sessionStorage.setItem('FROM_TOKEN', result.from_token);
                 }
             }
         }
@@ -149,8 +149,8 @@
         _params.complete = function (xhr) {
             if ('undefined' !== typeof (xhr.responseText)) {
                 var result = JSON.parse(xhr.responseText);
-                if ('undefined' !== typeof (result.csrf_token)) {
-                    window.sessionStorage.setItem('FROM_TOKEN', result.csrf_token);
+                if ('undefined' !== typeof (result.from_token)) {
+                    window.sessionStorage.setItem('FROM_TOKEN', result.from_token);
                 }
             }
         }

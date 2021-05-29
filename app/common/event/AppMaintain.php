@@ -59,14 +59,14 @@ class AppMaintain
             ClearGarbage::clearCache();
 
             // 清除游客上传的文件
-            ClearGarbage::clear(public_path('storage/uploads/guest'), '-30 day');
+            ClearGarbage::clear(public_path('storage/uploads/guest'), '-1 day');
 
             // 清除生成的缩略图与临时文件
-            ClearGarbage::clear(public_path('storage/thumb'), '-30 day');
-            ClearGarbage::clear(public_path('storage/temp'), '-10 day');
+            ClearGarbage::clear(public_path('storage/thumb'), '-1 day');
+            ClearGarbage::clear(public_path('storage/temp'), '-1 day');
 
             // 清除临时文件
-            ClearGarbage::clear(runtime_path('temp'), '-10 day');
+            ClearGarbage::clear(runtime_path('temp'), '-1 day');
 
             // 清除上传目录中的空目录
             ClearGarbage::uploadEmptyDirectory();

@@ -255,7 +255,6 @@ if (!function_exists('miss')) {
         // $content = Filter::php($content);
         // $content = Filter::fun($content);
 
-        $content = '<!-- ' . date('Y-m-d H:i:s') . ' -->' . $content;
 
         $return_url = '<script type="text/javascript">setTimeout(function(){location.href = "//' . Request::rootDomain() . '";},3000);</script>';
 
@@ -266,6 +265,8 @@ if (!function_exists('miss')) {
                 $content = $return_url;
             }
         }
+
+        $content = $content . '<!-- ' . date('Y-m-d H:i:s') . ' -->';
 
         $resource = Response::create($content, 'html', 200)
             ->allowCache(true)

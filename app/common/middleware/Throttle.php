@@ -22,6 +22,8 @@ use think\facade\Cache;
 
 class Throttle
 {
+    private $requestLock = '';
+    private $requestInc = '';
 
     /**
      *
@@ -32,39 +34,51 @@ class Throttle
      */
     public function handle(Request $request, Closure $next)
     {
+        $this->requestInc = __METHOD__ . $request->ip() . $request->domain();
+        $this->requestLock = $this->requestInc . 'lock';
+
+        if (Cache::has($this->requestLock)) {
+            return miss('您的请求过于频繁已被拦截！', false);
+        }
+
         if (!$request->rootDomain()) {
+            $this->inc($request);
             return miss(404, false);
         }
 
         // IP进入显示空页面
         if ($request->isValidIP($request->host(true), 'ipv4') || $request->isValidIP($request->host(true), 'ipv6')) {
+            $this->inc($request, 10);
             return miss(404, false);
         }
 
-        $lock_cache_key = $request->ip() . $request->server('HTTP_REFERER') . $request->domain() . 'lock';
-        if (Cache::has($lock_cache_key)) {
-            return miss('请勿频繁操作', false);
+        if (!in_array($request->ext(), ['', 'do', config('route.url_html_suffix')])) {
+            $this->inc($request, 10);
+            return miss(404, false);
         }
 
         $response = $next($request);
 
         if (200 === $response->getCode()) {
-            $cache_key = __METHOD__ . $request->ip() . $request->domain();
-
-            if (Cache::has($cache_key)) {
-                Cache::inc($cache_key);
-            } else {
-                Cache::set($cache_key, 1, 10);
-            }
-
-            if (50 <= Cache::get($cache_key)) {
-                $log = 'lock IP:' . $request->ip() . PHP_EOL;
-                $log .= $request->server('HTTP_REFERER') ?: $request->url(true);
-                trace($log, 'warning');
-                Cache::tag('request')->set($lock_cache_key, 'UR', 1440);
-            }
+            $this->inc($request);
         }
 
         return $response;
+    }
+
+    private function inc(Request $request, int $step = 1): void
+    {
+        if (Cache::has($this->requestInc)) {
+            Cache::inc($this->requestInc, $step);
+        } else {
+            Cache::set($this->requestInc, $step, 10);
+        }
+
+        if (50 <= Cache::get($this->requestInc)) {
+            $log = 'lock IP:' . $request->ip() . PHP_EOL;
+            $log .= $request->server('HTTP_REFERER') ?: $request->url(true);
+            trace($log, 'warning');
+            Cache::tag('request')->set($this->requestLock, 'UR', 1440);
+        }
     }
 }

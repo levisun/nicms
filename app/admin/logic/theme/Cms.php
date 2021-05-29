@@ -20,8 +20,8 @@ namespace app\admin\logic\theme;
 use app\common\controller\BaseLogic;
 use app\common\model\Config as ModelConfig;
 use app\common\library\Base64;
+use app\common\library\ClearGarbage;
 use app\common\library\tools\File;
-use app\common\library\template\Compiler;
 
 class Cms extends BaseLogic
 {
@@ -97,7 +97,7 @@ class Cms extends BaseLogic
 
         $this->cache->tag('system')->clear();
 
-        (new Compiler)->clear();
+        ClearGarbage::clear(runtime_path('compile'));
 
         return [
             'debug' => false,

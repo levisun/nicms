@@ -27,6 +27,8 @@ class Spider
     private $client = null;
     private $crawler = null;
     private $xhtml = '';
+    public  $statusCode = 200;
+    public  $origin = '';
     public  $agent = '';
 
     public function __construct()
@@ -34,7 +36,7 @@ class Spider
         @ini_set('memory_limit', '16M');
     }
 
-    public function pageInfo(int $_length = 0)
+    public function pageInfo()
     {
         if (!$this->xhtml) return false;
 
@@ -115,37 +117,21 @@ class Spider
             foreach ($nodes as $node) {
                 $node = $dom->saveHTML($node);
                 $node = Filter::space($node);
-                while (preg_match('/<\w+[^<>]*><\/\w+>/uis', $node)) {
-                    $node = preg_replace('/<\w+[^<>]*><\/\w+>/uis', '', $node);
+                while (preg_match('/<\w+[^<>\/]*><\/\w+>/uis', $node)) {
+                    $node = preg_replace('/<\w+[^<>\/]*><\/\w+>/uis', '', $node);
                 }
 
-                if (strip_tags($node) && 200 < mb_strlen(strip_tags($node), 'utf-8')) {
+                if (strip_tags($node, '<img>') && 200 < mb_strlen(strip_tags($node, '<img>'), 'utf-8')) {
                     if (!stripos($node, 'copyright')) {
                         $content[] = $node;
                     }
                 }
             }
-            // halt($content);
-
-            $host = parse_url($result['url'], PHP_URL_HOST);
-
             $content = end($content);
-            $content = preg_replace_callback('/<img[^<>]+src=([^<>\s]+)[^<>]+>/si', function ($img) use ($host) {
-                $img[1] = trim($img[1], '"\'');
-                if (0 === strpos($img[1], '//')) {
-                    $img[1] = parse_url($host, PHP_URL_SCHEME) . ':' . $img[1];
-                } elseif (0 === strpos($img[1], '/')) {
-                    $img[1] = $host . $img[1];
-                }
-                return '[img src="' . $img[1] . '" /]';
+            $content = preg_replace_callback('/<(\/?)(img|table|tr|th|td)([^<>]*)>/si', function ($ele) {
+                return '[' . $ele[1] . $ele[2] . $ele[3] . ']';
             }, $content);
-            $content = preg_replace_callback('/<table[^<>]*>(.*?)<\/table[^<>]*>/si', function ($table) {
-                $table[1] = strip_tags($table[1], '<tr><td><th>');
-                $table[1] = preg_replace_callback('/<(\/)?(tr|td|th)([^<>]*)>/si', function ($tr) {
-                    return '[' . $tr[1] . $tr[2] . $tr[3] . ']';
-                }, $table[1]);
-                return '[table]' . $table[1] . '[/table]';
-            }, $content);
+            // halt($content);
 
             preg_match_all('/>.*?</uis', $content, $matches);
             $matches = array_map(function ($value) {
@@ -156,11 +142,10 @@ class Spider
             $matches = array_filter($matches);
             $content = '<p>' . implode('</p><p>', $matches) . '</p>';
 
-            $content = preg_replace_callback('/\[(\/*)(img|table|tr|td)([^<>\[\]]*)\]/uis', function ($ele) {
+            $content = preg_replace_callback('/\[(\/?)(img|table|tr|th|td)([^<>]*)\]/uis', function ($ele) {
                 return '<' . $ele[1] . $ele[2] . $ele[3] . '>';
             }, $content);
 
-            // halt($matches, $content);
             $result['content'] = htmlspecialchars($content, ENT_QUOTES);
         }
 
@@ -317,14 +302,15 @@ class Spider
             }
 
             // 请求失败
-            if (200 !== $this->client->getInternalResponse()->getStatusCode()) {
+            $this->statusCode = $this->client->getInternalResponse()->getStatusCode();
+            if (200 !== $this->statusCode) {
                 trace($_uri, 'warning');
                 return $this;
             }
 
             // 获得实际URI
-            $_uri = $this->client->getHistory()->current()->getUri();
-            trace($_uri, 'info');
+            $this->origin = $this->client->getHistory()->current()->getUri();
+            trace($this->origin, 'info');
 
             // 获得HTML文档内容
             $this->xhtml = $this->client->getInternalResponse()->getContent();
@@ -360,13 +346,20 @@ class Spider
             $this->xhtml = Filter::php($this->xhtml);
 
             // 添加访问网址
-            $this->xhtml = '<!-- website:' . $_uri . ' -->' . PHP_EOL . $this->xhtml;
+            $this->xhtml = '<!-- website:' . $this->origin . ' -->' . PHP_EOL . $this->xhtml;
 
             // 添加单页支持
-            $base = parse_url($_uri, PHP_URL_PATH);
-            $base = $base ? str_replace('\\', '/', rtrim(dirname($base), '\/')) . '/' : '';
-            $base = parse_url($_uri, PHP_URL_SCHEME) . '://' . parse_url($_uri, PHP_URL_HOST) . $base;
-            $this->xhtml = str_replace('<head>', '<head>' . '<base href="' . $base . '" />', $this->xhtml);
+            if (false !== stripos($this->xhtml, '<base')) {
+                $this->xhtml = preg_replace_callback('/<base[^<>]+href=["\']+([^<>"\']+)["\']+[^<>]*>/i', function ($ele) {
+                    $base = parse_url($this->origin, PHP_URL_SCHEME) . '://' . parse_url($this->origin, PHP_URL_HOST);
+                    return '<base href="' . $base . $ele[1] .'" />';
+                }, $this->xhtml);
+            } else {
+                $base = parse_url($this->origin, PHP_URL_PATH);
+                $base = $base ? str_replace('\\', '/', rtrim(dirname($base), '\/')) . '/' : '';
+                $base = parse_url($this->origin, PHP_URL_SCHEME) . '://' . parse_url($this->origin, PHP_URL_HOST) . $base;
+                $this->xhtml = str_replace('<head>', '<head>' . '<base href="' . $base . '" />', $this->xhtml);
+            }
 
             $length = mb_strlen(strip_tags($this->xhtml), 'utf-8');
 

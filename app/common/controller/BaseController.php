@@ -163,6 +163,11 @@ abstract class BaseController
      */
     protected function fetch(string $_template, array $_data = []): string
     {
+        $_data = array_merge($_data, [
+            'sys_runtime' => number_format(microtime(true) - $this->app->getBeginTime(), 3),
+            'sys_memory' => number_format((memory_get_usage() - $this->app->getBeginMem()) / 1048576, 3),
+        ]);
+
         $content = $this->view->assign($_data)->fetch($_template);
 
         $links = $this->parseLinks($content);
@@ -180,7 +185,10 @@ abstract class BaseController
 
         $content = Filter::space($content);
 
-        return $content;
+        return $content . '<!--' . date('Y-m-d H:i:s') . ', ' .
+            $_data['sys_runtime'] . ', ' .
+            $_data['sys_memory'] .
+            '-->';
     }
 
     private function parseScript(string &$_content): string
@@ -235,7 +243,7 @@ abstract class BaseController
     {
         $links = '';
         $preg = '/<link[^<>]+\/?>/si';
-        $_content = (string) preg_replace_callback($preg, function ($ele) use(&$links) {
+        $_content = (string) preg_replace_callback($preg, function ($ele) use (&$links) {
             $links .= $ele[0];
             return;
         }, $_content);

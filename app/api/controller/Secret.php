@@ -47,10 +47,13 @@ class Secret
         $version = Request::param('version');
         $version = Filter::htmlDecode(Filter::strict($version));
 
-        if (!!preg_match('/[^a-z]+/', $app_name) || !!preg_match('/[^\w\d\{\}\[\]":,]+/i', $param) || !preg_match('/[\d]+\.[\d]+\.[\d]+/', $version)) {
+        if (!!preg_match('/[^a-z]+/', $app_name) || !!preg_match('/[^\w\d\{\}\[\]\\\":,]+/i', $param) || !preg_match('/[\d]+\.[\d]+\.[\d]+/', $version)) {
             trace('MISS ' . $app_name . $param . $version, 'warning');
             return miss(404, false);
         }
+
+        $param = json_decode($param, true);
+        $param = json_encode($param, JSON_UNESCAPED_UNICODE);
 
 
 

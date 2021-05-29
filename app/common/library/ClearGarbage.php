@@ -68,9 +68,9 @@ class ClearGarbage
             $filename = $glob->current();
             $glob->next();
 
-            if (is_file($filename) && $cache_expire - 1440 > filemtime($filename)) {
+            if (is_file($filename) && $cache_expire - 2880 > filemtime($filename)) {
                 @unlink($filename);
-            } elseif (is_file($filename) && $cache_expire > filemtime($filename)) {
+            } elseif (is_file($filename) && $cache_expire - 1440 > filemtime($filename)) {
                 if ($content = @file_get_contents($filename)) {
                     $file_expire = (int) substr($content, 8, 12);
                     if (0 != $file_expire && time() - $file_expire > filemtime($filename)) {
