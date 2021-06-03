@@ -27,6 +27,7 @@ use app\common\model\ArticleContent as ModelArticleContent;
 use app\common\model\ArticleFile as ModelArticleFile;
 use app\common\model\ArticleImage as ModelArticleImage;
 use app\common\model\ArticleTags as ModelArticleTags;
+use app\common\model\Fields as ModelFields;
 use app\common\model\FieldsExtend as ModelFieldsExtend;
 use app\common\model\Tags as ModelTags;
 
@@ -278,6 +279,7 @@ class Article extends BaseLogic
                     ->where('fields_extend.article_id', '=', $result['id'])
                     ->select()
                     ->toArray();
+                $result['fields'] = [];
                 foreach ($fields as $key => $value) {
                     $result['fields'][$value['id']] = $value['data'];
                 }

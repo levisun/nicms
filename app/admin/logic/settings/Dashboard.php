@@ -41,19 +41,19 @@ class Dashboard extends BaseLogic
 
             $result = [
                 'sysinfo' => [
-                    $this->lang->get('sys version')   => 'NICMS ' . $this->config->get('app.version') .
+                    $this->lang->get('dashboard.sys version')   => 'NICMS ' . $this->config->get('app.version') .
                         '[TP' . $this->app->version() . ']',
-                    $this->lang->get('sys os')        => PHP_OS,
-                    $this->lang->get('sys sapi')      => php_sapi_name(),
-                    $this->lang->get('sys debug')     => $this->config->get('app.debug') ? 'Yes' : 'No',
-                    $this->lang->get('sys env')       => 'PHP' . PHP_VERSION,
-                    $this->lang->get('sys db')        => 'Mysql ' . $db_version,
-                    $this->lang->get('sys GD')        => $gd,
-                    $this->lang->get('sys timezone')  => $this->config->get('app.default_timezone'),
-                    $this->lang->get('sys timeout')   => ini_get('max_execution_time'),
-                    $this->lang->get('sys lang')      => $this->config->get('lang.default_lang'),
-                    $this->lang->get('sys copyright') => '失眠小枕头 [312630173@qq.com]',
-                    $this->lang->get('sys upgrade')   => '',
+                    $this->lang->get('dashboard.sys os')        => PHP_OS,
+                    $this->lang->get('dashboard.sys sapi')      => php_sapi_name(),
+                    $this->lang->get('dashboard.sys debug')     => $this->config->get('app.debug') ? 'Yes' : 'No',
+                    $this->lang->get('dashboard.sys env')       => 'PHP' . PHP_VERSION,
+                    $this->lang->get('dashboard.sys db')        => 'Mysql ' . $db_version,
+                    $this->lang->get('dashboard.sys GD')        => $gd,
+                    $this->lang->get('dashboard.sys timezone')  => $this->config->get('app.default_timezone'),
+                    $this->lang->get('dashboard.sys timeout')   => ini_get('max_execution_time'),
+                    $this->lang->get('dashboard.sys lang')      => $this->config->get('lang.default_lang'),
+                    $this->lang->get('dashboard.sys copyright') => '失眠小枕头 [312630173@qq.com]',
+                    $this->lang->get('dashboard.sys upgrade')   => '',
                 ],
             ];
 

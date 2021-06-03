@@ -35,7 +35,7 @@ class Record extends BaseApi
 
             ModelFeedback::create([
                 'title'   => $this->request->param('title', 'Record'),
-                'content' => $this->request->param('content'),
+                'content' => $content,
                 'lang'    => $this->lang->getLangSet(),
             ]);
         }

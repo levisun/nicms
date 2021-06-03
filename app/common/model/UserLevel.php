@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `nc_user_level` (
     INDEX `credit` (`credit`) USING BTREE,
     INDEX `status` (`status`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户组';
-INSERT INTO `nc_level` (`id`, `name`, `credit`, `status`, `remark`) VALUES
+INSERT INTO `nc_user_level` (`id`, `name`, `credit`, `status`, `remark`) VALUES
 (1, '钻石会员', 500000000, 1, ''),
 (2, '黄金会员', 30000000, 1, ''),
 (3, '白金会员', 500000, 1, ''),

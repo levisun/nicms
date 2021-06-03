@@ -36,37 +36,14 @@ class Spider
         @ini_set('memory_limit', '16M');
     }
 
-    public function pageInfo()
+    /**
+     * 获得网页内容
+     * @access public
+     * @return string
+     */
+    public function content(): string
     {
-        if (!$this->xhtml) return false;
-
-        $result = [];
-
-        preg_match('/<!\-\- website:([^<>]+) \-\->/si', htmlspecialchars_decode($this->getHtml(), ENT_QUOTES), $matches);
-        $result['url'] = trim($matches[1]);
-        $host = parse_url($result['url'], PHP_URL_SCHEME) . '://' . parse_url($result['url'], PHP_URL_HOST);
-
-        if ($title = $this->select('title')) {
-            $title = strip_tags(htmlspecialchars_decode($title[0], ENT_QUOTES));
-            $title = str_replace(['_', '|'], '-', $title);
-            list($title) = explode('-', $title);
-            $result['title'] = $title;
-            $result['title'] = Filter::space($result['title']);
-        }
-
-        if ($keywords = $this->select('meta:keywords', ['content'])) {
-            $result['keywords'] = isset($keywords[0]['content'])
-                ? strip_tags(htmlspecialchars_decode($keywords[0]['content'], ENT_QUOTES))
-                : '';
-            $result['keywords'] = Filter::space($result['keywords']);
-        }
-
-        if ($description = $this->select('meta:description', ['content'])) {
-            $result['description'] = isset($description[0]['content'])
-                ? strip_tags(htmlspecialchars_decode($description[0]['content'], ENT_QUOTES))
-                : '';
-            $result['description'] = Filter::space($result['description']);
-        }
+        if (!$this->xhtml) return '';
 
         if ($body = $this->select('body', [], false)) {
             $body = htmlspecialchars_decode($body[0], ENT_QUOTES);
@@ -142,14 +119,104 @@ class Spider
             $matches = array_filter($matches);
             $content = '<p>' . implode('</p><p>', $matches) . '</p>';
 
-            $content = preg_replace_callback('/\[(\/?)(img|table|tr|th|td)([^<>]*)\]/uis', function ($ele) {
+            $content = preg_replace_callback('/\[(\/?)(img|table|tr|th|td)([^\[\]]*)\]/uis', function ($ele) {
                 return '<' . $ele[1] . $ele[2] . $ele[3] . '>';
             }, $content);
 
-            $result['content'] = htmlspecialchars($content, ENT_QUOTES);
+            $content = htmlspecialchars($content, ENT_QUOTES);
         }
 
-        return !empty($result) ? $result : false;
+        return !empty($content) ? $content : '';
+    }
+
+    /**
+     * 获得网页标题
+     * @access public
+     * @return string
+     */
+    public function title(): string
+    {
+        if ($title = $this->select('title')) {
+            $title = strip_tags(htmlspecialchars_decode($title[0], ENT_QUOTES));
+            $title = preg_replace('/(\d+)\-(\d+)/i', '$1&#45;$2', $title);
+            $title = str_replace(['_', '|'], '-', $title);
+            list($title) = explode('-', $title);
+            $title = Filter::space($title);
+        }
+
+        return !empty($title) ? $title : '';
+    }
+
+    /**
+     * 获得网页关键词
+     * @access public
+     * @return string
+     */
+    public function keywords(): string
+    {
+        if ($keywords = $this->select('meta:keywords', ['content'])) {
+            $keywords = isset($keywords[0]['content'])
+                ? strip_tags(htmlspecialchars_decode($keywords[0]['content'], ENT_QUOTES))
+                : '';
+            $keywords = Filter::space($keywords);
+        }
+
+        return !empty($keywords) ? $keywords : '';
+    }
+
+    /**
+     * 获得网页描述
+     * @access public
+     * @return string
+     */
+    public function description(): string
+    {
+        if ($description = $this->select('meta:description', ['content'])) {
+            $description = isset($description[0]['content'])
+                ? strip_tags(htmlspecialchars_decode($description[0]['content'], ENT_QUOTES))
+                : '';
+            $description = Filter::space($description);
+        }
+
+        return !empty($description) ? $description : '';
+    }
+
+    /**
+     * 获得网页链接
+     * @access public
+     * @return array
+     */
+    public function links(): array
+    {
+        if ($links = $this->select('a', ['href'])) {
+            $scheme = parse_url($this->origin, PHP_URL_SCHEME);
+            $host = $scheme . '://' . parse_url($this->origin, PHP_URL_HOST);
+
+            foreach ($links as $key => $element) {
+                $element['href'] = htmlspecialchars_decode($element['href']);
+
+                if ('//' == substr($element['href'], 0, 2)) {
+                    $element['href'] = $scheme . ':' . $element['href'];
+                } elseif ('/' == substr($element['href'], 0, 1)) {
+                    $element['href'] = $host . $element['href'];
+                } elseif ('?' == substr($element['href'], 0, 1)) {
+                    $element['href'] = $host . $element['href'];
+                } elseif ('#' == substr($element['href'], 0, 1)) {
+                    unset($links[$key]);
+                    continue;
+                } elseif ('javascript' == substr($element['href'], 0, 10)) {
+                    unset($links[$key]);
+                    continue;
+                } elseif ('http' == substr($element['href'], 0, 4)) {
+                } else {
+                    $element['href'] = $host . '/' . $element['href'];
+                }
+
+                $links[$key] = $element;
+            }
+        }
+
+        return !empty($links[0]) ? $links : [];
     }
 
     /**
@@ -352,13 +419,16 @@ class Spider
             if (false !== stripos($this->xhtml, '<base')) {
                 $this->xhtml = preg_replace_callback('/<base[^<>]+href=["\']+([^<>"\']+)["\']+[^<>]*>/i', function ($ele) {
                     $base = parse_url($this->origin, PHP_URL_SCHEME) . '://' . parse_url($this->origin, PHP_URL_HOST);
-                    return '<base href="' . $base . $ele[1] .'" />';
+                    $base = false !== stripos($ele[1], 'http') ? $ele[1] : $base . $ele[1];
+                    return '<base href="' . $base . '" />';
                 }, $this->xhtml);
             } else {
-                $base = parse_url($this->origin, PHP_URL_PATH);
-                $base = $base ? str_replace('\\', '/', rtrim(dirname($base), '\/')) . '/' : '';
+                $base = (string) parse_url($this->origin, PHP_URL_PATH);
+                $base = rtrim(dirname($base), '\/')
+                    ? str_replace('\\', '/', rtrim(dirname($base), '\/')) . '/'
+                    : str_replace('\\', '/', rtrim($base, '\/')) . '/';
                 $base = parse_url($this->origin, PHP_URL_SCHEME) . '://' . parse_url($this->origin, PHP_URL_HOST) . $base;
-                $this->xhtml = str_replace('<head>', '<head>' . '<base href="' . $base . '" />', $this->xhtml);
+                $this->xhtml = preg_replace('/(<head[^<>]*>)/i', '$1<base href="' . $base . '" />', $this->xhtml);
             }
 
             $length = mb_strlen(strip_tags($this->xhtml), 'utf-8');
@@ -368,6 +438,11 @@ class Spider
             if (300 < $length) {
                 Cache::set($cache_key, $this->xhtml, 28800);
             }
+        }
+
+        if ($this->xhtml) {
+            preg_match('/<!\-\- website:([^<>]+) \-\->/si', htmlspecialchars_decode($this->getHtml(), ENT_QUOTES), $matches);
+            $this->origin = trim($matches[1]);
         }
 
         return $this;

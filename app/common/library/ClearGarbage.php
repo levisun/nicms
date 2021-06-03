@@ -34,7 +34,6 @@ class ClearGarbage
         $_dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_dir) . DIRECTORY_SEPARATOR;
         $timestamp = $_expire ? strtotime($_expire) : 0;
 
-        clearstatcache();
         $glob = File::glob($_dir);
         while ($glob->valid()) {
             $filename = $glob->current();
@@ -59,24 +58,24 @@ class ClearGarbage
     public static function clearCache(string $_dir = '')
     {
         // 缓存过期时间
-        $cache_expire = time() - abs(env('cache.expire'));
+        $cache_expire = time() - abs(env('cache.expire')) - 2880;
 
         $_dir = $_dir ?: runtime_path('cache');
         $glob = File::glob($_dir);
-        clearstatcache();
         while ($glob->valid()) {
             $filename = $glob->current();
             $glob->next();
 
-            if (is_file($filename) && $cache_expire - 2880 > filemtime($filename)) {
+            if (is_file($filename) && strtotime('-1 day') > filemtime($filename)) {
                 @unlink($filename);
-            } elseif (is_file($filename) && $cache_expire - 1440 > filemtime($filename)) {
-                if ($content = @file_get_contents($filename)) {
-                    $file_expire = (int) substr($content, 8, 12);
-                    if (0 != $file_expire && time() - $file_expire > filemtime($filename)) {
-                        @unlink($filename);
-                    }
-                }
+            } elseif (is_file($filename) && $cache_expire > filemtime($filename)) {
+                @unlink($filename);
+                // if ($content = @file_get_contents($filename)) {
+                //     $file_expire = (int) substr($content, 8, 12);
+                //     if (0 != $file_expire && time() - $file_expire > filemtime($filename)) {
+                //         @unlink($filename);
+                //     }
+                // }
             }
         }
     }
@@ -96,7 +95,6 @@ class ClearGarbage
                 'dead.txt',
                 'favicon.ico',
                 'index.php',
-                'maintain.html',
                 'robots.txt',
                 'sitemap.xml',
             ],
@@ -137,16 +135,18 @@ class ClearGarbage
      */
     public static function uploadEmptyDirectory(): void
     {
-        $glob = File::glob(public_path('storage/uploads'));
         $dir = '';
+        $glob = File::glob(public_path('storage/uploads'));
         while ($glob->valid()) {
             $filename = $glob->current();
             $glob->next();
 
             if (is_dir($filename)) {
                 $dir = $filename;
-            } elseif ($dir && is_file($filename) && false === strpos($filename, $dir)) {
-                @rmdir($dir);
+            } elseif ($dir && is_file($filename)) {
+                if (false === strpos($filename, $dir)) {
+                    @rmdir($dir);
+                }
                 $dir = '';
             }
         }

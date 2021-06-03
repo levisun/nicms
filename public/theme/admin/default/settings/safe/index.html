@@ -2,94 +2,94 @@
     <div class="box-body">
         <form id="safe-config">
 
-            <label>{:lang('app upload max')}</label> <br>
+            <label>{:lang('safe.app upload max')}</label> <br>
             <div class="input-group">
                 <input type="text" name="app[upload_size]" class="form-control" v-bind:value="items.app.upload_size">
                 <span class="input-group-addon">MB</span>
             </div>
 
-            <br><label>{:lang('app upload type')}</label> <br>
+            <br><label>{:lang('safe.app upload type')}</label> <br>
             <div class="input-group">
                 <input type="text" name="app[upload_type]" class="form-control" v-bind:value="items.app.upload_type">
                 <span class="input-group-addon">","隔开</span>
             </div><br>
 
             <div class="form-group">
-                <label>{:lang('database hostname')}</label>
+                <label>{:lang('safe.database hostname')}</label>
                 <input type="text" name="database[hostname]" class="form-control" disabled="true"
                     v-bind:value="items.database.hostname">
             </div>
 
             <div class="form-group">
-                <label>{:lang('database database')}</label>
+                <label>{:lang('safe.database database')}</label>
                 <input type="text" name="database[database]" class="form-control" disabled="true"
                     v-bind:value="items.database.database">
             </div>
 
             <div class="form-group">
-                <label>{:lang('database username')}</label>
+                <label>{:lang('safe.database username')}</label>
                 <input type="text" name="database[username]" class="form-control" disabled="true"
                     v-bind:value="items.database.username">
             </div>
 
             <div class="form-group">
-                <label>{:lang('database prefix')}</label>
+                <label>{:lang('safe.database prefix')}</label>
                 <input type="text" name="database[prefix]" class="form-control" disabled="true"
                     v-bind:value="items.database.prefix">
             </div>
 
             <div class="form-group">
-                <label>{:lang('cache type')}</label>
+                <label>{:lang('safe.cache type')}</label>
                 <input type="text" name="cache[type]" class="form-control" disabled="true"
                     v-bind:value="items.cache.type">
             </div>
 
             <div class="form-group">
-                <label>{:lang('cache expire')}</label>
+                <label>{:lang('safe.cache expire')}</label>
                 <input type="text" name="cache[expire]" class="form-control" v-bind:value="items.cache.expire">
             </div>
 
             <div class="form-group">
-                <label>{:lang('app debug')}</label>
+                <label>{:lang('safe.app debug')}</label>
                 <br>
                 <label>
                     <input type="radio" name="app_debug" value="1" v-bind:checked="items.app_debug==1 ? true : false">
-                    {:lang('open')}
+                    {:lang('status.open')}
                 </label>
                 <label>
                     <input type="radio" name="app_debug" value="0" v-bind:checked="items.app_debug==0 ? true : false">
-                    {:lang('close')}
+                    {:lang('status.close')}
                 </label>
             </div>
 
             <div class="form-group">
-                <label>{:lang('app maintain')}</label>
+                <label>{:lang('safe.app maintain')}</label>
                 <br>
                 <label>
                     <input type="radio" name="app_maintain" value="1" v-bind:checked="items.app_maintain==1 ? true : false">
-                    {:lang('open')}
+                    {:lang('status.open')}
                 </label>
                 <label>
                     <input type="radio" name="app_maintain" value="0" v-bind:checked="items.app_maintain==0 ? true : false">
-                    {:lang('close')}
+                    {:lang('status.close')}
                 </label>
             </div>
 
             <div class="form-group">
-                <label>{:lang('admin entry')}</label>
+                <label>{:lang('safe.admin entry')}</label>
                 <input type="text" name="admin[entry]" class="form-control" disabled="true"
                     v-bind:value="items.admin.entry">
             </div>
 
             <div class="form-group">
-                <label>{:lang('admin theme')}</label>
+                <label>{:lang('safe.admin theme')}</label>
                 <input type="text" name="admin[theme]" class="form-control" disabled="true"
                     v-bind:value="items.admin.theme">
             </div>
         </form>
     </div>
     <div class="box-footer">
-        <button type="submit" class="btn btn-primary" @click="save">{:lang('save')}</button>
+        <button type="submit" class="btn btn-primary" @click="save">{:lang('button.save')}</button>
     </div>
 </div>
 <script>

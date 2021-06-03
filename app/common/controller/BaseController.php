@@ -106,7 +106,7 @@ abstract class BaseController
 
         // 应用维护
         if ($this->app->env->get('app_maintain', false)) {
-            $this->redirect('/maintain', 302);
+            $this->maintain();
         }
 
         // 控制器初始化
@@ -121,6 +121,26 @@ abstract class BaseController
     // 初始化
     protected function initialize()
     {
+    }
+
+    /**
+     * 网站维护
+     * @access protected
+     * @param  string $_route 路由
+     * @return void
+     */
+    protected function maintain(): void
+    {
+        $file = public_path('static') . 'maintain.html';
+        $content = is_file($file)
+            ? file_get_contents($file)
+            : '';
+        $response = Response::create($content, 'html', 200)
+            ->allowCache(true)
+            ->cacheControl('max-age=1440,must-revalidate')
+            ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
+            ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT');
+        throw new HttpResponseException($response);
     }
 
     /**

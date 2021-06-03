@@ -205,6 +205,7 @@ class File
      */
     public static function glob(string $_dir)
     {
+        clearstatcache();
         $_dir = rtrim($_dir, '\/*.');
         if (is_readable($_dir)) {
             $dh = opendir($_dir);

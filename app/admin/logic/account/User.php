@@ -162,12 +162,12 @@ class User extends BaseLogic
             foreach ($result as $key => $value) {
                 $result[$key] = [
                     'name' => $key,
-                    'lang' => $this->lang->get('auth ' . $key),
+                    'lang' => $this->lang->get('auth.' . $key),
                 ];
                 foreach ($value as $k => $val) {
                     $result[$key]['child'][$k] = [
                         'name' => $k,
-                        'lang' => $this->lang->get('auth ' . $k),
+                        'lang' => $this->lang->get('auth.' . $key . '_' . $k),
                         'url'  => url($key . '/' . $k . '/index')
                     ];
                 }

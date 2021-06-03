@@ -370,6 +370,14 @@ class Filter
             return preg_replace('/\s+/', ' ', $ele[0]);
         }, $_str);
 
+        $_str = preg_replace_callback('/<style[^<>]*>[^<>]+<\/style[^<>]*>/is', function($ele) {
+            return preg_replace('/\s+/', ' ', $ele[0]);
+        }, $_str);
+
+        $_str = preg_replace_callback('/<script[^<>]*>[^<>]+<\/script[^<>]*>/is', function($ele) {
+            return preg_replace('/\s+/', ' ', $ele[0]);
+        }, $_str);
+
         return trim($_str);
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * 语言包
@@ -24,9 +25,8 @@ return [
     'operation'       => '操作',
     'remove'          => '删除',
     'reset'           => '还原',
-    'open'            => '打开',
-    'close'           => '关闭',
-    'save'            => '保存',
+
+
     'save success'    => '保存成功',
     'show'            => '显示',
     'hide'            => '隐藏',
@@ -64,10 +64,31 @@ return [
     'author'          => '作者',
     'category'        => '栏目',
 
-    'last login ip'   => '登录IP',
+    'last sign in ip'   => '登录IP',
     'last login time' => '登录时间',
 
-    'pass'            => '审核',
-    'is_pass'         => '已审核',
-    'not_pass'        => '未审核',
+
+
+
+    'login' => [
+        'username' => '用户名,手机号或邮箱',
+        'password' => '密码',
+        'sign in'  => '登录',
+    ],
+
+    'status' => [
+        'open'     => '打开',
+        'close'    => '关闭',
+        'pass'     => '审核',
+        'is_pass'  => '已审核',
+        'not_pass' => '未审核',
+    ],
+
+    'button' => [
+        'save' => '保存',
+    ],
+
+    'message' => [
+        'title' => '标题',
+    ],
 ];

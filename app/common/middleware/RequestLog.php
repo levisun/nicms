@@ -38,7 +38,7 @@ class RequestLog
 
         if (200 === $response->getCode() && !in_array(strtolower($request->method()), ['head', 'options'])) {
             $this->appName = app('http')->getName();
-            $this->api($request);
+            // $this->api($request);
 
             if (false === $this->spider($request)) {
                 $this->ip($request);
@@ -54,14 +54,14 @@ class RequestLog
     }
 
     /**
-     * IP日志
+     *
      * @access private
      * @return void
      */
     private function record(&$_request): void
     {
         $url = ltrim($_request->baseUrl(true), '/');
-        if (!in_array($this->appName, ['admin', 'api']) && $url) {
+        if (!in_array($this->appName, ['admin', 'api']) && 'do' != $_request->ext() && $url) {
             $has = ModelVisit::where('name', '=', $url)
                 ->where('date', '=', strtotime(date('Y-m-d')))
                 ->value('name');
@@ -87,7 +87,7 @@ class RequestLog
      */
     private function ip(&$_request): void
     {
-        if (!in_array($this->appName, ['admin', 'api'])) {
+        if (!in_array($this->appName, ['admin', 'api']) && 'do' != $_request->ext()) {
             $has = ModelVisit::where('ip', '=', $_request->ip())
                 ->where('date', '=', strtotime(date('Y-m-d')))
                 ->value('ip');
