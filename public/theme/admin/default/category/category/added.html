@@ -2,44 +2,44 @@
     <div class="box-body">
         <form id="category">
             <div class="form-group">
-                <label>{:lang('parent')}</label>
+                <label>{:lang('input.parent')}</label>
                 <input type="text" class="form-control" disabled="true" v-bind:value="items.parent">
             </div>
 
             <div class="form-group">
-                <label>{:lang('name')}</label>
+                <label>{:lang('input.name')}</label>
                 <input type="text" name="name" class="form-control">
             </div>
 
             <div class="form-group">
-                <label>{:lang('aliases')}</label>
+                <label>{:lang('input.aliases')}</label>
                 <input type="text" name="aliases" class="form-control">
             </div>
 
             <div class="form-group">
-                <label>{:lang('title')}</label>
+                <label>{:lang('input.title')}</label>
                 <input type="text" name="title" class="form-control">
             </div>
 
             <div class="form-group">
-                <label>{:lang('keywords')}</label>
+                <label>{:lang('input.keywords')}</label>
                 <textarea name="keywords" class="form-control"></textarea>
             </div>
 
             <div class="form-group">
-                <label>{:lang('description')}</label>
+                <label>{:lang('input.description')}</label>
                 <textarea name="description" class="form-control"></textarea>
             </div>
 
             <div class="form-group">
-                <label>{:lang('image')}</label>
+                <label>{:lang('input.image')}</label>
                 <input type="text" name="image" class="image form-control">
                 <input type="file" name="upload" id="upload" v-on:change="upload" class="form-control">
                 <img class="image-box" style="display: none;">
             </div>
 
             <div class="form-group">
-                <label>{:lang('type')}</label>
+                <label>{:lang('input.type')}</label>
                 <select class="form-control" name="type_id">
                     <template v-for="vo in items.type_list">
                         <option v-bind:value="vo.id" v-text="vo.name"></option>
@@ -48,9 +48,9 @@
             </div>
 
             <div class="form-group">
-                <label>{:lang('model')}</label>
+                <label>{:lang('input.model')}</label>
                 <select class="form-control" name="model_id">
-                    <option>{:lang('select')}</option>
+                    <option>{:lang('button.select')}</option>
                     <template v-for="vo in model_list">
                         <option v-bind:value="vo.id" v-text="vo.name"></option>
                     </template>
@@ -58,34 +58,34 @@
             </div>
 
             <div class="form-group">
-                <label>{:lang('show')}</label>
+                <label>{:lang('input.show')}</label>
                 <label>
-                    <input type="radio" name="is_show" value="1" checked="checked"> {:lang('yes')}
+                    <input type="radio" name="is_show" value="1" checked="checked"> {:lang('button.yes')}
                 </label>
                 <label>
-                    <input type="radio" name="is_show" value="0"> {:lang('no')}
-                </label>
-            </div>
-
-            <div class="form-group">
-                <label>{:lang('channel')}</label>
-                <label>
-                    <input type="radio" name="is_channel" value="1"> {:lang('yes')}
-                </label>
-                <label>
-                    <input type="radio" name="is_channel" value="0" checked="checked"> {:lang('no')}
+                    <input type="radio" name="is_show" value="0"> {:lang('button.no')}
                 </label>
             </div>
 
             <div class="form-group">
-                <label>{:lang('sort')}</label>
+                <label>{:lang('input.channel')}</label>
+                <label>
+                    <input type="radio" name="is_channel" value="1"> {:lang('button.yes')}
+                </label>
+                <label>
+                    <input type="radio" name="is_channel" value="0" checked="checked"> {:lang('button.no')}
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>{:lang('input.sort')}</label>
                 <input type="text" name="sort_order" class="form-control" value="0">
             </div>
 
             <div class="form-group">
-                <label>{:lang('access')}</label>
+                <label>{:lang('input.access')}</label>
                 <select class="form-control" name="access_id">
-                    <option value="0">{:lang('select')}</option>
+                    <option value="0">{:lang('button.select')}</option>
                     <template v-for="vo in access_list">
                         <option v-bind:value="vo.id" v-text="vo.name"></option>
                     </template>
@@ -93,13 +93,13 @@
             </div>
 
             <div class="form-group">
-                <label>{:lang('url')}</label>
+                <label>{:lang('input.url')}</label>
                 <input type="text" name="url" class="form-control">
             </div>
         </form>
     </div>
     <div class="box-footer">
-        <button class="btn btn-primary" @click="save">{:lang('save')}</button>
+        <button class="btn btn-primary" @click="save">{:lang('button.save')}</button>
     </div>
 </div>
 <script>

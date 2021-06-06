@@ -1,10 +1,10 @@
 <div class="box">
     <div class="box-header clearfix">
         <div class="no-margin pull-left">
-            <button class="btn btn-primary" v-on:click="sort">{:lang('sort')}</button>
+            <button class="btn btn-primary" v-on:click="sort">{:lang('button.sort')}</button>
         </div>
         <div class="no-margin pull-right">
-            <button v-on:click="added" class="btn btn-primary">{:lang('added')}</button>
+            <button v-on:click="added" class="btn btn-primary">{:lang('button.added')}</button>
         </div>
     </div>
     <div class="box-body">
@@ -12,11 +12,11 @@
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th width="70">{:lang('sort')}</th>
-                        <th>{:lang('name')}</th>
-                        <th>{:lang('model')} / {:lang('type')}</th>
-                        <th>{:lang('attribute')}</th>
-                        <th>{:lang('operation')}</th>
+                        <th width="70">{:lang('list.sort')}</th>
+                        <th>{:lang('list.name')}</th>
+                        <th>{:lang('list.model')} / {:lang('list.type')}</th>
+                        <th>{:lang('list.attribute')}</th>
+                        <th>{:lang('list.operation')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,26 +33,26 @@
                             </td>
                             <td>
                                 <span class="label label-primary">
-                                    <font v-if="vo.is_show == 1">{:lang('show')}</font>
-                                    <font v-if="vo.is_show == 0">{:lang('hide')}</font>
+                                    <font v-if="vo.is_show == 1">{:lang('attribute.show')}</font>
+                                    <font v-if="vo.is_show == 0">{:lang('attribute.hide')}</font>
                                 </span>
                             </td>
                             <td>
                                 <a v-if="vo.child" v-on:click="child(vo.id)">
                                     <i class="fa fa-list"></i>
-                                    {:lang('child')}
+                                    {:lang('button.child')}
                                 </a>
                                 <a class="added" v-bind:href="vo.url.added">
                                     <i class="fa fa-plus"></i>
-                                    {:lang('added')}
+                                    {:lang('button.added')}
                                 </a><br />
                                 <a class="editor" v-bind:href="vo.url.editor">
                                     <i class="fa fa-pencil-square-o"></i>
-                                    {:lang('editor')}
+                                    {:lang('button.editor')}
                                 </a>
                                 <a v-on:click="remove(vo.id)" v-bind:data="vo.id">
                                     <i class="fa fa-trash"></i>
-                                    {:lang('remove')}
+                                    {:lang('button.remove')}
                                 </a>
                             </td>
                         </tr>
@@ -66,23 +66,23 @@
                             <td v-text="cv.type_name"></td>
                             <td>
                                 <span class="label label-primary">
-                                    <font v-if="cv.is_show == 1">{:lang('show')}</font>
-                                    <font v-if="cv.is_show == 0">{:lang('hide')}</font>
+                                    <font v-if="cv.is_show == 1">{:lang('attribute.show')}</font>
+                                    <font v-if="cv.is_show == 0">{:lang('attribute.hide')}</font>
                                 </span>
                             </td>
                             <td>
                                 <a class="child" v-if="cv.child" v-bind:data="cv.id">
-                                    {:lang('child')}
+                                    {:lang('button.child')}
                                 </a>
                                 <a class="added" v-bind:href="cv.url.added">
-                                    {:lang('added')}
+                                    {:lang('button.added')}
                                 </a>
                                 <a class="editor" v-bind:href="cv.url.editor">
-                                    {:lang('editor')}
+                                    {:lang('button.editor')}
                                 </a>
                                 <a v-on:click="remove(vo.id)" v-bind:data="vo.id">
                                     <i class="fa fa-trash"></i>
-                                    {:lang('remove')}
+                                    {:lang('button.remove')}
                                 </a>
                             </td>
                         </tr>

@@ -2,14 +2,14 @@
     <div class="box-body">
         <form id="fields">
             <div class="form-group">
-                <label>{:lang('name')}</label>
+                <label>{:lang('input.name')}</label>
                 <input type="text" name="name" class="form-control" v-bind:value="items.name">
             </div>
 
             <div class="form-group">
-                <label>{:lang('type')}</label>
+                <label>{:lang('input.type')}</label>
                 <select class="form-control" name="type_id">
-                    <option>{:lang('select')}</option>
+                    <option>{:lang('button.select')}</option>
                     <template v-for="vo in items.fields_type">
                         <option v-bind:value="vo.id" v-text="vo.name" v-bind:selected="vo.id==items.type_id ? true : false"></option>
                     </template>
@@ -17,9 +17,9 @@
             </div>
 
             <div class="form-group">
-                <label>{:lang('category')}</label>
+                <label>{:lang('input.category')}</label>
                 <select class="form-control" name="category_id">
-                    <option value="0">{:lang('select')}</option>
+                    <option value="0">{:lang('button.select')}</option>
                     <template v-for="vo in category_list">
                         <optgroup v-if="vo.child" v-bind:label="vo.name"></optgroup>
                         <option v-else v-bind:value="vo.id" v-text="vo.name" v-bind:selected="vo.id==items.category_id ? true : false"></option>
@@ -31,33 +31,33 @@
             </div>
 
             <div class="form-group">
-                <label>{:lang('maxlength')}</label>
+                <label>{:lang('input.maxlength')}</label>
                 <input type="text" name="maxlength" class="form-control" v-bind:value="items.maxlength">
             </div>
 
             <div class="form-group">
-                <label>{:lang('is_require')}</label>
+                <label>{:lang('input.is_require')}</label>
                 <label>
-                    <input type="radio" name="is_require" value="1" v-bind:checked="1==items.is_require ? true : false"> {:lang('yes')}
+                    <input type="radio" name="is_require" value="1" v-bind:checked="1==items.is_require ? true : false"> {:lang('button.yes')}
                 </label>
                 <label>
-                    <input type="radio" name="is_require" value="0" v-bind:checked="0==items.is_require ? true : false"> {:lang('no')}
+                    <input type="radio" name="is_require" value="0" v-bind:checked="0==items.is_require ? true : false"> {:lang('button.no')}
                 </label>
             </div>
 
             <div class="form-group">
-                <label>{:lang('sort')}</label>
+                <label>{:lang('input.sort')}</label>
                 <input type="text" name="sort_order" class="form-control" v-bind:value="items.sort_order">
             </div>
 
             <div class="form-group">
-                <label>{:lang('remark')}</label>
+                <label>{:lang('input.remark')}</label>
                 <textarea name="remark" class="form-control" v-bind:value="items.remark"></textarea>
             </div>
         </form>
     </div>
     <div class="box-footer">
-        <button class="btn btn-primary" @click="save">{:lang('save')}</button>
+        <button class="btn btn-primary" @click="save">{:lang('button.save')}</button>
     </div>
 </div>
 <script>

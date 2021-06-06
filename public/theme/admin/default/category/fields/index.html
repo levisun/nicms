@@ -1,18 +1,18 @@
 <div class="box">
     <div class="box-header clearfix">
         <div class="no-margin pull-right">
-            <button class="btn btn-primary" v-on:click="added()">{:lang('added')}</button>
+            <button class="btn btn-primary" v-on:click="added()">{:lang('button.added')}</button>
         </div>
     </div>
     <div class="box-body">
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>{:lang('category')}</th>
-                    <th>{:lang('name')}</th>
-                    <th>{:lang('type')}</th>
-                    <th>{:lang('isrequire')}</th>
-                    <th>{:lang('operation')}</th>
+                    <th>{:lang('list.category')}</th>
+                    <th>{:lang('list.name')}</th>
+                    <th>{:lang('list.type')}</th>
+                    <th>{:lang('list.is_require')}</th>
+                    <th>{:lang('list.operation')}</th>
                 </tr>
             </thead>
             <tbody>
@@ -25,11 +25,11 @@
                         <td>
                             <a class="editor" v-bind:href="vo.url.editor">
                                 <i class="fa fa-pencil-square-o"></i>
-                                {:lang('editor')}
+                                {:lang('button.editor')}
                             </a>
                             <a class="remove" v-on:click="remove(vo.id)" v-bind:data="vo.id">
                                 <i class="fa fa-trash"></i>
-                                {:lang('remove')}
+                                {:lang('button.remove')}
                             </a>
                         </td>
                     </tr>

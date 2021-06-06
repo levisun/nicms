@@ -6,10 +6,10 @@
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>{:lang('name')}</th>
-                    <th>{:lang('type')}</th>
-                    <th>{:lang('status')}</th>
-                    <th>{:lang('operation')}</th>
+                    <th>{:lang('list.name')}</th>
+                    <th>{:lang('list.type')}</th>
+                    <th>{:lang('list.status')}</th>
+                    <th>{:lang('list.operation')}</th>
                 </tr>
             </thead>
             <tbody>
@@ -21,11 +21,11 @@
                         <td>
                             <a class="editor" v-bind:href="vo.url.editor">
                                 <i class="fa fa-pencil-square-o"></i>
-                                {:lang('editor')}
+                                {:lang('button.editor')}
                             </a>
                             <a class="remove" v-on:click="remove('vo.id')" v-bind:data="vo.id">
                                 <i class="fa fa-trash"></i>
-                                {:lang('remove')}
+                                {:lang('button.remove')}
                             </a>
                         </td>
                     </tr>

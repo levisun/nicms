@@ -49,11 +49,18 @@ return [
         'user_role'          => '管理员组',
         'user_node'          => '权限节点',
 
+        'book'               => '书籍',
+        'book_book'          => '书籍管理',
+        'book_article'       => '文章管理',
+        'book_type'          => '类别管理',
+        'book_author'        => '作者管理',
+
         'extend'             => '扩展',
         'extend_log'         => '操作日志',
         'extend_databack'    => '数据备份',
         'extend_elog'        => '系统日志',
         'extend_visit'       => '访问日志',
+        'extend_addon'       => '扩展插件',
     ],
 
     'dashboard' => [
@@ -120,9 +127,7 @@ return [
     'node title' => '名称',
 
 
-    'run user' => '执行用户',
-    'run action' => '执行方法',
-    'backname' => '备份文件名',
+
 
     'remove cache success' => '缓存清空成功!',
 

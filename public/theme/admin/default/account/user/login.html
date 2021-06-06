@@ -50,21 +50,21 @@
     <div class="login-box-body">
         <form action="" method="post" id="login-form">
             <div class="form-group has-feedback">
-                <input type="text" name="username" class="form-control" placeholder="{:lang('login.username')}">
+                <input type="text" name="username" class="form-control" placeholder="{:lang('input.username')}">
                 <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
             </div>
             <div class="form-group has-feedback">
-                <input type="password" name="password" class="form-control" placeholder="{:lang('login.password')}">
+                <input type="password" name="password" class="form-control" placeholder="{:lang('input.password')}">
                 <span class="glyphicon glyphicon-lock form-control-feedback"></span>
             </div>
             <div class="form-group has-feedback">
-                <input type="number" id="verify" name="captcha" class="form-control" placeholder="{:lang('verify')}">
+                <input type="number" id="verify" name="captcha" class="form-control" placeholder="{:lang('input.verify')}">
                 <img id="img-verify" v-on:click="verify">
             </div>
             <div class="row">
                 <div class="col-xs-4">
                     <button type="button" class="btn btn-primary btn-block btn-flat" v-on:click="login">
-                        {:lang('login.sign in')}
+                        {:lang('button.sign in')}
                     </button>
                 </div>
             </div>
