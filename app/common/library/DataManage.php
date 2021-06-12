@@ -250,7 +250,7 @@ class DataManage
 
             $table_name = Db::getTables();
             foreach ($table_name as $name) {
-                $filename = $this->tempPath . $name . '.sql';
+                $filename = $this->tempPath . $name . '1.sql';
 
                 $sql = '-- 备份时间 ' . date('Y-m-d H:i:s') . PHP_EOL;
                 file_put_contents($filename, $sql);
@@ -266,23 +266,20 @@ class DataManage
                 $field = Db::getTableFields($name);
                 $field = '`' . implode('`,`', $field) . '`';
 
-                Db::table($name)->chunk(500, function ($result) use (&$name, &$field, &$filename) {
-                    try {
-                        $result = $result->toArray() ?: [];
-                        $page = 0;
-                        while ($items = array_slice($result, $page * 5, 5)) {
-                            $page++;
-                            if ($sql = $this->getTableData($name, $field, $items)) {
-                                file_put_contents($filename, $sql . PHP_EOL, FILE_APPEND);
-                            }
-                        }
-
+                $result = Db::table($name)->order($primary . ' ASC')->cursor();
+                $items = [];
+                foreach ($result as $data) {
+                    $items[] = $data;
+                    if (100 == count($items)) {
+                        $this->saveTableData($filename, $name, $field, $items);
+                        $items = [];
                         // 持续查询状态并不利于处理任务，每10ms执行一次，此时释放CPU，降低机器负载
                         usleep(10000);
-                    } catch (\Exception $e) {
-                        Log::warning($e->getMessage());
                     }
-                }, $primary, 'asc');
+                }
+                if (count($items)) {
+                    $this->saveTableData($filename, $name, $field, $items);
+                }
             }
 
             if ($files = glob($this->tempPath . '*')) {
@@ -308,6 +305,22 @@ class DataManage
 
             ignore_user_abort(false);
         });
+    }
+
+    /**
+     * 保存SQL
+     * @access private
+     * @param  string $_filename 文件名
+     * @param  string $_name     表名
+     * @param  string $_field    表字段
+     * @param  array  $_data     表数据
+     * @return void
+     */
+    private function saveTableData(string &$_filename, string &$_name, string &$_field, array &$_data): void
+    {
+        if ($sql = $this->getTableData($_name, $_field, $_data)) {
+            file_put_contents($_filename, $sql . PHP_EOL, FILE_APPEND);
+        }
     }
 
     /**

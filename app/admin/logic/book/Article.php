@@ -66,7 +66,7 @@ class Article extends BaseLogic
         }
 
         $result = ModelBookArticle::view('book_article', ['id', 'book_id', 'title', 'is_pass', 'update_time'])
-            ->view('book', ['title' => 'book_name'], 'book.id=book_article.book_id', 'LEFT')
+            ->view('book', ['title' => 'book_name'], 'book.id=book_article.book_id')
             ->where('book_article.delete_time', '=', '0')
             ->where($map)
             ->order('book_article.is_pass ASC, book_article.id DESC')

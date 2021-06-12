@@ -2,35 +2,36 @@
     <div class="box-body">
         <form id="book">
             <div class="form-group">
-                <label>{:lang('title')}</label>
+                <label>{:lang('input.title')}</label>
                 <input type="text" name="title" class="form-control" v-bind:value="items.title">
             </div>
 
             <div class="form-group">
-                <label>{:lang('keywords')}</label>
+                <label>{:lang('input.keywords')}</label>
                 <textarea name="keywords" class="form-control" v-bind:value="items.keywords"></textarea>
             </div>
 
             <div class="form-group">
-                <label>{:lang('description')}</label>
+                <label>{:lang('input.description')}</label>
                 <textarea name="description" class="form-control" v-bind:value="items.description"></textarea>
             </div>
 
             <div class="form-group">
-                <label>{:lang('origin')}</label>
+                <label>{:lang('input.origin')}</label>
                 <textarea name="origin" class="form-control" v-bind:value="items.origin"></textarea>
             </div>
 
             <div class="form-group">
-                <label>{:lang('image')}</label>
+                <label>{:lang('input.image')}</label>
                 <input type="text" name="image" class="image form-control" v-bind:value="items.image">
                 <input type="file" name="upload" id="upload" v-on:change="upload" class="form-control">
                 <img class="image-box" v-show="items.image" v-bind:src="items.image">
             </div>
 
             <div class="form-group">
-                <label>{:lang('type')}</label>
+                <label>{:lang('input.type')}</label>
                 <select class="form-control" name="type_id">
+                    <option value="0">{:lang('button.select')}</option>
                     <template v-for="vo in type_list">
                         <option v-bind:value="vo.id" v-text="vo.name" v-bind:selected="vo.id==items.type_id ? true : false"></option>
                     </template>
@@ -38,19 +39,19 @@
             </div>
 
             <div class="form-group">
-                <label>{:lang('pass')}</label>
+                <label>{:lang('input.pass')}</label>
                 <label>
                     <input type="radio" name="is_pass" value="1" v-bind:checked="1==items.is_pass ? true : false">
-                    {:lang('yes')}
+                    {:lang('button.yes')}
                 </label>
                 <label>
                     <input type="radio" name="is_pass" value="0" v-bind:checked="0==items.is_pass ? true : false">
-                    {:lang('no')}
+                    {:lang('button.no')}
                 </label>
             </div>
 
             <div class="form-group">
-                <label>{:lang('status')}</label>
+                <label>{:lang('input.status')}</label>
                 <label>
                     <input type="radio" name="status" value="1" v-bind:checked="1==items.status ? true : false">
                     更新
@@ -66,29 +67,29 @@
             </div>
 
             <div class="form-group">
-                <label>{:lang('attribute')}</label>
+                <label>{:lang('input.attribute')}</label>
                 <label>
-                    <input type="radio" name="attribute" value="1" v-bind:checked="1==items.attribute ? true : false">{:lang('commend')}
+                    <input type="radio" name="attribute" value="1" v-bind:checked="1==items.attribute ? true : false">{:lang('button.commend')}
                 </label>
                 <label>
-                    <input type="radio" name="attribute" value="2" v-bind:checked="2==items.attribute ? true : false">{:lang('top')}
+                    <input type="radio" name="attribute" value="2" v-bind:checked="2==items.attribute ? true : false">{:lang('button.top')}
                 </label>
                 <label>
-                    <input type="radio" name="attribute" value="3" v-bind:checked="3==items.attribute ? true : false">{:lang('hot')}
+                    <input type="radio" name="attribute" value="3" v-bind:checked="3==items.attribute ? true : false">{:lang('button.hot')}
                 </label>
                 <label>
-                    <input type="radio" name="attribute" value="0" v-bind:checked="0==items.attribute ? true : false"> {:lang('no')}
+                    <input type="radio" name="attribute" value="0" v-bind:checked="0==items.attribute ? true : false"> {:lang('button.no')}
                 </label>
             </div>
 
             <div class="form-group">
-                <label>{:lang('sort')}</label>
+                <label>{:lang('input.sort')}</label>
                 <input type="text" name="sort_order" class="form-control" v-bind:value="items.sort_order">
             </div>
         </form>
     </div>
     <div class="box-footer">
-        <button class="btn btn-primary" @click="editor">{:lang('save')}</button>
+        <button class="btn btn-primary" @click="editor">{:lang('button.save')}</button>
     </div>
 </div>
 <script>

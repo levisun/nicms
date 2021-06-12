@@ -2,40 +2,40 @@
     <div class="box-body">
         <form id="addon">
             <div class="form-group">
-                <label>{:lang('name')}</label>
+                <label>{:lang('input.name')}</label>
                 <input type="text" name="name" class="form-control" disabled="true" v-bind:value="items.name">
             </div>
             <div class="form-group">
-                <label>{:lang('author')}</label>
+                <label>{:lang('input.author')}</label>
                 <input type="text" name="author" class="form-control" disabled="true" v-bind:value="items.author">
             </div>
             <div class="form-group">
-                <label>{:lang('version')}</label>
+                <label>{:lang('input.version')}</label>
                 <input type="text" name="version" class="form-control" disabled="true" v-bind:value="items.version">
             </div>
             <div class="form-group">
-                <label>{:lang('date')}</label>
+                <label>{:lang('input.date')}</label>
                 <input type="text" name="date" class="form-control" disabled="true" v-bind:value="items.date">
             </div>
             <div class="form-group">
-                <label>{:lang('type')}</label>
+                <label>{:lang('input.type')}</label>
                 <input type="text" name="type" class="form-control" disabled="true" v-bind:value="items.type">
             </div>
 
             <div class="form-group">
-                <label>{:lang('status')}</label>
+                <label>{:lang('input.status')}</label>
                 <label>
-                    <input type="radio" name="settings[status]" value="1" v-bind:checked="'open'==items.settings.status ? true : false"> {:lang('yes')}
+                    <input type="radio" name="settings[status]" value="1" v-bind:checked="'open'==items.settings.status ? true : false"> {:lang('button.yes')}
                 </label>
                 <label>
-                    <input type="radio" name="settings[status]" value="0" v-bind:checked="'close'==items.settings.status ? true : false"> {:lang('no')}
+                    <input type="radio" name="settings[status]" value="0" v-bind:checked="'close'==items.settings.status ? true : false"> {:lang('button.no')}
                 </label>
             </div>
 
         </form>
     </div>
     <div class="box-footer">
-        <button class="btn btn-primary" @click="save">{:lang('save')}</button>
+        <button class="btn btn-primary" @click="save">{:lang('button.save')}</button>
     </div>
 </div>
 <script>

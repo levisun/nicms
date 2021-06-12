@@ -47,7 +47,7 @@ class Secret
         $version = Request::param('version');
         $version = Filter::htmlDecode(Filter::strict($version));
 
-        if (!!preg_match('/[^a-z]+/', $app_name) || !!preg_match('/[^\w\d\{\}\[\]\\\":,]+/i', $param) || !preg_match('/[\d]+\.[\d]+\.[\d]+/', $version)) {
+        if (!!preg_match('/[^a-z]+/', $app_name) || !!preg_match('/[^\w\d\{\}\[\]\\\":,\+=]+/i', $param) || !preg_match('/[\d]+\.[\d]+\.[\d]+/', $version)) {
             trace('MISS ' . $app_name . $param . $version, 'warning');
             return miss(404, false);
         }
@@ -90,13 +90,14 @@ class Secret
             app_id:"' . $secret['id'] . '",
             param:' . $param . '
         };
+        window.sessionStorage.setItem("XSRF_AUTHORIZATION", "' . trim(base64_encode($authorization), '=') . '");
+        window.sessionStorage.setItem("XSRF_SECRET", "' . sha1($secret['secret'] . Base64::asyncSecret()) . '");
+        window.sessionStorage.setItem("FROM_TOKEN", "' . $from_token . '");
         let ip = document.createElement("script");
         ip.src = "' . config('app.api_host') . 'tools/ip.do?token=' . md5(Request::server('HTTP_REFERER')) . '";
         var script = document.getElementsByTagName("script")[0];
-        script.parentNode.insertBefore(ip, script);
-        window.sessionStorage.setItem("XSRF_AUTHORIZATION", "' . trim(base64_encode($authorization), '=') . '");
-        window.sessionStorage.setItem("XSRF_SECRET", "' . sha1($secret['secret'] . Base64::asyncSecret()) . '");
-        window.sessionStorage.setItem("FROM_TOKEN", "' . $from_token . '");';
+        script.parentNode.insertBefore(ip, script);';
+
 
         // 区分用户缓存
         $user_type = $user_id = $user_role_id = 'guest';
@@ -113,23 +114,20 @@ class Secret
         $token = sha1(Base64::encrypt($user_id . $user_role_id . $user_type, date('Ymd')));
         $script .= 'window.sessionStorage.setItem("API_TOKEN", "' . $token . '");';
 
-        /* if ('admin' !== $app_name) {
-            $script .= 'let record = document.createElement("script");
-            record.src = "' . config('app.api_host') . 'tools/record.do?url=' . urlencode(Request::server('HTTP_REFERER')) . '";
-            var script = document.getElementsByTagName("script")[0];
-            script.parentNode.insertBefore(record, script);';
-        } */
-
-
         $script = preg_replace('/\s+/', ' ', $script);
 
-        return \think\Response::create($script)->header([
+        $response = \think\Response::create($script)->header([
             'Content-Type'   => 'application/javascript',
             'Content-Length' => strlen($script),
-        ])
-        ->allowCache(true)
-        ->cacheControl('max-age=1440,must-revalidate')
-        ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
-        ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT');;
+        ]);
+
+        if ('guest' == $user_id) {
+            $response->allowCache(true)
+            ->cacheControl('max-age=1440,must-revalidate')
+            ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
+            ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT');
+        }
+
+        return $response;
     }
 }

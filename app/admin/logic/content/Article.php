@@ -77,12 +77,12 @@ class Article extends BaseLogic
 
         $query_page = $this->request->param('page/d', 1, 'abs');
 
-        $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'is_pass', 'attribute', 'username', 'access_id', 'hits', 'sort_order', 'update_time'])
+        $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'is_pass', 'attribute', 'author', 'access_id', 'hits', 'sort_order', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id')
             ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
             ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
-            ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
+            ->view('user', ['username'], 'user.id=article.user_id', 'LEFT')
             ->where('article.delete_time', '=', '0')
             ->where('model_id', '<=', '4')
             ->where('article.lang', '=', $this->lang->getLangSet())
@@ -155,7 +155,7 @@ class Article extends BaseLogic
             'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
             'attribute'   => $this->request->param('attribute/d', 0, 'abs'),
             'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
-            'username'    => $this->request->param('username', ''),
+            'author'      => $this->request->param('author', ''),
             'access_id'   => $this->request->param('access_id/d', 0, 'abs'),
             'show_time'   => $this->request->param('show_time', date('Y-m-d'), 'strtotime'),
             'update_time' => time(),
@@ -245,18 +245,19 @@ class Article extends BaseLogic
     {
         $result = [];
         if ($id = $this->request->param('id/d', 0, 'abs')) {
-            $result = ModelArticle::view('article', ['id', 'title', 'keywords', 'description', 'category_id', 'type_id', 'is_pass', 'attribute', 'sort_order', 'hits', 'username', 'admin_id', 'user_id', 'show_time', 'create_time', 'update_time', 'delete_time', 'access_id', 'lang'])
+            $result = ModelArticle::view('article', ['id', 'title', 'keywords', 'description', 'category_id', 'type_id', 'is_pass', 'attribute', 'sort_order', 'hits', 'author', 'admin_id', 'user_id', 'show_time', 'create_time', 'update_time', 'delete_time', 'access_id', 'lang'])
                 ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                 ->view('model', ['id' => 'model_id', 'name' => 'model_name', 'table_name'], 'model.id=category.model_id')
                 ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                 ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
-                ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
+                ->view('user', ['username'], 'user.id=article.user_id', 'LEFT')
                 ->where('article.id', '=', $id)
                 ->find();
 
             if ($result && $result = $result->toArray()) {
                 $result['show_time'] = $result['show_time'] ? date('Y-m-d', $result['show_time']) : date('Y-m-d');
-
+                // 作者
+                $result['author'] = $result['author'] ?: $result['username'];
                 // table_name
                 $model = Str::studly($result['table_name']);
                 unset($result['table_name']);

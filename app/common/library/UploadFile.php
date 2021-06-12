@@ -196,7 +196,7 @@ class UploadFile
             'save_path' => $save_file,
             'size'      => filesize(public_path() . $save_file),
             'type'      => finfo_file($finfo, public_path() . $save_file),
-            'url'       => $host . $save_file,
+            'url'       => $host . ltrim($save_file, '\/'),
         ];
     }
 
@@ -214,11 +214,11 @@ class UploadFile
         if (!empty($_user['userType']) && !empty($_user['userId'])) {
             $save_dir .= Base64::flag($_user['userType']) . DIRECTORY_SEPARATOR;
             $save_dir .= Base64::url62encode((int) $_user['userId']) . DIRECTORY_SEPARATOR;
-            $save_dir .= Base64::url62encode((int) date('Ym'));
         } else {
-            $save_dir .= 'guest' . DIRECTORY_SEPARATOR . substr(md5(date('Ym')), 0, 2);
+            $save_dir .= 'guest' . DIRECTORY_SEPARATOR;
         }
 
+        $save_dir .= Base64::url62encode((int) date('Ym'));
         return $save_dir;
     }
 
@@ -247,17 +247,6 @@ class UploadFile
             unlink(public_path() . $_save_file);
         }
 
-
-        /*      if (function_exists('imagewebp')) {
-            $new_file = str_replace('.' . $_extension, '.webp', $_save_file);
-            $image->save(public_path() . $new_file, 'webp');
-            unlink(public_path() . $_save_file);
-        } elseif ('gif' !== $_extension) {
-            $new_file = str_replace('.' . $_extension, '.jpg', $_save_file);
-            $image->save(public_path() . $new_file, 'jpg');
-            unlink(public_path() . $_save_file);
-        } */
-
         // 记录上传文件日志
         UploadLog::write($new_file);
 
@@ -276,7 +265,7 @@ class UploadFile
         if (true === $this->imgWater) {
             $ttf = root_path('extend/font') . 'simhei.ttf';
             $image = Image::open(public_path() . $_save_file);
-            $image->text(Request::rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9));
+            $image->text(Request::rootDomain(), $ttf, 16, '#00000000', mt_rand(1, 9), mt_rand(1, 3));
             $image->save(public_path() . $_save_file);
         }
 

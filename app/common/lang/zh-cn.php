@@ -69,6 +69,7 @@ return [
         'status'      => '状态',
         'update time' => '修改时间',
         'title'       => '标题',
+        'access'      => '权限',
     ],
 
     'input' => [
@@ -93,6 +94,10 @@ return [
         'remark'      => '描述',
         'maxlength'   => '最大长度',
         'is_require'  => '必选',
+        'status'      => '状态',
+        'attribute'   => '属性',
+        'pass'        => '审核',
+        'origin'      => '源地址',
     ],
 
     'status' => [
@@ -118,9 +123,14 @@ return [
         'profile'  => '个人信息',
         'databack' => '数据备份',
         'open'     => '打开',
-        'pass'  => '审核',
+        'pass'     => '审核',
         'is_pass'  => '已审',
         'not_pass' => '未审',
+        'commend'  => '推荐',
+        'top'      => '置顶',
+        'hot'      => '最热',
+        'category' => '分类',
+        'model'    => '模型',
     ],
 
     'message' => [

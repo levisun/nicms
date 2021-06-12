@@ -17,6 +17,11 @@
             </div>
 
             <div class="form-group">
+                <label>{:lang('input.origin')}</label>
+                <textarea name="origin" class="form-control"></textarea>
+            </div>
+
+            <div class="form-group">
                 <label>{:lang('input.image')}</label>
                 <input type="text" name="image" class="image form-control">
                 <input type="file" name="upload" id="upload" v-on:change="upload" class="form-control">
@@ -26,6 +31,7 @@
             <div class="form-group">
                 <label>{:lang('input.type')}</label>
                 <select class="form-control" name="type_id">
+                    <option value="0">{:lang('button.select')}</option>
                     <template v-for="vo in items.type_list">
                         <option v-bind:value="vo.id" v-text="vo.name"></option>
                     </template>
@@ -130,7 +136,7 @@
                 data.append('method', 'book.book.upload');
                 data.append('width', 100);
                 data.append('height', 100);
-                data.append('water', false);
+                data.append('water', 1);
 
                 jQuery.upload({
                     url: NICMS.api_uri + 'upload.do',

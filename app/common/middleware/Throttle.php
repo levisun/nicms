@@ -52,6 +52,11 @@ class Throttle
             return miss(404, false);
         }
 
+        if (false === stripos(config('app.app_host'), $request->rootDomain())) {
+            $this->inc($request, 10);
+            return miss(404, false);
+        }
+
         if (!in_array($request->ext(), ['', 'do', config('route.url_html_suffix')])) {
             $this->inc($request, 10);
             return miss(404, false);

@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `nc_article` (
     `attribute` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '1推荐 2置顶 3最热',
     `sort_order` smallint(6) UNSIGNED NOT NULL DEFAULT '0' COMMENT '排序',
     `hits` mediumint(9) UNSIGNED NOT NULL DEFAULT '0' COMMENT '点击量',
-    `username` varchar(20) NOT NULL DEFAULT '' COMMENT '作者名',
+    `author` varchar(20) NOT NULL DEFAULT '' COMMENT '作者名',
     `show_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '显示时间',
     `update_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '修改时间',
     `delete_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '删除时间',
