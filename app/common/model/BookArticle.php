@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `nc_book_article` (
     `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `book_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '书ID',
     `title` varchar(255) NOT NULL DEFAULT '' COMMENT '标题',
-    `content` longtext NOT NULL DEFAULT '' COMMENT '内容',
+    `content` longtext NOT NULL COMMENT '内容',
     `is_pass` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '审核',
     `sort_order` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '排序',
     `show_time` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '显示时间',

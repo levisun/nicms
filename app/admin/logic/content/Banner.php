@@ -48,7 +48,7 @@ class Banner extends BaseLogic
             $list['render'] = $result->render();
 
             foreach ($list['data'] as $key => $value) {
-                $value['image_url'] = unserialize($value['image_url']);
+                $value['image'] = $value['image'] ? unserialize($value['image']) : [];
                 $value['url'] = [
                     'editor' => url('content/banner/editor/' . $value['id']),
                     'remove' => url('content/banner/remove/' . $value['id']),
@@ -84,7 +84,7 @@ class Banner extends BaseLogic
             'description' => $this->request->param('description', ''),
             'width'       => $this->request->param('width/d', 0, 'abs'),
             'height'      => $this->request->param('height/d', 0, 'abs'),
-            'image_url'   => $this->request->param('image_url/a'),
+            'image'       => $this->request->param('image/a'),
             'url'         => $this->request->param('url/a'),
             'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
             'sort_order'  => $this->request->param('sort_order/d', 0, 'abs'),
@@ -97,11 +97,11 @@ class Banner extends BaseLogic
             return $result;
         }
 
-        foreach ($receive_data['image_url'] as $value) {
+        foreach ($receive_data['image'] as $value) {
             UploadLog::update($value, 1);
         }
 
-        $receive_data['image_url'] = serialize($receive_data['image_url']);
+        $receive_data['image'] = serialize($receive_data['image']);
         $receive_data['url'] = serialize($receive_data['url']);
 
         ModelBanner::create($receive_data);
@@ -126,7 +126,7 @@ class Banner extends BaseLogic
 
         if ($id = $this->request->param('id/d', 0, 'abs')) {
             $result = ModelBanner::where('id', '=', $id)->find();
-            $result['image_url'] = unserialize($result['image_url']);
+            $result['image'] = unserialize($result['image']);
             $result['url'] = unserialize($result['url']);
         }
 
@@ -160,7 +160,7 @@ class Banner extends BaseLogic
             'name'        => $this->request->param('name'),
             'width'       => $this->request->param('width/d', 0, 'abs'),
             'height'      => $this->request->param('height/d', 0, 'abs'),
-            'image_url'   => $this->request->param('image_url/a'),
+            'image'       => $this->request->param('image/a'),
             'url'         => $this->request->param('url/a'),
             'description' => $this->request->param('description', ''),
             'is_pass'     => $this->request->param('is_pass/d', 0, 'abs'),
@@ -172,19 +172,19 @@ class Banner extends BaseLogic
         }
 
         // 删除旧图片
-        $image_url = ModelBanner::where('id', '=', $id)->value('image_url');
-        $image_url = unserialize($image_url);
+        $image = ModelBanner::where('id', '=', $id)->value('image');
+        $image = unserialize($image);
 
-        foreach ($image_url as $img) {
-            if (!is_array($img, $receive_data['image_url'])) {
+        foreach ($image as $img) {
+            if (!is_array($img, $receive_data['image'])) {
                 UploadLog::remove($img);
             }
         }
-        foreach ($receive_data['image_url'] as $img) {
+        foreach ($receive_data['image'] as $img) {
             UploadLog::update($img, 1);
         }
 
-        $receive_data['image_url'] = serialize($receive_data['image_url']);
+        $receive_data['image'] = serialize($receive_data['image']);
         $receive_data['url'] = serialize($receive_data['url']);
 
         ModelBanner::where('id', '=', $id)->limit(1)->update($receive_data);
@@ -218,10 +218,10 @@ class Banner extends BaseLogic
         }
 
         // 删除图片
-        $image_url = ModelBanner::where('id', '=', $id)->value('image_url');
-        $image_url = unserialize($image_url);
+        $image = ModelBanner::where('id', '=', $id)->value('image');
+        $image = unserialize($image);
 
-        foreach ($image_url as $img) {
+        foreach ($image as $img) {
             UploadLog::remove($img);
         }
 

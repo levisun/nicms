@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS `nc_article_image`;
 CREATE TABLE `nc_article_image` (
     `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `article_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT '文章ID',
-    `image_url` longtext DEFAULT '' COMMENT '图片存储路径',
+    `image_url` text NOT NULL COMMENT '图片存储路径',
     `image_width` smallint(6) DEFAULT '0' COMMENT '图片宽度',
     `image_height` smallint(6) DEFAULT '0' COMMENT '图片高度',
     PRIMARY KEY (`id`),

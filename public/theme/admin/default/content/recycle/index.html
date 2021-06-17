@@ -2,9 +2,9 @@
     <div class="box-header clearfix">
         <div class="pull-left" style="margin-right: 15px;">
             <div class="form-inline">
-                <label>{:lang('category')}</label>
+                <label>{:lang('input.category')}</label>
                 <select class="form-control" v-model="category_id" v-on:change="filter">
-                    <option value="0">{:lang('select')}</option>
+                    <option value="0">{:lang('button.select')}</option>
                     <template v-for="vo in category_list">
                         <optgroup v-if="vo.child || vo.model_id>=5" v-bind:label="vo.name"></optgroup>
                         <option v-else v-bind:value="vo.id" v-text="vo.name"></option>
@@ -17,9 +17,9 @@
         </div>
         <div class="no-margin pull-left">
             <div class="form-inline">
-                <label>{:lang('model')}</label>
+                <label>{:lang('input.model')}</label>
                 <select class="form-control" v-model="model_id" v-on:change="filter">
-                    <option value="0">{:lang('select')}</option>
+                    <option value="0">{:lang('button.select')}</option>
                     <template v-for="vo in model_list">
                         <optgroup v-if="vo.id>=5" v-bind:label="vo.name"></optgroup>
                         <option v-else v-bind:value="vo.id" v-text="vo.name"></option>
@@ -28,49 +28,57 @@
             </div>
         </div>
         <div class="no-margin pull-right">
-            <button class="btn btn-primary" v-on:click="added">{:lang('added')}</button>
         </div>
     </div>
     <div class="box-body">
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>{:lang('title')}</th>
-                    <th>{:lang('category')}</th>
-                    <th>{:lang('status')}</th>
-                    <th>{:lang('access name')}</th>
-                    <th>{:lang('update time')}</th>
-                    <th>{:lang('operation')}</th>
+                    <th width="10%">{:lang('list.sort')}</th>
+                    <th width="35%">{:lang('list.title')}</th>
+                    <th>{:lang('list.category')} / {:lang('list.model')} / {:lang('list.access')}</th>
+                    <th>{:lang('list.attribute')}</th>
+                    <th>{:lang('list.update time')}</th>
+                    <th>{:lang('list.operation')}</th>
                 </tr>
             </thead>
             <tbody>
                 <template v-for="vo in items.list">
                     <tr>
                         <td>
-                            <a v-text="vo.title"></a>
+                            <input type="text" class="form-control" v-bind:name="'sort_order['+vo.id+']'"
+                                v-bind:value="vo.sort_order">
                         </td>
                         <td>
-                            <a v-text="vo.cat_name"></a>
+                            <a v-bind:href="vo.url.url" target="_blank" v-text="vo.title"></a>
                         </td>
                         <td>
-                            <span class="label label-primary" v-if="vo.is_com">{:lang('commend')}</span>
-                            <span class="label label-primary" v-if="vo.is_hot">{:lang('hot')}</span>
-                            <span class="label label-primary" v-if="vo.is_top">{:lang('top')}</span>
+                            <a v-bind:href="vo.url.cat_url" target="_blank" v-text="vo.cat_name"></a><br />
+                            <font v-text="vo.model_name"></font><br />
+                            <font v-text="vo.access_name"></font>
                         </td>
-                        <td v-text="vo.access_name"></td>
+
+                        <td>
+                            <span class="label label-primary" v-if="vo.is_pass">{:lang('button.is_pass')}</span>
+                            <span class="label label-primary" v-else>{:lang('button.not_pass')}</span>
+
+                            <span class="label label-primary" v-if="vo.attribute==1">{:lang('button.commend')}</span>
+                            <span class="label label-primary" v-if="vo.attribute==2">{:lang('button.hot')}</span>
+                            <span class="label label-primary" v-if="vo.attribute==3">{:lang('button.top')}</span>
+                        </td>
                         <td v-text="vo.update_time"></td>
                         <td>
                             <a id="open" data-toggle="modal" data-target="#modal-default" v-on:click="open(vo.id)">
                                 <i class="fa fa-eye"></i>
-                                {:lang('open')}
+                                {:lang('button.open')}
                             </a>
                             <a class="recover" v-on:click="recover(vo.id)">
                                 <i class="fa fa-pencil-square-o"></i>
-                                {:lang('recover')}
+                                {:lang('button.recover')}
                             </a>
                             <a class="remove" v-on:click="remove(vo.id)">
                                 <i class="fa fa-trash"></i>
-                                {:lang('remove')}
+                                {:lang('button.remove')}
                             </a>
                         </td>
                     </tr>

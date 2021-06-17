@@ -2,28 +2,28 @@
     <div class="box-body">
         <form id="node">
             <div class="form-group">
-                <label>{:lang('parent')}</label>
+                <label>{:lang('input.parent')}</label>
                 <input type="text" class="form-control" disabled="true" v-bind:value="items.parent">
                 <input type="hidden" name="pid" v-bind:value="items.pid">
             </div>
 
             <div class="form-group">
-                <label>{:lang('node name')}</label>
+                <label>{:lang('input.node name')}</label>
                 <input type="text" name="name" class="form-control">
             </div>
 
             <div class="form-group">
-                <label>{:lang('node title')}</label>
+                <label>{:lang('input.node title')}</label>
                 <input type="text" name="title" class="form-control">
             </div>
 
             <div class="form-group">
-                <label>{:lang('remark')}</label>
+                <label>{:lang('input.remark')}</label>
                 <textarea name="remark" class="form-control"></textarea>
             </div>
 
             <div class="form-group">
-                <label>{:lang('level')}</label>
+                <label>{:lang('input.level')}</label>
                 <select class="form-control" name="level">
                     <template v-for="vo in items.level_list">
                         <option v-bind:value="vo.id" v-text="vo.name"></option>
@@ -32,23 +32,23 @@
             </div>
 
             <div class="form-group">
-                <label>{:lang('show')}</label>
+                <label>{:lang('inputshow')}</label>
                 <label>
                     <input type="radio" name="status" value="1" checked="checked">
-                    {:lang('open')}
+                    {:lang('button.open')}
                 </label>
                 <label>
                     <input type="radio" name="status" value="0">
-                    {:lang('close')}
+                    {:lang('button.close')}
                 </label>
             </div>
 
             <div class="form-group">
-                <label>{:lang('sort')}</label>
+                <label>{:lang('input.sort')}</label>
                 <input type="text" name="sort_order" class="form-control">
             </div>
             <div class="form-group">
-                <input type="button" class="btn btn-primary" v-on:click="added" value="{:lang('save')}">
+                <input type="button" class="btn btn-primary" v-on:click="added" value="{:lang('button.save')}">
             </div>
         </form>
     </div>

@@ -1,20 +1,20 @@
 <div class="box">
     <div class="box-header clearfix">
         <div class="no-margin pull-right">
-            <button class="btn btn-primary" v-on:click="added">{:lang('added')}</button>
+            <button class="btn btn-primary" v-on:click="added">{:lang('button.added')}</button>
         </div>
     </div>
     <div class="box-body">
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th width="5%">{:lang('id')}</th>
-                    <th>{:lang('username')}</th>
-                    <th>{:lang('phone')}</th>
-                    <th>{:lang('email')}</th>
-                    <th>{:lang('level name')}</th>
-                    <th>{:lang('status')}</th>
-                    <th>{:lang('operation')}</th>
+                    <th width="5%">{:lang('list.id')}</th>
+                    <th>{:lang('list.username')}</th>
+                    <th>{:lang('list.phone')}</th>
+                    <th>{:lang('list.email')}</th>
+                    <th>{:lang('list.level name')}</th>
+                    <th>{:lang('list.status')}</th>
+                    <th>{:lang('list.operation')}</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,19 +27,19 @@
                         <td v-text="vo.level_name"></td>
                         <td>
                             <span class="label label-primary">
-                                <font v-if="vo.status == 1">{:lang('open')}</font>
-                                <font v-if="vo.status == 0">{:lang('close')}</font>
+                                <font v-if="vo.status == 1">{:lang('button.open')}</font>
+                                <font v-if="vo.status == 0">{:lang('button.close')}</font>
                             </span>
                         </td>
                         <td v-text="vo.create_time"></td>
                         <td>
                             <a class="editor" v-bind:href="vo.url.editor">
                                 <i class="fa fa-pencil-square-o"></i>
-                                {:lang('editor')}
+                                {:lang('button.editor')}
                             </a>
                             <a v-on:click="remove(vo.id)">
                                 <i class="fa fa-trash"></i>
-                                {:lang('remove')}
+                                {:lang('button.remove')}
                             </a>
                         </td>
                     </tr>

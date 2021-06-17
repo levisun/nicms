@@ -2,34 +2,34 @@
     <div class="box-body">
         <form id="role">
             <div class="form-group">
-                <label>{:lang('level name')}</label>
+                <label>{:lang('input.level name')}</label>
                 <input type="text" name="name" class="form-control" v-bind:value="items.name">
             </div>
 
             <div class="form-group">
-                <label>{:lang('level credit')}</label>
+                <label>{:lang('input.level credit')}</label>
                 <input type="text" name="credit" class="form-control" v-bind:value="items.credit">
             </div>
 
             <div class="form-group">
-                <label>{:lang('status')}</label>
+                <label>{:lang('input.status')}</label>
                 <label>
                     <input type="radio" name="status" value="1" v-bind:checked="items.status==1 ? true : false">
-                    {:lang('open')}
+                    {:lang('button.open')}
                 </label>
                 <label>
                     <input type="radio" name="status" value="0" v-bind:checked="items.status==0 ? true : false">
-                    {:lang('close')}
+                    {:lang('button.close')}
                 </label>
             </div>
 
             <div class="form-group">
-                <label>{:lang('remark')}</label>
+                <label>{:lang('input.remark')}</label>
                 <textarea name="remark" class="form-control" v-bind:value="items.remark"></textarea>
             </div>
 
             <div class="form-group">
-                <input type="button" class="btn btn-primary" v-on:click="editor" value="{:lang('save')}">
+                <input type="button" class="btn btn-primary" v-on:click="editor" value="{:lang('button.save')}">
             </div>
         </form>
     </div>

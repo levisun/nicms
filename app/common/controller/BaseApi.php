@@ -371,12 +371,8 @@ abstract class BaseApi
      */
     public function AnalyticalLoadLang(): void
     {
-        $this->lang->load([
-            // 公众语言包
-            root_path('app/common/lang') . $this->lang->getLangSet() . '.php',
-            // API方法所属应用的语言包
-            root_path('app/' . $this->appName . '/lang') . $this->lang->getLangSet() . '.php',
-        ]);
+        // API方法所属应用的语言包
+        $this->lang->load(root_path('app/' . $this->appName . '/lang') . $this->lang->getLangSet() . '.php');
     }
 
     /**

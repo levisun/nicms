@@ -19,6 +19,7 @@ namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
 use app\common\library\tools\Participle;
+use app\common\library\Filter;
 use app\common\library\UploadLog;
 use app\common\model\Article as ModelArticle;
 use app\common\model\ArticleContent as ModelArticleContent;
@@ -68,12 +69,12 @@ class Recycle extends BaseLogic
 
         $query_page = $this->request->param('page/d', 1, 'abs');
 
-        $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'attribute', 'username', 'access_id', 'hits', 'update_time'])
+        $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'attribute', 'author', 'access_id', 'hits', 'update_time'])
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id')
             ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
             ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
-            ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
+            ->view('user', ['username'], 'user.id=article.user_id', 'LEFT')
             ->where('article.delete_time', '<>', '0')
             ->where('model_id', '<=', '4')
             ->where('article.lang', '=', $this->lang->getLangSet())
@@ -143,7 +144,6 @@ class Recycle extends BaseLogic
 
             // 清除缓存
             $this->cache->tag('cms article list' . $category_id)->clear();
-            $this->cache->delete('article details' . $id);
         }
 
         return [
@@ -172,18 +172,6 @@ class Recycle extends BaseLogic
         }
 
         ModelArticle::transaction(function () use ($id) {
-            // 删除文章模块数据
-            $thumb = ModelArticle::where('id', '=', $id)->value('thumb');
-
-            if (!empty($thumb)) {
-                UploadLog::remove($thumb);
-            }
-
-            ModelArticle::where('id', '=', $id)->limit(1)->delete();
-
-            ModelArticleContent::where('article_id', '=', $id)->limit(1)->delete();
-
-
             // 删除下载模块数据
             $file_url = ModelArticleFile::where('article_id', '=', $id)->value('file_url');
             if (!empty($file_url)) {
@@ -194,11 +182,28 @@ class Recycle extends BaseLogic
 
             // 删除相册模块数据
             $image_url = ModelArticleImage::where('article_id', '=', $id)->value('image_url');
-            $image_url = unserialize($image_url);
+            $image_url = $image_url ? unserialize($image_url) : [];
             foreach ($image_url as $value) {
                 UploadLog::remove($value);
             }
             ModelArticleImage::where('article_id', '=', $id)->delete();
+
+
+            // 删除文章模块数据
+            $thumb = ModelArticle::where('id', '=', $id)->value('thumb');
+
+            if (!empty($thumb)) {
+                UploadLog::remove($thumb);
+            }
+
+            if ($content = ModelArticleContent::where('article_id', '=', $id)->value('content')) {
+                $content = Filter::htmlDecode($content);
+                preg_replace_callback('/<img[^<>]*src["\']+([^<>]+)["\']+[^<>]*>', function ($src) {
+                    unlink(public_path() . $src[1]);
+                }, $content);
+            }
+            ModelArticle::where('id', '=', $id)->limit(1)->delete();
+            ModelArticleContent::where('article_id', '=', $id)->limit(1)->delete();
 
 
             // 删除标签数据

@@ -209,6 +209,8 @@ class UploadFile
     private function savePath(array &$_user): string
     {
         $save_dir  = 'uploads' . DIRECTORY_SEPARATOR;
+        $save_dir .= Base64::url62encode((int) date('Y')) . DIRECTORY_SEPARATOR;
+        $save_dir .= Base64::url62encode((int) date('m')) . DIRECTORY_SEPARATOR;
 
         // 用户类型ID目录
         if (!empty($_user['userType']) && !empty($_user['userId'])) {
@@ -218,7 +220,6 @@ class UploadFile
             $save_dir .= 'guest' . DIRECTORY_SEPARATOR;
         }
 
-        $save_dir .= Base64::url62encode((int) date('Ym'));
         return $save_dir;
     }
 
@@ -228,7 +229,7 @@ class UploadFile
      * @param  string $_save_file 文件名
      * @return void
      */
-    private function toExt(string $_save_file): string
+    private function toExt(string &$_save_file): string
     {
         $extension = pathinfo($_save_file, PATHINFO_EXTENSION);
         $new_file = $_save_file;
@@ -259,7 +260,7 @@ class UploadFile
      * @param  string $_save_file 文件名
      * @return void
      */
-    private function water(string $_save_file): string
+    private function water(string &$_save_file): string
     {
         // 添加水印
         if (true === $this->imgWater) {
@@ -278,7 +279,7 @@ class UploadFile
      * @param  string $_save_file 文件名
      * @return void
      */
-    private function tailoring(string $_save_file): string
+    private function tailoring(string &$_save_file): string
     {
         $image = Image::open(public_path() . $_save_file);
 

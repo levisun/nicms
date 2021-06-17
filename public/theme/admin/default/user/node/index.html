@@ -3,10 +3,10 @@
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>{:lang('name')}</th>
-                    <th>{:lang('level')}</th>
-                    <th>{:lang('attribute')}</th>
-                    <th>{:lang('operation')}</th>
+                    <th>{:lang('list.name')}</th>
+                    <th>{:lang('list.level')}</th>
+                    <th>{:lang('list.attribute')}</th>
+                    <th>{:lang('list.operation')}</th>
                 </tr>
             </thead>
             <tbody>
@@ -16,18 +16,18 @@
                         <td v-text="vo.level_name"></td>
                         <td>
                             <span class="label label-primary">
-                                <font v-if="vo.status == 1">{:lang('open')}</font>
-                                <font v-if="vo.status == 0">{:lang('close')}</font>
+                                <font v-if="vo.status == 1">{:lang('button.open')}</font>
+                                <font v-if="vo.status == 0">{:lang('button.close')}</font>
                             </span>
                         </td>
                         <td>
                             <a class="added" v-bind:href="vo.url.added">
                                 <i class="fa fa-plus"></i>
-                                {:lang('added')}
+                                {:lang('button.added')}
                             </a>
                             <a class="editor" v-bind:href="vo.url.editor">
                                 <i class="fa fa-pencil-square-o"></i>
-                                {:lang('editor')}
+                                {:lang('button.editor')}
                             </a>
                         </td>
                     </tr>
@@ -38,22 +38,22 @@
                             <td v-text="controller.level_name"></td>
                             <td>
                                 <span class="label label-primary">
-                                    <font v-if="controller.status == 1">{:lang('open')}</font>
-                                    <font v-if="controller.status == 0">{:lang('close')}</font>
+                                    <font v-if="controller.status == 1">{:lang('button.open')}</font>
+                                    <font v-if="controller.status == 0">{:lang('button.close')}</font>
                                 </span>
                             </td>
                             <td>
                                 <a class="added" v-bind:href="controller.url.added">
                                     <i class="fa fa-plus"></i>
-                                    {:lang('added')}
+                                    {:lang('button.added')}
                                 </a>
                                 <a class="editor" v-bind:href="controller.url.editor">
                                     <i class="fa fa-pencil-square-o"></i>
-                                    {:lang('editor')}
+                                    {:lang('button.editor')}
                                 </a>
                                 <a v-on:click="remove(controller.id)">
                                     <i class="fa fa-trash"></i>
-                                    {:lang('remove')}
+                                    {:lang('button.remove')}
                                 </a>
                             </td>
                         </tr>
@@ -65,22 +65,22 @@
                                 <td v-text="action.level_name"></td>
                                 <td>
                                     <span class="label label-primary">
-                                        <font v-if="action.status == 1">{:lang('open')}</font>
-                                        <font v-if="action.status == 0">{:lang('close')}</font>
+                                        <font v-if="action.status == 1">{:lang('button.open')}</font>
+                                        <font v-if="action.status == 0">{:lang('button.close')}</font>
                                     </span>
                                 </td>
                                 <td>
                                     <a class="added" v-bind:href="action.url.added">
                                         <i class="fa fa-plus"></i>
-                                        {:lang('added')}
+                                        {:lang('button.added')}
                                     </a>
                                     <a class="editor" v-bind:href="action.url.editor">
                                         <i class="fa fa-pencil-square-o"></i>
-                                        {:lang('editor')}
+                                        {:lang('button.editor')}
                                     </a>
                                     <a v-on:click="remove(action.id)">
                                         <i class="fa fa-trash"></i>
-                                        {:lang('remove')}
+                                        {:lang('button.remove')}
                                     </a>
                                 </td>
                             </tr>
@@ -92,22 +92,22 @@
                                     <td v-text="method.level_name"></td>
                                     <td>
                                         <span class="label label-primary">
-                                            <font v-if="method.status == 1">{:lang('open')}</font>
-                                            <font v-if="method.status == 0">{:lang('close')}</font>
+                                            <font v-if="method.status == 1">{:lang('button.open')}</font>
+                                            <font v-if="method.status == 0">{:lang('button.close')}</font>
                                         </span>
                                     </td>
                                     <td>
                                         <a class="added" v-bind:href="method.url.added">
                                             <i class="fa fa-plus"></i>
-                                            {:lang('added')}
+                                            {:lang('button.added')}
                                         </a>
                                         <a class="editor" v-bind:href="method.url.editor">
                                             <i class="fa fa-pencil-square-o"></i>
-                                            {:lang('editor')}
+                                            {:lang('button.editor')}
                                         </a>
                                         <a v-on:click="remove(method.id)">
                                             <i class="fa fa-trash"></i>
-                                            {:lang('remove')}
+                                            {:lang('button.remove')}
                                         </a>
                                     </td>
                                 </tr>

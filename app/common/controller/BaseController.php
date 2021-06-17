@@ -88,10 +88,6 @@ abstract class BaseController
         $this->session = &$this->app->session;
         $this->view    = &$this->app->view;
 
-        // 加载语言包
-        $lang = root_path('app/common/lang') . $this->app->lang->getLangSet() . '.php';
-        $this->app->lang->load($lang);
-
         // 调试模式,请到.env进行设置
         // api和logic层默认关闭
         $this->app->debug((bool) $this->app->env->get('app_debug', false));

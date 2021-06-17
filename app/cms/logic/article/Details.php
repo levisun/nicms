@@ -64,12 +64,12 @@ class Details extends BaseLogic
         if ($id || $category_id) {
             $cache_key = $this->getCacheKey('cms details');
             if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
-                $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'thumb', 'username', 'access_id', 'hits', 'update_time'])
+                $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'thumb', 'author', 'access_id', 'hits', 'update_time'])
                     ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                     ->view('model', ['id' => 'model_id', 'name' => 'model_name', 'table_name'], 'model.id=category.model_id')
                     ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                     ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
-                    ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
+                    ->view('user', ['username'], 'user.id=article.user_id', 'LEFT')
                     ->where('article.is_pass', '=', 1)
                     ->where('article.delete_time', '=', 0)
                     ->where('article.access_id', '=', $this->userRoleId)

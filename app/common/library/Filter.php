@@ -43,7 +43,7 @@ class Filter
             $_data = Base64::emojiClear($_data);
             $_data = strip_tags($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
-            $_data = preg_replace('/&amp;#(\d+)/u', '&#$1', $_data);
+            $_data = preg_replace('/&amp;#(\d+);/u', '&#$1;', $_data);
         }
         return $_data;
     }
@@ -86,6 +86,7 @@ class Filter
         } else {
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = Base64::emojiDecode($_data);
+            $_data = preg_replace('/&amp;#(\d+);/u', '&#$1;', $_data);
             if ($_strict) {
                 $_data = self::sensitive($_data);
                 $_data = preg_replace_callback('/(src=["\']+)([^<>]+)(["\']+)/si', function ($matches) {
@@ -133,15 +134,6 @@ class Filter
             $length = [];
             foreach ($words as $key => $value) {
                 $length[$key] = mb_strlen($value, 'utf-8');
-
-                $words[$key] = (string) preg_replace_callback('/./u', function (array $matches) {
-                    $matches[0] = trim(json_encode($matches[0]), '"');
-                    $matches[0] = (string) preg_replace_callback('/\\\u([0-9a-f]{4})/si', function ($chs) {
-                        return '\x{' . $chs[1] . '}';
-                    }, $matches[0]);
-                    $matches[0] = '|' !== $matches[0] ? $matches[0] . '\s*' : $matches[0];
-                    return $matches[0];
-                }, $value);
             }
             array_multisort($length, SORT_DESC, $words);
 
@@ -153,7 +145,7 @@ class Filter
                     $matches[0] = (string) preg_replace('/ +/u', '', $matches[0]);
                     $star = '';
                     for ($i = 0; $i < mb_strlen($matches[0], 'utf-8'); $i++) {
-                        $star .= '&#42;';
+                        $star .= '&#042;';
                     }
                     return $star;
                 }, $_str);
@@ -216,7 +208,7 @@ class Filter
     {
         $_str = (string) preg_replace('/([\w\d]+)\(/uis', '$1&nbsp;(', $_str);
         $_str = (string) preg_replace('/(create|insert|into|delete|update|union|select|drop)+\s+/uis', '$1&nbsp;', $_str);
-        $_str = str_replace(['(', ')'], ['&#40;', '&#41;'], $_str);
+        $_str = str_replace(['(', ')'], ['&#040;', '&#041;'], $_str);
         return trim($_str);
     }
 
@@ -412,7 +404,7 @@ class Filter
         $_str = (string) str_ireplace(array_keys($pattern), array_values($pattern), $_str);
 
         $_str = preg_replace_callback('/>[^<>]+</is', function ($item) {
-            $pattern = ['"' => '&#34;', '\'' => '&#39;'];
+            $pattern = ['"' => '&#034;', '\'' => '&#039;'];
             return str_ireplace(array_keys($pattern), array_values($pattern), $item[0]);
         }, $_str);
 

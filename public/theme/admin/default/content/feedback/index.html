@@ -3,8 +3,8 @@
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>{:lang('title')}</th>
-                    <th>{:lang('operation')}</th>
+                    <th>{:lang('list.title')}</th>
+                    <th>{:lang('list.operation')}</th>
                 </tr>
             </thead>
             <tbody>
@@ -14,11 +14,11 @@
                         <td>
                             <a id="open" data-toggle="modal" data-target="#modal-default" v-on:click="open(vo.id)">
                                 <i class="fa fa-eye"></i>
-                                {:lang('open')}
+                                {:lang('button.open')}
                             </a>
                             <a v-on:click="remove(vo.id)" v-bind:data="vo.id">
                                 <i class="fa fa-trash"></i>
-                                {:lang('remove')}
+                                {:lang('button.remove')}
                             </a>
                         </td>
                     </tr>

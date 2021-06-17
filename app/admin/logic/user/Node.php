@@ -94,13 +94,13 @@ class Node extends BaseLogic
     private function typeName(int $_lid): string
     {
         if ($_lid === 1) {
-            return $this->lang->get('node app type');
+            return $this->lang->get('button.node app type');
         } elseif ($_lid === 2) {
-            return $this->lang->get('node controller type');
+            return $this->lang->get('button.node controller type');
         } elseif ($_lid === 3) {
-            return $this->lang->get('node action type');
+            return $this->lang->get('button.node action type');
         } else {
-            return $this->lang->get('node method type');
+            return $this->lang->get('button.node method type');
         }
     }
 
@@ -157,10 +157,10 @@ class Node extends BaseLogic
         }
 
         $result['level_list'] = [
-            ['id' => '1', 'name' => $this->lang->get('node app type')],
-            ['id' => '2', 'name' => $this->lang->get('node controller type')],
-            ['id' => '3', 'name' => $this->lang->get('node action type')],
-            ['id' => '4', 'name' => $this->lang->get('node method type')],
+            ['id' => '1', 'name' => $this->lang->get('button.node app type')],
+            ['id' => '2', 'name' => $this->lang->get('button.node controller type')],
+            ['id' => '3', 'name' => $this->lang->get('button.node action type')],
+            ['id' => '4', 'name' => $this->lang->get('button.node method type')],
         ];
 
         return [

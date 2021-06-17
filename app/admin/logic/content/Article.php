@@ -44,6 +44,19 @@ class Article extends BaseLogic
     {
         $map = [];
 
+        // 搜索
+        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
+            $like = explode(' ', $search_key);
+            $like = array_map('trim', $like);
+            $like = array_filter($like);
+            $like = array_unique($like);
+            $like = array_slice($like, 0, 3);
+            $like = array_map(function ($value) {
+                return '%' . $value . '%';
+            }, $like);
+            $map[] = ['article.title', 'like', $like, 'OR'];
+        }
+
         // 安栏目查询,为空查询所有
         if ($category_id = $this->request->param('category_id/d', 0, 'abs')) {
             $map[] = ['article.category_id', '=', $category_id];
@@ -58,19 +71,6 @@ class Article extends BaseLogic
         if ($is_pass = $this->request->param('pass/d', 0, 'abs')) {
             $is_pass = $is_pass >= 1 ? 1 : 0;
             $map[] = ['article.is_pass', '=', $is_pass];
-        }
-
-        // 搜索
-        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
-            $like = explode(' ', $search_key);
-            $like = array_map('trim', $like);
-            $like = array_filter($like);
-            $like = array_unique($like);
-            $like = array_slice($like, 0, 3);
-            $like = array_map(function ($value) {
-                return '%' . $value . '%';
-            }, $like);
-            $map[] = ['article.title', 'like', $like, 'OR'];
         }
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
@@ -139,14 +139,11 @@ class Article extends BaseLogic
     {
         $this->actionLog('admin content added');
 
-        $thumb = $this->request->param('thumb', '');
-        UploadLog::update($thumb, 1);
-
         $receive_data = [
             'title'       => $this->request->param('title'),
             'keywords'    => $this->request->param('keywords'),
             'description' => $this->request->param('description'),
-            'thumb'       => $thumb,
+            'thumb'       => $this->request->param('thumb', ''),
             'category_id' => $this->request->param('category_id/d'),
             'model_id'    => $this->request->param('model_id/d'),
             'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
@@ -168,6 +165,8 @@ class Article extends BaseLogic
         }
 
         ModelArticle::transaction(function () use ($receive_data) {
+            UploadLog::update($receive_data['thumb'], 1);
+
             $model_id = $receive_data['model_id'];
             unset($receive_data['model_id']);
 
@@ -320,19 +319,11 @@ class Article extends BaseLogic
             ];
         }
 
-        // 删除旧图片
-        $old_thumb = ModelArticle::where('id', '=', $id)->value('thumb');
-        $thumb = $this->request->param('thumb', '');
-        if ($old_thumb !== $thumb) {
-            UploadLog::remove($old_thumb);
-            UploadLog::update($thumb, 1);
-        }
-
         $receive_data = [
             'title'       => $this->request->param('title'),
             'keywords'    => $this->request->param('keywords'),
             'description' => $this->request->param('description'),
-            'thumb'       => $thumb,
+            'thumb'       => $this->request->param('thumb', ''),
             'category_id' => $this->request->param('category_id/d'),
             'model_id'    => $this->request->param('model_id/d'),
             'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
@@ -352,6 +343,13 @@ class Article extends BaseLogic
         }
 
         ModelArticle::transaction(function () use ($receive_data, $id) {
+            // 删除旧图片
+            $old_thumb = ModelArticle::where('id', '=', $id)->value('thumb');
+            if ($old_thumb !== $receive_data['thumb']) {
+                UploadLog::remove($old_thumb);
+                UploadLog::update($receive_data['thumb'], 1);
+            }
+
             $model_id = $receive_data['model_id'];
             unset($receive_data['model_id']);
 

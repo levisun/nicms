@@ -35,12 +35,6 @@ class Article extends BaseLogic
     {
         $map = [];
 
-        // 安审核条件查询,为空查询所有
-        if ($is_pass = $this->request->param('pass/d', 0, 'abs')) {
-            $is_pass = $is_pass >= 1 ? 1 : 0;
-            $map[] = ['book_article.is_pass', '=', $is_pass];
-        }
-
         // 搜索
         if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
             $like = explode(' ', $search_key);
@@ -52,6 +46,12 @@ class Article extends BaseLogic
                 return '%' . $value . '%';
             }, $like);
             $map[] = ['book_article.title', 'like', $like, 'OR'];
+        }
+
+        // 安审核条件查询,为空查询所有
+        if ($is_pass = $this->request->param('pass/d', 0, 'abs')) {
+            $is_pass = $is_pass >= 1 ? 1 : 0;
+            $map[] = ['book_article.is_pass', '=', $is_pass];
         }
 
         $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
