@@ -168,10 +168,10 @@ class UploadFile
      */
     private function save(array &$_user, \think\File &$_files): array
     {
+        $path = $this->savePath($_user, $_files);
+
         $save_path = Config::get('filesystem.disks.public.url') . DIRECTORY_SEPARATOR;
         $save_path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $save_path);
-
-        $path = $this->savePath($_user);
         $save_file = $save_path . Filesystem::disk('public')->putFile($path, $_files, 'uniqid');
 
         // 记录上传文件日志
@@ -206,9 +206,20 @@ class UploadFile
      * @param  array $_user 用户
      * @return string
      */
-    private function savePath(array &$_user): string
+    private function savePath(array &$_user, \think\File &$_files): string
     {
         $save_dir  = 'uploads' . DIRECTORY_SEPARATOR;
+
+        if (in_array($_files->extension(), ['jpg', 'gif', 'png', 'webp'])) {
+            $save_dir .= 'image' . DIRECTORY_SEPARATOR;
+        } elseif (in_array($_files->extension(), ['mp3', 'mp4'])) {
+            $save_dir .= 'media' . DIRECTORY_SEPARATOR;
+        } elseif (in_array($_files->extension(), ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf'])) {
+            $save_dir .= 'office' . DIRECTORY_SEPARATOR;
+        } else {
+            $save_dir .= 'file' . DIRECTORY_SEPARATOR;
+        }
+
         $save_dir .= Base64::url62encode((int) date('Y')) . DIRECTORY_SEPARATOR;
         $save_dir .= Base64::url62encode((int) date('m')) . DIRECTORY_SEPARATOR;
 

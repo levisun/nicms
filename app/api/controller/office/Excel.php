@@ -36,7 +36,7 @@ class Excel extends BaseApi
         $this->ApiInit();
 
         if (!$file = $this->request->param('file')) {
-            return miss(404, false);
+            return miss(404);
         }
 
         if ($file = File::pathDecode($file, true)) {
@@ -64,7 +64,7 @@ class Excel extends BaseApi
         $this->ApiInit();
 
         if (!$data = $this->request->param('data/a')) {
-            return miss(404, false);
+            return miss(404);
         }
         $sheet = $this->request->param('sheet/d', 0, 'abs');
 

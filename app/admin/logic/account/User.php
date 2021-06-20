@@ -157,7 +157,7 @@ class User extends BaseLogic
     public function auth(): array
     {
         if (!$this->cache->has('AUTH' . $this->userId) || !$result = $this->cache->get('AUTH' . $this->userId)) {
-            $result = (new Rbac)->getAuth($this->userId);
+            $result = (new Rbac)->setUserId($this->userId)->getAuth();
             $result = $result['admin'];
             foreach ($result as $key => $value) {
                 $result[$key] = [

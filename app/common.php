@@ -230,7 +230,7 @@ if (!function_exists('miss')) {
      * @param  bool $_abort
      * @return Response
      */
-    function miss($_code, bool $_redirect = true, bool $_abort = false)
+    function miss($_code, bool $_redirect = false, bool $_abort = false)
     {
         if (500 > $_code) {
             // 请求参数
@@ -244,35 +244,31 @@ if (!function_exists('miss')) {
             trace('MISS ' . $_code . ' ' . Request::ip() . ' ' . $params, 'warning');
         }
 
-        $file = public_path() . intval($_code) . '.html';
+        $content = '<!DOCTYPE html><html lang="' . app('lang')->getLangSet() . '"><head><meta charset="UTF-8"><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>' . http_code($_code) . '</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2 class="miss">o(╥﹏╥)o ' . http_code($_code) . '</h2></section></body></html>';
 
-        $content = is_file($file)
-            ? file_get_contents($file)
-            : '<!DOCTYPE html><html lang="' . app('lang')->getLangSet() . '"><head><meta charset="UTF-8"><meta name="robots" content="none" /><meta name="renderer" content="webkit" /><meta name="force-rendering" content="webkit" /><meta name="viewport"content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>' . $_code . '</title><style type="text/css">*{padding:0;margin:0}body{background:#fff;font-family:"Century Gothic","Microsoft yahei";color:#333;font-size:18px}section{text-align:center;margin-top:50px}h2,h3{font-weight:normal;margin-bottom:12px;margin-right:12px;display:inline-block}</style></head><body><section><h2 class="miss">o(╥﹏╥)o ' . $_code . '</h2></section></body></html>';
+        if (is_file(public_path() . intval($_code) . '.html')) {
+            $content = file_get_contents(public_path() . intval($_code) . '.html');
+        }
+
+        if (true === $_redirect) {
+            $return_url = '<script type="text/javascript">setTimeout(function(){location.href = "//' . Request::rootDomain() . '";},3000);</script>';
+            $content = false !== strpos($content, '</body>')
+                ? str_replace('</body>', $return_url . '</body>', $content)
+                : $return_url;
+        }
 
         // $content = Filter::symbol($content);
         $content = Filter::space($content);
         // $content = Filter::php($content);
         // $content = Filter::fun($content);
 
-
-        $return_url = '<script type="text/javascript">setTimeout(function(){location.href = "//' . Request::rootDomain() . '";},3000);</script>';
-
-        if (true === $_redirect) {
-            if (false !== strpos($content, '</body>')) {
-                $content = str_replace('</body>', $return_url . '</body>', $content);
-            } else {
-                $content = $return_url;
-            }
-        }
-
         $content = $content . '<!-- ' . date('Y-m-d H:i:s') . ' -->';
 
         $resource = Response::create($content, 'html', 200);
-            // ->allowCache(true)
-            // ->cacheControl('max-age=1440,must-revalidate')
-            // ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
-            // ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT');
+        // ->allowCache(true)
+        // ->cacheControl('max-age=1440,must-revalidate')
+        // ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
+        // ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT');
 
         ob_start('ob_gzhandler');
 
@@ -281,6 +277,25 @@ if (!function_exists('miss')) {
         }
 
         return $resource;
+    }
+}
+if (!function_exists('http_code')) {
+    /**
+     * http code
+     * @param  int $_code
+     * @return string
+     */
+    function http_code(int $_code): string
+    {
+        $httpCodeMsg = [
+            100 => 'Continue', 101 => 'Switching Protocol', 103 => 'Early Hints',
+            200 => 'OK', 201 => 'Created', 202 => 'Accepted', 203 => 'Non-Authoritative Information', 204 => 'No Content', 205 => 'Reset Content', 206 => 'Partial Content',
+            300 => 'Multiple Choice', 300 => 'Accepted', 301 => 'Moved Permanently', 302 => 'Found', 303 => 'See Other', 304 => 'Not Modified', 307 => 'Temporary Redirect', 308 => 'Permanent Redirect',
+            400 => 'Bad Request', 401 => 'Unauthorized', 403 => 'Forbidden', 404 => 'Not Found', 405 => 'Method Not Allowed', 406 => 'Not Acceptable', 407 => 'Proxy Authentication Required', 408 => 'Request Timeout', 409 => 'Conflict', 410 => 'Gone', 411 => 'Length Required', 412 => 'Precondition Failed', 413 => 'Payload Too Large', 414 => 'URI Too Long', 415 => 'Unsupported Media Type', 416 => 'Range Not Satisfiable', 417 => 'Expectation Failed', 418 => 'I&#039;m a teapot', 426 => 'Upgrade Required', 428 => 'Precondition Required', 429 => 'Too Many Requests', 431 => 'Request Header Fields Too Large', 451 => 'Unavailable For Legal Reasons',
+            500 => 'Internal Server Error', 501 => 'Not Implemented', 502 => 'Bad Gateway', 503 => 'Service Unavailable', 504 => 'Gateway Timeout', 505 => 'HTTP Version Not Supported', 506 => 'Variant Also Negotiates', 510 => 'Not Extended', 511 => 'Network Authentication Required',
+        ];
+
+        return isset($httpCodeMsg[$_code]) ? $_code . ' ' . $httpCodeMsg[$_code] : (string) $_code;
     }
 }
 

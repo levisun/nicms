@@ -14,7 +14,7 @@
 use think\facade\Route;
 
 Route::miss(function () {
-    return miss(404, false);
+    return miss(404);
 });
 
 Route::group(function () {
@@ -52,6 +52,6 @@ Route::domain(['cdn', 'img'], function () {
     Route::get('static/:app_name$', '\app\api\controller\Secret::index')->ext('do');
 
     Route::miss(function () {
-        return miss(404, false);
+        return miss(404);
     });
 });

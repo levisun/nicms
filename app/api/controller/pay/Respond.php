@@ -37,7 +37,7 @@ class Respond extends BaseApi
             return call_user_func([$this, $method]);
         }
 
-        return miss(404, false);
+        return miss(404);
     }
 
     /**

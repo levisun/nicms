@@ -27,7 +27,7 @@ class Download extends BaseApi
     public function index()
     {
         if (!$this->ValidateReferer() || !$file = $this->request->param('file')) {
-            return miss(404, false);
+            return miss(404);
         }
 
         if ($file = File::pathDecode($file, true)) {

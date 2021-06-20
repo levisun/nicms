@@ -599,14 +599,10 @@ abstract class BaseApi
             // 不需要鉴权方法(登录 登出 找回密码)
             if (!in_array($this->appMethod['method'], ['login', 'logout', 'forget'])) {
                 // 验证权限
-                $result = (new Rbac)->authenticate(
-                    $this->userId,
-                    $this->appName,
-                    $this->appMethod['logic'],
-                    $this->appMethod['action'],
-                    $this->appMethod['method'],
-                    $this->validateNotAuth
-                );
+                $result = (new Rbac)->setUserId($this->userId)
+                    ->setAppName($this->appName)
+                    ->setConfig($this->validateNotAuth)
+                    ->authenticate($this->appMethod['logic'], $this->appMethod['action'], $this->appMethod['method']);
                 if (false === $result) {
                     $this->abort('No action permissions.', 26001);
                 }

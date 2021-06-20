@@ -34,10 +34,6 @@ class Catalog extends BaseLogic
      */
     public function query(): array
     {
-        $book_id = $this->request->param('book_id', 0, '\app\common\library\Base64::url62decode');
-
-        $date_format = $this->request->param('date_format', 'Y-m-d');
-
         $query_page = $this->request->param('page/d', 1, 'abs');
         if ($query_page > $this->ERPCache()) {
             return [
@@ -49,6 +45,8 @@ class Catalog extends BaseLogic
 
         $cache_key = $this->getCacheKey('book catalog');
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
+            $book_id = $this->request->param('book_id', 0, '\app\common\library\Base64::url62decode');
+
             // 书籍信息
             $book = ModelBook::view('book', ['id', 'title', 'keywords', 'description', 'type_id', 'author_id', 'image', 'hits', 'origin', 'status', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
@@ -88,6 +86,7 @@ class Catalog extends BaseLogic
                         // 标识符
                         $value['flag'] = Base64::flag($value['book_id'] . $value['id'], 7);
                         // 时间格式
+                        $date_format = $this->request->param('date_format', 'Y-m-d');
                         $value['update_time'] = date($date_format, (int) $value['update_time']);
 
                         $value['title'] = Filter::htmlDecode($value['title']);

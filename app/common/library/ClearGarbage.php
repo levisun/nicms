@@ -53,6 +53,7 @@ class ClearGarbage
      * 清除过期无效缓存
      * @access public
      * @static
+     * @param  string $_dir
      * @return void
      */
     public static function clearCache(string $_dir = '')
@@ -153,5 +154,46 @@ class ClearGarbage
         if ($dir) {
             @rmdir($dir);
         }
+    }
+
+    /**
+     * 删除用户上传的所有文件
+     * @access public
+     * @static
+     * @param  string $_type 用户类型
+     * @param  int $_id 用户ID
+     * @param  int $_timestamp 用户创建时间
+     * @return void
+     */
+    public static function userUploadFiles(string $_type, int $_id, int $_timestamp = 0): bool
+    {
+        @ignore_user_abort(true);
+
+        $user_dir = Base64::flag($_type) . DIRECTORY_SEPARATOR . Base64::url62encode((int) $_id) . DIRECTORY_SEPARATOR;
+
+        $glob = File::glob(public_path('storage/uploads'));
+        while ($glob->valid()) {
+            $filename = $glob->current();
+            $glob->next();
+
+            // 判断时间段(用户创建时间)
+            if (preg_match('/uploads\\\[\w]+\\\([\w\d]+)\\\([\w\d]+)/', $filename, $matches)) {
+                $year = Base64::url62decode($matches[1]);
+                $month = Base64::url62decode($matches[2]);
+                if ($year < (int) date('Y', $_timestamp) && $month < (int) date('m', $_timestamp)) {
+                    continue;
+                }
+            }
+
+            if (!is_dir($filename) && is_file($filename) && false != stripos($filename, $user_dir)) {
+                @unlink($filename);
+            }
+        }
+
+        self::uploadEmptyDirectory();
+
+        @ignore_user_abort(false);
+
+        return true;
     }
 }

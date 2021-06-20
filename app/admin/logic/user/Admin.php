@@ -19,6 +19,7 @@ namespace app\admin\logic\user;
 
 use app\common\controller\BaseLogic;
 use app\common\library\Base64;
+use app\common\library\ClearGarbage;
 use app\common\model\Admin as ModelAdmin;
 use app\common\model\Role as ModelRole;
 use app\common\model\RoleAdmin as ModelRoleAdmin;
@@ -219,10 +220,13 @@ class Admin extends BaseLogic
             ];
         }
 
-        ModelAdmin::transaction(function () use ($id) {
-            ModelAdmin::where('id', '=', $id)->limit(1)->delete();
-            ModelRoleAdmin::where('user_id', '=', $id)->limit(1)->delete();
-        });
+        $create_time = ModelAdmin::where('id', '=', $id)->value('create_time');
+        if (ClearGarbage::userUploadFiles('admin', $id, $create_time)) {
+            ModelAdmin::transaction(function () use ($id) {
+                ModelAdmin::where('id', '=', $id)->limit(1)->delete();
+                ModelRoleAdmin::where('user_id', '=', $id)->limit(1)->delete();
+            });
+        }
 
         return [
             'debug' => false,

@@ -36,7 +36,7 @@ class Word extends BaseApi
         $this->ApiInit();
 
         if (!$file = $this->request->param('file')) {
-            return miss(404, false);
+            return miss(404);
         }
 
         if ($file = File::pathDecode($file, true)) {
@@ -55,7 +55,7 @@ class Word extends BaseApi
         $this->ApiInit();
 
         if (!$data = $this->request->param('data')) {
-            return miss(404, false);
+            return miss(404);
         }
 
         $file = (new OfficeWord)->write($data);

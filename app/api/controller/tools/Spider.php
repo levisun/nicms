@@ -27,7 +27,7 @@ class Spider extends BaseApi
     public function index()
     {
         if (!$this->ValidateReferer() || !$uri = $this->request->param('uri')) {
-            return miss(404, false);
+            return miss(404);
         }
 
         @set_time_limit(60);

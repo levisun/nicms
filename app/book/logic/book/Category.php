@@ -31,29 +31,6 @@ class Category extends BaseLogic
      */
     public function query(): array
     {
-        $map = [];
-
-        if ($attribute = $this->request->param('attribute/d', 0, 'abs')) {
-            $map[] = ['book.attribute', '=', $attribute];
-        }
-
-        if ($status = $this->request->param('status/d', 0, 'abs')) {
-            $map[] = ['book.status', '=', $status];
-        }
-
-        if ($book_type_id = $this->request->param('book_type_id', 0, '\app\common\library\Base64::url62decode')) {
-            $map[] = ['book.type_id', '=', $book_type_id];
-        }
-
-        // 排序,为空依次安置顶,最热,推荐,自定义顺序,最新发布时间排序
-        if ($sort_order = $this->request->param('sort')) {
-            $sort_order = 'book.' . $sort_order;
-        } else {
-            $sort_order = 'book.attribute DESC, book.sort_order DESC, book.status ASC, book.id DESC';
-        }
-
-        $date_format = $this->request->param('date_format', 'Y-m-d');
-
         $query_page = $this->request->param('page/d', 1, 'abs');
         if ($query_page > $this->ERPCache()) {
             return [
@@ -65,17 +42,38 @@ class Category extends BaseLogic
 
         $cache_key = $this->getCacheKey('book category');
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
-            $result = ModelBook::view('book', ['id', 'title', 'type_id', 'hits', 'status', 'update_time'])
+            // 排序,为空依次安置顶,最热,推荐,自定义顺序,最新发布时间排序
+            $sort_order = 'book.attribute DESC, book.sort_order DESC, book.status ASC, book.id DESC';
+            if ($this->request->param('sort')) {
+                $sort_order = 'book.' . $this->request->param('sort');
+            }
+
+            $model = ModelBook::view('book', ['id', 'title', 'type_id', 'hits', 'status', 'update_time'])
                 ->view('book_type', ['id' => 'type_id', 'name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
                 ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
-                ->where('book.is_pass', '=', '1')
-                ->where('book.lang', '=', $this->lang->getLangSet())
-                ->where($map)
                 ->order($sort_order)
-                ->paginate([
-                    'list_rows' => $this->getQueryLimit(),
-                    'path' => 'javascript:paging([PAGE]);',
-                ], true);
+                ->where('book.is_pass', '=', '1')
+                ->where('book.lang', '=', $this->lang->getLangSet());
+
+            // 推荐置顶最热,三选一
+            if ($attribute = $this->request->param('attribute/d', 0, 'abs')) {
+                $model->where('book.attribute', '=', $attribute);
+            }
+
+            // 更新状态
+            if ($status = $this->request->param('status/d', 0, 'abs')) {
+                $model->where('book.status', '=', $status);
+            }
+
+            // 安分类查询,为空查询所有
+            if ($book_type_id = $this->request->param('book_type_id', 0, '\app\common\library\Base64::url62decode')) {
+                $model->where('book.type_id', '=', $book_type_id);
+            }
+
+            $result = $model->paginate([
+                'list_rows' => $this->getQueryLimit(),
+                'path' => 'javascript:paging([PAGE]);',
+            ], true);
 
             if ($result && $list = $result->toArray()) {
                 if (empty($list['data'])) {
@@ -86,6 +84,7 @@ class Category extends BaseLogic
 
                 foreach ($list['data'] as $key => $value) {
                     $value['url'] = url('book/' . Base64::url62encode($value['id']));
+                    $date_format = $this->request->param('date_format', 'Y-m-d');
                     $value['update_time'] = date($date_format, (int) $value['update_time']);
 
                     $list['data'][$key] = $value;

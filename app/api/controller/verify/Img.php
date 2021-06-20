@@ -32,7 +32,7 @@ class Img extends BaseApi
     public function index()
     {
         if (!$this->ValidateReferer()) {
-            return miss(404, false);
+            return miss(404);
         }
 
         $this->ApiInit();

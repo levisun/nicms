@@ -45,6 +45,8 @@ class AppMaintain
 
             $this->removeGarbage();
         }
+
+        (new DataManage)->processList();
     }
 
     /**

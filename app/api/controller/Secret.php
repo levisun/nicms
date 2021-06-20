@@ -35,21 +35,28 @@ class Secret
         $referer = parse_url(Request::server('HTTP_REFERER'), PHP_URL_HOST);
         if (!$referer || false === stripos($referer, Request::rootDomain())) {
             trace('MISS ' . Request::ip(), 'warning');
-            return miss(404, false);
+            return miss(404);
         }
 
         $app_name = base64_decode(Request::param('app_name'));
-        $app_name = Filter::htmlDecode(Filter::strict($app_name));
+        $app_name = Filter::strict($app_name);
+        if (!preg_match('/^[a-z]+$/', $app_name)) {
+            trace('MISS ' . $app_name, 'warning');
+            return miss(404);
+        }
+
+        $version = Request::param('version');
+        $version = Filter::strict($version);
+        if (!preg_match('/^[\d]+\.[\d]+\.[\d]+$/', $version)) {
+            trace('MISS ' . $version, 'warning');
+            return miss(404);
+        }
 
         $param = base64_decode(Request::param('token'));
         $param = Filter::htmlDecode(Filter::strict($param));
-
-        $version = Request::param('version');
-        $version = Filter::htmlDecode(Filter::strict($version));
-
-        if (!!preg_match('/[^a-z]+/', $app_name) || !!preg_match('/[^\w\d\{\}\[\]\\\":,\+=]+/i', $param) || !preg_match('/[\d]+\.[\d]+\.[\d]+/', $version)) {
-            trace('MISS ' . $app_name . $param . $version, 'warning');
-            return miss(404, false);
+        if (!preg_match('/^[\w\d\{\}\[\]\\\":,\+=]+$/i', $param)) {
+            trace('MISS ' . $app_name, 'warning');
+            return miss(404);
         }
 
         $param = json_decode($param, true);
@@ -85,7 +92,7 @@ class Secret
             rootDomain:"//"+window.location.host.substr(window.location.host.indexOf(".")+1)+"/",
             url:"//"+window.location.host+window.location.pathname,
             api_uri:"' . config('app.api_host') . '",
-            api_version:"' . Request::param('version') . '",
+            api_version:"' . $version . '",
             app_name:"' . config('app.app_name') . '",
             app_id:"' . $secret['id'] . '",
             param:' . $param . '

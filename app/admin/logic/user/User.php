@@ -19,6 +19,7 @@ namespace app\admin\logic\user;
 
 use app\common\controller\BaseLogic;
 use app\common\library\Base64;
+use app\common\library\ClearGarbage;
 use app\common\model\User as ModelUser;
 use app\common\model\UserInfo as ModelUserInfo;
 use app\common\model\UserLevel as ModelUserLevel;
@@ -203,9 +204,14 @@ class User extends BaseLogic
             ];
         }
 
-        ModelUser::where('id', '=', $id)->limit(1)->delete();
-        ModelUserInfo::where('user_id', '=', $id)->limit(1)->delete();
-        ModelUserOauth::where('user_id', '=', $id)->limit(1)->delete();
+        $create_time = ModelUser::where('id', '=', $id)->value('create_time');
+        if (ClearGarbage::userUploadFiles('user', $id, $create_time)) {
+            ModelUser::transaction(function () use ($id) {
+                ModelUser::where('id', '=', $id)->limit(1)->delete();
+                ModelUserInfo::where('user_id', '=', $id)->limit(1)->delete();
+                ModelUserOauth::where('user_id', '=', $id)->limit(1)->delete();
+            });
+        }
 
         return [
             'debug' => false,

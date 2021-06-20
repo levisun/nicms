@@ -71,7 +71,7 @@ class DataManage
      */
     public function optimize(): bool
     {
-        only_execute('db_optimize.lock', '-30 days', function () {
+        only_execute('db_optimize.lock', '-7 days', function () {
             $tables = Db::getTables();
             foreach ($tables as $name) {
                 $result = Db::query('ANALYZE TABLE `' . $name . '`');
@@ -88,7 +88,7 @@ class DataManage
 
     public function repair()
     {
-        only_execute('db_repair.lock', '-30 days', function () {
+        only_execute('db_repair.lock', '-7 days', function () {
             $tables = Db::getTables();
             foreach ($tables as $name) {
                 $result = Db::query('CHECK TABLE `' . $name . '`');

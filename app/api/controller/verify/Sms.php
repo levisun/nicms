@@ -77,6 +77,6 @@ class Sms extends BaseApi
             return $this->error('手机号或验证码错误', 40009);
         }
 
-        return miss(404, false);
+        return miss(404);
     }
 }

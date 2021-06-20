@@ -199,7 +199,9 @@ class Recycle extends BaseLogic
             if ($content = ModelArticleContent::where('article_id', '=', $id)->value('content')) {
                 $content = Filter::htmlDecode($content);
                 preg_replace_callback('/<img[^<>]*src["\']+([^<>]+)["\']+[^<>]*>', function ($src) {
-                    unlink(public_path() . $src[1]);
+                    if (0 !== stripos($src, 'http')) {
+                        @unlink(public_path() . $src[1]);
+                    }
                 }, $content);
             }
             ModelArticle::where('id', '=', $id)->limit(1)->delete();

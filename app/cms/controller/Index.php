@@ -142,7 +142,7 @@ class Index extends BaseController
         if ($url = $this->request->param('url', false)) {
             return \think\Response::create($url, 'redirect', 302);
         } else {
-            return miss(404);
+            return miss(404, true);
         }
     }
 }

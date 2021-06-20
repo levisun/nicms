@@ -39,20 +39,7 @@ class Search extends BaseLogic
     {
         $map = [];
 
-        // 安栏目查询,为空查询所有
-        if ($category_id = $this->request->param('category_id', 0, '\app\common\library\Base64::url62decode')) {
-            $map[] = ['article.category_id', 'in', $this->child($category_id)];
-        }
 
-        // 推荐置顶最热,三选一
-        if ($attribute = $this->request->param('attribute/d', 0, 'abs')) {
-            $map[] = ['article.attribute', '=', $attribute];
-        }
-
-        // 安类别查询,为空查询所有
-        if ($type_id = $this->request->param('type_id/d', 0, 'abs')) {
-            $map[] = ['article.type_id', '=', $type_id];
-        }
 
         // 搜索
         if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
@@ -67,15 +54,6 @@ class Search extends BaseLogic
             $map[] = ['article.title', 'like', $like, 'OR'];
         }
 
-        // 排序,为空依次安置顶,最热,推荐,自定义顺序,最新发布时间排序
-        if ($sort_order = $this->request->param('sort')) {
-            $sort_order = 'article.' . $sort_order;
-        } else {
-            $sort_order = 'article.attribute DESC, article.sort_order DESC, article.update_time DESC';
-        }
-
-        $date_format = $this->request->param('date_format', 'Y-m-d');
-
         $query_page = $this->request->param('page/d', 1, 'abs');
         if ($query_page > $this->ERPCache()) {
             return [
@@ -87,19 +65,56 @@ class Search extends BaseLogic
 
         $cache_key = $this->getCacheKey('cms search');
         if (!$this->cache->has($cache_key) || !$list = $this->cache->get($cache_key)) {
-            $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'thumb', 'username', 'access_id', 'hits', 'update_time'])
+            // 排序,为空依次安置顶,最热,推荐,自定义顺序,最新发布时间排序
+            $sort_order = 'article.attribute DESC, article.sort_order DESC, article.update_time DESC';
+            if ($this->request->param('sort')) {
+                $sort_order = 'article.' . $this->request->param('sort');
+            }
+
+            $model = ModelArticle::view('article', ['id', 'category_id', 'title', 'keywords', 'description', 'thumb', 'author', 'access_id', 'hits', 'update_time'])
                 ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
                 ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id and model.id<=3')
                 ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                 ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
-                ->view('user', ['username' => 'author'], 'user.id=article.user_id', 'LEFT')
-                ->where('article.is_pass', '=', '1')
-                ->where('article.delete_time', '=', '0')
-                ->where('article.access_id', '=', $this->userRoleId)
-                ->where('article.show_time', '<', time())
-                ->where('article.lang', '=', $this->lang->getLangSet())
-                ->where($map)
+                ->view('user', ['username'], 'user.id=article.user_id', 'LEFT')
                 ->order($sort_order)
+                ->where('article.access_id', '=', $this->userRoleId)
+                ->where('article.delete_time', '=', '0')
+                ->where('article.is_pass', '=', '1')
+                ->whereTime('article.show_time', '<', date('Y-m-d H:i:s'))
+                ->where('article.lang', '=', $this->lang->getLangSet());
+
+            // 搜索
+            if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
+                $like = explode(' ', $search_key);
+                $like = array_map('trim', $like);
+                $like = array_filter($like);
+                $like = array_unique($like);
+                $like = array_slice($like, 0, 3);
+                $like = array_map(function ($value) {
+                    return '%' . $value . '%';
+                }, $like);
+                $model->where('article.title', 'like', $like, 'OR');
+            }
+
+            // 推荐置顶最热,三选一
+            if ($attribute = $this->request->param('attribute/d', 0, 'abs')) {
+                $model->where('article.attribute', '=', $attribute);
+            }
+
+            // 安类别查询,为空查询所有
+            if ($type_id = $this->request->param('type_id/d', 0, 'abs')) {
+                $model->where('article.type_id', '=', $type_id);
+            }
+
+            // 安栏目查询,为空查询所有
+            if ($category_id = $this->request->param('category_id', 0, '\app\common\library\Base64::url62decode')) {
+                $model->where('article.category_id', 'in', $this->child($category_id));
+            }
+
+            // 大数据优化,只查询50页以内的数据
+            $start_time = $model->limit($this->getQueryLimit() * 50)->value('article.update_time');
+            $result = $model->whereTime('article.update_time', '>=', date('Y-m-d H:i:s', $start_time))
                 ->paginate([
                     'list_rows' => $this->getQueryLimit(),
                     'path' => 'javascript:paging([PAGE]);',
@@ -123,6 +138,7 @@ class Search extends BaseLogic
                     // 缩略图
                     $value['thumb'] = File::imgUrl($value['thumb']);
                     // 时间格式
+                    $date_format = $this->request->param('date_format', 'Y-m-d');
                     $value['update_time'] = date($date_format, (int) $value['update_time']);
                     // 作者
                     $value['author'] = $value['author'] ?: $value['username'];

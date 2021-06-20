@@ -14,7 +14,7 @@
 use think\facade\Route;
 
 Route::miss(function () {
-    return miss(404, false);
+    return miss(404);
 });
 
 Route::domain(env('admin.entry', 'admin'), function () {

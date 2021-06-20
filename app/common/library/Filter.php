@@ -43,7 +43,8 @@ class Filter
             $_data = Base64::emojiClear($_data);
             $_data = strip_tags($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
-            $_data = preg_replace('/&amp;#(\d+);/u', '&#$1;', $_data);
+            $_data = str_replace(['"', '\''], ['&#034;', '&#039;'], $_data);
+            $_data = preg_replace('/&amp;(#*[\w\d]+);/u', '&$1;', $_data);
         }
         return $_data;
     }
@@ -65,6 +66,7 @@ class Filter
             $_data = self::base($_data);
             $_data = Base64::emojiEncode($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
+            $_data = preg_replace('/&amp;(#*[\w\d]+);/u', '&$1;', $_data);
         }
         return $_data;
     }
@@ -86,7 +88,7 @@ class Filter
         } else {
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = Base64::emojiDecode($_data);
-            $_data = preg_replace('/&amp;#(\d+);/u', '&#$1;', $_data);
+            $_data = preg_replace('/&amp;(#*[\w\d]+);/u', '&$1;', $_data);
             if ($_strict) {
                 $_data = self::sensitive($_data);
                 $_data = preg_replace_callback('/(src=["\']+)([^<>]+)(["\']+)/si', function ($matches) {
@@ -206,7 +208,7 @@ class Filter
      */
     public static function fun(string &$_str): string
     {
-        $_str = (string) preg_replace('/([\w\d]+)\(/uis', '$1&nbsp;(', $_str);
+        $_str = (string) preg_replace('/([\w\d]+ {0,1})\(/uis', '$1&nbsp;(', $_str);
         $_str = (string) preg_replace('/(create|insert|into|delete|update|union|select|drop)+\s+/uis', '$1&nbsp;', $_str);
         $_str = str_replace(['(', ')'], ['&#040;', '&#041;'], $_str);
         return trim($_str);
@@ -398,7 +400,6 @@ class Filter
 
             // '*' => '&#42;',
             // '_' => '&#95;',
-            // '"' => '&#34;', '\'' => '&#39;',
         ];
 
         $_str = (string) str_ireplace(array_keys($pattern), array_values($pattern), $_str);

@@ -38,15 +38,16 @@ class UploadLog
         $_file = trim($_file, '\/.');
         $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
 
-        $has = ModelUploadFileLog::where('file', '=', $_file)->value('file');
+        $has = ModelUploadFileLog::where('name', '=', sha1($_file))->value('file');
 
         if (!$has) {
             ModelUploadFileLog::create([
+                'name' => sha1($_file),
                 'file' => $_file,
                 'type' => $_type
             ]);
         } else {
-            ModelUploadFileLog::where('file', '=', $_file)->limit(1)->update([
+            ModelUploadFileLog::where('name', '=', sha1($_file))->limit(1)->update([
                 'type' => $_type
             ]);
         }
@@ -68,7 +69,7 @@ class UploadLog
 
         $_file = trim($_file, '\/.');
         $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
-        ModelUploadFileLog::where('file', '=', $_file)->limit(1)->update([
+        ModelUploadFileLog::where('name', '=', sha1($_file))->limit(1)->update([
             'type' => $_type
         ]);
     }
@@ -91,7 +92,7 @@ class UploadLog
             @unlink($abs_file);
         }
 
-        ModelUploadFileLog::where('file', '=', $_file)->limit(1)->delete();
+        ModelUploadFileLog::where('name', '=', sha1($_file))->limit(1)->delete();
     }
 
     /**

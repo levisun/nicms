@@ -29,29 +29,44 @@ class Rbac
         'not_auth_action'  => [],
     ];
 
+    private $userID = 0;
+    private $appName = '';
+
+    public function setConfig(array $_config = [])
+    {
+        if (!empty($_config)) {
+            $this->config = array_merge($this->config, $_config);
+        }
+        return $this;
+    }
+
+    public function setUserId(int $_uid)
+    {
+        $this->userID = $_uid;
+        return $this;
+    }
+
+    public function setAppName(string $_app)
+    {
+        $this->appName = $_app;
+        return $this;
+    }
+
     /**
      * 审核用户操作权限
      * @access public
-     * @param  int    $_uid     用户ID
-     * @param  string $_app     应用名
      * @param  string $_logic   业务层名
      * @param  string $_action  控制器名
      * @param  string $_method  方法名
      * @return boolean
      */
-    public function authenticate(int $_uid, string $_app, string $_logic, string $_action, string $_method, array $_config = []): bool
+    public function authenticate(string $_logic, string $_action, string $_method): bool
     {
-        if (!empty($_config)) {
-            $this->config = array_merge($this->config, $_config);
-        }
-
-        $_uid = (int) $_uid;
-
         // 登录并请求方法需要审核
-        if ($_uid && $this->checkAccess($_app, $_logic, $_action, $_method)) {
+        if ($this->userID && $this->checkAccess($_logic, $_action, $_method)) {
             // 实时检验权限
             if (true === $this->config['auth_type']) {
-                $__authenticate_list = $this->accessDecision($_uid);
+                $__authenticate_list = $this->accessDecision();
             }
 
             // 非实时校验
@@ -60,14 +75,14 @@ class Rbac
                 if (session('?__authenticate_list')) {
                     $__authenticate_list = session('__authenticate_list');
                 } else {
-                    $__authenticate_list = $this->accessDecision($_uid);
+                    $__authenticate_list = $this->accessDecision();
                     session('__authenticate_list', $__authenticate_list);
                 }
             }
 
-            return isset($__authenticate_list[$_app][$_logic][$_action][$_method]);
+            return isset($__authenticate_list[$this->appName][$_logic][$_action][$_method]);
         } else {
-            return $_uid ? true : false;
+            return $this->userID ? true : false;
         }
     }
 
@@ -77,15 +92,14 @@ class Rbac
      * @param  int   $_uid
      * @return array
      */
-    public function getAuth(int $_uid): array
+    public function getAuth(): array
     {
-        $_uid = (int) $_uid;
         if (true === $this->config['auth_type']) {
-            $result = $this->accessDecision($_uid);
+            $result = $this->accessDecision();
         } elseif (session('?__authenticate_list')) {
             $result = session('__authenticate_list');
         } else {
-            $result = $this->accessDecision($_uid);
+            $result = $this->accessDecision();
             session('__authenticate_list', $result);
         }
         return $result;
@@ -100,11 +114,11 @@ class Rbac
      * @param  string $_method  方法名
      * @return boolean
      */
-    private function checkAccess(string $_app, string $_service, string $_logic, string $_method): bool
+    private function checkAccess(string $_service, string $_logic, string $_method): bool
     {
         if (!empty($this->config['not_auth_app'])) {
             $this->config['not_auth_app'] = array_map('strtolower', $this->config['not_auth_app']);
-            if (in_array($_app, $this->config['not_auth_app'])) {
+            if (in_array($this->appName, $this->config['not_auth_app'])) {
                 return false;
             }
         } elseif (!empty($this->config['not_auth_service'])) {
@@ -133,19 +147,19 @@ class Rbac
      * @param  int    $_uid 用户ID
      * @return array
      */
-    private function accessDecision(int $_uid): array
+    private function accessDecision(): array
     {
         $access = [];
 
-        $app_list = $this->getNode($_uid);
+        $app_list = $this->getNode($this->userID);
         foreach ($app_list as $app_name) {
             $app_name['name'] = strtolower($app_name['name']);
 
-            $logic_list = $this->getNode($_uid, 2, (int) $app_name['id']);
+            $logic_list = $this->getNode($this->userID, 2, (int) $app_name['id']);
             foreach ($logic_list as $logic_name) {
                 $logic_name['name'] = strtolower($logic_name['name']);
 
-                $controller_list = $this->getNode($_uid, 3, (int) $logic_name['id']);
+                $controller_list = $this->getNode($this->userID, 3, (int) $logic_name['id']);
                 foreach ($controller_list as $controller_name) {
                     $controller_name['name'] = strtolower($controller_name['name']);
 
@@ -155,7 +169,7 @@ class Rbac
                         'find'  => true,
                     ];
 
-                    $action_list = $this->getNode($_uid, 4, (int) $controller_name['id']);
+                    $action_list = $this->getNode($this->userID, 4, (int) $controller_name['id']);
                     foreach ($action_list as $action_name) {
                         $action_name['name'] = strtolower($action_name['name']);
                         $access[$app_name['name']][$logic_name['name']][$controller_name['name']][$action_name['name']] = true;

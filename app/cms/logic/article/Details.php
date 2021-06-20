@@ -36,18 +36,6 @@ class Details extends BaseLogic
      */
     public function query(): array
     {
-        if ($id = $this->request->param('id', 0, '\app\common\library\Base64::url62decode')) {
-            $map = [
-                ['article.id', '=', $id],
-            ];
-        }
-        // 单页
-        elseif ($category_id = $this->request->param('category_id', 0, '\app\common\library\Base64::url62decode')) {
-            $map = [
-                ['article.category_id', '=', $category_id],
-            ];
-        }
-
         $id = $category_id = false;
         if ($id = $this->request->param('id', 0, '\app\common\library\Base64::url62decode')) {
             $map = [
@@ -70,10 +58,10 @@ class Details extends BaseLogic
                     ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                     ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
                     ->view('user', ['username'], 'user.id=article.user_id', 'LEFT')
-                    ->where('article.is_pass', '=', 1)
-                    ->where('article.delete_time', '=', 0)
+                    ->whereTime('article.show_time', '<', date('Y-m-d H:i:s'))
                     ->where('article.access_id', '=', $this->userRoleId)
-                    ->where('article.show_time', '<', time())
+                    ->where('article.delete_time', '=', 0)
+                    ->where('article.is_pass', '=', 1)
                     ->where('article.lang', '=', $this->lang->getLangSet())
                     ->where($map)
                     ->find();
