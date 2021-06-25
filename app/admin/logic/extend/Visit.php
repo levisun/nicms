@@ -31,10 +31,6 @@ class Visit extends BaseLogic
      */
     public function query(): array
     {
-        $date_format = $this->request->param('date_format', 'Y-m-d');
-
-        $query_page = $this->request->param('page/d', 1, 'abs');
-
         $result = ModelVisit::order('date DESC, name DESC, count DESC')
             ->paginate([
                 'list_rows' => $this->getQueryLimit(),
@@ -44,6 +40,7 @@ class Visit extends BaseLogic
         if ($result && $list = $result->toArray()) {
             $list['render'] = $result->render();
 
+            $date_format = $this->request->param('date_format', 'Y-m-d');
             foreach ($list['data'] as $key => $value) {
                 $value['date'] = date($date_format, (int) $value['date']);
                 $value['count'] = format_hits((int) $value['count']);

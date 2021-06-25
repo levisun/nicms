@@ -78,6 +78,7 @@ class Catalog extends BaseLogic
                     }
 
                     $list['render'] = $result->render();
+                    $date_format = $this->request->param('date_format', 'Y-m-d');
                     foreach ($list['data'] as $key => $value) {
                         // 书籍文章列表链接
                         $value['cat_url'] = url('book/' . Base64::url62encode($value['book_id']));
@@ -86,7 +87,6 @@ class Catalog extends BaseLogic
                         // 标识符
                         $value['flag'] = Base64::flag($value['book_id'] . $value['id'], 7);
                         // 时间格式
-                        $date_format = $this->request->param('date_format', 'Y-m-d');
                         $value['update_time'] = date($date_format, (int) $value['update_time']);
 
                         $value['title'] = Filter::htmlDecode($value['title']);

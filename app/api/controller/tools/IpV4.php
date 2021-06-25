@@ -19,36 +19,33 @@ namespace app\api\controller\tools;
 
 use think\Response;
 use app\common\controller\BaseApi;
-use app\common\library\tools\Ipv4;
+use app\common\library\tools\IpV4 as ToolsIpV4;
 
-class Ip extends BaseApi
+class IpV4 extends BaseApi
 {
 
     public function index()
     {
-        $format = $this->request->param('format', 'html');
+        // 外部网站限制
+        $referer = $this->request->server('HTTP_REFERER');
+        if (!$referer || false === stripos($referer, $this->request->rootDomain())) {
+            usleep(500000);
+        }
 
         // 解决没有传IP参数,缓存造成的缓存错误
         if (!$ip = $this->request->param('ip', false)) {
             $url = $this->request->baseUrl(true) . '?';
-            $url .= 'html' === $format ? '' : 'format=' . $format;
+            $url .= 'format=' . $this->request->param('format', '');
             $url .= '&ip=' . $this->request->ip();
             return Response::create($url, 'redirect', 302);
         }
 
-        // 外部网站限制
-        $referer = $this->request->server('HTTP_REFERER');
-        $referer = !$referer || false === stripos($referer, $this->request->rootDomain()) ? false : true;
-        if (false === $referer) {
-            if (0 <= date('H') && 7 >= date('H')) return miss(503);
-            if (1 === mt_rand(1, 10)) return miss(503);
-            usleep(500000);
-        }
-
         $ip = $this->request->param('ip', false) ?: $this->request->ip();
-        if ($result = (new Ipv4)->get($ip)) {
+        if ($result = (new ToolsIpV4)->get($ip)) {
             $content_type = 'application/json';
 
+            $format = $this->request->param('format', 'json');
+            $format = 'json' === $format ? $format : 'html';
             if ('json' !== $format) {
                 $result = 'const IP = ' . json_encode($result);
                 $content_type = 'application/javascript';

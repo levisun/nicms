@@ -19,6 +19,7 @@ namespace app\common\middleware;
 use Closure;
 use think\Request;
 use think\facade\Cache;
+use app\common\library\tools\File;
 
 class Throttle
 {
@@ -37,30 +38,43 @@ class Throttle
         $this->requestInc = __METHOD__ . $request->ip() . $request->domain();
         $this->requestLock = $this->requestInc . 'lock';
 
+        // 拦截频繁请求
         if (Cache::has($this->requestLock)) {
-            return miss('您的请求过于频繁已被拦截！', false);
+            return miss('您的请求过于频繁已被拦截！');
         }
 
+        // 拦截空域名访问(?)
         if (!$request->rootDomain()) {
             $this->inc($request);
-            return miss(404, false);
+            return miss(404);
         }
 
-        // IP进入显示空页面
+        // 拦截IP访问
         if ($request->isValidIP($request->host(true), 'ipv4') || $request->isValidIP($request->host(true), 'ipv6')) {
             $this->inc($request, 10);
-            return miss(404, false);
+            return miss(404);
         }
 
+        // 拦截非本域名访问
         if (false === stripos(config('app.app_host'), $request->rootDomain())) {
             $this->inc($request, 10);
-            return miss(404, false);
+            return miss(404);
         }
 
+        // 拦截非法后缀访问
         if (!in_array($request->ext(), ['', 'do', config('route.url_html_suffix')])) {
-            $this->inc($request, 10);
-            return miss(404, false);
+            $this->inc($request, 20);
+            return miss(404);
         }
+
+        /* $total = 0;
+        $glob = File::glob(runtime_path('session'));
+        while ($glob->valid()) {
+            $glob->next();
+            $total++;
+        }
+        $total += 10000;
+        usleep($total); */
 
         $response = $next($request);
 

@@ -47,7 +47,6 @@ class Search extends BaseLogic
             $map[] = ['title', 'like', $like, 'OR'];
         }
 
-        $date_format = $this->request->param('date_format', 'Y-m-d');
 
         $query_page = $this->request->param('page/d', 1, 'abs');
         if ($query_page > $this->ERPCache()) {
@@ -93,6 +92,7 @@ class Search extends BaseLogic
 
                     $list['render'] = $result->render();
 
+                    $date_format = $this->request->param('date_format', 'Y-m-d');
                     foreach ($list['data'] as $key => $value) {
                         // 书籍文章列表链接
                         $value['cat_url'] = url('book/' . Base64::url62encode($value['book_id']));

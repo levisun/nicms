@@ -82,9 +82,9 @@ class Category extends BaseLogic
 
                 $list['render'] = $result->render();
 
+                $date_format = $this->request->param('date_format', 'Y-m-d');
                 foreach ($list['data'] as $key => $value) {
                     $value['url'] = url('book/' . Base64::url62encode($value['id']));
-                    $date_format = $this->request->param('date_format', 'Y-m-d');
                     $value['update_time'] = date($date_format, (int) $value['update_time']);
 
                     $list['data'][$key] = $value;

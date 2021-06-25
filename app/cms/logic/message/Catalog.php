@@ -34,7 +34,6 @@ class Catalog extends BaseLogic
     {
         $list = false;
         if ($category_id = $this->request->param('category_id', 0, '\app\common\library\Base64::url62decode')) {
-            $date_format = $this->request->param('date_format', 'Y-m-d');
 
             $query_page = $this->request->param('page/d', 1, 'abs');
             if ($query_page > $this->ERPCache()) {
@@ -62,6 +61,7 @@ class Catalog extends BaseLogic
 
                     $list['render'] = $result->render();
 
+                    $date_format = $this->request->param('date_format', 'Y-m-d');
                     foreach ($list['data'] as $key => $value) {
                         $value['create_time'] = date($date_format, (int) $value['create_time']);
                         $value['update_time'] = date($date_format, (int) $value['update_time']);

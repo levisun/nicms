@@ -42,7 +42,33 @@ class Article extends BaseLogic
      */
     public function query(): array
     {
-        $map = [];
+        $model = ModelArticle::view('article', ['id', 'category_id', 'title', 'is_pass', 'attribute', 'author', 'access_id', 'hits', 'sort_order', 'update_time'])
+            ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
+            ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id')
+            ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
+            ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
+            ->view('user', ['username'], 'user.id=article.user_id', 'LEFT')
+            ->order('article.is_pass ASC, article.attribute DESC, article.sort_order DESC, article.update_time DESC')
+            ->where('article.delete_time', '=', '0')
+            ->where('model_id', '<=', '4')
+            ->where('article.lang', '=', $this->lang->getLangSet());
+
+        // 安模型查询,为空查询所有
+        if ($model_id = $this->request->param('model_id/d', 0, 'abs')) {
+            $model->where('article.model_id', '=', $model_id);
+            $map[] = ['model_id', '=', $model_id];
+        }
+
+        // 安栏目查询,为空查询所有
+        if ($category_id = $this->request->param('category_id/d', 0, 'abs')) {
+            $model->where('article.category_id', '=', $category_id);
+        }
+
+        // 安审核条件查询,为空查询所有
+        if ($is_pass = $this->request->param('pass/d', 0, 'abs')) {
+            $is_pass = $is_pass >= 1 ? 1 : 0;
+            $model->where('article.is_pass', '=', $is_pass);
+        }
 
         // 搜索
         if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
@@ -54,48 +80,18 @@ class Article extends BaseLogic
             $like = array_map(function ($value) {
                 return '%' . $value . '%';
             }, $like);
-            $map[] = ['article.title', 'like', $like, 'OR'];
+            $model->where('article.title', 'like', $like, 'OR');
         }
 
-        // 安栏目查询,为空查询所有
-        if ($category_id = $this->request->param('category_id/d', 0, 'abs')) {
-            $map[] = ['article.category_id', '=', $category_id];
-        }
-
-        // 安模型查询,为空查询所有
-        if ($model_id = $this->request->param('model_id/d', 0, 'abs')) {
-            $map[] = ['model_id', '=', $model_id];
-        }
-
-        // 安审核条件查询,为空查询所有
-        if ($is_pass = $this->request->param('pass/d', 0, 'abs')) {
-            $is_pass = $is_pass >= 1 ? 1 : 0;
-            $map[] = ['article.is_pass', '=', $is_pass];
-        }
-
-        $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
-
-        $query_page = $this->request->param('page/d', 1, 'abs');
-
-        $result = ModelArticle::view('article', ['id', 'category_id', 'title', 'is_pass', 'attribute', 'author', 'access_id', 'hits', 'sort_order', 'update_time'])
-            ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
-            ->view('model', ['id' => 'model_id', 'name' => 'model_name'], 'model.id=category.model_id')
-            ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
-            ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
-            ->view('user', ['username'], 'user.id=article.user_id', 'LEFT')
-            ->where('article.delete_time', '=', '0')
-            ->where('model_id', '<=', '4')
-            ->where('article.lang', '=', $this->lang->getLangSet())
-            ->where($map)
-            ->order('article.is_pass ASC, article.attribute DESC, article.sort_order DESC, article.update_time DESC')
-            ->paginate([
-                'list_rows' => $this->getQueryLimit(),
-                'path' => 'javascript:paging([PAGE]);',
-            ], true);
+        $result = $model->paginate([
+            'list_rows' => $this->getQueryLimit(),
+            'path' => 'javascript:paging([PAGE]);',
+        ], true);
 
         if ($result && $list = $result->toArray()) {
             $list['render'] = $result->render();
 
+            $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
             foreach ($list['data'] as $key => $value) {
                 $value['url'] = [
                     'editor' => url('content/article/editor/' . $value['id']),

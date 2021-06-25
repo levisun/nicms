@@ -59,11 +59,11 @@ class Category extends BaseLogic
                 ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
                 ->view('user', ['username'], 'user.id=article.user_id', 'LEFT')
                 ->order($sort_order)
-                ->whereTime('article.show_time', '<', date('Y-m-d H:i:s'))
-                ->where('article.access_id', '=', $this->userRoleId)
                 ->where('article.delete_time', '=', '0')
                 ->where('article.is_pass', '=', '1')
-                ->where('article.lang', '=', $this->lang->getLangSet());
+                ->where('article.access_id', '=', $this->userRoleId)
+                ->where('article.lang', '=', $this->lang->getLangSet())
+                ->whereTime('article.show_time', '<', date('Y-m-d H:i:s'));
 
             // 推荐置顶最热,三选一
             if ($attribute = $this->request->param('attribute/d', 0, 'abs')) {
@@ -81,8 +81,12 @@ class Category extends BaseLogic
             }
 
             // 大数据优化,只查询100页以内的数据
-            $start_time = $model->limit($this->getQueryLimit() * 100)->value('article.update_time');
-            $result = $model->whereTime('article.update_time', '>=', date('Y-m-d H:i:s', $start_time))->paginate([
+            $start_time = $model->limit($this->getQueryLimit() * 100, 1)->select();
+            $start_time = $start_time ? $start_time->toArray() : null;
+            $start_time = $start_time ? $start_time[0]['update_time'] : 1;
+            $model->whereTime('article.update_time', '>=', date('Y-m-d H:i:s', $start_time));
+
+            $result = $model->paginate([
                 'list_rows' => $this->getQueryLimit(),
                 'path' => 'javascript:paging([PAGE]);',
             ], true);
@@ -94,6 +98,7 @@ class Category extends BaseLogic
 
                 $list['render'] = $result->render();
 
+                $date_format = $this->request->param('date_format', 'Y-m-d');
                 foreach ($list['data'] as $key => $value) {
                     // 栏目链接
                     $value['cat_url'] = url('list/' . Base64::url62encode($value['category_id']));
@@ -104,7 +109,6 @@ class Category extends BaseLogic
                     // 缩略图
                     $value['thumb'] = File::imgUrl($value['thumb']);
                     // 时间格式
-                    $date_format = $this->request->param('date_format', 'Y-m-d');
                     $value['update_time'] = date($date_format, (int) $value['update_time']);
                     // 作者
                     $value['author'] = $value['author'] ?: $value['username'];

@@ -36,8 +36,6 @@ class User extends BaseLogic
      */
     public function query(): array
     {
-        $query_page = $this->request->param('page/d', 1, 'abs');
-
         $result = ModelUser::view('user', ['id', 'username', 'email', 'phone', 'status', 'create_time'])
             ->view('user_info', ['realname', 'nickname'], 'user_info.user_id=user.id')
             ->view('level', ['name' => 'level_name'], 'level.id=user.level_id')

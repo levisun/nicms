@@ -1,0 +1,22 @@
+<ul id="addon-elevator" style="display: block;">
+    <li><span id="elevator_gotop" title="↑ 返回顶部"><i class="container"></i></span></li>
+    <li><span id="elevator_gotop" title="微信公众号"></span></li>
+    <li><span id="elevator_gotop" title="手机版"></span></li>
+</ul>
+
+<div id="addon-gotop">回到顶端</div>
+<script type="text/javascript">
+window.addEventListener("scroll", function(){
+    if (document.body.scrollTop >= 100) {
+        document.getElementById("addon-gotop").style.display = "block";
+    } else {
+        document.getElementById("addon-gotop").style.display = "none";
+    }
+});
+document.getElementById("addon-gotop").addEventListener("click", function(){
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+});
+</script>

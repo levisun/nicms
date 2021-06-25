@@ -31,8 +31,6 @@ class Log extends BaseLogic
      */
     public function query(): array
     {
-        $query_page = $this->request->param('page/d', 1, 'abs');
-
         $result = ModelActionLog::view('action_log', ['action_id', 'user_id', 'action_ip', 'module', 'remark', 'create_time'])
             ->view('action', ['name' => 'action_name'], 'action.id=action_log.action_id')
             ->view('admin', ['username'], 'admin.id=action_log.user_id')

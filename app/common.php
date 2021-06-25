@@ -264,11 +264,11 @@ if (!function_exists('miss')) {
 
         $content = $content . '<!-- ' . date('Y-m-d H:i:s') . ' -->';
 
-        $resource = Response::create($content, 'html', 200);
-        // ->allowCache(true)
-        // ->cacheControl('max-age=1440,must-revalidate')
-        // ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
-        // ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT');
+        $resource = Response::create($content, 'html', 200)
+            ->allowCache(true)
+            ->cacheControl('max-age=1440,must-revalidate')
+            ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
+            ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT');
 
         ob_start('ob_gzhandler');
 
@@ -285,7 +285,7 @@ if (!function_exists('http_code')) {
      * @param  int $_code
      * @return string
      */
-    function http_code(int $_code): string
+    function http_code($_code): string
     {
         $httpCodeMsg = [
             100 => 'Continue', 101 => 'Switching Protocol', 103 => 'Early Hints',

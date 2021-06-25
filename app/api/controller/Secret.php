@@ -60,6 +60,12 @@ class Secret
         }
 
         $param = json_decode($param, true);
+        $haystack = ['id', 'pass', 'attribute', 'status', 'model_id', 'limit', 'page', 'date_format', 'sort', 'key', 'category_id', 'type_id', 'book_id', 'book_type_id', 'lang', 'logic', 'action', 'method'];
+        foreach ($param as $key => $value) {
+            if (!in_array($key, $haystack)) {
+                unset($param[$key]);
+            }
+        }
         $param = json_encode($param, JSON_UNESCAPED_UNICODE);
 
 
@@ -130,9 +136,9 @@ class Secret
 
         if ('guest' == $user_id) {
             $response->allowCache(true)
-            ->cacheControl('max-age=1440,must-revalidate')
-            ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
-            ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT');
+                ->cacheControl('max-age=1440,must-revalidate')
+                ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
+                ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT');
         }
 
         return $response;

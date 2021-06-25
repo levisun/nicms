@@ -57,10 +57,12 @@ class DataManage
                 continue;
             }
 
-            $log = Request::ip() . ' ' . Request::method(true) . ' ' . Request::url(true) . PHP_EOL .
-                'Time:' . $value['Time'] . ' Command:' . $value['Command'] . ' State:' . $value['State'] . ' Sql:' . $value['Info'];
+            if ($value['State'] || $value['Info']) {
+                $log = Request::ip() . ' ' . Request::method(true) . ' ' . Request::url(true) . PHP_EOL .
+                    'Time:' . $value['Time'] . ' Command:' . $value['Command'] . ' State:' . $value['State'] . ' Sql:' . $value['Info'];
 
-            Log::sql($log);
+                Log::sql($log);
+            }
         }
     }
 

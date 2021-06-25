@@ -7,7 +7,8 @@
  * @link      www.NiPHP.com
  * @since     2021
  */
-var t = tools();
+var t = tools = tools();
+tools.ui();
 
 function tools(_ele = "") {
     var elementObject;
@@ -20,6 +21,60 @@ function tools(_ele = "") {
     }
 
     return {
+        ui: function () {
+            var head = document.getElementsByTagName("head")[0];
+            var style = document.createElement("style");
+            style.id = "tools-ui";
+            style.innerText = ".toast-mask,.loading-mask,.popup-mask{width:100%;height:100%;position:fixed;margin:auto;background:rgba(0,0,0,.6);visibility:visible;z-index:10;top:0;left:0;}.toast-mask .toast-tips{width:40%;background:rgba(0,0,0,.7);color:white;margin:30% auto;border-radius:5px;overflow:hidden;position:relative;padding:10px 15px;text-align:center;}.loading-mask .loading-tips{width:70px;height:70px;margin:30% auto;vertical-align:middle;animation:loadingAnimation 1s steps(12,end) infinite;background:transparent url(\"data:image/svg+xml;charset=utf8, %3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 100 100'%3E%3Cpath fill='none' d='M0 0h100v100H0z'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23E9E9E9' rx='5' ry='5' transform='translate(0 -30)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23989697' rx='5' ry='5' transform='rotate(30 105.98 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%239B999A' rx='5' ry='5' transform='rotate(60 75.98 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23A3A1A2' rx='5' ry='5' transform='rotate(90 65 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23ABA9AA' rx='5' ry='5' transform='rotate(120 58.66 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23B2B2B2' rx='5' ry='5' transform='rotate(150 54.02 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23BAB8B9' rx='5' ry='5' transform='rotate(180 50 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23C2C0C1' rx='5' ry='5' transform='rotate(-150 45.98 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23CBCBCB' rx='5' ry='5' transform='rotate(-120 41.34 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23D2D2D2' rx='5' ry='5' transform='rotate(-90 35 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23DADADA' rx='5' ry='5' transform='rotate(-60 24.02 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23E2E2E2' rx='5' ry='5' transform='rotate(-30 -5.98 65)'/%3E%3C/svg%3E\") no-repeat;-webkit-background-size:100%;background-size:100%;}@-webkit-keyframes loadingAnimation{0%{-webkit-transform:rotate3d(0,0,1,0deg);transform:rotate3d(0,0,1,0deg);}100%{-webkit-transform:rotate3d(0,0,1,360deg);transform:rotate3d(0,0,1,360deg);}}@keyframes loadingAnimation{0%{-webkit-transform:rotate3d(0,0,1,0deg);transform:rotate3d(0,0,1,0deg);}100%{-webkit-transform:rotate3d(0,0,1,360deg);transform:rotate3d(0,0,1,360deg);}}.popup-mask .popup-box{width:400px;min-height:120px;background-color:white;margin:30% auto;border-radius:5px;overflow:hidden;position:relative;padding:10px 15px;}.popup-mask .popup-title,.popup-mask .popup-content{display:flex;justify-content:space-between;margin:0;padding:0;}.popup-mask .popup-title .popup-left{font-size:16px;font-weight:700;margin:0;padding:0;}.popup-mask .popup-title .popup-close{padding-top:5px;cursor:pointer;margin:0;padding:0;}.popup-mask .popup-title .popup-close{width:20px;height:20px;background:transparent url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAACmElEQVR4AWLAAaKAmJcB0K09AOmxBQEUXtvPtm3btm0ztm3btm3bScW2bXROnMyq73Arp+orLvr+GAffc7gZRv0LwRgkIKiexx6swo1Q9TfkLKMQD797FrshEKzEDciyPyBWGOHzIp7GLojFClyHDPsNkhkMQxy87knr8BbLca31l37BEUg2hiAWXvUEdirmWIZrQERNIUqDPVrEY9gBUdiL50BEYWgJURqIGLjVI9huMPzLsMQi0Aai1B/RcNrD2AZR2IdXkWnhaAdR6utwEQ9iK0RhP15HtoWjA0SpN6Jg2v3YYjD8m1AXgU4QpZ6IhLb7DIY/gLdhXAS6QJS6KxdxDzYbDP8ubBeJbhClrohAZt2NTRCFg3gfjotED4hSp0wWcSc2Ggz/IVwrCr0gSh0QjlPdgQ0QhUP4GK4XhT4QpXYIx21YbzD8p/CsaPQz/GKvMxj+c3heDAZAXHQYX8K3YjDIxeG/hu/FYjDEgSP4DoEVh6EOhv8BgReH4TAd/ifkmO7AYYjScIQiR3Q1lkIM1UHgXYXFEJtqIbCuxCKIQzXge5djIcQlVeFbl2E+xGWV4XmXYh5EqTgmQ5QqwrMuwVyIUn6EUCqmQpTKwfUuxhyIUiGcXRqmQ5TKwLUuwmyIUhFk1AWYAVEqCcddiJkQpWKKvzfL8Dukz/tXzPk7qi0N00w+s95/pxT5vNUw3aoVQLal+LrdNt+v5EWmJWNiAHvOy7EAopQb6UrCBIhSNbjZFYbHVv/hnAYFf/RofHT7keauoFVteNlVWAKxUN01td6Xtaob1Bme6r615c64WNRHKPzqWiyDWKieHHjBsohGAZ2AX4flEAjGIhGqXsJeNEEogup6rMR4JMGoexCGoLsOyTh/OwoWaVLb26+tkQAAAABJRU5ErkJggg==\") no-repeat;-webkit-background-size:100%;background-size:100%;}.popup-mask .popup-button{display:flex;justify-content:space-between;position:absolute;left:0;right:0;bottom:0;}.popup-mask .popup-button button{width:50%;height:40px;border:none;border-top:1px solid #ccc;padding:0;border-radius:0;}.popup-mask .popup-button button:first-child{border-right:1px solid #ccc;}";
+            head.appendChild(style);
+            // head.parentNode.insertBefore(style, head);
+        },
+
+
+        popup: function (title, msg) {
+            title = title ? title : window.location.hostname;
+            var html = "<div class='popup-box'><div class='popup-title'><div class='popup-left'>" + title + "</div><div class='popup-close' onclick='t.popupClose()'></div></div><div class='popup-content'>" + msg + "</div><div class='popup-button'><button>确认</button><button>取消</button></div></div>";
+            // cancel
+
+            var body = document.getElementsByTagName("body")[0];
+            var div = document.createElement("div");
+            div.className = "popup-mask";
+            div.innerHTML = "<div class='popup-box'><div class='popup-title'><div class='popup-left'>" + title + "</div><div class='popup-close' onclick='t.popupClose()'></div></div><div class='popup-content'>" + msg + "</div><div class='popup-button'><button>确认</button><button>取消</button></div></div><script></script>";
+            body.appendChild(div);
+        },
+
+        popupClose: function () {
+            var div = document.getElementsByClassName("popup-mask")[0];
+            div.parentNode.removeChild(div);
+        },
+
+        // 轻提示
+        toast: function (msg, time = 1) {
+            var body = document.getElementsByTagName("body")[0];
+            var div = document.createElement("div");
+            div.className = "toast-mask";
+            div.innerHTML = "<div class='toast-tips'>" + msg + "</div>";
+            body.appendChild(div);
+            setTimeout(function () {
+                var div = document.getElementsByClassName("toast-mask")[0];
+                div.parentNode.removeChild(div);
+            }, time * 1000);
+        },
+
+        // 加载动画
+        loading: function (status = false) {
+            if (status) {
+                var body = document.getElementsByTagName("body")[0];
+                var div = document.createElement("div");
+                div.className = "loading-mask";
+                div.innerHTML = "<div class='loading-tips'></div>";
+                body.appendChild(div);
+            } else {
+                var div = document.getElementsByClassName("loading-mask")[0];
+                div.parentNode.removeChild(div);
+            }
+        },
+
         // 宽
         width: function () {
             return this.element() ? this.element().offsetWidth : 0;
@@ -50,7 +105,13 @@ function tools(_ele = "") {
             }
             return this.element() ? this.element().innerHTML : "";
         },
+        before: function (html) {
 
+        },
+        // 元素内追加内容
+        append: function (html) {
+            this.element().appendChild(html);
+        },
 
         // 遍历选择器
         eq: function (num) {
@@ -153,14 +214,10 @@ function tools(_ele = "") {
 
         // 返回顶部
         goTop: function () {
-            var toolsGoTopTimer = setInterval(function () {
-                var toolsGoTop = document.documentElement.scrollTop || document.body.scrollTop;
-                var toolsGoTopSpeed = Math.floor(toolsGoTop / 3);
-                document.documentElement.scrollTop = document.body.scrollTop = toolsGoTopSpeed
-                    ? parseInt(toolsGoTop - toolsGoTopSpeed)
-                    : 0;
-                if (toolsGoTop === 0) clearInterval(toolsGoTopTimer);
-            }, 30);
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
         },
 
         /*

@@ -31,21 +31,18 @@ class Type extends BaseLogic
      */
     public function query(): array
     {
-        $map = [];
+        $model = ModelType::view('type', ['id', 'name', 'remark'])
+            ->view('category', ['name' => 'cat_name'], 'category.id=type.category_id')
+            ->order('category.id DESC, type.id');
+
         if ($category_id = $this->request->param('category_id/d', 0, 'abs')) {
-            $map[] = ['type.category_id', '=', $category_id];
+            $model->where('fields.category_id', '=', $category_id);
         }
 
-        $query_page = $this->request->param('page/d', 1, 'abs');
-
-        $result = ModelType::view('type', ['id', 'name', 'remark'])
-            ->view('category', ['name' => 'cat_name'], 'category.id=type.category_id')
-            ->where($map)
-            ->order('category.id DESC, type.id')
-            ->paginate([
-                'list_rows' => $this->getQueryLimit(),
-                'path' => 'javascript:paging([PAGE]);',
-            ], true);
+        $result = $model->paginate([
+            'list_rows' => $this->getQueryLimit(),
+            'path' => 'javascript:paging([PAGE]);',
+        ], true);
 
         if ($result && $list = $result->toArray()) {
             $list['render'] = $result->render();

@@ -33,22 +33,19 @@ class Fields extends BaseLogic
      */
     public function query(): array
     {
-        $map = [];
-        if ($category_id = $this->request->param('category_id/d', 0, 'abs')) {
-            $map[] = ['fields.category_id', '=', $category_id];
-        }
-
-        $query_page = $this->request->param('page/d', 1, 'abs');
-
-        $result = ModelFields::view('fields', ['id', 'name', 'is_require', 'remark'])
+        $model = ModelFields::view('fields', ['id', 'name', 'is_require', 'remark'])
             ->view('category', ['name' => 'cat_name'], 'category.id=fields.category_id')
             ->view('fields_type', ['id' => 'type_id', 'name' => 'type_name'], 'fields_type.id=fields.type_id')
-            ->where($map)
-            ->order('fields.id DESC')
-            ->paginate([
-                'list_rows' => $this->getQueryLimit(),
-                'path' => 'javascript:paging([PAGE]);',
-            ], true);
+            ->order('fields.id DESC');
+
+        if ($category_id = $this->request->param('category_id/d', 0, 'abs')) {
+            $model->where('fields.category_id', '=', $category_id);
+        }
+
+        $result = $model->paginate([
+            'list_rows' => $this->getQueryLimit(),
+            'path' => 'javascript:paging([PAGE]);',
+        ], true);
 
         if ($result && $list = $result->toArray()) {
             $list['render'] = $result->render();

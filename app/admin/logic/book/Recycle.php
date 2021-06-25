@@ -33,12 +33,15 @@ class Recycle extends BaseLogic
      */
     public function query(): array
     {
-        $map = [];
+        $model = ModelBookArticle::view('book_article', ['id', 'book_id', 'title', 'is_pass', 'update_time'])
+            ->view('book', ['title' => 'book_name'], 'book.id=book_article.book_id')
+            ->where('book_article.delete_time', '<>', '0')
+            ->order('book_article.is_pass ASC, book_article.id DESC');
 
         // 安审核条件查询,为空查询所有
         if ($is_pass = $this->request->param('pass/d', 0, 'abs')) {
             $is_pass = $is_pass >= 1 ? 1 : 0;
-            $map[] = ['book_article.is_pass', '=', $is_pass];
+            $model->where('book_article.is_pass', '=', $is_pass);
         }
 
         // 搜索
@@ -51,29 +54,13 @@ class Recycle extends BaseLogic
             $like = array_map(function ($value) {
                 return '%' . $value . '%';
             }, $like);
-            $map[] = ['book_article.title', 'like', $like, 'OR'];
+            $model->where('book_article.title', 'like', $like, 'OR');
         }
 
-        $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
-
-        $query_page = $this->request->param('page/d', 1, 'abs');
-        if ($query_page > $this->ERPCache()) {
-            return [
-                'debug' => false,
-                'cache' => true,
-                'msg'   => 'error',
-            ];
-        }
-
-        $result = ModelBookArticle::view('book_article', ['id', 'book_id', 'title', 'is_pass', 'update_time'])
-            ->view('book', ['title' => 'book_name'], 'book.id=book_article.book_id')
-            ->where('book_article.delete_time', '=', '0')
-            ->where($map)
-            ->order('book_article.is_pass ASC, book_article.id DESC')
-            ->paginate([
-                'list_rows' => $this->getQueryLimit(),
-                'path' => 'javascript:paging([PAGE]);',
-            ], true);
+        $result = $model->paginate([
+            'list_rows' => $this->getQueryLimit(),
+            'path' => 'javascript:paging([PAGE]);',
+        ], true);
 
         if ($result && $list = $result->toArray()) {
             if (empty($list['data'])) {

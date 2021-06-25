@@ -147,5 +147,10 @@ class RequestLog
         } else {
             // Log::info($log);
         }
+
+        $referer = Request::server('HTTP_REFERER');
+        if (!$referer || false === stripos($referer, Request::rootDomain())) {
+            Log::info($log);
+        }
     }
 }

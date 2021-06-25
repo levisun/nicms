@@ -32,11 +32,10 @@ class Databack extends BaseLogic
      */
     public function query(): array
     {
-        $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
-
         if ($file = glob(runtime_path('backup') . '*')) {
             rsort($file);
 
+            $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
             foreach ($file as $key => $value) {
                 $file[$key] = [
                     'id'   => Base64::encrypt(basename($value), date('Ymd')),

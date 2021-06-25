@@ -34,12 +34,17 @@ class Book extends BaseLogic
      */
     public function query(): array
     {
-        $map = [];
+        $model = ModelBook::view('book', ['id', 'title', 'type_id', 'is_pass', 'attribute', 'status', 'hits', 'sort_order', 'update_time'])
+            ->view('book_type', ['name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
+            ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
+            ->order('book.is_pass ASC, book.status ASC, book.attribute DESC, book.sort_order DESC, book.id DESC')
+            ->where('book.delete_time', '=', '0')
+            ->where('book.lang', '=', $this->lang->getLangSet());
 
         // 安审核条件查询,为空查询所有
         if ($is_pass = $this->request->param('pass/d', 0, 'abs')) {
             $is_pass = $is_pass >= 1 ? 1 : 0;
-            $map[] = ['book.is_pass', '=', $is_pass];
+            $model->where('book.is_pass', '=', $is_pass);
         }
 
         // 搜索
@@ -52,28 +57,18 @@ class Book extends BaseLogic
             $like = array_map(function ($value) {
                 return '%' . $value . '%';
             }, $like);
-            $map[] = ['book.title', 'like', $like, 'OR'];
+            $model->where('book.title', 'like', $like, 'OR');
         }
 
-        $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
-
-        $query_page = $this->request->param('page/d', 1, 'abs');
-
-        $result = ModelBook::view('book', ['id', 'title', 'type_id', 'is_pass', 'attribute', 'status', 'hits', 'sort_order', 'update_time'])
-            ->view('book_type', ['name' => 'type_name'], 'book_type.id=book.type_id', 'LEFT')
-            ->view('book_author', ['author'], 'book_author.id=book.author_id', 'LEFT')
-            ->where('book.delete_time', '=', '0')
-            ->where('book.lang', '=', $this->lang->getLangSet())
-            ->where($map)
-            ->order('book.is_pass ASC, book.status ASC, book.attribute DESC, book.sort_order DESC, book.id DESC')
-            ->paginate([
-                'list_rows' => $this->getQueryLimit(),
-                'path' => 'javascript:paging([PAGE]);',
-            ], true);
+        $result = $model->paginate([
+            'list_rows' => $this->getQueryLimit(),
+            'path' => 'javascript:paging([PAGE]);',
+        ], true);
 
         if ($result && $list = $result->toArray()) {
             $list['render'] = $result->render();
 
+            $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
             foreach ($list['data'] as $key => $value) {
                 $value['url'] = [
                     'editor' => url('book/book/editor/' . $value['id']),

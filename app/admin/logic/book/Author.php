@@ -31,7 +31,9 @@ class Author extends BaseLogic
      */
     public function query(): array
     {
-        $map = [];
+        $model = ModelBookAuthor::view('book_author', ['id', 'user_id', 'author', 'create_time'])
+            ->view('user', ['username'], 'user.id=book_author.user_id', 'LEFT')
+            ->order('id DESC');
 
         // 搜索
         if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
@@ -43,25 +45,18 @@ class Author extends BaseLogic
             $like = array_map(function ($value) {
                 return '%' . $value . '%';
             }, $like);
-            $map[] = ['book_author.author', 'like', $like, 'OR'];
+            $model->where('book_author.title', 'like', $like, 'OR');
         }
 
-        $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
-
-        $query_page = $this->request->param('page/d', 1, 'abs');
-
-        $result = ModelBookAuthor::view('book_author', ['id', 'user_id', 'author', 'create_time'])
-            ->view('user', ['username'], 'user.id=book_author.user_id', 'LEFT')
-            ->where($map)
-            ->order('id DESC')
-            ->paginate([
-                'list_rows' => $this->getQueryLimit(),
-                'path' => 'javascript:paging([PAGE]);',
-            ], true);
+        $result = $model->paginate([
+            'list_rows' => $this->getQueryLimit(),
+            'path' => 'javascript:paging([PAGE]);',
+        ], true);
 
         if ($result && $list = $result->toArray()) {
             $list['render'] = $result->render();
 
+            $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
             foreach ($list['data'] as $key => $value) {
                 $value['url'] = [
                     'editor' => url('book/author/editor/' . $value['id']),

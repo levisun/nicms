@@ -32,10 +32,6 @@ class Banner extends BaseLogic
      */
     public function query(): array
     {
-        $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
-
-        $query_page = $this->request->param('page/d', 1, 'abs');
-
         $result = ModelBanner::view('banner', ['id', 'name', 'width', 'height'])
             ->where('id', '=', 0)
             ->order('banner.update_time DESC')
@@ -47,6 +43,7 @@ class Banner extends BaseLogic
         if ($result && $list = $result->toArray()) {
             $list['render'] = $result->render();
 
+            $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
             foreach ($list['data'] as $key => $value) {
                 $value['image'] = $value['image'] ? unserialize($value['image']) : [];
                 $value['url'] = [

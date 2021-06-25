@@ -18,6 +18,7 @@ namespace app\common\middleware;
 
 use Closure;
 use think\Request;
+use think\facade\Log;
 use app\common\library\tools\Ipv4;
 use app\common\model\Visit as ModelVisit;
 
@@ -43,14 +44,26 @@ class RequestLog
             if (false === $this->spider($request)) {
                 $this->ip($request);
                 $this->record($request);
+                $this->log($request);
             }
 
-            if (1 === mt_rand(1, 100)) {
+            if (1 === mt_rand(1, 700)) {
                 ModelVisit::where('date', '<', strtotime('-7 days'))->limit(10)->delete();
             }
         }
 
         return $response;
+    }
+
+    private function log(&$_request): void
+    {
+        $log = $_request->ip() . ' ' . $_request->method(true) . ' ' . $_request->url(true) . ' ' .
+            $_request->server('HTTP_REFERER') . ' ' . $_request->server('HTTP_USER_AGENT');
+
+        $referer = $_request->server('HTTP_REFERER');
+        if (!$referer || false === stripos($referer, $_request->rootDomain())) {
+            Log::info($log);
+        }
     }
 
     /**

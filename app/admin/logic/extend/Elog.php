@@ -31,11 +31,10 @@ class Elog extends BaseLogic
      */
     public function query(): array
     {
-        $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
-
         $result = [];
         $length = [];
         if ($files = glob(runtime_path('log') . '*')) {
+            $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
             foreach ($files as $value) {
                 $result[] = [
                     'id'   => Base64::encrypt(basename($value), Base64::salt()),

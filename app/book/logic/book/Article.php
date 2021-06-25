@@ -34,7 +34,6 @@ class Article extends BaseLogic
     {
         $book_id = $this->request->param('book_id', 0, '\app\common\library\Base64::url62decode');
         $id = $this->request->param('id', 0, '\app\common\library\Base64::url62decode');
-        $date_format = $this->request->param('date_format', 'Y-m-d');
 
         $cache_key = $this->getCacheKey('book article');
         if (!$this->cache->has($cache_key) || !$result = $this->cache->get($cache_key)) {
@@ -52,6 +51,7 @@ class Article extends BaseLogic
                 // 内容
                 $result['content'] = Filter::htmlDecode($result['content']);
                 // 时间格式
+                $date_format = $this->request->param('date_format', 'Y-m-d');
                 $result['update_time'] = date($date_format, (int) $result['update_time']);
                 // 标识符
                 $result['flag'] = Base64::flag($result['book_id'] . $result['id'], 7);

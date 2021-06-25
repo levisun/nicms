@@ -14,7 +14,8 @@ use app\common\model\BookAuthor as ModelBookAuthor;
 class Spider extends BaseLogic
 {
     // private $bookURI = 'https://www.jx.la';
-    private $bookURI = 'https://www.biquge.com.cn';
+    // private $bookURI = 'https://www.biquge.com.cn';
+    private $bookURI = 'https://www.sobiquge.com';
 
     public function __destruct()
     {

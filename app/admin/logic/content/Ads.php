@@ -33,10 +33,6 @@ class Ads extends BaseLogic
      */
     public function query(): array
     {
-        $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
-
-        $query_page = $this->request->param('page/d', 1, 'abs');
-
         $result = ModelAds::order('update_time DESC')
             ->paginate([
                 'list_rows' => $this->getQueryLimit(),
@@ -46,6 +42,7 @@ class Ads extends BaseLogic
         if ($result && $list = $result->toArray()) {
             $list['render'] = $result->render();
 
+            $date_format = $this->request->param('date_format', 'Y-m-d H:i:s');
             foreach ($list['data'] as $key => $value) {
                 $value['start_time'] = date($date_format, $value['start_time']);
                 $value['end_time'] = date($date_format, $value['end_time']);
