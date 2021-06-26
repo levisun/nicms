@@ -65,7 +65,7 @@ class Search extends BaseLogic
                 ->where('article.is_pass', '=', '1')
                 ->where('article.access_id', '=', $this->userRoleId)
                 ->where('article.lang', '=', $this->lang->getLangSet())
-                ->whereTime('article.show_time', '<', date('Y-m-d H:i:s'));
+                ->whereTime('article.show_time', '<', time());
 
             // 推荐置顶最热,三选一
             if ($attribute = $this->request->param('attribute/d', 0, 'abs')) {
@@ -86,7 +86,7 @@ class Search extends BaseLogic
             $start_time = $model->limit($this->getQueryLimit() * 50, 1)->select();
             $start_time = $start_time ? $start_time->toArray() : null;
             $start_time = $start_time ? $start_time[0]['update_time'] : 1;
-            $model->whereTime('article.update_time', '>=', date('Y-m-d H:i:s', $start_time));
+            $model->whereTime('article.update_time', '>=', $start_time);
 
             // 搜索
             if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {

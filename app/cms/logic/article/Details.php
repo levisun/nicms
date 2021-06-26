@@ -58,7 +58,7 @@ class Details extends BaseLogic
                     ->view('type', ['id' => 'type_id', 'name' => 'type_name'], 'type.id=article.type_id', 'LEFT')
                     ->view('level', ['name' => 'access_name'], 'level.id=article.access_id', 'LEFT')
                     ->view('user', ['username'], 'user.id=article.user_id', 'LEFT')
-                    ->whereTime('article.show_time', '<', date('Y-m-d H:i:s'))
+                    ->whereTime('article.show_time', '<', time())
                     ->where('article.access_id', '=', $this->userRoleId)
                     ->where('article.delete_time', '=', 0)
                     ->where('article.is_pass', '=', 1)
@@ -212,7 +212,7 @@ class Details extends BaseLogic
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
             ->where('article.is_pass', '=', 1)
-            ->where('article.show_time', '<', time())
+            ->whereTime('article.show_time', '<', time())
             ->where('article.id', '=', $next_id)
             ->find();
 
@@ -253,7 +253,7 @@ class Details extends BaseLogic
             ->view('category', ['name' => 'cat_name'], 'category.id=article.category_id')
             ->view('model', ['name' => 'model_name'], 'model.id=category.model_id')
             ->where('article.is_pass', '=', 1)
-            ->where('article.show_time', '<', time())
+            ->whereTime('article.show_time', '<', time())
             ->where('article.id', '=', $prev_id)
             ->find();
 

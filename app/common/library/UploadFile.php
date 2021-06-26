@@ -86,7 +86,7 @@ class UploadFile
     {
         @set_time_limit(600);
         @ini_set('max_execution_time', '600');
-        @ini_set('memory_limit', '128M');
+        @ini_set('memory_limit', '1024M');
 
         $this->imgWidth = !empty($_size['width']) ? abs($_size['width']) : 0;
         $this->imgHeight = !empty($_size['height']) ? abs($_size['height']) : 0;
@@ -124,7 +124,7 @@ class UploadFile
             }
         }
 
-        return $result;
+        return is_string($result) ? ['error_msg' => $result] : $result;
     }
 
     /**
@@ -140,6 +140,7 @@ class UploadFile
 
         // 允许上传文件后缀,避免恶意修改配置文件导致的有害文件上传
         $ext = Config::get('app.upload_type');
+        $ext = strtolower($ext);
         $ext = explode(',', $ext);
         foreach ($ext as $key => $value) {
             if (!in_array($value, $this->fileExtension)) {
@@ -183,6 +184,7 @@ class UploadFile
             $save_file = $this->toExt($save_file);
             $host = Config::get('app.img_host');
         } else {
+            $save_file = $this->zip($save_file);
             $host = Config::get('app.static_host');
         }
 
@@ -191,7 +193,7 @@ class UploadFile
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
 
         return [
-            'extension' => pathinfo($save_file, PATHINFO_EXTENSION),
+            'extension' => strtolower(pathinfo($save_file, PATHINFO_EXTENSION)),
             'name'      => pathinfo($save_file, PATHINFO_BASENAME),
             'save_path' => $save_file,
             'size'      => filesize(public_path() . $save_file),
@@ -210,11 +212,13 @@ class UploadFile
     {
         $save_dir  = 'uploads' . DIRECTORY_SEPARATOR;
 
-        if (in_array($_files->extension(), ['jpg', 'gif', 'png', 'webp'])) {
+        $extension = strtolower($_files->extension());
+
+        if (in_array($extension, ['jpg', 'gif', 'png', 'webp'])) {
             $save_dir .= 'image' . DIRECTORY_SEPARATOR;
-        } elseif (in_array($_files->extension(), ['mp3', 'mp4'])) {
+        } elseif (in_array($extension, ['mp3', 'mp4'])) {
             $save_dir .= 'media' . DIRECTORY_SEPARATOR;
-        } elseif (in_array($_files->extension(), ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf'])) {
+        } elseif (in_array($extension, ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf'])) {
             $save_dir .= 'office' . DIRECTORY_SEPARATOR;
         } else {
             $save_dir .= 'file' . DIRECTORY_SEPARATOR;
@@ -231,29 +235,49 @@ class UploadFile
             $save_dir .= 'guest' . DIRECTORY_SEPARATOR;
         }
 
-        return $save_dir;
+        return rtrim($save_dir, '\/');
+    }
+
+    /**
+     * 非图片文件替换成压缩包
+     * @access private
+     * @param  string $_save_file 文件名
+     * @return string
+     */
+    private function zip(string &$_save_file): string
+    {
+        $zip = new \ZipArchive;
+        $extension = pathinfo($_save_file, PATHINFO_EXTENSION);
+        $basename = pathinfo($_save_file, PATHINFO_BASENAME);
+        $zip_file = str_ireplace($basename, strtoupper($extension) . $basename, $_save_file);
+        $zip_file = str_ireplace('.' . $extension, '', $zip_file) . '.zip';
+        $zip->open(public_path() . $zip_file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        $zip->addFile(public_path() . $_save_file, $basename);
+        $zip->close();
+        unlink(public_path() . $_save_file);
+        return $zip_file;
     }
 
     /**
      * 转换图片格式
      * @access private
      * @param  string $_save_file 文件名
-     * @return void
+     * @return string
      */
     private function toExt(string &$_save_file): string
     {
-        $extension = pathinfo($_save_file, PATHINFO_EXTENSION);
+        $extension = strtolower(pathinfo($_save_file, PATHINFO_EXTENSION));
         $new_file = $_save_file;
 
         $new_ext = false;
         if (function_exists('imagewebp')) {
             $new_ext = 'webp';
         } elseif ('gif' !== $extension) {
-            $new_ext = 'jpg';
+            $new_ext = 'png';
         }
 
         if ($new_ext) {
-            $new_file = str_replace('.' . $extension, '.' . $new_ext, $_save_file);
+            $new_file = str_ireplace('.' . $extension, '.' . $new_ext, $_save_file);
             $image = Image::open(public_path() . $_save_file);
             $image->save(public_path() . $new_file, $new_ext);
             unlink(public_path() . $_save_file);
@@ -269,7 +293,7 @@ class UploadFile
      * 添加图片水印
      * @access private
      * @param  string $_save_file 文件名
-     * @return void
+     * @return string
      */
     private function water(string &$_save_file): string
     {
@@ -288,7 +312,7 @@ class UploadFile
      * 裁减图片
      * @access private
      * @param  string $_save_file 文件名
-     * @return void
+     * @return string
      */
     private function tailoring(string &$_save_file): string
     {

@@ -7,8 +7,8 @@
  * @link      www.NiPHP.com
  * @since     2021
  */
-var t = tools = tools();
-tools.ui();
+var t = Tools = tools();
+Tools.ui();
 
 function tools(_ele = "") {
     var elementObject;
@@ -106,10 +106,12 @@ function tools(_ele = "") {
             return this.element() ? this.element().innerHTML : "";
         },
         before: function (html) {
-
+            html = document.createRange().createContextualFragment(html);
+            this.element().parentNode.insertBefore(html, this.element());
         },
         // 元素内追加内容
         append: function (html) {
+            html = document.createRange().createContextualFragment(html);
             this.element().appendChild(html);
         },
 
@@ -143,6 +145,56 @@ function tools(_ele = "") {
 
                 element.src = toolsWaterCanvas.toDataURL();
             }
+        },
+
+        video: function (options, callback) {
+            // 组合参数
+            options = this.extend({
+                controls: true, // 控件
+                autoplay: true, // 自动播放
+                loop: false,    // 循环播放
+            }, options);
+
+            // 循环播放
+            this.element().loop = options.loop;
+            // 自动播放
+            this.element().autoplay = options.autoplay;
+            if (true === options.autoplay) {
+                this.element().play();
+            }
+
+            // 加载进度
+            this.element().onprogress = function () {
+                var buffered = Math.round(self.element().buffered.end(0));
+                var seekable = Math.round(self.element().seekable.end(0));
+                var cache = Math.round(buffered / seekable * 100);
+                console.log(cache + "%");
+            }
+
+            // 播放中
+            var self = this;
+            this.element().ontimeupdate = function () {
+                // 控件
+                self.element().controls = options.controls;
+                // 屏蔽右键
+                self.element().oncontextmenu = function () {
+                    return false;
+                }
+
+                callback(self.element());
+            }
+
+            var div = document.createElement("div");
+            div.className = "video-mask";
+            div.style.display = "none";
+            div.style.width = this.width() + "px";
+            div.style.height = this.height() + "px";
+            div.style.background = "rgba(0,0,0,.6)";
+            div.style.position = "absolute";
+            div.innerHTML = "<div class='video-tips'></div>";
+            this.element().parentNode.insertBefore(div, this.element());
+
+            // return this.element().currentTime;
         },
 
         element: function () {
@@ -210,6 +262,13 @@ function tools(_ele = "") {
             document.body.appendChild(toolsOpenLink);
             toolsOpenLink.click();
             document.body.removeChild(toolsOpenLink);
+        },
+
+        // 监听滚动
+        scroll: function (callback) {
+            window.addEventListener("scroll", function () {
+                callback();
+            });
         },
 
         // 返回顶部

@@ -36,7 +36,7 @@ class Sitemap
             ->view('model', ['name' => 'action_name'], 'model.id=category.model_id')
             ->where('article.delete_time', '=', 0)
             ->where('article.is_pass', '=', '1')
-            ->whereTime('article.show_time', '<', date('Y-m-d H:i:s'))
+            ->whereTime('article.show_time', '<', time())
             ->whereYear('article.update_time')
             ->order('article.update_time DESC')
             ->limit(5000)
