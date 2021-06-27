@@ -86,7 +86,7 @@ class UploadFile
     {
         @set_time_limit(600);
         @ini_set('max_execution_time', '600');
-        @ini_set('memory_limit', '1024M');
+        @ini_set('memory_limit', '256M');
 
         $this->imgWidth = !empty($_size['width']) ? abs($_size['width']) : 0;
         $this->imgHeight = !empty($_size['height']) ? abs($_size['height']) : 0;
@@ -246,15 +246,19 @@ class UploadFile
      */
     private function zip(string &$_save_file): string
     {
-        $zip = new \ZipArchive;
         $extension = pathinfo($_save_file, PATHINFO_EXTENSION);
         $basename = pathinfo($_save_file, PATHINFO_BASENAME);
+
         $zip_file = str_ireplace($basename, strtoupper($extension) . $basename, $_save_file);
         $zip_file = str_ireplace('.' . $extension, '', $zip_file) . '.zip';
+
+        $zip = new \ZipArchive;
         $zip->open(public_path() . $zip_file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
         $zip->addFile(public_path() . $_save_file, $basename);
         $zip->close();
+
         unlink(public_path() . $_save_file);
+
         return $zip_file;
     }
 

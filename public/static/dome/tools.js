@@ -147,7 +147,7 @@ function tools(_ele = "") {
             }
         },
 
-        video: function (options, callback) {
+        video: function (options) {
             // 组合参数
             options = this.extend({
                 controls: true, // 控件
@@ -164,25 +164,23 @@ function tools(_ele = "") {
             }
 
             // 加载进度
-            this.element().onprogress = function () {
-                var buffered = Math.round(self.element().buffered.end(0));
-                var seekable = Math.round(self.element().seekable.end(0));
+            this.element().addEventListener("progress", function () {
+                var buffered = Math.round(this.buffered.end(0));
+                var seekable = Math.round(this.seekable.end(0));
                 var cache = Math.round(buffered / seekable * 100);
-                console.log(cache + "%");
-            }
+                // console.log(cache + "%");
+            }, false);
 
             // 播放中
-            var self = this;
-            this.element().ontimeupdate = function () {
+            this.element().addEventListener("timeupdate", function () {
                 // 控件
-                self.element().controls = options.controls;
+                this.controls = options.controls;
                 // 屏蔽右键
-                self.element().oncontextmenu = function () {
+                this.oncontextmenu = function () {
                     return false;
                 }
-
-                callback(self.element());
-            }
+                // console.log("monitoring");
+            }, false);
 
             var div = document.createElement("div");
             div.className = "video-mask";
@@ -194,7 +192,21 @@ function tools(_ele = "") {
             div.innerHTML = "<div class='video-tips'></div>";
             this.element().parentNode.insertBefore(div, this.element());
 
+            return this.element();
+
             // return this.element().currentTime;
+        },
+
+        toFullVideo: function () {
+            if (videoDom.requestFullscreen) {
+                return videoDom.requestFullscreen();
+            } else if (videoDom.webkitRequestFullScreen) {
+                return videoDom.webkitRequestFullScreen();
+            } else if (videoDom.mozRequestFullScreen) {
+                return videoDom.mozRequestFullScreen();
+            } else {
+                return videoDom.msRequestFullscreen();
+            }
         },
 
         element: function () {
