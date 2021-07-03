@@ -22,7 +22,7 @@ use app\common\model\ApiApp as ModelApiApp;
 
 if (!function_exists('to_unicode')) {
     /**
-     * 汉子转unicode
+     * 汉字转unicode
      * @param  string $_str
      * @return string
      */

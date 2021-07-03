@@ -25,5 +25,5 @@ return [
     'layout_on'       => true,
     'layout_name'     => 'layout',
     'layout_item'     => '{__CONTENT__}',
-    'taglib_pre_load' => 'app\common\taglib\Tags'
+    'taglib_pre_load' => '\app\common\taglib\Tags'
 ];

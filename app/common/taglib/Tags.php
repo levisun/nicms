@@ -109,13 +109,20 @@ class Tags extends TagLib
     }
 
 
-
-    public function tagPage($_tag, $_content)
+    /**
+     * 网页指定文章详情
+     * @access public
+     * @param  array  $_tag
+     * @param  string $_content
+     * @return string
+     */
+    public function tagPage(array $_tag, string $_content): string
     {
         $_tag['date_format'] = !empty($_tag['date_format']) ? $_tag['date_format'] : 'Y-m-d';
         $cache_key = 'taglib::article details' . implode('', $_tag);
 
-        $parse = '<?php
+        if (isset($_tag['id']) || isset($_tag['page_id'])) {
+            $parse = '<?php
             if (!cache("?' . $cache_key . '") || !$result = cache("' . $cache_key . '")):
                 $result = \app\common\model\Article::view("article", ["id", "category_id", "title", "keywords", "description", "thumb", "username", "access_id", "hits", "update_time"])
                     ->view("category", ["name" => "cat_name"], "category.id=article.category_id")
@@ -127,12 +134,12 @@ class Tags extends TagLib
                     ->where("article.delete_time", "=", 0)
                     ->where("article.show_time", "<", time())
                     ->where("article.lang", "=", app("lang")->getLangSet())';
-        if (isset($_tag['id'])) {
-            $parse .= '->where("article.id", "=", ' . $_tag['id'] . ')';
-        } elseif (isset($_tag['page_id'])) {
-            $parse .= '->where("article.category_id", "=", ' . $_tag['page_id'] . ')';
-        }
-        $parse .= '->find();
+            if (isset($_tag['id'])) {
+                $parse .= '->where("article.id", "=", ' . $_tag['id'] . ')';
+            } elseif (isset($_tag['page_id'])) {
+                $parse .= '->where("article.category_id", "=", ' . $_tag['page_id'] . ')';
+            }
+            $parse .= '->find();
                 if ($result && $result = $result->toArray()):
                     $result["thumb"] = \app\common\library\tools\File::imgUrl($result["thumb"]);
                     $result["cat_url"] = url("list/" . \app\common\library\Base64::url62encode($result["category_id"]));
@@ -176,11 +183,21 @@ class Tags extends TagLib
                 endif;
             endif;
             $details = !empty($result) ? $result : []; ?>';
+        } else {
+            $parse = '<!-- 缺少参数 -->';
+        }
 
         return $parse;
     }
 
-    public function tagCategory($_tag, $_content)
+    /**
+     * 网页文章列表页
+     * @access public
+     * @param  array  $_tag
+     * @param  string $_content
+     * @return string
+     */
+    public function tagCategory(array $_tag, string $_content): string
     {
         $parse  = '<?php $result = app(\'\app\cms\logic\article\Category\')->query();';
         $parse .= '$result = !empty($result[\'data\']) ? $result[\'data\'] : [];';
@@ -188,9 +205,18 @@ class Tags extends TagLib
         $parse .= $_content;
         $parse .= 'endforeach;';
         $parse .= '?>';
+
+        return $parse;
     }
 
-    public function tagDetails($_tag, $_content): string
+    /**
+     * 网页文章详情页
+     * @access public
+     * @param  array  $_tag
+     * @param  string $_content
+     * @return string
+     */
+    public function tagDetails(array $_tag, string $_content): string
     {
         $parse  = '<?php $details = app(\'\app\cms\logic\article\Details\')->query();';
         $parse .= 'if (empty($details[\'data\'])): miss(404, true, true); endif;';
@@ -199,7 +225,14 @@ class Tags extends TagLib
         return $parse;
     }
 
-    public function tagHead($_tag, $_content): string
+    /**
+     * 网页头部信息
+     * @access public
+     * @param  array  $_tag
+     * @param  string $_content
+     * @return string
+     */
+    public function tagHead(array $_tag, string $_content): string
     {
         $view_path = $this->tpl->getConfig('view_path');
         $theme_config = is_file($view_path . 'config.json')

@@ -39,7 +39,7 @@ Route::domain('api', function () {
     // 支付
     Route::post('pay/order/:pay/:type$', 'pay.Order/index')->pattern([
         'pay'  => '[a-z]+',
-        'type' => '[a-z]+',
+        'type' => '[a-z0-9]+',
     ]);
     Route::get('pay/respond/:pay$', 'pay.Respond/index')->pattern([
         'pay' => '[a-z]+',

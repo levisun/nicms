@@ -12,13 +12,31 @@
         video {
             width: 100%;
         }
+
+        #imgs a {
+            width: 150px;
+            text-align: center;
+            display: inline-block;
+            word-wrap: break-word;
+            word-break: break-all;
+            padding: 0 15px;
+            border-right: 1px solid #ccc;
+        }
     </style>
 </head>
 
 <body>
-    <p>其实不等式很难吗？许多学生做不对！实际上不等式跟等式就是关一个符号的问题，解题方法都一样，学不等式解题时你专注一点，就是什么情况下不等式符号变，就OK了。</p>
-    <!-- <video src="http://www.51xueba.cn/Uploads/2_00_00_00_00_09_06.mp4" id="test"></video> -->
-    <p>因为作为一个老师，如果只是再讲解题，没有像上面一样，让学生自己学会解决问题的能力，那么学生应很难把成绩提升上来，因为考试押中原题是很难的，一定要找到解题的破题点。</p>
+
+    <a onclick="popup()">popup</a>
+
+
+    <form id="ads">
+        <label for="host" class="col-md-2 control-label">广告图</label>
+        <input type="file" id="myimg" onchange="imgChange(this)" accept="image/png,image/gif,image/jpeg" />
+        <div id="imgs"></div>
+        <textarea name="code" id="code" class="form-control"></textarea>
+    </form>
+
     <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
     <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
     <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
@@ -34,6 +52,13 @@
         // }
 
         var test = new Lev();
+
+        function popup() {
+            test.popupButton("123", "<p>12321321321231</p>", "zhifu", function (res) {
+                alert(res);
+            });
+        }
+
     </script>
 </body>
 

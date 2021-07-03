@@ -124,7 +124,7 @@ class Participle
 
         $date = $this->date($_txt);
 
-        @ini_set('memory_limit', '128M');
+        @ini_set('memory_limit', '256M');
         $fc = new VicWord();
         $words = $fc->getAutoWord($_txt);
         unset($fc);

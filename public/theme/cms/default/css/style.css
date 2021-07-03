@@ -6,6 +6,10 @@
     padding-top: 3rem;
     padding-bottom: 1rem;
 }
+#layout-footer.bg-dark a{
+    color: #ccc;
+    padding: 0 5px;
+}
 #layout-main {
     padding-top: 15px;
     padding-bottom: 15px;

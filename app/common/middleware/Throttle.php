@@ -67,7 +67,7 @@ class Throttle
             return miss(404);
         }
 
-        /* $total = 0;
+        /* $total = 1;
         $glob = File::glob(runtime_path('session'));
         while ($glob->valid()) {
             $glob->next();

@@ -85,14 +85,13 @@ class Addon
      */
     public function run(string &$_namespace, string &$_content, array &$_settings): string
     {
-        $_namespace = '\\' . trim($_namespace, '\/.') . '\Index';
-
-        if (!class_exists($_namespace) || !method_exists($_namespace, 'run')) {
-            trace('[addon] ' . $_namespace . '插件不存在或约定方法错误', 'warning');
+        $class = '\\' . trim($_namespace, '\/.') . '\Index';
+        if (!class_exists($class) || !method_exists($class, 'run')) {
+            trace('[addon] ' . $class . '插件不存在或约定方法错误', 'warning');
             return $_content;
         }
 
-        if (!$result = (string) (new $_namespace)->run($_settings)) {
+        if (!$result = (string) (new $class)->run($_settings)) {
             return $_content;
         }
 
@@ -102,6 +101,8 @@ class Addon
         // $result = Filter::html($result);
         $result = Filter::htmlAttr($result);
         $result = Filter::php($result);
+
+        $result = '<!-- ' . $_namespace . ' -->' . $result . '<!-- ' . $_namespace . ' -->';
 
         $_content = false !== strripos($_content, '</body>')
             ? str_replace('</body>', $result . '</body>', $_content)
