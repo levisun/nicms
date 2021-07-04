@@ -346,8 +346,8 @@
                 var data = new FormData(document.getElementById('article'));
                 data.append('method', 'content.article.upload');
                 if ('thumb' == _type) {
-                    data.append('width', 100);
-                    data.append('height', 100);
+                    data.append('thumb_width', 100);
+                    data.append('thumb_height', 100);
                     data.append('water', true);
                 } else if ('image' == _type) {
                     var width = jQuery('.image_width').val();

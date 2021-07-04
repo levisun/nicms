@@ -118,7 +118,8 @@ class Article extends BaseLogic
 
         ModelBookArticle::create($receive_data);
 
-        $this->cache->tag('book')->clear();
+        $this->cache->tag('book article list' . $receive_data['book_id'])->clear();
+        $this->cache->tag('book article')->clear();
 
         return [
             'debug' => false,
@@ -186,7 +187,8 @@ class Article extends BaseLogic
 
         ModelBookArticle::where('id', '=', $id)->limit(1)->update($receive_data);
 
-        $this->cache->tag('book')->clear();
+        $this->cache->tag('book article list' . $receive_data['book_id'])->clear();
+        $this->cache->tag('book article')->clear();
 
         return [
             'debug' => false,
@@ -213,15 +215,16 @@ class Article extends BaseLogic
             ];
         }
 
-        $article_id = ModelBookArticle::where('id', '=', $id)->value('category_id');
+        $book_id = ModelBookArticle::where('id', '=', $id)->value('book_id');
 
-        if ($article_id) {
+        if ($book_id) {
             ModelBookArticle::where('id', '=', $id)->limit(1)->update([
                 'delete_time' => time()
             ]);
 
             // 清除缓存
-            $this->cache->tag('book')->clear();
+            $this->cache->tag('book article list' . $book_id)->clear();
+            $this->cache->tag('book article')->clear();
         }
 
         return [

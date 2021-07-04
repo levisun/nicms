@@ -423,9 +423,9 @@ abstract class BaseLogic
         $result = 'upload error';
         if ($this->request->isPost() && !empty($_FILES) && $this->userId) {
             $size = [
-                'width'  => $this->request->param('width/d', 0, 'abs'),
-                'height' => $this->request->param('height/d', 0, 'abs'),
-                'type'   => $this->request->param('type/b', false),
+                'thumb_width'  => $this->request->param('thumb_width/d', 0, 'abs'),
+                'thumb_height' => $this->request->param('thumb_height/d', 0, 'abs'),
+                'thumb_type'   => $this->request->param('thumb_type', 'scaling'),
             ];
             $water = $this->request->param('water/b', true);
             $element = $this->request->param('element', 'upload');

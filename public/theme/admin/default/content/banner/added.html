@@ -71,8 +71,8 @@
                 }
                 var data = new FormData(document.getElementById('banner'));
                 data.append('method', 'content.banner.upload');
-                data.append('width', width);
-                data.append('height', height);
+                data.append('thumb_width', width);
+                data.append('thumb_height', height);
                 data.append('water', false);
 
                 jQuery.upload({

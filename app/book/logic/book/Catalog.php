@@ -95,7 +95,7 @@ class Catalog extends BaseLogic
                     }
 
                     $list['book'] = $book;
-                    $this->cache->tag(['book', 'book article list' . $book_id])->set($cache_key, $list);
+                    $this->cache->tag('book article list' . $book_id)->set($cache_key, $list);
                 }
             }
         }

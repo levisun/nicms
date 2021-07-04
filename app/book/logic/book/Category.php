@@ -90,7 +90,7 @@ class Category extends BaseLogic
                     $list['data'][$key] = $value;
                 }
 
-                $this->cache->tag('book')->set($cache_key, $list);
+                $this->cache->tag('book list')->set($cache_key, $list);
             }
         }
 

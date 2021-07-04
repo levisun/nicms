@@ -88,10 +88,12 @@ class UploadFile
         @ini_set('max_execution_time', '600');
         @ini_set('memory_limit', '256M');
 
-        $this->imgWidth = !empty($_size['width']) ? abs($_size['width']) : 0;
-        $this->imgHeight = !empty($_size['height']) ? abs($_size['height']) : 0;
+        $this->imgWidth = !empty($_size['thumb_width']) ? abs($_size['thumb_width']) : 0;
+        $this->imgHeight = !empty($_size['thumb_height']) ? abs($_size['thumb_height']) : 0;
         // THUMB_SCALING:等比例缩放 | THUMB_FIXED:固定尺寸缩放
-        $this->imgThumbType = !empty($_size['type']) ? Image::THUMB_SCALING : Image::THUMB_FIXED;
+        $this->imgThumbType = !empty($_size['thumb_type']) && 'fixed' == $_size['thumb_type']
+            ? Image::THUMB_FIXED
+            : Image::THUMB_SCALING;
 
         $this->imgWater = $_water;
 
@@ -190,14 +192,12 @@ class UploadFile
 
         $save_file = str_replace(DIRECTORY_SEPARATOR, '/', ltrim($save_file, '/'));
 
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-
         return [
             'extension' => strtolower(pathinfo($save_file, PATHINFO_EXTENSION)),
             'name'      => pathinfo($save_file, PATHINFO_BASENAME),
             'save_path' => $save_file,
             'size'      => filesize(public_path() . $save_file),
-            'type'      => finfo_file($finfo, public_path() . $save_file),
+            'type'      => finfo_file(finfo_open(FILEINFO_MIME_TYPE), public_path() . $save_file),
             'url'       => $host . ltrim($save_file, '\/'),
         ];
     }
@@ -323,7 +323,11 @@ class UploadFile
         $image = Image::open(public_path() . $_save_file);
 
         // 裁减图片到指定尺寸
-        if ($this->imgWidth && $this->imgHeight) {
+        $this->imgWidth = $image->width() > $this->imgWidth ? $this->imgWidth : $image->width();
+        $this->imgHeight = $this->imgHeight ? $this->imgHeight : $this->imgWidth;
+        $this->imgHeight = $image->height() > $this->imgHeight ? $this->imgHeight : $image->height();
+
+        if ($image->width() > $this->imgWidth || $image->height() > $this->imgHeight) {
             $image->thumb($this->imgWidth, $this->imgHeight, $this->imgThumbType);
         }
         // 裁减图片到最大尺寸

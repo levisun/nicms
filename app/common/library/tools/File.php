@@ -33,20 +33,28 @@ class File
      * @param  int    $_size 整十数
      * @return string
      */
-    public static function thumb(string $_img, int $_size = 100): string
+    public static function thumb(string $_img, int $_width = 100, int $_height = 0): string
     {
         if (!self::imgHas($_img)) {
             return self::imgMiss();
         }
 
-        $_size = intval($_size / 10) * 10;
-        $_size = 800 > $_size ? $_size : 800;
-        $_size = 10 < $_size ? $_size : 10;
+        $_width = intval($_width / 10) * 10;
+        $_width = 800 > $_width ? $_width : 800;
+        $_width = 10 < $_width ? $_width : 10;
+
+        if ($_height) {
+            $_height = intval($_height / 10) * 10;
+            $_height = 800 > $_height ? $_height : 800;
+            $_height = 10 < $_height ? $_height : 10;
+        } else {
+            $_height = $_width;
+        }
 
         $_img = trim($_img, '\/.');
         $_img = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_img);
 
-        $thumb_file = md5($_img . $_size) . '.' . pathinfo($_img, PATHINFO_EXTENSION);
+        $thumb_file = md5($_img . $_width) . '.' . pathinfo($_img, PATHINFO_EXTENSION);
 
         $path = public_path('storage/thumb/' . substr($thumb_file, 0, 2));
         if (!is_dir($path)) mkdir($path, 0755, true);
@@ -54,9 +62,9 @@ class File
         if (!is_file($path . $thumb_file)) {
             @ini_set('memory_limit', '128M');
             $image = ThinkImage::open(public_path() . $_img);
-            if ($image->width() > $_size) {
-                $image->thumb($_size, $_size, ThinkImage::THUMB_SCALING);
-            }
+            $_width = $image->width() > $_width ? $_width : $image->width();
+            $_height = $image->height() > $_height ? $_height : $image->height();
+            $image->thumb($_width, $_height, ThinkImage::THUMB_SCALING);
             $image->save($path . $thumb_file);
             unset($image);
         }
@@ -125,12 +133,11 @@ class File
 
         if ($_file && is_file(public_path() . $_file)) {
             $extension = pathinfo($_file, PATHINFO_EXTENSION);
-            if (in_array($extension, ['jpg','gif','png','webp'])) {
+            if (in_array($extension, ['jpg', 'gif', 'png', 'webp'])) {
                 return Config::get('app.img_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
             } else {
                 return Config::get('app.static_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
             }
-
         }
 
         return false;

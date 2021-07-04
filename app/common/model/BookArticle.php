@@ -63,8 +63,8 @@ class BookArticle extends Model
         'is_pass',
         'sort_order',
         'show_time',
-        'create_time',
         'update_time',
         'delete_time',
+        'create_time',
     ];
 }

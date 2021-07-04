@@ -6,3 +6,7 @@ location / {
         return 200 "All OK";
     }
 }
+
+location ~ ^/(theme|static)/.*\.(html|htm|tpl|md)$ {
+    deny all;
+}

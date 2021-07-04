@@ -126,7 +126,7 @@ class Book extends BaseLogic
 
         ModelBook::create($receive_data);
 
-        $this->cache->tag('book')->clear();
+        $this->cache->tag('book list')->clear();
 
         return [
             'debug' => false,
@@ -210,7 +210,7 @@ class Book extends BaseLogic
 
         ModelBook::where('id', '=', $id)->limit(1)->update($receive_data);
 
-        $this->cache->tag('book')->clear();
+        $this->cache->tag('book list')->clear();
 
         return [
             'debug' => false,
@@ -246,7 +246,7 @@ class Book extends BaseLogic
         ModelBook::where('id', '=', $id)->limit(1)->delete();
         ModelBookArticle::where('book_id', '=', $id)->delete();
 
-        $this->cache->tag('book')->clear();
+        $this->cache->tag('book list')->clear();
 
         return [
             'debug' => false,
