@@ -18,6 +18,7 @@ namespace app\common\library;
 
 use app\common\library\Base64;
 use app\common\library\tools\File;
+use Lizhichao\Word\VicWord;
 
 class Filter
 {
@@ -44,7 +45,7 @@ class Filter
             $_data = strip_tags($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
             $_data = str_replace(['"', '\''], ['&#034;', '&#039;'], $_data);
-            $_data = preg_replace('/&amp;(#*[\w\d]+);/u', '&$1;', $_data);
+            $_data = preg_replace('/&amp;(#*[\w\d]+)[;；]+/u', '&$1;', $_data);
         }
         return $_data;
     }
@@ -66,7 +67,7 @@ class Filter
             $_data = self::base($_data);
             $_data = Base64::emojiEncode($_data);
             $_data = htmlspecialchars($_data, ENT_QUOTES);
-            $_data = preg_replace('/&amp;(#*[\w\d]+);/u', '&$1;', $_data);
+            $_data = preg_replace('/&amp;(#*[\w\d]+)[;；]+/u', '&$1;', $_data);
         }
         return $_data;
     }
@@ -88,7 +89,8 @@ class Filter
         } else {
             $_data = htmlspecialchars_decode($_data, ENT_QUOTES);
             $_data = Base64::emojiDecode($_data);
-            $_data = preg_replace('/&amp;(#*[\w\d]+);/u', '&$1;', $_data);
+            $_data = preg_replace('/&amp;#*[\w\d]+[;；]+/ui', '', $_data);
+            $_data = preg_replace('/&#*[\w\d]+[;；]+/ui', '', $_data);
             if ($_strict) {
                 $_data = self::sensitive($_data);
                 $_data = preg_replace_callback('/(src=["\']+)([^<>]+)(["\']+)/si', function ($matches) {
@@ -99,6 +101,38 @@ class Filter
             }
         }
         return $_data;
+    }
+
+    /**
+     * 分词
+     * @access public
+     * @static
+     * @param  string $_str
+     * @return array
+     */
+    public static function participle(string $_str): array
+    {
+        $_str = self::sensitive($_str);
+        $_str = self::nonChsAlpha($_str);
+        $preg = ['谁', '何', '什么', '哪儿', '哪里', '几时', '几', '多少', '怎', '怎么', '怎的', '怎样', '怎么样', '怎么着', '如何', '为什么', '吗', '呢', '吧', '啊', '难道', '岂', '居然', '竟然', '究竟', '简直', '难怪', '反倒', '何尝', '何必'];
+        $_str = str_replace($preg, ' ', $_str);
+
+        @ini_set('memory_limit', '256M');
+        $fc = new VicWord();
+        $words = $fc->getWord($_str);
+        $words = array_map(function ($value) {
+            return trim($value[0]);
+        }, $words);
+
+        $words = array_filter($words);
+        $words = array_unique($words);
+        $length = [];
+        foreach ($words as $value) {
+            $length[] = mb_strlen($value, 'utf-8');
+        }
+        array_multisort($length, SORT_DESC, $words);
+
+        return $words;
     }
 
     /**
@@ -169,9 +203,10 @@ class Filter
     {
         $_str = htmlspecialchars_decode($_str, ENT_QUOTES);
         // ASCII
-        $_str = preg_replace('/&#?[\w\d]+;/i', '', $_str);
+        $_str = preg_replace('/&amp;#*[\w\d]+[;；]+/ui', '', $_str);
+        $_str = preg_replace('/&#*[\w\d]+[;；]+/ui', '', $_str);
         $_str = strip_tags($_str);
-        $_str = (string) preg_replace('/[^\x{4e00}-\x{9fa5}a-zA-Z\d ]+/uis', '', $_str);
+        $_str = (string) preg_replace('/[^\x{4e00}-\x{9fa5}a-zA-Z\d ]+/uis', ' ', $_str);
         // 连续三个重复的字符
         $_str = (string) preg_replace('/(.)\1{2,}/u', '$1', $_str);
         // 重复符号
@@ -364,11 +399,11 @@ class Filter
             return preg_replace('/\s+/', ' ', $ele[0]);
         }, $_str);
 
-        $_str = preg_replace_callback('/<style[^<>]*>[^<>]+<\/style[^<>]*>/is', function($ele) {
+        $_str = preg_replace_callback('/<style[^<>]*>[^<>]+<\/style[^<>]*>/is', function ($ele) {
             return preg_replace('/\s+/', ' ', $ele[0]);
         }, $_str);
 
-        $_str = preg_replace_callback('/<script[^<>]*>[^<>]+<\/script[^<>]*>/is', function($ele) {
+        $_str = preg_replace_callback('/<script[^<>]*>[^<>]+<\/script[^<>]*>/is', function ($ele) {
             return preg_replace('/\s+/', ' ', $ele[0]);
         }, $_str);
 

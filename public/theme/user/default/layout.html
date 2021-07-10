@@ -1,7 +1,11 @@
-<link rel='dns-prefetch' href='https://cdn.jsdelivr.net' />
-<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css'
-    integrity='sha256-L/W5Wfqfa0sdBNIKN9cG6QA5F2qx4qICmU2VgLruv9Y=' crossorigin='anonymous'>
-<link rel='stylesheet' href='__CSS__style.css'>
+{tags:head}
+
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+    integrity="sha256-L/W5Wfqfa0sdBNIKN9cG6QA5F2qx4qICmU2VgLruv9Y=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+    integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
+<link rel="stylesheet" href="__CSS__style.css">
 
 <script src='https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js'
     integrity='sha256-chlNFSVx3TdcQ2Xlw7SvnbLAavAQLO0Y/LBiWX04viY=' crossorigin='anonymous'></script>
@@ -10,4 +14,58 @@
     integrity='sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=' crossorigin='anonymous'></script>
 <script src='https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js'
     integrity='sha256-WqU1JavFxSAMcLP2WIOI+GB2zWmShMI82mTpLDcqFUg=' crossorigin='anonymous'></script>
+<script src='https://cdn.jsdelivr.net/npm/dompurify@2.2.7/dist/purify.min.js'
+    integrity='sha256-fJ3q4bkaOdMCvZdbT3gfBSKV7vZLORca4c5g5oHTGEc=' crossorigin='anonymous'></script>
 <script src='__STATIC__jquery/jquery.nicms.js'></script>
+
+
+<main id="layout-main" class="bg-light">
+    <div class="container">
+        {__CONTENT__}
+    </div>
+</main>
+
+<footer id="layout-footer" class="bg-dark">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm text-white-50">
+                <p>
+                    <template v-for="vo in foot_nav">
+                        <a v-bind:href="vo.url" v-text="vo.name"></a>
+                    </template>
+                </p>
+                <p>__FOOTER_MSG__</p>
+                <p>__COPYRIGHT__</p>
+            </div>
+        </div>
+    </div>
+</footer>
+<script>
+    let layout_footer = new Vue({
+        el: '#layout-footer',
+        data: {
+            foot_nav: [],
+        },
+        methods: {
+            load: function () {
+                jQuery.pjax({
+                    url: NICMS.api_uri + 'ajax.do',
+                    method: 'get',
+                    data: [
+                        { name: 'method', value: 'nav.foot.query' }
+                    ],
+                    success: function (result) {
+                        if (10000 == result.code) {
+                            layout_footer.foot_nav = result.data;
+                        }
+                    }
+                });
+            },
+        }
+    });
+    layout_footer.load();
+</script>
+
+__SCRIPT__
+
+{/tags:head}

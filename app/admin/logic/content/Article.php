@@ -71,16 +71,12 @@ class Article extends BaseLogic
         }
 
         // 搜索
-        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::nonChsAlpha')) {
-            $like = explode(' ', $search_key);
-            $like = array_map('trim', $like);
-            $like = array_filter($like);
-            $like = array_unique($like);
-            $like = array_slice($like, 0, 3);
-            $like = array_map(function ($value) {
+        if ($search_key = $this->request->param('key', null, '\app\common\library\Filter::participle')) {
+            $search_key = array_slice($search_key, 0, 3);
+            $search_key = array_map(function ($value) {
                 return '%' . $value . '%';
-            }, $like);
-            $model->where('article.title', 'like', $like, 'OR');
+            }, $search_key);
+            $model->where('article.title', 'like', $search_key, 'OR');
         }
 
         $result = $model->paginate([

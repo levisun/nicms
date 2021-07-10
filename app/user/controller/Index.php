@@ -17,12 +17,35 @@ declare(strict_types=1);
 namespace app\user\controller;
 
 use app\common\controller\BaseController;
-use app\common\controller\SiteInfo;
+use app\user\controller\SiteInfo;
 
 class Index extends BaseController
 {
 
     protected $authKey = 'user_auth_key';
+
+    /**
+     * 初始化
+     * @access public
+     * @return void
+     */
+    public function initialize()
+    {
+        // 初始化视图
+        $result = (new SiteInfo)->query();
+
+        $this->view->config([
+            'view_path' => $result['view_path'],
+            'tpl_replace_string' => $result['tpl_replace_string'],
+        ]);
+
+        $this->view->engine()->assign([
+            'TITLE'       => $result['title'],
+            'KEYWORDS'    => $result['keywords'],
+            'DESCRIPTION' => $result['description'],
+            'URL'         => $this->request->baseUrl(true),
+        ]);
+    }
 
     /**
      * 主页
