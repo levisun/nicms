@@ -67,24 +67,45 @@ class Throttle
             return miss(404);
         }
 
-        /* $total = 1;
-        $glob = File::glob(runtime_path('session'));
-        while ($glob->valid()) {
-            $glob->next();
-            $total++;
-        }
-        $total += 10000;
-        usleep($total); */
-
         $response = $next($request);
 
         if (200 === $response->getCode()) {
             $this->inc($request);
         }
 
+        $this->sessionTotal();
+
         return $response;
     }
 
+    /**
+     * 用户在线统计
+     * @access private
+     * @return void
+     */
+    private function sessionTotal(): void
+    {
+        $cache_key = __METHOD__ . 'session total';
+        if (!Cache::has($cache_key) || !$total = Cache::get($cache_key)) {
+            $total = 1;
+            $glob = File::glob(runtime_path('session'));
+            while ($glob->valid()) {
+                $glob->next();
+                $total++;
+            }
+            Cache::set($cache_key, $total, 1440);
+        }
+        // 一秒=1000000
+        usleep($total * 100 + 10000);
+    }
+
+    /**
+     * 十秒内请求量统计
+     * @access private
+     * @param  Request
+     * @param  int $step
+     * @return void
+     */
     private function inc(Request $request, int $step = 1): void
     {
         if (Cache::has($this->requestInc)) {

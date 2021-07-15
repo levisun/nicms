@@ -49,9 +49,7 @@ class User extends BaseLogic
             ->view('role_admin', ['role_id'], 'role_admin.user_id=admin.id')
             ->view('role', ['name' => 'role_name'], 'role.id=role_admin.role_id')
             ->where('admin.status', '=', 1)
-            ->where('admin.username', '=', $this->request->param('username'))
-            ->whereOR('admin.phone', '=', $this->request->param('username'))
-            ->whereOR('admin.email', '=', $this->request->param('username'))
+            ->where('admin.username|admin.phone|admin.email', '=', $this->request->param('username'))
             ->find();
 
         $user = $user ? $user->toArray() : false;
@@ -114,7 +112,7 @@ class User extends BaseLogic
                 'user_id'      => Base64::encrypt($this->userId),
                 'user_role_id' => Base64::encrypt($this->userRoleId),
                 'user_type'    => Base64::encrypt($this->userType),
-                'user_token'   => rtrim(Base64::encrypt(json_encode([$this->userId, $this->userRoleId, $this->userType])), '='),
+                'user_token'   => Base64::encrypt(json_encode([$this->userId, $this->userRoleId, $this->userType])),
             ]
         ];
     }
@@ -201,8 +199,16 @@ class User extends BaseLogic
                 ->find();
 
             if (null !== $result && $result = $result->toArray()) {
+                $this->setUserSession($result['id'], $result['role_id'], 'admin');
+
                 $result['last_login_time'] = date('Y-m-d H:i:s', (int) $result['last_login_time']);
                 $result['avatar'] = File::avatar('', $result['username']);
+
+                $result['user_id'] = Base64::encrypt($this->userId);
+                $result['user_role_id'] = Base64::encrypt($this->userRoleId);
+                $result['user_type'] = Base64::encrypt($this->userType);
+                $result['user_token'] = Base64::encrypt(json_encode([$this->userId, $this->userRoleId, $this->userType]));
+
                 unset($result['id'], $result['role_id']);
             }
         }

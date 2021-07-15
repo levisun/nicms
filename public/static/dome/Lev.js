@@ -166,16 +166,16 @@ class Lev {
         let name = "popup-" + md5(msg);
         let body = document.getElementsByTagName("body")[0];
         let div = document.createElement("div");
-        div.className = "popup-mask";
+        div.className = "lev-popup-mask";
         div.id = name;
-        div.innerHTML = "<div class='popup-box'><div class='popup-title'><div class='popup-left'>" + title + "</div><div class='popup-close'></div></div><div class='popup-content'>" + msg + "</div><div class='popup-button'><button class='popup-btn-confirm' style='width:100%;'>" + but + "</button></div></div>";
+        div.innerHTML = "<div class='lev-popup-box'><div class='lev-popup-title'><div class='lev-popup-left'>" + title + "</div><div class='lev-popup-close'></div></div><div class='lev-popup-content'>" + msg + "</div><div class='lev-popup-button'><button class='lev-popup-btn-confirm' style='width:100%;'>" + but + "</button></div></div>";
         body.appendChild(div);
 
-        document.getElementById(name).getElementsByClassName('popup-close')[0].onclick = function () {
+        document.getElementById(name).getElementsByClassName('lev-popup-close')[0].onclick = function () {
             let div = document.getElementById(name);
             div.parentNode.removeChild(div);
         };
-        document.getElementById(name).getElementsByClassName('popup-btn-confirm')[0].onclick = function () {
+        document.getElementById(name).getElementsByClassName('lev-popup-btn-confirm')[0].onclick = function () {
             callback(true);
         };
     }
@@ -186,19 +186,19 @@ class Lev {
         let name = "popup-" + md5(msg);
         let body = document.getElementsByTagName("body")[0];
         let div = document.createElement("div");
-        div.className = "popup-mask";
+        div.className = "lev-popup-mask";
         div.id = name;
-        div.innerHTML = "<div class='popup-box'><div class='popup-title'><div class='popup-left'>" + title + "</div><div class='popup-close'></div></div><div class='popup-content'>" + msg + "</div><div class='popup-button'><button class='popup-btn-confirm'>确认</button><button class='popup-btn-cancel'>取消</button></div></div>";
+        div.innerHTML = "<div class='lev-popup-box'><div class='lev-popup-title'><div class='lev-popup-left'>" + title + "</div><div class='lev-popup-close'></div></div><div class='lev-popup-content'>" + msg + "</div><div class='lev-popup-button'><button class='lev-popup-btn-confirm'>确认</button><button class='lev-popup-btn-cancel'>取消</button></div></div>";
         body.appendChild(div);
 
-        document.getElementById(name).getElementsByClassName('popup-close')[0].onclick = function () {
+        document.getElementById(name).getElementsByClassName('lev-popup-close')[0].onclick = function () {
             let div = document.getElementById(name);
             div.parentNode.removeChild(div);
         };
-        document.getElementById(name).getElementsByClassName('popup-btn-confirm')[0].onclick = function () {
+        document.getElementById(name).getElementsByClassName('lev-popup-btn-confirm')[0].onclick = function () {
             callback(true);
         };
-        document.getElementById(name).getElementsByClassName('popup-btn-cancel')[0].onclick = function () {
+        document.getElementById(name).getElementsByClassName('lev-popup-btn-cancel')[0].onclick = function () {
             callback(false);
         };
     }
@@ -209,11 +209,11 @@ class Lev {
     toast(msg, time = 1.5) {
         let body = document.getElementsByTagName("body")[0];
         let div = document.createElement("div");
-        div.className = "toast-mask";
-        div.innerHTML = "<div class='toast-tips'>" + msg + "</div>";
+        div.className = "lev-toast-mask";
+        div.innerHTML = "<div class='lev-toast-tips'>" + msg + "</div>";
         body.appendChild(div);
         setTimeout(function () {
-            let div = document.getElementsByClassName("toast-mask")[0];
+            let div = document.getElementsByClassName("lev-toast-mask")[0];
             div.parentNode.removeChild(div);
         }, time * 1000);
     }
@@ -225,11 +225,11 @@ class Lev {
         if (status) {
             let body = document.getElementsByTagName("body")[0];
             let div = document.createElement("div");
-            div.className = "loading-mask";
-            div.innerHTML = "<div class='loading-tips'></div>";
+            div.className = "lev-loading-mask";
+            div.innerHTML = "<div class='lev-loading-tips'></div>";
             body.appendChild(div);
         } else {
-            let div = document.getElementsByClassName("loading-mask")[0];
+            let div = document.getElementsByClassName("lev-loading-mask")[0];
             div.parentNode.removeChild(div);
         }
     }
@@ -239,7 +239,7 @@ class Lev {
         let head = document.getElementsByTagName("head")[0];
         let style = document.createElement("style");
         style.id = "Lev-ui";
-        style.innerText = ".toast-mask,.loading-mask,.popup-mask{width:100%;height:100%;position:fixed;margin:auto;background:rgba(0,0,0,.6);visibility:visible;z-index:10;top:0;left:0;}.toast-mask .toast-tips{width:40%;background:rgba(0,0,0,.7);color:white;margin:30% auto;border-radius:5px;overflow:hidden;position:relative;padding:10px 15px;text-align:center;}.loading-mask .loading-tips{width:70px;height:70px;margin:30% auto;vertical-align:middle;animation:loadingAnimation 1s steps(12,end) infinite;background:transparent url(\"data:image/svg+xml;charset=utf8, %3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 100 100'%3E%3Cpath fill='none' d='M0 0h100v100H0z'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23E9E9E9' rx='5' ry='5' transform='translate(0 -30)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23989697' rx='5' ry='5' transform='rotate(30 105.98 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%239B999A' rx='5' ry='5' transform='rotate(60 75.98 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23A3A1A2' rx='5' ry='5' transform='rotate(90 65 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23ABA9AA' rx='5' ry='5' transform='rotate(120 58.66 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23B2B2B2' rx='5' ry='5' transform='rotate(150 54.02 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23BAB8B9' rx='5' ry='5' transform='rotate(180 50 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23C2C0C1' rx='5' ry='5' transform='rotate(-150 45.98 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23CBCBCB' rx='5' ry='5' transform='rotate(-120 41.34 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23D2D2D2' rx='5' ry='5' transform='rotate(-90 35 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23DADADA' rx='5' ry='5' transform='rotate(-60 24.02 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23E2E2E2' rx='5' ry='5' transform='rotate(-30 -5.98 65)'/%3E%3C/svg%3E\") no-repeat;-webkit-background-size:100%;background-size:100%;}@-webkit-keyframes loadingAnimation{0%{-webkit-transform:rotate3d(0,0,1,0deg);transform:rotate3d(0,0,1,0deg);}100%{-webkit-transform:rotate3d(0,0,1,360deg);transform:rotate3d(0,0,1,360deg);}}@keyframes loadingAnimation{0%{-webkit-transform:rotate3d(0,0,1,0deg);transform:rotate3d(0,0,1,0deg);}100%{-webkit-transform:rotate3d(0,0,1,360deg);transform:rotate3d(0,0,1,360deg);}}.popup-mask .popup-box{width:70%;min-height:120px;background-color:white;margin:30% auto;border-radius:5px;overflow:hidden;position:relative;padding:10px 15px;}.popup-mask .popup-title,.popup-mask .popup-content{display:flex;justify-content:space-between;margin:0;padding:0;}.popup-mask .popup-title .popup-left{font-size:16px;font-weight:700;margin:0;padding:0;}.popup-mask .popup-title .popup-close{padding-top:5px;cursor:pointer;margin:0;padding:0;}.popup-mask .popup-title .popup-close{width:20px;height:20px;background:transparent url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAACmElEQVR4AWLAAaKAmJcB0K09AOmxBQEUXtvPtm3btm0ztm3btm3bScW2bXROnMyq73Arp+orLvr+GAffc7gZRv0LwRgkIKiexx6swo1Q9TfkLKMQD797FrshEKzEDciyPyBWGOHzIp7GLojFClyHDPsNkhkMQxy87knr8BbLca31l37BEUg2hiAWXvUEdirmWIZrQERNIUqDPVrEY9gBUdiL50BEYWgJURqIGLjVI9huMPzLsMQi0Aai1B/RcNrD2AZR2IdXkWnhaAdR6utwEQ9iK0RhP15HtoWjA0SpN6Jg2v3YYjD8m1AXgU4QpZ6IhLb7DIY/gLdhXAS6QJS6KxdxDzYbDP8ubBeJbhClrohAZt2NTRCFg3gfjotED4hSp0wWcSc2Ggz/IVwrCr0gSh0QjlPdgQ0QhUP4GK4XhT4QpXYIx21YbzD8p/CsaPQz/GKvMxj+c3heDAZAXHQYX8K3YjDIxeG/hu/FYjDEgSP4DoEVh6EOhv8BgReH4TAd/ifkmO7AYYjScIQiR3Q1lkIM1UHgXYXFEJtqIbCuxCKIQzXge5djIcQlVeFbl2E+xGWV4XmXYh5EqTgmQ5QqwrMuwVyIUn6EUCqmQpTKwfUuxhyIUiGcXRqmQ5TKwLUuwmyIUhFk1AWYAVEqCcddiJkQpWKKvzfL8Dukz/tXzPk7qi0N00w+s95/pxT5vNUw3aoVQLal+LrdNt+v5EWmJWNiAHvOy7EAopQb6UrCBIhSNbjZFYbHVv/hnAYFf/RofHT7keauoFVteNlVWAKxUN01td6Xtaob1Bme6r615c64WNRHKPzqWiyDWKieHHjBsohGAZ2AX4flEAjGIhGqXsJeNEEogup6rMR4JMGoexCGoLsOyTh/OwoWaVLb26+tkQAAAABJRU5ErkJggg==\") no-repeat;-webkit-background-size:100%;background-size:100%;}.popup-mask .popup-button{display:flex;justify-content:space-between;position:absolute;left:0;right:0;bottom:0;}.popup-mask .popup-button button{width:50%;height:40px;border:none;border-top:1px solid #ccc;padding:0;border-radius:0;}.popup-mask .popup-button button:first-child{border-right:1px solid #ccc;}";
+        style.innerText = ".lev-toast-mask,.lev-loading-mask,.lev-popup-mask{width:100%;height:100%;position:fixed;margin:auto;background:rgba(0,0,0,.6);visibility:visible;z-index:10;top:0;left:0;}.lev-toast-mask .lev-toast-tips{width:40%;background:rgba(0,0,0,.7);color:white;margin:30% auto;border-radius:5px;overflow:hidden;position:relative;padding:10px 15px;text-align:center;}.lev-loading-mask .lev-loading-tips{width:70px;height:70px;margin:30% auto;vertical-align:middle;animation:loadingAnimation 1s steps(12,end) infinite;background:transparent url(\"data:image/svg+xml;charset=utf8, %3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 100 100'%3E%3Cpath fill='none' d='M0 0h100v100H0z'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23E9E9E9' rx='5' ry='5' transform='translate(0 -30)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23989697' rx='5' ry='5' transform='rotate(30 105.98 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%239B999A' rx='5' ry='5' transform='rotate(60 75.98 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23A3A1A2' rx='5' ry='5' transform='rotate(90 65 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23ABA9AA' rx='5' ry='5' transform='rotate(120 58.66 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23B2B2B2' rx='5' ry='5' transform='rotate(150 54.02 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23BAB8B9' rx='5' ry='5' transform='rotate(180 50 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23C2C0C1' rx='5' ry='5' transform='rotate(-150 45.98 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23CBCBCB' rx='5' ry='5' transform='rotate(-120 41.34 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23D2D2D2' rx='5' ry='5' transform='rotate(-90 35 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23DADADA' rx='5' ry='5' transform='rotate(-60 24.02 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='%23E2E2E2' rx='5' ry='5' transform='rotate(-30 -5.98 65)'/%3E%3C/svg%3E\") no-repeat;-webkit-background-size:100%;background-size:100%;}@-webkit-keyframes loadingAnimation{0%{-webkit-transform:rotate3d(0,0,1,0deg);transform:rotate3d(0,0,1,0deg);}100%{-webkit-transform:rotate3d(0,0,1,360deg);transform:rotate3d(0,0,1,360deg);}}@keyframes loadingAnimation{0%{-webkit-transform:rotate3d(0,0,1,0deg);transform:rotate3d(0,0,1,0deg);}100%{-webkit-transform:rotate3d(0,0,1,360deg);transform:rotate3d(0,0,1,360deg);}}.lev-popup-mask .lev-popup-box{width:70%;min-height:120px;background-color:white;margin:30% auto;border-radius:5px;overflow:hidden;position:relative;padding:10px 15px;}.lev-popup-mask .lev-popup-title,.lev-popup-mask .lev-popup-content{display:flex;justify-content:space-between;margin:0;padding:0;}.lev-popup-mask .lev-popup-title .lev-popup-left{font-size:16px;font-weight:700;margin:0;padding:0;}.lev-popup-mask .lev-popup-title .lev-popup-close{padding-top:5px;cursor:pointer;margin:0;padding:0;}.lev-popup-mask .lev-popup-title .lev-popup-close{width:20px;height:20px;background:transparent url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAACmElEQVR4AWLAAaKAmJcB0K09AOmxBQEUXtvPtm3btm0ztm3btm3bScW2bXROnMyq73Arp+orLvr+GAffc7gZRv0LwRgkIKiexx6swo1Q9TfkLKMQD797FrshEKzEDciyPyBWGOHzIp7GLojFClyHDPsNkhkMQxy87knr8BbLca31l37BEUg2hiAWXvUEdirmWIZrQERNIUqDPVrEY9gBUdiL50BEYWgJURqIGLjVI9huMPzLsMQi0Aai1B/RcNrD2AZR2IdXkWnhaAdR6utwEQ9iK0RhP15HtoWjA0SpN6Jg2v3YYjD8m1AXgU4QpZ6IhLb7DIY/gLdhXAS6QJS6KxdxDzYbDP8ubBeJbhClrohAZt2NTRCFg3gfjotED4hSp0wWcSc2Ggz/IVwrCr0gSh0QjlPdgQ0QhUP4GK4XhT4QpXYIx21YbzD8p/CsaPQz/GKvMxj+c3heDAZAXHQYX8K3YjDIxeG/hu/FYjDEgSP4DoEVh6EOhv8BgReH4TAd/ifkmO7AYYjScIQiR3Q1lkIM1UHgXYXFEJtqIbCuxCKIQzXge5djIcQlVeFbl2E+xGWV4XmXYh5EqTgmQ5QqwrMuwVyIUn6EUCqmQpTKwfUuxhyIUiGcXRqmQ5TKwLUuwmyIUhFk1AWYAVEqCcddiJkQpWKKvzfL8Dukz/tXzPk7qi0N00w+s95/pxT5vNUw3aoVQLal+LrdNt+v5EWmJWNiAHvOy7EAopQb6UrCBIhSNbjZFYbHVv/hnAYFf/RofHT7keauoFVteNlVWAKxUN01td6Xtaob1Bme6r615c64WNRHKPzqWiyDWKieHHjBsohGAZ2AX4flEAjGIhGqXsJeNEEogup6rMR4JMGoexCGoLsOyTh/OwoWaVLb26+tkQAAAABJRU5ErkJggg==\") no-repeat;-webkit-background-size:100%;background-size:100%;}.lev-popup-mask .lev-popup-button{display:flex;justify-content:space-between;position:absolute;left:0;right:0;bottom:0;}.lev-popup-mask .lev-popup-button button{width:50%;height:40px;border:none;border-top:1px solid #ccc;padding:0;border-radius:0;}.lev-popup-mask .lev-popup-button button:first-child{border-right:1px solid #ccc;}";
         head.appendChild(style);
 
         try {
@@ -391,6 +391,18 @@ class Lev {
             callback(ev.target.result);
         }
         reader.readAsDataURL(img.files[0]);
+    }
+
+    imgError(img) {
+        let element = document.getElementsByTagName("img");
+        for (const key in element) {
+            const item = element[key];
+            item.onerror = function () {
+            };
+            item.onerror = null;
+            console.log(item);
+
+        }
     }
 
     /*

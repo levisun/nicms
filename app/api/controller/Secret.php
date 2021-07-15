@@ -32,6 +32,7 @@ class Secret
 
     public function index()
     {
+        Request::filter('\app\common\library\Filter::strict');
         $referer = parse_url(Request::server('HTTP_REFERER'), PHP_URL_HOST);
         if (!$referer || false === stripos($referer, Request::rootDomain())) {
             trace('MISS ' . Request::ip(), 'warning');
@@ -39,21 +40,19 @@ class Secret
         }
 
         $app_name = base64_decode(Request::param('app_name'));
-        $app_name = Filter::strict($app_name);
         if (!preg_match('/^[a-z]+$/', $app_name)) {
             trace('MISS ' . $app_name, 'warning');
             return miss(404);
         }
 
         $version = Request::param('version');
-        $version = Filter::strict($version);
         if (!preg_match('/^[\d]+\.[\d]+\.[\d]+$/', $version)) {
             trace('MISS ' . $version, 'warning');
             return miss(404);
         }
 
         $param = base64_decode(Request::param('token'));
-        $param = Filter::htmlDecode(Filter::strict($param));
+        $param = Filter::htmlDecode($param);
         if (!preg_match('/^[\w\d\{\}\[\]\\\":,\+=]+$/i', $param)) {
             trace('MISS ' . $app_name, 'warning');
             return miss(404);

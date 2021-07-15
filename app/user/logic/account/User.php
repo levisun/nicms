@@ -46,9 +46,7 @@ class User extends BaseLogic
         $user = ModelUser::view('user', ['id', 'username', 'password', 'salt', 'flag', 'level_id'])
             ->view('user_level', ['name' => 'role_name'], 'user_level.id=user.level_id')
             ->where('user.status', '=', 1)
-            ->where('user.username', '=', $this->request->param('username'))
-            ->whereOR('user.phone', '=', $this->request->param('username'))
-            ->whereOR('user.email', '=', $this->request->param('username'))
+            ->where('user.username|user.phone|user.email', '=', $this->request->param('username'))
             ->find();
 
         $user = $user ? $user->toArray() : false;
@@ -109,7 +107,7 @@ class User extends BaseLogic
                 'user_id'      => Base64::encrypt($this->userId),
                 'user_role_id' => Base64::encrypt($this->userRoleId),
                 'user_type'    => Base64::encrypt($this->userType),
-                'user_token'   => rtrim(Base64::encrypt(json_encode([$this->userId, $this->userRoleId, $this->userType])), '='),
+                'user_token'   => Base64::encrypt(json_encode([$this->userId, $this->userRoleId, $this->userType])),
             ]
         ];
     }
@@ -176,7 +174,7 @@ class User extends BaseLogic
                 'user_id'      => Base64::encrypt($user_id),
                 'user_role_id' => Base64::encrypt(0),
                 'user_type'    => Base64::encrypt('user'),
-                'user_token'   => rtrim(Base64::encrypt(json_encode([$user_id, 0, 'user'])), '='),
+                'user_token'   => Base64::encrypt(json_encode([$user_id, 0, 'user'])),
             ]
         ];
     }
@@ -194,18 +192,26 @@ class User extends BaseLogic
             $user_token = json_decode(Base64::decrypt($user_token));
             if (is_array($user_token)) {
                 list($user_id, $user_role_id, $user_type) = $user_token;
-                if ($user_id == $this->userId) {
+                if ($user_type == 'user') {
                     $result = ModelUser::view('user', ['id', 'username', 'email', 'level_id', 'last_login_ip', 'last_login_ip_attr', 'last_login_time'])
                         ->view('user_level', ['name' => 'role_name'], 'user_level.id=user.level_id')
                         ->where('user.status', '=', 1)
                         ->where('user.id', '=', $user_id)
+                        ->where('user.user_type', '=', $user_role_id)
                         ->cache('USER PROFILE' . $user_id, 300, 'user')
                         ->find();
 
                     if (null !== $result && $result = $result->toArray()) {
+                        $this->setUserSession($result['id'], $result['level_id'], 'user');
+
                         $result['last_login_time'] = date('Y-m-d H:i:s', (int) $result['last_login_time']);
                         $result['avatar'] = File::avatar('', $result['username']);
-                        $this->setUserSession($result['id'], $result['level_id'], 'user');
+
+                        $result['user_id'] = Base64::encrypt($this->userId);
+                        $result['user_role_id'] = Base64::encrypt($this->userRoleId);
+                        $result['user_type'] = Base64::encrypt($this->userType);
+                        $result['user_token'] = Base64::encrypt(json_encode([$this->userId, $this->userRoleId, $this->userType]));
+
                         unset($result['id'], $result['level_id']);
                     }
                 }
