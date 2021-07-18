@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\api\controller\tools;
 
 use app\common\controller\BaseApi;
-use app\common\library\tools\Spider as LibSpider;
+use \Spider as LibSpider;
 use app\common\library\Filter;
 
 class Spider extends BaseApi

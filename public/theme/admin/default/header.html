@@ -182,7 +182,7 @@
         methods: {
             profile: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'account.user.profile' }
@@ -198,7 +198,7 @@
             },
             notice: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'account.user.notice' }
@@ -212,7 +212,7 @@
             },
             logout: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'account.user.logout' }

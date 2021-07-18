@@ -102,11 +102,11 @@
         methods: {
             find: function() {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'book.book.find' },
-                        { name: 'id', value: NICMS.param.id }
+                        { name: 'id', value: APP_CONFIG.param.id }
                     ],
                     success: function (result) {
                         if (10000 == result.code) {
@@ -118,9 +118,9 @@
             save: function() {
                 var data = jQuery('#book').serializeArray();
                 data.push({ name: 'method', value: 'book.book.save' });
-                data.push({ name: 'id', value: NICMS.param.id });
+                data.push({ name: 'id', value: APP_CONFIG.param.id });
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'handle.do',
+                    url: APP_CONFIG.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {
@@ -139,7 +139,7 @@
                 data.append('water', 1);
 
                 jQuery.upload({
-                    url: NICMS.api_uri + 'upload.do',
+                    url: APP_CONFIG.api_uri + 'upload.do',
                     file: 'book',
                     data: data,
                     success: function (result) {

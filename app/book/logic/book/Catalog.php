@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\book\logic\book;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\File;
+use app\common\library\File;
 use app\common\library\Base64;
 use app\common\library\Filter;
 use app\common\model\Book as ModelBook;

@@ -27,7 +27,7 @@ use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 
 
-class Secret
+class AppConfig
 {
 
     public function index()
@@ -39,7 +39,7 @@ class Secret
             return miss(404);
         }
 
-        $app_name = base64_decode(Request::param('app_name'));
+        $app_name = Base64::decrypt(Request::param('name'));
         if (!preg_match('/^[a-z]+$/', $app_name)) {
             trace('MISS ' . $app_name, 'warning');
             return miss(404);
@@ -51,7 +51,7 @@ class Secret
             return miss(404);
         }
 
-        $param = base64_decode(Request::param('token'));
+        $param = Base64::decrypt(Request::param('token'));
         $param = Filter::htmlDecode($param);
         if (!preg_match('/^[\w\d\{\}\[\]\\\":,\+=]+$/i', $param)) {
             trace('MISS ' . $app_name, 'warning');
@@ -92,7 +92,7 @@ class Secret
         $from_token = Request::buildToken('__token__', 'md5');
         $secret = app_secret($app_name);
 
-        $script = 'const NICMS = {
+        $script = 'const APP_CONFIG = {
             domain:"//"+window.location.host+"/",
             rootDomain:"//"+window.location.host.substr(window.location.host.indexOf(".")+1)+"/",
             url:"//"+window.location.host+window.location.pathname,
@@ -130,7 +130,7 @@ class Secret
 
         $response = \think\Response::create($script)->header([
             'Content-Type'   => 'application/javascript',
-            'Content-Length' => strlen($script),
+            // 'Content-Length' => strlen($script),
         ]);
 
         if ('guest' == $user_id) {

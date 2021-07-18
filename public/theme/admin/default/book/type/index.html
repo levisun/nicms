@@ -97,7 +97,7 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'book.type.query' }
@@ -110,13 +110,13 @@
                 });
             },
             added: function () {
-                window.location.href = NICMS.domain + 'book/type/added.html';
+                window.location.href = APP_CONFIG.domain + 'book/type/added.html';
             },
             sort: function () {
                 var data = jQuery('#book').serializeArray();
                 data.push({ name: 'method', value: 'book.type.sort' });
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'handle.do',
+                    url: APP_CONFIG.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {
@@ -132,7 +132,7 @@
             remove: function (id) {
                 if (confirm("此操作不可逆,是否继续执行?")) {
                     jQuery.pjax({
-                        url: NICMS.api_uri + 'handle.do',
+                        url: APP_CONFIG.api_uri + 'handle.do',
                         type: 'POST',
                         data: [
                             { name: 'method', value: 'book.type.remove' },

@@ -19,7 +19,7 @@ namespace app\common\middleware;
 use Closure;
 use think\Request;
 use think\facade\Log;
-use app\common\library\tools\Ipv4;
+use app\common\library\Ipv4;
 use app\common\model\Visit as ModelVisit;
 
 class RequestLog
@@ -40,11 +40,11 @@ class RequestLog
         if (200 === $response->getCode() && !in_array(strtolower($request->method()), ['head', 'options'])) {
             $this->appName = app('http')->getName();
             // $this->api($request);
+            $this->log($request);
 
             if (false === $this->spider($request)) {
                 $this->ip($request);
                 $this->record($request);
-                $this->log($request);
             }
 
             if (1 === mt_rand(1, 700)) {
@@ -57,13 +57,12 @@ class RequestLog
 
     private function log(&$_request): void
     {
-        $log = $_request->ip() . ' ' . $_request->method(true) . ' ' . $_request->url(true) . ' ' .
-            $_request->server('HTTP_REFERER') . ' ' . $_request->server('HTTP_USER_AGENT');
-
-        $referer = $_request->server('HTTP_REFERER');
-        if (!$referer || false === stripos($referer, $_request->rootDomain())) {
-            Log::info($log);
-        }
+        $log = $_request->ip() . ' ' .
+            $_request->method() . ' ' .
+            $_request->url(true) . ' ' .
+            $_request->server('HTTP_REFERER') . ' ' .
+            ($_request->isPost() ? json_encode($_request->param()) : '');
+        Log::info($log);
     }
 
     /**

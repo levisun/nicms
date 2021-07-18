@@ -130,7 +130,7 @@ class DataManage
                     if ('runtime' === pathinfo($dir, PATHINFO_BASENAME)) {
                         continue;
                     }
-                    $glob = \app\common\library\tools\File::glob($dir);
+                    $glob = \app\common\library\File::glob($dir);
                     while ($glob->valid()) {
                         $filename = $glob->current();
                         $glob->next();

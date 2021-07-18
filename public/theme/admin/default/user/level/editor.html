@@ -43,11 +43,11 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'user.level.find' },
-                        { name: 'id', value: NICMS.param.id }
+                        { name: 'id', value: APP_CONFIG.param.id }
                     ],
                     success: function (result) {
                         if (result.code == 10000) {
@@ -59,9 +59,9 @@
             editor: function () {
                 var data = jQuery('#role').serializeArray();
                 data.push({ name: 'method', value: 'user.level.editor' });
-                data.push({ name: 'id', value: NICMS.param.id });
+                data.push({ name: 'id', value: APP_CONFIG.param.id });
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'handle.do',
+                    url: APP_CONFIG.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {

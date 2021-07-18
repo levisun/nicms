@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\cms\logic\nav;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\File;
+use app\common\library\File;
 use app\common\library\Base64;
 use app\common\model\Category as ModelCategory;
 

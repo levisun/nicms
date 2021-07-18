@@ -19,7 +19,6 @@ namespace app\admin\logic\content;
 
 use think\helper\Str;
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Participle;
 use app\common\library\Filter;
 use app\common\library\UploadLog;
 use app\common\model\Article as ModelArticle;

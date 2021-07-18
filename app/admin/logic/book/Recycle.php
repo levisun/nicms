@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace app\admin\logic\content;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Participle;
 use app\common\library\Filter;
 use app\common\model\BookArticle as ModelBookArticle;
 

@@ -18,7 +18,7 @@ declare(strict_types=1);
 
 namespace app\common\event;
 
-use app\common\library\tools\Sitemap;
+use app\common\library\Sitemap;
 use app\common\library\ClearGarbage;
 use app\common\library\DataManage;
 use app\common\library\UploadLog;

@@ -49,7 +49,9 @@ Route::group(function () {
  * STATIC IMG
  */
 Route::domain(['cdn', 'img'], function () {
-    Route::get('static/:app_name$', '\app\api\controller\Secret::index')->cache(false)->ext('do');
+    Route::get('static/app_config$', '\app\api\controller\AppConfig::index')->cache(false)->ext('do');
+
+    Route::get('storage/static$', '\app\common\library\Storage::static')->ext('do');
 
     Route::miss(function () {
         return miss(404);

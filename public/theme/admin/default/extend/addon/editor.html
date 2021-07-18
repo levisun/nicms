@@ -47,11 +47,11 @@
         methods: {
             find: function() {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'extend.addon.find' },
-                        { name: 'id', value: NICMS.param.id },
+                        { name: 'id', value: APP_CONFIG.param.id },
                     ],
                     success: function (result) {
                         if (10000 == result.code) {
@@ -63,9 +63,9 @@
             save: function() {
                 var data = jQuery('#addon').serializeArray();
                 data.push({ name: 'method', value: 'extend.addon.editor' });
-                data.push({ name: 'id', value: NICMS.param.id });
+                data.push({ name: 'id', value: APP_CONFIG.param.id });
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'handle.do',
+                    url: APP_CONFIG.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {

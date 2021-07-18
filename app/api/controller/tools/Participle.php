@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\api\controller\tools;
 
 use app\common\controller\BaseApi;
-use app\common\library\tools\Participle as LibParticiple;
+use app\common\library\Participle as LibParticiple;
 
 class Participle extends BaseApi
 {

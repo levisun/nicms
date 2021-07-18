@@ -195,7 +195,7 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.category.query' }
@@ -207,7 +207,7 @@
                     }
                 });
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'user.level.query' },
@@ -221,11 +221,11 @@
                 });
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'content.article.find' },
-                        { name: 'id', value: NICMS.param.id }
+                        { name: 'id', value: APP_CONFIG.param.id }
                     ],
                     success: function (result) {
                         if (10000 == result.code) {
@@ -257,7 +257,7 @@
                 if (article.model_id == 1) {
                 }
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.type.query' },
@@ -276,7 +276,7 @@
                 });
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.fields.query' },
@@ -352,10 +352,10 @@
                 data.push({ name: 'method', value: 'content.article.editor' });
                 data.push({ name: 'model_id', value: article.model_id });
                 data.push({ name: 'content', value: window.editor.getData() });
-                data.push({ name: 'id', value: NICMS.param.id });
+                data.push({ name: 'id', value: APP_CONFIG.param.id });
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'handle.do',
+                    url: APP_CONFIG.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {
@@ -387,7 +387,7 @@
                 }
 
                 jQuery.upload({
-                    url: NICMS.api_uri + 'upload.do',
+                    url: APP_CONFIG.api_uri + 'upload.do',
                     file: 'article',
                     data: data,
                     success: function (result) {

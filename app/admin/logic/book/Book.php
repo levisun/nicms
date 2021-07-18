@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace app\admin\logic\book;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\Participle;
 use app\common\library\UploadLog;
 use app\common\model\Book as ModelBook;
 use app\common\model\BookArticle as ModelBookArticle;

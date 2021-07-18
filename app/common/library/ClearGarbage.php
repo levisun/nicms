@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace app\common\library;
 
-use app\common\library\tools\File;
+use app\common\library\File;
 
 class ClearGarbage
 {

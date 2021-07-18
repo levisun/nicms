@@ -19,7 +19,7 @@ namespace app\api\controller\tools;
 
 use think\Response;
 use app\common\controller\BaseApi;
-use app\common\library\tools\File;
+use app\common\library\File;
 
 class Download extends BaseApi
 {

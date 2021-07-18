@@ -19,7 +19,7 @@ namespace app\common\middleware;
 use Closure;
 use think\Request;
 use think\facade\Cache;
-use app\common\library\tools\File;
+use app\common\library\File;
 
 class Throttle
 {

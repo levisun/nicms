@@ -21,7 +21,7 @@ use app\common\controller\BaseLogic;
 use app\common\model\Config as ModelConfig;
 use app\common\library\Base64;
 use app\common\library\ClearGarbage;
-use app\common\library\tools\File;
+use app\common\library\File;
 
 class Member extends BaseLogic
 {

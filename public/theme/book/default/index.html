@@ -21,7 +21,7 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'ajax.do',
+                    url: APP_CONFIG.api_uri + 'ajax.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'book.category.query' }

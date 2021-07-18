@@ -47,11 +47,11 @@
         methods: {
             load: function (_p) {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     push: true,
                     replace: true,
-                    requestUrl: NICMS.url + '?page=' + _p,
+                    requestUrl: APP_CONFIG.url + '?page=' + _p,
                     data: [
                         { name: 'method', value: 'category.fields.query' },
                         { name: 'page', value: _p }
@@ -64,12 +64,12 @@
                 });
             },
             added: function () {
-                window.location.href = NICMS.domain + 'category/fields/added.html';
+                window.location.href = APP_CONFIG.domain + 'category/fields/added.html';
             },
             remove: function (id) {
                 if (confirm("此操作不可逆,是否继续执行?")) {
                     jQuery.pjax({
-                        url: NICMS.api_uri + 'handle.do',
+                        url: APP_CONFIG.api_uri + 'handle.do',
                         type: 'POST',
                         data: [
                             { name: 'method', value: 'category.fields.remove' },

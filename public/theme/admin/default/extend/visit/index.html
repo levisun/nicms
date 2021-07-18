@@ -39,11 +39,11 @@
         methods: {
             load: function (_p) {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     push: true,
                     replace: true,
-                    requestUrl: NICMS.url + '?page=' + _p,
+                    requestUrl: APP_CONFIG.url + '?page=' + _p,
                     data: [
                         { name: 'method', value: 'extend.visit.query' },
                         { name: 'page', value: _p }

@@ -48,19 +48,19 @@
                 return res;
             },
             load: function (_p) {
-                app.bookmarks = window.localStorage.getItem("bookmarks_" + NICMS.param.book_id);
+                app.bookmarks = window.localStorage.getItem("bookmarks_" + APP_CONFIG.param.book_id);
                 app.bookmarks = app.bookmarks ? JSON.parse(app.bookmarks) : null;
 
-                var request = NICMS.url + '?page=' + _p;
+                var request = APP_CONFIG.url + '?page=' + _p;
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'ajax.do',
+                    url: APP_CONFIG.api_uri + 'ajax.do',
                     type: 'GET',
                     push: true,
                     replace: true,
                     requestUrl: request,
                     data: [
                         { name: 'method', value: 'book.catalog.query' },
-                        { name: 'book_id', value: NICMS.param.book_id },
+                        { name: 'book_id', value: APP_CONFIG.param.book_id },
                         { name: 'limit', value: 100 },
                         { name: 'page', value: _p },
                     ],
@@ -73,11 +73,11 @@
                             if (1 === result.data.book.status) {
                                 setInterval(() => {
                                     jQuery.pjax({
-                                        url: NICMS.api_uri + 'ajax.do',
+                                        url: APP_CONFIG.api_uri + 'ajax.do',
                                         type: 'GET',
                                         data: [
                                             { name: 'method', value: 'book.spider.article' },
-                                            { name: 'book_id', value: NICMS.param.book_id }
+                                            { name: 'book_id', value: APP_CONFIG.param.book_id }
                                         ],
                                         success: function (res) {
 

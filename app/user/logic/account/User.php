@@ -18,8 +18,8 @@ declare(strict_types=1);
 namespace app\admin\logic\account;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\File;
-use app\common\library\tools\Ipv4;
+use app\common\library\File;
+use app\common\library\Ipv4;
 use app\common\library\Base64;
 use app\common\model\User as ModelUser;
 

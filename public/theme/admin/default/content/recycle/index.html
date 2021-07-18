@@ -111,16 +111,16 @@
         el: '.box',
         data: {
             category_list: [],
-            category_id: typeof (NICMS.param.category_id) == 'undefined' ? 0 : NICMS.param.category_id,
+            category_id: typeof (APP_CONFIG.param.category_id) == 'undefined' ? 0 : APP_CONFIG.param.category_id,
             model_list: [],
-            model_id: typeof (NICMS.param.model_id) == 'undefined' ? 0 : NICMS.param.model_id,
+            model_id: typeof (APP_CONFIG.param.model_id) == 'undefined' ? 0 : APP_CONFIG.param.model_id,
             items: [],
             content: [],
         },
         methods: {
             loadCategory: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.category.query' }
@@ -134,7 +134,7 @@
             },
             loadModel: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.model.query' }
@@ -162,7 +162,7 @@
                 }
             },
             load: function (_p) {
-                var request = NICMS.url + '?page=' + _p;
+                var request = APP_CONFIG.url + '?page=' + _p;
                 if (this.category_id != 0) {
                     request += '&category_id=' + this.category_id;
                 }
@@ -171,7 +171,7 @@
                 }
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     push: true,
                     replace: true,
@@ -192,7 +192,7 @@
             remove: function (id) {
                 if (confirm("此操作不可逆,是否继续执行?")) {
                     jQuery.pjax({
-                        url: NICMS.api_uri + 'handle.do',
+                        url: APP_CONFIG.api_uri + 'handle.do',
                         type: 'POST',
                         data: [
                             { name: 'method', value: 'content.recycle.remove' },
@@ -208,7 +208,7 @@
             },
             recover: function (_id) {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'content.recycle.recover' },
@@ -223,7 +223,7 @@
             },
             open: function (_id) {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'content.article.find' },

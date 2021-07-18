@@ -19,7 +19,7 @@ namespace app\api\controller\tools;
 
 use think\Response;
 use app\common\controller\BaseApi;
-use app\common\library\tools\Ipv4;
+use app\common\library\Ipv4;
 use app\common\model\Feedback as ModelFeedback;
 
 class Record extends BaseApi

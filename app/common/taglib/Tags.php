@@ -68,7 +68,7 @@ class Tags extends TagLib
                         $value["cat_url"] = url("list/" . \app\common\library\Base64::url62encode($value["category_id"]));
                         $value["url"] = url("details/" . \app\common\library\Base64::url62encode($value["category_id"]) . "/" . \app\common\library\Base64::url62encode($value["id"]));
                         $value["flag"] = \app\common\library\Base64::flag($value["category_id"] . $value["id"], 7);
-                        $value["thumb"] = \app\common\library\tools\File::imgUrl($value["thumb"], 300);
+                        $value["thumb"] = \app\common\library\File::imgUrl($value["thumb"], 300);
                         $value["update_time"] = date("' . $_tag['date_format'] . '", (int) $value["update_time"]);
                         $value["author"] = $value["author"] ?: $value["username"];
                         unset($value["username"]);
@@ -141,7 +141,7 @@ class Tags extends TagLib
             }
             $parse .= '->find();
                 if ($result && $result = $result->toArray()):
-                    $result["thumb"] = \app\common\library\tools\File::imgUrl($result["thumb"]);
+                    $result["thumb"] = \app\common\library\File::imgUrl($result["thumb"]);
                     $result["cat_url"] = url("list/" . \app\common\library\Base64::url62encode($result["category_id"]));
                     $result["url"] = url("details/" . \app\common\library\Base64::url62encode($result["category_id"]) . "/" . \app\common\library\Base64::url62encode($result["id"]));
                     $result["flag"] = \app\common\library\Base64::flag($result["category_id"] . $result["id"], 7);
@@ -176,7 +176,7 @@ class Tags extends TagLib
                     $content = \app\common\model\ArticleContent::where("article_id", "=", $result["id"])->find();
                     if ($content && $content = $content->toArray()):
                         unset($content["id"], $content["article_id"]);
-                        $result["content"] = \app\common\library\tools\File::imgUrl($content["content"]);
+                        $result["content"] = \app\common\library\File::imgUrl($content["content"]);
                     endif;
 
                     cache("' . $cache_key . '", $result);
@@ -277,7 +277,7 @@ class Tags extends TagLib
             '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
             '<meta http-equiv="Cache-Control" content="no-transform" />' .
             '<style type="text/css">body{moz-user-select:-moz-none;-moz-user-select:none;-o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;}</style>' .
-            '<script src="__STATIC_HOST__static/<?php echo trim(base64_encode(app("http")->getName()), "=");?>.do?token=<?php echo trim(base64_encode(json_encode(app("request")->only(["id","pass","attribute","status","model_id","limit","page","date_format","sort","key","category_id","type_id","book_id","book_type_id","lang","logic","action","method"]))), "=");?>&version=' . $theme_config['api_version'] . '"></script>' .
+            '<script src="__STATIC_HOST__static/app_config.do?name=<?php echo urlencode(\app\common\library\Base64::encrypt(app("http")->getName()));?>&token=<?php echo urlencode(\app\common\library\Base64::encrypt(json_encode(app("request")->only(["id","pass","attribute","status","model_id","limit","page","date_format","sort","key","category_id","type_id","book_id","book_type_id","lang","logic","action","method"]))));?>&version=' . $theme_config['api_version'] . '"></script>' .
             '</head>' . $body . $_content . '</body></html>';
     }
 }

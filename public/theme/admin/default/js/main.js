@@ -6,10 +6,10 @@ export class main {
 
     axios(_params) {
         const instance = axios.create({
-            baseURL: NICMS.api_uri,
+            baseURL: APP_CONFIG.api_uri,
             headers: {
-                Accept: 'application/vnd.' + NICMS.api.root + '.v' + NICMS.api.version + '+json',
-                Authorization: NICMS.api.authorization
+                Accept: 'application/vnd.' + APP_CONFIG.api.root + '.v' + APP_CONFIG.api.version + '+json',
+                Authorization: APP_CONFIG.api.authorization
             },
             timeout: 10000,
             responseType: 'json',

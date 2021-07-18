@@ -17,11 +17,11 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'ajax.do',
+                    url: APP_CONFIG.api_uri + 'ajax.do',
                     method: 'get',
                     data: [
                         { name: 'method', value: 'nav.sidebar.query' },
-                        { name: 'category_id', value: NICMS.param.category_id }
+                        { name: 'category_id', value: APP_CONFIG.param.category_id }
                     ],
                     success: function (result) {
                         if (10000 == result.code) {

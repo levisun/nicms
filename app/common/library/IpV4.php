@@ -5,7 +5,7 @@
  * IP信息类
  *
  * @package   NICMS
- * @category  app\common\library\tools
+ * @category  app\common\library
  * @author    失眠小枕头 [312630173@qq.com]
  * @copyright Copyright (c) 2013, 失眠小枕头, All rights reserved.
  * @link      www.NiPHP.com
@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace app\common\library\tools;
+namespace app\common\library;
 
 use think\facade\Cache;
 use think\facade\Log;

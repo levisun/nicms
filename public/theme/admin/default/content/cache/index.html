@@ -33,7 +33,7 @@
             rmRequest: function () {
                 if (confirm("此操作可能会导致服务器变慢或宕机,是否继续执行?")) {
                     jQuery.pjax({
-                        url: NICMS.api_uri + 'query.do',
+                        url: APP_CONFIG.api_uri + 'query.do',
                         type: 'GET',
                         data: [
                             { name: 'method', value: 'content.cache.request' }
@@ -48,7 +48,7 @@
             },
             rmCompile: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'content.cache.compile' }
@@ -63,7 +63,7 @@
             rmApi: function () {
                 if (confirm("此操作可能会导致服务器变慢或宕机,是否继续执行?")) {
                     jQuery.pjax({
-                        url: NICMS.api_uri + 'query.do',
+                        url: APP_CONFIG.api_uri + 'query.do',
                         type: 'GET',
                         data: [
                             { name: 'method', value: 'content.cache.api' }

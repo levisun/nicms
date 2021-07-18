@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace app\common\library\tools;
+namespace tools;
 
 class Coupon
 {

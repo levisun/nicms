@@ -114,7 +114,7 @@
         methods: {
             loadCategory: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.category.query' }
@@ -128,7 +128,7 @@
             },
             loadModel: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.model.query' }
@@ -159,7 +159,7 @@
                 }
             },
             load: function (_p) {
-                var request = NICMS.url + '?page=' + _p;
+                var request = APP_CONFIG.url + '?page=' + _p;
                 if (this.category_id != 0) {
                     request += '&category_id=' + this.category_id;
                 }
@@ -171,7 +171,7 @@
                 }
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     push: true,
                     replace: true,
@@ -191,13 +191,13 @@
                 });
             },
             added: function () {
-                window.location.href = NICMS.domain + 'content/article/added.html';
+                window.location.href = APP_CONFIG.domain + 'content/article/added.html';
             },
             sort: function () {
                 var data = jQuery('#article').serializeArray();
                 data.push({ name: 'method', value: 'content.article.sort' });
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'handle.do',
+                    url: APP_CONFIG.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {
@@ -210,7 +210,7 @@
             remove: function (id) {
                 if (confirm("此操作不可逆,是否继续执行?")) {
                     jQuery.pjax({
-                        url: NICMS.api_uri + 'handle.do',
+                        url: APP_CONFIG.api_uri + 'handle.do',
                         type: 'POST',
                         data: [
                             { name: 'method', value: 'content.article.remove' },

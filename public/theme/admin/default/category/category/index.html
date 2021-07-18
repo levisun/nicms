@@ -104,7 +104,7 @@
         methods: {
             load: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
                         { name: 'method', value: 'category.category.query' }
@@ -117,13 +117,13 @@
                 });
             },
             added: function () {
-                window.location.href = NICMS.domain + 'category/category/added.html';
+                window.location.href = APP_CONFIG.domain + 'category/category/added.html';
             },
             sort: function () {
                 var data = jQuery('#category').serializeArray();
                 data.push({ name: 'method', value: 'category.category.sort' });
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'handle.do',
+                    url: APP_CONFIG.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (result) {
@@ -139,7 +139,7 @@
             remove: function (id) {
                 if (confirm("此操作不可逆,是否继续执行?")) {
                     jQuery.pjax({
-                        url: NICMS.api_uri + 'handle.do',
+                        url: APP_CONFIG.api_uri + 'handle.do',
                         type: 'POST',
                         data: [
                             { name: 'method', value: 'category.category.remove' },

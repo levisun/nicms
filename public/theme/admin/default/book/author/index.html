@@ -50,10 +50,10 @@
         },
         methods: {
             load: function (_p) {
-                var request = NICMS.url + '?page=' + _p;
+                var request = APP_CONFIG.url + '?page=' + _p;
 
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'query.do',
+                    url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     push: true,
                     replace: true,
@@ -71,12 +71,12 @@
                 });
             },
             added: function () {
-                window.location.href = NICMS.domain + 'book/author/added.html';
+                window.location.href = APP_CONFIG.domain + 'book/author/added.html';
             },
             remove: function (id) {
                 if (confirm("此操作不可逆,是否继续执行?")) {
                     jQuery.pjax({
-                        url: NICMS.api_uri + 'handle.do',
+                        url: APP_CONFIG.api_uri + 'handle.do',
                         type: 'POST',
                         data: [
                             { name: 'method', value: 'book.author.remove' },

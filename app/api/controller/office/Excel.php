@@ -19,8 +19,8 @@ namespace app\api\controller\office;
 
 use think\Response;
 use app\common\controller\BaseApi;
-use app\common\library\tools\File;
-use app\common\library\tools\OfficeExcel;
+use app\common\library\File;
+use app\common\library\office\OfficeExcel;
 
 class Excel extends BaseApi
 {

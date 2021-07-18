@@ -10,3 +10,12 @@ location / {
 location ~ ^/(theme|static)/.*\.(html|htm|tpl|md)$ {
     deny all;
 }
+
+location ~* \.(css|js)$ {
+    if (!-f $request_filename) {
+        rewrite ^/.*$ /storage/static.do;
+    }
+    if ( -f $request_filename ) {
+        expires 30d;
+    }
+}

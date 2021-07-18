@@ -58,7 +58,7 @@
         _params = jQuery.extend(true, defaults, _params);
 
         _params.data.append('timestamp', jQuery.timestamp());
-        _params.data.append('appid', NICMS.app_id);
+        _params.data.append('appid', APP_CONFIG.app_id);
 
         if ('POST' == _params.type || 'post' == _params.type) {
             _params.data.append('__token__', window.sessionStorage.getItem('FROM_TOKEN'));
@@ -80,7 +80,7 @@
 
         // 设置头部
         _params.beforeSend = function (xhr) {
-            xhr.setRequestHeader('Accept', 'application/vnd.' + NICMS.app_name + '.v' + NICMS.api_version + '+json');
+            xhr.setRequestHeader('Accept', 'application/vnd.' + APP_CONFIG.app_name + '.v' + APP_CONFIG.api_version + '+json');
             xhr.setRequestHeader('Authorization', 'Bearer ' + window.atob(window.sessionStorage.getItem('XSRF_AUTHORIZATION')));
         }
 
@@ -126,7 +126,7 @@
 
         _params = jQuery.extend(true, defaults, _params);
 
-        _params.data.push({ name: 'appid', value: NICMS.app_id });
+        _params.data.push({ name: 'appid', value: APP_CONFIG.app_id });
         _params.data.push({ name: 'sign_type', value: 'md5' });
 
         if ('POST' == _params.type || 'post' == _params.type) {
@@ -142,7 +142,7 @@
 
         // 设置头部
         _params.beforeSend = function (xhr) {
-            xhr.setRequestHeader('Accept', 'application/vnd.' + NICMS.app_name + '.v' + NICMS.api_version + '+json');
+            xhr.setRequestHeader('Accept', 'application/vnd.' + APP_CONFIG.app_name + '.v' + APP_CONFIG.api_version + '+json');
             xhr.setRequestHeader('Authorization', 'Bearer ' + window.atob(window.sessionStorage.getItem('XSRF_AUTHORIZATION')));
         }
 

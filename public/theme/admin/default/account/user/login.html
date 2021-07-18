@@ -80,7 +80,7 @@
         methods: {
             verify: function () {
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'verify/img.do',
+                    url: APP_CONFIG.api_uri + 'verify/img.do',
                     type: 'get',
                     success: function (result) {
                         jQuery('#img-verify').attr('src', result);
@@ -91,7 +91,7 @@
                 var data = jQuery('#login-form').serializeArray();
                 data.push({ name: 'method', value: 'account.user.login' });
                 jQuery.pjax({
-                    url: NICMS.api_uri + 'handle.do',
+                    url: APP_CONFIG.api_uri + 'handle.do',
                     type: 'POST',
                     data: data,
                     success: function (res) {

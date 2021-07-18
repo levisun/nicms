@@ -260,7 +260,7 @@ abstract class BaseLogic
         $cache_key = preg_replace('/\s+/', ' ', $cache_key);
 
         if (env('app_debug')) {
-            trace($cache_key, 'info');
+            trace($cache_key, 'alert');
         }
 
         return sha1($cache_key);

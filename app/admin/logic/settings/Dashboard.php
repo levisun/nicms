@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace app\admin\logic\settings;
 
 use app\common\controller\BaseLogic;
-use app\common\library\tools\File;
+use app\common\library\File;
 use app\common\model\Visit as ModelVisit;
 
 class Dashboard extends BaseLogic
