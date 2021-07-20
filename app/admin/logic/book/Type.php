@@ -107,8 +107,6 @@ class Type extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog('admin book type added');
-
         $pid = $this->request->param('pid/d', 0, 'abs');
 
         $receive_data = [
@@ -131,6 +129,7 @@ class Type extends BaseLogic
             return $result;
         }
 
+        $this->actionLog('admin book type added');
         ModelBookType::create($receive_data);
 
         $this->cache->tag('cms nav')->clear();
@@ -181,8 +180,6 @@ class Type extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog('admin book type editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -215,6 +212,7 @@ class Type extends BaseLogic
             UploadLog::update($receive_data['image'], 1);
         }
 
+        $this->actionLog('admin book type editor ID:' . $id);
         ModelBookType::where('id', '=', $id)->limit(1)->update($receive_data);
 
         $this->cache->tag('cms nav')->clear();
@@ -233,8 +231,6 @@ class Type extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin book type remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -252,6 +248,7 @@ class Type extends BaseLogic
             UploadLog::remove($image);
         }
 
+        $this->actionLog('admin book type remove ID:' . $id);
         ModelBookType::where('id', '=', $id)->limit(1)->delete();
 
         $this->cache->tag('cms nav')->clear();
@@ -270,8 +267,6 @@ class Type extends BaseLogic
      */
     public function sort(): array
     {
-        $this->actionLog('admin book type sort');
-
         $sort_order = $this->request->param('sort_order/a');
         if (empty($sort_order)) {
             return [
@@ -289,6 +284,7 @@ class Type extends BaseLogic
             }
         }
         if (!empty($list)) {
+            $this->actionLog('admin book type sort');
             (new ModelBookType)->saveAll($list);
         }
 

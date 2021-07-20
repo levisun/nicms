@@ -81,8 +81,6 @@ class User extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog('admin user added');
-
         $receive_data = [
             'username'         => $this->request->param('username'),
             'password'         => $this->request->param('password'),
@@ -98,6 +96,8 @@ class User extends BaseLogic
 
         $receive_data['salt'] = Base64::salt(microtime(true) . $receive_data['password']);
         $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
+
+        $this->actionLog('admin user added');
         ModelUser::create($receive_data);
 
         return [
@@ -142,8 +142,6 @@ class User extends BaseLogic
      */
     public function editor()
     {
-        $this->actionLog('admin user editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -168,6 +166,7 @@ class User extends BaseLogic
         $receive_data['salt'] = Base64::salt(microtime(true) . $receive_data['password']);
         $receive_data['password'] = Base64::createPassword($receive_data['password'], $receive_data['salt']);
 
+        $this->actionLog('admin user editor ID:' . $id);
         ModelUser::where('id', '=', $id)->limit(1)->update([
             'username' => $receive_data['username'],
             'password' => $receive_data['password'],
@@ -191,8 +190,6 @@ class User extends BaseLogic
      */
     public function remove()
     {
-        $this->actionLog('admin user remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -208,6 +205,7 @@ class User extends BaseLogic
                 ModelUser::where('id', '=', $id)->limit(1)->delete();
                 ModelUserInfo::where('user_id', '=', $id)->limit(1)->delete();
                 ModelUserOauth::where('user_id', '=', $id)->limit(1)->delete();
+                $this->actionLog('admin user remove ID:' . $id);
             });
         }
 

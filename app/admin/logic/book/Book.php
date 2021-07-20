@@ -97,8 +97,6 @@ class Book extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog('admin book added');
-
         $receive_data = [
             'title'       => $this->request->param('title'),
             'keywords'    => $this->request->param('keywords'),
@@ -119,6 +117,7 @@ class Book extends BaseLogic
             return $result;
         }
 
+        $this->actionLog('admin book added');
         ModelBook::create($receive_data);
 
         $this->cache->tag('book list')->clear();
@@ -167,8 +166,6 @@ class Book extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog('admin book editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -203,6 +200,7 @@ class Book extends BaseLogic
             UploadLog::update($receive_data['image'], 1);
         }
 
+        $this->actionLog('admin book editor ID:' . $id);
         ModelBook::where('id', '=', $id)->limit(1)->update($receive_data);
 
         $this->cache->tag('book list')->clear();
@@ -221,8 +219,6 @@ class Book extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin book remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -238,6 +234,7 @@ class Book extends BaseLogic
             UploadLog::remove($image);
         }
 
+        $this->actionLog('admin book remove ID:' . $id);
         ModelBook::where('id', '=', $id)->limit(1)->delete();
         ModelBookArticle::where('book_id', '=', $id)->delete();
 

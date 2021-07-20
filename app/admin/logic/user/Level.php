@@ -71,8 +71,6 @@ class Level extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog('admin role added');
-
         $receive_data = [
             'name'       => $this->request->param('name'),
             'credit'     => $this->request->param('credit/d', 0, 'abs'),
@@ -83,6 +81,7 @@ class Level extends BaseLogic
             return $result;
         }
 
+        $this->actionLog('admin role added');
         ModelUserLevel::create($receive_data);
 
         return [
@@ -120,8 +119,6 @@ class Level extends BaseLogic
      */
     public function editor()
     {
-        $this->actionLog('admin role editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -141,6 +138,7 @@ class Level extends BaseLogic
             return $result;
         }
 
+        $this->actionLog('admin role editor ID:' . $id);
         ModelUserLevel::where('id', '=', $id)->limit(1)->update($receive_data);
 
         return [
@@ -157,8 +155,6 @@ class Level extends BaseLogic
      */
     public function remove()
     {
-        $this->actionLog('admin role remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -168,6 +164,7 @@ class Level extends BaseLogic
             ];
         }
 
+        $this->actionLog('admin role remove ID:' . $id);
         ModelUserLevel::where('id', '=', $id)->limit(1)->delete();
 
         return [

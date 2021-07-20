@@ -77,8 +77,6 @@ class Ads extends BaseLogic
      */
     public function added()
     {
-        $this->actionLog('admin ads added');
-
         $receive_data = [
             'name'        => $this->request->param('name'),
             'width'       => $this->request->param('width/d', 0, 'abs'),
@@ -100,6 +98,7 @@ class Ads extends BaseLogic
 
         UploadLog::update($receive_data['image'], 1);
 
+        $this->actionLog('admin ads added');
         ModelAds::create($receive_data);
 
         $this->cache->tag('cms ads')->clear();
@@ -143,8 +142,6 @@ class Ads extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog('admin ads editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -180,6 +177,7 @@ class Ads extends BaseLogic
 
         UploadLog::update($receive_data['image'], 1);
 
+        $this->actionLog('admin ads editor ID:' . $id);
         ModelAds::where('id', '=', $id)->limit(1)->update($receive_data);
 
         // 清除缓存
@@ -199,8 +197,6 @@ class Ads extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin ads remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -216,6 +212,7 @@ class Ads extends BaseLogic
             UploadLog::remove($image);
         }
 
+        $this->actionLog('admin ads remove ID:' . $id);
         ModelAds::where('id', '=', $id)->limit(1)->delete();
 
         // 清除缓存

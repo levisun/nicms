@@ -111,8 +111,6 @@ class Node extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog('admin node added');
-
         $receive_data = [
             'name'       => $this->request->param('name'),
             'title'      => $this->request->param('title'),
@@ -126,6 +124,7 @@ class Node extends BaseLogic
             return $result;
         }
 
+        $this->actionLog('admin node added');
         ModelNode::create($receive_data);
 
         return [
@@ -178,8 +177,6 @@ class Node extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog('admin node editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -203,6 +200,7 @@ class Node extends BaseLogic
             return $result;
         }
 
+        $this->actionLog('admin node editor ID:' . $id);
         ModelNode::where('id', '=', $id)->limit(1)->update($receive_data);
 
         return [
@@ -219,8 +217,6 @@ class Node extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin node remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -230,6 +226,7 @@ class Node extends BaseLogic
             ];
         }
 
+        $this->actionLog('admin node remove ID:' . $id);
         ModelNode::where('id', '=', $id)->limit(1)->delete();
 
         return [

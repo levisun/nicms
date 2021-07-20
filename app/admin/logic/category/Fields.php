@@ -79,8 +79,6 @@ class Fields extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog('admin fields added');
-
         $receive_data = [
             'category_id' => $this->request->param('category_id/d', 0, 'abs'),
             'type_id'     => $this->request->param('type_id/d', 0, 'abs'),
@@ -94,6 +92,7 @@ class Fields extends BaseLogic
             return $result;
         }
 
+        $this->actionLog('admin fields added');
         ModelFields::create($receive_data);
 
         return [
@@ -135,8 +134,6 @@ class Fields extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog('admin fields editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -159,6 +156,7 @@ class Fields extends BaseLogic
             return $result;
         }
 
+        $this->actionLog('admin fields editor ID:' . $id);
         ModelFields::where('id', '=', $id)->limit(1)->update($receive_data);
 
         return [
@@ -175,8 +173,6 @@ class Fields extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin fields remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -186,8 +182,8 @@ class Fields extends BaseLogic
             ];
         }
 
+        $this->actionLog('admin fields remove ID:' . $id);
         ModelFields::where('id', '=', $id)->limit(1)->delete();
-
         ModelFieldsExtend::where('fields_id', '=', $id)->delete();
 
         return [

@@ -132,8 +132,6 @@ class Category extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog('admin category added');
-
         $pid = $this->request->param('pid/d', 0, 'abs');
 
         $receive_data = [
@@ -161,6 +159,7 @@ class Category extends BaseLogic
 
         UploadLog::update($receive_data['image'], 1);
 
+        $this->actionLog('admin category added');
         ModelCategory::create($receive_data);
 
         $this->cache->tag('cms nav')->clear();
@@ -221,8 +220,6 @@ class Category extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog('admin category editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -260,6 +257,7 @@ class Category extends BaseLogic
 
         UploadLog::update($receive_data['image'], 1);
 
+        $this->actionLog('admin category editor ID:' . $id);
         ModelCategory::where('id', '=', $id)->limit(1)->update($receive_data);
 
         $this->cache->tag('cms nav')->clear();
@@ -278,8 +276,6 @@ class Category extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin category remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -297,6 +293,7 @@ class Category extends BaseLogic
             UploadLog::remove($image);
         }
 
+        $this->actionLog('admin category remove ID:' . $id);
         ModelCategory::where('id', '=', $id)->limit(1)->delete();
 
         $this->cache->tag('cms nav')->clear();
@@ -315,8 +312,6 @@ class Category extends BaseLogic
      */
     public function sort(): array
     {
-        $this->actionLog('admin category sort');
-
         $sort_order = $this->request->param('sort_order/a');
         if (empty($sort_order)) {
             return [
@@ -334,6 +329,7 @@ class Category extends BaseLogic
             }
         }
         if (!empty($list)) {
+            $this->actionLog('admin category sort');
             (new ModelCategory)->saveAll($list);
         }
 

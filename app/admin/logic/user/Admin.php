@@ -80,8 +80,6 @@ class Admin extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog('admin admin added');
-
         $receive_data = [
             'username'         => $this->request->param('username'),
             'password'         => $this->request->param('password'),
@@ -102,6 +100,7 @@ class Admin extends BaseLogic
             $admin = new ModelAdmin;
             $admin->save($receive_data);
 
+            $this->actionLog('admin admin added ID:' . $admin->id);
             ModelRoleAdmin::create([
                 'user_id' => $admin->id,
                 'role_id' => $receive_data['role_id']
@@ -151,8 +150,6 @@ class Admin extends BaseLogic
      */
     public function editor()
     {
-        $this->actionLog('admin admin editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -188,6 +185,7 @@ class Admin extends BaseLogic
                 'status'   => $receive_data['status']
             ]);
 
+            $this->actionLog('admin admin editor ID:' . $id);
             ModelRoleAdmin::where('user_id', '=', $id)->limit(1)->update([
                 'role_id' => $receive_data['role_id']
             ]);
@@ -207,8 +205,6 @@ class Admin extends BaseLogic
      */
     public function remove()
     {
-        $this->actionLog('admin admin remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -221,6 +217,7 @@ class Admin extends BaseLogic
         $create_time = ModelAdmin::where('id', '=', $id)->value('create_time');
         if (ClearGarbage::userUploadFiles('admin', $id, $create_time)) {
             ModelAdmin::transaction(function () use ($id) {
+                $this->actionLog('admin admin remove ID:' . $id);
                 ModelAdmin::where('id', '=', $id)->limit(1)->delete();
                 ModelRoleAdmin::where('user_id', '=', $id)->limit(1)->delete();
             });

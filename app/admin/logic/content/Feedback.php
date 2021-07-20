@@ -103,8 +103,6 @@ class Feedback extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog('admin feedback editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -119,6 +117,7 @@ class Feedback extends BaseLogic
             'update_time' => time(),
         ];
 
+        $this->actionLog('admin feedback editor ID:' . $id);
         ModelFeedback::where('id', '=', $id)->limit(1)->update($receive_data);
 
         $category_id = ModelFeedback::where('id', '=', $id)->value('category_id');
@@ -140,8 +139,6 @@ class Feedback extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin content recycle');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -153,6 +150,7 @@ class Feedback extends BaseLogic
 
         $category_id = ModelFeedback::where('id', '=', $id)->value('category_id');
 
+        $this->actionLog('admin content recycle ID:' . $id);
         ModelFeedback::where('id', '=', $id)->limit(1)->delete();
 
         // 清除缓存

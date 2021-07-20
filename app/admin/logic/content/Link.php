@@ -82,8 +82,6 @@ class Link extends BaseLogic
      */
     public function added()
     {
-        $this->actionLog('admin link added');
-
         $receive_data = [
             'title'       => $this->request->param('title'),
             'logo'        => $this->request->param('logo'),
@@ -106,6 +104,7 @@ class Link extends BaseLogic
 
         UploadLog::update($receive_data['image'], 1);
 
+        $this->actionLog('admin link added');
         ModelLink::create($receive_data);
 
         $this->cache->tag('cms link list' . $receive_data['category_id'])->clear();
@@ -151,8 +150,6 @@ class Link extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog('admin content editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -188,6 +185,7 @@ class Link extends BaseLogic
 
         UploadLog::update($receive_data['image'], 1);
 
+        $this->actionLog('admin content editor ID:' . $id);
         ModelLink::where('id', '=', $id)->limit(1)->update($receive_data);
 
         // 清除缓存
@@ -207,8 +205,6 @@ class Link extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin content recycle');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -224,6 +220,7 @@ class Link extends BaseLogic
             UploadLog::remove($find['logo']);
         }
 
+        $this->actionLog('admin content recycle ID:' . $id);
         ModelLink::where('id', '=', $id)->limit(1)->delete();
 
         // 清除缓存

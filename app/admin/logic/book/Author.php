@@ -86,8 +86,6 @@ class Author extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog('admin author added');
-
         $receive_data = [
             'author'      => $this->request->param('author'),
             'create_time' => time(),
@@ -96,6 +94,7 @@ class Author extends BaseLogic
             return $result;
         }
 
+        $this->actionLog('admin author added');
         ModelBookAuthor::create($receive_data);
 
         $this->cache->tag('book')->clear();
@@ -140,8 +139,6 @@ class Author extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog('admin author editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -158,6 +155,7 @@ class Author extends BaseLogic
             return $result;
         }
 
+        $this->actionLog('admin author editor ID:' . $id);
         ModelBookAuthor::where('id', '=', $id)->limit(1)->update($receive_data);
 
         $this->cache->tag('book')->clear();
@@ -176,8 +174,6 @@ class Author extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin book remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -187,6 +183,7 @@ class Author extends BaseLogic
             ];
         }
 
+        $this->actionLog('admin book remove ID:' . $id);
         ModelBookAuthor::where('id', '=', $id)->limit(1)->delete();
 
         $this->cache->tag('book')->clear();

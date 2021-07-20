@@ -98,8 +98,6 @@ class Recycle extends BaseLogic
      */
     public function recover(): array
     {
-        $this->actionLog('admin content remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -112,6 +110,7 @@ class Recycle extends BaseLogic
         $book_id = ModelBookArticle::where('id', '=', $id)->value('book_id');
 
         if ($book_id) {
+            $this->actionLog('admin content recover ID:' . $id);
             ModelBookArticle::where('id', '=', $id)->limit(1)->update([
                 'delete_time' => 0
             ]);
@@ -134,8 +133,6 @@ class Recycle extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin content remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -145,6 +142,7 @@ class Recycle extends BaseLogic
             ];
         }
 
+        $this->actionLog('admin content remove ID:' . $id);
         ModelBookArticle::where('id', '=', $id)->limit(1)->delete();
 
         return [

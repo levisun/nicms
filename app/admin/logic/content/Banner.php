@@ -74,8 +74,6 @@ class Banner extends BaseLogic
      */
     public function added()
     {
-        $this->actionLog('admin banner added');
-
         $receive_data = [
             'name'        => $this->request->param('name'),
             'description' => $this->request->param('description', ''),
@@ -101,6 +99,7 @@ class Banner extends BaseLogic
         $receive_data['image'] = serialize($receive_data['image']);
         $receive_data['url'] = serialize($receive_data['url']);
 
+        $this->actionLog('admin banner added');
         ModelBanner::create($receive_data);
 
         $this->cache->tag('cms banner')->clear();
@@ -142,8 +141,6 @@ class Banner extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog('admin banner editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -184,6 +181,7 @@ class Banner extends BaseLogic
         $receive_data['image'] = serialize($receive_data['image']);
         $receive_data['url'] = serialize($receive_data['url']);
 
+        $this->actionLog('admin banner editor ID:' . $id);
         ModelBanner::where('id', '=', $id)->limit(1)->update($receive_data);
 
         // 清除缓存
@@ -203,8 +201,6 @@ class Banner extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin banner remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -222,6 +218,7 @@ class Banner extends BaseLogic
             UploadLog::remove($img);
         }
 
+        $this->actionLog('admin banner remove ID:' . $id);
         ModelBanner::where('id', '=', $id)->limit(1)->delete();
 
         // 清除缓存

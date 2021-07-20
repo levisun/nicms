@@ -66,12 +66,11 @@ class Elog extends BaseLogic
      */
     public function find(): array
     {
-        $this->actionLog('see error log');
-
         $id = $this->request->param('id');
         if ($id && $id = Base64::decrypt($id, Base64::salt())) {
             $file = runtime_path('log') . $id;
             if (is_file($file)) {
+                $this->actionLog('see error log PATH:' . $file);
                 $data = file_get_contents($file);
                 $data = str_replace(['<', '>'], ['&lt;', '&gt;'], $data);
                 $data = str_replace($this->app->getRootPath(), 'ROOT_PATH', $data);

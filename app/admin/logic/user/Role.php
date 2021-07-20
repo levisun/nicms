@@ -73,8 +73,6 @@ class Role extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog('admin role added');
-
         $receive_data = [
             'name'       => $this->request->param('name'),
             'remark'     => $this->request->param('remark'),
@@ -85,6 +83,7 @@ class Role extends BaseLogic
         }
 
         ModelRole::transaction(function () use ($receive_data) {
+            $this->actionLog('admin role added');
             $role = new ModelRole;
             $role->save($receive_data);
             $list = [];
@@ -144,8 +143,6 @@ class Role extends BaseLogic
      */
     public function editor()
     {
-        $this->actionLog('admin role editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -179,6 +176,7 @@ class Role extends BaseLogic
                 ];
             }
             (new ModelRoleAccess)->saveAll($list);
+            $this->actionLog('admin role editor ID' . $id);
         });
 
         return [
@@ -195,8 +193,6 @@ class Role extends BaseLogic
      */
     public function remove()
     {
-        $this->actionLog('admin role remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -210,6 +206,7 @@ class Role extends BaseLogic
             ModelRole::where('id', '=', $id)->limit(1)->delete();
 
             ModelRoleAccess::where('role_id', '=', $id)->limit(1)->delete();
+            $this->actionLog('admin role remove ID:' . $id);
         });
 
         return [

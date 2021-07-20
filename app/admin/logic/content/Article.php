@@ -128,8 +128,6 @@ class Article extends BaseLogic
      */
     public function added()
     {
-        $this->actionLog('admin content added');
-
         $receive_data = [
             'title'       => $this->request->param('title'),
             'keywords'    => $this->request->param('keywords'),
@@ -215,6 +213,8 @@ class Article extends BaseLogic
                 ]);
             }
 
+            $this->actionLog('admin content added');
+
             // 清除缓存
             $this->cache->tag('cms article list' . $receive_data['category_id'])->clear();
         });
@@ -299,8 +299,6 @@ class Article extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog('admin content editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -421,6 +419,8 @@ class Article extends BaseLogic
                 ]);
             }
 
+            $this->actionLog('admin content editor ID:' . $id);
+
             // 清除缓存
             $this->cache->tag('cms article list' . $receive_data['category_id'])->clear();
             $this->cache->tag('cms article details')->clear();
@@ -440,8 +440,6 @@ class Article extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin content recycle');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -457,6 +455,8 @@ class Article extends BaseLogic
             ModelArticle::where('id', '=', $id)->limit(1)->update([
                 'delete_time' => time()
             ]);
+
+            $this->actionLog('admin content recycle ID:' . $id);
 
             // 清除缓存
             $this->cache->tag('cms article list' . $article_id)->clear();
@@ -477,8 +477,6 @@ class Article extends BaseLogic
      */
     public function sort(): array
     {
-        $this->actionLog('admin content sort');
-
         $sort_order = $this->request->param('sort_order/a');
         if (empty($sort_order)) {
             return [
@@ -496,6 +494,7 @@ class Article extends BaseLogic
             }
         }
         if (!empty($list)) {
+            $this->actionLog('admin content sort');
             (new ModelArticle)->saveAll($list);
         }
 

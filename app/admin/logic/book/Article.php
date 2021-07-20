@@ -95,8 +95,6 @@ class Article extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog('admin book added');
-
         $receive_data = [
             'book_id'    => $this->request->param('book_id/d', 0, 'abs'),
             'title'      => $this->request->param('title'),
@@ -111,6 +109,7 @@ class Article extends BaseLogic
             return $result;
         }
 
+        $this->actionLog('admin book added');
         ModelBookArticle::create($receive_data);
 
         $this->cache->tag('book article list' . $receive_data['book_id'])->clear();
@@ -156,8 +155,6 @@ class Article extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog('admin book editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -180,6 +177,7 @@ class Article extends BaseLogic
             return $result;
         }
 
+        $this->actionLog('admin book editor ID:' . $id);
         ModelBookArticle::where('id', '=', $id)->limit(1)->update($receive_data);
 
         $this->cache->tag('book article list' . $receive_data['book_id'])->clear();
@@ -199,8 +197,6 @@ class Article extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin book remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -213,6 +209,7 @@ class Article extends BaseLogic
         $book_id = ModelBookArticle::where('id', '=', $id)->value('book_id');
 
         if ($book_id) {
+            $this->actionLog('admin book remove ID:' . $id);
             ModelBookArticle::where('id', '=', $id)->limit(1)->update([
                 'delete_time' => time()
             ]);
@@ -236,8 +233,6 @@ class Article extends BaseLogic
      */
     public function sort(): array
     {
-        $this->actionLog('admin content sort');
-
         $sort_order = $this->request->param('sort_order/a');
         if (empty($sort_order)) {
             return [
@@ -255,6 +250,7 @@ class Article extends BaseLogic
             }
         }
         if (!empty($list)) {
+            $this->actionLog('admin content sort');
             (new ModelBookArticle)->saveAll($list);
         }
 

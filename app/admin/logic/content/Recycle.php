@@ -121,8 +121,6 @@ class Recycle extends BaseLogic
      */
     public function recover(): array
     {
-        $this->actionLog('admin content remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -138,6 +136,8 @@ class Recycle extends BaseLogic
             ModelArticle::where('id', '=', $id)->limit(1)->update([
                 'delete_time' => 0
             ]);
+
+            $this->actionLog('admin content remove ID:' . $id);
 
             // 清除缓存
             $this->cache->tag('cms article list' . $category_id)->clear();
@@ -157,8 +157,6 @@ class Recycle extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin content remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -213,6 +211,8 @@ class Recycle extends BaseLogic
 
             // 删除自定义字段数据
             ModelFieldsExtend::where('article_id', '=', $id)->delete();
+
+            $this->actionLog('admin content remove ID:' . $id);
         });
 
         return [

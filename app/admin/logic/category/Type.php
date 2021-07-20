@@ -76,8 +76,6 @@ class Type extends BaseLogic
      */
     public function added(): array
     {
-        $this->actionLog('admin type added');
-
         $receive_data = [
             'name'        => $this->request->param('name'),
             'remark'      => $this->request->param('remark'),
@@ -87,6 +85,7 @@ class Type extends BaseLogic
             return $result;
         }
 
+        $this->actionLog('admin type added');
         ModelType::create($receive_data);
 
         return [
@@ -123,8 +122,6 @@ class Type extends BaseLogic
      */
     public function editor(): array
     {
-        $this->actionLog('admin type editor');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -143,6 +140,7 @@ class Type extends BaseLogic
             return $result;
         }
 
+        $this->actionLog('admin type editor ID:' . $id);
         ModelType::where('id', '=', $id)->limit(1)->update($receive_data);
 
         return [
@@ -159,8 +157,6 @@ class Type extends BaseLogic
      */
     public function remove(): array
     {
-        $this->actionLog('admin category remove');
-
         if (!$id = $this->request->param('id/d', 0, 'abs')) {
             return [
                 'debug' => false,
@@ -170,6 +166,7 @@ class Type extends BaseLogic
             ];
         }
 
+        $this->actionLog('admin category remove ID:' . $id);
         ModelType::where('id', '=', $id)->limit(1)->delete();
 
         return [
