@@ -260,28 +260,28 @@ class Spider
         libxml_clear_errors();
 
         $xpath = new \DOMXPath($dom);
-        $nodeList = $xpath->query('//' . $_expression);
+        if ($nodeList = $xpath->query('//' . $_expression)) {
+            if (!empty($_attr)) {
+                $pattern = '(' . implode('|', $_attr) . ')=["\']+(.*?)["\']+';
+            }
 
-        if (!empty($_attr)) {
-            $pattern = '(' . implode('|', $_attr) . ')=["\']+(.*?)["\']+';
-        }
+            foreach ($nodeList as $node) {
+                $node = $dom->saveHTML($node);
 
-        foreach ($nodeList as $node) {
-            $node = $dom->saveHTML($node);
+                // 清除多余标签
+                $node = $_filter ? Filter::html($node) : $node;
 
-            // 清除多余标签
-            $node = $_filter ? Filter::html($node) : $node;
-
-            if (isset($pattern) && false !== preg_match_all('/' . $pattern . '/uis', $node, $matches) && !empty($matches)) {
-                $node = [
-                    'html' => htmlspecialchars($node, ENT_QUOTES)
-                ];
-                for ($i = 0; $i < count($matches[1]); $i++) {
-                    $node[$matches[1][$i]] = $matches[2][$i];
+                if (isset($pattern) && false !== preg_match_all('/' . $pattern . '/uis', $node, $matches) && !empty($matches)) {
+                    $node = [
+                        'html' => htmlspecialchars($node, ENT_QUOTES)
+                    ];
+                    for ($i = 0; $i < count($matches[1]); $i++) {
+                        $node[$matches[1][$i]] = $matches[2][$i];
+                    }
+                    $result[] = $node;
+                } else {
+                    $result[] = htmlspecialchars($node, ENT_QUOTES);
                 }
-                $result[] = $node;
-            } else {
-                $result[] = htmlspecialchars($node, ENT_QUOTES);
             }
         }
 

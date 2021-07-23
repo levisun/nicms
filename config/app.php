@@ -58,8 +58,8 @@ return [
         'www'    => 'cms',
         'm'      => 'cms',
         'api'    => 'api',
-        'cdn'    => 'cms',
-        'img'    => 'cms',
+        'cdn'    => 'api',
+        'img'    => 'api',
         env('admin.entry', 'admin') => 'admin',
     ],
     // 禁止URL访问的应用列表（自动多应用模式有效）

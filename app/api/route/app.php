@@ -53,4 +53,17 @@ Route::domain('api', function () {
     Route::get('query$', 'Query/index');                // 请求接口
     Route::get('ajax$', 'Query/index')->cache(1440);    // 请求接口
 
+})->middleware(\app\common\middleware\AllowCrossDomain::class)->ext('do');
+
+/**
+ * STATIC IMG
+ */
+Route::domain(['cdn', 'img'], function () {
+    Route::get('static/app_config$', '\app\api\controller\AppConfig::index')
+    ->middleware(\think\middleware\SessionInit::class)
+    ->cache(false);
+
+    Route::miss(function () {
+        return miss(404);
+    });
 })->ext('do');

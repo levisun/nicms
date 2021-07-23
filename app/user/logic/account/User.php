@@ -98,17 +98,20 @@ class User extends BaseLogic
         unset($user['password']);
         shuffle($user);
 
+        $user = [];
+        $user['user_id'] = Base64::url62encode($this->userId);
+        $user['user_role_id'] = Base64::url62encode($this->userRoleId);
+        $user['user_type'] = Base64::encrypt($this->userType);
+        $user['user_token'] = Base64::encrypt(json_encode([
+            $user['user_id'], $user['user_role_id'], $user['user_type']
+        ]));
+
         return [
             'debug' => false,
             'cache' => false,
             'code'  => 10000,
             'msg'   => 'success',
-            'data'  => [
-                'user_id'      => Base64::encrypt($this->userId),
-                'user_role_id' => Base64::encrypt($this->userRoleId),
-                'user_type'    => Base64::encrypt($this->userType),
-                'user_token'   => Base64::encrypt(json_encode([$this->userId, $this->userRoleId, $this->userType])),
-            ]
+            'data'  => $user,
         ];
     }
 
@@ -207,10 +210,12 @@ class User extends BaseLogic
                         $result['last_login_time'] = date('Y-m-d H:i:s', (int) $result['last_login_time']);
                         $result['avatar'] = File::avatar('', $result['username']);
 
-                        $result['user_id'] = Base64::encrypt($this->userId);
-                        $result['user_role_id'] = Base64::encrypt($this->userRoleId);
+                        $result['user_id'] = Base64::url62encode($this->userId);
+                        $result['user_role_id'] = Base64::url62encode($this->userRoleId);
                         $result['user_type'] = Base64::encrypt($this->userType);
-                        $result['user_token'] = Base64::encrypt(json_encode([$this->userId, $this->userRoleId, $this->userType]));
+                        $result['user_token'] = Base64::encrypt(json_encode([
+                            $result['user_id'], $result['user_role_id'], $result['user_type']
+                        ]));
 
                         unset($result['id'], $result['level_id']);
                     }
