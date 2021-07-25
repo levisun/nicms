@@ -252,7 +252,7 @@ class DataManage
 
             $table_name = Db::getTables();
             foreach ($table_name as $name) {
-                $filename = $this->tempPath . $name . '1.sql';
+                $filename = $this->tempPath . $name . '.sql';
 
                 $sql = '-- 备份时间 ' . date('Y-m-d H:i:s') . PHP_EOL;
                 file_put_contents($filename, $sql);

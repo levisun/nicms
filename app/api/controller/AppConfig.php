@@ -25,7 +25,7 @@ use app\common\library\Filter;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
-
+use Symfony\Component\Mime\Encoder\Base64Encoder;
 
 class AppConfig
 {
@@ -39,9 +39,10 @@ class AppConfig
             return miss(404);
         }
 
-        $app_name = Base64::decrypt(Request::param('name'));
-        if (!preg_match('/^[a-z]+$/', $app_name)) {
-            trace('MISS ' . $app_name, 'warning');
+        $app_name = Request::param('name', '', 'urldecode');
+        $app_name = str_replace(' ', '+', $app_name);
+        $app_name = base64_decode($app_name);
+        if ($app_name && !preg_match('/^[a-z]+$/', $app_name)) {
             return miss(404);
         }
 
@@ -51,13 +52,15 @@ class AppConfig
             return miss(404);
         }
 
-        $param = Base64::decrypt(Request::param('token'));
-        $param = Filter::htmlDecode($param);
-        if (!preg_match('/^[\w\d\{\}\[\]\\\":,\+=]+$/i', $param)) {
-            trace('MISS ' . $app_name, 'warning');
-            return miss(404);
+        $param = Request::param('token', '', 'urldecode');
+        $param = str_replace(' ', '+', $param);
+        $param = base64_decode($param);
+        if ($param) {
+            $param = Filter::htmlDecode($param);
+            if (!preg_match('/^[\w\d\{\}\[\]\\\":,\+=]+$/i', $param)) {
+                return miss(404);
+            }
         }
-
         $param = json_decode($param, true);
         $haystack = ['id', 'pass', 'attribute', 'status', 'model_id', 'limit', 'page', 'date_format', 'sort', 'key', 'category_id', 'type_id', 'book_id', 'book_type_id', 'lang', 'logic', 'action', 'method'];
         foreach ($param as $key => $value) {

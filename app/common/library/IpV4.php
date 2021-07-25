@@ -20,10 +20,10 @@ use think\facade\Cache;
 use think\facade\Log;
 use think\facade\Request;
 use app\common\library\Filter;
-use app\common\model\Ipv4 as ModelIpv4;
+use app\common\model\IpV4 as ModelIpV4;
 use app\common\model\Region as ModelRegion;
 
-class Ipv4
+class IpV4
 {
     private $default = [
         'ip'          => '',
@@ -63,7 +63,7 @@ class Ipv4
             return array_merge($this->default, ['ip' => $_ip, 'country' => $result]);
         }
 
-        $result = ModelIpv4::view('ipv4', ['id', 'update_time'])
+        $result = ModelIpV4::view('ipv4', ['id', 'update_time'])
             ->view('region country', ['id' => 'country_id', 'name' => 'country'], 'country.id=ipv4.country_id')
             ->view('region region', ['id' => 'region_id', 'name' => 'region'], 'region.id=ipv4.province_id')
             ->view('region city', ['id' => 'city_id', 'name' => 'city'], 'city.id=ipv4.city_id')
@@ -88,7 +88,7 @@ class Ipv4
 
     private function update(string &$_ip)
     {
-        if ($id = ModelIpv4::where('id', '=', bindec(Request::ip2bin($_ip)))->value('id')) {
+        if ($id = ModelIpV4::where('id', '=', bindec(Request::ip2bin($_ip)))->value('id')) {
             $result = $this->get_curl(str_replace('TXT', $_ip, $this->api));
             $result = $result ? json_decode($result, true) : null;
             if (!is_array($result) || empty($result) || $result['code'] !== 0) {
@@ -107,7 +107,7 @@ class Ipv4
             $city     = $this->queryRegion($result['city'], $province);
             $area     = !empty($result['area']) ? $this->queryRegion($result['area'], $city) : 0;
 
-            ModelIpv4::where('id', '=', $id)->limit(1)->update([
+            ModelIpV4::where('id', '=', $id)->limit(1)->update([
                 'country_id'  => $country,
                 'province_id' => $province,
                 'city_id'     => $city,
@@ -120,8 +120,8 @@ class Ipv4
     private function added(string &$_ip)
     {
         $result = $this->default;
-        if (!ModelIpv4::where('id', '=', bindec(Request::ip2bin($_ip)))->value('id')) {
-            ModelIpv4::transaction(function () use (&$_ip, &$result) {
+        if (!ModelIpV4::where('id', '=', bindec(Request::ip2bin($_ip)))->value('id')) {
+            ModelIpV4::transaction(function () use (&$_ip, &$result) {
                 $result = $this->get_curl(str_replace('TXT', $_ip, $this->api));
                 $result = $result ? json_decode($result, true) : null;
                 if (!is_array($result) || empty($result) || $result['code'] !== 0) {
@@ -155,7 +155,7 @@ class Ipv4
                         'update_time' => time(),
                     ];
                 }
-                ModelIpv4::insertAll($all_data);
+                ModelIpV4::insertAll($all_data);
             });
 
             return $result;

@@ -277,7 +277,7 @@ class Tags extends TagLib
             '<meta http-equiv="Cache-Control" content="no-siteapp" />' .            // 禁止baidu转码
             '<meta http-equiv="Cache-Control" content="no-transform" />' .
             '<style type="text/css">body{moz-user-select:-moz-none;-moz-user-select:none;-o-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;}</style>' .
-            '<script src="__STATIC_HOST__static/app_config.do?name=<?php echo urlencode(\app\common\library\Base64::encrypt(app("http")->getName()));?>&token=<?php echo urlencode(\app\common\library\Base64::encrypt(json_encode(app("request")->only(["id","pass","attribute","status","model_id","limit","page","date_format","sort","key","category_id","type_id","book_id","book_type_id","lang","logic","action","method"]))));?>&version=' . $theme_config['api_version'] . '"></script>' .
+            '<script src="__STATIC_HOST__static/app_config.do?name=<?php echo urlencode(base64_encode(app("http")->getName()));?>&token=<?php echo urlencode(base64_encode(json_encode(app("request")->only(["id","pass","attribute","status","model_id","limit","page","date_format","sort","key","category_id","type_id","book_id","book_type_id","lang","logic","action","method"]))));?>&version=' . $theme_config['api_version'] . '"></script>' .
             '</head>' . $body . $_content . '</body></html>';
     }
 }

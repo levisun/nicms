@@ -19,7 +19,7 @@ namespace app\admin\logic\account;
 
 use app\common\controller\BaseLogic;
 use app\common\library\File;
-use app\common\library\Ipv4;
+use app\common\library\IpV4;
 use app\common\library\Base64;
 use app\common\model\User as ModelUser;
 
@@ -76,7 +76,7 @@ class User extends BaseLogic
         }
 
         // 更新登录信息
-        $info = (new Ipv4)->get($this->request->ip());
+        $info = (new IpV4)->get($this->request->ip());
         ModelUser::where('id', '=', $user['id'])
             ->limit(1)
             ->update([

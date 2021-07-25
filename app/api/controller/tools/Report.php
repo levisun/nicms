@@ -19,7 +19,7 @@ namespace app\api\controller\tools;
 
 use think\Response;
 use app\common\controller\BaseApi;
-use app\common\library\Ipv4;
+use app\common\library\IpV4;
 use app\common\model\Feedback as ModelFeedback;
 
 class Record extends BaseApi
@@ -30,7 +30,7 @@ class Record extends BaseApi
         $this->ApiInit();
 
         if ($content = $this->request->param('content')) {
-            $ip = (new Ipv4)->get($this->request->ip());
+            $ip = (new IpV4)->get($this->request->ip());
 
 
             ModelFeedback::create([

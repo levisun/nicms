@@ -19,7 +19,7 @@ namespace app\common\middleware;
 use Closure;
 use think\Request;
 use think\facade\Log;
-use app\common\library\Ipv4;
+use app\common\library\IpV4;
 use app\common\model\Visit as ModelVisit;
 
 class RequestLog
@@ -110,7 +110,7 @@ class RequestLog
                     ->limit(1)
                     ->update();
             } else {
-                $ip = (new Ipv4)->get($_request->ip());
+                $ip = (new IpV4)->get($_request->ip());
                 ModelVisit::create([
                     'ip'      => $_request->ip(),
                     'ip_attr' => isset($ip['country']) ? $ip['country'] .  $ip['region'] . $ip['city'] .  $ip['area'] : '',

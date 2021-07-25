@@ -33,7 +33,7 @@ namespace app\common\model;
 
 use think\Model;
 
-class Ipv4 extends Model
+class IpV4 extends Model
 {
     protected $name = 'ipv4';
     protected $autoWriteTimestamp = true;
