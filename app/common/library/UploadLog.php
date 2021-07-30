@@ -39,15 +39,10 @@ class UploadLog
         $_file = str_replace(DIRECTORY_SEPARATOR, '/', $_file);
 
         $has = ModelUploadFileLog::where('name', '=', sha1($_file))->value('file');
-
         if (!$has) {
             ModelUploadFileLog::create([
                 'name' => sha1($_file),
                 'file' => $_file,
-                'type' => $_type
-            ]);
-        } else {
-            ModelUploadFileLog::where('name', '=', sha1($_file))->limit(1)->update([
                 'type' => $_type
             ]);
         }

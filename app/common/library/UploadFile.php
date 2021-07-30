@@ -277,7 +277,7 @@ class UploadFile
         if (function_exists('imagewebp')) {
             $new_ext = 'webp';
         } elseif ('gif' !== $extension) {
-            $new_ext = 'png';
+            $new_ext = 'jpg';
         }
 
         if ($new_ext) {

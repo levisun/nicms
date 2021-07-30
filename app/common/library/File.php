@@ -54,7 +54,7 @@ class File
         $_img = trim($_img, '\/.');
         $_img = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_img);
 
-        $thumb_file = md5($_img . $_width) . '.' . pathinfo($_img, PATHINFO_EXTENSION);
+        $thumb_file = md5($_img . $_width . $_height) . '.' . pathinfo($_img, PATHINFO_EXTENSION);
 
         $path = public_path('storage/thumb/' . substr($thumb_file, 0, 2));
         if (!is_dir($path)) mkdir($path, 0755, true);
@@ -131,13 +131,10 @@ class File
         $_file = Filter::strict($_file);
         $_file = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_file);
 
-        if ($_file && is_file(public_path() . $_file)) {
-            $extension = pathinfo($_file, PATHINFO_EXTENSION);
-            if (in_array($extension, ['jpg', 'gif', 'png', 'webp'])) {
-                return Config::get('app.img_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
-            } else {
-                return Config::get('app.static_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
-            }
+        $extension = pathinfo($_file, PATHINFO_EXTENSION);
+
+        if ($_file && is_file(public_path() . $_file) && in_array($extension, ['gif', 'jpg', 'jpeg', 'png', 'bmp', 'webp'])) {
+            return Config::get('app.img_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_file);
         }
 
         return false;
@@ -189,7 +186,7 @@ class File
     {
         $_file = $_file ? Base64::decrypt($_file, Base64::salt()) : '';
 
-        if ($_file && false !== preg_match('/^[a-zA-Z0-9_\/\\\]+\.[a-zA-Z0-9]{2,4}$/u', $_file)) {
+        if ($_file && false !== preg_match('/^[\w\d\/\\\]+\.[\w\d]{2,4}$/u', $_file)) {
             $_file = Filter::strict($_file);
             $_file = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $_file);
 
@@ -217,8 +214,7 @@ class File
         if (is_readable($_dir)) {
             $dh = opendir($_dir);
             while ($file = readdir($dh)) {
-                if ('.' === substr($file, 0, 1))
-                    continue;
+                if ('.' === substr($file, 0, 1)) continue;
 
                 $path = $_dir . DIRECTORY_SEPARATOR . $file;
 

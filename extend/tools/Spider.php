@@ -420,7 +420,7 @@ class Spider
                 $this->xhtml = preg_replace_callback('/<base[^<>]+href=["\']+([^<>"\']+)["\']+[^<>]*>/i', function ($ele) {
                     $base = parse_url($this->origin, PHP_URL_SCHEME) . '://' . parse_url($this->origin, PHP_URL_HOST);
                     $base = false !== stripos($ele[1], 'http') ? $ele[1] : $base . $ele[1];
-                    return '<base href="' . $base . '" />';
+                    return '<base href="' . $base . '" /><base target="_blank" />';
                 }, $this->xhtml);
             } else {
                 $base = (string) parse_url($this->origin, PHP_URL_PATH);
@@ -428,7 +428,7 @@ class Spider
                     ? str_replace('\\', '/', rtrim(dirname($base), '\/')) . '/'
                     : str_replace('\\', '/', rtrim($base, '\/')) . '/';
                 $base = parse_url($this->origin, PHP_URL_SCHEME) . '://' . parse_url($this->origin, PHP_URL_HOST) . $base;
-                $this->xhtml = preg_replace('/(<head[^<>]*>)/i', '$1<base href="' . $base . '" />', $this->xhtml);
+                $this->xhtml = preg_replace('/(<head[^<>]*>)/i', '$1<base href="' . $base . '" /><base target="_blank" />', $this->xhtml);
             }
 
             $length = mb_strlen(strip_tags($this->xhtml), 'utf-8');
