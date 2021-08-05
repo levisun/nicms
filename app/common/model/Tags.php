@@ -42,5 +42,6 @@ class Tags extends Model
         'id',
         'name',
         'count',
+        'lang',
     ];
 }

@@ -31,6 +31,7 @@ class Participle
         }
 
         $_txt = Filter::htmlDecode($_txt);
+        $_txt = Filter::nonChsAlpha($_txt);
 
         $this->result['words'] = $this->words($_txt, 0, 'DESC');
         $this->result['segmentation'] = $this->segmentation($_txt);
@@ -118,24 +119,28 @@ class Participle
      */
     public function words(string $_txt, int $_length = 0, string $_sort = ''): array
     {
-        if (!Filter::nonChsAlpha($_txt)) {
-            return [];
-        }
-
         $date = $this->date($_txt);
+
+        $en = [];
+        $_txt = preg_replace_callback('/ ?[a-zA-Z\']+ ?/i', function ($words) use(&$en) {
+            $en[] = trim($words[0]);
+            return '';
+        }, $_txt);
 
         @ini_set('memory_limit', '256M');
         $fc = new VicWord();
         $words = $fc->getAutoWord($_txt);
         unset($fc);
 
-        $length = [];
         foreach ($words as $key => $value) {
             $value[0] = trim($value[0]);
-            $length[] = mb_strlen($value[0], 'utf-8');
             $words[$key] = $value[0];
         }
-        $words = array_merge($words, $date);
+        $length = [];
+        $words = array_merge($words, $date, $en);
+        foreach ($words as $value) {
+            $length[] = mb_strlen($value, 'utf-8');
+        }
 
         // 排序
         if ($_sort) {

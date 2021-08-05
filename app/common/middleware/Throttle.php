@@ -19,7 +19,6 @@ namespace app\common\middleware;
 use Closure;
 use think\Request;
 use think\facade\Cache;
-use app\common\library\File;
 
 class Throttle
 {
@@ -73,30 +72,7 @@ class Throttle
             $this->inc($request);
         }
 
-        $this->sessionTotal();
-
         return $response;
-    }
-
-    /**
-     * 用户在线统计
-     * @access private
-     * @return void
-     */
-    private function sessionTotal(): void
-    {
-        $cache_key = __METHOD__ . 'session total';
-        if (!Cache::has($cache_key) || !$total = Cache::get($cache_key)) {
-            $total = 1;
-            $glob = File::glob(runtime_path('session'));
-            while ($glob->valid()) {
-                $glob->next();
-                $total++;
-            }
-            Cache::set($cache_key, $total, 1440);
-        }
-        // 一秒=1000000
-        usleep($total * 100 + 10000);
     }
 
     /**

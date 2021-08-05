@@ -17,7 +17,7 @@ return [
     'user'     => null,
     // 指令定义
     'commands' => [
+        'backup'  => \app\command\Backup ::class,
         'install' => \app\command\Install::class,
-        'test' => \app\command\Test::class,
     ],
 ];

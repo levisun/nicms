@@ -228,9 +228,9 @@ class DataManage
     /**
      * 备份
      * @access public
-     * @return void
+     * @return mixed
      */
-    public function backup(): void
+    public function backup()
     {
         only_execute('db_backup.lock', false, function () {
             $files = glob($this->savePath . '*');
@@ -268,20 +268,12 @@ class DataManage
                 $field = Db::getTableFields($name);
                 $field = '`' . implode('`,`', $field) . '`';
 
-                $result = Db::table($name)->order($primary . ' ASC')->cursor();
-                $items = [];
-                foreach ($result as $data) {
-                    $items[] = $data;
-                    if (100 == count($items)) {
-                        $this->saveTableData($filename, $name, $field, $items);
-                        $items = [];
-                        // 持续查询状态并不利于处理任务，每10ms执行一次，此时释放CPU，降低机器负载
-                        usleep(10000);
-                    }
-                }
-                if (count($items)) {
+                Db::table($name)->chunk(50, function ($items) use($filename, $name, $field) {
+                    $items = $items->toArray();
                     $this->saveTableData($filename, $name, $field, $items);
-                }
+                    // 持续查询状态并不利于处理任务，每10ms执行一次，此时释放CPU，降低机器负载
+                    usleep(10000);
+                }, $primary, 'ASC');
             }
 
             if ($files = glob($this->tempPath . '*')) {
@@ -307,6 +299,8 @@ class DataManage
 
             ignore_user_abort(false);
         });
+
+        return true;
     }
 
     /**

@@ -25,7 +25,6 @@ use app\common\library\Filter;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Symfony\Component\Mime\Encoder\Base64Encoder;
 
 class AppConfig
 {
