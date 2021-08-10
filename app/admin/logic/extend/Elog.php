@@ -72,8 +72,17 @@ class Elog extends BaseLogic
             if (is_file($file)) {
                 $this->actionLog('see error log PATH:' . $file);
                 $data = file_get_contents($file);
-                $data = str_replace(['<', '>'], ['&lt;', '&gt;'], $data);
-                $data = str_replace($this->app->getRootPath(), 'ROOT_PATH', $data);
+                $data = str_replace([
+                    '<', '>', '(', ')',
+                    root_path(),
+                    runtime_path(),
+                    public_path(),
+                ], [
+                    '&lt;', '&gt;', '&#040;', '&#041;',
+                    'ROOT_PATH',
+                    'RUNTIME_PATH',
+                    'PUBLIC_PATH',
+                ], $data);
                 $data = nl2br($data);
                 $data = preg_replace_callback('/mysql\:host=[0-9A-Za-z_.=;]+;/si', function () {
                     return 'ROOT ';

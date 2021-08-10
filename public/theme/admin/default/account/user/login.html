@@ -89,7 +89,8 @@
             },
             login: function () {
                 var data = jQuery('#login-form').serializeArray();
-                data.push({ name: 'method', value: 'account.user.login' });
+                // data.push({ name: 'method', value: 'account.user.login' });
+                data.push({ name: 'method', value: 'account.login.password' });
                 jQuery.pjax({
                     url: APP_CONFIG.api_uri + 'handle.do',
                     type: 'POST',

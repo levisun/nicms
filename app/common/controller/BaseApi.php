@@ -79,11 +79,9 @@ abstract class BaseApi
      * @var array
      */
     protected $validateNotAuth = [
-        'not_auth_action' => [
-            'auth',
-            'profile',
-            'notice'
-        ]
+        'not_auth_logic' => [
+            'account',
+        ],
     ];
 
     /**
@@ -511,12 +509,14 @@ abstract class BaseApi
         // 校验签名类型
         $sign_type = $this->request->param('sign_type', 'md5');
         if (!function_exists($sign_type)) {
+            trace($sign_type, 'warning');
             $this->abort('The signature type is wrong.', 22001);
         }
 
         // 校验签名合法性
         $sign = $this->request->param('sign');
         if (!$sign || !!!preg_match('/^[A-Za-z0-9]+$/u', $sign)) {
+            trace($sign, 'warning');
             $this->abort('The signature is wrong.', 22002);
         }
 
@@ -539,6 +539,7 @@ abstract class BaseApi
         $str .= $this->appSecret;
 
         if (!hash_equals(call_user_func($sign_type, $str), $sign)) {
+            trace($str, 'warning');
             $this->abort('The signature is wrong.', 22003);
         }
     }
@@ -597,7 +598,7 @@ abstract class BaseApi
         // 需要鉴权应用
         if (in_array($this->appName, ['admin', 'user'])) {
             // 不需要鉴权方法(登录 登出 找回密码)
-            if (!in_array($this->appMethod['method'], ['login', 'logout', 'forget'])) {
+            if (!in_array($this->appMethod['logic'], ['account'])) {
                 // 验证权限
                 $result = (new Rbac)->setUserId($this->userId)
                     ->setAppName($this->appName)

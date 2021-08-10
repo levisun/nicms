@@ -15,7 +15,7 @@ namespace app\admin\validate\account;
 
 use think\Validate;
 
-class User extends Validate
+class Login extends Validate
 {
     protected $rule = [
         'captcha'  => ['require', 'captcha'],

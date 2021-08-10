@@ -35,41 +35,47 @@ class File
      */
     public static function thumb(string $_img, int $_width = 100, int $_height = 0): string
     {
-        if (!self::imgHas($_img)) {
-            return self::imgMiss();
+        if (0 === stripos($_img, 'http')) {
+            return $_img;
         }
 
-        $_width = intval($_width / 10) * 10;
-        $_width = 800 > $_width ? $_width : 800;
-        $_width = 10 < $_width ? $_width : 10;
-
-        if ($_height) {
-            $_height = intval($_height / 10) * 10;
-            $_height = 800 > $_height ? $_height : 800;
-            $_height = 10 < $_height ? $_height : 10;
-        } else {
-            $_height = $_width;
-        }
-
-        $_img = trim($_img, '\/.');
+        $_img = Filter::strict($_img);
         $_img = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_img);
 
-        $thumb_file = md5($_img . $_width . $_height) . '.' . pathinfo($_img, PATHINFO_EXTENSION);
+        $extension = pathinfo($_img, PATHINFO_EXTENSION);
 
-        $path = public_path('storage/thumb/' . substr($thumb_file, 0, 2));
-        if (!is_dir($path)) mkdir($path, 0755, true);
+        if ($_img && is_file(public_path() . $_img) && in_array($extension, ['gif', 'jpg', 'jpeg', 'png', 'bmp', 'webp'])) {
+            $_width = intval($_width / 10) * 10;
+            $_width = 800 > $_width ? $_width : 800;
+            $_width = 10 < $_width ? $_width : 10;
 
-        if (!is_file($path . $thumb_file)) {
-            @ini_set('memory_limit', '128M');
-            $image = ThinkImage::open(public_path() . $_img);
-            $_width = $image->width() > $_width ? $_width : $image->width();
-            $_height = $image->height() > $_height ? $_height : $image->height();
-            $image->thumb($_width, $_height, ThinkImage::THUMB_SCALING);
-            $image->save($path . $thumb_file);
-            unset($image);
+            if ($_height) {
+                $_height = intval($_height / 10) * 10;
+                $_height = 800 > $_height ? $_height : 800;
+                $_height = 10 < $_height ? $_height : 10;
+            } else {
+                $_height = $_width;
+            }
+
+            $thumb_file = md5($_img . $_width . $_height) . '.' . $extension;
+
+            $path = public_path('storage/thumb/' . substr($thumb_file, 0, 2));
+            if (!is_dir($path)) mkdir($path, 0755, true);
+
+            if (!is_file($path . $thumb_file)) {
+                @ini_set('memory_limit', '128M');
+                $image = ThinkImage::open(public_path() . $_img);
+                $_width = $image->width() > $_width ? $_width : $image->width();
+                $_height = $image->height() > $_height ? $_height : $image->height();
+                $image->thumb($_width, $_height, ThinkImage::THUMB_SCALING);
+                $image->save($path . $thumb_file);
+                unset($image);
+            }
+
+            return Config::get('app.img_host') . 'storage/thumb/' . str_replace(DIRECTORY_SEPARATOR, '/', $thumb_file);
         }
 
-        return Config::get('app.img_host') . 'storage/thumb/' . str_replace(DIRECTORY_SEPARATOR, '/', $thumb_file);
+        return self::imgMiss();
     }
 
 
@@ -85,16 +91,25 @@ class File
      */
     public static function avatar(string $_img, string $_username = 'avatar'): string
     {
-        if (!$_img = self::imgHas($_img)) {
-            $length = mb_strlen($_username, 'utf-8');
-            $salt = strlen(Request::rootDomain());
-            $bg = (intval($length * $salt) % 255) . ',' . (intval($length * $salt * 3) % 255) . ',' . (intval($length * $salt * 9) % 255);
-
-            $_img = 'data:image/svg+xml;base64,' .
-                base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="100" width="100"><rect fill="rgb(' . $bg . ')" x="0" y="0" width="100" height="100"></rect><text x="50" y="65" font-size="50" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="admin" alignment-baseline="central">' . mb_strtoupper(mb_substr($_username, 0, 1)) . '</text></svg>');
+        if (0 === stripos($_img, 'http')) {
+            return $_img;
         }
 
-        return $_img;
+        $_img = Filter::strict($_img);
+        $_img = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_img);
+
+        $extension = pathinfo($_img, PATHINFO_EXTENSION);
+
+        if ($_img && is_file(public_path() . $_img) && in_array($extension, ['gif', 'jpg', 'jpeg', 'png', 'bmp', 'webp'])) {
+            return Config::get('app.img_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
+        }
+
+        $length = mb_strlen($_username, 'utf-8');
+        $salt = strlen(Request::rootDomain());
+        $bg = (intval($length * $salt) % 255) . ',' . (intval($length * $salt * 3) % 255) . ',' . (intval($length * $salt * 9) % 255);
+
+        return 'data:image/svg+xml;base64,' .
+            base64_encode('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="100" width="100"><rect fill="rgb(' . $bg . ')" x="0" y="0" width="100" height="100"></rect><text x="50" y="65" font-size="50" text-copy="fast" fill="#FFFFFF" text-anchor="middle" text-rights="admin" alignment-baseline="central">' . mb_strtoupper(mb_substr($_username, 0, 1)) . '</text></svg>');
     }
 
 
@@ -108,11 +123,21 @@ class File
      */
     public static function imgUrl(string $_img): string
     {
-        if (!$_img = self::imgHas($_img)) {
-            $_img = self::imgMiss();
+        // 外部图片
+        if (0 === stripos($_img, 'http')) {
+            return $_img;
         }
 
-        return $_img;
+        $_img = Filter::strict($_img);
+        $_img = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $_img);
+
+        $extension = pathinfo($_img, PATHINFO_EXTENSION);
+
+        if ($_img && is_file(public_path() . $_img) && in_array($extension, ['gif', 'jpg', 'jpeg', 'png', 'bmp', 'webp'])) {
+            return Config::get('app.img_host') . str_replace(DIRECTORY_SEPARATOR, '/', $_img);
+        }
+
+        return self::imgMiss();
     }
 
     /**

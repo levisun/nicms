@@ -185,7 +185,8 @@
                     url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
-                        { name: 'method', value: 'account.user.profile' }
+                        // { name: 'method', value: 'account.user.profile' }
+                        { name: 'method', value: 'account.profile.query' }
                     ],
                     success: function (result) {
                         if (result.code == 10000 && result.data) {
@@ -201,7 +202,7 @@
                     url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
-                        { name: 'method', value: 'account.user.notice' }
+                        { name: 'method', value: 'account.notice.query' }
                     ],
                     success: function (result) {
                         if (result.code == 10000 && result.data) {
@@ -215,7 +216,7 @@
                     url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
-                        { name: 'method', value: 'account.user.logout' }
+                        { name: 'method', value: 'account.logout.query' }
                     ],
                     success: function (result) {
                         if (result.code == 10000) {

@@ -4,6 +4,7 @@
  *
  * 控制层
  * 下载API
+ * 支持大文件下载
  *
  * @package   NICMS
  * @category  app\api\controller\tools
@@ -26,17 +27,44 @@ class Download extends BaseApi
 
     public function index()
     {
-        if (!$this->ValidateReferer() || !$file = $this->request->param('file')) {
+        if (!$this->ValidateReferer()) {
+            return miss(404);
+        }
+
+        if (!$file = $this->request->param('file')) {
             return miss(404);
         }
 
         if ($file = File::pathDecode($file, true)) {
-            // $ext = pathinfo($file, PATHINFO_EXTENSION);
+            @set_time_limit(0);
+            @ini_set('max_execution_time', '0');
+            @ini_set('memory_limit', '16M');
 
-            return Response::create($file, 'file')
-                ->name(sha1(pathinfo($file, PATHINFO_FILENAME) . date('Ymd')))
-                ->isContent(false)
-                ->expire(28800);
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime_type = finfo_file($finfo, $file);
+
+            $name = sha1(pathinfo($file, PATHINFO_FILENAME) . date('Ymd')) . '.' . pathinfo($file, PATHINFO_EXTENSION);
+            header('Pragma: public');
+            header('Content-Type: ' . $mime_type);
+            header('Content-Disposition: attachment; filename=' . $name);
+            header('Content-Length: ' . filesize($file));
+            header('Content-Transfer-Encoding: binary');
+
+            $download_rate = 64 * 1024;
+
+            ob_end_clean();
+            $resource = fopen($file, 'r');
+            while (!feof($resource)) {
+                print fread($resource, (int) round($download_rate));
+                flush();
+                sleep(1);
+            }
+            fclose($resource);
+
+            // return Response::create($file, 'file')
+            //     ->name(sha1(pathinfo($file, PATHINFO_FILENAME) . date('Ymd')))
+            //     ->isContent(false)
+            //     ->expire(28800);
         }
     }
 }

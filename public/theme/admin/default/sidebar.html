@@ -70,7 +70,8 @@
                     url: APP_CONFIG.api_uri + 'query.do',
                     type: 'GET',
                     data: [
-                        { name: 'method', value: 'account.user.auth' }
+                        // { name: 'method', value: 'account.user.auth' }
+                        { name: 'method', value: 'account.auth.query' }
                     ],
                     success: function (result) {
                         if (result.code == 10000 && result.data) {

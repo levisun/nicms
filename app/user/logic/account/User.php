@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-namespace app\admin\logic\account;
+namespace app\user\logic\account;
 
 use app\common\controller\BaseLogic;
 use app\common\library\File;

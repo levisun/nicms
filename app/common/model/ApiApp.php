@@ -30,8 +30,8 @@ CREATE TABLE `nc_api_app` (
 INSERT INTO `nc_api_app` (`id`, `name`, `secret`, `authkey`, `status`, `remark`, `update_time`, `create_time`) VALUES
 (1, 'admin', '962940cfbe94a64efcd1573cf6d7a175', 'admin_auth_key', 1, '', 1505898660, 1505898660),
 (2, 'cms', '962940cfbe94a64efcd1573cf6d7a175', 'user_auth_key', 1, '', 1505898660, 1505898660),
-(3, 'user', '962940cfbe94a64efcd1573cf6d7a175', 'user_auth_key', 1, '', 1505898660, 1505898660),
-(4, 'book', '962940cfbe94a64efcd1573cf6d7a175', 'user_auth_key', 1, '', 1505898660, 1505898660);
+(3, 'book', '962940cfbe94a64efcd1573cf6d7a175', 'user_auth_key', 1, '', 1505898660, 1505898660),
+(4, 'user', '962940cfbe94a64efcd1573cf6d7a175', 'user_auth_key', 1, '', 1505898660, 1505898660);
  */
 
 namespace app\common\model;

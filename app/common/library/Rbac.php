@@ -21,12 +21,12 @@ use app\common\model\Node as ModelNode;
 class Rbac
 {
     private $config = [
-        'auth_founder'     => 1,        // 超级管理员ID
-        'auth_type'        => false,    // 实时验证方式
-        'not_auth_app'     => [],
-        'not_auth_service' => [],
-        'not_auth_logic'   => [],
-        'not_auth_action'  => [],
+        'auth_founder'        => 1,        // 超级管理员ID
+        'auth_type'           => false,    // 实时验证方式
+        'not_auth_app'        => [],
+        'not_auth_logic'      => [],
+        'not_auth_controller' => [],
+        'not_auth_action'     => [],
     ];
 
     private $userID = 0;
@@ -55,15 +55,15 @@ class Rbac
     /**
      * 审核用户操作权限
      * @access public
-     * @param  string $_logic   业务层名
-     * @param  string $_action  控制器名
-     * @param  string $_method  方法名
+     * @param  string $_logic      业务层名
+     * @param  string $_controller 控制器名
+     * @param  string $_action     方法名
      * @return boolean
      */
-    public function authenticate(string $_logic, string $_action, string $_method): bool
+    public function authenticate(string $_logic, string $_controller, string $_action): bool
     {
         // 登录并请求方法需要审核
-        if ($this->userID && $this->checkAccess($_logic, $_action, $_method)) {
+        if ($this->userID && $this->checkAccess($_logic, $_controller, $_action)) {
             // 实时检验权限
             if (true === $this->config['auth_type']) {
                 $__authenticate_list = $this->accessDecision();
@@ -80,7 +80,7 @@ class Rbac
                 }
             }
 
-            return isset($__authenticate_list[$this->appName][$_logic][$_action][$_method]);
+            return isset($__authenticate_list[$this->appName][$_logic][$_controller][$_action]);
         } else {
             return $this->userID ? true : false;
         }
@@ -108,22 +108,17 @@ class Rbac
     /**
      * 检查当前操作是否需要认证
      * @access private
-     * @param  string $_app     应用名
-     * @param  string $_service 业务层名
-     * @param  string $_logic   控制器名
-     * @param  string $_method  方法名
+     * @param  string $_app        应用名
+     * @param  string $_logic      业务层名
+     * @param  string $_controller 控制器名
+     * @param  string $_action     方法名
      * @return boolean
      */
-    private function checkAccess(string $_service, string $_logic, string $_method): bool
+    private function checkAccess(string &$_logic, string &$_controller, string &$_action): bool
     {
         if (!empty($this->config['not_auth_app'])) {
             $this->config['not_auth_app'] = array_map('strtolower', $this->config['not_auth_app']);
             if (in_array($this->appName, $this->config['not_auth_app'])) {
-                return false;
-            }
-        } elseif (!empty($this->config['not_auth_service'])) {
-            $this->config['not_auth_service'] = array_map('strtolower', $this->config['not_auth_service']);
-            if (in_array($_service, $this->config['not_auth_service'])) {
                 return false;
             }
         } elseif (!empty($this->config['not_auth_logic'])) {
@@ -131,9 +126,14 @@ class Rbac
             if (in_array($_logic, $this->config['not_auth_logic'])) {
                 return false;
             }
+        } elseif (!empty($this->config['not_auth_controller'])) {
+            $this->config['not_auth_controller'] = array_map('strtolower', $this->config['not_auth_controller']);
+            if (in_array($_controller, $this->config['not_auth_controller'])) {
+                return false;
+            }
         } elseif (!empty($this->config['not_auth_action'])) {
             $this->config['not_auth_action'] = array_map('strtolower', $this->config['not_auth_action']);
-            if (in_array($_method, $this->config['not_auth_action'])) {
+            if (in_array($_action, $this->config['not_auth_action'])) {
                 return false;
             }
         }
