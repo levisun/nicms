@@ -226,8 +226,8 @@ if (!function_exists('miss')) {
     /**
      * miss
      * @param  int  $_code
-     * @param  bool $_redirect
-     * @param  bool $_abort
+     * @param  bool $_redirect 重定向
+     * @param  bool $_abort    抛出
      * @return Response
      */
     function miss($_code, bool $_redirect = false, bool $_abort = false)

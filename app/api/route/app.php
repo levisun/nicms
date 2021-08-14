@@ -63,6 +63,9 @@ Route::domain(['cdn', 'img'], function () {
     ->middleware(\think\middleware\SessionInit::class)
     ->cache(false);
 
+    Route::get('storage/static$', '\app\api\controller\Storage::static');   // 实验
+    Route::get('storage/media$', '\app\api\controller\Storage::media');   // 实验
+
     Route::miss(function () {
         return miss(404);
     });

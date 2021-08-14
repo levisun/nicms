@@ -52,7 +52,7 @@ abstract class BaseSiteInfo
         }
 
         $view_path = 'theme/' . app('http')->getName() . '/' . $common['theme'] . '/';
-        $common['url']  = config('app.static_host') . $view_path;
+        $common['url']  = config('app.static_host') . str_replace('theme/', '', $view_path);
 
         // 移动端目录
         if (Request::isMobile() && is_dir($view_path . 'mobile')) {

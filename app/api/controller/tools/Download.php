@@ -40,12 +40,9 @@ class Download extends BaseApi
             @ini_set('max_execution_time', '0');
             @ini_set('memory_limit', '16M');
 
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mime_type = finfo_file($finfo, $file);
-
             $name = sha1(pathinfo($file, PATHINFO_FILENAME) . date('Ymd')) . '.' . pathinfo($file, PATHINFO_EXTENSION);
             header('Pragma: public');
-            header('Content-Type: ' . $mime_type);
+            header('Content-Type: ' . finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file));
             header('Content-Disposition: attachment; filename=' . $name);
             header('Content-Length: ' . filesize($file));
             header('Content-Transfer-Encoding: binary');

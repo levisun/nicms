@@ -200,8 +200,7 @@ class Base64
                 $_data[$key] = self::encrypt($value, $_salt);
             }
         } else {
-            $_salt = $_salt ?: Request::server('HTTP_USER_AGENT');
-            $secret_key = sha1(__DIR__ . $_salt);
+            $secret_key = sha1(__DIR__ . $_salt . Request::server('HTTP_USER_AGENT'));
             $secret_key = hash_hmac('sha256', $secret_key, Config::get('app.secretkey'));
             $iv = substr(sha1($secret_key), 0, openssl_cipher_iv_length('AES-256-CBC'));
             $_data = base64_encode(openssl_encrypt((string) $_data, 'AES-256-CBC', $secret_key, OPENSSL_RAW_DATA, $iv));
@@ -225,8 +224,7 @@ class Base64
                 $_data[$key] = self::decrypt($value, $_salt);
             }
         } else {
-            $_salt = $_salt ?: Request::server('HTTP_USER_AGENT');
-            $secret_key = sha1(__DIR__ . $_salt);
+            $secret_key = sha1(__DIR__ . $_salt . Request::server('HTTP_USER_AGENT'));
             $secret_key = hash_hmac('sha256', $secret_key, Config::get('app.secretkey'));
             $iv = substr(sha1($secret_key), 0, openssl_cipher_iv_length('AES-256-CBC'));
             $_data = openssl_decrypt(base64_decode($_data), 'AES-256-CBC', $secret_key, OPENSSL_RAW_DATA, $iv);

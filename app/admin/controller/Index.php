@@ -62,7 +62,7 @@ class Index extends BaseController
 
         // 初始化视图
         $view_path = 'theme/' . app('http')->getName() . '/' . env('admin.theme', 'default') . '/';
-        $url  = config('app.static_host') . $view_path;
+        $url  = config('app.static_host') . str_replace('theme/', '', $view_path);
         $this->view->config([
             'view_path' => $view_path,
             'tpl_replace_string' => [

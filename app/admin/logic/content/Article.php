@@ -55,7 +55,6 @@ class Article extends BaseLogic
         // 安模型查询,为空查询所有
         if ($model_id = $this->request->param('model_id/d', 0, 'abs')) {
             $model->where('article.model_id', '=', $model_id);
-            $map[] = ['model_id', '=', $model_id];
         }
 
         // 安栏目查询,为空查询所有

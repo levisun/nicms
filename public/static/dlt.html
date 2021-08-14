@@ -51,6 +51,10 @@
             methods: {
                 create: function () {
                     this.future = this.red[this.rand()];
+                    this.future += this.red[this.rand()];
+                    this.future += this.red[this.rand()];
+                    this.future += this.red[this.rand()];
+                    this.future += this.red[this.rand()];
                 },
                 rand: function () {
                     return Math.floor(Math.random() * app.red.length);
@@ -72,6 +76,7 @@
                 hasEven: function (_num) {
                     return _num % 2 == 0 ? true : false;
                 },
+                // 判断质数
                 hasPrime: function (_num) {
                     let total = 0;
                     for (let i = 1; i <= _num; i++) {
@@ -106,6 +111,7 @@
                                         this.hasEven(red5) ? ++even : ++odd;
                                         if (even == 5 || odd == 5) continue;
 
+                                        // 判断质数
                                         var prime = 0;
                                         if (this.hasPrime(red1)) ++prime;
                                         if (this.hasPrime(red2)) ++prime;
@@ -132,12 +138,15 @@
                                             if (red4 == blue1) continue;
                                             if (red5 == blue1) continue;
 
+                                            // 判断奇偶
                                             this.hasEven(blue1) ? ++even : ++odd;
                                             if (even == 6 || odd == 6) continue;
 
+                                            // 判断质数
                                             if (this.hasPrime(blue1)) ++prime;
                                             if (prime == 6) continue;
 
+                                            // 过滤连号
                                             if (this.hasCont(red5, blue1)) ++cont;
                                             if (cont >= 5) continue;
 
@@ -160,7 +169,7 @@
                                                 if (cont >= 6) continue;
 
                                                 var blueStyle = redStyle + '<font style="color:blue;">' + blue1 + ' ' + blue2 + '</font>';
-                                                this.red.push(blueStyle);
+                                                this.red.push("<p>" + blueStyle + "</p>");
                                             }
                                         }
                                     }

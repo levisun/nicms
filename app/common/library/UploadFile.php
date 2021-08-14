@@ -212,8 +212,8 @@ class UploadFile
     {
         $save_dir  = 'uploads' . DIRECTORY_SEPARATOR;
 
+        // 文件类型目录
         $extension = strtolower($_files->extension());
-
         if (in_array($extension, ['jpg', 'gif', 'png', 'webp'])) {
             $save_dir .= 'image' . DIRECTORY_SEPARATOR;
         } elseif (in_array($extension, ['mp3', 'mp4'])) {
@@ -224,16 +224,19 @@ class UploadFile
             $save_dir .= 'file' . DIRECTORY_SEPARATOR;
         }
 
+        // 用户类型目录
+        $save_dir .= !empty($_user['userType']) && !empty($_user['userId'])
+            ? Base64::flag($_user['userType']) . DIRECTORY_SEPARATOR
+            : 'guest' . DIRECTORY_SEPARATOR;
+
+        // 日期目录
         $save_dir .= Base64::url62encode((int) date('Y')) . DIRECTORY_SEPARATOR;
         $save_dir .= Base64::url62encode((int) date('m')) . DIRECTORY_SEPARATOR;
 
-        // 用户类型ID目录
-        if (!empty($_user['userType']) && !empty($_user['userId'])) {
-            $save_dir .= Base64::flag($_user['userType']) . DIRECTORY_SEPARATOR;
-            $save_dir .= Base64::url62encode((int) $_user['userId']) . DIRECTORY_SEPARATOR;
-        } else {
-            $save_dir .= 'guest' . DIRECTORY_SEPARATOR;
-        }
+        // 用户目录
+        $save_dir .= !empty($_user['userType']) && !empty($_user['userId'])
+            ? Base64::url62encode((int) $_user['userId']) . DIRECTORY_SEPARATOR
+            : '';
 
         return rtrim($save_dir, '\/');
     }

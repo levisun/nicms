@@ -91,27 +91,7 @@ class AppConfig
 
 
 
-        $from_token = Request::buildToken('__token__', 'md5');
         $secret = app_secret($app_name);
-
-        $script = 'const APP_CONFIG = {
-            domain:"//"+window.location.host+"/",
-            rootDomain:"//"+window.location.host.substr(window.location.host.indexOf(".")+1)+"/",
-            url:"//"+window.location.host+window.location.pathname,
-            api_uri:"' . config('app.api_host') . '",
-            api_version:"' . $version . '",
-            app_name:"' . config('app.app_name') . '",
-            app_id:"' . $secret['id'] . '",
-            param:' . $param . '
-        };
-        window.sessionStorage.setItem("XSRF_AUTHORIZATION", "' . trim(base64_encode($authorization), '=') . '");
-        window.sessionStorage.setItem("XSRF_SECRET", "' . sha1($secret['secret'] . Base64::asyncSecret()) . '");
-        window.sessionStorage.setItem("FROM_TOKEN", "' . $from_token . '");
-        let ip = document.createElement("script");
-        ip.src = "' . config('app.api_host') . 'tools/ip.do?token=' . md5(Request::server('HTTP_REFERER')) . '";
-        var script = document.getElementsByTagName("script")[0];
-        script.parentNode.insertBefore(ip, script);';
-
 
         // 区分用户缓存
         $user_type = $user_id = $user_role_id = 'guest';
@@ -125,23 +105,32 @@ class AppConfig
             $user_role_id = (int) Session::get($user_type . '_role');
         }
 
-        $token = sha1(Base64::encrypt($user_id . $user_role_id . $user_type, date('Ymd')));
-        $script .= 'window.sessionStorage.setItem("API_TOKEN", "' . $token . '");';
+        $script = 'const APP_CONFIG = {
+            domain:"//"+window.location.host+"/",
+            rootDomain:"//"+window.location.host.substr(window.location.host.indexOf(".")+1)+"/",
+            url:"//"+window.location.host+window.location.pathname,
+            api_uri:"' . config('app.api_host') . '",
+            api_version:"' . $version . '",
+            app_name:"' . config('app.app_name') . '",
+            app_id:"' . $secret['id'] . '",
+            param:' . $param . '
+        };
+        window.sessionStorage.setItem("XSRF_AUTHORIZATION", "' . trim(base64_encode($authorization), '=') . '");
+        window.sessionStorage.setItem("XSRF_SECRET", "' . sha1($secret['secret'] . Base64::asyncSecret()) . '");
+        window.sessionStorage.setItem("FROM_TOKEN", "' . Request::buildToken('__token__', 'md5') . '");
+        window.sessionStorage.setItem("API_TOKEN", "' . sha1($user_id . $user_role_id . $user_type . date('Ymd')) . '");
+        let ip = document.createElement("script");
+        ip.src = "' . config('app.api_host') . 'tools/ip.do?token=' . md5(Request::server('HTTP_REFERER')) . '";
+        var script = document.getElementsByTagName("script")[0];
+        script.parentNode.insertBefore(ip, script);';
 
-        $script = preg_replace('/\s+/', ' ', $script);
-
-        $response = \think\Response::create($script)->header([
-            'Content-Type'   => 'application/javascript',
-            // 'Content-Length' => strlen($script),
-        ]);
-
-        if ('guest' == $user_id) {
-            $response->allowCache(true)
-                ->cacheControl('max-age=1440,must-revalidate')
-                ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
-                ->expires(gmdate('D, d M Y H:i:s', time() + 1440) . ' GMT');
+        if (!env('app_debug')) {
+            $script = preg_replace('/\s+/', ' ', $script);
         }
 
-        return $response;
+        return \think\Response::create($script)->header([
+            'Content-Type' => 'application/javascript',
+            // 'Content-Length' => strlen($script),
+        ]);
     }
 }

@@ -11,11 +11,20 @@ location ~ ^/(theme|static)/.*\.(html|htm|tpl|md)$ {
     deny all;
 }
 
-location ~* \.(css|js)$ {
+location ~* \.(js|css|gif|jpg|jpeg|png|bmp|webp)$ {
     if (!-f $request_filename) {
         rewrite ^/.*$ /storage/static.do;
     }
     if ( -f $request_filename ) {
-        expires 30d;
+        expires 90d;
+    }
+}
+
+location ~* \.(swf|mp4|mp3)$ {
+    if (!-f $request_filename) {
+        rewrite ^/.*$ /storage/media.do;
+    }
+    if ( -f $request_filename ) {
+        expires 90d;
     }
 }

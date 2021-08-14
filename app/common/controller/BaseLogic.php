@@ -294,9 +294,9 @@ abstract class BaseLogic
      * @param  int    $_id
      * @param  int    $_role
      * @param  string $_type
-     * @return array
+     * @return void
      */
-    protected function setUserSession(int $_id, int $_role, string $_type = '')
+    protected function setUserSession(int $_id, int $_role): void
     {
         $this->session->set($this->authKey, $_id);
         $this->session->set($this->authKey . '_role', $_role);
