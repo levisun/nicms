@@ -63,9 +63,8 @@ class AppMaintain
             // 清除游客上传的文件
             ClearGarbage::clear(public_path('storage/uploads/guest'), '-1 day');
 
-            // 清除生成的缩略图与临时文件
-            ClearGarbage::clear(public_path('storage/thumb'), '-1 day');
-            ClearGarbage::clear(public_path('storage/temp'), '-1 day');
+            // 清除生成的缩略图
+            ClearGarbage::clear(runtime_path('thumb'), '-1 day');
 
             // 清除临时文件
             ClearGarbage::clear(runtime_path('temp'), '-1 day');

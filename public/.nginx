@@ -6,11 +6,9 @@ location / {
         return 200 "All OK";
     }
 }
-
-location ~ ^/(theme|static)/.*\.(html|htm|tpl|md)$ {
+location ~ ^/(theme|static)/.*\.(html|htm|tpl)$ {
     deny all;
 }
-
 location ~* \.(js|css|gif|jpg|jpeg|png|bmp|webp)$ {
     if (!-f $request_filename) {
         rewrite ^/.*$ /storage/static.do;
@@ -19,10 +17,17 @@ location ~* \.(js|css|gif|jpg|jpeg|png|bmp|webp)$ {
         expires 90d;
     }
 }
-
 location ~* \.(swf|mp4|mp3)$ {
     if (!-f $request_filename) {
         rewrite ^/.*$ /storage/media.do;
+    }
+    if ( -f $request_filename ) {
+        expires 90d;
+    }
+}
+location ~* \.(doc|docx|xls|xlsx|ppt|pptx|pdf|zip)$ {
+    if (!-f $request_filename) {
+        rewrite ^/.*$ /storage/file.do;
     }
     if ( -f $request_filename ) {
         expires 90d;

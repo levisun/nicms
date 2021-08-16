@@ -65,6 +65,7 @@ Route::domain(['cdn', 'img'], function () {
 
     Route::get('storage/static$', '\app\api\controller\Storage::static');   // 实验
     Route::get('storage/media$', '\app\api\controller\Storage::media');   // 实验
+    Route::get('storage/file$', '\app\api\controller\Storage::file');   // 实验
 
     Route::miss(function () {
         return miss(404);

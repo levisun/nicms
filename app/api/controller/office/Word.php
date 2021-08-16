@@ -60,12 +60,36 @@ class Word extends BaseApi
 
         $file = (new OfficeWord)->write($data);
 
-        return $file
-            ? Response::create(['code' => 'success', 'path' => $file], 'json')
-            ->allowCache(true)
-            ->cacheControl('max-age=28800,must-revalidate')
-            ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
-            ->expires(gmdate('D, d M Y H:i:s', time() + 28800) . ' GMT')
-            : $this->error('Word write error');
+        if (is_file($file)) {
+            @set_time_limit(0);
+            @ini_set('max_execution_time', '0');
+            @ini_set('memory_limit', '16M');
+
+            $name = sha1(hash_file('sha256', $file) . date('Ymd')) . '. ' . pathinfo($file, PATHINFO_EXTENSION);
+            header('Pragma: public');
+            header('Content-Type: ' . finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file));
+            header('Content-Disposition: attachment; filename=' . $name);
+            header('Content-Length: ' . filesize($file));
+            header('Content-Transfer-Encoding: binary');
+
+            ob_end_clean();
+            $resource = fopen($file, 'r');
+            while (!feof($resource)) {
+                print fread($resource, (int) round(1024 * 64));
+                flush();
+                sleep(1);
+            }
+            fclose($resource);
+        } else {
+            return miss(404);
+        }
+
+        // return $file
+        //     ? Response::create(['code' => 'success', 'path' => $file], 'json')
+        //     ->allowCache(true)
+        //     ->cacheControl('max-age=28800,must-revalidate')
+        //     ->lastModified(gmdate('D, d M Y H:i:s') . ' GMT')
+        //     ->expires(gmdate('D, d M Y H:i:s', time() + 28800) . ' GMT')
+        //     : $this->error('Word write error');
     }
 }

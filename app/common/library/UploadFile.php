@@ -186,7 +186,7 @@ class UploadFile
             $save_file = $this->toExt($save_file);
             $host = Config::get('app.img_host');
         } else {
-            $save_file = $this->zip($save_file);
+            // $save_file = $this->zip($save_file);
             $host = Config::get('app.static_host');
         }
 

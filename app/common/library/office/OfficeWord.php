@@ -80,11 +80,11 @@ class OfficeWord
 
         $writer = IOFactory::createWriter($php_word, 'Word2007');
 
-        $path = public_path('storage/temp');
+        $path =runtime_path('temp');
         if (!is_dir($path)) mkdir($path, 0755, true);
         $file = uniqid() . '.doc';
         $writer->save($path . $file);
 
-        return File::pathEncode('storage/temp/' . $file);
+        return $path . $file;
     }
 }

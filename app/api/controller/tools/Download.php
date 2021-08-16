@@ -40,19 +40,17 @@ class Download extends BaseApi
             @ini_set('max_execution_time', '0');
             @ini_set('memory_limit', '16M');
 
-            $name = sha1(pathinfo($file, PATHINFO_FILENAME) . date('Ymd')) . '.' . pathinfo($file, PATHINFO_EXTENSION);
+            $name = sha1(hash_file('sha256', $file) . date('Ymd')) . '. ' . pathinfo($file, PATHINFO_EXTENSION);
             header('Pragma: public');
             header('Content-Type: ' . finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file));
             header('Content-Disposition: attachment; filename=' . $name);
             header('Content-Length: ' . filesize($file));
             header('Content-Transfer-Encoding: binary');
 
-            $download_rate = 64 * 1024;
-
             ob_end_clean();
             $resource = fopen($file, 'r');
             while (!feof($resource)) {
-                print fread($resource, (int) round($download_rate));
+                print fread($resource, (int) round(1024 * 64));
                 flush();
                 sleep(1);
             }
@@ -62,6 +60,8 @@ class Download extends BaseApi
             //     ->name(sha1(pathinfo($file, PATHINFO_FILENAME) . date('Ymd')))
             //     ->isContent(false)
             //     ->expire(28800);
+        } else {
+            return miss(404);
         }
     }
 }
